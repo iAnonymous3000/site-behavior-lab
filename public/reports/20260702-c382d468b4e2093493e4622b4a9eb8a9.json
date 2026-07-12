@@ -49,6 +49,13 @@
       "automation": "playwright-chromium",
       "headless": true,
       "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "classification",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-02T01:00:58.178Z"
+      },
       "trackerCatalog": {
         "source": "Hand-curated service catalog",
         "version": "hand-curated-2026.06",
@@ -57,14 +64,7 @@
         "curatedOverrides": 133,
         "license": "AGPL-3.0-or-later"
       },
-      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
-      "adblock": {
-        "active": true,
-        "source": "Brave default ad-block lists",
-        "lists": 31,
-        "fetchedAt": "2026-07-02T01:00:58.178Z"
-      },
-      "shieldsMode": "classification"
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
     },
     "requests": [
       {
@@ -76,272 +76,272 @@
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 43,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 43
       },
       {
         "id": 2,
-        "url": "https://www.debian.org/debhome.css",
+        "url": "https://www.debian.org/{seg}",
         "domain": "www.debian.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 140,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 140
       },
       {
         "id": 3,
-        "url": "https://www.debian.org/startpage.css",
+        "url": "https://www.debian.org/{seg}",
         "domain": "www.debian.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 141,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 141
       },
       {
         "id": 4,
-        "url": "https://www.debian.org/5img-carousel-slider.css",
+        "url": "https://www.debian.org/{seg}",
         "domain": "www.debian.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 141,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 141
       },
       {
         "id": 5,
-        "url": "https://www.debian.org/debian-en.css",
+        "url": "https://www.debian.org/{seg}",
         "domain": "www.debian.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 142,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 142
       },
       {
         "id": 6,
-        "url": "https://www.debian.org/Pics/debconf25_group_photo.jpg",
+        "url": "https://www.debian.org/{seg}/{seg}",
         "domain": "www.debian.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 142,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 142
       },
       {
         "id": 7,
-        "url": "https://www.debian.org/Pics/mini-dc26-hamburg.jpg",
+        "url": "https://www.debian.org/{seg}/{seg}",
         "domain": "www.debian.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 143,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 143
       },
       {
         "id": 8,
-        "url": "https://www.debian.org/Pics/mini-dc26-campinas.jpg",
+        "url": "https://www.debian.org/{seg}/{seg}",
         "domain": "www.debian.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 148,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 148
       },
       {
         "id": 9,
-        "url": "https://www.debian.org/Pics/calamares-installer.png",
+        "url": "https://www.debian.org/{seg}/{seg}",
         "domain": "www.debian.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 148,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 148
       },
       {
         "id": 10,
-        "url": "https://www.debian.org/Pics/debian-swiss-knife-hands-1024x576.jpg",
+        "url": "https://www.debian.org/{seg}/{seg}",
         "domain": "www.debian.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 149,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 149
       },
       {
         "id": 11,
-        "url": "https://www.debian.org/Pics/openlogo-50.png",
+        "url": "https://www.debian.org/{seg}/{seg}",
         "domain": "www.debian.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 149,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 149
       },
       {
         "id": 12,
-        "url": "https://www.debian.org/Pics/debian-funny-people-1024x576.jpg",
+        "url": "https://www.debian.org/{seg}/{seg}",
         "domain": "www.debian.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 150,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 150
       },
       {
         "id": 13,
-        "url": "https://www.debian.org/Pics/users.svg",
+        "url": "https://www.debian.org/{seg}/{seg}",
         "domain": "www.debian.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 150,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 150
       },
       {
         "id": 14,
-        "url": "https://www.debian.org/Pics/heartbeat.svg",
+        "url": "https://www.debian.org/{seg}/{seg}",
         "domain": "www.debian.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 150,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 150
       },
       {
         "id": 15,
-        "url": "https://www.debian.org/Pics/user-plus.svg",
+        "url": "https://www.debian.org/{seg}/{seg}",
         "domain": "www.debian.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 151,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 151
       },
       {
         "id": 16,
-        "url": "https://www.debian.org/Pics/list.svg",
+        "url": "https://www.debian.org/{seg}/{seg}",
         "domain": "www.debian.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 151,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 151
       },
       {
         "id": 17,
-        "url": "https://www.debian.org/Pics/debian-logo-1024x576.png",
+        "url": "https://www.debian.org/{seg}/{seg}",
         "domain": "www.debian.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 151,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 151
       },
       {
         "id": 18,
-        "url": "https://www.debian.org/Pics/trophy.svg",
+        "url": "https://www.debian.org/{seg}/{seg}",
         "domain": "www.debian.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 152,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 152
       },
       {
         "id": 19,
-        "url": "https://www.debian.org/Pics/life-ring.svg",
+        "url": "https://www.debian.org/{seg}/{seg}",
         "domain": "www.debian.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 152,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 152
       },
       {
         "id": 20,
-        "url": "https://www.debian.org/Pics/security.svg",
+        "url": "https://www.debian.org/{seg}/{seg}",
         "domain": "www.debian.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 152,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 152
       },
       {
         "id": 21,
-        "url": "https://www.debian.org/debian.css",
+        "url": "https://www.debian.org/{seg}",
         "domain": "www.debian.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 181,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 181
       },
       {
         "id": 22,
-        "url": "https://www.debian.org/empty.css",
+        "url": "https://www.debian.org/{seg}",
         "domain": "www.debian.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 183,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 183
       },
       {
         "id": 23,
-        "url": "https://www.debian.org/Pics/ceratopsian-fg.svg",
+        "url": "https://www.debian.org/{seg}/{seg}",
         "domain": "www.debian.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 365,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 365
       }
     ],
     "domains": [
@@ -363,8 +363,8 @@
     ],
     "cookies": [],
     "storage": [],
-    "fingerprintDetections": [],
     "fingerprintEvents": [],
+    "fingerprintDetections": [],
     "screenshot": null,
     "warnings": [
       "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
@@ -410,6 +410,13 @@
       "automation": "playwright-chromium",
       "headless": true,
       "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "block-simulation",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-02T01:00:58.178Z"
+      },
       "trackerCatalog": {
         "source": "Hand-curated service catalog",
         "version": "hand-curated-2026.06",
@@ -418,14 +425,7 @@
         "curatedOverrides": 133,
         "license": "AGPL-3.0-or-later"
       },
-      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
-      "adblock": {
-        "active": true,
-        "source": "Brave default ad-block lists",
-        "lists": 31,
-        "fetchedAt": "2026-07-02T01:00:58.178Z"
-      },
-      "shieldsMode": "block-simulation"
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
     },
     "requests": [
       {
@@ -437,272 +437,272 @@
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 44,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 44
       },
       {
         "id": 2,
-        "url": "https://www.debian.org/debhome.css",
+        "url": "https://www.debian.org/{seg}",
         "domain": "www.debian.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 153,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 153
       },
       {
         "id": 3,
-        "url": "https://www.debian.org/startpage.css",
+        "url": "https://www.debian.org/{seg}",
         "domain": "www.debian.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 154,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 154
       },
       {
         "id": 4,
-        "url": "https://www.debian.org/5img-carousel-slider.css",
+        "url": "https://www.debian.org/{seg}",
         "domain": "www.debian.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 154,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 154
       },
       {
         "id": 5,
-        "url": "https://www.debian.org/debian-en.css",
+        "url": "https://www.debian.org/{seg}",
         "domain": "www.debian.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 155,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 155
       },
       {
         "id": 6,
-        "url": "https://www.debian.org/Pics/debconf25_group_photo.jpg",
+        "url": "https://www.debian.org/{seg}/{seg}",
         "domain": "www.debian.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 156,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 156
       },
       {
         "id": 7,
-        "url": "https://www.debian.org/Pics/mini-dc26-hamburg.jpg",
+        "url": "https://www.debian.org/{seg}/{seg}",
         "domain": "www.debian.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 156,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 156
       },
       {
         "id": 8,
-        "url": "https://www.debian.org/Pics/mini-dc26-campinas.jpg",
+        "url": "https://www.debian.org/{seg}/{seg}",
         "domain": "www.debian.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 158,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 158
       },
       {
         "id": 9,
-        "url": "https://www.debian.org/Pics/calamares-installer.png",
+        "url": "https://www.debian.org/{seg}/{seg}",
         "domain": "www.debian.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 159,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 159
       },
       {
         "id": 10,
-        "url": "https://www.debian.org/Pics/debian-swiss-knife-hands-1024x576.jpg",
+        "url": "https://www.debian.org/{seg}/{seg}",
         "domain": "www.debian.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 159,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 159
       },
       {
         "id": 11,
-        "url": "https://www.debian.org/Pics/openlogo-50.png",
+        "url": "https://www.debian.org/{seg}/{seg}",
         "domain": "www.debian.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 160,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 160
       },
       {
         "id": 12,
-        "url": "https://www.debian.org/Pics/debian-funny-people-1024x576.jpg",
+        "url": "https://www.debian.org/{seg}/{seg}",
         "domain": "www.debian.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 160,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 160
       },
       {
         "id": 13,
-        "url": "https://www.debian.org/Pics/users.svg",
+        "url": "https://www.debian.org/{seg}/{seg}",
         "domain": "www.debian.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 160,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 160
       },
       {
         "id": 14,
-        "url": "https://www.debian.org/Pics/heartbeat.svg",
+        "url": "https://www.debian.org/{seg}/{seg}",
         "domain": "www.debian.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 161,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 161
       },
       {
         "id": 15,
-        "url": "https://www.debian.org/Pics/user-plus.svg",
+        "url": "https://www.debian.org/{seg}/{seg}",
         "domain": "www.debian.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 161,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 161
       },
       {
         "id": 16,
-        "url": "https://www.debian.org/Pics/list.svg",
+        "url": "https://www.debian.org/{seg}/{seg}",
         "domain": "www.debian.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 161,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 161
       },
       {
         "id": 17,
-        "url": "https://www.debian.org/Pics/debian-logo-1024x576.png",
+        "url": "https://www.debian.org/{seg}/{seg}",
         "domain": "www.debian.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 161,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 161
       },
       {
         "id": 18,
-        "url": "https://www.debian.org/Pics/trophy.svg",
+        "url": "https://www.debian.org/{seg}/{seg}",
         "domain": "www.debian.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 162,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 162
       },
       {
         "id": 19,
-        "url": "https://www.debian.org/Pics/life-ring.svg",
+        "url": "https://www.debian.org/{seg}/{seg}",
         "domain": "www.debian.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 162,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 162
       },
       {
         "id": 20,
-        "url": "https://www.debian.org/Pics/security.svg",
+        "url": "https://www.debian.org/{seg}/{seg}",
         "domain": "www.debian.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 162,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 162
       },
       {
         "id": 21,
-        "url": "https://www.debian.org/debian.css",
+        "url": "https://www.debian.org/{seg}",
         "domain": "www.debian.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 283,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 283
       },
       {
         "id": 22,
-        "url": "https://www.debian.org/empty.css",
+        "url": "https://www.debian.org/{seg}",
         "domain": "www.debian.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 284,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 284
       },
       {
         "id": 23,
-        "url": "https://www.debian.org/Pics/ceratopsian-fg.svg",
+        "url": "https://www.debian.org/{seg}/{seg}",
         "domain": "www.debian.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 371,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 371
       }
     ],
     "domains": [
@@ -724,8 +724,8 @@
     ],
     "cookies": [],
     "storage": [],
-    "fingerprintDetections": [],
     "fingerprintEvents": [],
+    "fingerprintDetections": [],
     "screenshot": null,
     "warnings": [
       "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",

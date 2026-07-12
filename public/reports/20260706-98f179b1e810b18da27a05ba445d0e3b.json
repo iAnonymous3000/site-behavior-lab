@@ -49,6 +49,13 @@
       "automation": "playwright-chromium",
       "headless": true,
       "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "classification",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-02T01:00:58.178Z"
+      },
       "trackerCatalog": {
         "source": "Hand-curated service catalog",
         "version": "hand-curated-2026.06",
@@ -57,14 +64,7 @@
         "curatedOverrides": 133,
         "license": "AGPL-3.0-or-later"
       },
-      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
-      "adblock": {
-        "active": true,
-        "source": "Brave default ad-block lists",
-        "lists": 31,
-        "fetchedAt": "2026-07-02T01:00:58.178Z"
-      },
-      "shieldsMode": "classification"
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
     },
     "requests": [
       {
@@ -76,288 +76,288 @@
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 39,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 39
       },
       {
         "id": 2,
-        "url": "https://www.weather.gov/css/weatherstyle.css",
+        "url": "https://www.weather.gov/{seg}/{seg}",
         "domain": "www.weather.gov",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 118,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 118
       },
       {
         "id": 3,
-        "url": "https://www.weather.gov/css/template.css",
+        "url": "https://www.weather.gov/{seg}/{seg}",
         "domain": "www.weather.gov",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 121,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 121
       },
       {
         "id": 4,
-        "url": "https://www.weather.gov/css/myfcst.css",
+        "url": "https://www.weather.gov/{seg}/{seg}",
         "domain": "www.weather.gov",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 121,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 121
       },
       {
         "id": 5,
-        "url": "https://www.weather.gov/css/ForecastSearch.css",
+        "url": "https://www.weather.gov/{seg}/{seg}",
         "domain": "www.weather.gov",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 122,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 122
       },
       {
         "id": 6,
-        "url": "https://www.weather.gov/css/pointforecast.css",
+        "url": "https://www.weather.gov/{seg}/{seg}",
         "domain": "www.weather.gov",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 122,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 122
       },
       {
         "id": 7,
-        "url": "https://www.weather.gov/css/jqueryui10_3_1custom/jquery-ui-1.10.3.custom.min.css",
+        "url": "https://www.weather.gov/{seg}/{seg}/{seg}",
         "domain": "www.weather.gov",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 122,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 122
       },
       {
         "id": 8,
-        "url": "https://www.weather.gov/js/jquery-1.10.2.min.js",
+        "url": "https://www.weather.gov/{seg}/{seg}",
         "domain": "www.weather.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 122,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 122
       },
       {
         "id": 9,
-        "url": "https://www.weather.gov/js/jquery-ui-1.10.3.custom.min.js",
+        "url": "https://www.weather.gov/{seg}/{seg}",
         "domain": "www.weather.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 122,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 122
       },
       {
         "id": 10,
-        "url": "https://www.weather.gov/js/jquery.hoverIntent.minified.js",
+        "url": "https://www.weather.gov/{seg}/{seg}",
         "domain": "www.weather.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 123,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 123
       },
       {
         "id": 11,
-        "url": "https://www.weather.gov/js/ForecastSearch.js",
+        "url": "https://www.weather.gov/{seg}/{seg}",
         "domain": "www.weather.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 123,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 123
       },
       {
         "id": 12,
-        "url": "https://dap.digitalgov.gov/Universal-Federated-Analytics-Min.js?agency=&sub-agency=&yt=&pga4=",
+        "url": "https://dap.digitalgov.gov/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "dap.digitalgov.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 123,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 123
       },
       {
         "id": 13,
-        "url": "https://www.weather.gov/js/topNavMenu.js",
+        "url": "https://www.weather.gov/{seg}/{seg}",
         "domain": "www.weather.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 123,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 123
       },
       {
         "id": 14,
-        "url": "https://www.weather.gov/js/NidsESRI.js",
+        "url": "https://www.weather.gov/{seg}/{seg}",
         "domain": "www.weather.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 124,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 124
       },
       {
         "id": 15,
-        "url": "https://www.weather.gov/js/nwsexit.js",
+        "url": "https://www.weather.gov/{seg}/{seg}",
         "domain": "www.weather.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 124,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 124
       },
       {
         "id": 16,
-        "url": "https://www.weather.gov/bundles/templating/images/header/header.png",
+        "url": "https://www.weather.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.weather.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 124,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 124
       },
       {
         "id": 17,
-        "url": "https://www.weather.gov/bundles/templating/images/header/header_doc.png",
+        "url": "https://www.weather.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.weather.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 124,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 124
       },
       {
         "id": 18,
-        "url": "https://www.weather.gov/bundles/templating/images/top_news/important.png",
+        "url": "https://www.weather.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.weather.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 170,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 170
       },
       {
         "id": 19,
-        "url": "https://www.weather.gov/css/search.css",
+        "url": "https://www.weather.gov/{seg}/{seg}",
         "domain": "www.weather.gov",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 202,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 202
       },
       {
         "id": 20,
-        "url": "https://www.weather.gov/js/jquery-cookie.js",
+        "url": "https://www.weather.gov/{seg}/{seg}",
         "domain": "www.weather.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 203,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 203
       },
       {
         "id": 21,
-        "url": "https://www.weather.gov/js/MyForecastWidget.js",
+        "url": "https://www.weather.gov/{seg}/{seg}",
         "domain": "www.weather.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 204,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 204
       },
       {
         "id": 22,
-        "url": "https://www.weather.gov/bundles/templating/css/wwamap/wwamap.css",
+        "url": "https://www.weather.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.weather.gov",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 261,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 261
       },
       {
         "id": 23,
-        "url": "https://www.weather.gov/wwamap/png/US.png",
+        "url": "https://www.weather.gov/{seg}/{seg}/{seg}",
         "domain": "www.weather.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 261,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 261
       },
       {
         "id": 24,
-        "url": "https://www.weather.gov/wwamap/png/ak.png",
+        "url": "https://www.weather.gov/{seg}/{seg}/{seg}",
         "domain": "www.weather.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 261,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 261
       },
       {
         "id": 25,
-        "url": "https://www.googletagmanager.com/gtag/js?id=",
+        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=",
         "domain": "www.googletagmanager.com",
         "method": "GET",
         "resourceType": "script",
@@ -369,120 +369,120 @@
           "category": "analytics / tag management",
           "confidence": "curated"
         },
-        "startedAtMs": 262,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 262
       },
       {
         "id": 26,
-        "url": "https://www.weather.gov/source/nws/govshutdown.js",
+        "url": "https://www.weather.gov/{seg}/{seg}/{seg}",
         "domain": "www.weather.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 404,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 262,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 262
       },
       {
         "id": 27,
-        "url": "https://www.weather.gov/wwamap/png/hi.png",
+        "url": "https://www.weather.gov/{seg}/{seg}/{seg}",
         "domain": "www.weather.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 264,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 264
       },
       {
         "id": 28,
-        "url": "https://www.weather.gov/images/nws/features/safetybannerComp.png",
+        "url": "https://www.weather.gov/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.weather.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 265,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 265
       },
       {
         "id": 29,
-        "url": "https://www.weather.gov/bundles/templating/images/social/x.png",
+        "url": "https://www.weather.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.weather.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 265,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 265
       },
       {
         "id": 30,
-        "url": "https://www.weather.gov/bundles/templating/images/social/facebook.png",
+        "url": "https://www.weather.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.weather.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 265,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 265
       },
       {
         "id": 31,
-        "url": "https://www.weather.gov/bundles/templating/images/social/youtube.png",
+        "url": "https://www.weather.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.weather.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 266,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 266
       },
       {
         "id": 32,
-        "url": "https://www.weather.gov/bundles/templating/images/social/rss.png",
+        "url": "https://www.weather.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.weather.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 266,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 266
       },
       {
         "id": 33,
-        "url": "https://www.weather.gov/bundles/templating/images/footer/usa_gov.png",
+        "url": "https://www.weather.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.weather.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 267,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 267
       },
       {
         "id": 34,
-        "url": "https://dap.digitalgov.gov/web-vitals/dist/web-vitals.attribution.iife.js",
+        "url": "https://dap.digitalgov.gov/{seg}/{seg}/{seg}",
         "domain": "dap.digitalgov.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 267,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 267
       },
       {
         "id": 35,
-        "url": "https://www.googletagmanager.com/gtag/js?id=",
+        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=",
         "domain": "www.googletagmanager.com",
         "method": "GET",
         "resourceType": "script",
@@ -494,120 +494,120 @@
           "category": "analytics / tag management",
           "confidence": "curated"
         },
-        "startedAtMs": 267,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 267
       },
       {
         "id": 36,
-        "url": "https://www.youtube.com/iframe_api",
+        "url": "https://www.youtube.com/{seg}",
         "domain": "www.youtube.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 268,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 268
       },
       {
         "id": 37,
-        "url": "https://www.weather.gov/css/images/bg.png",
+        "url": "https://www.weather.gov/{seg}/{seg}/{seg}",
         "domain": "www.weather.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 272,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 272
       },
       {
         "id": 38,
-        "url": "https://www.weather.gov/css/images/head_shadow.png",
+        "url": "https://www.weather.gov/{seg}/{seg}/{seg}",
         "domain": "www.weather.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 272,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 272
       },
       {
         "id": 39,
-        "url": "https://www.weather.gov/css/images/bg_footer.png",
+        "url": "https://www.weather.gov/{seg}/{seg}/{seg}",
         "domain": "www.weather.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 318,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 318
       },
       {
         "id": 40,
-        "url": "https://www.youtube.com/s/player/4918c89a/www-widgetapi.vflset/www-widgetapi.js",
+        "url": "https://www.youtube.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.youtube.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 324,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 324
       },
       {
         "id": 41,
-        "url": "https://www.weather.gov/css/images/myfcst-bg.png",
+        "url": "https://www.weather.gov/{seg}/{seg}/{seg}",
         "domain": "www.weather.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 364,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 364
       },
       {
         "id": 42,
-        "url": "https://www.weather.gov/css/images/myfcst-block-bg.png",
+        "url": "https://www.weather.gov/{seg}/{seg}/{seg}",
         "domain": "www.weather.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 364,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 364
       },
       {
         "id": 43,
-        "url": "https://www.weather.gov/images/nws/bluesky.png",
+        "url": "https://www.weather.gov/{seg}/{seg}/{seg}",
         "domain": "www.weather.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 365,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 365
       },
       {
         "id": 44,
-        "url": "https://www.weather.gov/images/nws/ig.png",
+        "url": "https://www.weather.gov/{seg}/{seg}/{seg}",
         "domain": "www.weather.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 365,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 365
       },
       {
         "id": 45,
-        "url": "https://www.googletagmanager.com/gtag/js?id=&cx=&gtm=",
+        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "www.googletagmanager.com",
         "method": "GET",
         "resourceType": "script",
@@ -619,12 +619,12 @@
           "category": "analytics / tag management",
           "confidence": "curated"
         },
-        "startedAtMs": 472,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 472
       },
       {
         "id": 46,
-        "url": "https://www.google-analytics.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&_eu=&are=&cid=&frm=&ir=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&_s=&tag_exp=&dl=&dt=&dr=&sid=&sct=&seg=&_tu=&en=&_fv=&_nsi=&_ss=&_ee=&tfd=",
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "www.google-analytics.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -636,12 +636,12 @@
           "category": "analytics / tag management",
           "confidence": "curated"
         },
-        "startedAtMs": 473,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 473
       },
       {
         "id": 47,
-        "url": "https://www.google-analytics.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&_s=&tag_exp=&dl=&dt=&dr=&sid=&sct=&seg=&_tu=&en=&_fv=&_ss=&_ee=&ep.agency=&ep.subagency=&ep.site_topic=&ep.site_platform=&ep.script_source=&ep.version=&ep.protocol=&ep.using_parallel_tracker=&ep.hostname_dimension=&tfd=",
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "www.google-analytics.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -653,24 +653,24 @@
           "category": "analytics / tag management",
           "confidence": "curated"
         },
-        "startedAtMs": 553,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 553
       },
       {
         "id": 48,
-        "url": "https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/suggest?callback=&f=&countryCode=&category=&maxSuggestions=&text=&_=",
+        "url": "https://geocode.arcgis.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?callback=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "geocode.arcgis.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1584,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1584
       },
       {
         "id": 49,
-        "url": "https://www.google-analytics.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&_eu=&are=&cid=&frm=&ir=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&tag_exp=&dl=&dt=&dr=&sid=&sct=&seg=&_tu=&_s=&tfd=",
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "www.google-analytics.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -682,12 +682,12 @@
           "category": "analytics / tag management",
           "confidence": "curated"
         },
-        "startedAtMs": 3900,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 3900
       },
       {
         "id": 50,
-        "url": "https://www.google-analytics.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&_eu=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&tag_exp=&dl=&dt=&dr=&sid=&sct=&seg=&_tu=&_s=&tfd=",
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "www.google-analytics.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -699,12 +699,12 @@
           "category": "analytics / tag management",
           "confidence": "curated"
         },
-        "startedAtMs": 3901,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 3901
       },
       {
         "id": 51,
-        "url": "https://www.google-analytics.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&_eu=&are=&cid=&frm=&ir=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&_s=&tag_exp=&dl=&dt=&dr=&sid=&sct=&seg=&_tu=&en=&_ee=&epn.value=&ep.metric_id=&epn.metric_value=&epn.metric_delta=&ep.metric_rating=&ep.debug_target=&ep.debug_event_type=&ep.debug_timing=&epn.event_time=&ep.event_name_dimension=&tfd=",
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "www.google-analytics.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -716,12 +716,12 @@
           "category": "analytics / tag management",
           "confidence": "curated"
         },
-        "startedAtMs": 3902,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 3902
       },
       {
         "id": 52,
-        "url": "https://www.google-analytics.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&_eu=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&_s=&tag_exp=&dl=&dt=&dr=&sid=&sct=&seg=&_tu=&en=&_ee=&ep.agency=&ep.subagency=&ep.site_topic=&ep.site_platform=&ep.script_source=&ep.version=&ep.protocol=&ep.using_parallel_tracker=&ep.hostname_dimension=&epn.value=&ep.metric_id=&epn.metric_value=&epn.metric_delta=&ep.metric_rating=&ep.debug_target=&ep.debug_event_type=&ep.debug_timing=&epn.event_time=&ep.event_name_dimension=&tfd=",
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "www.google-analytics.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -733,12 +733,12 @@
           "category": "analytics / tag management",
           "confidence": "curated"
         },
-        "startedAtMs": 3904,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 3904
       },
       {
         "id": 53,
-        "url": "https://www.google-analytics.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&_eu=&are=&cid=&frm=&ir=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&_s=&tag_exp=&dl=&dt=&dr=&sid=&sct=&seg=&_tu=&en=&_ee=&epn.value=&ep.metric_id=&epn.metric_value=&epn.metric_delta=&ep.metric_rating=&ep.debug_target=&ep.debug_event_type=&ep.debug_timing=&epn.event_time=&ep.event_name_dimension=&tfd=",
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "www.google-analytics.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -750,12 +750,12 @@
           "category": "analytics / tag management",
           "confidence": "curated"
         },
-        "startedAtMs": 3904,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 3904
       },
       {
         "id": 54,
-        "url": "https://www.google-analytics.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&_eu=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&_s=&tag_exp=&dl=&dt=&dr=&sid=&sct=&seg=&_tu=&en=&_ee=&ep.agency=&ep.subagency=&ep.site_topic=&ep.site_platform=&ep.script_source=&ep.version=&ep.protocol=&ep.using_parallel_tracker=&ep.hostname_dimension=&epn.value=&ep.metric_id=&epn.metric_value=&epn.metric_delta=&ep.metric_rating=&ep.debug_target=&ep.debug_event_type=&ep.debug_timing=&epn.event_time=&ep.event_name_dimension=&tfd=",
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "www.google-analytics.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -767,80 +767,80 @@
           "category": "analytics / tag management",
           "confidence": "curated"
         },
-        "startedAtMs": 3905,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 3905
       },
       {
         "id": 55,
-        "url": "https://www.google.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&_eu=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&_s=&tag_exp=&dl=&dt=&dr=&sid=&sct=&seg=&_tu=&en=&_ee=&ep.agency=&ep.subagency=&ep.site_topic=&ep.site_platform=&ep.script_source=&ep.version=&ep.protocol=&ep.using_parallel_tracker=&ep.hostname_dimension=&epn.value=&ep.metric_id=&epn.metric_value=&epn.metric_delta=&ep.metric_rating=&ep.debug_target=&ep.debug_event_type=&ep.debug_timing=&epn.event_time=&ep.event_name_dimension=&tfd=&gaf=",
+        "url": "https://www.google.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": null,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 3905,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 3905
       },
       {
         "id": 56,
-        "url": "https://www.google.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&_eu=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&tag_exp=&dl=&dt=&dr=&sid=&sct=&seg=&_tu=&_s=&tfd=&gaf=",
+        "url": "https://www.google.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": null,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 3906,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 3906
       },
       {
         "id": 57,
-        "url": "https://www.google.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&_eu=&are=&cid=&frm=&ir=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&tag_exp=&dl=&dt=&dr=&sid=&sct=&seg=&_tu=&_s=&tfd=&gaf=",
+        "url": "https://www.google.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": null,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 3906,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 3906
       },
       {
         "id": 58,
-        "url": "https://www.google.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&_eu=&are=&cid=&frm=&ir=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&_s=&tag_exp=&dl=&dt=&dr=&sid=&sct=&seg=&_tu=&en=&_ee=&epn.value=&ep.metric_id=&epn.metric_value=&epn.metric_delta=&ep.metric_rating=&ep.debug_target=&ep.debug_event_type=&ep.debug_timing=&epn.event_time=&ep.event_name_dimension=&tfd=&gaf=",
+        "url": "https://www.google.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": null,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 3906,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 3906
       },
       {
         "id": 59,
-        "url": "https://www.google.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&_eu=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&_s=&tag_exp=&dl=&dt=&dr=&sid=&sct=&seg=&_tu=&en=&_ee=&ep.agency=&ep.subagency=&ep.site_topic=&ep.site_platform=&ep.script_source=&ep.version=&ep.protocol=&ep.using_parallel_tracker=&ep.hostname_dimension=&epn.value=&ep.metric_id=&epn.metric_value=&epn.metric_delta=&ep.metric_rating=&ep.debug_target=&ep.debug_event_type=&ep.debug_timing=&epn.event_time=&ep.event_name_dimension=&tfd=&gaf=",
+        "url": "https://www.google.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": null,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 3906,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 3906
       },
       {
         "id": 60,
-        "url": "https://www.google.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&_eu=&are=&cid=&frm=&ir=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&_s=&tag_exp=&dl=&dt=&dr=&sid=&sct=&seg=&_tu=&en=&_ee=&epn.value=&ep.metric_id=&epn.metric_value=&epn.metric_delta=&ep.metric_rating=&ep.debug_target=&ep.debug_event_type=&ep.debug_timing=&epn.event_time=&ep.event_name_dimension=&tfd=&gaf=",
+        "url": "https://www.google.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": null,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 3907,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 3907
       }
     ],
     "domains": [
@@ -950,7 +950,7 @@
     ],
     "cookies": [
       {
-        "name": "__Secure-YNID",
+        "name": "[redacted]",
         "domain": ".youtube.com",
         "path": "/",
         "sameSite": "None",
@@ -960,7 +960,7 @@
         "thirdParty": true
       },
       {
-        "name": "YSC",
+        "name": "[redacted]",
         "domain": ".youtube.com",
         "path": "/",
         "sameSite": "None",
@@ -970,7 +970,7 @@
         "thirdParty": true
       },
       {
-        "name": "__Secure-ROLLOUT_TOKEN",
+        "name": "[redacted]",
         "domain": ".youtube.com",
         "path": "/",
         "sameSite": "None",
@@ -980,7 +980,7 @@
         "thirdParty": true
       },
       {
-        "name": "VISITOR_INFO1_LIVE",
+        "name": "[redacted:long-token]",
         "domain": ".youtube.com",
         "path": "/",
         "sameSite": "None",
@@ -990,7 +990,7 @@
         "thirdParty": true
       },
       {
-        "name": "VISITOR_PRIVACY_METADATA",
+        "name": "[redacted]",
         "domain": ".youtube.com",
         "path": "/",
         "sameSite": "None",
@@ -1010,7 +1010,7 @@
         "thirdParty": false
       },
       {
-        "name": "_ga_736JJ6NL0V",
+        "name": "[redacted]",
         "domain": ".weather.gov",
         "path": "/",
         "sameSite": "Strict",
@@ -1020,7 +1020,7 @@
         "thirdParty": false
       },
       {
-        "name": "_ga_CSLL4ZEK4L",
+        "name": "[redacted]",
         "domain": ".weather.gov",
         "path": "/",
         "sameSite": "Strict",
@@ -1031,6 +1031,7 @@
       }
     ],
     "storage": [],
+    "fingerprintEvents": [],
     "fingerprintDetections": [
       {
         "kind": "keystroke-exfiltration",
@@ -1050,23 +1051,22 @@
         }
       }
     ],
-    "fingerprintEvents": [],
-    "screenshot": null,
-    "warnings": [
-      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
-      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
-      "This scan typed a synthetic test value into 2 form fields (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
-      "Read the site's privacy policy (https://www.weather.gov/privacy.php) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
-    ],
     "privacyPolicy": {
-      "url": "https://www.weather.gov/privacy.php",
+      "url": "https://www.weather.gov/{seg}",
       "claims": [],
       "mentionedEntities": [
         "Google"
       ],
       "unmentionedEntities": [],
       "policyTextLength": 8939
-    }
+    },
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+      "This scan typed a synthetic test value into 2 form fields (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
+      "Read the site's privacy policy (https://www.weather.gov/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ]
   },
   "variant": {
     "ok": true,
@@ -1106,6 +1106,13 @@
       "automation": "playwright-chromium",
       "headless": true,
       "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "block-simulation",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-02T01:00:58.178Z"
+      },
       "trackerCatalog": {
         "source": "Hand-curated service catalog",
         "version": "hand-curated-2026.06",
@@ -1114,14 +1121,7 @@
         "curatedOverrides": 133,
         "license": "AGPL-3.0-or-later"
       },
-      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
-      "adblock": {
-        "active": true,
-        "source": "Brave default ad-block lists",
-        "lists": 31,
-        "fetchedAt": "2026-07-02T01:00:58.178Z"
-      },
-      "shieldsMode": "block-simulation"
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
     },
     "requests": [
       {
@@ -1133,464 +1133,464 @@
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 49,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 49
       },
       {
         "id": 2,
-        "url": "https://www.weather.gov/css/weatherstyle.css",
+        "url": "https://www.weather.gov/{seg}/{seg}",
         "domain": "www.weather.gov",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 83,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 83
       },
       {
         "id": 3,
-        "url": "https://www.weather.gov/css/template.css",
+        "url": "https://www.weather.gov/{seg}/{seg}",
         "domain": "www.weather.gov",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 85,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 85
       },
       {
         "id": 4,
-        "url": "https://www.weather.gov/css/myfcst.css",
+        "url": "https://www.weather.gov/{seg}/{seg}",
         "domain": "www.weather.gov",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 85,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 85
       },
       {
         "id": 5,
-        "url": "https://www.weather.gov/css/ForecastSearch.css",
+        "url": "https://www.weather.gov/{seg}/{seg}",
         "domain": "www.weather.gov",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 85,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 85
       },
       {
         "id": 6,
-        "url": "https://www.weather.gov/css/pointforecast.css",
+        "url": "https://www.weather.gov/{seg}/{seg}",
         "domain": "www.weather.gov",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 86,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 86
       },
       {
         "id": 7,
-        "url": "https://www.weather.gov/css/jqueryui10_3_1custom/jquery-ui-1.10.3.custom.min.css",
+        "url": "https://www.weather.gov/{seg}/{seg}/{seg}",
         "domain": "www.weather.gov",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 86,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 86
       },
       {
         "id": 8,
-        "url": "https://www.weather.gov/js/jquery-1.10.2.min.js",
+        "url": "https://www.weather.gov/{seg}/{seg}",
         "domain": "www.weather.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 86,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 86
       },
       {
         "id": 9,
-        "url": "https://www.weather.gov/js/jquery-ui-1.10.3.custom.min.js",
+        "url": "https://www.weather.gov/{seg}/{seg}",
         "domain": "www.weather.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 86,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 86
       },
       {
         "id": 10,
-        "url": "https://www.weather.gov/js/jquery.hoverIntent.minified.js",
+        "url": "https://www.weather.gov/{seg}/{seg}",
         "domain": "www.weather.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 87,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 87
       },
       {
         "id": 11,
-        "url": "https://www.weather.gov/js/ForecastSearch.js",
+        "url": "https://www.weather.gov/{seg}/{seg}",
         "domain": "www.weather.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 87,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 87
       },
       {
         "id": 13,
-        "url": "https://www.weather.gov/js/topNavMenu.js",
+        "url": "https://www.weather.gov/{seg}/{seg}",
         "domain": "www.weather.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 87,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 87
       },
       {
         "id": 14,
-        "url": "https://www.weather.gov/js/NidsESRI.js",
+        "url": "https://www.weather.gov/{seg}/{seg}",
         "domain": "www.weather.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 88,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 88
       },
       {
         "id": 15,
-        "url": "https://www.weather.gov/js/nwsexit.js",
+        "url": "https://www.weather.gov/{seg}/{seg}",
         "domain": "www.weather.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 88,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 88
       },
       {
         "id": 16,
-        "url": "https://www.weather.gov/bundles/templating/images/header/header.png",
+        "url": "https://www.weather.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.weather.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 88,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 88
       },
       {
         "id": 17,
-        "url": "https://www.weather.gov/bundles/templating/images/header/header_doc.png",
+        "url": "https://www.weather.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.weather.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 89,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 89
       },
       {
         "id": 18,
-        "url": "https://www.weather.gov/css/search.css",
+        "url": "https://www.weather.gov/{seg}/{seg}",
         "domain": "www.weather.gov",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 135,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 135
       },
       {
         "id": 19,
-        "url": "https://www.weather.gov/bundles/templating/images/top_news/important.png",
+        "url": "https://www.weather.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.weather.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 141,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 141
       },
       {
         "id": 20,
-        "url": "https://www.weather.gov/js/jquery-cookie.js",
+        "url": "https://www.weather.gov/{seg}/{seg}",
         "domain": "www.weather.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 144,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 144
       },
       {
         "id": 21,
-        "url": "https://www.weather.gov/js/MyForecastWidget.js",
+        "url": "https://www.weather.gov/{seg}/{seg}",
         "domain": "www.weather.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 183,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 183
       },
       {
         "id": 22,
-        "url": "https://www.weather.gov/bundles/templating/css/wwamap/wwamap.css",
+        "url": "https://www.weather.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.weather.gov",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 183,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 183
       },
       {
         "id": 23,
-        "url": "https://www.weather.gov/wwamap/png/US.png",
+        "url": "https://www.weather.gov/{seg}/{seg}/{seg}",
         "domain": "www.weather.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 183,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 183
       },
       {
         "id": 24,
-        "url": "https://www.weather.gov/wwamap/png/ak.png",
+        "url": "https://www.weather.gov/{seg}/{seg}/{seg}",
         "domain": "www.weather.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 184,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 184
       },
       {
         "id": 26,
-        "url": "https://www.weather.gov/source/nws/govshutdown.js",
+        "url": "https://www.weather.gov/{seg}/{seg}/{seg}",
         "domain": "www.weather.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 404,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 185,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 185
       },
       {
         "id": 27,
-        "url": "https://www.weather.gov/wwamap/png/hi.png",
+        "url": "https://www.weather.gov/{seg}/{seg}/{seg}",
         "domain": "www.weather.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 186,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 186
       },
       {
         "id": 28,
-        "url": "https://www.weather.gov/images/nws/features/safetybannerComp.png",
+        "url": "https://www.weather.gov/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.weather.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 186,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 186
       },
       {
         "id": 29,
-        "url": "https://www.weather.gov/bundles/templating/images/social/x.png",
+        "url": "https://www.weather.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.weather.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 186,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 186
       },
       {
         "id": 30,
-        "url": "https://www.weather.gov/bundles/templating/images/social/facebook.png",
+        "url": "https://www.weather.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.weather.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 187,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 187
       },
       {
         "id": 31,
-        "url": "https://www.weather.gov/bundles/templating/images/social/youtube.png",
+        "url": "https://www.weather.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.weather.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 187,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 187
       },
       {
         "id": 32,
-        "url": "https://www.weather.gov/bundles/templating/images/social/rss.png",
+        "url": "https://www.weather.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.weather.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 187,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 187
       },
       {
         "id": 33,
-        "url": "https://www.weather.gov/bundles/templating/images/footer/usa_gov.png",
+        "url": "https://www.weather.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.weather.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 188,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 188
       },
       {
         "id": 34,
-        "url": "https://www.weather.gov/css/images/bg.png",
+        "url": "https://www.weather.gov/{seg}/{seg}/{seg}",
         "domain": "www.weather.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 188,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 188
       },
       {
         "id": 35,
-        "url": "https://www.weather.gov/css/images/head_shadow.png",
+        "url": "https://www.weather.gov/{seg}/{seg}/{seg}",
         "domain": "www.weather.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 194,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 194
       },
       {
         "id": 36,
-        "url": "https://www.weather.gov/css/images/bg_footer.png",
+        "url": "https://www.weather.gov/{seg}/{seg}/{seg}",
         "domain": "www.weather.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 248,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 248
       },
       {
         "id": 37,
-        "url": "https://www.weather.gov/css/images/myfcst-bg.png",
+        "url": "https://www.weather.gov/{seg}/{seg}/{seg}",
         "domain": "www.weather.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 249,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 249
       },
       {
         "id": 38,
-        "url": "https://www.weather.gov/css/images/myfcst-block-bg.png",
+        "url": "https://www.weather.gov/{seg}/{seg}/{seg}",
         "domain": "www.weather.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 249,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 249
       },
       {
         "id": 39,
-        "url": "https://www.weather.gov/images/nws/bluesky.png",
+        "url": "https://www.weather.gov/{seg}/{seg}/{seg}",
         "domain": "www.weather.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 252,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 252
       },
       {
         "id": 40,
-        "url": "https://www.weather.gov/images/nws/ig.png",
+        "url": "https://www.weather.gov/{seg}/{seg}/{seg}",
         "domain": "www.weather.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 253,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 253
       },
       {
         "id": 41,
-        "url": "https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/suggest?callback=&f=&countryCode=&category=&maxSuggestions=&text=&_=",
+        "url": "https://geocode.arcgis.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?callback=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "geocode.arcgis.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1316,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1316
       }
     ],
     "domains": [
@@ -1627,6 +1627,7 @@
     ],
     "cookies": [],
     "storage": [],
+    "fingerprintEvents": [],
     "fingerprintDetections": [
       {
         "kind": "keystroke-exfiltration",
@@ -1646,22 +1647,21 @@
         }
       }
     ],
-    "fingerprintEvents": [],
+    "privacyPolicy": {
+      "url": "https://www.weather.gov/{seg}",
+      "claims": [],
+      "mentionedEntities": [],
+      "unmentionedEntities": [],
+      "policyTextLength": 8939
+    },
     "screenshot": null,
     "warnings": [
       "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
       "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
       "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
       "This scan typed a synthetic test value into 2 form fields (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
-      "Read the site's privacy policy (https://www.weather.gov/privacy.php) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
-    ],
-    "privacyPolicy": {
-      "url": "https://www.weather.gov/privacy.php",
-      "claims": [],
-      "mentionedEntities": [],
-      "unmentionedEntities": [],
-      "policyTextLength": 8939
-    }
+      "Read the site's privacy policy (https://www.weather.gov/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ]
   },
   "diff": {
     "totalRequests": {
@@ -1753,27 +1753,12 @@
     "addedCookies": [],
     "removedCookies": [
       {
-        "name": "__Secure-ROLLOUT_TOKEN",
+        "name": "[redacted:long-token]",
         "domain": ".youtube.com",
         "thirdParty": true
       },
       {
-        "name": "__Secure-YNID",
-        "domain": ".youtube.com",
-        "thirdParty": true
-      },
-      {
-        "name": "VISITOR_INFO1_LIVE",
-        "domain": ".youtube.com",
-        "thirdParty": true
-      },
-      {
-        "name": "VISITOR_PRIVACY_METADATA",
-        "domain": ".youtube.com",
-        "thirdParty": true
-      },
-      {
-        "name": "YSC",
+        "name": "[redacted]",
         "domain": ".youtube.com",
         "thirdParty": true
       },
@@ -1783,12 +1768,7 @@
         "thirdParty": false
       },
       {
-        "name": "_ga_736JJ6NL0V",
-        "domain": ".weather.gov",
-        "thirdParty": false
-      },
-      {
-        "name": "_ga_CSLL4ZEK4L",
+        "name": "[redacted]",
         "domain": ".weather.gov",
         "thirdParty": false
       }
@@ -1810,12 +1790,12 @@
     "No blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
     "No blocking: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
     "No blocking: This scan typed a synthetic test value into 2 form fields (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
-    "No blocking: Read the site's privacy policy (https://www.weather.gov/privacy.php) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
+    "No blocking: Read the site's privacy policy (https://www.weather.gov/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
     "Brave-list blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
     "Brave-list blocking: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
     "Brave-list blocking: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
     "Brave-list blocking: This scan typed a synthetic test value into 2 form fields (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
-    "Brave-list blocking: Read the site's privacy policy (https://www.weather.gov/privacy.php) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    "Brave-list blocking: Read the site's privacy policy (https://www.weather.gov/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
   ],
   "share": {
     "id": "20260706-98f179b1e810b18da27a05ba445d0e3b",

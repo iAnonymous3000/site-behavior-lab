@@ -49,6 +49,13 @@
       "automation": "playwright-chromium",
       "headless": true,
       "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "classification",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-02T01:00:58.178Z"
+      },
       "trackerCatalog": {
         "source": "Hand-curated service catalog",
         "version": "hand-curated-2026.06",
@@ -57,14 +64,7 @@
         "curatedOverrides": 133,
         "license": "AGPL-3.0-or-later"
       },
-      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
-      "adblock": {
-        "active": true,
-        "source": "Brave default ad-block lists",
-        "lists": 31,
-        "fetchedAt": "2026-07-02T01:00:58.178Z"
-      },
-      "shieldsMode": "classification"
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
     },
     "requests": [
       {
@@ -76,457 +76,457 @@
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 50,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 50
       },
       {
         "id": 2,
-        "url": "https://images.hinge.co/b778181b28d16fe26306a1dcd4b0a97d8b7d1026-3375x2250.jpg",
+        "url": "https://images.hinge.co/{seg}",
         "domain": "images.hinge.co",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 160,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 160
       },
       {
         "id": 3,
-        "url": "https://hinge.co/_next/static/css/656cf47e8c97c9a4.css",
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
         "domain": "hinge.co",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 160,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 160
       },
       {
         "id": 4,
-        "url": "https://hinge.co/_next/static/css/e88b555bff95ba1c.css",
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
         "domain": "hinge.co",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 161,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 161
       },
       {
         "id": 5,
-        "url": "https://hinge.co/_next/static/css/62604eaeacaef5f2.css",
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
         "domain": "hinge.co",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 161,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 161
       },
       {
         "id": 6,
-        "url": "https://hinge.co/logos/hinge.gif",
+        "url": "https://hinge.co/{seg}/{seg}",
         "domain": "hinge.co",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 163,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 163
       },
       {
         "id": 7,
-        "url": "https://cdn.cookielaw.org/consent/759dc40a-860a-49a9-acab-abe566cb540c/OtAutoBlock.js",
+        "url": "https://cdn.cookielaw.org/{seg}/{seg}/{seg}",
         "domain": "cdn.cookielaw.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 166,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 166
       },
       {
         "id": 8,
-        "url": "https://cdn.cookielaw.org/scripttemplates/otSDKStub.js",
+        "url": "https://cdn.cookielaw.org/{seg}/{seg}",
         "domain": "cdn.cookielaw.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 166,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 166
       },
       {
         "id": 9,
-        "url": "https://hinge.co/scripts/onetrust-wrapper.js",
+        "url": "https://hinge.co/{seg}/{seg}",
         "domain": "hinge.co",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 166,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 166
       },
       {
         "id": 10,
-        "url": "https://hinge.co/scripts/marketing/onelink-smart-script.js",
+        "url": "https://hinge.co/{seg}/{seg}/{seg}",
         "domain": "hinge.co",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 167,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 167
       },
       {
         "id": 11,
-        "url": "https://hinge.co/_next/static/chunks/webpack-7c0d361203bdeeef.js",
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
         "domain": "hinge.co",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 167,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 167
       },
       {
         "id": 12,
-        "url": "https://hinge.co/_next/static/chunks/framework-22368c161eef0bda.js",
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
         "domain": "hinge.co",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 168,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 168
       },
       {
         "id": 13,
-        "url": "https://hinge.co/_next/static/chunks/main-ba6e3251bfa18969.js",
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
         "domain": "hinge.co",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 170,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 170
       },
       {
         "id": 14,
-        "url": "https://hinge.co/_next/static/chunks/pages/_app-5016ff1320519797.js",
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}/{seg}",
         "domain": "hinge.co",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 171,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 171
       },
       {
         "id": 15,
-        "url": "https://hinge.co/_next/static/chunks/fbd3c617-05e0b4db6d07cb0b.js",
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
         "domain": "hinge.co",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 173,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 173
       },
       {
         "id": 16,
-        "url": "https://hinge.co/_next/static/chunks/bf32f307-fe29e1c036f0d70d.js",
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
         "domain": "hinge.co",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 173,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 173
       },
       {
         "id": 17,
-        "url": "https://hinge.co/_next/static/chunks/441-635dae5d26ac9bdf.js",
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
         "domain": "hinge.co",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 173,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 173
       },
       {
         "id": 18,
-        "url": "https://hinge.co/_next/static/chunks/570-c045d71e8eca5309.js",
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
         "domain": "hinge.co",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 173,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 173
       },
       {
         "id": 19,
-        "url": "https://hinge.co/_next/static/chunks/498-b10c9a9c3405e55c.js",
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
         "domain": "hinge.co",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 174,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 174
       },
       {
         "id": 20,
-        "url": "https://hinge.co/_next/static/chunks/13-687bc6cdd69ebf6d.js",
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
         "domain": "hinge.co",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 174,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 174
       },
       {
         "id": 21,
-        "url": "https://hinge.co/_next/static/chunks/820-f0195e9419d8465f.js",
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
         "domain": "hinge.co",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 174,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 174
       },
       {
         "id": 22,
-        "url": "https://hinge.co/_next/static/chunks/547-fa6bd51754fd44e7.js",
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
         "domain": "hinge.co",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 174,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 174
       },
       {
         "id": 23,
-        "url": "https://hinge.co/_next/static/chunks/452-b7236976f79ade40.js",
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
         "domain": "hinge.co",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 174,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 174
       },
       {
         "id": 24,
-        "url": "https://hinge.co/_next/static/chunks/899-1c6e248873a1c815.js",
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
         "domain": "hinge.co",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 175,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 175
       },
       {
         "id": 25,
-        "url": "https://hinge.co/_next/static/chunks/341-9eb3a9171de7f9a9.js",
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
         "domain": "hinge.co",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 175,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 175
       },
       {
         "id": 26,
-        "url": "https://hinge.co/_next/static/chunks/271-4a9078017c807a1d.js",
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
         "domain": "hinge.co",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 175,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 175
       },
       {
         "id": 27,
-        "url": "https://hinge.co/_next/static/chunks/429-d685eea4a13b7d57.js",
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
         "domain": "hinge.co",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 175,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 175
       },
       {
         "id": 28,
-        "url": "https://hinge.co/_next/static/chunks/180-1ddaceeaae872fb6.js",
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
         "domain": "hinge.co",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 175,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 175
       },
       {
         "id": 29,
-        "url": "https://hinge.co/_next/static/chunks/801-b9b0ea47c9df05b6.js",
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
         "domain": "hinge.co",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 176,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 176
       },
       {
         "id": 30,
-        "url": "https://hinge.co/_next/static/chunks/pages/%5B%5B...slug%5D%5D-2d7f483f3e88e207.js",
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}/{seg}",
         "domain": "hinge.co",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 176,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 176
       },
       {
         "id": 31,
-        "url": "https://hinge.co/_next/static/uxLZ2zLEGXPeidmK2Tu1M/_buildManifest.js",
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
         "domain": "hinge.co",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 176,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 176
       },
       {
         "id": 32,
-        "url": "https://hinge.co/_next/static/uxLZ2zLEGXPeidmK2Tu1M/_ssgManifest.js",
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
         "domain": "hinge.co",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 176,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 176
       },
       {
         "id": 33,
-        "url": "https://hinge.co/_next/static/media/ModernEra-Regular.d00b9e32.woff2",
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
         "domain": "hinge.co",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 226,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 226
       },
       {
         "id": 34,
-        "url": "https://hinge.co/_next/static/media/ModernEra-Bold.445abb1f.woff2",
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
         "domain": "hinge.co",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 226,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 226
       },
       {
         "id": 35,
-        "url": "https://hinge.co/_next/static/media/ModernEra-Medium.ebf053e6.woff2",
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
         "domain": "hinge.co",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 227,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 227
       },
       {
         "id": 36,
-        "url": "https://hinge.co/_next/static/media/TiemposHeadline-Regular.2bc7d7e5.woff",
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
         "domain": "hinge.co",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 227,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 227
       },
       {
         "id": 37,
-        "url": "https://hinge.co/_next/static/media/TiemposHeadline-Semibold.14cc36ce.woff",
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
         "domain": "hinge.co",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 228,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 228
       },
       {
         "id": 38,
-        "url": "https://cdn.cookielaw.org/consent/759dc40a-860a-49a9-acab-abe566cb540c/759dc40a-860a-49a9-acab-abe566cb540c.json",
+        "url": "https://cdn.cookielaw.org/{seg}/{seg}/{seg}",
         "domain": "cdn.cookielaw.org",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 277,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 277
       },
       {
         "id": 39,
-        "url": "https://o4504284418801664.ingest.sentry.io/api/4504284419850240/envelope/?sentry_version=&sentry_key=&sentry_client=",
-        "domain": "o4504284418801664.ingest.sentry.io",
+        "url": "https://{label}.ingest.sentry.io/api/{n}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "domain": "{label}.ingest.sentry.io",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -537,289 +537,289 @@
           "category": "error monitoring",
           "confidence": "curated"
         },
-        "startedAtMs": 353,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 353
       },
       {
         "id": 40,
-        "url": "https://geolocation.onetrust.com/cookieconsentpub/v1/geo/location",
+        "url": "https://geolocation.onetrust.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "geolocation.onetrust.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 490,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 490
       },
       {
         "id": 41,
-        "url": "https://hinge.co/_next/static/css/4a2dc0aba9c6d89d.css",
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
         "domain": "hinge.co",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 534,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 534
       },
       {
         "id": 42,
-        "url": "https://hinge.co/_next/static/chunks/560.2642d95141879c35.js",
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
         "domain": "hinge.co",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 535,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 535
       },
       {
         "id": 43,
-        "url": "https://hinge.co/_next/static/css/e88b555bff95ba1c.css",
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
         "domain": "hinge.co",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 551,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 551
       },
       {
         "id": 44,
-        "url": "https://hinge.co/_next/static/css/62604eaeacaef5f2.css",
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
         "domain": "hinge.co",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 553,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 553
       },
       {
         "id": 45,
-        "url": "https://cdn.cookielaw.org/scripttemplates/202508.2.0/otBannerSdk.js",
+        "url": "https://cdn.cookielaw.org/{seg}/{seg}/{seg}",
         "domain": "cdn.cookielaw.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 577,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 577
       },
       {
         "id": 46,
-        "url": "https://hinge.co/_next/data/uxLZ2zLEGXPeidmK2Tu1M/en-us.json",
+        "url": "https://hinge.co/{seg}/{seg}/{seg}/{seg}",
         "domain": "hinge.co",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 596,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 596
       },
       {
         "id": 47,
-        "url": "https://hinge.co/_next/data/uxLZ2zLEGXPeidmK2Tu1M/en-us/mission.json",
+        "url": "https://hinge.co/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "hinge.co",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 621,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 621
       },
       {
         "id": 48,
-        "url": "https://hinge.co/_next/data/uxLZ2zLEGXPeidmK2Tu1M/en-us/onemorehour.json",
+        "url": "https://hinge.co/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "hinge.co",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 622,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 622
       },
       {
         "id": 49,
-        "url": "https://hinge.co/_next/data/uxLZ2zLEGXPeidmK2Tu1M/en-us/labs.json",
+        "url": "https://hinge.co/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "hinge.co",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 623,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 623
       },
       {
         "id": 50,
-        "url": "https://hinge.co/_next/data/uxLZ2zLEGXPeidmK2Tu1M/en-us/newsroom.json",
+        "url": "https://hinge.co/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "hinge.co",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 623,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 623
       },
       {
         "id": 51,
-        "url": "https://hinge.co/_next/data/uxLZ2zLEGXPeidmK2Tu1M/en-us/careers.json",
+        "url": "https://hinge.co/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "hinge.co",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 624,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 624
       },
       {
         "id": 52,
-        "url": "https://cdn.cookielaw.org/consent/759dc40a-860a-49a9-acab-abe566cb540c/01993975-cca7-7aab-8ab3-f4f6442773d3/en.json",
+        "url": "https://cdn.cookielaw.org/{seg}/{seg}/{seg}/{seg}",
         "domain": "cdn.cookielaw.org",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 658,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 658
       },
       {
         "id": 53,
-        "url": "https://cdn.cookielaw.org/scripttemplates/202508.2.0/assets/otFlat.json",
+        "url": "https://cdn.cookielaw.org/{seg}/{seg}/{seg}/{seg}",
         "domain": "cdn.cookielaw.org",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 705,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 705
       },
       {
         "id": 54,
-        "url": "https://cdn.cookielaw.org/scripttemplates/202508.2.0/assets/v2/otPcCenter.json",
+        "url": "https://cdn.cookielaw.org/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "cdn.cookielaw.org",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 706,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 706
       },
       {
         "id": 55,
-        "url": "https://cdn.cookielaw.org/scripttemplates/202508.2.0/assets/otCommonStyles.css",
+        "url": "https://cdn.cookielaw.org/{seg}/{seg}/{seg}/{seg}",
         "domain": "cdn.cookielaw.org",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 706,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 706
       },
       {
         "id": 56,
-        "url": "https://hinge.co/_next/static/chunks/pages/onemorehour-5af4f3f6cc80817d.js",
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}/{seg}",
         "domain": "hinge.co",
         "method": "GET",
         "resourceType": "other",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 708,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 708
       },
       {
         "id": 57,
-        "url": "https://hinge.co/_next/static/chunks/pages/onemorehour-5af4f3f6cc80817d.js",
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}/{seg}",
         "domain": "hinge.co",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 732,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 732
       },
       {
         "id": 58,
-        "url": "https://hinge.co/_next/static/css/05f5d8fa167fc041.css",
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
         "domain": "hinge.co",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 733,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 733
       },
       {
         "id": 59,
-        "url": "https://cdn.cookielaw.org/logos/static/ot_close.svg",
+        "url": "https://cdn.cookielaw.org/{seg}/static/{seg}",
         "domain": "cdn.cookielaw.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 784,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 784
       },
       {
         "id": 60,
-        "url": "https://cdn.cookielaw.org/logos/static/ot_guard_logo.svg",
+        "url": "https://cdn.cookielaw.org/{seg}/static/{seg}",
         "domain": "cdn.cookielaw.org",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 786,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 786
       },
       {
         "id": 61,
-        "url": "https://cdn.cookielaw.org/logos/abdd0205-22cc-4fe3-9905-15c572527293/0192e1f5-a444-764c-9b4b-ac458cd4f98f/4f7fa18d-2150-4bb7-a853-735ec287934a/Hinge.png",
+        "url": "https://cdn.cookielaw.org/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "cdn.cookielaw.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 804,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 804
       },
       {
         "id": 62,
-        "url": "https://cdn.cookielaw.org/logos/static/powered_by_logo.svg",
+        "url": "https://cdn.cookielaw.org/{seg}/static/{seg}",
         "domain": "cdn.cookielaw.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 804,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 804
       },
       {
         "id": 63,
-        "url": "https://o4504284418801664.ingest.sentry.io/api/4504284419850240/envelope/?sentry_version=&sentry_key=&sentry_client=",
-        "domain": "o4504284418801664.ingest.sentry.io",
+        "url": "https://{label}.ingest.sentry.io/api/{n}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "domain": "{label}.ingest.sentry.io",
         "method": "POST",
         "resourceType": "fetch",
         "status": 429,
@@ -830,13 +830,13 @@
           "category": "error monitoring",
           "confidence": "curated"
         },
-        "startedAtMs": 1513,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1513
       }
     ],
     "domains": [
       {
-        "domain": "o4504284418801664.ingest.sentry.io",
+        "domain": "{label}.ingest.sentry.io",
         "requests": 2,
         "thirdParty": true,
         "tracker": {
@@ -931,24 +931,17 @@
     "storage": [
       {
         "area": "localStorage",
-        "key": "ss_webReferrer",
+        "key": "[redacted]",
         "valueBytes": 2
       },
       {
         "area": "localStorage",
-        "key": "ss_incoming_params",
+        "key": "[redacted]",
         "valueBytes": 32
       }
     ],
-    "fingerprintDetections": [],
     "fingerprintEvents": [],
-    "screenshot": null,
-    "warnings": [
-      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling or clicking except one scripted choice on the cookie/consent banner (disclosed below). Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
-      "Counts are a lower bound: trackers that load only after further interaction, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
-      "This visit was asked to choose \"Accept all\" on a cookie/consent banner, but no recognizable control was found (the banner may not be shown to this scanner's location, the choice may sit behind a settings layer, or the control is not in the catalog). Results reflect the pre-consent state.",
-      "Read the site's privacy policy (https://hinge.co/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
-    ],
+    "fingerprintDetections": [],
     "privacyPolicy": {
       "url": "https://hinge.co/privacy",
       "claims": [],
@@ -959,7 +952,14 @@
     "consentInteraction": {
       "mode": "accept-all",
       "clicked": false
-    }
+    },
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling or clicking except one scripted choice on the cookie/consent banner (disclosed below). Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after further interaction, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+      "This visit was asked to choose \"Accept all\" on a cookie/consent banner, but no recognizable control was found (the banner may not be shown to this scanner's location, the choice may sit behind a settings layer, or the control is not in the catalog). Results reflect the pre-consent state.",
+      "Read the site's privacy policy (https://hinge.co/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ]
   },
   "variant": {
     "ok": true,
@@ -999,6 +999,13 @@
       "automation": "playwright-chromium",
       "headless": true,
       "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "classification",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-02T01:00:58.178Z"
+      },
       "trackerCatalog": {
         "source": "Hand-curated service catalog",
         "version": "hand-curated-2026.06",
@@ -1007,14 +1014,7 @@
         "curatedOverrides": 133,
         "license": "AGPL-3.0-or-later"
       },
-      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
-      "adblock": {
-        "active": true,
-        "source": "Brave default ad-block lists",
-        "lists": 31,
-        "fetchedAt": "2026-07-02T01:00:58.178Z"
-      },
-      "shieldsMode": "classification"
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
     },
     "requests": [
       {
@@ -1026,457 +1026,457 @@
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 45,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 45
       },
       {
         "id": 2,
-        "url": "https://images.hinge.co/b778181b28d16fe26306a1dcd4b0a97d8b7d1026-3375x2250.jpg",
+        "url": "https://images.hinge.co/{seg}",
         "domain": "images.hinge.co",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 175,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 175
       },
       {
         "id": 3,
-        "url": "https://hinge.co/_next/static/css/656cf47e8c97c9a4.css",
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
         "domain": "hinge.co",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 175,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 175
       },
       {
         "id": 4,
-        "url": "https://hinge.co/_next/static/css/e88b555bff95ba1c.css",
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
         "domain": "hinge.co",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 176,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 176
       },
       {
         "id": 5,
-        "url": "https://hinge.co/_next/static/css/62604eaeacaef5f2.css",
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
         "domain": "hinge.co",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 176,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 176
       },
       {
         "id": 6,
-        "url": "https://hinge.co/logos/hinge.gif",
+        "url": "https://hinge.co/{seg}/{seg}",
         "domain": "hinge.co",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 180,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 180
       },
       {
         "id": 7,
-        "url": "https://cdn.cookielaw.org/consent/759dc40a-860a-49a9-acab-abe566cb540c/OtAutoBlock.js",
+        "url": "https://cdn.cookielaw.org/{seg}/{seg}/{seg}",
         "domain": "cdn.cookielaw.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 180,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 180
       },
       {
         "id": 8,
-        "url": "https://cdn.cookielaw.org/scripttemplates/otSDKStub.js",
+        "url": "https://cdn.cookielaw.org/{seg}/{seg}",
         "domain": "cdn.cookielaw.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 180,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 180
       },
       {
         "id": 9,
-        "url": "https://hinge.co/scripts/onetrust-wrapper.js",
+        "url": "https://hinge.co/{seg}/{seg}",
         "domain": "hinge.co",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 181,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 181
       },
       {
         "id": 10,
-        "url": "https://hinge.co/scripts/marketing/onelink-smart-script.js",
+        "url": "https://hinge.co/{seg}/{seg}/{seg}",
         "domain": "hinge.co",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 182,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 182
       },
       {
         "id": 11,
-        "url": "https://hinge.co/_next/static/chunks/webpack-7c0d361203bdeeef.js",
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
         "domain": "hinge.co",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 183,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 183
       },
       {
         "id": 12,
-        "url": "https://hinge.co/_next/static/chunks/framework-22368c161eef0bda.js",
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
         "domain": "hinge.co",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 183,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 183
       },
       {
         "id": 13,
-        "url": "https://hinge.co/_next/static/chunks/main-ba6e3251bfa18969.js",
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
         "domain": "hinge.co",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 183,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 183
       },
       {
         "id": 14,
-        "url": "https://hinge.co/_next/static/chunks/pages/_app-5016ff1320519797.js",
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}/{seg}",
         "domain": "hinge.co",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 183,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 183
       },
       {
         "id": 15,
-        "url": "https://hinge.co/_next/static/chunks/fbd3c617-05e0b4db6d07cb0b.js",
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
         "domain": "hinge.co",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 184,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 184
       },
       {
         "id": 16,
-        "url": "https://hinge.co/_next/static/chunks/bf32f307-fe29e1c036f0d70d.js",
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
         "domain": "hinge.co",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 184,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 184
       },
       {
         "id": 17,
-        "url": "https://hinge.co/_next/static/chunks/441-635dae5d26ac9bdf.js",
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
         "domain": "hinge.co",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 186,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 186
       },
       {
         "id": 18,
-        "url": "https://hinge.co/_next/static/chunks/570-c045d71e8eca5309.js",
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
         "domain": "hinge.co",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 187,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 187
       },
       {
         "id": 19,
-        "url": "https://hinge.co/_next/static/chunks/498-b10c9a9c3405e55c.js",
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
         "domain": "hinge.co",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 187,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 187
       },
       {
         "id": 20,
-        "url": "https://hinge.co/_next/static/chunks/13-687bc6cdd69ebf6d.js",
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
         "domain": "hinge.co",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 187,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 187
       },
       {
         "id": 21,
-        "url": "https://hinge.co/_next/static/chunks/820-f0195e9419d8465f.js",
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
         "domain": "hinge.co",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 188,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 188
       },
       {
         "id": 22,
-        "url": "https://hinge.co/_next/static/chunks/547-fa6bd51754fd44e7.js",
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
         "domain": "hinge.co",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 188,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 188
       },
       {
         "id": 23,
-        "url": "https://hinge.co/_next/static/chunks/452-b7236976f79ade40.js",
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
         "domain": "hinge.co",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 188,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 188
       },
       {
         "id": 24,
-        "url": "https://hinge.co/_next/static/chunks/899-1c6e248873a1c815.js",
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
         "domain": "hinge.co",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 188,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 188
       },
       {
         "id": 25,
-        "url": "https://hinge.co/_next/static/chunks/341-9eb3a9171de7f9a9.js",
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
         "domain": "hinge.co",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 188,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 188
       },
       {
         "id": 26,
-        "url": "https://hinge.co/_next/static/chunks/271-4a9078017c807a1d.js",
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
         "domain": "hinge.co",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 189,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 189
       },
       {
         "id": 27,
-        "url": "https://hinge.co/_next/static/chunks/429-d685eea4a13b7d57.js",
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
         "domain": "hinge.co",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 189,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 189
       },
       {
         "id": 28,
-        "url": "https://hinge.co/_next/static/chunks/180-1ddaceeaae872fb6.js",
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
         "domain": "hinge.co",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 189,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 189
       },
       {
         "id": 29,
-        "url": "https://hinge.co/_next/static/chunks/801-b9b0ea47c9df05b6.js",
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
         "domain": "hinge.co",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 189,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 189
       },
       {
         "id": 30,
-        "url": "https://hinge.co/_next/static/chunks/pages/%5B%5B...slug%5D%5D-2d7f483f3e88e207.js",
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}/{seg}",
         "domain": "hinge.co",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 190,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 190
       },
       {
         "id": 31,
-        "url": "https://hinge.co/_next/static/uxLZ2zLEGXPeidmK2Tu1M/_buildManifest.js",
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
         "domain": "hinge.co",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 190,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 190
       },
       {
         "id": 32,
-        "url": "https://hinge.co/_next/static/uxLZ2zLEGXPeidmK2Tu1M/_ssgManifest.js",
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
         "domain": "hinge.co",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 190,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 190
       },
       {
         "id": 33,
-        "url": "https://hinge.co/_next/static/media/ModernEra-Regular.d00b9e32.woff2",
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
         "domain": "hinge.co",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 234,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 234
       },
       {
         "id": 34,
-        "url": "https://hinge.co/_next/static/media/ModernEra-Bold.445abb1f.woff2",
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
         "domain": "hinge.co",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 235,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 235
       },
       {
         "id": 35,
-        "url": "https://hinge.co/_next/static/media/ModernEra-Medium.ebf053e6.woff2",
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
         "domain": "hinge.co",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 235,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 235
       },
       {
         "id": 36,
-        "url": "https://hinge.co/_next/static/media/TiemposHeadline-Regular.2bc7d7e5.woff",
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
         "domain": "hinge.co",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 235,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 235
       },
       {
         "id": 37,
-        "url": "https://hinge.co/_next/static/media/TiemposHeadline-Semibold.14cc36ce.woff",
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
         "domain": "hinge.co",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 236,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 236
       },
       {
         "id": 38,
-        "url": "https://cdn.cookielaw.org/consent/759dc40a-860a-49a9-acab-abe566cb540c/759dc40a-860a-49a9-acab-abe566cb540c.json",
+        "url": "https://cdn.cookielaw.org/{seg}/{seg}/{seg}",
         "domain": "cdn.cookielaw.org",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 301,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 301
       },
       {
         "id": 39,
-        "url": "https://o4504284418801664.ingest.sentry.io/api/4504284419850240/envelope/?sentry_version=&sentry_key=&sentry_client=",
-        "domain": "o4504284418801664.ingest.sentry.io",
+        "url": "https://{label}.ingest.sentry.io/api/{n}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "domain": "{label}.ingest.sentry.io",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
@@ -1487,289 +1487,289 @@
           "category": "error monitoring",
           "confidence": "curated"
         },
-        "startedAtMs": 373,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 373
       },
       {
         "id": 40,
-        "url": "https://geolocation.onetrust.com/cookieconsentpub/v1/geo/location",
+        "url": "https://geolocation.onetrust.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "geolocation.onetrust.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 498,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 498
       },
       {
         "id": 41,
-        "url": "https://hinge.co/_next/static/css/4a2dc0aba9c6d89d.css",
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
         "domain": "hinge.co",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 541,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 541
       },
       {
         "id": 42,
-        "url": "https://hinge.co/_next/static/chunks/560.2642d95141879c35.js",
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
         "domain": "hinge.co",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 541,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 541
       },
       {
         "id": 43,
-        "url": "https://hinge.co/_next/static/css/e88b555bff95ba1c.css",
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
         "domain": "hinge.co",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 558,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 558
       },
       {
         "id": 44,
-        "url": "https://hinge.co/_next/static/css/62604eaeacaef5f2.css",
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
         "domain": "hinge.co",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 559,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 559
       },
       {
         "id": 45,
-        "url": "https://cdn.cookielaw.org/scripttemplates/202508.2.0/otBannerSdk.js",
+        "url": "https://cdn.cookielaw.org/{seg}/{seg}/{seg}",
         "domain": "cdn.cookielaw.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 569,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 569
       },
       {
         "id": 46,
-        "url": "https://hinge.co/_next/data/uxLZ2zLEGXPeidmK2Tu1M/en-us.json",
+        "url": "https://hinge.co/{seg}/{seg}/{seg}/{seg}",
         "domain": "hinge.co",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 595,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 595
       },
       {
         "id": 47,
-        "url": "https://hinge.co/_next/data/uxLZ2zLEGXPeidmK2Tu1M/en-us/mission.json",
+        "url": "https://hinge.co/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "hinge.co",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 621,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 621
       },
       {
         "id": 48,
-        "url": "https://hinge.co/_next/data/uxLZ2zLEGXPeidmK2Tu1M/en-us/onemorehour.json",
+        "url": "https://hinge.co/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "hinge.co",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 621,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 621
       },
       {
         "id": 49,
-        "url": "https://hinge.co/_next/data/uxLZ2zLEGXPeidmK2Tu1M/en-us/labs.json",
+        "url": "https://hinge.co/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "hinge.co",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 622,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 622
       },
       {
         "id": 50,
-        "url": "https://hinge.co/_next/data/uxLZ2zLEGXPeidmK2Tu1M/en-us/newsroom.json",
+        "url": "https://hinge.co/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "hinge.co",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 622,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 622
       },
       {
         "id": 51,
-        "url": "https://hinge.co/_next/data/uxLZ2zLEGXPeidmK2Tu1M/en-us/careers.json",
+        "url": "https://hinge.co/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "hinge.co",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 623,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 623
       },
       {
         "id": 52,
-        "url": "https://cdn.cookielaw.org/consent/759dc40a-860a-49a9-acab-abe566cb540c/01993975-cca7-7aab-8ab3-f4f6442773d3/en.json",
+        "url": "https://cdn.cookielaw.org/{seg}/{seg}/{seg}/{seg}",
         "domain": "cdn.cookielaw.org",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 663,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 663
       },
       {
         "id": 53,
-        "url": "https://hinge.co/_next/static/chunks/pages/onemorehour-5af4f3f6cc80817d.js",
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}/{seg}",
         "domain": "hinge.co",
         "method": "GET",
         "resourceType": "other",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 696,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 696
       },
       {
         "id": 54,
-        "url": "https://cdn.cookielaw.org/scripttemplates/202508.2.0/assets/otFlat.json",
+        "url": "https://cdn.cookielaw.org/{seg}/{seg}/{seg}/{seg}",
         "domain": "cdn.cookielaw.org",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 720,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 720
       },
       {
         "id": 55,
-        "url": "https://cdn.cookielaw.org/scripttemplates/202508.2.0/assets/v2/otPcCenter.json",
+        "url": "https://cdn.cookielaw.org/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "cdn.cookielaw.org",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 721,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 721
       },
       {
         "id": 56,
-        "url": "https://cdn.cookielaw.org/scripttemplates/202508.2.0/assets/otCommonStyles.css",
+        "url": "https://cdn.cookielaw.org/{seg}/{seg}/{seg}/{seg}",
         "domain": "cdn.cookielaw.org",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 721,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 721
       },
       {
         "id": 57,
-        "url": "https://hinge.co/_next/static/chunks/pages/onemorehour-5af4f3f6cc80817d.js",
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}/{seg}",
         "domain": "hinge.co",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 724,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 724
       },
       {
         "id": 58,
-        "url": "https://hinge.co/_next/static/css/05f5d8fa167fc041.css",
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
         "domain": "hinge.co",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 725,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 725
       },
       {
         "id": 59,
-        "url": "https://cdn.cookielaw.org/logos/static/ot_close.svg",
+        "url": "https://cdn.cookielaw.org/{seg}/static/{seg}",
         "domain": "cdn.cookielaw.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 809,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 809
       },
       {
         "id": 60,
-        "url": "https://cdn.cookielaw.org/logos/static/ot_guard_logo.svg",
+        "url": "https://cdn.cookielaw.org/{seg}/static/{seg}",
         "domain": "cdn.cookielaw.org",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 810,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 810
       },
       {
         "id": 61,
-        "url": "https://cdn.cookielaw.org/logos/abdd0205-22cc-4fe3-9905-15c572527293/0192e1f5-a444-764c-9b4b-ac458cd4f98f/4f7fa18d-2150-4bb7-a853-735ec287934a/Hinge.png",
+        "url": "https://cdn.cookielaw.org/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "cdn.cookielaw.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 823,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 823
       },
       {
         "id": 62,
-        "url": "https://cdn.cookielaw.org/logos/static/powered_by_logo.svg",
+        "url": "https://cdn.cookielaw.org/{seg}/static/{seg}",
         "domain": "cdn.cookielaw.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 824,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 824
       },
       {
         "id": 63,
-        "url": "https://o4504284418801664.ingest.sentry.io/api/4504284419850240/envelope/?sentry_version=&sentry_key=&sentry_client=",
-        "domain": "o4504284418801664.ingest.sentry.io",
+        "url": "https://{label}.ingest.sentry.io/api/{n}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "domain": "{label}.ingest.sentry.io",
         "method": "POST",
         "resourceType": "fetch",
         "status": 429,
@@ -1780,13 +1780,13 @@
           "category": "error monitoring",
           "confidence": "curated"
         },
-        "startedAtMs": 1519,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1519
       }
     ],
     "domains": [
       {
-        "domain": "o4504284418801664.ingest.sentry.io",
+        "domain": "{label}.ingest.sentry.io",
         "requests": 2,
         "thirdParty": true,
         "tracker": {
@@ -1881,24 +1881,17 @@
     "storage": [
       {
         "area": "localStorage",
-        "key": "ss_webReferrer",
+        "key": "[redacted]",
         "valueBytes": 2
       },
       {
         "area": "localStorage",
-        "key": "ss_incoming_params",
+        "key": "[redacted]",
         "valueBytes": 32
       }
     ],
-    "fingerprintDetections": [],
     "fingerprintEvents": [],
-    "screenshot": null,
-    "warnings": [
-      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling or clicking except one scripted choice on the cookie/consent banner (disclosed below). Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
-      "Counts are a lower bound: trackers that load only after further interaction, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
-      "This visit was asked to choose \"Reject all\" on a cookie/consent banner, but no recognizable control was found (the banner may not be shown to this scanner's location, the choice may sit behind a settings layer, or the control is not in the catalog). Results reflect the pre-consent state.",
-      "Read the site's privacy policy (https://hinge.co/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
-    ],
+    "fingerprintDetections": [],
     "privacyPolicy": {
       "url": "https://hinge.co/privacy",
       "claims": [],
@@ -1909,7 +1902,14 @@
     "consentInteraction": {
       "mode": "reject-all",
       "clicked": false
-    }
+    },
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling or clicking except one scripted choice on the cookie/consent banner (disclosed below). Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after further interaction, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+      "This visit was asked to choose \"Reject all\" on a cookie/consent banner, but no recognizable control was found (the banner may not be shown to this scanner's location, the choice may sit behind a settings layer, or the control is not in the catalog). Results reflect the pre-consent state.",
+      "Read the site's privacy policy (https://hinge.co/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ]
   },
   "diff": {
     "totalRequests": {

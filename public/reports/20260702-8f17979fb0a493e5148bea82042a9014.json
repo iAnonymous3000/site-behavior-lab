@@ -32,7 +32,7 @@
     },
     "conditions": {
       "requestedUrl": "https://www.australia.gov.au/",
-      "finalUrl": "https://my.gov.au/en/services",
+      "finalUrl": "https://my.gov.au/en/{seg}",
       "scannedAt": "2026-07-02T15:27:01.685Z",
       "chromiumVersion": "149.0.7827.55",
       "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
@@ -49,6 +49,13 @@
       "automation": "playwright-chromium",
       "headless": true,
       "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "classification",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-02T01:00:58.178Z"
+      },
       "trackerCatalog": {
         "source": "Hand-curated service catalog",
         "version": "hand-curated-2026.06",
@@ -57,14 +64,7 @@
         "curatedOverrides": 133,
         "license": "AGPL-3.0-or-later"
       },
-      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
-      "adblock": {
-        "active": true,
-        "source": "Brave default ad-block lists",
-        "lists": 31,
-        "fetchedAt": "2026-07-02T01:00:58.178Z"
-      },
-      "shieldsMode": "classification"
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
     },
     "requests": [
       {
@@ -76,752 +76,752 @@
         "status": 301,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 77,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 77
       },
       {
         "id": 2,
-        "url": "https://my.gov.au/en/services?redirectFrom=",
+        "url": "https://my.gov.au/en/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 120,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 120
       },
       {
         "id": 3,
-        "url": "https://my.gov.au/etc.clientlibs/servicesaustralia/clientlibs/clientlib-base.min.ACSHASHd41d8cd98f00b204e9800998ecf8427e.css",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 219,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 219
       },
       {
         "id": 4,
-        "url": "https://my.gov.au/etc.clientlibs/servicesaustralia/clientlibs/clientlib-grid.min.ACSHASHdb9d5e7c7d577c192bea16da014631a9.css",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 220,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 220
       },
       {
         "id": 5,
-        "url": "https://fonts.googleapis.com/css?family=&display=",
+        "url": "https://fonts.googleapis.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "fonts.googleapis.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 220,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 220
       },
       {
         "id": 6,
-        "url": "https://my.gov.au/etc.clientlibs/servicesaustralia-fed/clientlibs/imported.min.ACSHASHd41d8cd98f00b204e9800998ecf8427e.css",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 220,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 220
       },
       {
         "id": 7,
-        "url": "https://my.gov.au/etc.clientlibs/mygov-unauth-styles/clientlibs/styles.min.ACSHASH837a22fbf634c98d718c55279cebc62f.css",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 220,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 220
       },
       {
         "id": 8,
-        "url": "https://my.gov.au/etc.clientlibs/mygov-common/clientlibs/mygov.gui.kit.min.ACSHASH955530f17f3802d56ab8bd4a299a161f.css",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 220,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 220
       },
       {
         "id": 9,
-        "url": "https://my.gov.au/etc.clientlibs/core/wcm/components/page/v2/page/clientlibs/site/skiptomaincontent.min.ACSHASH696ce9a06faa733b225ffb8c05f16db9.css",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 220,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 220
       },
       {
         "id": 10,
-        "url": "https://my.gov.au/content/dam/mygov/public/images/brand/myGov-logo-black.svg",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 221,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 221
       },
       {
         "id": 11,
-        "url": "https://my.gov.au/content/dam/mygov/public/images/brand/myGov-logo-cobranded-black.svg",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 223,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 223
       },
       {
         "id": 12,
-        "url": "https://my.gov.au/etc.clientlibs/mygov-common/clientlibs/mygov.common.header.min.ACSHASH3b0031c1e973987c8fa48e36a83c2454.css",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 226,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 226
       },
       {
         "id": 13,
-        "url": "https://my.gov.au/etc.clientlibs/mygov-common/clientlibs/mygov.common.header.min.ACSHASH34e3d5ac447d8beed0b9ffdae1b0bcc4.js",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 226,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 226
       },
       {
         "id": 14,
-        "url": "https://my.gov.au/etc.clientlibs/mygov-info/clientlibs/mygov.info.breadcrumb.min.ACSHASHcee3f81f7fb838f5fb63e7f2c1c716d6.css",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 226,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 226
       },
       {
         "id": 15,
-        "url": "https://my.gov.au/etc.clientlibs/mygov-common/clientlibs/mygov.gui.kit.min.ACSHASHb16a511034cc9ce77f124c60e89c6d2b.js",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 227,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 227
       },
       {
         "id": 16,
-        "url": "https://my.gov.au/etc.clientlibs/mygov-info/clientlibs/mygov.info.list.min.ACSHASH4439173ef134f536cabc77f00a235da7.css",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 227,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 227
       },
       {
         "id": 17,
-        "url": "https://my.gov.au/etc.clientlibs/mygov-info/clientlibs/mygov.info.list.min.ACSHASHd41d8cd98f00b204e9800998ecf8427e.js",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 227,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 227
       },
       {
         "id": 18,
-        "url": "https://my.gov.au/etc.clientlibs/mygov-common/clientlibs/mygov.common.footer.min.ACSHASH1c1c363fe25f5b2160584a116fe09aec.css",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 227,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 227
       },
       {
         "id": 19,
-        "url": "https://my.gov.au/etc.clientlibs/servicesaustralia-fed/clientlibs/imported.min.ACSHASHb7f7998627cf3111feee3d0e151c3c76.js",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 227,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 227
       },
       {
         "id": 20,
-        "url": "https://my.gov.au/etc.clientlibs/servicesaustralia/clientlibs/clientlib-webview.min.ACSHASHb9872bee81d34122bd2899cdc48e0d7e.js",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 228,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 228
       },
       {
         "id": 21,
-        "url": "https://my.gov.au/etc.clientlibs/core/wcm/components/commons/site/clientlibs/container.min.ACSHASH0a6aff292f5cc42142779cde92054524.js",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 228,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 228
       },
       {
         "id": 22,
-        "url": "https://my.gov.au/etc.clientlibs/mygov-common/clientlibs/clientlib-base.min.ACSHASHb5fa255976e5d98ee1d63ba5e5b47b6f.js",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 228,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 228
       },
       {
         "id": 23,
-        "url": "https://my.gov.au/etc/clientlibs/dtm-reactor/ENa69e9337c93f4637bb73b8b41a20e64d/6e780ef169d7/db51359f8b2c/launch-3792184e5e46.min.js",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 228,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 228
       },
       {
         "id": 24,
-        "url": "https://my.gov.au/etc.clientlibs/core/wcm/components/commons/datalayer/v2/clientlibs/core.wcm.components.commons.datalayer.v2.min.ACSHASH1e0136bad0acfb78be509234578e44f9.js",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 228,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 228
       },
       {
         "id": 25,
-        "url": "https://my.gov.au/etc.clientlibs/core/wcm/components/commons/datalayer/acdl/core.wcm.components.commons.datalayer.acdl.min.ACSHASHbf921af342fd2c40139671dbf0920a1f.js",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 229,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 229
       },
       {
         "id": 26,
-        "url": "https://my.gov.au/content/dam/mygov/icons/shared/mygov-icons//menu.svg",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 352,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 352
       },
       {
         "id": 27,
-        "url": "https://my.gov.au/content/dam/mygov/icons/shared/mygov-icons//search.svg",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 353,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 353
       },
       {
         "id": 28,
-        "url": "https://fonts.gstatic.com/s/roboto/v51/KFO7CnqEu92Fr1ME7kSn66aGLdTylUAMa3yUBA.woff2",
+        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "fonts.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 362,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 362
       },
       {
         "id": 29,
-        "url": "https://my.gov.au/en/services/raising-kids/_jcr_content/_cq_featuredimage.coreimg.82.1360.jpeg/1693545613885/rasing-a-child-005-007-mygov-202259071.jpeg",
+        "url": "https://my.gov.au/en/{seg}/{seg}/{seg}/{seg}/{n}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 385,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 385
       },
       {
         "id": 30,
-        "url": "https://my.gov.au/en/services/living-arrangements/_jcr_content/_cq_featuredimage.coreimg.82.1360.jpeg/1717551575607/living-arrangements-category.jpeg",
+        "url": "https://my.gov.au/en/{seg}/{seg}/{seg}/{seg}/{n}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 386,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 386
       },
       {
         "id": 31,
-        "url": "https://my.gov.au/en/services/ageing/_jcr_content/_cq_featuredimage.coreimg.82.1360.jpeg/1695793697920/older-australian-049-050-mygov-202264483.jpeg",
+        "url": "https://my.gov.au/en/{seg}/{seg}/{seg}/{seg}/{n}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 387,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 387
       },
       {
         "id": 32,
-        "url": "https://my.gov.au/en/services/work/_jcr_content/_cq_featuredimage.coreimg.82.1360.jpeg/1718151573358/work-category.jpeg",
+        "url": "https://my.gov.au/en/{seg}/{seg}/{seg}/{seg}/{n}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 387,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 387
       },
       {
         "id": 33,
-        "url": "https://my.gov.au/content/dam/mygov/icons/shared/mygov-icons//expand_less.svg",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 393,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 393
       },
       {
         "id": 34,
-        "url": "https://my.gov.au/en/services/education/_jcr_content/_cq_featuredimage.coreimg.82.1360.jpeg/1718156969343/education-category.jpeg",
+        "url": "https://my.gov.au/en/{seg}/{seg}/{seg}/{seg}/{n}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 407,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 407
       },
       {
         "id": 35,
-        "url": "https://my.gov.au/en/services/health-and-disability/_jcr_content/_cq_featuredimage.coreimg.82.1360.jpeg/1718156799232/health-and-disability-category.jpeg",
+        "url": "https://my.gov.au/en/{seg}/{seg}/{seg}/{seg}/{n}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 407,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 407
       },
       {
         "id": 36,
-        "url": "https://my.gov.au/content/dam/mygov/icons/shared/mygov-icons//expand_less.svg",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 417,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 417
       },
       {
         "id": 37,
-        "url": "https://my.gov.au/content/dam/mygov/icons/shared/mygov-icons//logo_x.svg",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 418,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 418
       },
       {
         "id": 38,
-        "url": "https://my.gov.au/content/dam/mygov/icons/shared/mygov-icons//search.svg",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 431,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 431
       },
       {
         "id": 39,
-        "url": "https://my.gov.au/content/dam/mygov/icons/shared/mygov-icons//menu.svg",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 432,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 432
       },
       {
         "id": 40,
-        "url": "https://my.gov.au/content/dam/mygov/icons/shared/mygov-icons//logo_you_tube.svg",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 502,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 502
       },
       {
         "id": 41,
-        "url": "https://my.gov.au/content/dam/mygov/icons/shared/mygov-icons//logo_mygov_lockup.svg",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 503,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 503
       },
       {
         "id": 42,
-        "url": "https://my.gov.au/etc.clientlibs/mygov-unauth-styles/clientlibs/styles/resources/assets/icons/icon-info-white.svg",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 521,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 521
       },
       {
         "id": 43,
-        "url": "https://my.gov.au/etc.clientlibs/mygov-unauth-styles/clientlibs/styles/resources/assets/icons/Close%20@16.svg",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 522,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 522
       },
       {
         "id": 44,
-        "url": "https://login.my.gov.au/.well-known/openid-configuration",
+        "url": "https://login.my.gov.au/{seg}/{seg}",
         "domain": "login.my.gov.au",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 527,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 527
       },
       {
         "id": 45,
-        "url": "https://adobeedge.my.gov.au/ee/v1/identity/acquire?configId=&requestId=",
+        "url": "https://adobeedge.my.gov.au/{seg}/{seg}/{seg}/{seg}",
         "domain": "adobeedge.my.gov.au",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 581,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 581
       },
       {
         "id": 46,
-        "url": "https://my.gov.au/content/dam/mygov/icons/shared/mygov-icons//logo_x.svg",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 593,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 593
       },
       {
         "id": 47,
-        "url": "https://my.gov.au/content/dam/mygov/icons/shared/mygov-icons//logo_mygov_lockup.svg",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 598,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 598
       },
       {
         "id": 48,
-        "url": "https://my.gov.au/content/dam/mygov/icons/shared/mygov-icons//logo_you_tube.svg",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 599,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 599
       },
       {
         "id": 49,
-        "url": "https://my.gov.au/content/dam/mygov/icons/shared/mygov-icons//expand_less.svg",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 690,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 690
       },
       {
         "id": 50,
-        "url": "https://my.gov.au/content/dam/mygov/icons/shared/mygov-icons//expand_less.svg",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 690,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 690
       },
       {
         "id": 51,
-        "url": "https://my.gov.au/content/dam/mygov/icons/small/ico-sign-in.svg",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1502,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1502
       },
       {
         "id": 52,
-        "url": "https://my.gov.au/content/dam/mygov/profile-summary-icons/ico-tile-profile.svg",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1504,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1504
       },
       {
         "id": 53,
-        "url": "https://my.gov.au/content/dam/mygov/icons/small/ico-home.svg",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1504,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1504
       },
       {
         "id": 54,
-        "url": "https://my.gov.au/content/dam/mygov/icons/small/ico-search.svg",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1505,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1505
       },
       {
         "id": 55,
-        "url": "https://my.gov.au/content/dam/mygov/icons/small/ico-help.svg",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1505,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1505
       },
       {
         "id": 56,
-        "url": "https://my.gov.au/content/dam/mygov/icons/shared/mygov-icons//login.svg",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1506,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1506
       },
       {
         "id": 57,
-        "url": "https://my.gov.au/content/dam/mygov/icons/shared/mygov-icons//info.svg",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1506,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1506
       },
       {
         "id": 58,
-        "url": "https://my.gov.au/content/dam/mygov/icons/shared/mygov-icons//expand_more.svg",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1506,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1506
       },
       {
         "id": 59,
-        "url": "https://my.gov.au/content/dam/mygov/icons/shared/mygov-icons//info.svg",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1594,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1594
       },
       {
         "id": 60,
-        "url": "https://my.gov.au/content/dam/mygov/icons/shared/mygov-icons//login.svg",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1595,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1595
       },
       {
         "id": 61,
-        "url": "https://my.gov.au/content/dam/mygov/icons/shared/mygov-icons//expand_more.svg",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1595,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1595
       },
       {
         "id": 62,
-        "url": "https://adobeedge.my.gov.au/ee/aus3/v1/collect?configId=&requestId=",
+        "url": "https://adobeedge.my.gov.au/{seg}/{seg}/{seg}/{seg}",
         "domain": "adobeedge.my.gov.au",
         "method": "POST",
         "resourceType": "ping",
         "status": 204,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1747,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1747
       },
       {
         "id": 63,
-        "url": "https://my.gov.au/etc/clientlibs/dtm-reactor/ENa69e9337c93f4637bb73b8b41a20e64d/6e780ef169d7/db51359f8b2c/848d45754acb/RC09c576cc25cf4c6e88a133520d7a94a7-source.min.js",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1748,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1748
       }
     ],
     "domains": [
@@ -912,7 +912,7 @@
     ],
     "cookies": [
       {
-        "name": "kndctr_EC313849616E91EC0A495EF0_AdobeOrg_cluster",
+        "name": "[redacted:long-token]",
         "domain": ".my.gov.au",
         "path": "/",
         "sameSite": "None",
@@ -922,7 +922,7 @@
         "thirdParty": false
       },
       {
-        "name": "kndctr_EC313849616E91EC0A495EF0_AdobeOrg_identity",
+        "name": "[redacted:long-token]",
         "domain": ".my.gov.au",
         "path": "/",
         "sameSite": "None",
@@ -932,7 +932,7 @@
         "thirdParty": false
       },
       {
-        "name": "AMCV_EC313849616E91EC0A495EF0%40AdobeOrg",
+        "name": "[redacted]",
         "domain": ".my.gov.au",
         "path": "/",
         "sameSite": "None",
@@ -945,32 +945,32 @@
     "storage": [
       {
         "area": "localStorage",
-        "key": "mgv.auth.synchroniseDataRequest",
+        "key": "[redacted]",
         "valueBytes": 214
       },
       {
         "area": "localStorage",
-        "key": "usr:profile",
+        "key": "[redacted]",
         "valueBytes": 4
       },
       {
         "area": "sessionStorage",
-        "key": "mgv.auth.discoveryDocuments",
+        "key": "[redacted]",
         "valueBytes": 711
       },
       {
         "area": "sessionStorage",
-        "key": "mgv.auth.storageSyncComplete",
+        "key": "[redacted]",
         "valueBytes": 4
       },
       {
         "area": "sessionStorage",
-        "key": "ClientAuthTabId",
+        "key": "[redacted]",
         "valueBytes": 6
       }
     ],
-    "fingerprintDetections": [],
     "fingerprintEvents": [],
+    "fingerprintDetections": [],
     "screenshot": null,
     "warnings": [
       "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
@@ -998,7 +998,7 @@
     },
     "conditions": {
       "requestedUrl": "https://www.australia.gov.au/",
-      "finalUrl": "https://my.gov.au/en/services",
+      "finalUrl": "https://my.gov.au/en/{seg}",
       "scannedAt": "2026-07-02T15:27:04.524Z",
       "chromiumVersion": "149.0.7827.55",
       "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
@@ -1015,6 +1015,13 @@
       "automation": "playwright-chromium",
       "headless": true,
       "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "block-simulation",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-02T01:00:58.178Z"
+      },
       "trackerCatalog": {
         "source": "Hand-curated service catalog",
         "version": "hand-curated-2026.06",
@@ -1023,14 +1030,7 @@
         "curatedOverrides": 133,
         "license": "AGPL-3.0-or-later"
       },
-      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
-      "adblock": {
-        "active": true,
-        "source": "Brave default ad-block lists",
-        "lists": 31,
-        "fetchedAt": "2026-07-02T01:00:58.178Z"
-      },
-      "shieldsMode": "block-simulation"
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
     },
     "requests": [
       {
@@ -1042,728 +1042,728 @@
         "status": 301,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 50,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 50
       },
       {
         "id": 2,
-        "url": "https://my.gov.au/en/services?redirectFrom=",
+        "url": "https://my.gov.au/en/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 148,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 148
       },
       {
         "id": 3,
-        "url": "https://my.gov.au/etc.clientlibs/servicesaustralia/clientlibs/clientlib-base.min.ACSHASHd41d8cd98f00b204e9800998ecf8427e.css",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 203,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 203
       },
       {
         "id": 4,
-        "url": "https://my.gov.au/etc.clientlibs/servicesaustralia/clientlibs/clientlib-grid.min.ACSHASHdb9d5e7c7d577c192bea16da014631a9.css",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 203,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 203
       },
       {
         "id": 5,
-        "url": "https://fonts.googleapis.com/css?family=&display=",
+        "url": "https://fonts.googleapis.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "fonts.googleapis.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 203,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 203
       },
       {
         "id": 6,
-        "url": "https://my.gov.au/etc.clientlibs/servicesaustralia-fed/clientlibs/imported.min.ACSHASHd41d8cd98f00b204e9800998ecf8427e.css",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 204,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 204
       },
       {
         "id": 7,
-        "url": "https://my.gov.au/etc.clientlibs/mygov-unauth-styles/clientlibs/styles.min.ACSHASH837a22fbf634c98d718c55279cebc62f.css",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 204,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 204
       },
       {
         "id": 8,
-        "url": "https://my.gov.au/etc.clientlibs/mygov-common/clientlibs/mygov.gui.kit.min.ACSHASH955530f17f3802d56ab8bd4a299a161f.css",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 204,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 204
       },
       {
         "id": 9,
-        "url": "https://my.gov.au/etc.clientlibs/core/wcm/components/page/v2/page/clientlibs/site/skiptomaincontent.min.ACSHASH696ce9a06faa733b225ffb8c05f16db9.css",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 207,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 207
       },
       {
         "id": 10,
-        "url": "https://my.gov.au/content/dam/mygov/public/images/brand/myGov-logo-black.svg",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 207,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 207
       },
       {
         "id": 11,
-        "url": "https://my.gov.au/content/dam/mygov/public/images/brand/myGov-logo-cobranded-black.svg",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 208,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 208
       },
       {
         "id": 12,
-        "url": "https://my.gov.au/etc.clientlibs/mygov-common/clientlibs/mygov.common.header.min.ACSHASH3b0031c1e973987c8fa48e36a83c2454.css",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 211,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 211
       },
       {
         "id": 13,
-        "url": "https://my.gov.au/etc.clientlibs/mygov-common/clientlibs/mygov.common.header.min.ACSHASH34e3d5ac447d8beed0b9ffdae1b0bcc4.js",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 211,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 211
       },
       {
         "id": 14,
-        "url": "https://my.gov.au/etc.clientlibs/mygov-info/clientlibs/mygov.info.breadcrumb.min.ACSHASHcee3f81f7fb838f5fb63e7f2c1c716d6.css",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 212,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 212
       },
       {
         "id": 15,
-        "url": "https://my.gov.au/etc.clientlibs/mygov-common/clientlibs/mygov.gui.kit.min.ACSHASHb16a511034cc9ce77f124c60e89c6d2b.js",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 212,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 212
       },
       {
         "id": 16,
-        "url": "https://my.gov.au/etc.clientlibs/mygov-info/clientlibs/mygov.info.list.min.ACSHASH4439173ef134f536cabc77f00a235da7.css",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 212,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 212
       },
       {
         "id": 17,
-        "url": "https://my.gov.au/etc.clientlibs/mygov-info/clientlibs/mygov.info.list.min.ACSHASHd41d8cd98f00b204e9800998ecf8427e.js",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 213,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 213
       },
       {
         "id": 18,
-        "url": "https://my.gov.au/etc.clientlibs/mygov-common/clientlibs/mygov.common.footer.min.ACSHASH1c1c363fe25f5b2160584a116fe09aec.css",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 213,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 213
       },
       {
         "id": 19,
-        "url": "https://my.gov.au/etc.clientlibs/servicesaustralia-fed/clientlibs/imported.min.ACSHASHb7f7998627cf3111feee3d0e151c3c76.js",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 213,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 213
       },
       {
         "id": 20,
-        "url": "https://my.gov.au/etc.clientlibs/servicesaustralia/clientlibs/clientlib-webview.min.ACSHASHb9872bee81d34122bd2899cdc48e0d7e.js",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 214,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 214
       },
       {
         "id": 21,
-        "url": "https://my.gov.au/etc.clientlibs/core/wcm/components/commons/site/clientlibs/container.min.ACSHASH0a6aff292f5cc42142779cde92054524.js",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 214,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 214
       },
       {
         "id": 22,
-        "url": "https://my.gov.au/etc.clientlibs/mygov-common/clientlibs/clientlib-base.min.ACSHASHb5fa255976e5d98ee1d63ba5e5b47b6f.js",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 214,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 214
       },
       {
         "id": 23,
-        "url": "https://my.gov.au/etc/clientlibs/dtm-reactor/ENa69e9337c93f4637bb73b8b41a20e64d/6e780ef169d7/db51359f8b2c/launch-3792184e5e46.min.js",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 215,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 215
       },
       {
         "id": 24,
-        "url": "https://my.gov.au/etc.clientlibs/core/wcm/components/commons/datalayer/v2/clientlibs/core.wcm.components.commons.datalayer.v2.min.ACSHASH1e0136bad0acfb78be509234578e44f9.js",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 215,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 215
       },
       {
         "id": 25,
-        "url": "https://my.gov.au/etc.clientlibs/core/wcm/components/commons/datalayer/acdl/core.wcm.components.commons.datalayer.acdl.min.ACSHASHbf921af342fd2c40139671dbf0920a1f.js",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 215,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 215
       },
       {
         "id": 26,
-        "url": "https://my.gov.au/content/dam/mygov/icons/shared/mygov-icons//menu.svg",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 370,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 370
       },
       {
         "id": 27,
-        "url": "https://my.gov.au/content/dam/mygov/icons/shared/mygov-icons//search.svg",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 371,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 371
       },
       {
         "id": 28,
-        "url": "https://fonts.gstatic.com/s/roboto/v51/KFO7CnqEu92Fr1ME7kSn66aGLdTylUAMa3yUBA.woff2",
+        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "fonts.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 381,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 381
       },
       {
         "id": 30,
-        "url": "https://my.gov.au/en/services/raising-kids/_jcr_content/_cq_featuredimage.coreimg.82.1360.jpeg/1693545613885/rasing-a-child-005-007-mygov-202259071.jpeg",
+        "url": "https://my.gov.au/en/{seg}/{seg}/{seg}/{seg}/{n}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 459,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 459
       },
       {
         "id": 31,
-        "url": "https://my.gov.au/en/services/living-arrangements/_jcr_content/_cq_featuredimage.coreimg.82.1360.jpeg/1717551575607/living-arrangements-category.jpeg",
+        "url": "https://my.gov.au/en/{seg}/{seg}/{seg}/{seg}/{n}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 460,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 460
       },
       {
         "id": 32,
-        "url": "https://my.gov.au/en/services/ageing/_jcr_content/_cq_featuredimage.coreimg.82.1360.jpeg/1695793697920/older-australian-049-050-mygov-202264483.jpeg",
+        "url": "https://my.gov.au/en/{seg}/{seg}/{seg}/{seg}/{n}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 460,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 460
       },
       {
         "id": 33,
-        "url": "https://my.gov.au/en/services/work/_jcr_content/_cq_featuredimage.coreimg.82.1360.jpeg/1718151573358/work-category.jpeg",
+        "url": "https://my.gov.au/en/{seg}/{seg}/{seg}/{seg}/{n}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 461,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 461
       },
       {
         "id": 34,
-        "url": "https://my.gov.au/content/dam/mygov/icons/shared/mygov-icons//expand_less.svg",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 471,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 471
       },
       {
         "id": 35,
-        "url": "https://my.gov.au/en/services/education/_jcr_content/_cq_featuredimage.coreimg.82.1360.jpeg/1718156969343/education-category.jpeg",
+        "url": "https://my.gov.au/en/{seg}/{seg}/{seg}/{seg}/{n}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 481,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 481
       },
       {
         "id": 36,
-        "url": "https://my.gov.au/en/services/health-and-disability/_jcr_content/_cq_featuredimage.coreimg.82.1360.jpeg/1718156799232/health-and-disability-category.jpeg",
+        "url": "https://my.gov.au/en/{seg}/{seg}/{seg}/{seg}/{n}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 482,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 482
       },
       {
         "id": 37,
-        "url": "https://my.gov.au/content/dam/mygov/icons/shared/mygov-icons//expand_less.svg",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 499,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 499
       },
       {
         "id": 38,
-        "url": "https://my.gov.au/content/dam/mygov/icons/shared/mygov-icons//search.svg",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 516,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 516
       },
       {
         "id": 39,
-        "url": "https://my.gov.au/content/dam/mygov/icons/shared/mygov-icons//menu.svg",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 517,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 517
       },
       {
         "id": 40,
-        "url": "https://my.gov.au/content/dam/mygov/icons/shared/mygov-icons//logo_x.svg",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 588,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 588
       },
       {
         "id": 41,
-        "url": "https://my.gov.au/content/dam/mygov/icons/shared/mygov-icons//logo_you_tube.svg",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 588,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 588
       },
       {
         "id": 42,
-        "url": "https://my.gov.au/content/dam/mygov/icons/shared/mygov-icons//logo_mygov_lockup.svg",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 588,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 588
       },
       {
         "id": 43,
-        "url": "https://my.gov.au/etc.clientlibs/mygov-unauth-styles/clientlibs/styles/resources/assets/icons/icon-info-white.svg",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 606,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 606
       },
       {
         "id": 44,
-        "url": "https://my.gov.au/etc.clientlibs/mygov-unauth-styles/clientlibs/styles/resources/assets/icons/Close%20@16.svg",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 606,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 606
       },
       {
         "id": 45,
-        "url": "https://login.my.gov.au/.well-known/openid-configuration",
+        "url": "https://login.my.gov.au/{seg}/{seg}",
         "domain": "login.my.gov.au",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 619,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 619
       },
       {
         "id": 47,
-        "url": "https://my.gov.au/content/dam/mygov/icons/shared/mygov-icons//expand_less.svg",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 658,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 658
       },
       {
         "id": 48,
-        "url": "https://my.gov.au/content/dam/mygov/icons/shared/mygov-icons//expand_less.svg",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 659,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 659
       },
       {
         "id": 49,
-        "url": "https://my.gov.au/content/dam/mygov/icons/shared/mygov-icons//logo_x.svg",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 660,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 660
       },
       {
         "id": 50,
-        "url": "https://my.gov.au/etc/clientlibs/dtm-reactor/ENa69e9337c93f4637bb73b8b41a20e64d/6e780ef169d7/db51359f8b2c/848d45754acb/RC09c576cc25cf4c6e88a133520d7a94a7-source.min.js",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 662,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 662
       },
       {
         "id": 51,
-        "url": "https://my.gov.au/content/dam/mygov/icons/shared/mygov-icons//logo_you_tube.svg",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 665,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 665
       },
       {
         "id": 52,
-        "url": "https://my.gov.au/content/dam/mygov/icons/shared/mygov-icons//logo_mygov_lockup.svg",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 668,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 668
       },
       {
         "id": 53,
-        "url": "https://my.gov.au/content/dam/mygov/icons/small/ico-sign-in.svg",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1587,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1587
       },
       {
         "id": 54,
-        "url": "https://my.gov.au/content/dam/mygov/profile-summary-icons/ico-tile-profile.svg",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1589,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1589
       },
       {
         "id": 55,
-        "url": "https://my.gov.au/content/dam/mygov/icons/small/ico-home.svg",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1589,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1589
       },
       {
         "id": 56,
-        "url": "https://my.gov.au/content/dam/mygov/icons/small/ico-search.svg",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1589,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1589
       },
       {
         "id": 57,
-        "url": "https://my.gov.au/content/dam/mygov/icons/small/ico-help.svg",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1590,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1590
       },
       {
         "id": 58,
-        "url": "https://my.gov.au/content/dam/mygov/icons/shared/mygov-icons//login.svg",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1590,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1590
       },
       {
         "id": 59,
-        "url": "https://my.gov.au/content/dam/mygov/icons/shared/mygov-icons//info.svg",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1591,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1591
       },
       {
         "id": 60,
-        "url": "https://my.gov.au/content/dam/mygov/icons/shared/mygov-icons//expand_more.svg",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1592,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1592
       },
       {
         "id": 61,
-        "url": "https://my.gov.au/content/dam/mygov/icons/shared/mygov-icons//info.svg",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1634,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1634
       },
       {
         "id": 62,
-        "url": "https://my.gov.au/content/dam/mygov/icons/shared/mygov-icons//login.svg",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1635,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1635
       },
       {
         "id": 63,
-        "url": "https://my.gov.au/content/dam/mygov/icons/shared/mygov-icons//expand_more.svg",
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "my.gov.au",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1636,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1636
       }
     ],
     "domains": [
@@ -1841,32 +1841,32 @@
     "storage": [
       {
         "area": "localStorage",
-        "key": "mgv.auth.synchroniseDataRequest",
+        "key": "[redacted]",
         "valueBytes": 214
       },
       {
         "area": "localStorage",
-        "key": "usr:profile",
+        "key": "[redacted]",
         "valueBytes": 4
       },
       {
         "area": "sessionStorage",
-        "key": "mgv.auth.discoveryDocuments",
+        "key": "[redacted]",
         "valueBytes": 711
       },
       {
         "area": "sessionStorage",
-        "key": "mgv.auth.storageSyncComplete",
+        "key": "[redacted]",
         "valueBytes": 4
       },
       {
         "area": "sessionStorage",
-        "key": "ClientAuthTabId",
+        "key": "[redacted]",
         "valueBytes": 6
       }
     ],
-    "fingerprintDetections": [],
     "fingerprintEvents": [],
+    "fingerprintDetections": [],
     "screenshot": null,
     "warnings": [
       "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
@@ -1928,17 +1928,12 @@
     "addedCookies": [],
     "removedCookies": [
       {
-        "name": "AMCV_EC313849616E91EC0A495EF0%40AdobeOrg",
+        "name": "[redacted:long-token]",
         "domain": ".my.gov.au",
         "thirdParty": false
       },
       {
-        "name": "kndctr_EC313849616E91EC0A495EF0_AdobeOrg_cluster",
-        "domain": ".my.gov.au",
-        "thirdParty": false
-      },
-      {
-        "name": "kndctr_EC313849616E91EC0A495EF0_AdobeOrg_identity",
+        "name": "[redacted]",
         "domain": ".my.gov.au",
         "thirdParty": false
       }

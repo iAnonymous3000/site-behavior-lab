@@ -1,11 +1,13 @@
 import assert from "node:assert/strict";
-import { mkdtemp, rm, writeFile } from "node:fs/promises";
+import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, test } from "node:test";
 import { buildCorpusStats } from "./corpus-stats-builder";
+import { buildProvenanceEntry, committedSidecarFilename } from "./redaction-provenance";
+import { redactScanReportV1 } from "./redact-scan-report-v1";
 import { makeScanReportV1 } from "./scan-report-v2-fixtures";
-import type { ScanResult } from "./types";
+import type { ScanReport, ScanResult } from "./types";
 
 let reportsDir = "";
 
@@ -25,12 +27,28 @@ function makeResult(overrides: {
 } = {}): ScanResult {
   const base = makeScanReportV1();
   if (base.reportType === "comparison") throw new Error("fixture must be a single report");
+  const thirdPartyRequests = overrides.thirdPartyRequests ?? base.summary.thirdPartyRequests;
   return {
     ...base,
+    requests:
+      overrides.thirdPartyRequests === undefined
+        ? base.requests
+        : Array.from({ length: thirdPartyRequests }, (_, index) => ({
+            id: index + 1,
+            url: `https://tracker.example.net/privacy?utm_source=${index}`,
+            domain: "tracker.example.net",
+            method: "GET",
+            resourceType: "image",
+            status: 200,
+            thirdParty: true,
+            tracker: null,
+            startedAtMs: index
+          })),
     summary: {
       ...base.summary,
       firstPartyDomain: overrides.firstPartyDomain ?? "shop.example.dev",
-      thirdPartyRequests: overrides.thirdPartyRequests ?? base.summary.thirdPartyRequests,
+      totalRequests: overrides.thirdPartyRequests === undefined ? base.summary.totalRequests : thirdPartyRequests,
+      thirdPartyRequests,
       status: overrides.status ?? base.summary.status
     },
     conditions: {
@@ -41,7 +59,27 @@ function makeResult(overrides: {
 }
 
 async function writeReport(id: string, report: unknown): Promise<void> {
+  const redacted = redactScanReportV1(report as ScanReport).report;
+  await writeReportAndSidecar(id, redacted);
+}
+
+async function writeRawManagedReport(id: string, report: unknown): Promise<void> {
+  await writeReportAndSidecar(id, report);
+}
+
+async function writeReportAndSidecar(id: string, report: unknown): Promise<void> {
   await writeFile(path.join(reportsDir, `${id}.json`), `${JSON.stringify(report)}\n`);
+  const value = report as { scannedAt?: unknown; conditions?: { scannedAt?: unknown } };
+  const createdAt = value.scannedAt ?? value.conditions?.scannedAt;
+  if (typeof createdAt !== "string") throw new Error("fixture needs a recorded scan time");
+  const sidecar = buildProvenanceEntry({
+    reportId: id,
+    publicReport: report,
+    writtenAt: "2026-07-12T00:00:00.000Z",
+    createdAt,
+    expiresAt: null
+  });
+  await writeFile(path.join(reportsDir, committedSidecarFilename(id)), `${JSON.stringify(sidecar)}\n`);
 }
 
 test("one data point per site, newest scan wins, percentiles over real sites", async () => {
@@ -66,7 +104,7 @@ test("one data point per site, newest scan wins, percentiles over real sites", a
   assert.equal(stats.metrics.thirdPartyRequests?.min, 20);
 });
 
-test("malformed reports are skipped with a warning, never zero-coerced into the distribution", async () => {
+test("malformed reports fail the managed corpus build, never zero-coerce into the distribution", async () => {
   await writeReport(
     "20260701-dddddddddddddddddddddddddddddddd",
     makeResult({ firstPartyDomain: "real.example.dev", thirdPartyRequests: 50 })
@@ -75,14 +113,9 @@ test("malformed reports are skipped with a warning, never zero-coerced into the 
     summary: Record<string, unknown>;
   };
   malformed.summary.thirdPartyRequests = "many";
-  await writeReport("20260701-eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee", malformed);
+  await writeRawManagedReport("20260701-eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee", malformed);
 
-  const { stats, warnings } = await buildCorpusStats(reportsDir);
-  assert.equal(warnings.length, 1);
-  assert.match(warnings[0], /Skipping corpus report/);
-  assert.equal(stats.sampleSize, 1);
-  // The old numberOrZero path would have added a 0 here and pulled p50 down.
-  assert.equal(stats.metrics.thirdPartyRequests?.min, 50);
+  await assert.rejects(() => buildCorpusStats(reportsDir), /invalid-report/);
 });
 
 test("error/block-page loads and reserved domains stay out of the distribution", async () => {
@@ -100,6 +133,7 @@ test("error/block-page loads and reserved domains stay out of the distribution",
 test("request-capped runs stay out of the distribution: their counts are floors, not behavior", async () => {
   const capped = makeResult({ firstPartyDomain: "heavy.example.dev", thirdPartyRequests: 900 });
   capped.summary.totalRequests = 1200;
+  capped.warnings = ["The scan stopped recording or loading additional requests after 1000 requests."];
   await writeReport("20260701-dddddddddddddddddddddddddddddddd", capped);
   await writeReport(
     "20260701-eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
@@ -141,4 +175,19 @@ test("a consent-interaction arm is covered but never measured: accept-all is not
   assert.equal(stats.sampleSize, 1);
   // The site still counts as covered: it loaded, it is in the corpus.
   assert.equal(stats.coverageSiteCount, 2);
+});
+
+test("missing or mismatched sidecars fail the corpus build", async () => {
+  const missingId = "20260701-11111111111111111111111111111111";
+  const report = redactScanReportV1(makeResult()).report;
+  await writeFile(path.join(reportsDir, `${missingId}.json`), `${JSON.stringify(report)}\n`);
+  await assert.rejects(() => buildCorpusStats(reportsDir), /no-sidecar/);
+
+  await rm(path.join(reportsDir, `${missingId}.json`));
+  const mismatchId = "20260701-22222222222222222222222222222222";
+  await writeReport(mismatchId, makeResult());
+  const sidecarPath = path.join(reportsDir, committedSidecarFilename(mismatchId));
+  const sidecar = JSON.parse(await readFile(sidecarPath, "utf8")) as Record<string, unknown>;
+  await writeFile(sidecarPath, `${JSON.stringify({ ...sidecar, redactionVersion: 999 })}\n`);
+  await assert.rejects(() => buildCorpusStats(reportsDir), /redaction-version-mismatch/);
 });

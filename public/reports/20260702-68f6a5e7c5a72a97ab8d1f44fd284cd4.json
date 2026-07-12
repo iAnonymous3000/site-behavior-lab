@@ -49,6 +49,13 @@
       "automation": "playwright-chromium",
       "headless": true,
       "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "classification",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-02T01:00:58.178Z"
+      },
       "trackerCatalog": {
         "source": "Hand-curated service catalog",
         "version": "hand-curated-2026.06",
@@ -57,14 +64,7 @@
         "curatedOverrides": 133,
         "license": "AGPL-3.0-or-later"
       },
-      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
-      "adblock": {
-        "active": true,
-        "source": "Brave default ad-block lists",
-        "lists": 31,
-        "fetchedAt": "2026-07-02T01:00:58.178Z"
-      },
-      "shieldsMode": "classification"
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
     },
     "requests": [
       {
@@ -76,68 +76,68 @@
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 43,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 43
       },
       {
         "id": 2,
-        "url": "https://www.wikipedia.org/portal/wikipedia.org/assets/img/Wikipedia-logo-v2.png",
+        "url": "https://www.wikipedia.org/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.wikipedia.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 71,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 71
       },
       {
         "id": 3,
-        "url": "https://www.wikipedia.org/portal/wikipedia.org/assets/js/index-34f340e24a.js",
+        "url": "https://www.wikipedia.org/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.wikipedia.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 72,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 72
       },
       {
         "id": 4,
-        "url": "https://www.wikipedia.org/portal/wikipedia.org/assets/js/gt-ie9-507b16b6be.js",
+        "url": "https://www.wikipedia.org/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.wikipedia.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 75,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 75
       },
       {
         "id": 5,
-        "url": "https://www.wikipedia.org/portal/wikipedia.org/assets/img/sprite-e49fbf32.svg",
+        "url": "https://www.wikipedia.org/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.wikipedia.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 207,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 207
       },
       {
         "id": 6,
-        "url": "https://en.wikipedia.org/w/api.php",
+        "url": "https://en.wikipedia.org/{seg}/{seg}",
         "domain": "en.wikipedia.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2575,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2575
       }
     ],
     "domains": [
@@ -172,7 +172,7 @@
     ],
     "cookies": [
       {
-        "name": "WMF-Last-Access-Global",
+        "name": "[redacted]",
         "domain": ".wikipedia.org",
         "path": "/",
         "sameSite": "Lax",
@@ -182,7 +182,7 @@
         "thirdParty": false
       },
       {
-        "name": "GeoIP",
+        "name": "[redacted]",
         "domain": ".wikipedia.org",
         "path": "/",
         "sameSite": "Lax",
@@ -192,7 +192,7 @@
         "thirdParty": false
       },
       {
-        "name": "WMF-Uniq",
+        "name": "[redacted]",
         "domain": ".wikipedia.org",
         "path": "/",
         "sameSite": "None",
@@ -202,7 +202,7 @@
         "thirdParty": false
       },
       {
-        "name": "WMF-Last-Access",
+        "name": "[redacted]",
         "domain": "www.wikipedia.org",
         "path": "/",
         "sameSite": "Lax",
@@ -212,7 +212,7 @@
         "thirdParty": false
       },
       {
-        "name": "NetworkProbeLimit",
+        "name": "[redacted]",
         "domain": "www.wikipedia.org",
         "path": "/",
         "sameSite": "None",
@@ -225,33 +225,33 @@
     "storage": [
       {
         "area": "localStorage",
-        "key": "portal_test_group_expires",
+        "key": "[redacted]",
         "valueBytes": 13
       },
       {
         "area": "localStorage",
-        "key": "translationHash",
+        "key": "[redacted]",
         "valueBytes": 8
       },
       {
         "area": "localStorage",
-        "key": "portal_session_id",
+        "key": "[redacted]",
         "valueBytes": 16
       }
     ],
-    "fingerprintDetections": [],
     "fingerprintEvents": [],
+    "fingerprintDetections": [],
+    "consentInteraction": {
+      "mode": "accept-all",
+      "clicked": false
+    },
     "screenshot": null,
     "warnings": [
       "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling or clicking except one scripted choice on the cookie/consent banner (disclosed below). Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
       "Counts are a lower bound: trackers that load only after further interaction, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
       "This visit was asked to choose \"Accept all\" on a cookie/consent banner, but no recognizable control was found (the banner may not be shown to this scanner's location, the choice may sit behind a settings layer, or the control is not in the catalog). Results reflect the pre-consent state.",
       "This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored."
-    ],
-    "consentInteraction": {
-      "mode": "accept-all",
-      "clicked": false
-    }
+    ]
   },
   "variant": {
     "ok": true,
@@ -291,6 +291,13 @@
       "automation": "playwright-chromium",
       "headless": true,
       "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "classification",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-02T01:00:58.178Z"
+      },
       "trackerCatalog": {
         "source": "Hand-curated service catalog",
         "version": "hand-curated-2026.06",
@@ -299,14 +306,7 @@
         "curatedOverrides": 133,
         "license": "AGPL-3.0-or-later"
       },
-      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
-      "adblock": {
-        "active": true,
-        "source": "Brave default ad-block lists",
-        "lists": 31,
-        "fetchedAt": "2026-07-02T01:00:58.178Z"
-      },
-      "shieldsMode": "classification"
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
     },
     "requests": [
       {
@@ -318,68 +318,68 @@
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 39,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 39
       },
       {
         "id": 2,
-        "url": "https://www.wikipedia.org/portal/wikipedia.org/assets/img/Wikipedia-logo-v2.png",
+        "url": "https://www.wikipedia.org/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.wikipedia.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 66,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 66
       },
       {
         "id": 3,
-        "url": "https://www.wikipedia.org/portal/wikipedia.org/assets/js/index-34f340e24a.js",
+        "url": "https://www.wikipedia.org/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.wikipedia.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 66,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 66
       },
       {
         "id": 4,
-        "url": "https://www.wikipedia.org/portal/wikipedia.org/assets/js/gt-ie9-507b16b6be.js",
+        "url": "https://www.wikipedia.org/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.wikipedia.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 69,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 69
       },
       {
         "id": 5,
-        "url": "https://www.wikipedia.org/portal/wikipedia.org/assets/img/sprite-e49fbf32.svg",
+        "url": "https://www.wikipedia.org/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.wikipedia.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 160,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 160
       },
       {
         "id": 6,
-        "url": "https://en.wikipedia.org/w/api.php",
+        "url": "https://en.wikipedia.org/{seg}/{seg}",
         "domain": "en.wikipedia.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2536,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2536
       }
     ],
     "domains": [
@@ -414,7 +414,7 @@
     ],
     "cookies": [
       {
-        "name": "WMF-Last-Access-Global",
+        "name": "[redacted]",
         "domain": ".wikipedia.org",
         "path": "/",
         "sameSite": "Lax",
@@ -424,7 +424,7 @@
         "thirdParty": false
       },
       {
-        "name": "GeoIP",
+        "name": "[redacted]",
         "domain": ".wikipedia.org",
         "path": "/",
         "sameSite": "Lax",
@@ -434,7 +434,7 @@
         "thirdParty": false
       },
       {
-        "name": "WMF-Uniq",
+        "name": "[redacted]",
         "domain": ".wikipedia.org",
         "path": "/",
         "sameSite": "None",
@@ -444,7 +444,7 @@
         "thirdParty": false
       },
       {
-        "name": "WMF-Last-Access",
+        "name": "[redacted]",
         "domain": "www.wikipedia.org",
         "path": "/",
         "sameSite": "Lax",
@@ -454,7 +454,7 @@
         "thirdParty": false
       },
       {
-        "name": "NetworkProbeLimit",
+        "name": "[redacted]",
         "domain": "www.wikipedia.org",
         "path": "/",
         "sameSite": "None",
@@ -467,33 +467,33 @@
     "storage": [
       {
         "area": "localStorage",
-        "key": "portal_test_group_expires",
+        "key": "[redacted]",
         "valueBytes": 13
       },
       {
         "area": "localStorage",
-        "key": "translationHash",
+        "key": "[redacted]",
         "valueBytes": 8
       },
       {
         "area": "localStorage",
-        "key": "portal_session_id",
+        "key": "[redacted]",
         "valueBytes": 16
       }
     ],
-    "fingerprintDetections": [],
     "fingerprintEvents": [],
+    "fingerprintDetections": [],
+    "consentInteraction": {
+      "mode": "reject-all",
+      "clicked": false
+    },
     "screenshot": null,
     "warnings": [
       "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling or clicking except one scripted choice on the cookie/consent banner (disclosed below). Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
       "Counts are a lower bound: trackers that load only after further interaction, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
       "This visit was asked to choose \"Reject all\" on a cookie/consent banner, but no recognizable control was found (the banner may not be shown to this scanner's location, the choice may sit behind a settings layer, or the control is not in the catalog). Results reflect the pre-consent state.",
       "This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored."
-    ],
-    "consentInteraction": {
-      "mode": "reject-all",
-      "clicked": false
-    }
+    ]
   },
   "diff": {
     "totalRequests": {

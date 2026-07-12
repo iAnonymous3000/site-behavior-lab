@@ -49,6 +49,13 @@
       "automation": "playwright-chromium",
       "headless": true,
       "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "classification",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-06-19T17:24:24.927Z"
+      },
       "trackerCatalog": {
         "source": "Hand-curated service catalog",
         "version": "hand-curated-2026.06",
@@ -57,14 +64,7 @@
         "curatedOverrides": 133,
         "license": "AGPL-3.0-or-later"
       },
-      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
-      "adblock": {
-        "active": true,
-        "source": "Brave default ad-block lists",
-        "lists": 31,
-        "fetchedAt": "2026-06-19T17:24:24.927Z"
-      },
-      "shieldsMode": "classification"
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
     },
     "requests": [
       {
@@ -76,876 +76,876 @@
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 30,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 30
       },
       {
         "id": 2,
-        "url": "https://www.nick.com/vendor.8fe91618583a4cfd.js",
+        "url": "https://www.nick.com/{seg}",
         "domain": "www.nick.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 81,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 81
       },
       {
         "id": 3,
-        "url": "https://www.nick.com/runtime.1c8b4c000f08ade7.js",
+        "url": "https://www.nick.com/{seg}",
         "domain": "www.nick.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 82,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 82
       },
       {
         "id": 4,
-        "url": "https://www.nick.com/kf-paladin.314db496ab9ee28e.js",
+        "url": "https://www.nick.com/{seg}",
         "domain": "www.nick.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 83,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 83
       },
       {
         "id": 5,
-        "url": "https://www.nick.com/322.a0a722ed879a178e.js",
+        "url": "https://www.nick.com/{seg}",
         "domain": "www.nick.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 83,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 83
       },
       {
         "id": 6,
-        "url": "https://www.nick.com/186.5887b44934de51b7.js",
+        "url": "https://www.nick.com/{seg}",
         "domain": "www.nick.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 83,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 83
       },
       {
         "id": 7,
-        "url": "https://www.nick.com/705.ced64c89b5969fe0.js",
+        "url": "https://www.nick.com/{seg}",
         "domain": "www.nick.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 84,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 84
       },
       {
         "id": 8,
-        "url": "https://www.nick.com/537.1ce98011ed5b9fc7.js",
+        "url": "https://www.nick.com/{seg}",
         "domain": "www.nick.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 84,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 84
       },
       {
         "id": 9,
-        "url": "https://www.nick.com/862.5684ef306cb18e55.js",
+        "url": "https://www.nick.com/{seg}",
         "domain": "www.nick.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 87,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 87
       },
       {
         "id": 10,
-        "url": "https://www.nick.com/692.c11a99eb80ed9498.js",
+        "url": "https://www.nick.com/{seg}",
         "domain": "www.nick.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 88,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 88
       },
       {
         "id": 11,
-        "url": "https://www.nick.com/684.d35853138217c7ae.js",
+        "url": "https://www.nick.com/{seg}",
         "domain": "www.nick.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 88,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 88
       },
       {
         "id": 12,
-        "url": "https://www.nick.com/811.7a6144b2297eecc0.js",
+        "url": "https://www.nick.com/{seg}",
         "domain": "www.nick.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 88,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 88
       },
       {
         "id": 13,
-        "url": "https://www.nick.com/183.4c8a84c0adbf7406.js",
+        "url": "https://www.nick.com/{seg}",
         "domain": "www.nick.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 89,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 89
       },
       {
         "id": 14,
-        "url": "https://www.nick.com/906.7de6c3e07064ed42.js",
+        "url": "https://www.nick.com/{seg}",
         "domain": "www.nick.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 89,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 89
       },
       {
         "id": 15,
-        "url": "https://www.nick.com/592.de31cf0b381b4e9f.js",
+        "url": "https://www.nick.com/{seg}",
         "domain": "www.nick.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 90,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 90
       },
       {
         "id": 16,
-        "url": "https://www.nick.com/215.3721f3f351fa0ec7.js",
+        "url": "https://www.nick.com/{seg}",
         "domain": "www.nick.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 90,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 90
       },
       {
         "id": 17,
-        "url": "https://www.nick.com/base-3bea24afcb-209-2026-06-09.css",
+        "url": "https://www.nick.com/{seg}",
         "domain": "www.nick.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 90,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 90
       },
       {
         "id": 18,
-        "url": "https://assets.nick.com/uri/mgid:arc:imageassetref:ws.kids.com:04c9713b-a992-4a4d-a718-0e765cc84c1a",
+        "url": "https://assets.nick.com/{seg}/{seg}",
         "domain": "assets.nick.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 91,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 91
       },
       {
         "id": 19,
-        "url": "https://assets.nick.com/uri/mgid:arc:imageassetref:ws.kids.com:5e05bc18-87f8-4746-ae5f-5789d5f815ef",
+        "url": "https://assets.nick.com/{seg}/{seg}",
         "domain": "assets.nick.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 91,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 91
       },
       {
         "id": 20,
-        "url": "https://images.paramount.tech/uri/mgid:arc:imageassetref:nick.com:b607be4e-9178-469a-bf68-13f623a50bef?format=",
+        "url": "https://images.paramount.tech/{seg}/{seg}?format=",
         "domain": "images.paramount.tech",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 107,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 107
       },
       {
         "id": 21,
-        "url": "https://assets.nick.com/uri/mgid:arc:imageassetref:ws.kids.com:5f481b77-f040-4b94-8338-66e2e29c3351",
+        "url": "https://assets.nick.com/{seg}/{seg}",
         "domain": "assets.nick.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 107,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 107
       },
       {
         "id": 22,
-        "url": "https://assets.nick.com/uri/mgid:arc:imageassetref:ws.kids.com:8db48fda-676c-42c2-a13b-38de8d36f3c5",
+        "url": "https://assets.nick.com/{seg}/{seg}",
         "domain": "assets.nick.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 108,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 108
       },
       {
         "id": 23,
-        "url": "https://cdn.privacy.paramount.com/dist/optanon-v2.0.0.js",
+        "url": "https://cdn.privacy.paramount.com/{seg}/{seg}",
         "domain": "cdn.privacy.paramount.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 108,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 108
       },
       {
         "id": 24,
-        "url": "https://assets.nick.com/uri/mgid:arc:imageassetref:ws.kids.com:015abfdc-b35f-493c-bcee-5c781930dd89",
+        "url": "https://assets.nick.com/{seg}/{seg}",
         "domain": "assets.nick.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 108,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 108
       },
       {
         "id": 25,
-        "url": "https://assets.nick.com/uri/mgid:arc:imageassetref:ws.kids.com:bfb92da7-ef73-4080-9c35-418ff032a611",
+        "url": "https://assets.nick.com/{seg}/{seg}",
         "domain": "assets.nick.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 109,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 109
       },
       {
         "id": 26,
-        "url": "https://assets.nick.com/uri/mgid:arc:imageassetref:ws.kids.com:84c95b01-258a-4f86-aaba-5ee8e82782c9",
+        "url": "https://assets.nick.com/{seg}/{seg}",
         "domain": "assets.nick.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 109,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 109
       },
       {
         "id": 27,
-        "url": "https://assets.nick.com/uri/mgid:arc:imageassetref:ws.kids.com:bf456946-7d90-4a80-a904-9fc5b6732f85",
+        "url": "https://assets.nick.com/{seg}/{seg}",
         "domain": "assets.nick.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 109,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 109
       },
       {
         "id": 28,
-        "url": "https://assets.nick.com/uri/mgid:arc:imageassetref:ws.kids.com:1bb6540a-4da6-4045-8e49-b3b6b5a28852",
+        "url": "https://assets.nick.com/{seg}/{seg}",
         "domain": "assets.nick.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 109,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 109
       },
       {
         "id": 29,
-        "url": "https://assets.nick.com/uri/mgid:arc:imageassetref:ws.kids.com:5e8b6865-3d01-4692-b1e5-5d603bf60b23",
+        "url": "https://assets.nick.com/{seg}/{seg}",
         "domain": "assets.nick.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 110,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 110
       },
       {
         "id": 30,
-        "url": "https://assets.nick.com/uri/mgid:arc:imageassetref:ws.kids.com:12c27189-7852-4a89-967d-3654502c4513",
+        "url": "https://assets.nick.com/{seg}/{seg}",
         "domain": "assets.nick.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 110,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 110
       },
       {
         "id": 31,
-        "url": "https://assets.nick.com/uri/mgid:arc:imageassetref:ws.kids.com:565632e7-930c-44f3-a392-671e5b0f18f3",
+        "url": "https://assets.nick.com/{seg}/{seg}",
         "domain": "assets.nick.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 110,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 110
       },
       {
         "id": 32,
-        "url": "https://assets.nick.com/uri/mgid:arc:imageassetref:ws.kids.com:3b4035cb-5e38-49bd-9c58-891660fe2341",
+        "url": "https://assets.nick.com/{seg}/{seg}",
         "domain": "assets.nick.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 110,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 110
       },
       {
         "id": 33,
-        "url": "https://assets.nick.com/uri/mgid:arc:imageassetref:ws.kids.com:b9bd3129-8325-4b2c-9e24-3fe9ba6c12f8",
+        "url": "https://assets.nick.com/{seg}/{seg}",
         "domain": "assets.nick.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 112,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 112
       },
       {
         "id": 34,
-        "url": "https://assets.nick.com/uri/mgid:arc:imageassetref:ws.kids.com:38317a00-4ff3-4663-b010-271e977bfdf7",
+        "url": "https://assets.nick.com/{seg}/{seg}",
         "domain": "assets.nick.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 112,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 112
       },
       {
         "id": 35,
-        "url": "https://assets.nick.com/uri/mgid:arc:imageassetref:ws.kids.com:419965c4-d3e2-4c9c-9e69-f2a1a873705f",
+        "url": "https://assets.nick.com/{seg}/{seg}",
         "domain": "assets.nick.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 113,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 113
       },
       {
         "id": 36,
-        "url": "https://assets.nick.com/uri/mgid:arc:imageassetref:ws.kids.com:36eff3af-7106-4341-b3c4-7faffad62d31",
+        "url": "https://assets.nick.com/{seg}/{seg}",
         "domain": "assets.nick.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 113,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 113
       },
       {
         "id": 37,
-        "url": "https://assets.nick.com/uri/mgid:arc:imageassetref:ws.kids.com:98866aaf-2000-4b64-bd7d-d8757cf77ac3",
+        "url": "https://assets.nick.com/{seg}/{seg}",
         "domain": "assets.nick.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 113,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 113
       },
       {
         "id": 38,
-        "url": "https://assets.nick.com/uri/mgid:arc:imageassetref:ws.kids.com:60581d1e-971f-4377-8094-5bf41a11dc8c",
+        "url": "https://assets.nick.com/{seg}/{seg}",
         "domain": "assets.nick.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 115,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 115
       },
       {
         "id": 39,
-        "url": "https://assets.nick.com/uri/mgid:arc:imageassetref:ws.kids.com:7a3d9ef2-ed84-437e-bfba-2830c4c6becd",
+        "url": "https://assets.nick.com/{seg}/{seg}",
         "domain": "assets.nick.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 116,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 116
       },
       {
         "id": 40,
-        "url": "https://assets.nick.com/uri/mgid:arc:imageassetref:ws.kids.com:e5062638-79b4-4cfc-b31c-6bbcee1a3f76",
+        "url": "https://assets.nick.com/{seg}/{seg}",
         "domain": "assets.nick.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 116,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 116
       },
       {
         "id": 41,
-        "url": "https://assets.nick.com/uri/mgid:arc:imageassetref:ws.kids.com:bd6587a0-d5a1-4997-b9b5-a076ae686df3",
+        "url": "https://assets.nick.com/{seg}/{seg}",
         "domain": "assets.nick.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 119,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 119
       },
       {
         "id": 42,
-        "url": "https://assets.nick.com/uri/mgid:arc:imageassetref:ws.kids.com:4f04929d-51ac-4cde-91cf-2dd3adb96b77",
+        "url": "https://assets.nick.com/{seg}/{seg}",
         "domain": "assets.nick.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 119,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 119
       },
       {
         "id": 43,
-        "url": "https://assets.nick.com/uri/mgid:arc:imageassetref:ws.kids.com:99a92999-ba07-446c-a6bf-e8adfba6cab3",
+        "url": "https://assets.nick.com/{seg}/{seg}",
         "domain": "assets.nick.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 119,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 119
       },
       {
         "id": 44,
-        "url": "https://assets.nick.com/uri/mgid:arc:imageassetref:ws.kids.com:30afa660-5643-40e7-8fa1-2bee743dbd83",
+        "url": "https://assets.nick.com/{seg}/{seg}",
         "domain": "assets.nick.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 119,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 119
       },
       {
         "id": 45,
-        "url": "https://assets.nick.com/uri/mgid:arc:imageassetref:ws.kids.com:f730420b-0669-4494-b625-292f6f03c886",
+        "url": "https://assets.nick.com/{seg}/{seg}",
         "domain": "assets.nick.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 120,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 120
       },
       {
         "id": 46,
-        "url": "https://assets.nick.com/uri/mgid:arc:imageassetref:ws.kids.com:b16d1df9-1983-460e-a450-2e735405c32c",
+        "url": "https://assets.nick.com/{seg}/{seg}",
         "domain": "assets.nick.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 120,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 120
       },
       {
         "id": 47,
-        "url": "https://assets.nick.com/uri/mgid:arc:imageassetref:ws.kids.com:f692bf86-3bbd-471c-9b90-06a50e13350a",
+        "url": "https://assets.nick.com/{seg}/{seg}",
         "domain": "assets.nick.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 120,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 120
       },
       {
         "id": 48,
-        "url": "https://assets.nick.com/uri/mgid:arc:imageassetref:ws.kids.com:54166302-f8b5-4e8d-a97c-363d6f7c27d5",
+        "url": "https://assets.nick.com/{seg}/{seg}",
         "domain": "assets.nick.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 120,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 120
       },
       {
         "id": 49,
-        "url": "https://assets.nick.com/uri/mgid:arc:imageassetref:ws.kids.com:b1926527-d03a-4eb5-b756-04a2d079e898",
+        "url": "https://assets.nick.com/{seg}/{seg}",
         "domain": "assets.nick.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 120,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 120
       },
       {
         "id": 50,
-        "url": "https://assets.nick.com/uri/mgid:arc:imageassetref:ws.kids.com:c474b5f0-3f21-4884-8643-064c6219f9dd",
+        "url": "https://assets.nick.com/{seg}/{seg}",
         "domain": "assets.nick.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 120,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 120
       },
       {
         "id": 51,
-        "url": "https://assets.nick.com/uri/mgid:arc:imageassetref:ws.kids.com:8f25ad70-09f0-4f7e-b985-34534ec8571b",
+        "url": "https://assets.nick.com/{seg}/{seg}",
         "domain": "assets.nick.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 120,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 120
       },
       {
         "id": 52,
-        "url": "https://assets.nick.com/uri/mgid:arc:imageassetref:ws.kids.com:b38f1489-fbf9-4586-bef8-0646d0004d54",
+        "url": "https://assets.nick.com/{seg}/{seg}",
         "domain": "assets.nick.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 121,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 121
       },
       {
         "id": 53,
-        "url": "https://assets.nick.com/uri/mgid:arc:imageassetref:ws.kids.com:41da1924-5279-4e30-bd4d-7203f350dbf7",
+        "url": "https://assets.nick.com/{seg}/{seg}",
         "domain": "assets.nick.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 121,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 121
       },
       {
         "id": 54,
-        "url": "https://assets.nick.com/uri/mgid:arc:imageassetref:ws.kids.com:ce2a5371-643b-47df-81b0-ac04f940eaba",
+        "url": "https://assets.nick.com/{seg}/{seg}",
         "domain": "assets.nick.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 121,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 121
       },
       {
         "id": 55,
-        "url": "https://assets.nick.com/uri/mgid:arc:imageassetref:ws.kids.com:c188f77f-2517-11f0-b405-16fff45bc035",
+        "url": "https://assets.nick.com/{seg}/{seg}",
         "domain": "assets.nick.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 121,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 121
       },
       {
         "id": 56,
-        "url": "https://assets.nick.com/uri/mgid:arc:imageassetref:ws.kids.com:68c57c0f-2517-11f0-b405-16fff45bc035",
+        "url": "https://assets.nick.com/{seg}/{seg}",
         "domain": "assets.nick.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 121,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 121
       },
       {
         "id": 57,
-        "url": "https://assets.nick.com/uri/mgid:arc:imageassetref:ws.kids.com:3db00db1-2516-11f0-b405-16fff45bc035",
+        "url": "https://assets.nick.com/{seg}/{seg}",
         "domain": "assets.nick.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 121,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 121
       },
       {
         "id": 58,
-        "url": "https://global.ketchcdn.com/web/v3/config/nickelodeon/nick_global/boot.js",
+        "url": "https://global.ketchcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "global.ketchcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 121,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 121
       },
       {
         "id": 59,
-        "url": "https://www.nick.com/svg/nickelodeon-splat-logo.svg",
+        "url": "https://www.nick.com/{seg}/{seg}",
         "domain": "www.nick.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 150,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 150
       },
       {
         "id": 60,
-        "url": "https://assets.nick.com/uri/mgid:arc:imageassetref:ws.kids.com:8eae99f5-80a2-40bf-add0-094358eacf97",
+        "url": "https://assets.nick.com/{seg}/{seg}",
         "domain": "assets.nick.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 153,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 153
       },
       {
         "id": 61,
-        "url": "https://images.paramount.tech/uri/mgid:arc:imageassetref:nick.com:b607be4e-9178-469a-bf68-13f623a50bef?format=",
+        "url": "https://images.paramount.tech/{seg}/{seg}?format=",
         "domain": "images.paramount.tech",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 239,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 239
       },
       {
         "id": 62,
-        "url": "https://www.nick.com/fonts/roc-grotesk/RocGrotesk-Black.woff2",
+        "url": "https://www.nick.com/{seg}/{seg}/{seg}",
         "domain": "www.nick.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 243,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 243
       },
       {
         "id": 63,
-        "url": "https://www.nick.com/fonts/neue-plak/NeuePlakBlack_normal_normal.woff2",
+        "url": "https://www.nick.com/{seg}/{seg}/{seg}",
         "domain": "www.nick.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 243,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 243
       },
       {
         "id": 64,
-        "url": "https://www.nick.com/fonts/neue-plak/NeuePlakTextRegular_normal_normal.woff2",
+        "url": "https://www.nick.com/{seg}/{seg}/{seg}",
         "domain": "www.nick.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 244,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 244
       },
       {
         "id": 65,
-        "url": "https://www.nick.com/fonts/neue-plak/NeuePlakTextBold.woff2",
+        "url": "https://www.nick.com/{seg}/{seg}/{seg}",
         "domain": "www.nick.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 244,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 244
       },
       {
         "id": 66,
-        "url": "https://assets.nick.com/uri/mgid:arc:imageassetref:ws.kids.com:c307b8dd-5ac6-4299-a7e5-ed01ce6425de",
+        "url": "https://assets.nick.com/{seg}/{seg}",
         "domain": "assets.nick.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 244,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 244
       },
       {
         "id": 67,
-        "url": "https://assets.nick.com/uri/mgid:arc:imageassetref:ws.kids.com:32dbacbc-7c56-4f4c-9909-5e4f077fd0f3",
+        "url": "https://assets.nick.com/{seg}/{seg}",
         "domain": "assets.nick.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 245,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 245
       },
       {
         "id": 68,
-        "url": "https://assets.nick.com/uri/mgid:arc:imageassetref:ws.kids.com:64287f3b-6beb-4fdb-abc8-166eac31807b",
+        "url": "https://assets.nick.com/{seg}/{seg}",
         "domain": "assets.nick.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 245,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 245
       },
       {
         "id": 69,
-        "url": "https://cdn.ketchjs.com/ketchtag/stable/v2.12/ketch-sdk.js",
+        "url": "https://cdn.ketchjs.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "cdn.ketchjs.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 303,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 303
       },
       {
         "id": 70,
-        "url": "https://tags.tiqcdn.com/utag/cbsi/nick-marketing/prod/utag.js",
+        "url": "https://tags.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "tags.tiqcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1089,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1089
       },
       {
         "id": 71,
-        "url": "https://at.cbsi.com/lib/dist/prod/bidbarrel-nick.min.js",
+        "url": "https://at.cbsi.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "at.cbsi.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1090,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1090
       },
       {
         "id": 72,
-        "url": "https://global.ketchcdn.com/web/v3/ip",
+        "url": "https://global.ketchcdn.com/{seg}/{seg}/{seg}",
         "domain": "global.ketchcdn.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1243,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1243
       },
       {
         "id": 73,
-        "url": "https://cdn.privacy.paramount.com/config/menu-web.json",
+        "url": "https://cdn.privacy.paramount.com/{seg}/{seg}",
         "domain": "cdn.privacy.paramount.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1250,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1250
       },
       {
         "id": 74,
-        "url": "https://dpm.demdex.net/id?d_rtbd=&d_ver=&d_orgid=",
+        "url": "https://dpm.demdex.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "dpm.demdex.net",
         "method": "GET",
         "resourceType": "fetch",
@@ -957,120 +957,120 @@
           "category": "analytics / advertising",
           "confidence": "curated"
         },
-        "startedAtMs": 1265,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1265
       },
       {
         "id": 75,
-        "url": "https://tags.tiqcdn.com/utag/tiqapp/utag.v.js?a=&cb=",
+        "url": "https://tags.tiqcdn.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&cb=",
         "domain": "tags.tiqcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1274,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1274
       },
       {
         "id": 76,
-        "url": "https://global.ketchcdn.com/web/v3/config/nickelodeon/nick_global/production/default/en-US/config.json?hash=",
+        "url": "https://global.ketchcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "global.ketchcdn.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1275,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1275
       },
       {
         "id": 77,
-        "url": "https://global.ketchcdn.com/web/v2/log?hasConsent=&url=&property=&environment=&jurisdiction=&tenant=&dver=&event_type=&ids=&region=",
+        "url": "https://global.ketchcdn.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "global.ketchcdn.com",
         "method": "POST",
         "resourceType": "ping",
         "status": 204,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1293,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1293
       },
       {
         "id": 78,
-        "url": "https://global.ketchcdn.com/web/v3/consent/nickelodeon/get",
+        "url": "https://global.ketchcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "global.ketchcdn.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1294,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1294
       },
       {
         "id": 79,
-        "url": "https://global.ketchcdn.com/web/v3/consent/nickelodeon/update",
+        "url": "https://global.ketchcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "global.ketchcdn.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1418,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1418
       },
       {
         "id": 80,
-        "url": "https://cdn1.adoberesources.net/alloy/2.14.0/alloy.min.js",
+        "url": "https://cdn1.adoberesources.net/{seg}/{seg}/{seg}",
         "domain": "cdn1.adoberesources.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1471,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1471
       },
       {
         "id": 81,
-        "url": "https://edge.adobedc.net/ee/v1/identity/acquire?configId=&requestId=",
+        "url": "https://edge.adobedc.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "edge.adobedc.net",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1510,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1510
       },
       {
         "id": 82,
-        "url": "https://at.cbsi.com/lib/api/v1/nick/prod/config/diff?variant=",
+        "url": "https://at.cbsi.com/{seg}/api/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "at.cbsi.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1722,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1722
       },
       {
         "id": 83,
-        "url": "https://ims-v4.paramount.tech/lookup/bidbarrel",
+        "url": "https://ims-v4.paramount.tech/{seg}/{seg}",
         "domain": "ims-v4.paramount.tech",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1722,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1722
       },
       {
         "id": 84,
-        "url": "https://js-agent.newrelic.com/async-api.eaff3276-1.237.0.min.js",
+        "url": "https://js-agent.newrelic.com/{seg}",
         "domain": "js-agent.newrelic.com",
         "method": "GET",
         "resourceType": "script",
@@ -1082,12 +1082,12 @@
           "category": "performance monitoring",
           "confidence": "curated"
         },
-        "startedAtMs": 1731,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1731
       },
       {
         "id": 85,
-        "url": "https://js-agent.newrelic.com/860.50b8f759-1.237.0.min.js",
+        "url": "https://js-agent.newrelic.com/{seg}",
         "domain": "js-agent.newrelic.com",
         "method": "GET",
         "resourceType": "script",
@@ -1099,12 +1099,12 @@
           "category": "performance monitoring",
           "confidence": "curated"
         },
-        "startedAtMs": 1731,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1731
       },
       {
         "id": 86,
-        "url": "https://js-agent.newrelic.com/session-manager.22036a2b-1.237.0.min.js",
+        "url": "https://js-agent.newrelic.com/{seg}",
         "domain": "js-agent.newrelic.com",
         "method": "GET",
         "resourceType": "script",
@@ -1116,24 +1116,24 @@
           "category": "performance monitoring",
           "confidence": "curated"
         },
-        "startedAtMs": 1731,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1731
       },
       {
         "id": 87,
-        "url": "https://edge.adobedc.net/ee/or2/v1/interact?configId=&requestId=",
+        "url": "https://edge.adobedc.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "edge.adobedc.net",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1737,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1737
       },
       {
         "id": 88,
-        "url": "https://securepubads.g.doubleclick.net/tag/js/gpt.js?network-code=",
+        "url": "https://securepubads.g.doubleclick.net/{seg}/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "securepubads.g.doubleclick.net",
         "method": "GET",
         "resourceType": "script",
@@ -1145,24 +1145,24 @@
           "category": "advertising",
           "confidence": "curated"
         },
-        "startedAtMs": 1815,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1815
       },
       {
         "id": 89,
-        "url": "https://at.cbsi.com/lib/api/client-info",
+        "url": "https://at.cbsi.com/{seg}/api/{seg}",
         "domain": "at.cbsi.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1817,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1817
       },
       {
         "id": 90,
-        "url": "https://js-agent.newrelic.com/lazy-feature-loader.d2774909-1.237.0.min.js",
+        "url": "https://js-agent.newrelic.com/{seg}",
         "domain": "js-agent.newrelic.com",
         "method": "GET",
         "resourceType": "script",
@@ -1174,12 +1174,12 @@
           "category": "performance monitoring",
           "confidence": "curated"
         },
-        "startedAtMs": 1826,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1826
       },
       {
         "id": 91,
-        "url": "https://js-agent.newrelic.com/646.a8872fbe-1.237.0.min.js",
+        "url": "https://js-agent.newrelic.com/{seg}",
         "domain": "js-agent.newrelic.com",
         "method": "GET",
         "resourceType": "script",
@@ -1191,12 +1191,12 @@
           "category": "performance monitoring",
           "confidence": "curated"
         },
-        "startedAtMs": 1841,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1841
       },
       {
         "id": 92,
-        "url": "https://js-agent.newrelic.com/page_view_event-aggregate.e765729e-1.237.0.min.js",
+        "url": "https://js-agent.newrelic.com/{seg}",
         "domain": "js-agent.newrelic.com",
         "method": "GET",
         "resourceType": "script",
@@ -1208,12 +1208,12 @@
           "category": "performance monitoring",
           "confidence": "curated"
         },
-        "startedAtMs": 1841,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1841
       },
       {
         "id": 93,
-        "url": "https://js-agent.newrelic.com/page_view_timing-aggregate.d72a908a-1.237.0.min.js",
+        "url": "https://js-agent.newrelic.com/{seg}",
         "domain": "js-agent.newrelic.com",
         "method": "GET",
         "resourceType": "script",
@@ -1225,12 +1225,12 @@
           "category": "performance monitoring",
           "confidence": "curated"
         },
-        "startedAtMs": 1841,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1841
       },
       {
         "id": 94,
-        "url": "https://js-agent.newrelic.com/metrics-aggregate.0d982f48-1.237.0.min.js",
+        "url": "https://js-agent.newrelic.com/{seg}",
         "domain": "js-agent.newrelic.com",
         "method": "GET",
         "resourceType": "script",
@@ -1242,12 +1242,12 @@
           "category": "performance monitoring",
           "confidence": "curated"
         },
-        "startedAtMs": 1842,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1842
       },
       {
         "id": 95,
-        "url": "https://js-agent.newrelic.com/jserrors-aggregate.f8100d3b-1.237.0.min.js",
+        "url": "https://js-agent.newrelic.com/{seg}",
         "domain": "js-agent.newrelic.com",
         "method": "GET",
         "resourceType": "script",
@@ -1259,12 +1259,12 @@
           "category": "performance monitoring",
           "confidence": "curated"
         },
-        "startedAtMs": 1842,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1842
       },
       {
         "id": 96,
-        "url": "https://js-agent.newrelic.com/ajax-aggregate.629e6d59-1.237.0.min.js",
+        "url": "https://js-agent.newrelic.com/{seg}",
         "domain": "js-agent.newrelic.com",
         "method": "GET",
         "resourceType": "script",
@@ -1276,12 +1276,12 @@
           "category": "performance monitoring",
           "confidence": "curated"
         },
-        "startedAtMs": 1842,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1842
       },
       {
         "id": 97,
-        "url": "https://js-agent.newrelic.com/session_trace-aggregate.a490ad60-1.237.0.min.js",
+        "url": "https://js-agent.newrelic.com/{seg}",
         "domain": "js-agent.newrelic.com",
         "method": "GET",
         "resourceType": "script",
@@ -1293,12 +1293,12 @@
           "category": "performance monitoring",
           "confidence": "curated"
         },
-        "startedAtMs": 1842,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1842
       },
       {
         "id": 98,
-        "url": "https://js-agent.newrelic.com/page_action-aggregate.636893b0-1.237.0.min.js",
+        "url": "https://js-agent.newrelic.com/{seg}",
         "domain": "js-agent.newrelic.com",
         "method": "GET",
         "resourceType": "script",
@@ -1310,12 +1310,12 @@
           "category": "performance monitoring",
           "confidence": "curated"
         },
-        "startedAtMs": 1843,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1843
       },
       {
         "id": 99,
-        "url": "https://js-agent.newrelic.com/spa-aggregate.495db083-1.237.0.min.js",
+        "url": "https://js-agent.newrelic.com/{seg}",
         "domain": "js-agent.newrelic.com",
         "method": "GET",
         "resourceType": "script",
@@ -1327,12 +1327,12 @@
           "category": "performance monitoring",
           "confidence": "curated"
         },
-        "startedAtMs": 1843,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1843
       },
       {
         "id": 100,
-        "url": "https://bam.nr-data.net/1/1ac7d5dd09?a=&sa=&v=&t=&rst=&ck=&s=&ref=&af=&be=&fe=&dc=&perf=&fp=&fcp=",
+        "url": "https://bam.nr-data.net/{n}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&v=&t=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&ref=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "bam.nr-data.net",
         "method": "POST",
         "resourceType": "xhr",
@@ -1344,12 +1344,12 @@
           "category": "performance monitoring",
           "confidence": "curated"
         },
-        "startedAtMs": 1868,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1868
       },
       {
         "id": 101,
-        "url": "https://securepubads.g.doubleclick.net/pagead/managed/js/gpt/m202606220101/pubads_impl.js",
+        "url": "https://securepubads.g.doubleclick.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "securepubads.g.doubleclick.net",
         "method": "GET",
         "resourceType": "script",
@@ -1361,12 +1361,12 @@
           "category": "advertising",
           "confidence": "curated"
         },
-        "startedAtMs": 1898,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1898
       },
       {
         "id": 102,
-        "url": "https://securepubads.g.doubleclick.net/pagead/managed/dict/m202606180101/gpt",
+        "url": "https://securepubads.g.doubleclick.net/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "securepubads.g.doubleclick.net",
         "method": "GET",
         "resourceType": "other",
@@ -1378,24 +1378,24 @@
           "category": "advertising",
           "confidence": "curated"
         },
-        "startedAtMs": 1899,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1899
       },
       {
         "id": 103,
-        "url": "https://fundingchoicesmessages.google.com/i/8264?ers=",
+        "url": "https://fundingchoicesmessages.google.com/{seg}/{n}?%5Bredacted%5D=",
         "domain": "fundingchoicesmessages.google.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 2029,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2029
       },
       {
         "id": 104,
-        "url": "https://bam.nr-data.net/events/1/1ac7d5dd09?a=&sa=&v=&t=&rst=&ck=&s=&ref=",
+        "url": "https://bam.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&v=&t=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&ref=",
         "domain": "bam.nr-data.net",
         "method": "POST",
         "resourceType": "xhr",
@@ -1407,12 +1407,12 @@
           "category": "performance monitoring",
           "confidence": "curated"
         },
-        "startedAtMs": 2051,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2051
       },
       {
         "id": 105,
-        "url": "https://cm.g.doubleclick.net/partnerpixels?tfat=&url=",
+        "url": "https://cm.g.doubleclick.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "cm.g.doubleclick.net",
         "method": "GET",
         "resourceType": "document",
@@ -1424,8 +1424,8 @@
           "category": "advertising",
           "confidence": "curated"
         },
-        "startedAtMs": 2119,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2119
       }
     ],
     "domains": [
@@ -1688,7 +1688,7 @@
     ],
     "cookies": [
       {
-        "name": "_BB.abStr",
+        "name": "[redacted]",
         "domain": "at.cbsi.com",
         "path": "/",
         "sameSite": "None",
@@ -1698,7 +1698,7 @@
         "thirdParty": true
       },
       {
-        "name": "utag_main",
+        "name": "[redacted]",
         "domain": ".nick.com",
         "path": "/",
         "sameSite": "Lax",
@@ -1708,7 +1708,7 @@
         "thirdParty": false
       },
       {
-        "name": "_swb",
+        "name": "[redacted]",
         "domain": ".nick.com",
         "path": "/",
         "sameSite": "None",
@@ -1718,7 +1718,7 @@
         "thirdParty": false
       },
       {
-        "name": "_ketch_consent_v1_",
+        "name": "[redacted:long-token]",
         "domain": ".nick.com",
         "path": "/",
         "sameSite": "None",
@@ -1728,7 +1728,7 @@
         "thirdParty": false
       },
       {
-        "name": "_swb_consent_",
+        "name": "[redacted]",
         "domain": ".nick.com",
         "path": "/",
         "sameSite": "None",
@@ -1738,7 +1738,7 @@
         "thirdParty": false
       },
       {
-        "name": "kndctr_10D31225525FF5790A490D4D_AdobeOrg_identity",
+        "name": "[redacted:long-token]",
         "domain": ".nick.com",
         "path": "/",
         "sameSite": "None",
@@ -1748,7 +1748,7 @@
         "thirdParty": false
       },
       {
-        "name": "kndctr_10D31225525FF5790A490D4D_AdobeOrg_cluster",
+        "name": "[redacted:long-token]",
         "domain": ".nick.com",
         "path": "/",
         "sameSite": "None",
@@ -1771,52 +1771,52 @@
     "storage": [
       {
         "area": "localStorage",
-        "key": "_swb_consent_",
+        "key": "[redacted]",
         "valueBytes": 1312
       },
       {
         "area": "localStorage",
-        "key": "fmscw_bidbarrel_resp",
+        "key": "[redacted]",
         "valueBytes": 509
       },
       {
         "area": "localStorage",
-        "key": "NRBA_SESSION",
+        "key": "[redacted]",
         "valueBytes": 158
       },
       {
         "area": "localStorage",
-        "key": "d_mid",
+        "key": "[redacted]",
         "valueBytes": 38
       },
       {
         "area": "localStorage",
-        "key": "ParamountCMP_LegalMenuText",
+        "key": "[redacted]",
         "valueBytes": 1148
       },
       {
         "area": "localStorage",
-        "key": "_swb_consent__metadata",
+        "key": "[redacted]",
         "valueBytes": 48
       },
       {
         "area": "localStorage",
-        "key": "_ketch_consent_v1_",
+        "key": "[redacted:long-token]",
         "valueBytes": 560
       },
       {
         "area": "sessionStorage",
-        "key": "sessionStart",
+        "key": "[redacted]",
         "valueBytes": 4
       },
       {
         "area": "sessionStorage",
-        "key": "pageTrackingDisabled",
+        "key": "[redacted]",
         "valueBytes": 5
       }
     ],
-    "fingerprintDetections": [],
     "fingerprintEvents": [],
+    "fingerprintDetections": [],
     "screenshot": null,
     "warnings": [
       "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
@@ -1861,6 +1861,13 @@
       "automation": "playwright-chromium",
       "headless": true,
       "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "block-simulation",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-06-19T17:24:24.927Z"
+      },
       "trackerCatalog": {
         "source": "Hand-curated service catalog",
         "version": "hand-curated-2026.06",
@@ -1869,14 +1876,7 @@
         "curatedOverrides": 133,
         "license": "AGPL-3.0-or-later"
       },
-      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
-      "adblock": {
-        "active": true,
-        "source": "Brave default ad-block lists",
-        "lists": 31,
-        "fetchedAt": "2026-06-19T17:24:24.927Z"
-      },
-      "shieldsMode": "block-simulation"
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
     },
     "requests": [
       {
@@ -1888,836 +1888,836 @@
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 37,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 37
       },
       {
         "id": 2,
-        "url": "https://www.nick.com/vendor.8fe91618583a4cfd.js",
+        "url": "https://www.nick.com/{seg}",
         "domain": "www.nick.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 85,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 85
       },
       {
         "id": 3,
-        "url": "https://www.nick.com/runtime.1c8b4c000f08ade7.js",
+        "url": "https://www.nick.com/{seg}",
         "domain": "www.nick.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 86,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 86
       },
       {
         "id": 4,
-        "url": "https://www.nick.com/kf-paladin.314db496ab9ee28e.js",
+        "url": "https://www.nick.com/{seg}",
         "domain": "www.nick.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 86,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 86
       },
       {
         "id": 5,
-        "url": "https://www.nick.com/322.a0a722ed879a178e.js",
+        "url": "https://www.nick.com/{seg}",
         "domain": "www.nick.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 87,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 87
       },
       {
         "id": 6,
-        "url": "https://www.nick.com/186.5887b44934de51b7.js",
+        "url": "https://www.nick.com/{seg}",
         "domain": "www.nick.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 87,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 87
       },
       {
         "id": 7,
-        "url": "https://www.nick.com/705.ced64c89b5969fe0.js",
+        "url": "https://www.nick.com/{seg}",
         "domain": "www.nick.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 87,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 87
       },
       {
         "id": 8,
-        "url": "https://www.nick.com/537.1ce98011ed5b9fc7.js",
+        "url": "https://www.nick.com/{seg}",
         "domain": "www.nick.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 88,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 88
       },
       {
         "id": 9,
-        "url": "https://www.nick.com/862.5684ef306cb18e55.js",
+        "url": "https://www.nick.com/{seg}",
         "domain": "www.nick.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 88,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 88
       },
       {
         "id": 10,
-        "url": "https://www.nick.com/692.c11a99eb80ed9498.js",
+        "url": "https://www.nick.com/{seg}",
         "domain": "www.nick.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 89,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 89
       },
       {
         "id": 11,
-        "url": "https://www.nick.com/684.d35853138217c7ae.js",
+        "url": "https://www.nick.com/{seg}",
         "domain": "www.nick.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 89,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 89
       },
       {
         "id": 12,
-        "url": "https://www.nick.com/811.7a6144b2297eecc0.js",
+        "url": "https://www.nick.com/{seg}",
         "domain": "www.nick.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 90,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 90
       },
       {
         "id": 13,
-        "url": "https://www.nick.com/183.4c8a84c0adbf7406.js",
+        "url": "https://www.nick.com/{seg}",
         "domain": "www.nick.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 90,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 90
       },
       {
         "id": 14,
-        "url": "https://www.nick.com/906.7de6c3e07064ed42.js",
+        "url": "https://www.nick.com/{seg}",
         "domain": "www.nick.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 90,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 90
       },
       {
         "id": 15,
-        "url": "https://www.nick.com/592.de31cf0b381b4e9f.js",
+        "url": "https://www.nick.com/{seg}",
         "domain": "www.nick.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 91,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 91
       },
       {
         "id": 16,
-        "url": "https://www.nick.com/215.3721f3f351fa0ec7.js",
+        "url": "https://www.nick.com/{seg}",
         "domain": "www.nick.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 91,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 91
       },
       {
         "id": 17,
-        "url": "https://www.nick.com/base-3bea24afcb-209-2026-06-09.css",
+        "url": "https://www.nick.com/{seg}",
         "domain": "www.nick.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 92,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 92
       },
       {
         "id": 18,
-        "url": "https://assets.nick.com/uri/mgid:arc:imageassetref:ws.kids.com:04c9713b-a992-4a4d-a718-0e765cc84c1a",
+        "url": "https://assets.nick.com/{seg}/{seg}",
         "domain": "assets.nick.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 92,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 92
       },
       {
         "id": 19,
-        "url": "https://assets.nick.com/uri/mgid:arc:imageassetref:ws.kids.com:5e05bc18-87f8-4746-ae5f-5789d5f815ef",
+        "url": "https://assets.nick.com/{seg}/{seg}",
         "domain": "assets.nick.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 92,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 92
       },
       {
         "id": 20,
-        "url": "https://images.paramount.tech/uri/mgid:arc:imageassetref:nick.com:b607be4e-9178-469a-bf68-13f623a50bef?format=",
+        "url": "https://images.paramount.tech/{seg}/{seg}?format=",
         "domain": "images.paramount.tech",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 111,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 111
       },
       {
         "id": 21,
-        "url": "https://assets.nick.com/uri/mgid:arc:imageassetref:ws.kids.com:5f481b77-f040-4b94-8338-66e2e29c3351",
+        "url": "https://assets.nick.com/{seg}/{seg}",
         "domain": "assets.nick.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 112,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 112
       },
       {
         "id": 22,
-        "url": "https://assets.nick.com/uri/mgid:arc:imageassetref:ws.kids.com:8db48fda-676c-42c2-a13b-38de8d36f3c5",
+        "url": "https://assets.nick.com/{seg}/{seg}",
         "domain": "assets.nick.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 115,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 115
       },
       {
         "id": 23,
-        "url": "https://cdn.privacy.paramount.com/dist/optanon-v2.0.0.js",
+        "url": "https://cdn.privacy.paramount.com/{seg}/{seg}",
         "domain": "cdn.privacy.paramount.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 124,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 124
       },
       {
         "id": 24,
-        "url": "https://assets.nick.com/uri/mgid:arc:imageassetref:ws.kids.com:015abfdc-b35f-493c-bcee-5c781930dd89",
+        "url": "https://assets.nick.com/{seg}/{seg}",
         "domain": "assets.nick.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 125,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 125
       },
       {
         "id": 25,
-        "url": "https://assets.nick.com/uri/mgid:arc:imageassetref:ws.kids.com:bfb92da7-ef73-4080-9c35-418ff032a611",
+        "url": "https://assets.nick.com/{seg}/{seg}",
         "domain": "assets.nick.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 125,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 125
       },
       {
         "id": 26,
-        "url": "https://assets.nick.com/uri/mgid:arc:imageassetref:ws.kids.com:84c95b01-258a-4f86-aaba-5ee8e82782c9",
+        "url": "https://assets.nick.com/{seg}/{seg}",
         "domain": "assets.nick.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 126,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 126
       },
       {
         "id": 27,
-        "url": "https://assets.nick.com/uri/mgid:arc:imageassetref:ws.kids.com:bf456946-7d90-4a80-a904-9fc5b6732f85",
+        "url": "https://assets.nick.com/{seg}/{seg}",
         "domain": "assets.nick.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 126,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 126
       },
       {
         "id": 28,
-        "url": "https://assets.nick.com/uri/mgid:arc:imageassetref:ws.kids.com:1bb6540a-4da6-4045-8e49-b3b6b5a28852",
+        "url": "https://assets.nick.com/{seg}/{seg}",
         "domain": "assets.nick.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 127,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 127
       },
       {
         "id": 29,
-        "url": "https://assets.nick.com/uri/mgid:arc:imageassetref:ws.kids.com:5e8b6865-3d01-4692-b1e5-5d603bf60b23",
+        "url": "https://assets.nick.com/{seg}/{seg}",
         "domain": "assets.nick.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 127,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 127
       },
       {
         "id": 30,
-        "url": "https://assets.nick.com/uri/mgid:arc:imageassetref:ws.kids.com:12c27189-7852-4a89-967d-3654502c4513",
+        "url": "https://assets.nick.com/{seg}/{seg}",
         "domain": "assets.nick.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 127,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 127
       },
       {
         "id": 31,
-        "url": "https://assets.nick.com/uri/mgid:arc:imageassetref:ws.kids.com:565632e7-930c-44f3-a392-671e5b0f18f3",
+        "url": "https://assets.nick.com/{seg}/{seg}",
         "domain": "assets.nick.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 127,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 127
       },
       {
         "id": 32,
-        "url": "https://assets.nick.com/uri/mgid:arc:imageassetref:ws.kids.com:3b4035cb-5e38-49bd-9c58-891660fe2341",
+        "url": "https://assets.nick.com/{seg}/{seg}",
         "domain": "assets.nick.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 128,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 128
       },
       {
         "id": 33,
-        "url": "https://assets.nick.com/uri/mgid:arc:imageassetref:ws.kids.com:b9bd3129-8325-4b2c-9e24-3fe9ba6c12f8",
+        "url": "https://assets.nick.com/{seg}/{seg}",
         "domain": "assets.nick.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 128,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 128
       },
       {
         "id": 34,
-        "url": "https://assets.nick.com/uri/mgid:arc:imageassetref:ws.kids.com:38317a00-4ff3-4663-b010-271e977bfdf7",
+        "url": "https://assets.nick.com/{seg}/{seg}",
         "domain": "assets.nick.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 128,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 128
       },
       {
         "id": 35,
-        "url": "https://assets.nick.com/uri/mgid:arc:imageassetref:ws.kids.com:419965c4-d3e2-4c9c-9e69-f2a1a873705f",
+        "url": "https://assets.nick.com/{seg}/{seg}",
         "domain": "assets.nick.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 128,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 128
       },
       {
         "id": 36,
-        "url": "https://assets.nick.com/uri/mgid:arc:imageassetref:ws.kids.com:36eff3af-7106-4341-b3c4-7faffad62d31",
+        "url": "https://assets.nick.com/{seg}/{seg}",
         "domain": "assets.nick.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 129,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 129
       },
       {
         "id": 37,
-        "url": "https://assets.nick.com/uri/mgid:arc:imageassetref:ws.kids.com:98866aaf-2000-4b64-bd7d-d8757cf77ac3",
+        "url": "https://assets.nick.com/{seg}/{seg}",
         "domain": "assets.nick.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 129,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 129
       },
       {
         "id": 38,
-        "url": "https://assets.nick.com/uri/mgid:arc:imageassetref:ws.kids.com:60581d1e-971f-4377-8094-5bf41a11dc8c",
+        "url": "https://assets.nick.com/{seg}/{seg}",
         "domain": "assets.nick.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 129,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 129
       },
       {
         "id": 39,
-        "url": "https://assets.nick.com/uri/mgid:arc:imageassetref:ws.kids.com:7a3d9ef2-ed84-437e-bfba-2830c4c6becd",
+        "url": "https://assets.nick.com/{seg}/{seg}",
         "domain": "assets.nick.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 130,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 130
       },
       {
         "id": 40,
-        "url": "https://assets.nick.com/uri/mgid:arc:imageassetref:ws.kids.com:e5062638-79b4-4cfc-b31c-6bbcee1a3f76",
+        "url": "https://assets.nick.com/{seg}/{seg}",
         "domain": "assets.nick.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 130,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 130
       },
       {
         "id": 41,
-        "url": "https://assets.nick.com/uri/mgid:arc:imageassetref:ws.kids.com:bd6587a0-d5a1-4997-b9b5-a076ae686df3",
+        "url": "https://assets.nick.com/{seg}/{seg}",
         "domain": "assets.nick.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 130,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 130
       },
       {
         "id": 42,
-        "url": "https://assets.nick.com/uri/mgid:arc:imageassetref:ws.kids.com:4f04929d-51ac-4cde-91cf-2dd3adb96b77",
+        "url": "https://assets.nick.com/{seg}/{seg}",
         "domain": "assets.nick.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 130,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 130
       },
       {
         "id": 43,
-        "url": "https://assets.nick.com/uri/mgid:arc:imageassetref:ws.kids.com:99a92999-ba07-446c-a6bf-e8adfba6cab3",
+        "url": "https://assets.nick.com/{seg}/{seg}",
         "domain": "assets.nick.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 131,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 131
       },
       {
         "id": 44,
-        "url": "https://assets.nick.com/uri/mgid:arc:imageassetref:ws.kids.com:30afa660-5643-40e7-8fa1-2bee743dbd83",
+        "url": "https://assets.nick.com/{seg}/{seg}",
         "domain": "assets.nick.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 131,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 131
       },
       {
         "id": 45,
-        "url": "https://assets.nick.com/uri/mgid:arc:imageassetref:ws.kids.com:f730420b-0669-4494-b625-292f6f03c886",
+        "url": "https://assets.nick.com/{seg}/{seg}",
         "domain": "assets.nick.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 131,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 131
       },
       {
         "id": 46,
-        "url": "https://assets.nick.com/uri/mgid:arc:imageassetref:ws.kids.com:b16d1df9-1983-460e-a450-2e735405c32c",
+        "url": "https://assets.nick.com/{seg}/{seg}",
         "domain": "assets.nick.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 131,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 131
       },
       {
         "id": 47,
-        "url": "https://assets.nick.com/uri/mgid:arc:imageassetref:ws.kids.com:f692bf86-3bbd-471c-9b90-06a50e13350a",
+        "url": "https://assets.nick.com/{seg}/{seg}",
         "domain": "assets.nick.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 132,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 132
       },
       {
         "id": 48,
-        "url": "https://assets.nick.com/uri/mgid:arc:imageassetref:ws.kids.com:54166302-f8b5-4e8d-a97c-363d6f7c27d5",
+        "url": "https://assets.nick.com/{seg}/{seg}",
         "domain": "assets.nick.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 132,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 132
       },
       {
         "id": 49,
-        "url": "https://assets.nick.com/uri/mgid:arc:imageassetref:ws.kids.com:b1926527-d03a-4eb5-b756-04a2d079e898",
+        "url": "https://assets.nick.com/{seg}/{seg}",
         "domain": "assets.nick.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 136,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 136
       },
       {
         "id": 50,
-        "url": "https://assets.nick.com/uri/mgid:arc:imageassetref:ws.kids.com:c474b5f0-3f21-4884-8643-064c6219f9dd",
+        "url": "https://assets.nick.com/{seg}/{seg}",
         "domain": "assets.nick.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 137,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 137
       },
       {
         "id": 51,
-        "url": "https://assets.nick.com/uri/mgid:arc:imageassetref:ws.kids.com:8f25ad70-09f0-4f7e-b985-34534ec8571b",
+        "url": "https://assets.nick.com/{seg}/{seg}",
         "domain": "assets.nick.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 137,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 137
       },
       {
         "id": 52,
-        "url": "https://assets.nick.com/uri/mgid:arc:imageassetref:ws.kids.com:b38f1489-fbf9-4586-bef8-0646d0004d54",
+        "url": "https://assets.nick.com/{seg}/{seg}",
         "domain": "assets.nick.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 138,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 138
       },
       {
         "id": 53,
-        "url": "https://assets.nick.com/uri/mgid:arc:imageassetref:ws.kids.com:41da1924-5279-4e30-bd4d-7203f350dbf7",
+        "url": "https://assets.nick.com/{seg}/{seg}",
         "domain": "assets.nick.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 138,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 138
       },
       {
         "id": 54,
-        "url": "https://assets.nick.com/uri/mgid:arc:imageassetref:ws.kids.com:ce2a5371-643b-47df-81b0-ac04f940eaba",
+        "url": "https://assets.nick.com/{seg}/{seg}",
         "domain": "assets.nick.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 139,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 139
       },
       {
         "id": 55,
-        "url": "https://assets.nick.com/uri/mgid:arc:imageassetref:ws.kids.com:c188f77f-2517-11f0-b405-16fff45bc035",
+        "url": "https://assets.nick.com/{seg}/{seg}",
         "domain": "assets.nick.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 139,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 139
       },
       {
         "id": 56,
-        "url": "https://assets.nick.com/uri/mgid:arc:imageassetref:ws.kids.com:68c57c0f-2517-11f0-b405-16fff45bc035",
+        "url": "https://assets.nick.com/{seg}/{seg}",
         "domain": "assets.nick.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 140,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 140
       },
       {
         "id": 57,
-        "url": "https://assets.nick.com/uri/mgid:arc:imageassetref:ws.kids.com:3db00db1-2516-11f0-b405-16fff45bc035",
+        "url": "https://assets.nick.com/{seg}/{seg}",
         "domain": "assets.nick.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 140,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 140
       },
       {
         "id": 59,
-        "url": "https://www.nick.com/svg/nickelodeon-splat-logo.svg",
+        "url": "https://www.nick.com/{seg}/{seg}",
         "domain": "www.nick.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 176,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 176
       },
       {
         "id": 60,
-        "url": "https://assets.nick.com/uri/mgid:arc:imageassetref:ws.kids.com:8eae99f5-80a2-40bf-add0-094358eacf97",
+        "url": "https://assets.nick.com/{seg}/{seg}",
         "domain": "assets.nick.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 187,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 187
       },
       {
         "id": 61,
-        "url": "https://images.paramount.tech/uri/mgid:arc:imageassetref:nick.com:b607be4e-9178-469a-bf68-13f623a50bef?format=",
+        "url": "https://images.paramount.tech/{seg}/{seg}?format=",
         "domain": "images.paramount.tech",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 266,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 266
       },
       {
         "id": 62,
-        "url": "https://www.nick.com/fonts/roc-grotesk/RocGrotesk-Black.woff2",
+        "url": "https://www.nick.com/{seg}/{seg}/{seg}",
         "domain": "www.nick.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 267,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 267
       },
       {
         "id": 63,
-        "url": "https://www.nick.com/fonts/neue-plak/NeuePlakBlack_normal_normal.woff2",
+        "url": "https://www.nick.com/{seg}/{seg}/{seg}",
         "domain": "www.nick.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 271,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 271
       },
       {
         "id": 64,
-        "url": "https://www.nick.com/fonts/neue-plak/NeuePlakTextRegular_normal_normal.woff2",
+        "url": "https://www.nick.com/{seg}/{seg}/{seg}",
         "domain": "www.nick.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 272,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 272
       },
       {
         "id": 65,
-        "url": "https://www.nick.com/fonts/neue-plak/NeuePlakTextBold.woff2",
+        "url": "https://www.nick.com/{seg}/{seg}/{seg}",
         "domain": "www.nick.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 272,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 272
       },
       {
         "id": 66,
-        "url": "https://assets.nick.com/uri/mgid:arc:imageassetref:ws.kids.com:c307b8dd-5ac6-4299-a7e5-ed01ce6425de",
+        "url": "https://assets.nick.com/{seg}/{seg}",
         "domain": "assets.nick.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 275,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 275
       },
       {
         "id": 67,
-        "url": "https://assets.nick.com/uri/mgid:arc:imageassetref:ws.kids.com:32dbacbc-7c56-4f4c-9909-5e4f077fd0f3",
+        "url": "https://assets.nick.com/{seg}/{seg}",
         "domain": "assets.nick.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 278,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 278
       },
       {
         "id": 68,
-        "url": "https://assets.nick.com/uri/mgid:arc:imageassetref:ws.kids.com:64287f3b-6beb-4fdb-abc8-166eac31807b",
+        "url": "https://assets.nick.com/{seg}/{seg}",
         "domain": "assets.nick.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 282,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 282
       },
       {
         "id": 69,
-        "url": "https://cdn.privacy.paramount.com/config/menu-web.json",
+        "url": "https://cdn.privacy.paramount.com/{seg}/{seg}",
         "domain": "cdn.privacy.paramount.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 302,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 302
       },
       {
         "id": 70,
-        "url": "https://tags.tiqcdn.com/utag/cbsi/nick-marketing/prod/utag.js",
+        "url": "https://tags.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "tags.tiqcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 932,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 932
       },
       {
         "id": 76,
-        "url": "https://tags.tiqcdn.com/utag/tiqapp/utag.v.js?a=&cb=",
+        "url": "https://tags.tiqcdn.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&cb=",
         "domain": "tags.tiqcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1013,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1013
       }
     ],
     "domains": [
@@ -2794,7 +2794,7 @@
     ],
     "cookies": [
       {
-        "name": "utag_main",
+        "name": "[redacted]",
         "domain": ".nick.com",
         "path": "/",
         "sameSite": "Lax",
@@ -2807,22 +2807,22 @@
     "storage": [
       {
         "area": "localStorage",
-        "key": "ParamountCMP_LegalMenuText",
+        "key": "[redacted]",
         "valueBytes": 1148
       },
       {
         "area": "sessionStorage",
-        "key": "sessionStart",
+        "key": "[redacted]",
         "valueBytes": 4
       },
       {
         "area": "sessionStorage",
-        "key": "pageTrackingDisabled",
+        "key": "[redacted]",
         "valueBytes": 5
       }
     ],
-    "fingerprintDetections": [],
     "fingerprintEvents": [],
+    "fingerprintDetections": [],
     "screenshot": null,
     "warnings": [
       "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
@@ -2980,32 +2980,12 @@
     "addedCookies": [],
     "removedCookies": [
       {
-        "name": "_BB.abStr",
+        "name": "[redacted]",
         "domain": "at.cbsi.com",
         "thirdParty": true
       },
       {
-        "name": "_ketch_consent_v1_",
-        "domain": ".nick.com",
-        "thirdParty": false
-      },
-      {
-        "name": "_swb",
-        "domain": ".nick.com",
-        "thirdParty": false
-      },
-      {
-        "name": "_swb_consent_",
-        "domain": ".nick.com",
-        "thirdParty": false
-      },
-      {
-        "name": "kndctr_10D31225525FF5790A490D4D_AdobeOrg_cluster",
-        "domain": ".nick.com",
-        "thirdParty": false
-      },
-      {
-        "name": "kndctr_10D31225525FF5790A490D4D_AdobeOrg_identity",
+        "name": "[redacted:long-token]",
         "domain": ".nick.com",
         "thirdParty": false
       },
@@ -3019,27 +2999,7 @@
     "removedStorageKeys": [
       {
         "area": "localStorage",
-        "key": "_ketch_consent_v1_"
-      },
-      {
-        "area": "localStorage",
-        "key": "_swb_consent_"
-      },
-      {
-        "area": "localStorage",
-        "key": "_swb_consent__metadata"
-      },
-      {
-        "area": "localStorage",
-        "key": "d_mid"
-      },
-      {
-        "area": "localStorage",
-        "key": "fmscw_bidbarrel_resp"
-      },
-      {
-        "area": "localStorage",
-        "key": "NRBA_SESSION"
+        "key": "[redacted:long-token]"
       }
     ],
     "addedFingerprinting": [],

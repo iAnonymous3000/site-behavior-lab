@@ -49,6 +49,13 @@
       "automation": "playwright-chromium",
       "headless": true,
       "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "classification",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-02T01:00:58.178Z"
+      },
       "trackerCatalog": {
         "source": "Hand-curated service catalog",
         "version": "hand-curated-2026.06",
@@ -57,14 +64,7 @@
         "curatedOverrides": 133,
         "license": "AGPL-3.0-or-later"
       },
-      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
-      "adblock": {
-        "active": true,
-        "source": "Brave default ad-block lists",
-        "lists": 31,
-        "fetchedAt": "2026-07-02T01:00:58.178Z"
-      },
-      "shieldsMode": "classification"
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
     },
     "requests": [
       {
@@ -76,68 +76,68 @@
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 43,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 43
       },
       {
         "id": 2,
-        "url": "https://news.ycombinator.com/news.css",
+        "url": "https://news.ycombinator.com/{seg}",
         "domain": "news.ycombinator.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 320,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 320
       },
       {
         "id": 3,
-        "url": "https://news.ycombinator.com/y18.svg",
+        "url": "https://news.ycombinator.com/{seg}",
         "domain": "news.ycombinator.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 321,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 321
       },
       {
         "id": 4,
-        "url": "https://news.ycombinator.com/hn.js",
+        "url": "https://news.ycombinator.com/{seg}",
         "domain": "news.ycombinator.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 322,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 322
       },
       {
         "id": 5,
-        "url": "https://news.ycombinator.com/s.gif",
+        "url": "https://news.ycombinator.com/{seg}",
         "domain": "news.ycombinator.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 324,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 324
       },
       {
         "id": 6,
-        "url": "https://news.ycombinator.com/triangle.svg",
+        "url": "https://news.ycombinator.com/{seg}",
         "domain": "news.ycombinator.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 493,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 493
       }
     ],
     "domains": [
@@ -160,8 +160,8 @@
     ],
     "cookies": [],
     "storage": [],
-    "fingerprintDetections": [],
     "fingerprintEvents": [],
+    "fingerprintDetections": [],
     "screenshot": null,
     "warnings": [
       "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
@@ -207,6 +207,13 @@
       "automation": "playwright-chromium",
       "headless": true,
       "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "block-simulation",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-02T01:00:58.178Z"
+      },
       "trackerCatalog": {
         "source": "Hand-curated service catalog",
         "version": "hand-curated-2026.06",
@@ -215,14 +222,7 @@
         "curatedOverrides": 133,
         "license": "AGPL-3.0-or-later"
       },
-      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
-      "adblock": {
-        "active": true,
-        "source": "Brave default ad-block lists",
-        "lists": 31,
-        "fetchedAt": "2026-07-02T01:00:58.178Z"
-      },
-      "shieldsMode": "block-simulation"
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
     },
     "requests": [
       {
@@ -234,68 +234,68 @@
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 43,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 43
       },
       {
         "id": 2,
-        "url": "https://news.ycombinator.com/news.css",
+        "url": "https://news.ycombinator.com/{seg}",
         "domain": "news.ycombinator.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 351,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 351
       },
       {
         "id": 3,
-        "url": "https://news.ycombinator.com/y18.svg",
+        "url": "https://news.ycombinator.com/{seg}",
         "domain": "news.ycombinator.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 352,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 352
       },
       {
         "id": 4,
-        "url": "https://news.ycombinator.com/hn.js",
+        "url": "https://news.ycombinator.com/{seg}",
         "domain": "news.ycombinator.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 353,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 353
       },
       {
         "id": 5,
-        "url": "https://news.ycombinator.com/s.gif",
+        "url": "https://news.ycombinator.com/{seg}",
         "domain": "news.ycombinator.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 354,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 354
       },
       {
         "id": 6,
-        "url": "https://news.ycombinator.com/triangle.svg",
+        "url": "https://news.ycombinator.com/{seg}",
         "domain": "news.ycombinator.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 529,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 529
       }
     ],
     "domains": [
@@ -318,8 +318,8 @@
     ],
     "cookies": [],
     "storage": [],
-    "fingerprintDetections": [],
     "fingerprintEvents": [],
+    "fingerprintDetections": [],
     "screenshot": null,
     "warnings": [
       "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",

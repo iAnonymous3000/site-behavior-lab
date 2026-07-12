@@ -49,6 +49,13 @@
       "automation": "playwright-chromium",
       "headless": true,
       "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "classification",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-06-19T17:24:24.927Z"
+      },
       "trackerCatalog": {
         "source": "Hand-curated service catalog",
         "version": "hand-curated-2026.06",
@@ -57,14 +64,7 @@
         "curatedOverrides": 133,
         "license": "AGPL-3.0-or-later"
       },
-      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
-      "adblock": {
-        "active": true,
-        "source": "Brave default ad-block lists",
-        "lists": 31,
-        "fetchedAt": "2026-06-19T17:24:24.927Z"
-      },
-      "shieldsMode": "classification"
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
     },
     "requests": [
       {
@@ -76,300 +76,300 @@
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 32,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 32
       },
       {
         "id": 2,
-        "url": "https://cdn.cookielaw.org/scripttemplates/otSDKStub.js",
+        "url": "https://cdn.cookielaw.org/{seg}/{seg}",
         "domain": "cdn.cookielaw.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 180,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 180
       },
       {
         "id": 3,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/js/manifest-2ac3ee2b.js",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 180,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 180
       },
       {
         "id": 4,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/css/9951-1ae9d7a9.css",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 181,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 181
       },
       {
         "id": 5,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/css/app-cf8d2293.css",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 181,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 181
       },
       {
         "id": 6,
-        "url": "https://cdn.cookielaw.org/consent/55a7f100-001e-4085-87ec-1a6d522f7d67/55a7f100-001e-4085-87ec-1a6d522f7d67.json",
+        "url": "https://cdn.cookielaw.org/{seg}/{seg}/{seg}",
         "domain": "cdn.cookielaw.org",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 214,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 214
       },
       {
         "id": 7,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/js/features-91ec4487.js",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 215,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 215
       },
       {
         "id": 8,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/js/8553-a0eeda7a.js",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 215,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 215
       },
       {
         "id": 9,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/js/polyfills-4de5bd64.js",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 219,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 219
       },
       {
         "id": 10,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/js/9819-b6aaae14.js",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 220,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 220
       },
       {
         "id": 11,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/js/strings/en-e62e1c86.js",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 221,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 221
       },
       {
         "id": 12,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/js/9951-b0cdd266.js",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 221,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 221
       },
       {
         "id": 13,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/js/app-660a49d3.js",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 222,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 222
       },
       {
         "id": 14,
-        "url": "https://www.recaptcha.net/recaptcha/enterprise.js?render=",
+        "url": "https://www.recaptcha.net/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "www.recaptcha.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 222,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 222
       },
       {
         "id": 15,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/f2331bbfd902cdf8971c4d3184a44283.woff2",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 226,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 226
       },
       {
         "id": 16,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/3bbe299f41d8289a47d91773fee0cb6a.woff2",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 226,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 226
       },
       {
         "id": 17,
-        "url": "https://geolocation.onetrust.com/cookieconsentpub/v1/geo/location",
+        "url": "https://geolocation.onetrust.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "geolocation.onetrust.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 270,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 270
       },
       {
         "id": 18,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/css/1118-605e4df6.css",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 612,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 612
       },
       {
         "id": 19,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/js/1118-c366c462.js",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 613,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 613
       },
       {
         "id": 20,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/css/2231-ee667168.css",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 614,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 614
       },
       {
         "id": 21,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/js/2231-10476736.js",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 614,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 614
       },
       {
         "id": 22,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/css/8186-605e4df6.css",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 617,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 617
       },
       {
         "id": 23,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/js/8186-e313db8d.js",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 617,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 617
       },
       {
         "id": 24,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/css/4800-10f90769.css",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 618,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 618
       },
       {
         "id": 25,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/js/4800-307e38a3.js",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 618,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 618
       },
       {
         "id": 26,
-        "url": "https://www.googletagmanager.com/gtm.js?id=",
+        "url": "https://www.googletagmanager.com/{seg}?id=",
         "domain": "www.googletagmanager.com",
         "method": "GET",
         "resourceType": "script",
@@ -381,1248 +381,1248 @@
           "category": "analytics / tag management",
           "confidence": "curated"
         },
-        "startedAtMs": 618,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 618
       },
       {
         "id": 27,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/68d22534874c554b0c9ebabea379fc60.woff2",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 619,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 619
       },
       {
         "id": 28,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/lottie/splash/50bda50231c0bce1584e982cebfe8f33.json",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 619,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 619
       },
       {
         "id": 29,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/lottie/splash/aea5aff1143a9410b81448245ad7c839.json",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 620,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 620
       },
       {
         "id": 30,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/lottie/splash/71b01cd301b53ec9879f2d06eb85f5db.json",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 620,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 620
       },
       {
         "id": 31,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/lottie/splash/82f26795696242931a7b905b4918eb1e.json",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 620,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 620
       },
       {
         "id": 32,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/lottie/splash/e97b1cde32a58c629a0193eea36ddaab.json",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 621,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 621
       },
       {
         "id": 33,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/images/17db14133432ce4e82a799e760bd3e0e.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 622,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 622
       },
       {
         "id": 34,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/images/4a9f9204e7e5c1d3ed3b79b7b7af8568.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 622,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 622
       },
       {
         "id": 35,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/lottie/splash/c16e90b93e35750c893be4b58720cef2.json",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 623,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 623
       },
       {
         "id": 36,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/lottie/splash/c02b5f75d9ec48815e6a964f641a9fe2.json",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 623,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 623
       },
       {
         "id": 37,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/lottie/splash/904f242fe2ab5477e3b97928d3e1cb89.json",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 624,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 624
       },
       {
         "id": 38,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/lottie/splash/2c6db87220e7de95124c1a2882afd64f.json",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 624,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 624
       },
       {
         "id": 39,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/lottie/splash/d69c05e332d40f318009fefd85bfcd43.json",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 624,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 624
       },
       {
         "id": 40,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/lottie/splash/76f61a943cfc8aa61dd79aea33db7a62.json",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 625,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 625
       },
       {
         "id": 41,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/lottie/splash/98fa4e2fa26d365936333da24aba7e36.json",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 637,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 637
       },
       {
         "id": 42,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/lottie/splash/9b9c41cb3a201cad24a2f18f90f4d564.json",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 637,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 637
       },
       {
         "id": 43,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/js/5314-33cb86aa.js",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 638,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 638
       },
       {
         "id": 44,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/js/6706-5a0ff698.js",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 638,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 638
       },
       {
         "id": 45,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/js/9078-363c7813.js",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 638,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 638
       },
       {
         "id": 46,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/js/4265-03a131ad.js",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 639,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 639
       },
       {
         "id": 47,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/css/9071-d035f2e5.css",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 639,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 639
       },
       {
         "id": 48,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/js/938-41a16a7a.js",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 639,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 639
       },
       {
         "id": 49,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/js/3284-f4471c38.js",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 640,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 640
       },
       {
         "id": 50,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/css/7459-1decc858.css",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 640,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 640
       },
       {
         "id": 51,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/js/7459-92b3a7b5.js",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 640,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 640
       },
       {
         "id": 52,
-        "url": "https://accounts.google.com/gsi/client",
+        "url": "https://accounts.google.com/{seg}/{seg}",
         "domain": "accounts.google.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 641,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 641
       },
       {
         "id": 53,
-        "url": "https://zombie.duolingo.com/0/web.json",
+        "url": "https://zombie.duolingo.com/{n}/{seg}",
         "domain": "zombie.duolingo.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 404,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 641,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 641
       },
       {
         "id": 54,
-        "url": "https://www.duolingo.com/2023-05-23/tracking-status",
+        "url": "https://www.duolingo.com/{seg}/{seg}",
         "domain": "www.duolingo.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 641,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 641
       },
       {
         "id": 55,
-        "url": "https://www.duolingo.com/2023-05-23/config",
+        "url": "https://www.duolingo.com/{seg}/{seg}",
         "domain": "www.duolingo.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 642,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 642
       },
       {
         "id": 56,
-        "url": "https://excess.duolingo.com/batch",
+        "url": "https://excess.duolingo.com/{seg}",
         "domain": "excess.duolingo.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 642,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 642
       },
       {
         "id": 57,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/images/splash/f92d5f2f7d56636846861c458c0d0b6c.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 642,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 642
       },
       {
         "id": 58,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/bbe17e16aa4a106032d8e3521eaed13e.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 643,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 643
       },
       {
         "id": 59,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/59a90a2cedd48b751a8fd22014768fd7.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 643,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 643
       },
       {
         "id": 60,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/482fda142ee4abd728ebf4ccce5d3307.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 643,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 643
       },
       {
         "id": 61,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/c71db846ffab7e0a74bc6971e34ad82e.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 644,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 644
       },
       {
         "id": 62,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/635a09df9323279d39934a991edd4510.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 644,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 644
       },
       {
         "id": 63,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/27d253ae1272917fc9f4a79459aacd53.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 645,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 645
       },
       {
         "id": 64,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/395c8a6ee9783610b578b02fda405e85.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 645,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 645
       },
       {
         "id": 65,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/c8bad7c09aaf7bc29ddddc50808adb54.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 645,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 645
       },
       {
         "id": 66,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/de945d789e249dcd74333a6996472ef8.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 646,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 646
       },
       {
         "id": 67,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/edea4fa18ff3e7d8c0282de3f102aaed.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 646,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 646
       },
       {
         "id": 68,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/9ab6930a263c981b57f9d578ac97cae7.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 647,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 647
       },
       {
         "id": 69,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/828bf0fea457d3beaaab3d6c0bfcc975.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 647,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 647
       },
       {
         "id": 70,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/f773f1b240623072e48843ecdf90d756.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 648,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 648
       },
       {
         "id": 71,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/6af84a7cb8e99ea8a567c2b9c55b9926.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 648,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 648
       },
       {
         "id": 72,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/8db373482261397a3159d3f370eed2f3.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 648,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 648
       },
       {
         "id": 73,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/6de7e4731b2a82a6458268e1a3d67ce4.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 649,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 649
       },
       {
         "id": 74,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/b4d0e4f6451f504e1441eb93efdbea5e.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 649,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 649
       },
       {
         "id": 75,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/ef0bfb96037b127473bd7bcbfde1a6ed.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 649,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 649
       },
       {
         "id": 76,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/09eba3135efe8fe93a4662dba813b921.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 649,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 649
       },
       {
         "id": 77,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/f818f545a703ddaa046ca8786e781742.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 650,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 650
       },
       {
         "id": 78,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/73837fa39dbf1bcc4c95a17a58ed0ffb.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 650,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 650
       },
       {
         "id": 79,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/8cb302b44c183c1a8ec3b90caf90d922.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 650,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 650
       },
       {
         "id": 80,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/2ed8d0a73eab3c9cba0290e2b459684a.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 651,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 651
       },
       {
         "id": 81,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/2880099b038848abbfd11104097953ad.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 651,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 651
       },
       {
         "id": 82,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/312e21f793c555787d01a45e20ee8191.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 652,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 652
       },
       {
         "id": 83,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/339c0413e542f19b234971d7740447e7.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 652,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 652
       },
       {
         "id": 84,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/ec5835ac9f465ff3dad4b1b8725d4314.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 653,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 653
       },
       {
         "id": 85,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/f7cee6cc09270371b097129faf792c2a.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 662,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 662
       },
       {
         "id": 86,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/90b37d97edc66e830dc2286279548f67.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 663,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 663
       },
       {
         "id": 87,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/bbc8ad0cfe2596d5193376ebdc3e969c.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 663,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 663
       },
       {
         "id": 88,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/f095084e6ec400e631d62c3d95fefaa2.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 663,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 663
       },
       {
         "id": 89,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/357e13bb10cf86fc06552d563957e2e6.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 664,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 664
       },
       {
         "id": 90,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/eadd7804652170c33814a89482f1f353.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 666,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 666
       },
       {
         "id": 91,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/f578430c9b7ab617c107893afbb501c0.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 667,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 667
       },
       {
         "id": 92,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/335311988405b4354e1b6ae9037c02db.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 667,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 667
       },
       {
         "id": 93,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/76d654213a8282b0ebc25b4f535ee003.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 668,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 668
       },
       {
         "id": 94,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/bc80a9518cd6d5af6ae14e8b22b8a1f4.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 668,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 668
       },
       {
         "id": 95,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/7c6e12bc57527843082f7f5bb77c9862.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 668,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 668
       },
       {
         "id": 96,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/2b077d42185bc45d4896ed55f15c4fea.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 669,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 669
       },
       {
         "id": 97,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/55bad151fa6a8d9e2376fc9697c671c8.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 670,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 670
       },
       {
         "id": 98,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/9905aa3a86fcb9e351b0b3bfaf04d8b9.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 670,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 670
       },
       {
         "id": 99,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/112e1531d0ac198a9424bd1b0a7166e6.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 671,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 671
       },
       {
         "id": 100,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/images/splash/lottie/23ab11cb1e1a9aff54facdf57833373d.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 671,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 671
       },
       {
         "id": 101,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/images/splash/lottie/08ec8d0260c55c054e1b97bcbc96ea0f.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 672,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 672
       },
       {
         "id": 102,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/images/splash/lottie/833a22b2834050d139f266a29899bb00.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 672,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 672
       },
       {
         "id": 103,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/images/splash/lottie/9d3c2c99dd19996319a372f79b2ed3c1.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 673,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 673
       },
       {
         "id": 104,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/images/splash/lottie/229d5f88cc9df2eb0b68f39466500911.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 675,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 675
       },
       {
         "id": 105,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/images/splash/lottie/22fce01f6df43e0472d7585afad9a43a.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 675,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 675
       },
       {
         "id": 106,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/images/splash/3a733db6d6873e1a915f70cf72554ce3.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 675,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 675
       },
       {
         "id": 107,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/images/splash/lottie/a50e95b2b4e8c91d610b9c7318389c1e.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 676,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 676
       },
       {
         "id": 108,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/images/splash/lottie/9f63957bf97d10730813cbb715a0baa0.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 676,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 676
       },
       {
         "id": 109,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/images/splash/lottie/268877aef1bcca8a53f24b746483346c.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 677,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 677
       },
       {
         "id": 110,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/images/splash/lottie/890eb76de9a395b182c1c28322721405.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 677,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 677
       },
       {
         "id": 111,
-        "url": "https://excess.duolingo.com/batch",
+        "url": "https://excess.duolingo.com/{seg}",
         "domain": "excess.duolingo.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 678,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 678
       },
       {
         "id": 112,
-        "url": "https://excess.duolingo.com/batch",
+        "url": "https://excess.duolingo.com/{seg}",
         "domain": "excess.duolingo.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 678,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 678
       },
       {
         "id": 113,
-        "url": "https://www.duolingo.com/api/1/courses/list",
+        "url": "https://www.duolingo.com/api/{n}/{seg}/{seg}",
         "domain": "www.duolingo.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 678,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 678
       },
       {
         "id": 114,
-        "url": "https://excess.duolingo.com/batch",
+        "url": "https://excess.duolingo.com/{seg}",
         "domain": "excess.duolingo.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 679,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 679
       },
       {
         "id": 115,
-        "url": "https://excess.duolingo.com/batch",
+        "url": "https://excess.duolingo.com/{seg}",
         "domain": "excess.duolingo.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 679,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 679
       },
       {
         "id": 116,
-        "url": "https://excess.duolingo.com/batch",
+        "url": "https://excess.duolingo.com/{seg}",
         "domain": "excess.duolingo.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 679,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 679
       },
       {
         "id": 117,
-        "url": "https://excess.duolingo.com/batch",
+        "url": "https://excess.duolingo.com/{seg}",
         "domain": "excess.duolingo.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 679,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 679
       },
       {
         "id": 118,
-        "url": "https://www.duolingo.com/users/undefined/streak-goal-current",
+        "url": "https://www.duolingo.com/{seg}/{seg}/{seg}",
         "domain": "www.duolingo.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 404,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 684,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 684
       },
       {
         "id": 119,
-        "url": "https://www.duolingo.com/users/undefined/streak-goal-next-options",
+        "url": "https://www.duolingo.com/{seg}/{seg}/{seg}",
         "domain": "www.duolingo.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 404,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 684,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 684
       },
       {
         "id": 120,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/images/splash/c6eae48dd48246c89e415b89f9e55282.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 685,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 685
       },
       {
         "id": 121,
-        "url": "https://cdn.cookielaw.org/scripttemplates/202404.1.0/otBannerSdk.js",
+        "url": "https://cdn.cookielaw.org/{seg}/{seg}/{seg}",
         "domain": "cdn.cookielaw.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 685,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 685
       },
       {
         "id": 122,
-        "url": "https://www.gstatic.com/recaptcha/releases/MerVUtRoajKEbP7pLiGXkL28/recaptcha__en.js",
+        "url": "https://www.gstatic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.gstatic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 691,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 691
       },
       {
         "id": 123,
-        "url": "https://excess.duolingo.com/batch",
+        "url": "https://excess.duolingo.com/{seg}",
         "domain": "excess.duolingo.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1149,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1149
       },
       {
         "id": 124,
-        "url": "https://cdn.cookielaw.org/consent/55a7f100-001e-4085-87ec-1a6d522f7d67/018f30d2-10c8-7ab1-883a-85a4aff95067/en.json",
+        "url": "https://cdn.cookielaw.org/{seg}/{seg}/{seg}/{seg}",
         "domain": "cdn.cookielaw.org",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1397,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1397
       },
       {
         "id": 125,
-        "url": "https://www.recaptcha.net/recaptcha/enterprise/anchor?ar=&k=&co=&hl=&v=&size=&anchor-ms=&execute-ms=&cb=",
+        "url": "https://www.recaptcha.net/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&hl=&v=&size=&%5Bredacted%5D=&%5Bredacted%5D=&cb=",
         "domain": "www.recaptcha.net",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1476,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1476
       },
       {
         "id": 126,
-        "url": "https://cdn.cookielaw.org/scripttemplates/202404.1.0/assets/otFlat.json",
+        "url": "https://cdn.cookielaw.org/{seg}/{seg}/{seg}/{seg}",
         "domain": "cdn.cookielaw.org",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1498,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1498
       },
       {
         "id": 127,
-        "url": "https://cdn.cookielaw.org/scripttemplates/202404.1.0/assets/otCommonStyles.css",
+        "url": "https://cdn.cookielaw.org/{seg}/{seg}/{seg}/{seg}",
         "domain": "cdn.cookielaw.org",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1498,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1498
       },
       {
         "id": 128,
-        "url": "https://www.gstatic.com/recaptcha/releases/MerVUtRoajKEbP7pLiGXkL28/styles__ltr.css",
+        "url": "https://www.gstatic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.gstatic.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1548,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1548
       },
       {
         "id": 129,
-        "url": "https://www.gstatic.com/recaptcha/releases/MerVUtRoajKEbP7pLiGXkL28/recaptcha__en.js",
+        "url": "https://www.gstatic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.gstatic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1550,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1550
       },
       {
         "id": 130,
-        "url": "https://www.googletagmanager.com/gtag/js?id=&cx=&gtm=",
+        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "www.googletagmanager.com",
         "method": "GET",
         "resourceType": "script",
@@ -1634,84 +1634,84 @@
           "category": "analytics / tag management",
           "confidence": "curated"
         },
-        "startedAtMs": 1581,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1581
       },
       {
         "id": 131,
-        "url": "https://cdn.cookielaw.org/logos/static/ot_guard_logo.svg",
+        "url": "https://cdn.cookielaw.org/{seg}/static/{seg}",
         "domain": "cdn.cookielaw.org",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1604,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1604
       },
       {
         "id": 132,
-        "url": "https://excess.duolingo.com/batch",
+        "url": "https://excess.duolingo.com/{seg}",
         "domain": "excess.duolingo.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1608,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1608
       },
       {
         "id": 133,
-        "url": "https://www.recaptcha.net/recaptcha/enterprise/webworker.js?hl=&v=",
+        "url": "https://www.recaptcha.net/{seg}/{seg}/{seg}?hl=&v=",
         "domain": "www.recaptcha.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1725,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1725
       },
       {
         "id": 134,
-        "url": "https://www.gstatic.com/recaptcha/api2/logo_48.png",
+        "url": "https://www.gstatic.com/{seg}/{seg}/{seg}",
         "domain": "www.gstatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1736,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1736
       },
       {
         "id": 135,
-        "url": "https://fonts.gstatic.com/s/roboto/v48/KFO7CnqEu92Fr1ME7kSn66aGLdTylUAMa3yUBA.woff2",
+        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "fonts.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1736,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1736
       },
       {
         "id": 136,
-        "url": "https://www.gstatic.com/recaptcha/releases/MerVUtRoajKEbP7pLiGXkL28/recaptcha__en.js",
+        "url": "https://www.gstatic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.gstatic.com",
         "method": "GET",
         "resourceType": "other",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1766,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1766
       },
       {
         "id": 137,
-        "url": "https://ad.doubleclick.net/ccm/s/collect?auid=&gtm=",
+        "url": "https://ad.doubleclick.net/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "ad.doubleclick.net",
         "method": "POST",
         "resourceType": "fetch",
@@ -1723,12 +1723,12 @@
           "category": "advertising",
           "confidence": "curated"
         },
-        "startedAtMs": 1961,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1961
       },
       {
         "id": 138,
-        "url": "https://googleads.g.doubleclick.net/pagead/viewthroughconversion/728842606/?random=&cv=&fst=&bg=&guid=&async=&en=&gtm=&gcd=&dma=&tag_exp=&u_w=&u_h=&url=&rcb=&frm=&tiba=&hn=&npa=&pscdl=&auid=&uaa=&uab=&uafvl=&uamb=&uam=&uap=&uapv=&uaw=&data=&ept=&rfmt=&fmt=",
+        "url": "https://googleads.g.doubleclick.net/{seg}/{seg}/{n}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "googleads.g.doubleclick.net",
         "method": "GET",
         "resourceType": "script",
@@ -1740,56 +1740,56 @@
           "category": "advertising",
           "confidence": "curated"
         },
-        "startedAtMs": 1962,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1962
       },
       {
         "id": 139,
-        "url": "https://www.google.com/rmkt/collect/728842606/?random=&cv=&fst=&fmt=&bg=&guid=&async=&en=&gtm=&gcd=&dma=&tag_exp=&u_w=&u_h=&url=&rcb=&frm=&tiba=&hn=&npa=&pscdl=&auid=&uaa=&uab=&uafvl=&uamb=&uam=&uap=&uapv=&uaw=&data=&ept=&gcp=",
+        "url": "https://www.google.com/{seg}/{seg}/{n}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1964,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1964
       },
       {
         "id": 140,
-        "url": "https://www.google.com/ccm/collect?rcb=&frm=&auid=&dt=&en=&dl=&scrsrc=&rnd=&navt=&npa=&gtm=&gcd=&dma=&tag_exp=&apve=&apvf=&apvc=&tids=&tid=&tft=&tfd=&fmt=",
+        "url": "https://www.google.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1964,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1964
       },
       {
         "id": 141,
-        "url": "https://www.google.com/pagead/1p-user-list/728842606/?random=&cv=&fst=&bg=&guid=&async=&en=&gtm=&gcd=&dma=&tag_exp=&u_w=&u_h=&url=&rcb=&frm=&tiba=&hn=&npa=&pscdl=&auid=&uaa=&uab=&uafvl=&uamb=&uam=&uap=&uapv=&uaw=&data=&ept=&rfmt=&fmt=&is_vtc=&cid=&random=&rmt_tld=&ipr=",
+        "url": "https://www.google.com/{seg}/{seg}/{n}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "www.google.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 2028,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2028
       },
       {
         "id": 142,
-        "url": "https://accounts.google.com/gsi/style",
+        "url": "https://accounts.google.com/{seg}/{seg}",
         "domain": "accounts.google.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 2064,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2064
       }
     ],
     "domains": [
@@ -2017,7 +2017,7 @@
         "thirdParty": true
       },
       {
-        "name": "logged_out_uuid",
+        "name": "[redacted]",
         "domain": ".duolingo.com",
         "path": "/",
         "sameSite": "Lax",
@@ -2027,7 +2027,7 @@
         "thirdParty": false
       },
       {
-        "name": "lang",
+        "name": "[redacted]",
         "domain": ".duolingo.com",
         "path": "/",
         "sameSite": "Lax",
@@ -2037,7 +2037,7 @@
         "thirdParty": false
       },
       {
-        "name": "tsl",
+        "name": "[redacted]",
         "domain": ".duolingo.com",
         "path": "/",
         "sameSite": "Lax",
@@ -2047,7 +2047,7 @@
         "thirdParty": false
       },
       {
-        "name": "lu",
+        "name": "[redacted]",
         "domain": ".duolingo.com",
         "path": "/",
         "sameSite": "Lax",
@@ -2057,7 +2057,7 @@
         "thirdParty": false
       },
       {
-        "name": "initial_referrer",
+        "name": "[redacted]",
         "domain": ".duolingo.com",
         "path": "/",
         "sameSite": "Lax",
@@ -2067,7 +2067,7 @@
         "thirdParty": false
       },
       {
-        "name": "lr",
+        "name": "[redacted]",
         "domain": ".duolingo.com",
         "path": "/",
         "sameSite": "Lax",
@@ -2077,7 +2077,7 @@
         "thirdParty": false
       },
       {
-        "name": "lp",
+        "name": "[redacted]",
         "domain": ".duolingo.com",
         "path": "/",
         "sameSite": "Lax",
@@ -2107,7 +2107,7 @@
         "thirdParty": false
       },
       {
-        "name": "wuuid",
+        "name": "[redacted]",
         "domain": "www.duolingo.com",
         "path": "/",
         "sameSite": "Lax",
@@ -2137,7 +2137,7 @@
         "thirdParty": false
       },
       {
-        "name": "g_state",
+        "name": "[redacted]",
         "domain": "www.duolingo.com",
         "path": "/",
         "sameSite": "Lax",
@@ -2150,20 +2150,21 @@
     "storage": [
       {
         "area": "localStorage",
-        "key": "duo.loggedOutExperiments",
+        "key": "[redacted]",
         "valueBytes": 79
       },
       {
         "area": "localStorage",
-        "key": "_gcl_ls",
+        "key": "[redacted]",
         "valueBytes": 277
       },
       {
         "area": "localStorage",
-        "key": "duo.state",
+        "key": "[redacted]",
         "valueBytes": 2554
       }
     ],
+    "fingerprintEvents": [],
     "fingerprintDetections": [
       {
         "kind": "input-monitoring",
@@ -2184,10 +2185,10 @@
             "other"
           ],
           "thirdPartyOrigins": [
-            "https://cdn.cookielaw.org",
-            "https://d35aaqx5ub95lt.cloudfront.net",
-            "https://www.googletagmanager.com",
-            "https://www.gstatic.com"
+            "https://cdn.cookielaw.org/",
+            "https://d35aaqx5ub95lt.cloudfront.net/",
+            "https://www.googletagmanager.com/",
+            "https://www.gstatic.com/"
           ],
           "totalListenerCalls": 35
         }
@@ -2222,16 +2223,15 @@
             "other"
           ],
           "thirdPartyOrigins": [
-            "https://cdn.cookielaw.org",
-            "https://d35aaqx5ub95lt.cloudfront.net",
-            "https://www.googletagmanager.com",
-            "https://www.gstatic.com"
+            "https://cdn.cookielaw.org/",
+            "https://d35aaqx5ub95lt.cloudfront.net/",
+            "https://www.googletagmanager.com/",
+            "https://www.gstatic.com/"
           ],
           "totalListenerCalls": 92
         }
       }
     ],
-    "fingerprintEvents": [],
     "screenshot": null,
     "warnings": [
       "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
@@ -2277,6 +2277,13 @@
       "automation": "playwright-chromium",
       "headless": true,
       "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "block-simulation",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-06-19T17:24:24.927Z"
+      },
       "trackerCatalog": {
         "source": "Hand-curated service catalog",
         "version": "hand-curated-2026.06",
@@ -2285,14 +2292,7 @@
         "curatedOverrides": 133,
         "license": "AGPL-3.0-or-later"
       },
-      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
-      "adblock": {
-        "active": true,
-        "source": "Brave default ad-block lists",
-        "lists": 31,
-        "fetchedAt": "2026-06-19T17:24:24.927Z"
-      },
-      "shieldsMode": "block-simulation"
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
     },
     "requests": [
       {
@@ -2304,1436 +2304,1436 @@
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 35,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 35
       },
       {
         "id": 2,
-        "url": "https://cdn.cookielaw.org/scripttemplates/otSDKStub.js",
+        "url": "https://cdn.cookielaw.org/{seg}/{seg}",
         "domain": "cdn.cookielaw.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 173,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 173
       },
       {
         "id": 3,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/js/manifest-2ac3ee2b.js",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 174,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 174
       },
       {
         "id": 4,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/css/9951-1ae9d7a9.css",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 174,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 174
       },
       {
         "id": 5,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/css/app-cf8d2293.css",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 174,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 174
       },
       {
         "id": 6,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/js/features-91ec4487.js",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 193,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 193
       },
       {
         "id": 7,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/js/8553-a0eeda7a.js",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 197,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 197
       },
       {
         "id": 8,
-        "url": "https://cdn.cookielaw.org/consent/55a7f100-001e-4085-87ec-1a6d522f7d67/55a7f100-001e-4085-87ec-1a6d522f7d67.json",
+        "url": "https://cdn.cookielaw.org/{seg}/{seg}/{seg}",
         "domain": "cdn.cookielaw.org",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 202,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 202
       },
       {
         "id": 9,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/js/polyfills-4de5bd64.js",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 204,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 204
       },
       {
         "id": 10,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/js/9819-b6aaae14.js",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 207,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 207
       },
       {
         "id": 11,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/js/strings/en-e62e1c86.js",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 207,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 207
       },
       {
         "id": 12,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/js/9951-b0cdd266.js",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 208,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 208
       },
       {
         "id": 13,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/js/app-660a49d3.js",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 208,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 208
       },
       {
         "id": 14,
-        "url": "https://www.recaptcha.net/recaptcha/enterprise.js?render=",
+        "url": "https://www.recaptcha.net/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "www.recaptcha.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 210,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 210
       },
       {
         "id": 15,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/f2331bbfd902cdf8971c4d3184a44283.woff2",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 213,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 213
       },
       {
         "id": 16,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/3bbe299f41d8289a47d91773fee0cb6a.woff2",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 214,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 214
       },
       {
         "id": 19,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/css/1118-605e4df6.css",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 593,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 593
       },
       {
         "id": 20,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/js/1118-c366c462.js",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 597,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 597
       },
       {
         "id": 21,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/css/2231-ee667168.css",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 597,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 597
       },
       {
         "id": 22,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/js/2231-10476736.js",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 597,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 597
       },
       {
         "id": 23,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/css/8186-605e4df6.css",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 598,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 598
       },
       {
         "id": 24,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/js/8186-e313db8d.js",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 598,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 598
       },
       {
         "id": 25,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/css/4800-10f90769.css",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 598,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 598
       },
       {
         "id": 26,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/js/4800-307e38a3.js",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 599,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 599
       },
       {
         "id": 28,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/68d22534874c554b0c9ebabea379fc60.woff2",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 600,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 600
       },
       {
         "id": 29,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/lottie/splash/50bda50231c0bce1584e982cebfe8f33.json",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 600,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 600
       },
       {
         "id": 30,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/lottie/splash/aea5aff1143a9410b81448245ad7c839.json",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 601,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 601
       },
       {
         "id": 31,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/lottie/splash/71b01cd301b53ec9879f2d06eb85f5db.json",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 601,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 601
       },
       {
         "id": 32,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/lottie/splash/82f26795696242931a7b905b4918eb1e.json",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 602,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 602
       },
       {
         "id": 33,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/lottie/splash/e97b1cde32a58c629a0193eea36ddaab.json",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 604,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 604
       },
       {
         "id": 34,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/images/17db14133432ce4e82a799e760bd3e0e.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 605,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 605
       },
       {
         "id": 35,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/images/4a9f9204e7e5c1d3ed3b79b7b7af8568.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 605,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 605
       },
       {
         "id": 36,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/lottie/splash/c16e90b93e35750c893be4b58720cef2.json",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 606,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 606
       },
       {
         "id": 37,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/lottie/splash/c02b5f75d9ec48815e6a964f641a9fe2.json",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 609,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 609
       },
       {
         "id": 38,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/lottie/splash/904f242fe2ab5477e3b97928d3e1cb89.json",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 609,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 609
       },
       {
         "id": 39,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/lottie/splash/2c6db87220e7de95124c1a2882afd64f.json",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 609,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 609
       },
       {
         "id": 40,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/lottie/splash/d69c05e332d40f318009fefd85bfcd43.json",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 610,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 610
       },
       {
         "id": 41,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/lottie/splash/76f61a943cfc8aa61dd79aea33db7a62.json",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 610,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 610
       },
       {
         "id": 42,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/lottie/splash/98fa4e2fa26d365936333da24aba7e36.json",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 616,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 616
       },
       {
         "id": 43,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/lottie/splash/9b9c41cb3a201cad24a2f18f90f4d564.json",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 616,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 616
       },
       {
         "id": 44,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/js/5314-33cb86aa.js",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 616,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 616
       },
       {
         "id": 45,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/js/6706-5a0ff698.js",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 616,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 616
       },
       {
         "id": 46,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/js/9078-363c7813.js",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 617,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 617
       },
       {
         "id": 47,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/js/4265-03a131ad.js",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 617,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 617
       },
       {
         "id": 48,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/css/9071-d035f2e5.css",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 618,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 618
       },
       {
         "id": 49,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/js/938-41a16a7a.js",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 618,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 618
       },
       {
         "id": 50,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/js/3284-f4471c38.js",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 619,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 619
       },
       {
         "id": 51,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/css/7459-1decc858.css",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 619,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 619
       },
       {
         "id": 52,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/js/7459-92b3a7b5.js",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 619,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 619
       },
       {
         "id": 53,
-        "url": "https://accounts.google.com/gsi/client",
+        "url": "https://accounts.google.com/{seg}/{seg}",
         "domain": "accounts.google.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 620,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 620
       },
       {
         "id": 54,
-        "url": "https://zombie.duolingo.com/0/web.json",
+        "url": "https://zombie.duolingo.com/{n}/{seg}",
         "domain": "zombie.duolingo.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 404,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 620,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 620
       },
       {
         "id": 55,
-        "url": "https://www.duolingo.com/2023-05-23/tracking-status",
+        "url": "https://www.duolingo.com/{seg}/{seg}",
         "domain": "www.duolingo.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 620,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 620
       },
       {
         "id": 56,
-        "url": "https://www.duolingo.com/2023-05-23/config",
+        "url": "https://www.duolingo.com/{seg}/{seg}",
         "domain": "www.duolingo.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 621,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 621
       },
       {
         "id": 58,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/images/splash/f92d5f2f7d56636846861c458c0d0b6c.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 622,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 622
       },
       {
         "id": 59,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/bbe17e16aa4a106032d8e3521eaed13e.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 623,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 623
       },
       {
         "id": 60,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/59a90a2cedd48b751a8fd22014768fd7.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 623,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 623
       },
       {
         "id": 61,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/482fda142ee4abd728ebf4ccce5d3307.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 623,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 623
       },
       {
         "id": 62,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/c71db846ffab7e0a74bc6971e34ad82e.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 624,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 624
       },
       {
         "id": 63,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/635a09df9323279d39934a991edd4510.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 624,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 624
       },
       {
         "id": 64,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/27d253ae1272917fc9f4a79459aacd53.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 625,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 625
       },
       {
         "id": 65,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/395c8a6ee9783610b578b02fda405e85.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 625,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 625
       },
       {
         "id": 66,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/c8bad7c09aaf7bc29ddddc50808adb54.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 626,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 626
       },
       {
         "id": 67,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/de945d789e249dcd74333a6996472ef8.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 626,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 626
       },
       {
         "id": 68,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/edea4fa18ff3e7d8c0282de3f102aaed.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 627,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 627
       },
       {
         "id": 69,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/9ab6930a263c981b57f9d578ac97cae7.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 627,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 627
       },
       {
         "id": 70,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/828bf0fea457d3beaaab3d6c0bfcc975.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 628,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 628
       },
       {
         "id": 71,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/f773f1b240623072e48843ecdf90d756.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 628,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 628
       },
       {
         "id": 72,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/6af84a7cb8e99ea8a567c2b9c55b9926.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 628,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 628
       },
       {
         "id": 73,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/8db373482261397a3159d3f370eed2f3.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 628,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 628
       },
       {
         "id": 74,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/6de7e4731b2a82a6458268e1a3d67ce4.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 629,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 629
       },
       {
         "id": 75,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/b4d0e4f6451f504e1441eb93efdbea5e.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 629,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 629
       },
       {
         "id": 76,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/ef0bfb96037b127473bd7bcbfde1a6ed.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 629,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 629
       },
       {
         "id": 77,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/09eba3135efe8fe93a4662dba813b921.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 629,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 629
       },
       {
         "id": 78,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/f818f545a703ddaa046ca8786e781742.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 630,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 630
       },
       {
         "id": 79,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/73837fa39dbf1bcc4c95a17a58ed0ffb.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 630,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 630
       },
       {
         "id": 80,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/8cb302b44c183c1a8ec3b90caf90d922.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 630,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 630
       },
       {
         "id": 81,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/2ed8d0a73eab3c9cba0290e2b459684a.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 631,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 631
       },
       {
         "id": 82,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/2880099b038848abbfd11104097953ad.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 631,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 631
       },
       {
         "id": 83,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/312e21f793c555787d01a45e20ee8191.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 631,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 631
       },
       {
         "id": 84,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/339c0413e542f19b234971d7740447e7.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 631,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 631
       },
       {
         "id": 85,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/ec5835ac9f465ff3dad4b1b8725d4314.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 643,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 643
       },
       {
         "id": 86,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/f7cee6cc09270371b097129faf792c2a.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 644,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 644
       },
       {
         "id": 87,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/90b37d97edc66e830dc2286279548f67.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 645,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 645
       },
       {
         "id": 88,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/bbc8ad0cfe2596d5193376ebdc3e969c.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 645,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 645
       },
       {
         "id": 89,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/f095084e6ec400e631d62c3d95fefaa2.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 646,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 646
       },
       {
         "id": 90,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/357e13bb10cf86fc06552d563957e2e6.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 647,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 647
       },
       {
         "id": 91,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/eadd7804652170c33814a89482f1f353.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 648,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 648
       },
       {
         "id": 92,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/f578430c9b7ab617c107893afbb501c0.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 648,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 648
       },
       {
         "id": 93,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/335311988405b4354e1b6ae9037c02db.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 649,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 649
       },
       {
         "id": 94,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/76d654213a8282b0ebc25b4f535ee003.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 649,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 649
       },
       {
         "id": 95,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/bc80a9518cd6d5af6ae14e8b22b8a1f4.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 649,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 649
       },
       {
         "id": 96,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/7c6e12bc57527843082f7f5bb77c9862.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 650,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 650
       },
       {
         "id": 97,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/2b077d42185bc45d4896ed55f15c4fea.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 650,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 650
       },
       {
         "id": 98,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/55bad151fa6a8d9e2376fc9697c671c8.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 651,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 651
       },
       {
         "id": 99,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/9905aa3a86fcb9e351b0b3bfaf04d8b9.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 651,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 651
       },
       {
         "id": 100,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/vendor/112e1531d0ac198a9424bd1b0a7166e6.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 652,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 652
       },
       {
         "id": 101,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/images/splash/lottie/23ab11cb1e1a9aff54facdf57833373d.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 652,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 652
       },
       {
         "id": 102,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/images/splash/lottie/08ec8d0260c55c054e1b97bcbc96ea0f.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 652,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 652
       },
       {
         "id": 103,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/images/splash/lottie/833a22b2834050d139f266a29899bb00.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 652,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 652
       },
       {
         "id": 104,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/images/splash/lottie/9d3c2c99dd19996319a372f79b2ed3c1.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 653,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 653
       },
       {
         "id": 105,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/images/splash/lottie/229d5f88cc9df2eb0b68f39466500911.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 653,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 653
       },
       {
         "id": 106,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/images/splash/lottie/22fce01f6df43e0472d7585afad9a43a.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 653,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 653
       },
       {
         "id": 107,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/images/splash/3a733db6d6873e1a915f70cf72554ce3.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 653,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 653
       },
       {
         "id": 108,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/images/splash/lottie/a50e95b2b4e8c91d610b9c7318389c1e.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 654,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 654
       },
       {
         "id": 109,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/images/splash/lottie/9f63957bf97d10730813cbb715a0baa0.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 654,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 654
       },
       {
         "id": 110,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/images/splash/lottie/268877aef1bcca8a53f24b746483346c.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 654,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 654
       },
       {
         "id": 111,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/images/splash/lottie/890eb76de9a395b182c1c28322721405.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 654,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 654
       },
       {
         "id": 114,
-        "url": "https://www.duolingo.com/api/1/courses/list",
+        "url": "https://www.duolingo.com/api/{n}/{seg}/{seg}",
         "domain": "www.duolingo.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 655,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 655
       },
       {
         "id": 119,
-        "url": "https://www.duolingo.com/users/undefined/streak-goal-current",
+        "url": "https://www.duolingo.com/{seg}/{seg}/{seg}",
         "domain": "www.duolingo.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 404,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 656,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 656
       },
       {
         "id": 120,
-        "url": "https://www.duolingo.com/users/undefined/streak-goal-next-options",
+        "url": "https://www.duolingo.com/{seg}/{seg}/{seg}",
         "domain": "www.duolingo.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 404,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 662,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 662
       },
       {
         "id": 121,
-        "url": "https://d35aaqx5ub95lt.cloudfront.net/images/splash/c6eae48dd48246c89e415b89f9e55282.svg",
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}",
         "domain": "d35aaqx5ub95lt.cloudfront.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 662,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 662
       },
       {
         "id": 122,
-        "url": "https://www.gstatic.com/recaptcha/releases/MerVUtRoajKEbP7pLiGXkL28/recaptcha__en.js",
+        "url": "https://www.gstatic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.gstatic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 666,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 666
       },
       {
         "id": 124,
-        "url": "https://www.recaptcha.net/recaptcha/enterprise/anchor?ar=&k=&co=&hl=&v=&size=&anchor-ms=&execute-ms=&cb=",
+        "url": "https://www.recaptcha.net/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&hl=&v=&size=&%5Bredacted%5D=&%5Bredacted%5D=&cb=",
         "domain": "www.recaptcha.net",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1399,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1399
       },
       {
         "id": 125,
-        "url": "https://www.gstatic.com/recaptcha/releases/MerVUtRoajKEbP7pLiGXkL28/styles__ltr.css",
+        "url": "https://www.gstatic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.gstatic.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1445,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1445
       },
       {
         "id": 126,
-        "url": "https://www.gstatic.com/recaptcha/releases/MerVUtRoajKEbP7pLiGXkL28/recaptcha__en.js",
+        "url": "https://www.gstatic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.gstatic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1446,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1446
       },
       {
         "id": 127,
-        "url": "https://www.recaptcha.net/recaptcha/enterprise/webworker.js?hl=&v=",
+        "url": "https://www.recaptcha.net/{seg}/{seg}/{seg}?hl=&v=",
         "domain": "www.recaptcha.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1586,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1586
       },
       {
         "id": 128,
-        "url": "https://www.gstatic.com/recaptcha/api2/logo_48.png",
+        "url": "https://www.gstatic.com/{seg}/{seg}/{seg}",
         "domain": "www.gstatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1596,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1596
       },
       {
         "id": 129,
-        "url": "https://fonts.gstatic.com/s/roboto/v48/KFO7CnqEu92Fr1ME7kSn66aGLdTylUAMa3yUBA.woff2",
+        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "fonts.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1597,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1597
       },
       {
         "id": 130,
-        "url": "https://www.gstatic.com/recaptcha/releases/MerVUtRoajKEbP7pLiGXkL28/recaptcha__en.js",
+        "url": "https://www.gstatic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.gstatic.com",
         "method": "GET",
         "resourceType": "other",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1628,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1628
       },
       {
         "id": 131,
-        "url": "https://accounts.google.com/gsi/style",
+        "url": "https://accounts.google.com/{seg}/{seg}",
         "domain": "accounts.google.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1663,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1663
       }
     ],
     "domains": [
@@ -3856,7 +3856,7 @@
     ],
     "cookies": [
       {
-        "name": "logged_out_uuid",
+        "name": "[redacted]",
         "domain": ".duolingo.com",
         "path": "/",
         "sameSite": "Lax",
@@ -3866,7 +3866,7 @@
         "thirdParty": false
       },
       {
-        "name": "lang",
+        "name": "[redacted]",
         "domain": ".duolingo.com",
         "path": "/",
         "sameSite": "Lax",
@@ -3876,7 +3876,7 @@
         "thirdParty": false
       },
       {
-        "name": "tsl",
+        "name": "[redacted]",
         "domain": ".duolingo.com",
         "path": "/",
         "sameSite": "Lax",
@@ -3886,7 +3886,7 @@
         "thirdParty": false
       },
       {
-        "name": "lu",
+        "name": "[redacted]",
         "domain": ".duolingo.com",
         "path": "/",
         "sameSite": "Lax",
@@ -3896,7 +3896,7 @@
         "thirdParty": false
       },
       {
-        "name": "initial_referrer",
+        "name": "[redacted]",
         "domain": ".duolingo.com",
         "path": "/",
         "sameSite": "Lax",
@@ -3906,7 +3906,7 @@
         "thirdParty": false
       },
       {
-        "name": "lr",
+        "name": "[redacted]",
         "domain": ".duolingo.com",
         "path": "/",
         "sameSite": "Lax",
@@ -3916,7 +3916,7 @@
         "thirdParty": false
       },
       {
-        "name": "lp",
+        "name": "[redacted]",
         "domain": ".duolingo.com",
         "path": "/",
         "sameSite": "Lax",
@@ -3926,7 +3926,7 @@
         "thirdParty": false
       },
       {
-        "name": "wuuid",
+        "name": "[redacted]",
         "domain": "www.duolingo.com",
         "path": "/",
         "sameSite": "Lax",
@@ -3956,7 +3956,7 @@
         "thirdParty": false
       },
       {
-        "name": "g_state",
+        "name": "[redacted]",
         "domain": "www.duolingo.com",
         "path": "/",
         "sameSite": "Lax",
@@ -3969,15 +3969,16 @@
     "storage": [
       {
         "area": "localStorage",
-        "key": "duo.loggedOutExperiments",
+        "key": "[redacted]",
         "valueBytes": 79
       },
       {
         "area": "localStorage",
-        "key": "duo.state",
+        "key": "[redacted]",
         "valueBytes": 2554
       }
     ],
+    "fingerprintEvents": [],
     "fingerprintDetections": [
       {
         "kind": "input-monitoring",
@@ -3998,8 +3999,8 @@
             "other"
           ],
           "thirdPartyOrigins": [
-            "https://d35aaqx5ub95lt.cloudfront.net",
-            "https://www.gstatic.com"
+            "https://d35aaqx5ub95lt.cloudfront.net/",
+            "https://www.gstatic.com/"
           ],
           "totalListenerCalls": 33
         }
@@ -4033,14 +4034,13 @@
             "other"
           ],
           "thirdPartyOrigins": [
-            "https://d35aaqx5ub95lt.cloudfront.net",
-            "https://www.gstatic.com"
+            "https://d35aaqx5ub95lt.cloudfront.net/",
+            "https://www.gstatic.com/"
           ],
           "totalListenerCalls": 84
         }
       }
     ],
-    "fingerprintEvents": [],
     "screenshot": null,
     "warnings": [
       "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
@@ -4165,12 +4165,7 @@
       }
     ],
     "addedStorageKeys": [],
-    "removedStorageKeys": [
-      {
-        "area": "localStorage",
-        "key": "_gcl_ls"
-      }
-    ],
+    "removedStorageKeys": [],
     "addedFingerprinting": [],
     "removedFingerprinting": [],
     "addedProvenance": [],

@@ -1,6 +1,6 @@
 import { publicReportDigest } from "./canonical-json";
 import { redactScanReportV1 } from "./redact-scan-report-v1";
-import { buildReportShare } from "./report-locator";
+import { isCanonicalReportShare } from "./report-locator";
 import {
   matchProvenance,
   type ProvenanceMatch,
@@ -89,20 +89,8 @@ export function readManagedReport(input: {
   }
 
   const share = reportRead.stored.report.share;
-  if (share) {
-    let expectedShare;
-    try {
-      expectedShare = buildReportShare(input.reportId);
-    } catch {
-      return failure("share-id-mismatch");
-    }
-    if (
-      share.id !== expectedShare.id ||
-      share.path !== expectedShare.path ||
-      share.jsonPath !== expectedShare.jsonPath
-    ) {
-      return failure("share-id-mismatch");
-    }
+  if (share && !isCanonicalReportShare(share, input.reportId)) {
+    return failure("share-id-mismatch");
   }
 
   if (input.sidecarContents === null) return failure("no-sidecar");

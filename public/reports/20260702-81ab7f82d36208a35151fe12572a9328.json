@@ -49,6 +49,13 @@
       "automation": "playwright-chromium",
       "headless": true,
       "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "classification",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-02T01:00:58.178Z"
+      },
       "trackerCatalog": {
         "source": "Hand-curated service catalog",
         "version": "hand-curated-2026.06",
@@ -57,14 +64,7 @@
         "curatedOverrides": 133,
         "license": "AGPL-3.0-or-later"
       },
-      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
-      "adblock": {
-        "active": true,
-        "source": "Brave default ad-block lists",
-        "lists": 31,
-        "fetchedAt": "2026-07-02T01:00:58.178Z"
-      },
-      "shieldsMode": "classification"
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
     },
     "requests": [
       {
@@ -76,176 +76,176 @@
         "status": 429,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 42,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 42
       },
       {
         "id": 2,
-        "url": "https://assets.wfcdn.com/webpack/sf-ui-perimeterx-block/bundles/px.js?cb=",
+        "url": "https://assets.wfcdn.com/{seg}/{seg}/{seg}/{seg}?cb=",
         "domain": "assets.wfcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 261,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 261
       },
       {
         "id": 3,
-        "url": "https://www.wayfair.com/3Vk96I6i/captcha/captcha.js",
+        "url": "https://www.wayfair.com/{seg}/{seg}/{seg}",
         "domain": "www.wayfair.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 263,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 263
       },
       {
         "id": 4,
-        "url": "https://fonts.googleapis.com/css2?family=&display=",
+        "url": "https://fonts.googleapis.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "fonts.googleapis.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 582,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 582
       },
       {
         "id": 5,
-        "url": "https://client.px-cloud.net/PX3Vk96I6i/main.min.js",
+        "url": "https://client.px-cloud.net/{seg}/{seg}",
         "domain": "client.px-cloud.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 582,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 582
       },
       {
         "id": 6,
-        "url": "https://ift.px-cloud.net/ns?c=",
+        "url": "https://ift.px-cloud.net/{seg}?%5Bredacted%5D=",
         "domain": "ift.px-cloud.net",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 651,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 651
       },
       {
         "id": 7,
-        "url": "https://collector-px3vk96i6i.px-cloud.net/assets/js/bundle",
-        "domain": "collector-px3vk96i6i.px-cloud.net",
+        "url": "https://{label}.px-cloud.net/{seg}/{seg}/{seg}",
+        "domain": "{label}.px-cloud.net",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 661,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 661
       },
       {
         "id": 8,
-        "url": "https://fonts.gstatic.com/s/roboto/v51/KFO7CnqEu92Fr1ME7kSn66aGLdTylUAMa3yUBA.woff2",
+        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "fonts.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 667,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 667
       },
       {
         "id": 9,
-        "url": "https://fonts.googleapis.com/css2?family=&display=",
+        "url": "https://fonts.googleapis.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "fonts.googleapis.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1037,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1037
       },
       {
         "id": 10,
-        "url": "https://www.wayfair.com/3Vk96I6i/captcha/captcha.js",
+        "url": "https://www.wayfair.com/{seg}/{seg}/{seg}",
         "domain": "www.wayfair.com",
         "method": "HEAD",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1050,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1050
       },
       {
         "id": 11,
-        "url": "https://client.px-cloud.net/PX3Vk96I6i/main.min.js",
+        "url": "https://client.px-cloud.net/{seg}/{seg}",
         "domain": "client.px-cloud.net",
         "method": "HEAD",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1051,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1051
       },
       {
         "id": 12,
-        "url": "https://crcldu.com/bd/sync.html?v=",
+        "url": "https://crcldu.com/{seg}/{seg}?v=",
         "domain": "crcldu.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1056,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1056
       },
       {
         "id": 13,
-        "url": "https://fonts.gstatic.com/s/roboto/v51/KFO7CnqEu92Fr1ME7kSn66aGLdTylUAMa3yUBA.woff2",
+        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "fonts.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1091,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1091
       },
       {
         "id": 14,
-        "url": "https://crcldu.com/bd/auditor.js?v=",
+        "url": "https://crcldu.com/{seg}/{seg}?v=",
         "domain": "crcldu.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1163,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1163
       },
       {
         "id": 15,
-        "url": "https://collector-px3vk96i6i.px-client.net/b/g?payload=&appId=&tag=&uuid=&ft=&seq=&en=&bi=&cs=&pc=&sid=&vid=&ci=&pxhd=&cts=&hid=",
-        "domain": "collector-px3vk96i6i.px-client.net",
+        "url": "https://{label}.px-client.net/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "domain": "{label}.px-client.net",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1179,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1179
       },
       {
         "id": 16,
@@ -256,32 +256,32 @@
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1973,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1973
       },
       {
         "id": 17,
-        "url": "https://ift.px-cloud.net/ns?v=&j=",
+        "url": "https://ift.px-cloud.net/{seg}?v=&%5Bredacted%5D=",
         "domain": "ift.px-cloud.net",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1973,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1973
       },
       {
         "id": 18,
-        "url": "https://collector-px3vk96i6i.px-cloud.net/assets/js/bundle",
-        "domain": "collector-px3vk96i6i.px-cloud.net",
+        "url": "https://{label}.px-cloud.net/{seg}/{seg}/{seg}",
+        "domain": "{label}.px-cloud.net",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 2072,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2072
       }
     ],
     "domains": [
@@ -326,7 +326,7 @@
         ]
       },
       {
-        "domain": "collector-px3vk96i6i.px-cloud.net",
+        "domain": "{label}.px-cloud.net",
         "requests": 2,
         "thirdParty": true,
         "tracker": null,
@@ -379,7 +379,7 @@
         ]
       },
       {
-        "domain": "collector-px3vk96i6i.px-client.net",
+        "domain": "{label}.px-client.net",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -423,7 +423,7 @@
     ],
     "cookies": [
       {
-        "name": "_pxhd",
+        "name": "[redacted]",
         "domain": "www.wayfair.com",
         "path": "/",
         "sameSite": "Lax",
@@ -433,7 +433,7 @@
         "thirdParty": false
       },
       {
-        "name": "_pxvid",
+        "name": "[redacted]",
         "domain": "www.wayfair.com",
         "path": "/",
         "sameSite": "Lax",
@@ -443,7 +443,7 @@
         "thirdParty": false
       },
       {
-        "name": "_px2",
+        "name": "[redacted]",
         "domain": "www.wayfair.com",
         "path": "/",
         "sameSite": "Lax",
@@ -453,7 +453,7 @@
         "thirdParty": false
       },
       {
-        "name": "pxcts",
+        "name": "[redacted]",
         "domain": "www.wayfair.com",
         "path": "/",
         "sameSite": "Lax",
@@ -466,23 +466,49 @@
     "storage": [
       {
         "area": "localStorage",
-        "key": "PX3Vk96I6i_px-ff",
+        "key": "[redacted:long-token]",
         "valueBytes": 264
       },
       {
         "area": "localStorage",
-        "key": "PX3Vk96I6i_px_hvd",
+        "key": "[redacted:long-token]",
         "valueBytes": 32
       },
       {
         "area": "localStorage",
-        "key": "PX3Vk96I6i_px_fp",
+        "key": "[redacted:long-token]",
         "valueBytes": 5664
       },
       {
         "area": "sessionStorage",
-        "key": "pxsid",
+        "key": "[redacted]",
         "valueBytes": 36
+      }
+    ],
+    "fingerprintEvents": [
+      {
+        "api": "webgl.readPixels",
+        "count": 11
+      },
+      {
+        "api": "canvas.toDataURL",
+        "count": 3
+      },
+      {
+        "api": "audio.OfflineAudioContext.startRendering",
+        "count": 1
+      },
+      {
+        "api": "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
+        "count": 1
+      },
+      {
+        "api": "webgl.getParameter.UNMASKED_VENDOR_WEBGL",
+        "count": 1
+      },
+      {
+        "api": "webgl2.readPixels",
+        "count": 1
       }
     ],
     "fingerprintDetections": [
@@ -501,7 +527,7 @@
             "document"
           ],
           "thirdPartyOrigins": [
-            "https://client.px-cloud.net"
+            "https://client.px-cloud.net/"
           ],
           "totalListenerCalls": 4
         }
@@ -531,7 +557,7 @@
             "document"
           ],
           "thirdPartyOrigins": [
-            "https://client.px-cloud.net"
+            "https://client.px-cloud.net/"
           ],
           "totalListenerCalls": 28
         }
@@ -552,32 +578,6 @@
           "getParameterCalls": 25,
           "readPixelsCalls": 12
         }
-      }
-    ],
-    "fingerprintEvents": [
-      {
-        "api": "webgl.readPixels",
-        "count": 11
-      },
-      {
-        "api": "canvas.toDataURL",
-        "count": 3
-      },
-      {
-        "api": "audio.OfflineAudioContext.startRendering",
-        "count": 1
-      },
-      {
-        "api": "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
-        "count": 1
-      },
-      {
-        "api": "webgl.getParameter.UNMASKED_VENDOR_WEBGL",
-        "count": 1
-      },
-      {
-        "api": "webgl2.readPixels",
-        "count": 1
       }
     ],
     "screenshot": null,
@@ -625,6 +625,13 @@
       "automation": "playwright-chromium",
       "headless": true,
       "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "classification",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-02T01:00:58.178Z"
+      },
       "trackerCatalog": {
         "source": "Hand-curated service catalog",
         "version": "hand-curated-2026.06",
@@ -633,14 +640,7 @@
         "curatedOverrides": 133,
         "license": "AGPL-3.0-or-later"
       },
-      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
-      "adblock": {
-        "active": true,
-        "source": "Brave default ad-block lists",
-        "lists": 31,
-        "fetchedAt": "2026-07-02T01:00:58.178Z"
-      },
-      "shieldsMode": "classification"
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
     },
     "requests": [
       {
@@ -652,176 +652,176 @@
         "status": 429,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 50,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 50
       },
       {
         "id": 2,
-        "url": "https://assets.wfcdn.com/webpack/sf-ui-perimeterx-block/bundles/px.js?cb=",
+        "url": "https://assets.wfcdn.com/{seg}/{seg}/{seg}/{seg}?cb=",
         "domain": "assets.wfcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 263,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 263
       },
       {
         "id": 3,
-        "url": "https://www.wayfair.com/3Vk96I6i/captcha/captcha.js",
+        "url": "https://www.wayfair.com/{seg}/{seg}/{seg}",
         "domain": "www.wayfair.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 264,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 264
       },
       {
         "id": 4,
-        "url": "https://fonts.googleapis.com/css2?family=&display=",
+        "url": "https://fonts.googleapis.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "fonts.googleapis.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 565,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 565
       },
       {
         "id": 5,
-        "url": "https://client.px-cloud.net/PX3Vk96I6i/main.min.js",
+        "url": "https://client.px-cloud.net/{seg}/{seg}",
         "domain": "client.px-cloud.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 565,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 565
       },
       {
         "id": 6,
-        "url": "https://fonts.gstatic.com/s/roboto/v51/KFO7CnqEu92Fr1ME7kSn66aGLdTylUAMa3yUBA.woff2",
+        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "fonts.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 618,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 618
       },
       {
         "id": 7,
-        "url": "https://ift.px-cloud.net/ns?c=",
+        "url": "https://ift.px-cloud.net/{seg}?%5Bredacted%5D=",
         "domain": "ift.px-cloud.net",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 662,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 662
       },
       {
         "id": 8,
-        "url": "https://collector-px3vk96i6i.px-cloud.net/assets/js/bundle",
-        "domain": "collector-px3vk96i6i.px-cloud.net",
+        "url": "https://{label}.px-cloud.net/{seg}/{seg}/{seg}",
+        "domain": "{label}.px-cloud.net",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 672,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 672
       },
       {
         "id": 9,
-        "url": "https://fonts.googleapis.com/css2?family=&display=",
+        "url": "https://fonts.googleapis.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "fonts.googleapis.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 841,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 841
       },
       {
         "id": 10,
-        "url": "https://www.wayfair.com/3Vk96I6i/captcha/captcha.js",
+        "url": "https://www.wayfair.com/{seg}/{seg}/{seg}",
         "domain": "www.wayfair.com",
         "method": "HEAD",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 865,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 865
       },
       {
         "id": 11,
-        "url": "https://client.px-cloud.net/PX3Vk96I6i/main.min.js",
+        "url": "https://client.px-cloud.net/{seg}/{seg}",
         "domain": "client.px-cloud.net",
         "method": "HEAD",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 866,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 866
       },
       {
         "id": 12,
-        "url": "https://crcldu.com/bd/sync.html?v=",
+        "url": "https://crcldu.com/{seg}/{seg}?v=",
         "domain": "crcldu.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 871,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 871
       },
       {
         "id": 13,
-        "url": "https://fonts.gstatic.com/s/roboto/v51/KFO7CnqEu92Fr1ME7kSn66aGLdTylUAMa3yUBA.woff2",
+        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "fonts.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 898,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 898
       },
       {
         "id": 14,
-        "url": "https://crcldu.com/bd/auditor.js?v=",
+        "url": "https://crcldu.com/{seg}/{seg}?v=",
         "domain": "crcldu.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 985,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 985
       },
       {
         "id": 15,
-        "url": "https://collector-px3vk96i6i.px-client.net/b/g?payload=&appId=&tag=&uuid=&ft=&seq=&en=&bi=&cs=&pc=&sid=&vid=&ci=&pxhd=&cts=&hid=",
-        "domain": "collector-px3vk96i6i.px-client.net",
+        "url": "https://{label}.px-client.net/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "domain": "{label}.px-client.net",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1002,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1002
       },
       {
         "id": 16,
@@ -832,32 +832,32 @@
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1621,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1621
       },
       {
         "id": 17,
-        "url": "https://ift.px-cloud.net/ns?v=&j=",
+        "url": "https://ift.px-cloud.net/{seg}?v=&%5Bredacted%5D=",
         "domain": "ift.px-cloud.net",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1622,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1622
       },
       {
         "id": 18,
-        "url": "https://collector-px3vk96i6i.px-cloud.net/assets/js/bundle",
-        "domain": "collector-px3vk96i6i.px-cloud.net",
+        "url": "https://{label}.px-cloud.net/{seg}/{seg}/{seg}",
+        "domain": "{label}.px-cloud.net",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1709,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1709
       }
     ],
     "domains": [
@@ -915,7 +915,7 @@
         ]
       },
       {
-        "domain": "collector-px3vk96i6i.px-cloud.net",
+        "domain": "{label}.px-cloud.net",
         "requests": 2,
         "thirdParty": true,
         "tracker": null,
@@ -955,7 +955,7 @@
         ]
       },
       {
-        "domain": "collector-px3vk96i6i.px-client.net",
+        "domain": "{label}.px-client.net",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -999,7 +999,7 @@
     ],
     "cookies": [
       {
-        "name": "_pxhd",
+        "name": "[redacted]",
         "domain": "www.wayfair.com",
         "path": "/",
         "sameSite": "Lax",
@@ -1009,7 +1009,7 @@
         "thirdParty": false
       },
       {
-        "name": "_pxvid",
+        "name": "[redacted]",
         "domain": "www.wayfair.com",
         "path": "/",
         "sameSite": "Lax",
@@ -1019,7 +1019,7 @@
         "thirdParty": false
       },
       {
-        "name": "_px2",
+        "name": "[redacted]",
         "domain": "www.wayfair.com",
         "path": "/",
         "sameSite": "Lax",
@@ -1029,7 +1029,7 @@
         "thirdParty": false
       },
       {
-        "name": "pxcts",
+        "name": "[redacted]",
         "domain": "www.wayfair.com",
         "path": "/",
         "sameSite": "Lax",
@@ -1042,23 +1042,49 @@
     "storage": [
       {
         "area": "localStorage",
-        "key": "PX3Vk96I6i_px-ff",
+        "key": "[redacted:long-token]",
         "valueBytes": 264
       },
       {
         "area": "localStorage",
-        "key": "PX3Vk96I6i_px_hvd",
+        "key": "[redacted:long-token]",
         "valueBytes": 32
       },
       {
         "area": "localStorage",
-        "key": "PX3Vk96I6i_px_fp",
+        "key": "[redacted:long-token]",
         "valueBytes": 5664
       },
       {
         "area": "sessionStorage",
-        "key": "pxsid",
+        "key": "[redacted]",
         "valueBytes": 36
+      }
+    ],
+    "fingerprintEvents": [
+      {
+        "api": "webgl.readPixels",
+        "count": 11
+      },
+      {
+        "api": "canvas.toDataURL",
+        "count": 3
+      },
+      {
+        "api": "audio.OfflineAudioContext.startRendering",
+        "count": 1
+      },
+      {
+        "api": "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
+        "count": 1
+      },
+      {
+        "api": "webgl.getParameter.UNMASKED_VENDOR_WEBGL",
+        "count": 1
+      },
+      {
+        "api": "webgl2.readPixels",
+        "count": 1
       }
     ],
     "fingerprintDetections": [
@@ -1077,7 +1103,7 @@
             "document"
           ],
           "thirdPartyOrigins": [
-            "https://client.px-cloud.net"
+            "https://client.px-cloud.net/"
           ],
           "totalListenerCalls": 4
         }
@@ -1107,7 +1133,7 @@
             "document"
           ],
           "thirdPartyOrigins": [
-            "https://client.px-cloud.net"
+            "https://client.px-cloud.net/"
           ],
           "totalListenerCalls": 28
         }
@@ -1128,32 +1154,6 @@
           "getParameterCalls": 25,
           "readPixelsCalls": 12
         }
-      }
-    ],
-    "fingerprintEvents": [
-      {
-        "api": "webgl.readPixels",
-        "count": 11
-      },
-      {
-        "api": "canvas.toDataURL",
-        "count": 3
-      },
-      {
-        "api": "audio.OfflineAudioContext.startRendering",
-        "count": 1
-      },
-      {
-        "api": "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
-        "count": 1
-      },
-      {
-        "api": "webgl.getParameter.UNMASKED_VENDOR_WEBGL",
-        "count": 1
-      },
-      {
-        "api": "webgl2.readPixels",
-        "count": 1
       }
     ],
     "screenshot": null,

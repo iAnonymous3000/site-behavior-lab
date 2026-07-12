@@ -1,6 +1,12 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { buildReportShare, committedReportLocation, locateReport } from "./report-locator";
+import {
+  buildReportShare,
+  buildStaticReportShare,
+  committedReportLocation,
+  isCanonicalReportShare,
+  locateReport
+} from "./report-locator";
 
 const VALID_ID = "20260619-1cae9eb5a7b2fae0d49af5acda78031b";
 
@@ -14,6 +20,20 @@ test("buildReportShare produces the canonical path scheme", () => {
 
 test("buildReportShare rejects malformed ids", () => {
   assert.throws(() => buildReportShare("not-a-real-id"), /Invalid report share id/);
+});
+
+test("canonical share validation accepts exact runtime and static pairs only", () => {
+  assert.equal(isCanonicalReportShare(buildReportShare(VALID_ID), VALID_ID), true);
+  assert.equal(isCanonicalReportShare(buildStaticReportShare(VALID_ID), VALID_ID), true);
+  assert.equal(
+    isCanonicalReportShare({
+      id: VALID_ID,
+      path: `/reports/${VALID_ID}/`,
+      jsonPath: `/api/reports/${VALID_ID}`
+    }),
+    false
+  );
+  assert.equal(isCanonicalReportShare(buildReportShare(VALID_ID), `20260619-${"a".repeat(32)}`), false);
 });
 
 test("locateReport serves Node reports from the API route with a permalink", () => {

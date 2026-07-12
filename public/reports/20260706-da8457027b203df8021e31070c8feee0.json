@@ -49,6 +49,13 @@
       "automation": "playwright-chromium",
       "headless": true,
       "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "classification",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-02T01:00:58.178Z"
+      },
       "trackerCatalog": {
         "source": "Hand-curated service catalog",
         "version": "hand-curated-2026.06",
@@ -57,14 +64,7 @@
         "curatedOverrides": 133,
         "license": "AGPL-3.0-or-later"
       },
-      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
-      "adblock": {
-        "active": true,
-        "source": "Brave default ad-block lists",
-        "lists": 31,
-        "fetchedAt": "2026-07-02T01:00:58.178Z"
-      },
-      "shieldsMode": "classification"
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
     },
     "requests": [
       {
@@ -76,12 +76,12 @@
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 46,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 46
       },
       {
         "id": 2,
-        "url": "https://static.licdn.com/aero-v1/sc/h/9syw5us4krfdn7zj309783uua",
+        "url": "https://static.licdn.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.licdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
@@ -93,12 +93,12 @@
           "category": "social / advertising pixel",
           "confidence": "curated"
         },
-        "startedAtMs": 210,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 210
       },
       {
         "id": 3,
-        "url": "https://static.licdn.com/aero-v1/sc/h/dxf91zhqd2z6b0bwg85ktm5s4",
+        "url": "https://static.licdn.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.licdn.com",
         "method": "GET",
         "resourceType": "image",
@@ -110,12 +110,12 @@
           "category": "social / advertising pixel",
           "confidence": "curated"
         },
-        "startedAtMs": 212,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 212
       },
       {
         "id": 4,
-        "url": "https://static.licdn.com/aero-v1/sc/h/5nqyeanbh1glamxx7yixqn8ft",
+        "url": "https://static.licdn.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.licdn.com",
         "method": "GET",
         "resourceType": "script",
@@ -127,12 +127,12 @@
           "category": "social / advertising pixel",
           "confidence": "curated"
         },
-        "startedAtMs": 213,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 213
       },
       {
         "id": 5,
-        "url": "https://static.licdn.com/aero-v1/sc/h/dtrv9swzghlxpyzfyk2gsgbur",
+        "url": "https://static.licdn.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.licdn.com",
         "method": "GET",
         "resourceType": "script",
@@ -144,12 +144,12 @@
           "category": "social / advertising pixel",
           "confidence": "curated"
         },
-        "startedAtMs": 213,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 213
       },
       {
         "id": 6,
-        "url": "https://static.licdn.com/aero-v1/sc/h/29rdkxlvag0d3cpj96fiilbju",
+        "url": "https://static.licdn.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.licdn.com",
         "method": "GET",
         "resourceType": "script",
@@ -161,12 +161,12 @@
           "category": "social / advertising pixel",
           "confidence": "curated"
         },
-        "startedAtMs": 391,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 391
       },
       {
         "id": 7,
-        "url": "https://static.licdn.com/aero-v1/sc/h/fx69lqty609xpf6l4xb6bs3a",
+        "url": "https://static.licdn.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.licdn.com",
         "method": "GET",
         "resourceType": "script",
@@ -178,12 +178,12 @@
           "category": "social / advertising pixel",
           "confidence": "curated"
         },
-        "startedAtMs": 392,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 392
       },
       {
         "id": 8,
-        "url": "https://static.licdn.com/aero-v1/sc/h/51t74mlo1ty7vakn3a80a9jcp",
+        "url": "https://static.licdn.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.licdn.com",
         "method": "GET",
         "resourceType": "script",
@@ -195,12 +195,12 @@
           "category": "social / advertising pixel",
           "confidence": "curated"
         },
-        "startedAtMs": 392,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 392
       },
       {
         "id": 9,
-        "url": "https://static.licdn.com/aero-v1/sc/h/9syw5us4krfdn7zj309783uua",
+        "url": "https://static.licdn.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.licdn.com",
         "method": "HEAD",
         "resourceType": "fetch",
@@ -212,12 +212,12 @@
           "category": "social / advertising pixel",
           "confidence": "curated"
         },
-        "startedAtMs": 525,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 525
       },
       {
         "id": 10,
-        "url": "https://static.licdn.com/aero-v1/sc/h/dxf91zhqd2z6b0bwg85ktm5s4",
+        "url": "https://static.licdn.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.licdn.com",
         "method": "HEAD",
         "resourceType": "fetch",
@@ -229,12 +229,12 @@
           "category": "social / advertising pixel",
           "confidence": "curated"
         },
-        "startedAtMs": 526,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 526
       },
       {
         "id": 11,
-        "url": "https://static.licdn.com/aero-v1/sc/h/5nqyeanbh1glamxx7yixqn8ft",
+        "url": "https://static.licdn.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.licdn.com",
         "method": "HEAD",
         "resourceType": "fetch",
@@ -246,12 +246,12 @@
           "category": "social / advertising pixel",
           "confidence": "curated"
         },
-        "startedAtMs": 526,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 526
       },
       {
         "id": 12,
-        "url": "https://static.licdn.com/aero-v1/sc/h/dtrv9swzghlxpyzfyk2gsgbur",
+        "url": "https://static.licdn.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.licdn.com",
         "method": "HEAD",
         "resourceType": "fetch",
@@ -263,36 +263,36 @@
           "category": "social / advertising pixel",
           "confidence": "curated"
         },
-        "startedAtMs": 528,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 528
       },
       {
         "id": 13,
-        "url": "https://www.linkedin.com/litms/api/metadata/user",
+        "url": "https://www.linkedin.com/{seg}/api/{seg}/{seg}",
         "domain": "www.linkedin.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 528,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 528
       },
       {
         "id": 14,
-        "url": "https://platform.linkedin.com/litms/utag/homepage-guest-frontend/utag.js",
+        "url": "https://platform.linkedin.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "platform.linkedin.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 529,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 529
       },
       {
         "id": 15,
-        "url": "https://static.licdn.com/aero-v1/sc/h/ddi43qwelxeqjxdd45pe3fvs1",
+        "url": "https://static.licdn.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.licdn.com",
         "method": "GET",
         "resourceType": "fetch",
@@ -304,12 +304,12 @@
           "category": "social / advertising pixel",
           "confidence": "curated"
         },
-        "startedAtMs": 529,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 529
       },
       {
         "id": 16,
-        "url": "https://static.licdn.com/aero-v1/sc/h/ddi43qwelxeqjxdd45pe3fvs1",
+        "url": "https://static.licdn.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.licdn.com",
         "method": "GET",
         "resourceType": "fetch",
@@ -321,12 +321,12 @@
           "category": "social / advertising pixel",
           "confidence": "curated"
         },
-        "startedAtMs": 529,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 529
       },
       {
         "id": 17,
-        "url": "https://static.licdn.com/aero-v1/sc/h/4zqr0f9jf98vi2nkijyc3bex2",
+        "url": "https://static.licdn.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.licdn.com",
         "method": "GET",
         "resourceType": "fetch",
@@ -338,12 +338,12 @@
           "category": "social / advertising pixel",
           "confidence": "curated"
         },
-        "startedAtMs": 530,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 530
       },
       {
         "id": 18,
-        "url": "https://static.licdn.com/aero-v1/sc/h/8fkga714vy9b2wk5auqo5reeb",
+        "url": "https://static.licdn.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.licdn.com",
         "method": "GET",
         "resourceType": "fetch",
@@ -355,12 +355,12 @@
           "category": "social / advertising pixel",
           "confidence": "curated"
         },
-        "startedAtMs": 531,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 531
       },
       {
         "id": 19,
-        "url": "https://static.licdn.com/aero-v1/sc/h/5ofmdgombsj3cqmfn03qb7h60",
+        "url": "https://static.licdn.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.licdn.com",
         "method": "GET",
         "resourceType": "fetch",
@@ -372,12 +372,12 @@
           "category": "social / advertising pixel",
           "confidence": "curated"
         },
-        "startedAtMs": 531,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 531
       },
       {
         "id": 20,
-        "url": "https://static.licdn.com/aero-v1/sc/h/7kb6sn3tm4cx918cx9a5jlb0",
+        "url": "https://static.licdn.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.licdn.com",
         "method": "GET",
         "resourceType": "fetch",
@@ -389,12 +389,12 @@
           "category": "social / advertising pixel",
           "confidence": "curated"
         },
-        "startedAtMs": 531,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 531
       },
       {
         "id": 21,
-        "url": "https://static.licdn.com/aero-v1/sc/h/8wykgzgbqy0t3fnkgborvz54u",
+        "url": "https://static.licdn.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.licdn.com",
         "method": "GET",
         "resourceType": "fetch",
@@ -406,12 +406,12 @@
           "category": "social / advertising pixel",
           "confidence": "curated"
         },
-        "startedAtMs": 532,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 532
       },
       {
         "id": 22,
-        "url": "https://static.licdn.com/aero-v1/sc/h/92eb1xekc34eklevj0io6x4ki",
+        "url": "https://static.licdn.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.licdn.com",
         "method": "GET",
         "resourceType": "fetch",
@@ -423,12 +423,12 @@
           "category": "social / advertising pixel",
           "confidence": "curated"
         },
-        "startedAtMs": 532,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 532
       },
       {
         "id": 23,
-        "url": "https://static.licdn.com/aero-v1/sc/h/29h8hsjuomfp50lam5ipnc3uh",
+        "url": "https://static.licdn.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.licdn.com",
         "method": "GET",
         "resourceType": "fetch",
@@ -440,12 +440,12 @@
           "category": "social / advertising pixel",
           "confidence": "curated"
         },
-        "startedAtMs": 533,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 533
       },
       {
         "id": 24,
-        "url": "https://static.licdn.com/aero-v1/sc/h/4chtt12k98xwnba1nimld2oyg",
+        "url": "https://static.licdn.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.licdn.com",
         "method": "GET",
         "resourceType": "fetch",
@@ -457,12 +457,12 @@
           "category": "social / advertising pixel",
           "confidence": "curated"
         },
-        "startedAtMs": 533,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 533
       },
       {
         "id": 25,
-        "url": "https://static.licdn.com/aero-v1/sc/h/c4cba545dp8erex8bfiynf35e",
+        "url": "https://static.licdn.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.licdn.com",
         "method": "GET",
         "resourceType": "fetch",
@@ -474,36 +474,36 @@
           "category": "social / advertising pixel",
           "confidence": "curated"
         },
-        "startedAtMs": 534,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 534
       },
       {
         "id": 26,
-        "url": "https://www.linkedin.com/homepage-guest/api/ingraphs/gauge",
+        "url": "https://www.linkedin.com/{seg}/api/{seg}/{seg}",
         "domain": "www.linkedin.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 535,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 535
       },
       {
         "id": 28,
-        "url": "https://li.protechts.net/index.html?ts=&r_id=&app_id=&uc=&d_id=",
+        "url": "https://li.protechts.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "li.protechts.net",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 541,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 541
       },
       {
         "id": 29,
-        "url": "https://static.licdn.com/aero-v1/sc/h/29rdkxlvag0d3cpj96fiilbju",
+        "url": "https://static.licdn.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.licdn.com",
         "method": "HEAD",
         "resourceType": "fetch",
@@ -515,12 +515,12 @@
           "category": "social / advertising pixel",
           "confidence": "curated"
         },
-        "startedAtMs": 544,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 544
       },
       {
         "id": 30,
-        "url": "https://static.licdn.com/aero-v1/sc/h/fx69lqty609xpf6l4xb6bs3a",
+        "url": "https://static.licdn.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.licdn.com",
         "method": "HEAD",
         "resourceType": "fetch",
@@ -532,12 +532,12 @@
           "category": "social / advertising pixel",
           "confidence": "curated"
         },
-        "startedAtMs": 544,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 544
       },
       {
         "id": 31,
-        "url": "https://static.licdn.com/aero-v1/sc/h/51t74mlo1ty7vakn3a80a9jcp",
+        "url": "https://static.licdn.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.licdn.com",
         "method": "HEAD",
         "resourceType": "fetch",
@@ -549,212 +549,212 @@
           "category": "social / advertising pixel",
           "confidence": "curated"
         },
-        "startedAtMs": 544,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 544
       },
       {
         "id": 32,
-        "url": "https://accounts.google.com/gsi/button?logo_alignment=&shape=&size=&text=&theme=&type=&width=&client_id=&iframe_id=&as=&hl=",
+        "url": "https://accounts.google.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&size=&%5Bredacted%5D=&%5Bredacted%5D=&type=&width=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&hl=",
         "domain": "accounts.google.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 560,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 560
       },
       {
         "id": 33,
-        "url": "https://accounts.google.com/gsi/status?client_id=&as=&has_opted_out_fedcm=",
+        "url": "https://accounts.google.com/{seg}/status?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "accounts.google.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 564,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 564
       },
       {
         "id": 34,
-        "url": "https://www.linkedin.com/li/track",
+        "url": "https://www.linkedin.com/{seg}/{seg}",
         "domain": "www.linkedin.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 623,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 623
       },
       {
         "id": 35,
-        "url": "https://www.linkedin.com/homepage-guest/api/ingraphs/counter",
+        "url": "https://www.linkedin.com/{seg}/api/{seg}/{seg}",
         "domain": "www.linkedin.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 625,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 625
       },
       {
         "id": 36,
-        "url": "https://www.linkedin.com/litms/api/events/tms-load",
+        "url": "https://www.linkedin.com/{seg}/api/{seg}/{seg}",
         "domain": "www.linkedin.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 630,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 630
       },
       {
         "id": 37,
-        "url": "https://client.protechts.net/PXdOjV695v/main.min.js",
+        "url": "https://client.protechts.net/{seg}/{seg}",
         "domain": "client.protechts.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 637,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 637
       },
       {
         "id": 38,
-        "url": "https://www.linkedin.com/li/track",
+        "url": "https://www.linkedin.com/{seg}/{seg}",
         "domain": "www.linkedin.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 702,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 702
       },
       {
         "id": 39,
-        "url": "https://tzm.protechts.net/ns?c=",
+        "url": "https://tzm.protechts.net/{seg}?%5Bredacted%5D=",
         "domain": "tzm.protechts.net",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 732,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 732
       },
       {
         "id": 40,
-        "url": "https://collector-pxdojv695v.protechts.net/api/v2/msft",
-        "domain": "collector-pxdojv695v.protechts.net",
+        "url": "https://{label}.protechts.net/api/{seg}/{seg}",
+        "domain": "{label}.protechts.net",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 742,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 742
       },
       {
         "id": 41,
-        "url": "https://fonts.gstatic.com/s/googlesans/v62/4UaRrENHsxJlGDuGo1OIlJfC6l_24rlCK1Yo_Iq2vgCI.woff2",
+        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "fonts.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 753,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 753
       },
       {
         "id": 42,
-        "url": "https://www.linkedin.com/li/track",
+        "url": "https://www.linkedin.com/{seg}/{seg}",
         "domain": "www.linkedin.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 953,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 953
       },
       {
         "id": 43,
-        "url": "https://www.linkedin.com/platform-telemetry/li/apfcDf",
+        "url": "https://www.linkedin.com/{seg}/{seg}/{seg}",
         "domain": "www.linkedin.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1208,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1208
       },
       {
         "id": 44,
-        "url": "https://collector-pxdojv695v.protechts.net/api/v2/msft",
-        "domain": "collector-pxdojv695v.protechts.net",
+        "url": "https://{label}.protechts.net/api/{seg}/{seg}",
+        "domain": "{label}.protechts.net",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1574,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1574
       },
       {
         "id": 45,
-        "url": "https://www.linkedin.com/li/track",
+        "url": "https://www.linkedin.com/{seg}/{seg}",
         "domain": "www.linkedin.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2448,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2448
       },
       {
         "id": 46,
-        "url": "https://www.linkedin.com/li/track",
+        "url": "https://www.linkedin.com/{seg}/{seg}",
         "domain": "www.linkedin.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2660,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2660
       },
       {
         "id": 47,
-        "url": "https://www.linkedin.com/li/track",
+        "url": "https://www.linkedin.com/{seg}/{seg}",
         "domain": "www.linkedin.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 4447,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 4447
       },
       {
         "id": 48,
-        "url": "https://www.linkedin.com/li/track",
+        "url": "https://www.linkedin.com/{seg}/{seg}",
         "domain": "www.linkedin.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 6447,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 6447
       }
     ],
     "domains": [
@@ -794,7 +794,7 @@
         ]
       },
       {
-        "domain": "collector-pxdojv695v.protechts.net",
+        "domain": "{label}.protechts.net",
         "requests": 2,
         "thirdParty": true,
         "tracker": null,
@@ -889,7 +889,7 @@
     ],
     "cookies": [
       {
-        "name": "_pxvid",
+        "name": "[redacted]",
         "domain": ".protechts.net",
         "path": "/",
         "sameSite": "None",
@@ -899,7 +899,7 @@
         "thirdParty": true
       },
       {
-        "name": "_px3",
+        "name": "[redacted]",
         "domain": ".protechts.net",
         "path": "/",
         "sameSite": "None",
@@ -909,7 +909,7 @@
         "thirdParty": true
       },
       {
-        "name": "pxcts",
+        "name": "[redacted]",
         "domain": ".protechts.net",
         "path": "/",
         "sameSite": "None",
@@ -919,7 +919,7 @@
         "thirdParty": true
       },
       {
-        "name": "lang",
+        "name": "[redacted]",
         "domain": ".linkedin.com",
         "path": "/",
         "sameSite": "None",
@@ -929,7 +929,7 @@
         "thirdParty": false
       },
       {
-        "name": "bcookie",
+        "name": "[redacted]",
         "domain": ".linkedin.com",
         "path": "/",
         "sameSite": "None",
@@ -939,7 +939,7 @@
         "thirdParty": false
       },
       {
-        "name": "li_gp",
+        "name": "[redacted]",
         "domain": ".linkedin.com",
         "path": "/",
         "sameSite": "None",
@@ -979,7 +979,7 @@
         "thirdParty": false
       },
       {
-        "name": "bscookie",
+        "name": "[redacted]",
         "domain": ".www.linkedin.com",
         "path": "/",
         "sameSite": "None",
@@ -990,103 +990,6 @@
       }
     ],
     "storage": [],
-    "fingerprintDetections": [
-      {
-        "kind": "canvas-fingerprinting",
-        "heuristic": "openwpm-canvas-v1",
-        "count": 2,
-        "evidence": {
-          "readApis": [
-            "canvas.toDataURL"
-          ],
-          "maxCanvasWidth": 2000,
-          "maxCanvasHeight": 200,
-          "maxDistinctTextCharacters": 29,
-          "maxTextWriteCalls": 2
-        }
-      },
-      {
-        "kind": "input-monitoring",
-        "heuristic": "input-listener-coverage-v1",
-        "count": 2,
-        "evidence": {
-          "eventTypes": [
-            "keydown",
-            "keyup",
-            "paste"
-          ],
-          "listenerTargets": [
-            "body",
-            "document",
-            "other",
-            "window"
-          ],
-          "thirdPartyOrigins": [
-            "https://client.protechts.net",
-            "https://static.licdn.com"
-          ],
-          "totalListenerCalls": 18
-        }
-      },
-      {
-        "kind": "session-recording",
-        "heuristic": "interaction-listener-coverage-v1",
-        "count": 2,
-        "evidence": {
-          "eventTypes": [
-            "click",
-            "keydown",
-            "keyup",
-            "mousedown",
-            "mousemove",
-            "mouseup",
-            "pointerdown",
-            "pointerup",
-            "scroll",
-            "touchmove",
-            "touchstart",
-            "visibilitychange",
-            "wheel"
-          ],
-          "listenerTargets": [
-            "body",
-            "document",
-            "other",
-            "window"
-          ],
-          "thirdPartyOrigins": [
-            "https://client.protechts.net",
-            "https://static.licdn.com"
-          ],
-          "totalListenerCalls": 72
-        }
-      },
-      {
-        "kind": "webgl-fingerprinting",
-        "heuristic": "webgl-entropy-read-v1",
-        "count": 1,
-        "evidence": {
-          "readApis": [],
-          "parameters": [
-            "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
-            "webgl.getParameter.UNMASKED_VENDOR_WEBGL"
-          ],
-          "getParameterCalls": 56,
-          "readPixelsCalls": 0
-        }
-      },
-      {
-        "kind": "webrtc-fingerprinting",
-        "heuristic": "webrtc-peerconnection-v1",
-        "count": 1,
-        "evidence": {
-          "constructorCalls": 2,
-          "createDataChannelCalls": 4,
-          "createOfferCalls": 4,
-          "setLocalDescriptionCalls": 4
-        }
-      }
-    ],
     "fingerprintEvents": [
       {
         "api": "canvas.toDataURL",
@@ -1121,13 +1024,102 @@
         "count": 2
       }
     ],
-    "screenshot": null,
-    "warnings": [
-      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
-      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
-      "Blocked a request that could not be verified as public: https://ponf.linkedin.com/pixel/tracking.png",
-      "The page did not reach network idle before the scan window ended.",
-      "Read the site's privacy policy (https://www.linkedin.com/legal/privacy-policy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    "fingerprintDetections": [
+      {
+        "kind": "canvas-fingerprinting",
+        "heuristic": "openwpm-canvas-v1",
+        "count": 2,
+        "evidence": {
+          "readApis": [
+            "canvas.toDataURL"
+          ],
+          "maxCanvasWidth": 2000,
+          "maxCanvasHeight": 200,
+          "maxDistinctTextCharacters": 29,
+          "maxTextWriteCalls": 2
+        }
+      },
+      {
+        "kind": "input-monitoring",
+        "heuristic": "input-listener-coverage-v1",
+        "count": 2,
+        "evidence": {
+          "eventTypes": [
+            "keydown",
+            "keyup",
+            "paste"
+          ],
+          "listenerTargets": [
+            "body",
+            "document",
+            "other",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://client.protechts.net/",
+            "https://static.licdn.com/"
+          ],
+          "totalListenerCalls": 18
+        }
+      },
+      {
+        "kind": "session-recording",
+        "heuristic": "interaction-listener-coverage-v1",
+        "count": 2,
+        "evidence": {
+          "eventTypes": [
+            "click",
+            "keydown",
+            "keyup",
+            "mousedown",
+            "mousemove",
+            "mouseup",
+            "pointerdown",
+            "pointerup",
+            "scroll",
+            "touchmove",
+            "touchstart",
+            "visibilitychange",
+            "wheel"
+          ],
+          "listenerTargets": [
+            "body",
+            "document",
+            "other",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://client.protechts.net/",
+            "https://static.licdn.com/"
+          ],
+          "totalListenerCalls": 72
+        }
+      },
+      {
+        "kind": "webgl-fingerprinting",
+        "heuristic": "webgl-entropy-read-v1",
+        "count": 1,
+        "evidence": {
+          "readApis": [],
+          "parameters": [
+            "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
+            "webgl.getParameter.UNMASKED_VENDOR_WEBGL"
+          ],
+          "getParameterCalls": 56,
+          "readPixelsCalls": 0
+        }
+      },
+      {
+        "kind": "webrtc-fingerprinting",
+        "heuristic": "webrtc-peerconnection-v1",
+        "count": 1,
+        "evidence": {
+          "constructorCalls": 2,
+          "createDataChannelCalls": 4,
+          "createOfferCalls": 4,
+          "setLocalDescriptionCalls": 4
+        }
+      }
     ],
     "privacyPolicy": {
       "url": "https://www.linkedin.com/legal/privacy-policy",
@@ -1137,7 +1129,15 @@
       ],
       "unmentionedEntities": [],
       "policyTextLength": 41350
-    }
+    },
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+      "Blocked a request that could not be verified as public: https://ponf.linkedin.com/{seg}/{seg}",
+      "The page did not reach network idle before the scan window ended.",
+      "Read the site's privacy policy (https://www.linkedin.com/legal/privacy-policy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ]
   },
   "variant": {
     "ok": true,
@@ -1177,6 +1177,13 @@
       "automation": "playwright-chromium",
       "headless": true,
       "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "block-simulation",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-02T01:00:58.178Z"
+      },
       "trackerCatalog": {
         "source": "Hand-curated service catalog",
         "version": "hand-curated-2026.06",
@@ -1185,14 +1192,7 @@
         "curatedOverrides": 133,
         "license": "AGPL-3.0-or-later"
       },
-      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
-      "adblock": {
-        "active": true,
-        "source": "Brave default ad-block lists",
-        "lists": 31,
-        "fetchedAt": "2026-07-02T01:00:58.178Z"
-      },
-      "shieldsMode": "block-simulation"
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
     },
     "requests": [
       {
@@ -1204,12 +1204,12 @@
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 50,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 50
       },
       {
         "id": 2,
-        "url": "https://static.licdn.com/aero-v1/sc/h/9syw5us4krfdn7zj309783uua",
+        "url": "https://static.licdn.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.licdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
@@ -1221,12 +1221,12 @@
           "category": "social / advertising pixel",
           "confidence": "curated"
         },
-        "startedAtMs": 268,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 268
       },
       {
         "id": 3,
-        "url": "https://static.licdn.com/aero-v1/sc/h/dxf91zhqd2z6b0bwg85ktm5s4",
+        "url": "https://static.licdn.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.licdn.com",
         "method": "GET",
         "resourceType": "image",
@@ -1238,12 +1238,12 @@
           "category": "social / advertising pixel",
           "confidence": "curated"
         },
-        "startedAtMs": 269,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 269
       },
       {
         "id": 4,
-        "url": "https://static.licdn.com/aero-v1/sc/h/5nqyeanbh1glamxx7yixqn8ft",
+        "url": "https://static.licdn.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.licdn.com",
         "method": "GET",
         "resourceType": "script",
@@ -1255,12 +1255,12 @@
           "category": "social / advertising pixel",
           "confidence": "curated"
         },
-        "startedAtMs": 272,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 272
       },
       {
         "id": 5,
-        "url": "https://static.licdn.com/aero-v1/sc/h/dtrv9swzghlxpyzfyk2gsgbur",
+        "url": "https://static.licdn.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.licdn.com",
         "method": "GET",
         "resourceType": "script",
@@ -1272,12 +1272,12 @@
           "category": "social / advertising pixel",
           "confidence": "curated"
         },
-        "startedAtMs": 272,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 272
       },
       {
         "id": 6,
-        "url": "https://static.licdn.com/aero-v1/sc/h/29rdkxlvag0d3cpj96fiilbju",
+        "url": "https://static.licdn.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.licdn.com",
         "method": "GET",
         "resourceType": "script",
@@ -1289,12 +1289,12 @@
           "category": "social / advertising pixel",
           "confidence": "curated"
         },
-        "startedAtMs": 452,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 452
       },
       {
         "id": 7,
-        "url": "https://static.licdn.com/aero-v1/sc/h/fx69lqty609xpf6l4xb6bs3a",
+        "url": "https://static.licdn.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.licdn.com",
         "method": "GET",
         "resourceType": "script",
@@ -1306,12 +1306,12 @@
           "category": "social / advertising pixel",
           "confidence": "curated"
         },
-        "startedAtMs": 453,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 453
       },
       {
         "id": 8,
-        "url": "https://static.licdn.com/aero-v1/sc/h/51t74mlo1ty7vakn3a80a9jcp",
+        "url": "https://static.licdn.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.licdn.com",
         "method": "GET",
         "resourceType": "script",
@@ -1323,12 +1323,12 @@
           "category": "social / advertising pixel",
           "confidence": "curated"
         },
-        "startedAtMs": 454,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 454
       },
       {
         "id": 9,
-        "url": "https://static.licdn.com/aero-v1/sc/h/9syw5us4krfdn7zj309783uua",
+        "url": "https://static.licdn.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.licdn.com",
         "method": "HEAD",
         "resourceType": "fetch",
@@ -1340,12 +1340,12 @@
           "category": "social / advertising pixel",
           "confidence": "curated"
         },
-        "startedAtMs": 585,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 585
       },
       {
         "id": 10,
-        "url": "https://static.licdn.com/aero-v1/sc/h/dxf91zhqd2z6b0bwg85ktm5s4",
+        "url": "https://static.licdn.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.licdn.com",
         "method": "HEAD",
         "resourceType": "fetch",
@@ -1357,12 +1357,12 @@
           "category": "social / advertising pixel",
           "confidence": "curated"
         },
-        "startedAtMs": 586,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 586
       },
       {
         "id": 11,
-        "url": "https://static.licdn.com/aero-v1/sc/h/dtrv9swzghlxpyzfyk2gsgbur",
+        "url": "https://static.licdn.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.licdn.com",
         "method": "HEAD",
         "resourceType": "fetch",
@@ -1374,12 +1374,12 @@
           "category": "social / advertising pixel",
           "confidence": "curated"
         },
-        "startedAtMs": 586,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 586
       },
       {
         "id": 12,
-        "url": "https://static.licdn.com/aero-v1/sc/h/5nqyeanbh1glamxx7yixqn8ft",
+        "url": "https://static.licdn.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.licdn.com",
         "method": "HEAD",
         "resourceType": "fetch",
@@ -1391,24 +1391,24 @@
           "category": "social / advertising pixel",
           "confidence": "curated"
         },
-        "startedAtMs": 586,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 586
       },
       {
         "id": 13,
-        "url": "https://www.linkedin.com/litms/api/metadata/user",
+        "url": "https://www.linkedin.com/{seg}/api/{seg}/{seg}",
         "domain": "www.linkedin.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 587,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 587
       },
       {
         "id": 15,
-        "url": "https://static.licdn.com/aero-v1/sc/h/ddi43qwelxeqjxdd45pe3fvs1",
+        "url": "https://static.licdn.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.licdn.com",
         "method": "GET",
         "resourceType": "fetch",
@@ -1420,12 +1420,12 @@
           "category": "social / advertising pixel",
           "confidence": "curated"
         },
-        "startedAtMs": 587,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 587
       },
       {
         "id": 16,
-        "url": "https://static.licdn.com/aero-v1/sc/h/ddi43qwelxeqjxdd45pe3fvs1",
+        "url": "https://static.licdn.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.licdn.com",
         "method": "GET",
         "resourceType": "fetch",
@@ -1437,12 +1437,12 @@
           "category": "social / advertising pixel",
           "confidence": "curated"
         },
-        "startedAtMs": 588,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 588
       },
       {
         "id": 17,
-        "url": "https://static.licdn.com/aero-v1/sc/h/4zqr0f9jf98vi2nkijyc3bex2",
+        "url": "https://static.licdn.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.licdn.com",
         "method": "GET",
         "resourceType": "fetch",
@@ -1454,12 +1454,12 @@
           "category": "social / advertising pixel",
           "confidence": "curated"
         },
-        "startedAtMs": 588,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 588
       },
       {
         "id": 18,
-        "url": "https://static.licdn.com/aero-v1/sc/h/8fkga714vy9b2wk5auqo5reeb",
+        "url": "https://static.licdn.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.licdn.com",
         "method": "GET",
         "resourceType": "fetch",
@@ -1471,12 +1471,12 @@
           "category": "social / advertising pixel",
           "confidence": "curated"
         },
-        "startedAtMs": 589,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 589
       },
       {
         "id": 19,
-        "url": "https://static.licdn.com/aero-v1/sc/h/5ofmdgombsj3cqmfn03qb7h60",
+        "url": "https://static.licdn.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.licdn.com",
         "method": "GET",
         "resourceType": "fetch",
@@ -1488,12 +1488,12 @@
           "category": "social / advertising pixel",
           "confidence": "curated"
         },
-        "startedAtMs": 592,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 592
       },
       {
         "id": 20,
-        "url": "https://static.licdn.com/aero-v1/sc/h/7kb6sn3tm4cx918cx9a5jlb0",
+        "url": "https://static.licdn.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.licdn.com",
         "method": "GET",
         "resourceType": "fetch",
@@ -1505,12 +1505,12 @@
           "category": "social / advertising pixel",
           "confidence": "curated"
         },
-        "startedAtMs": 592,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 592
       },
       {
         "id": 21,
-        "url": "https://static.licdn.com/aero-v1/sc/h/8wykgzgbqy0t3fnkgborvz54u",
+        "url": "https://static.licdn.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.licdn.com",
         "method": "GET",
         "resourceType": "fetch",
@@ -1522,12 +1522,12 @@
           "category": "social / advertising pixel",
           "confidence": "curated"
         },
-        "startedAtMs": 593,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 593
       },
       {
         "id": 22,
-        "url": "https://static.licdn.com/aero-v1/sc/h/92eb1xekc34eklevj0io6x4ki",
+        "url": "https://static.licdn.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.licdn.com",
         "method": "GET",
         "resourceType": "fetch",
@@ -1539,12 +1539,12 @@
           "category": "social / advertising pixel",
           "confidence": "curated"
         },
-        "startedAtMs": 593,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 593
       },
       {
         "id": 23,
-        "url": "https://static.licdn.com/aero-v1/sc/h/29h8hsjuomfp50lam5ipnc3uh",
+        "url": "https://static.licdn.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.licdn.com",
         "method": "GET",
         "resourceType": "fetch",
@@ -1556,12 +1556,12 @@
           "category": "social / advertising pixel",
           "confidence": "curated"
         },
-        "startedAtMs": 594,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 594
       },
       {
         "id": 24,
-        "url": "https://static.licdn.com/aero-v1/sc/h/4chtt12k98xwnba1nimld2oyg",
+        "url": "https://static.licdn.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.licdn.com",
         "method": "GET",
         "resourceType": "fetch",
@@ -1573,12 +1573,12 @@
           "category": "social / advertising pixel",
           "confidence": "curated"
         },
-        "startedAtMs": 595,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 595
       },
       {
         "id": 25,
-        "url": "https://static.licdn.com/aero-v1/sc/h/c4cba545dp8erex8bfiynf35e",
+        "url": "https://static.licdn.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.licdn.com",
         "method": "GET",
         "resourceType": "fetch",
@@ -1590,24 +1590,24 @@
           "category": "social / advertising pixel",
           "confidence": "curated"
         },
-        "startedAtMs": 595,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 595
       },
       {
         "id": 26,
-        "url": "https://www.linkedin.com/homepage-guest/api/ingraphs/gauge",
+        "url": "https://www.linkedin.com/{seg}/api/{seg}/{seg}",
         "domain": "www.linkedin.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 595,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 595
       },
       {
         "id": 29,
-        "url": "https://static.licdn.com/aero-v1/sc/h/29rdkxlvag0d3cpj96fiilbju",
+        "url": "https://static.licdn.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.licdn.com",
         "method": "HEAD",
         "resourceType": "fetch",
@@ -1619,12 +1619,12 @@
           "category": "social / advertising pixel",
           "confidence": "curated"
         },
-        "startedAtMs": 602,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 602
       },
       {
         "id": 30,
-        "url": "https://static.licdn.com/aero-v1/sc/h/fx69lqty609xpf6l4xb6bs3a",
+        "url": "https://static.licdn.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.licdn.com",
         "method": "HEAD",
         "resourceType": "fetch",
@@ -1636,12 +1636,12 @@
           "category": "social / advertising pixel",
           "confidence": "curated"
         },
-        "startedAtMs": 603,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 603
       },
       {
         "id": 31,
-        "url": "https://static.licdn.com/aero-v1/sc/h/51t74mlo1ty7vakn3a80a9jcp",
+        "url": "https://static.licdn.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.licdn.com",
         "method": "HEAD",
         "resourceType": "fetch",
@@ -1653,56 +1653,56 @@
           "category": "social / advertising pixel",
           "confidence": "curated"
         },
-        "startedAtMs": 606,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 606
       },
       {
         "id": 32,
-        "url": "https://accounts.google.com/gsi/button?logo_alignment=&shape=&size=&text=&theme=&type=&width=&client_id=&iframe_id=&as=&hl=",
+        "url": "https://accounts.google.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&size=&%5Bredacted%5D=&%5Bredacted%5D=&type=&width=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&hl=",
         "domain": "accounts.google.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 631,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 631
       },
       {
         "id": 33,
-        "url": "https://accounts.google.com/gsi/status?client_id=&as=&has_opted_out_fedcm=",
+        "url": "https://accounts.google.com/{seg}/status?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "accounts.google.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 639,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 639
       },
       {
         "id": 36,
-        "url": "https://www.linkedin.com/homepage-guest/api/ingraphs/counter",
+        "url": "https://www.linkedin.com/{seg}/api/{seg}/{seg}",
         "domain": "www.linkedin.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 689,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 689
       },
       {
         "id": 39,
-        "url": "https://fonts.gstatic.com/s/googlesans/v62/4UaRrENHsxJlGDuGo1OIlJfC6l_24rlCK1Yo_Iq2vgCI.woff2",
+        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "fonts.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 778,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 778
       }
     ],
     "domains": [
@@ -1772,7 +1772,7 @@
     ],
     "cookies": [
       {
-        "name": "lang",
+        "name": "[redacted]",
         "domain": ".linkedin.com",
         "path": "/",
         "sameSite": "None",
@@ -1782,7 +1782,7 @@
         "thirdParty": false
       },
       {
-        "name": "bcookie",
+        "name": "[redacted]",
         "domain": ".linkedin.com",
         "path": "/",
         "sameSite": "None",
@@ -1792,7 +1792,7 @@
         "thirdParty": false
       },
       {
-        "name": "li_gp",
+        "name": "[redacted]",
         "domain": ".linkedin.com",
         "path": "/",
         "sameSite": "None",
@@ -1832,7 +1832,7 @@
         "thirdParty": false
       },
       {
-        "name": "bscookie",
+        "name": "[redacted]",
         "domain": ".www.linkedin.com",
         "path": "/",
         "sameSite": "None",
@@ -1843,92 +1843,6 @@
       }
     ],
     "storage": [],
-    "fingerprintDetections": [
-      {
-        "kind": "canvas-fingerprinting",
-        "heuristic": "openwpm-canvas-v1",
-        "count": 2,
-        "evidence": {
-          "readApis": [
-            "canvas.toDataURL"
-          ],
-          "maxCanvasWidth": 2000,
-          "maxCanvasHeight": 200,
-          "maxDistinctTextCharacters": 29,
-          "maxTextWriteCalls": 2
-        }
-      },
-      {
-        "kind": "input-monitoring",
-        "heuristic": "input-listener-coverage-v1",
-        "count": 1,
-        "evidence": {
-          "eventTypes": [
-            "keydown",
-            "keyup"
-          ],
-          "listenerTargets": [
-            "body",
-            "other",
-            "window"
-          ],
-          "thirdPartyOrigins": [
-            "https://static.licdn.com"
-          ],
-          "totalListenerCalls": 14
-        }
-      },
-      {
-        "kind": "session-recording",
-        "heuristic": "interaction-listener-coverage-v1",
-        "count": 1,
-        "evidence": {
-          "eventTypes": [
-            "click",
-            "keydown",
-            "keyup",
-            "scroll",
-            "touchmove",
-            "visibilitychange"
-          ],
-          "listenerTargets": [
-            "body",
-            "document",
-            "other",
-            "window"
-          ],
-          "thirdPartyOrigins": [
-            "https://static.licdn.com"
-          ],
-          "totalListenerCalls": 44
-        }
-      },
-      {
-        "kind": "webgl-fingerprinting",
-        "heuristic": "webgl-entropy-read-v1",
-        "count": 1,
-        "evidence": {
-          "readApis": [],
-          "parameters": [
-            "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
-            "webgl.getParameter.UNMASKED_VENDOR_WEBGL"
-          ],
-          "getParameterCalls": 56,
-          "readPixelsCalls": 0
-        }
-      },
-      {
-        "kind": "webrtc-fingerprinting",
-        "heuristic": "webrtc-peerconnection-v1",
-        "count": 1,
-        "evidence": {
-          "constructorCalls": 2,
-          "createDataChannelCalls": 4,
-          "createOfferCalls": 4,
-          "setLocalDescriptionCalls": 4
-        }
-      }
-    ],
     "fingerprintEvents": [
       {
         "api": "canvas.toDataURL",
@@ -1963,13 +1877,91 @@
         "count": 2
       }
     ],
-    "screenshot": null,
-    "warnings": [
-      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
-      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
-      "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
-      "Blocked a request that could not be verified as public: https://ponf.linkedin.com/pixel/tracking.png",
-      "Read the site's privacy policy (https://www.linkedin.com/legal/privacy-policy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    "fingerprintDetections": [
+      {
+        "kind": "canvas-fingerprinting",
+        "heuristic": "openwpm-canvas-v1",
+        "count": 2,
+        "evidence": {
+          "readApis": [
+            "canvas.toDataURL"
+          ],
+          "maxCanvasWidth": 2000,
+          "maxCanvasHeight": 200,
+          "maxDistinctTextCharacters": 29,
+          "maxTextWriteCalls": 2
+        }
+      },
+      {
+        "kind": "input-monitoring",
+        "heuristic": "input-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "keydown",
+            "keyup"
+          ],
+          "listenerTargets": [
+            "body",
+            "other",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://static.licdn.com/"
+          ],
+          "totalListenerCalls": 14
+        }
+      },
+      {
+        "kind": "session-recording",
+        "heuristic": "interaction-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "click",
+            "keydown",
+            "keyup",
+            "scroll",
+            "touchmove",
+            "visibilitychange"
+          ],
+          "listenerTargets": [
+            "body",
+            "document",
+            "other",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://static.licdn.com/"
+          ],
+          "totalListenerCalls": 44
+        }
+      },
+      {
+        "kind": "webgl-fingerprinting",
+        "heuristic": "webgl-entropy-read-v1",
+        "count": 1,
+        "evidence": {
+          "readApis": [],
+          "parameters": [
+            "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
+            "webgl.getParameter.UNMASKED_VENDOR_WEBGL"
+          ],
+          "getParameterCalls": 56,
+          "readPixelsCalls": 0
+        }
+      },
+      {
+        "kind": "webrtc-fingerprinting",
+        "heuristic": "webrtc-peerconnection-v1",
+        "count": 1,
+        "evidence": {
+          "constructorCalls": 2,
+          "createDataChannelCalls": 4,
+          "createOfferCalls": 4,
+          "setLocalDescriptionCalls": 4
+        }
+      }
     ],
     "privacyPolicy": {
       "url": "https://www.linkedin.com/legal/privacy-policy",
@@ -1979,7 +1971,15 @@
       ],
       "unmentionedEntities": [],
       "policyTextLength": 41350
-    }
+    },
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+      "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+      "Blocked a request that could not be verified as public: https://ponf.linkedin.com/{seg}/{seg}",
+      "Read the site's privacy policy (https://www.linkedin.com/legal/privacy-policy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ]
   },
   "diff": {
     "totalRequests": {
@@ -2025,7 +2025,7 @@
     "addedDomains": [],
     "removedDomains": [
       {
-        "domain": "collector-pxdojv695v.protechts.net",
+        "domain": "{label}.protechts.net",
         "requests": 2,
         "tracker": null
       },
@@ -2055,17 +2055,7 @@
     "addedCookies": [],
     "removedCookies": [
       {
-        "name": "_px3",
-        "domain": ".protechts.net",
-        "thirdParty": true
-      },
-      {
-        "name": "_pxvid",
-        "domain": ".protechts.net",
-        "thirdParty": true
-      },
-      {
-        "name": "pxcts",
+        "name": "[redacted]",
         "domain": ".protechts.net",
         "thirdParty": true
       }
@@ -2086,13 +2076,13 @@
     "Brave-list blocking comparison runs should be collected under matched crawl conditions, and the blocking run is a simulation with Brave's engine and default lists in this scanner's browser, not a live Brave visit. Differences can still reflect timing, experiments, cache state, consent state, or bot detection.",
     "No blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
     "No blocking: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
-    "No blocking: Blocked a request that could not be verified as public: https://ponf.linkedin.com/pixel/tracking.png",
+    "No blocking: Blocked a request that could not be verified as public: https://ponf.linkedin.com/{seg}/{seg}",
     "No blocking: The page did not reach network idle before the scan window ended.",
     "No blocking: Read the site's privacy policy (https://www.linkedin.com/legal/privacy-policy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
     "Brave-list blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
     "Brave-list blocking: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
     "Brave-list blocking: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
-    "Brave-list blocking: Blocked a request that could not be verified as public: https://ponf.linkedin.com/pixel/tracking.png",
+    "Brave-list blocking: Blocked a request that could not be verified as public: https://ponf.linkedin.com/{seg}/{seg}",
     "Brave-list blocking: Read the site's privacy policy (https://www.linkedin.com/legal/privacy-policy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
   ],
   "share": {

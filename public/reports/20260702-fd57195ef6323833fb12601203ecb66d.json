@@ -49,6 +49,13 @@
       "automation": "playwright-chromium",
       "headless": true,
       "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "classification",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-02T01:00:58.178Z"
+      },
       "trackerCatalog": {
         "source": "Hand-curated service catalog",
         "version": "hand-curated-2026.06",
@@ -57,14 +64,7 @@
         "curatedOverrides": 133,
         "license": "AGPL-3.0-or-later"
       },
-      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
-      "adblock": {
-        "active": true,
-        "source": "Brave default ad-block lists",
-        "lists": 31,
-        "fetchedAt": "2026-07-02T01:00:58.178Z"
-      },
-      "shieldsMode": "classification"
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
     },
     "requests": [
       {
@@ -76,236 +76,236 @@
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 39,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 39
       },
       {
         "id": 2,
-        "url": "https://fonts.googleapis.com/css?family=&subset=",
+        "url": "https://fonts.googleapis.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "fonts.googleapis.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 412,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 412
       },
       {
         "id": 3,
-        "url": "https://plato.stanford.edu/css/bootstrap.min.css",
+        "url": "https://plato.stanford.edu/{seg}/{seg}",
         "domain": "plato.stanford.edu",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 413,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 413
       },
       {
         "id": 4,
-        "url": "https://plato.stanford.edu/css/bootstrap-responsive.min.css",
+        "url": "https://plato.stanford.edu/{seg}/{seg}",
         "domain": "plato.stanford.edu",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 413,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 413
       },
       {
         "id": 5,
-        "url": "https://plato.stanford.edu/css/font-awesome.min.css",
+        "url": "https://plato.stanford.edu/{seg}/{seg}",
         "domain": "plato.stanford.edu",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 414,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 414
       },
       {
         "id": 6,
-        "url": "https://plato.stanford.edu/css/style.css",
+        "url": "https://plato.stanford.edu/{seg}/{seg}",
         "domain": "plato.stanford.edu",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 414,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 414
       },
       {
         "id": 7,
-        "url": "https://plato.stanford.edu/css/entry.css",
+        "url": "https://plato.stanford.edu/{seg}/{seg}",
         "domain": "plato.stanford.edu",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 414,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 414
       },
       {
         "id": 8,
-        "url": "https://plato.stanford.edu/js/jquery-1.9.1.min.js",
+        "url": "https://plato.stanford.edu/{seg}/{seg}",
         "domain": "plato.stanford.edu",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 415,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 415
       },
       {
         "id": 9,
-        "url": "https://plato.stanford.edu/js/bootstrap.min.js",
+        "url": "https://plato.stanford.edu/{seg}/{seg}",
         "domain": "plato.stanford.edu",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 416,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 416
       },
       {
         "id": 10,
-        "url": "https://plato.stanford.edu/js/sep.js",
+        "url": "https://plato.stanford.edu/{seg}/{seg}",
         "domain": "plato.stanford.edu",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 416,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 416
       },
       {
         "id": 11,
-        "url": "https://plato.stanford.edu/symbols/sep-man-red.png",
+        "url": "https://plato.stanford.edu/{seg}/{seg}",
         "domain": "plato.stanford.edu",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 416,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 416
       },
       {
         "id": 12,
-        "url": "https://plato.stanford.edu/js/sep-btn-swap.js",
+        "url": "https://plato.stanford.edu/{seg}/{seg}",
         "domain": "plato.stanford.edu",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 417,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 417
       },
       {
         "id": 13,
-        "url": "https://plato.stanford.edu/css/print.css",
+        "url": "https://plato.stanford.edu/{seg}/{seg}",
         "domain": "plato.stanford.edu",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 893,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 893
       },
       {
         "id": 14,
-        "url": "https://plato.stanford.edu/symbols/sep-shadow2.png",
+        "url": "https://plato.stanford.edu/{seg}/{seg}",
         "domain": "plato.stanford.edu",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 968,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 968
       },
       {
         "id": 15,
-        "url": "https://plato.stanford.edu/symbols/list-bullet.png",
+        "url": "https://plato.stanford.edu/{seg}/{seg}",
         "domain": "plato.stanford.edu",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 969,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 969
       },
       {
         "id": 16,
-        "url": "https://plato.stanford.edu/symbols/sep-shadow.png",
+        "url": "https://plato.stanford.edu/{seg}/{seg}",
         "domain": "plato.stanford.edu",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 970,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 970
       },
       {
         "id": 17,
-        "url": "https://plato.stanford.edu/symbols/flags.png",
+        "url": "https://plato.stanford.edu/{seg}/{seg}",
         "domain": "plato.stanford.edu",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 970,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 970
       },
       {
         "id": 18,
-        "url": "https://fonts.gstatic.com/s/sourcesanspro/v23/6xKydSBYKcSV-LCoeQqfX1RYOo3ik4zwlxdu.woff2",
+        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "fonts.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 970,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 970
       },
       {
         "id": 19,
-        "url": "https://plato.stanford.edu/font/fontawesome-webfont.woff",
+        "url": "https://plato.stanford.edu/{seg}/{seg}",
         "domain": "plato.stanford.edu",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 970,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 970
       },
       {
         "id": 20,
-        "url": "https://fonts.gstatic.com/s/sourcesanspro/v23/6xK3dSBYKcSV-LCoeQqfX1RYOo3qOK7l.woff2",
+        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "fonts.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 971,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 971
       }
     ],
     "domains": [
@@ -355,8 +355,8 @@
     ],
     "cookies": [],
     "storage": [],
-    "fingerprintDetections": [],
     "fingerprintEvents": [],
+    "fingerprintDetections": [],
     "screenshot": null,
     "warnings": [
       "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
@@ -402,6 +402,13 @@
       "automation": "playwright-chromium",
       "headless": true,
       "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "block-simulation",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-02T01:00:58.178Z"
+      },
       "trackerCatalog": {
         "source": "Hand-curated service catalog",
         "version": "hand-curated-2026.06",
@@ -410,14 +417,7 @@
         "curatedOverrides": 133,
         "license": "AGPL-3.0-or-later"
       },
-      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
-      "adblock": {
-        "active": true,
-        "source": "Brave default ad-block lists",
-        "lists": 31,
-        "fetchedAt": "2026-07-02T01:00:58.178Z"
-      },
-      "shieldsMode": "block-simulation"
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
     },
     "requests": [
       {
@@ -429,236 +429,236 @@
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 44,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 44
       },
       {
         "id": 2,
-        "url": "https://fonts.googleapis.com/css?family=&subset=",
+        "url": "https://fonts.googleapis.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "fonts.googleapis.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 406,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 406
       },
       {
         "id": 3,
-        "url": "https://plato.stanford.edu/css/bootstrap.min.css",
+        "url": "https://plato.stanford.edu/{seg}/{seg}",
         "domain": "plato.stanford.edu",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 406,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 406
       },
       {
         "id": 4,
-        "url": "https://plato.stanford.edu/css/bootstrap-responsive.min.css",
+        "url": "https://plato.stanford.edu/{seg}/{seg}",
         "domain": "plato.stanford.edu",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 409,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 409
       },
       {
         "id": 5,
-        "url": "https://plato.stanford.edu/css/font-awesome.min.css",
+        "url": "https://plato.stanford.edu/{seg}/{seg}",
         "domain": "plato.stanford.edu",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 410,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 410
       },
       {
         "id": 6,
-        "url": "https://plato.stanford.edu/css/style.css",
+        "url": "https://plato.stanford.edu/{seg}/{seg}",
         "domain": "plato.stanford.edu",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 410,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 410
       },
       {
         "id": 7,
-        "url": "https://plato.stanford.edu/css/entry.css",
+        "url": "https://plato.stanford.edu/{seg}/{seg}",
         "domain": "plato.stanford.edu",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 410,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 410
       },
       {
         "id": 8,
-        "url": "https://plato.stanford.edu/js/jquery-1.9.1.min.js",
+        "url": "https://plato.stanford.edu/{seg}/{seg}",
         "domain": "plato.stanford.edu",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 411,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 411
       },
       {
         "id": 9,
-        "url": "https://plato.stanford.edu/js/bootstrap.min.js",
+        "url": "https://plato.stanford.edu/{seg}/{seg}",
         "domain": "plato.stanford.edu",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 411,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 411
       },
       {
         "id": 10,
-        "url": "https://plato.stanford.edu/js/sep.js",
+        "url": "https://plato.stanford.edu/{seg}/{seg}",
         "domain": "plato.stanford.edu",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 411,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 411
       },
       {
         "id": 11,
-        "url": "https://plato.stanford.edu/symbols/sep-man-red.png",
+        "url": "https://plato.stanford.edu/{seg}/{seg}",
         "domain": "plato.stanford.edu",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 411,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 411
       },
       {
         "id": 12,
-        "url": "https://plato.stanford.edu/js/sep-btn-swap.js",
+        "url": "https://plato.stanford.edu/{seg}/{seg}",
         "domain": "plato.stanford.edu",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 411,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 411
       },
       {
         "id": 13,
-        "url": "https://plato.stanford.edu/css/print.css",
+        "url": "https://plato.stanford.edu/{seg}/{seg}",
         "domain": "plato.stanford.edu",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 889,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 889
       },
       {
         "id": 14,
-        "url": "https://plato.stanford.edu/symbols/sep-shadow2.png",
+        "url": "https://plato.stanford.edu/{seg}/{seg}",
         "domain": "plato.stanford.edu",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 929,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 929
       },
       {
         "id": 15,
-        "url": "https://plato.stanford.edu/symbols/list-bullet.png",
+        "url": "https://plato.stanford.edu/{seg}/{seg}",
         "domain": "plato.stanford.edu",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 930,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 930
       },
       {
         "id": 16,
-        "url": "https://plato.stanford.edu/symbols/sep-shadow.png",
+        "url": "https://plato.stanford.edu/{seg}/{seg}",
         "domain": "plato.stanford.edu",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 930,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 930
       },
       {
         "id": 17,
-        "url": "https://plato.stanford.edu/symbols/flags.png",
+        "url": "https://plato.stanford.edu/{seg}/{seg}",
         "domain": "plato.stanford.edu",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 931,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 931
       },
       {
         "id": 18,
-        "url": "https://fonts.gstatic.com/s/sourcesanspro/v23/6xKydSBYKcSV-LCoeQqfX1RYOo3ik4zwlxdu.woff2",
+        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "fonts.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 931,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 931
       },
       {
         "id": 19,
-        "url": "https://plato.stanford.edu/font/fontawesome-webfont.woff",
+        "url": "https://plato.stanford.edu/{seg}/{seg}",
         "domain": "plato.stanford.edu",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 931,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 931
       },
       {
         "id": 20,
-        "url": "https://fonts.gstatic.com/s/sourcesanspro/v23/6xK3dSBYKcSV-LCoeQqfX1RYOo3qOK7l.woff2",
+        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "fonts.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 932,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 932
       }
     ],
     "domains": [
@@ -708,8 +708,8 @@
     ],
     "cookies": [],
     "storage": [],
-    "fingerprintDetections": [],
     "fingerprintEvents": [],
+    "fingerprintDetections": [],
     "screenshot": null,
     "warnings": [
       "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",

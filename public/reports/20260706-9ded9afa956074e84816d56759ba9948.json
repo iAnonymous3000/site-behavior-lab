@@ -49,6 +49,13 @@
       "automation": "playwright-chromium",
       "headless": true,
       "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "classification",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-02T01:00:58.178Z"
+      },
       "trackerCatalog": {
         "source": "Hand-curated service catalog",
         "version": "hand-curated-2026.06",
@@ -57,14 +64,7 @@
         "curatedOverrides": 133,
         "license": "AGPL-3.0-or-later"
       },
-      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
-      "adblock": {
-        "active": true,
-        "source": "Brave default ad-block lists",
-        "lists": 31,
-        "fetchedAt": "2026-07-02T01:00:58.178Z"
-      },
-      "shieldsMode": "classification"
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
     },
     "requests": [
       {
@@ -76,588 +76,588 @@
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 40,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 40
       },
       {
         "id": 2,
-        "url": "https://www.nasa.gov/wp-content/plugins/nasa-blocks/build/blocks/video/style-index.css",
+        "url": "https://www.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.nasa.gov",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 77,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 77
       },
       {
         "id": 3,
-        "url": "https://www.nasa.gov/_static/",
+        "url": "https://www.nasa.gov/{seg}",
         "domain": "www.nasa.gov",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 78,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 78
       },
       {
         "id": 4,
-        "url": "https://www.nasa.gov/wp-content/plugins/popup-maker/dist/assets/site.css",
+        "url": "https://www.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.nasa.gov",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 78,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 78
       },
       {
         "id": 5,
-        "url": "https://www.nasa.gov/wp-content/client-mu-plugins/uswds-framework/uswds/fonts/public-sans/PublicSans-Regular.woff2",
+        "url": "https://www.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.nasa.gov",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 80,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 80
       },
       {
         "id": 6,
-        "url": "https://www.nasa.gov/wp-content/client-mu-plugins/uswds-framework/uswds/fonts-split/inter/UcC73FwrK3iLTeHuS_fvQtMwCp50KnMa1ZL7.woff2",
+        "url": "https://www.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.nasa.gov",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 81,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 81
       },
       {
         "id": 7,
-        "url": "https://www.nasa.gov/wp-content/client-mu-plugins/uswds-framework/uswds/fonts-split/db-mono/aFTU7PB1QTsUX8KYthqQBA.woff2",
+        "url": "https://www.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.nasa.gov",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 81,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 81
       },
       {
         "id": 8,
-        "url": "https://dap.digitalgov.gov/Universal-Federated-Analytics-Min.js?agency=&pga4=",
+        "url": "https://dap.digitalgov.gov/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "dap.digitalgov.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 81,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 81
       },
       {
         "id": 9,
-        "url": "https://www.nasa.gov/wp-content/uploads/2026/07/55370393243-92d34f3b55-o.jpg",
+        "url": "https://www.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
         "domain": "www.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 82,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 82
       },
       {
         "id": 10,
-        "url": "https://www.nasa.gov/wp-content/plugins/nasa-blocks/assets/slick/slick.css",
+        "url": "https://www.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.nasa.gov",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 82,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 82
       },
       {
         "id": 11,
-        "url": "https://www.nasa.gov/wp-content/themes/nasa/assets/images/nasa-logo.svg",
+        "url": "https://www.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 82,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 82
       },
       {
         "id": 12,
-        "url": "https://assets.science.nasa.gov/dynamicimage/assets/science/missions/webb/science/2026/07/STScI-01KVX6065VS4VSDVG0S1NSVB6C.png",
+        "url": "https://assets.science.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "assets.science.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 83,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 83
       },
       {
         "id": 13,
-        "url": "https://assets.science.nasa.gov/dynamicimage/assets/science/missions/chandra/2026/250th_ngc4736.jpg",
+        "url": "https://assets.science.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{n}",
         "domain": "assets.science.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 83,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 83
       },
       {
         "id": 14,
-        "url": "https://www.nasa.gov/wp-content/uploads/2026/07/mmea.png",
+        "url": "https://www.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
         "domain": "www.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 83,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 83
       },
       {
         "id": 15,
-        "url": "https://assets.science.nasa.gov/dynamicimage/assets/science/cds/ciencia/ciencias-terrestres/2026/Milky%20Way_Bill%20Dunford.png",
+        "url": "https://assets.science.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "assets.science.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 124,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 124
       },
       {
         "id": 16,
-        "url": "https://assets.science.nasa.gov/dynamicimage/assets/science/missions/chandra/2026/arms_unlabeled.jpg",
+        "url": "https://assets.science.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{n}",
         "domain": "assets.science.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 124,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 124
       },
       {
         "id": 17,
-        "url": "https://assets.science.nasa.gov/dynamicimage/assets/science/missions/webb/science/2026/07/STScI-01KV8SMVYFK67J7RPRW1HB0SKS.jpg",
+        "url": "https://assets.science.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "assets.science.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 124,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 124
       },
       {
         "id": 18,
-        "url": "https://www.nasa.gov/wp-includes/js/dist/hooks.min.js",
+        "url": "https://www.nasa.gov/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.nasa.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 124,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 124
       },
       {
         "id": 19,
-        "url": "https://www.nasa.gov/_static/",
+        "url": "https://www.nasa.gov/{seg}",
         "domain": "www.nasa.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 125,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 125
       },
       {
         "id": 20,
-        "url": "https://www.nasa.gov/_static/",
+        "url": "https://www.nasa.gov/{seg}",
         "domain": "www.nasa.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 127,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 127
       },
       {
         "id": 21,
-        "url": "https://www.nasa.gov/wp-content/plugins/gravityforms/js/jquery.json.min.js",
+        "url": "https://www.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.nasa.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 130,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 130
       },
       {
         "id": 22,
-        "url": "https://www.nasa.gov/wp-content/plugins/gravityforms/js/gravityforms.min.js",
+        "url": "https://www.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.nasa.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 130,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 130
       },
       {
         "id": 23,
-        "url": "https://www.nasa.gov/wp-content/plugins/gravityforms/assets/js/dist/utils.min.js",
+        "url": "https://www.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.nasa.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 131,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 131
       },
       {
         "id": 24,
-        "url": "https://www.nasa.gov/wp-content/plugins/nasa-blocks/assets/gf-stepper-focus/gf-stepper-focus.js",
+        "url": "https://www.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.nasa.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 131,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 131
       },
       {
         "id": 25,
-        "url": "https://assets.science.nasa.gov/dynamicimage/assets/science/missions/rst/science/Brown%20superjupiter%20D2%201.jpg",
+        "url": "https://assets.science.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "assets.science.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 132,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 132
       },
       {
         "id": 26,
-        "url": "https://www.nasa.gov/wp-content/uploads/2026/06/jsc2026e395621.jpg",
+        "url": "https://www.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
         "domain": "www.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 132,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 132
       },
       {
         "id": 27,
-        "url": "https://www.nasa.gov/wp-content/uploads/2026/06/ssc-20260609-s00589.jpg",
+        "url": "https://www.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
         "domain": "www.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 132,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 132
       },
       {
         "id": 28,
-        "url": "https://assets.science.nasa.gov/dynamicimage/assets/science/cds/learn/science-activation-stories/2026/NESSP_e2v_photo_5-Darci_Snowden.jpg",
+        "url": "https://assets.science.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "assets.science.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 133,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 133
       },
       {
         "id": 29,
-        "url": "https://assets.science.nasa.gov/dynamicimage/assets/science/psd/photojournal/pia/pia17/pia17883/PIA17883.jpg",
+        "url": "https://assets.science.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "assets.science.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 133,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 133
       },
       {
         "id": 30,
-        "url": "https://assets.science.nasa.gov/dynamicimage/assets/science/esd/articles/2026/4x3_Landscape_smoke_PACE_OCI_20250531T180736_181236.png",
+        "url": "https://assets.science.nasa.gov/{seg}/{seg}/{seg}/{seg}/articles/{n}",
         "domain": "assets.science.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 134,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 134
       },
       {
         "id": 31,
-        "url": "https://assets.science.nasa.gov/dynamicimage/assets/science/missions/hubble/nebulae/planetary/cats_eye_2026/Hubble_CatsEye_2026_FullsizeOriginal_potm2602b.tif",
+        "url": "https://assets.science.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "assets.science.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 135,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 135
       },
       {
         "id": 32,
-        "url": "https://assets.science.nasa.gov/dynamicimage/assets/science/cds/general/images/2008/02/382-viking-lander-pia09703.jpg",
+        "url": "https://assets.science.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "assets.science.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 135,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 135
       },
       {
         "id": 33,
-        "url": "https://assets.science.nasa.gov/dynamicimage/assets/science/missions/hubble/stars/globular-clusters/Hubble_NGC6426_3_July4_FINAL2.tif",
+        "url": "https://assets.science.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "assets.science.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 135,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 135
       },
       {
         "id": 34,
-        "url": "https://assets.science.nasa.gov/dynamicimage/assets/science/missions/hubble/nebulae/emission/Hubble_LMC_L95_3F_flat_FINAL.tif",
+        "url": "https://assets.science.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "assets.science.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 135,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 135
       },
       {
         "id": 35,
-        "url": "https://assets.science.nasa.gov/dynamicimage/assets/science/missions/hubble/stars/globular-clusters/Hubble_M3_July4_%20final.tif",
+        "url": "https://assets.science.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "assets.science.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 135,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 135
       },
       {
         "id": 36,
-        "url": "https://images-assets.nasa.gov/image/AFRC2026-0004-020/AFRC2026-0004-020~large.jpg",
+        "url": "https://images-assets.nasa.gov/{seg}/{seg}/{seg}",
         "domain": "images-assets.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 137,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 137
       },
       {
         "id": 37,
-        "url": "https://www.nasa.gov/wp-content/uploads/2026/06/lrc-2026-ocio-p-01883-image-1.jpg",
+        "url": "https://www.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
         "domain": "www.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 137,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 137
       },
       {
         "id": 38,
-        "url": "https://images-assets.nasa.gov/image/AFRC2026-0095-04/AFRC2026-0095-04~large.jpg",
+        "url": "https://images-assets.nasa.gov/{seg}/{seg}/{seg}",
         "domain": "images-assets.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 137,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 137
       },
       {
         "id": 39,
-        "url": "https://www.nasa.gov/wp-content/uploads/2026/06/lunar-enabling-infrastructure-06292026.png",
+        "url": "https://www.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
         "domain": "www.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 137,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 137
       },
       {
         "id": 40,
-        "url": "https://assets.science.nasa.gov/dynamicimage/assets/science/missions/swift-observatory/news/2026/launch-preview/NE201566_2611x1654.jpg",
+        "url": "https://assets.science.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/news",
         "domain": "assets.science.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 138,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 138
       },
       {
         "id": 41,
-        "url": "https://www.nasa.gov/wp-content/uploads/2026/06/sr-1-freedom.png",
+        "url": "https://www.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
         "domain": "www.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 138,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 138
       },
       {
         "id": 42,
-        "url": "https://images-assets.nasa.gov/image/art002e012476/art002e012476~large.jpg",
+        "url": "https://images-assets.nasa.gov/{seg}/{seg}/{seg}",
         "domain": "images-assets.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 138,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 138
       },
       {
         "id": 43,
-        "url": "https://www.nasa.gov/wp-content/uploads/2026/06/rovers.jpg",
+        "url": "https://www.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
         "domain": "www.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 139,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 139
       },
       {
         "id": 44,
-        "url": "https://www.nasa.gov/wp-content/uploads/2026/04/55193772552-b8cfb47b7e-o.jpg",
+        "url": "https://www.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
         "domain": "www.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 139,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 139
       },
       {
         "id": 45,
-        "url": "https://www.nasa.gov/wp-content/uploads/2026/03/a2crew-7ff19d.jpg",
+        "url": "https://www.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
         "domain": "www.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 140,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 140
       },
       {
         "id": 46,
-        "url": "https://www.nasa.gov/wp-content/uploads/2026/03/suit-patch.jpg",
+        "url": "https://www.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
         "domain": "www.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 140,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 140
       },
       {
         "id": 47,
-        "url": "https://images-assets.nasa.gov/image/iss074e0325229/iss074e0325229~large.jpg",
+        "url": "https://images-assets.nasa.gov/{seg}/{seg}/{seg}",
         "domain": "images-assets.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 140,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 140
       },
       {
         "id": 48,
-        "url": "https://www.nasa.gov/wp-includes/js/dist/i18n.min.js",
+        "url": "https://www.nasa.gov/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.nasa.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 140,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 140
       },
       {
         "id": 49,
-        "url": "https://www.nasa.gov/wp-content/plugins/wp-parsely/build/loader.js",
+        "url": "https://www.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.nasa.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 141,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 141
       },
       {
         "id": 50,
-        "url": "https://cdn.parsely.com/keys/nasa.gov/p.js?ver=",
+        "url": "https://cdn.parsely.com/{seg}/{seg}/{seg}?ver=",
         "domain": "cdn.parsely.com",
         "method": "GET",
         "resourceType": "script",
@@ -669,108 +669,108 @@
           "category": "audience analytics",
           "confidence": "curated"
         },
-        "startedAtMs": 141,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 141
       },
       {
         "id": 51,
-        "url": "https://www.nasa.gov/wp-content/plugins/accessibility-checker/build/frontendFixes.bundle.js",
+        "url": "https://www.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.nasa.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 141,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 141
       },
       {
         "id": 52,
-        "url": "https://www.nasa.gov/_static/",
+        "url": "https://www.nasa.gov/{seg}",
         "domain": "www.nasa.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 141,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 141
       },
       {
         "id": 53,
-        "url": "https://www.nasa.gov/wp-includes/js/dist/a11y.min.js",
+        "url": "https://www.nasa.gov/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.nasa.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 146,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 146
       },
       {
         "id": 54,
-        "url": "https://www.nasa.gov/wp-content/plugins/gravityforms/assets/js/dist/vendor-theme.min.js",
+        "url": "https://www.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.nasa.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 146,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 146
       },
       {
         "id": 55,
-        "url": "https://www.nasa.gov/wp-content/plugins/gravityforms/assets/js/dist/scripts-theme.min.js",
+        "url": "https://www.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.nasa.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 147,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 147
       },
       {
         "id": 56,
-        "url": "https://www.nasa.gov/_static/",
+        "url": "https://www.nasa.gov/{seg}",
         "domain": "www.nasa.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 148,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 148
       },
       {
         "id": 57,
-        "url": "https://www.nasa.gov/_static/",
+        "url": "https://www.nasa.gov/{seg}",
         "domain": "www.nasa.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 148,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 148
       },
       {
         "id": 58,
-        "url": "https://dap.digitalgov.gov/web-vitals/dist/web-vitals.attribution.iife.js",
+        "url": "https://dap.digitalgov.gov/{seg}/{seg}/{seg}",
         "domain": "dap.digitalgov.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 149,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 149
       },
       {
         "id": 59,
-        "url": "https://www.googletagmanager.com/gtag/js?id=",
+        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=",
         "domain": "www.googletagmanager.com",
         "method": "GET",
         "resourceType": "script",
@@ -782,12 +782,12 @@
           "category": "analytics / tag management",
           "confidence": "curated"
         },
-        "startedAtMs": 150,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 150
       },
       {
         "id": 60,
-        "url": "https://www.googletagmanager.com/gtm.js?id=",
+        "url": "https://www.googletagmanager.com/{seg}?id=",
         "domain": "www.googletagmanager.com",
         "method": "GET",
         "resourceType": "script",
@@ -799,324 +799,324 @@
           "category": "analytics / tag management",
           "confidence": "curated"
         },
-        "startedAtMs": 150,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 150
       },
       {
         "id": 61,
-        "url": "https://www.nasa.gov/wp-content/client-mu-plugins/uswds-framework/uswds/fonts-split/inter/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hiA.woff2",
+        "url": "https://www.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.nasa.gov",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 177,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 177
       },
       {
         "id": 62,
-        "url": "https://www.youtube.com/embed/z4KrIsRtqaE?feature=",
+        "url": "https://www.youtube.com/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "www.youtube.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 201,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 201
       },
       {
         "id": 63,
-        "url": "https://www.nasa.gov/wp-content/client-mu-plugins/uswds-framework/uswds/fonts/public-sans/PublicSans-Bold.woff2",
+        "url": "https://www.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.nasa.gov",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 263,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 263
       },
       {
         "id": 64,
-        "url": "https://www.nasa.gov/wp-content/uploads/2026/07/55370393243-92d34f3b55-o.jpg",
+        "url": "https://www.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
         "domain": "www.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 264,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 264
       },
       {
         "id": 65,
-        "url": "https://images-assets.nasa.gov/image/NHQ20260415_admin_0013/NHQ20260415_admin_0013~large.jpg",
+        "url": "https://images-assets.nasa.gov/{seg}/{seg}/{seg}",
         "domain": "images-assets.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 265,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 265
       },
       {
         "id": 66,
-        "url": "https://assets.science.nasa.gov/dynamicimage/assets/science/missions/chandra/2026/arms_unlabeled.jpg",
+        "url": "https://assets.science.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{n}",
         "domain": "assets.science.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 265,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 265
       },
       {
         "id": 67,
-        "url": "https://assets.science.nasa.gov/dynamicimage/assets/science/missions/webb/science/2026/07/STScI-01KV8SMVYFK67J7RPRW1HB0SKS.jpg",
+        "url": "https://assets.science.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "assets.science.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 265,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 265
       },
       {
         "id": 68,
-        "url": "https://assets.science.nasa.gov/dynamicimage/assets/science/missions/rst/science/Brown%20superjupiter%20D2%201.jpg",
+        "url": "https://assets.science.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "assets.science.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 270,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 270
       },
       {
         "id": 69,
-        "url": "https://assets.science.nasa.gov/dynamicimage/assets/science/missions/swift-observatory/homepage/swift-boost-hub/Swift_Over_Earth_Animation-2025.jpg",
+        "url": "https://assets.science.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "assets.science.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 273,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 273
       },
       {
         "id": 70,
-        "url": "https://www.nasa.gov/wp-content/uploads/2026/04/55193772552-b8cfb47b7e-o.jpg",
+        "url": "https://www.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
         "domain": "www.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 273,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 273
       },
       {
         "id": 71,
-        "url": "https://assets.science.nasa.gov/dynamicimage/assets/science/esd/articles/2026/jsc2026e394067.jpg",
+        "url": "https://assets.science.nasa.gov/{seg}/{seg}/{seg}/{seg}/articles/{n}",
         "domain": "assets.science.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 273,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 273
       },
       {
         "id": 72,
-        "url": "https://www.nasa.gov/wp-content/uploads/2026/06/rovers.jpg",
+        "url": "https://www.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
         "domain": "www.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 276,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 276
       },
       {
         "id": 73,
-        "url": "https://science.nasa.gov/wp-content/uploads/2023/06/planets3x3-pluto-colormercury-axis-tilt-nolabels-1080p.00001-print.jpg",
+        "url": "https://science.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
         "domain": "science.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 277,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 277
       },
       {
         "id": 74,
-        "url": "https://assets.science.nasa.gov/dynamicimage/assets/science/missions/hubble/releases/2017/04/STScI-01EVSG4P65KZZHCK1KJ9K32FEJ.png",
+        "url": "https://assets.science.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "assets.science.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 277,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 277
       },
       {
         "id": 75,
-        "url": "https://assets.science.nasa.gov/dynamicimage/assets/science/missions/hubble/mission/35th-anniversary/stargazing-banner-2_crop.jpg",
+        "url": "https://assets.science.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "assets.science.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 277,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 277
       },
       {
         "id": 76,
-        "url": "https://assets.science.nasa.gov/dynamicimage/assets/science/cds/eyes/common/promotion/Eyes_noText.png",
+        "url": "https://assets.science.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "assets.science.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 277,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 277
       },
       {
         "id": 77,
-        "url": "https://www.nasa.gov/wp-content/uploads/2026/07/iss074e0779393orig.jpg",
+        "url": "https://www.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
         "domain": "www.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 280,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 280
       },
       {
         "id": 78,
-        "url": "https://www.nasa.gov/wp-content/uploads/2024/05/hubble-hptau-wfc3-1-flat-finalok.jpg",
+        "url": "https://www.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
         "domain": "www.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 281,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 281
       },
       {
         "id": 79,
-        "url": "https://www.nasa.gov/wp-content/uploads/2023/03/hubble_j2034417_freggs_fullsize_0-1.jpg",
+        "url": "https://www.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
         "domain": "www.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 281,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 281
       },
       {
         "id": 80,
-        "url": "https://www.nasa.gov/wp-content/uploads/2023/03/potw2135a.jpg",
+        "url": "https://www.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
         "domain": "www.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 283,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 283
       },
       {
         "id": 81,
-        "url": "https://www.nasa.gov/wp-content/uploads/2024/04/stsci-01hv4cg0eacm1mc07e10x19knx.png",
+        "url": "https://www.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
         "domain": "www.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 284,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 284
       },
       {
         "id": 82,
-        "url": "https://www.nasa.gov/wp-content/uploads/2024/04/timelapse-crab-nebula.jpg",
+        "url": "https://www.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
         "domain": "www.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 289,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 289
       },
       {
         "id": 83,
-        "url": "https://images-assets.nasa.gov/image/stephan_quintet/stephan_quintet~large.jpg",
+        "url": "https://images-assets.nasa.gov/{seg}/{seg}/{seg}",
         "domain": "images-assets.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 290,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 290
       },
       {
         "id": 84,
-        "url": "https://images-assets.nasa.gov/image/GSFC_20171208_Archive_e002059/GSFC_20171208_Archive_e002059~large.jpg",
+        "url": "https://images-assets.nasa.gov/{seg}/{seg}/{seg}",
         "domain": "images-assets.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 290,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 290
       },
       {
         "id": 85,
-        "url": "https://www.nasa.gov/wp-content/uploads/2025/04/3dmodels-cygnus-astro-74ffde.jpg",
+        "url": "https://www.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
         "domain": "www.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 290,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 290
       },
       {
         "id": 86,
-        "url": "https://images-assets.nasa.gov/image/PIA21089/PIA21089~orig.jpg",
+        "url": "https://images-assets.nasa.gov/{seg}/{seg}/{seg}",
         "domain": "images-assets.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 291,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 291
       },
       {
         "id": 87,
-        "url": "https://api.parsely.com/v2/profile?apikey=&uuid=&url=",
+        "url": "https://api.parsely.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "api.parsely.com",
         "method": "GET",
         "resourceType": "fetch",
@@ -1128,12 +1128,12 @@
           "category": "audience analytics",
           "confidence": "curated"
         },
-        "startedAtMs": 375,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 375
       },
       {
         "id": 88,
-        "url": "https://p1.parsely.com/px/?rand=&plid=&idsite=&url=&urlref=&screen=&data=&sid=&surl=&sref=&sts=&slts=&title=&date=&action=&pvid=&u=",
+        "url": "https://p1.parsely.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "p1.parsely.com",
         "method": "GET",
         "resourceType": "image",
@@ -1145,96 +1145,96 @@
           "category": "audience analytics",
           "confidence": "curated"
         },
-        "startedAtMs": 375,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 375
       },
       {
         "id": 89,
-        "url": "https://www.youtube.com/s/player/4918c89a/www-player.css",
+        "url": "https://www.youtube.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.youtube.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 412,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 412
       },
       {
         "id": 90,
-        "url": "https://www.youtube.com/s/_/ytembeds/_/ss/k=ytembeds.base.PH6_DL9O46E.L.W.O/am=AAAAIA/d=0/br=1/rs=AGKMywFxWiUuLumaXtnx7XK0qW5dDqXKKw",
+        "url": "https://www.youtube.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.youtube.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 413,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 413
       },
       {
         "id": 91,
-        "url": "https://www.youtube.com/s/_/ytembeds/_/js/k=ytembeds.base.en_US.wO8pDB8x2Mw.es5.O/am=AAAAIA/d=1/br=1/rs=AGKMywEWNjjxadROwyUjz-x89wXaex57gQ/m=root,base",
+        "url": "https://www.youtube.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.youtube.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 413,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 413
       },
       {
         "id": 92,
-        "url": "https://www.youtube.com/s/player/4918c89a/player_embed.vflset/en_US/base.js",
+        "url": "https://www.youtube.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.youtube.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 414,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 414
       },
       {
         "id": 93,
-        "url": "https://plus.nasa.gov/wp-json/nasaplus/v1/live",
+        "url": "https://plus.nasa.gov/{seg}/{seg}/{seg}/{seg}",
         "domain": "plus.nasa.gov",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 426,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 426
       },
       {
         "id": 94,
-        "url": "https://images-assets.nasa.gov/image/NHQ20260415_admin_0013/NHQ20260415_admin_0013~large.jpg",
+        "url": "https://images-assets.nasa.gov/{seg}/{seg}/{seg}",
         "domain": "images-assets.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 551,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 551
       },
       {
         "id": 95,
-        "url": "https://fonts.gstatic.com/s/roboto/v48/KFO7CnqEu92Fr1ME7kSn66aGLdTylUAMa3yUBA.woff2",
+        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "fonts.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 599,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 599
       },
       {
         "id": 96,
-        "url": "https://googleads.g.doubleclick.net/pagead/id",
+        "url": "https://googleads.g.doubleclick.net/{seg}/{seg}",
         "domain": "googleads.g.doubleclick.net",
         "method": "GET",
         "resourceType": "xhr",
@@ -1246,12 +1246,12 @@
           "category": "advertising",
           "confidence": "curated"
         },
-        "startedAtMs": 771,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 771
       },
       {
         "id": 97,
-        "url": "https://static.doubleclick.net/instream/ad_status.js",
+        "url": "https://static.doubleclick.net/{seg}/{seg}",
         "domain": "static.doubleclick.net",
         "method": "GET",
         "resourceType": "script",
@@ -1263,24 +1263,24 @@
           "category": "advertising",
           "confidence": "curated"
         },
-        "startedAtMs": 771,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 771
       },
       {
         "id": 98,
-        "url": "https://www.youtube.com/s/_/ytembeds/_/js/k=ytembeds.base.en_US.wO8pDB8x2Mw.es5.O/am=AAAAIA/d=1/exm=base,root/ed=1/br=1/rs=AGKMywEWNjjxadROwyUjz-x89wXaex57gQ/m=r78Drb",
+        "url": "https://www.youtube.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.youtube.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 772,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 772
       },
       {
         "id": 99,
-        "url": "https://googleads.g.doubleclick.net/pagead/id?slf_rd=",
+        "url": "https://googleads.g.doubleclick.net/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "googleads.g.doubleclick.net",
         "method": "GET",
         "resourceType": "xhr",
@@ -1292,24 +1292,24 @@
           "category": "advertising",
           "confidence": "curated"
         },
-        "startedAtMs": 834,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 834
       },
       {
         "id": 100,
-        "url": "https://i.ytimg.com/vi/z4KrIsRtqaE/maxresdefault.jpg",
+        "url": "https://i.ytimg.com/{seg}/{seg}/{seg}",
         "domain": "i.ytimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 942,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 942
       },
       {
         "id": 101,
-        "url": "https://www.googletagmanager.com/gtag/js?id=&cx=&gtm=",
+        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "www.googletagmanager.com",
         "method": "GET",
         "resourceType": "script",
@@ -1321,12 +1321,12 @@
           "category": "analytics / tag management",
           "confidence": "curated"
         },
-        "startedAtMs": 1018,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1018
       },
       {
         "id": 102,
-        "url": "https://www.googletagmanager.com/gtag/js?id=&cx=&gtm=",
+        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "www.googletagmanager.com",
         "method": "GET",
         "resourceType": "script",
@@ -1338,48 +1338,48 @@
           "category": "analytics / tag management",
           "confidence": "curated"
         },
-        "startedAtMs": 1018,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1018
       },
       {
         "id": 103,
-        "url": "https://www.youtube.com/youtubei/v1/log_event?alt=",
+        "url": "https://www.youtube.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "www.youtube.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1038,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1038
       },
       {
         "id": 104,
-        "url": "https://www.youtube.com/embed/z4KrIsRtqaE?feature=&enablejsapi=&origin=",
+        "url": "https://www.youtube.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "www.youtube.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1039,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1039
       },
       {
         "id": 105,
-        "url": "https://www.youtube.com/iframe_api",
+        "url": "https://www.youtube.com/{seg}",
         "domain": "www.youtube.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1040,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1040
       },
       {
         "id": 106,
-        "url": "https://www.google-analytics.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&_s=&tag_exp=&dl=&dt=&dr=&sid=&sct=&seg=&_tu=&en=&_fv=&_nsi=&_ss=&_ee=&ep.agency=&ep.subagency=&ep.site_topic=&ep.site_platform=&ep.script_source=&ep.version=&ep.protocol=&ep.using_parallel_tracker=&ep.hostname_dimension=&tfd=",
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "www.google-analytics.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -1391,96 +1391,96 @@
           "category": "analytics / tag management",
           "confidence": "curated"
         },
-        "startedAtMs": 1122,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1122
       },
       {
         "id": 107,
-        "url": "https://www.youtube.com/s/player/4918c89a/www-widgetapi.vflset/www-widgetapi.js",
+        "url": "https://www.youtube.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.youtube.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1130,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1130
       },
       {
         "id": 108,
-        "url": "https://www.youtube.com/youtubei/v1/log_event?alt=",
+        "url": "https://www.youtube.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "www.youtube.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": null,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1172,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1172
       },
       {
         "id": 109,
-        "url": "https://www.youtube.com/s/player/4918c89a/www-player.css",
+        "url": "https://www.youtube.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.youtube.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1179,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1179
       },
       {
         "id": 110,
-        "url": "https://www.youtube.com/s/_/ytembeds/_/ss/k=ytembeds.base.PH6_DL9O46E.L.W.O/am=AAAAIA/d=0/br=1/rs=AGKMywFxWiUuLumaXtnx7XK0qW5dDqXKKw",
+        "url": "https://www.youtube.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.youtube.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1180,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1180
       },
       {
         "id": 111,
-        "url": "https://www.youtube.com/s/_/ytembeds/_/js/k=ytembeds.base.en_US.wO8pDB8x2Mw.es5.O/am=AAAAIA/d=1/br=1/rs=AGKMywEWNjjxadROwyUjz-x89wXaex57gQ/m=root,base",
+        "url": "https://www.youtube.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.youtube.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1180,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1180
       },
       {
         "id": 112,
-        "url": "https://www.youtube.com/s/player/4918c89a/player_embed.vflset/en_US/base.js",
+        "url": "https://www.youtube.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.youtube.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1180,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1180
       },
       {
         "id": 113,
-        "url": "https://fonts.gstatic.com/s/roboto/v48/KFO7CnqEu92Fr1ME7kSn66aGLdTylUAMa3yUBA.woff2",
+        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "fonts.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1182,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1182
       },
       {
         "id": 114,
-        "url": "https://www.google-analytics.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&_s=&tag_exp=&sid=&sct=&seg=&dl=&dt=&en=&_fv=&_ss=&tfd=",
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "www.google-analytics.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -1492,12 +1492,12 @@
           "category": "analytics / tag management",
           "confidence": "curated"
         },
-        "startedAtMs": 1271,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1271
       },
       {
         "id": 115,
-        "url": "https://googleads.g.doubleclick.net/pagead/id",
+        "url": "https://googleads.g.doubleclick.net/{seg}/{seg}",
         "domain": "googleads.g.doubleclick.net",
         "method": "GET",
         "resourceType": "xhr",
@@ -1509,12 +1509,12 @@
           "category": "advertising",
           "confidence": "curated"
         },
-        "startedAtMs": 1440,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1440
       },
       {
         "id": 116,
-        "url": "https://static.doubleclick.net/instream/ad_status.js",
+        "url": "https://static.doubleclick.net/{seg}/{seg}",
         "domain": "static.doubleclick.net",
         "method": "GET",
         "resourceType": "script",
@@ -1526,24 +1526,24 @@
           "category": "advertising",
           "confidence": "curated"
         },
-        "startedAtMs": 1441,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1441
       },
       {
         "id": 117,
-        "url": "https://www.youtube.com/s/_/ytembeds/_/js/k=ytembeds.base.en_US.wO8pDB8x2Mw.es5.O/am=AAAAIA/d=1/exm=base,root/ed=1/br=1/rs=AGKMywEWNjjxadROwyUjz-x89wXaex57gQ/m=r78Drb",
+        "url": "https://www.youtube.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.youtube.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1442,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1442
       },
       {
         "id": 118,
-        "url": "https://googleads.g.doubleclick.net/pagead/id?slf_rd=",
+        "url": "https://googleads.g.doubleclick.net/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "googleads.g.doubleclick.net",
         "method": "GET",
         "resourceType": "xhr",
@@ -1555,84 +1555,84 @@
           "category": "advertising",
           "confidence": "curated"
         },
-        "startedAtMs": 1496,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1496
       },
       {
         "id": 119,
-        "url": "https://i.ytimg.com/vi/z4KrIsRtqaE/maxresdefault.jpg",
+        "url": "https://i.ytimg.com/{seg}/{seg}/{seg}",
         "domain": "i.ytimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1593,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1593
       },
       {
         "id": 120,
-        "url": "https://www.google.com/js/th/QHG9eyWr6z296JSKuqF_KydMQkmEdQfg9a0ZAJv-7fk.js",
+        "url": "https://www.google.com/{seg}/{seg}/{seg}",
         "domain": "www.google.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1940,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1940
       },
       {
         "id": 121,
-        "url": "https://www.youtube.com/generate_204?NN8QTA=",
+        "url": "https://www.youtube.com/{seg}?%5Bredacted%5D=",
         "domain": "www.youtube.com",
         "method": "GET",
         "resourceType": "image",
         "status": 204,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 2042,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2042
       },
       {
         "id": 122,
-        "url": "https://jnn-pa.googleapis.com/$rpc/google.internal.waa.v1.Waa/GenerateIT",
+        "url": "https://jnn-pa.googleapis.com/{seg}/{seg}/{seg}",
         "domain": "jnn-pa.googleapis.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 2067,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2067
       },
       {
         "id": 123,
-        "url": "https://www.youtube.com/youtubei/v1/log_event?alt=",
+        "url": "https://www.youtube.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "www.youtube.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 4112,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 4112
       },
       {
         "id": 124,
-        "url": "https://www.youtube.com/youtubei/v1/log_event?alt=",
+        "url": "https://www.youtube.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "www.youtube.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": null,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 5571,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 5571
       },
       {
         "id": 125,
-        "url": "https://p1.parsely.com/px/?rand=&plid=&idsite=&url=&urlref=&screen=&data=&sid=&surl=&sref=&sts=&slts=&date=&action=&inc=&tt=&pvid=&u=",
+        "url": "https://p1.parsely.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "p1.parsely.com",
         "method": "GET",
         "resourceType": "fetch",
@@ -1644,12 +1644,12 @@
           "category": "audience analytics",
           "confidence": "curated"
         },
-        "startedAtMs": 5618,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 5618
       },
       {
         "id": 126,
-        "url": "https://www.google-analytics.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&_eu=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&tag_exp=&dl=&dt=&dr=&sid=&sct=&seg=&_tu=&_s=&tfd=",
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "www.google-analytics.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -1661,12 +1661,12 @@
           "category": "analytics / tag management",
           "confidence": "curated"
         },
-        "startedAtMs": 5620,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 5620
       },
       {
         "id": 127,
-        "url": "https://www.google-analytics.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&_eu=&ae=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&_s=&tag_exp=&sid=&sct=&seg=&dl=&dt=&_tu=&en=&ep.form_id=&ep.form_destination=&epn.form_length=&ep.first_field_id=&ep.first_field_name=&ep.first_field_type=&epn.first_field_position=&_et=&tfd=",
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "www.google-analytics.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -1678,12 +1678,12 @@
           "category": "analytics / tag management",
           "confidence": "curated"
         },
-        "startedAtMs": 5620,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 5620
       },
       {
         "id": 128,
-        "url": "https://www.google-analytics.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&_eu=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&_s=&tag_exp=&sid=&sct=&seg=&dl=&dt=&_tu=&en=&_et=&tfd=",
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "www.google-analytics.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -1695,12 +1695,12 @@
           "category": "analytics / tag management",
           "confidence": "curated"
         },
-        "startedAtMs": 5621,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 5621
       },
       {
         "id": 129,
-        "url": "https://www.google-analytics.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&_eu=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&_s=&tag_exp=&dl=&dt=&dr=&sid=&sct=&seg=&_tu=&en=&_ee=&ep.agency=&ep.subagency=&ep.site_topic=&ep.site_platform=&ep.script_source=&ep.version=&ep.protocol=&ep.using_parallel_tracker=&ep.hostname_dimension=&epn.value=&ep.metric_id=&epn.metric_value=&epn.metric_delta=&ep.metric_rating=&ep.debug_target=&ep.debug_event_type=&ep.debug_timing=&epn.event_time=&ep.event_name_dimension=&tfd=",
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "www.google-analytics.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -1712,12 +1712,12 @@
           "category": "analytics / tag management",
           "confidence": "curated"
         },
-        "startedAtMs": 5623,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 5623
       },
       {
         "id": 130,
-        "url": "https://www.google-analytics.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&_eu=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&_s=&tag_exp=&dl=&dt=&dr=&sid=&sct=&seg=&_tu=&en=&_ee=&ep.agency=&ep.subagency=&ep.site_topic=&ep.site_platform=&ep.script_source=&ep.version=&ep.protocol=&ep.using_parallel_tracker=&ep.hostname_dimension=&epn.value=&ep.metric_id=&epn.metric_value=&epn.metric_delta=&ep.metric_rating=&ep.debug_target=&ep.debug_event_type=&ep.debug_timing=&epn.event_time=&ep.event_name_dimension=&tfd=",
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "www.google-analytics.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -1729,92 +1729,92 @@
           "category": "analytics / tag management",
           "confidence": "curated"
         },
-        "startedAtMs": 5623,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 5623
       },
       {
         "id": 131,
-        "url": "https://www.youtube.com/api/stats/atr?ns=&el=&cpn=&ver=&cmt=&fs=&rt=&euri=&lact=&cl=&mos=&volume=&cbr=&cbrver=&c=&cver=&cplayer=&cos=&cplatform=&epm=&hl=&cr=&len=&fexp=&feature=&muted=&docid=",
+        "url": "https://www.youtube.com/api/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&ver=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&hl=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "www.youtube.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": null,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 5624,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 5624
       },
       {
         "id": 132,
-        "url": "https://www.youtube.com/youtubei/v1/log_event?alt=",
+        "url": "https://www.youtube.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "www.youtube.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": null,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 5625,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 5625
       },
       {
         "id": 133,
-        "url": "https://www.google.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&_eu=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&tag_exp=&dl=&dt=&dr=&sid=&sct=&seg=&_tu=&_s=&tfd=&gaf=",
+        "url": "https://www.google.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": null,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 5627,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 5627
       },
       {
         "id": 134,
-        "url": "https://www.google.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&_eu=&ae=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&_s=&tag_exp=&sid=&sct=&seg=&dl=&dt=&_tu=&en=&ep.form_id=&ep.form_destination=&epn.form_length=&ep.first_field_id=&ep.first_field_name=&ep.first_field_type=&epn.first_field_position=&_et=&tfd=&gaf=",
+        "url": "https://www.google.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": null,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 5628,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 5628
       },
       {
         "id": 135,
-        "url": "https://www.google.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&_eu=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&_s=&tag_exp=&dl=&dt=&dr=&sid=&sct=&seg=&_tu=&en=&_ee=&ep.agency=&ep.subagency=&ep.site_topic=&ep.site_platform=&ep.script_source=&ep.version=&ep.protocol=&ep.using_parallel_tracker=&ep.hostname_dimension=&epn.value=&ep.metric_id=&epn.metric_value=&epn.metric_delta=&ep.metric_rating=&ep.debug_target=&ep.debug_event_type=&ep.debug_timing=&epn.event_time=&ep.event_name_dimension=&tfd=&gaf=",
+        "url": "https://www.google.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": null,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 5628,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 5628
       },
       {
         "id": 136,
-        "url": "https://www.google.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&_eu=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&_s=&tag_exp=&sid=&sct=&seg=&dl=&dt=&_tu=&en=&_et=&tfd=&gaf=",
+        "url": "https://www.google.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": null,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 5628,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 5628
       },
       {
         "id": 137,
-        "url": "https://www.google.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&_eu=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&_s=&tag_exp=&dl=&dt=&dr=&sid=&sct=&seg=&_tu=&en=&_ee=&ep.agency=&ep.subagency=&ep.site_topic=&ep.site_platform=&ep.script_source=&ep.version=&ep.protocol=&ep.using_parallel_tracker=&ep.hostname_dimension=&epn.value=&ep.metric_id=&epn.metric_value=&epn.metric_delta=&ep.metric_rating=&ep.debug_target=&ep.debug_event_type=&ep.debug_timing=&epn.event_time=&ep.event_name_dimension=&tfd=&gaf=",
+        "url": "https://www.google.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": null,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 5628,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 5628
       }
     ],
     "domains": [
@@ -2102,7 +2102,7 @@
     ],
     "cookies": [
       {
-        "name": "YSC",
+        "name": "[redacted]",
         "domain": ".youtube.com",
         "path": "/",
         "sameSite": "None",
@@ -2112,7 +2112,7 @@
         "thirdParty": true
       },
       {
-        "name": "VISITOR_INFO1_LIVE",
+        "name": "[redacted:long-token]",
         "domain": ".youtube.com",
         "path": "/",
         "sameSite": "None",
@@ -2122,7 +2122,7 @@
         "thirdParty": true
       },
       {
-        "name": "VISITOR_PRIVACY_METADATA",
+        "name": "[redacted]",
         "domain": ".youtube.com",
         "path": "/",
         "sameSite": "None",
@@ -2132,7 +2132,7 @@
         "thirdParty": true
       },
       {
-        "name": "__Secure-YNID",
+        "name": "[redacted]",
         "domain": ".youtube.com",
         "path": "/",
         "sameSite": "None",
@@ -2142,7 +2142,7 @@
         "thirdParty": true
       },
       {
-        "name": "__Secure-ROLLOUT_TOKEN",
+        "name": "[redacted]",
         "domain": ".youtube.com",
         "path": "/",
         "sameSite": "None",
@@ -2162,7 +2162,7 @@
         "thirdParty": false
       },
       {
-        "name": "_ga_82GWVTTXCZ",
+        "name": "[redacted]",
         "domain": ".nasa.gov",
         "path": "/",
         "sameSite": "Lax",
@@ -2172,7 +2172,7 @@
         "thirdParty": false
       },
       {
-        "name": "_ga_CSLL4ZEK4L",
+        "name": "[redacted]",
         "domain": ".nasa.gov",
         "path": "/",
         "sameSite": "Strict",
@@ -2182,7 +2182,7 @@
         "thirdParty": false
       },
       {
-        "name": "_parsely_session",
+        "name": "[redacted]",
         "domain": ".www.nasa.gov",
         "path": "/",
         "sameSite": "Lax",
@@ -2192,7 +2192,7 @@
         "thirdParty": false
       },
       {
-        "name": "_parsely_visitor",
+        "name": "[redacted]",
         "domain": ".www.nasa.gov",
         "path": "/",
         "sameSite": "Lax",
@@ -2202,7 +2202,7 @@
         "thirdParty": false
       },
       {
-        "name": "",
+        "name": "[redacted]",
         "domain": "www.nasa.gov",
         "path": "/",
         "sameSite": "Lax",
@@ -2213,6 +2213,12 @@
       }
     ],
     "storage": [],
+    "fingerprintEvents": [
+      {
+        "api": "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
+        "count": 1
+      }
+    ],
     "fingerprintDetections": [
       {
         "kind": "input-monitoring",
@@ -2233,10 +2239,10 @@
             "window"
           ],
           "thirdPartyOrigins": [
-            "https://cdn.parsely.com",
-            "https://dap.digitalgov.gov",
-            "https://www.google.com",
-            "https://www.googletagmanager.com"
+            "https://cdn.parsely.com/",
+            "https://dap.digitalgov.gov/",
+            "https://www.google.com/",
+            "https://www.googletagmanager.com/"
           ],
           "totalListenerCalls": 11
         }
@@ -2269,10 +2275,10 @@
             "window"
           ],
           "thirdPartyOrigins": [
-            "https://cdn.parsely.com",
-            "https://dap.digitalgov.gov",
-            "https://www.google.com",
-            "https://www.googletagmanager.com"
+            "https://cdn.parsely.com/",
+            "https://dap.digitalgov.gov/",
+            "https://www.google.com/",
+            "https://www.googletagmanager.com/"
           ],
           "totalListenerCalls": 40
         }
@@ -2291,21 +2297,8 @@
         }
       }
     ],
-    "fingerprintEvents": [
-      {
-        "api": "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
-        "count": 1
-      }
-    ],
-    "screenshot": null,
-    "warnings": [
-      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
-      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
-      "This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
-      "Read the site's privacy policy (https://www.nasa.gov/privacy/) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
-    ],
     "privacyPolicy": {
-      "url": "https://www.nasa.gov/privacy/",
+      "url": "https://www.nasa.gov/privacy",
       "claims": [],
       "mentionedEntities": [
         "Google"
@@ -2314,7 +2307,14 @@
         "Parse.ly"
       ],
       "policyTextLength": 15354
-    }
+    },
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+      "This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
+      "Read the site's privacy policy (https://www.nasa.gov/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ]
   },
   "variant": {
     "ok": true,
@@ -2354,6 +2354,13 @@
       "automation": "playwright-chromium",
       "headless": true,
       "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "block-simulation",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-02T01:00:58.178Z"
+      },
       "trackerCatalog": {
         "source": "Hand-curated service catalog",
         "version": "hand-curated-2026.06",
@@ -2362,14 +2369,7 @@
         "curatedOverrides": 133,
         "license": "AGPL-3.0-or-later"
       },
-      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
-      "adblock": {
-        "active": true,
-        "source": "Brave default ad-block lists",
-        "lists": 31,
-        "fetchedAt": "2026-07-02T01:00:58.178Z"
-      },
-      "shieldsMode": "block-simulation"
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
     },
     "requests": [
       {
@@ -2381,1148 +2381,1148 @@
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 46,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 46
       },
       {
         "id": 2,
-        "url": "https://www.nasa.gov/wp-content/plugins/nasa-blocks/build/blocks/video/style-index.css",
+        "url": "https://www.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.nasa.gov",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 75,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 75
       },
       {
         "id": 3,
-        "url": "https://www.nasa.gov/_static/",
+        "url": "https://www.nasa.gov/{seg}",
         "domain": "www.nasa.gov",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 76,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 76
       },
       {
         "id": 4,
-        "url": "https://www.nasa.gov/wp-content/plugins/popup-maker/dist/assets/site.css",
+        "url": "https://www.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.nasa.gov",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 76,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 76
       },
       {
         "id": 5,
-        "url": "https://www.nasa.gov/wp-content/client-mu-plugins/uswds-framework/uswds/fonts/public-sans/PublicSans-Regular.woff2",
+        "url": "https://www.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.nasa.gov",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 78,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 78
       },
       {
         "id": 6,
-        "url": "https://www.nasa.gov/wp-content/client-mu-plugins/uswds-framework/uswds/fonts-split/inter/UcC73FwrK3iLTeHuS_fvQtMwCp50KnMa1ZL7.woff2",
+        "url": "https://www.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.nasa.gov",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 78,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 78
       },
       {
         "id": 7,
-        "url": "https://www.nasa.gov/wp-content/client-mu-plugins/uswds-framework/uswds/fonts-split/db-mono/aFTU7PB1QTsUX8KYthqQBA.woff2",
+        "url": "https://www.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.nasa.gov",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 79,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 79
       },
       {
         "id": 9,
-        "url": "https://www.nasa.gov/wp-content/uploads/2026/07/55370393243-92d34f3b55-o.jpg",
+        "url": "https://www.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
         "domain": "www.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 79,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 79
       },
       {
         "id": 10,
-        "url": "https://www.nasa.gov/wp-content/plugins/nasa-blocks/assets/slick/slick.css",
+        "url": "https://www.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.nasa.gov",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 80,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 80
       },
       {
         "id": 11,
-        "url": "https://www.nasa.gov/wp-content/themes/nasa/assets/images/nasa-logo.svg",
+        "url": "https://www.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 80,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 80
       },
       {
         "id": 12,
-        "url": "https://assets.science.nasa.gov/dynamicimage/assets/science/missions/webb/science/2026/07/STScI-01KVX6065VS4VSDVG0S1NSVB6C.png",
+        "url": "https://assets.science.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "assets.science.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 80,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 80
       },
       {
         "id": 13,
-        "url": "https://assets.science.nasa.gov/dynamicimage/assets/science/missions/chandra/2026/250th_ngc4736.jpg",
+        "url": "https://assets.science.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{n}",
         "domain": "assets.science.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 80,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 80
       },
       {
         "id": 14,
-        "url": "https://www.nasa.gov/wp-content/uploads/2026/07/mmea.png",
+        "url": "https://www.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
         "domain": "www.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 80,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 80
       },
       {
         "id": 15,
-        "url": "https://assets.science.nasa.gov/dynamicimage/assets/science/cds/ciencia/ciencias-terrestres/2026/Milky%20Way_Bill%20Dunford.png",
+        "url": "https://assets.science.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "assets.science.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 98,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 98
       },
       {
         "id": 16,
-        "url": "https://assets.science.nasa.gov/dynamicimage/assets/science/missions/chandra/2026/arms_unlabeled.jpg",
+        "url": "https://assets.science.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{n}",
         "domain": "assets.science.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 101,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 101
       },
       {
         "id": 17,
-        "url": "https://assets.science.nasa.gov/dynamicimage/assets/science/missions/webb/science/2026/07/STScI-01KV8SMVYFK67J7RPRW1HB0SKS.jpg",
+        "url": "https://assets.science.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "assets.science.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 101,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 101
       },
       {
         "id": 18,
-        "url": "https://www.nasa.gov/wp-includes/js/dist/hooks.min.js",
+        "url": "https://www.nasa.gov/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.nasa.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 102,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 102
       },
       {
         "id": 19,
-        "url": "https://www.nasa.gov/_static/",
+        "url": "https://www.nasa.gov/{seg}",
         "domain": "www.nasa.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 102,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 102
       },
       {
         "id": 20,
-        "url": "https://www.nasa.gov/_static/",
+        "url": "https://www.nasa.gov/{seg}",
         "domain": "www.nasa.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 103,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 103
       },
       {
         "id": 21,
-        "url": "https://www.nasa.gov/wp-content/plugins/gravityforms/js/jquery.json.min.js",
+        "url": "https://www.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.nasa.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 103,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 103
       },
       {
         "id": 22,
-        "url": "https://www.nasa.gov/wp-content/plugins/gravityforms/js/gravityforms.min.js",
+        "url": "https://www.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.nasa.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 104,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 104
       },
       {
         "id": 23,
-        "url": "https://www.nasa.gov/wp-content/plugins/gravityforms/assets/js/dist/utils.min.js",
+        "url": "https://www.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.nasa.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 104,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 104
       },
       {
         "id": 24,
-        "url": "https://www.nasa.gov/wp-content/plugins/nasa-blocks/assets/gf-stepper-focus/gf-stepper-focus.js",
+        "url": "https://www.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.nasa.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 105,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 105
       },
       {
         "id": 25,
-        "url": "https://assets.science.nasa.gov/dynamicimage/assets/science/missions/rst/science/Brown%20superjupiter%20D2%201.jpg",
+        "url": "https://assets.science.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "assets.science.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 105,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 105
       },
       {
         "id": 26,
-        "url": "https://www.nasa.gov/wp-content/uploads/2026/06/jsc2026e395621.jpg",
+        "url": "https://www.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
         "domain": "www.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 106,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 106
       },
       {
         "id": 27,
-        "url": "https://www.nasa.gov/wp-content/uploads/2026/06/ssc-20260609-s00589.jpg",
+        "url": "https://www.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
         "domain": "www.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 106,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 106
       },
       {
         "id": 28,
-        "url": "https://assets.science.nasa.gov/dynamicimage/assets/science/cds/learn/science-activation-stories/2026/NESSP_e2v_photo_5-Darci_Snowden.jpg",
+        "url": "https://assets.science.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "assets.science.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 107,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 107
       },
       {
         "id": 29,
-        "url": "https://assets.science.nasa.gov/dynamicimage/assets/science/psd/photojournal/pia/pia17/pia17883/PIA17883.jpg",
+        "url": "https://assets.science.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "assets.science.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 107,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 107
       },
       {
         "id": 30,
-        "url": "https://assets.science.nasa.gov/dynamicimage/assets/science/esd/articles/2026/4x3_Landscape_smoke_PACE_OCI_20250531T180736_181236.png",
+        "url": "https://assets.science.nasa.gov/{seg}/{seg}/{seg}/{seg}/articles/{n}",
         "domain": "assets.science.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 108,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 108
       },
       {
         "id": 31,
-        "url": "https://assets.science.nasa.gov/dynamicimage/assets/science/missions/hubble/nebulae/planetary/cats_eye_2026/Hubble_CatsEye_2026_FullsizeOriginal_potm2602b.tif",
+        "url": "https://assets.science.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "assets.science.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 116,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 116
       },
       {
         "id": 32,
-        "url": "https://assets.science.nasa.gov/dynamicimage/assets/science/cds/general/images/2008/02/382-viking-lander-pia09703.jpg",
+        "url": "https://assets.science.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "assets.science.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 117,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 117
       },
       {
         "id": 33,
-        "url": "https://assets.science.nasa.gov/dynamicimage/assets/science/missions/hubble/stars/globular-clusters/Hubble_NGC6426_3_July4_FINAL2.tif",
+        "url": "https://assets.science.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "assets.science.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 117,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 117
       },
       {
         "id": 34,
-        "url": "https://assets.science.nasa.gov/dynamicimage/assets/science/missions/hubble/nebulae/emission/Hubble_LMC_L95_3F_flat_FINAL.tif",
+        "url": "https://assets.science.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "assets.science.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 118,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 118
       },
       {
         "id": 35,
-        "url": "https://assets.science.nasa.gov/dynamicimage/assets/science/missions/hubble/stars/globular-clusters/Hubble_M3_July4_%20final.tif",
+        "url": "https://assets.science.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "assets.science.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 122,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 122
       },
       {
         "id": 36,
-        "url": "https://images-assets.nasa.gov/image/AFRC2026-0004-020/AFRC2026-0004-020~large.jpg",
+        "url": "https://images-assets.nasa.gov/{seg}/{seg}/{seg}",
         "domain": "images-assets.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 122,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 122
       },
       {
         "id": 37,
-        "url": "https://www.nasa.gov/wp-content/uploads/2026/06/lrc-2026-ocio-p-01883-image-1.jpg",
+        "url": "https://www.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
         "domain": "www.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 123,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 123
       },
       {
         "id": 38,
-        "url": "https://images-assets.nasa.gov/image/AFRC2026-0095-04/AFRC2026-0095-04~large.jpg",
+        "url": "https://images-assets.nasa.gov/{seg}/{seg}/{seg}",
         "domain": "images-assets.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 123,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 123
       },
       {
         "id": 39,
-        "url": "https://www.nasa.gov/wp-content/uploads/2026/06/lunar-enabling-infrastructure-06292026.png",
+        "url": "https://www.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
         "domain": "www.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 123,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 123
       },
       {
         "id": 40,
-        "url": "https://assets.science.nasa.gov/dynamicimage/assets/science/missions/swift-observatory/news/2026/launch-preview/NE201566_2611x1654.jpg",
+        "url": "https://assets.science.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/news",
         "domain": "assets.science.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 124,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 124
       },
       {
         "id": 41,
-        "url": "https://www.nasa.gov/wp-content/uploads/2026/06/sr-1-freedom.png",
+        "url": "https://www.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
         "domain": "www.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 124,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 124
       },
       {
         "id": 42,
-        "url": "https://images-assets.nasa.gov/image/art002e012476/art002e012476~large.jpg",
+        "url": "https://images-assets.nasa.gov/{seg}/{seg}/{seg}",
         "domain": "images-assets.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 125,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 125
       },
       {
         "id": 43,
-        "url": "https://www.nasa.gov/wp-content/uploads/2026/06/rovers.jpg",
+        "url": "https://www.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
         "domain": "www.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 125,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 125
       },
       {
         "id": 44,
-        "url": "https://www.nasa.gov/wp-content/uploads/2026/04/55193772552-b8cfb47b7e-o.jpg",
+        "url": "https://www.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
         "domain": "www.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 125,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 125
       },
       {
         "id": 45,
-        "url": "https://www.nasa.gov/wp-content/uploads/2026/03/a2crew-7ff19d.jpg",
+        "url": "https://www.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
         "domain": "www.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 126,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 126
       },
       {
         "id": 46,
-        "url": "https://www.nasa.gov/wp-content/uploads/2026/03/suit-patch.jpg",
+        "url": "https://www.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
         "domain": "www.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 126,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 126
       },
       {
         "id": 47,
-        "url": "https://images-assets.nasa.gov/image/iss074e0325229/iss074e0325229~large.jpg",
+        "url": "https://images-assets.nasa.gov/{seg}/{seg}/{seg}",
         "domain": "images-assets.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 127,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 127
       },
       {
         "id": 48,
-        "url": "https://www.nasa.gov/wp-includes/js/dist/i18n.min.js",
+        "url": "https://www.nasa.gov/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.nasa.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 127,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 127
       },
       {
         "id": 49,
-        "url": "https://www.nasa.gov/wp-content/plugins/wp-parsely/build/loader.js",
+        "url": "https://www.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.nasa.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 127,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 127
       },
       {
         "id": 51,
-        "url": "https://www.nasa.gov/wp-content/plugins/accessibility-checker/build/frontendFixes.bundle.js",
+        "url": "https://www.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.nasa.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 128,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 128
       },
       {
         "id": 52,
-        "url": "https://www.nasa.gov/_static/",
+        "url": "https://www.nasa.gov/{seg}",
         "domain": "www.nasa.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 128,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 128
       },
       {
         "id": 53,
-        "url": "https://www.nasa.gov/wp-includes/js/dist/a11y.min.js",
+        "url": "https://www.nasa.gov/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.nasa.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 134,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 134
       },
       {
         "id": 54,
-        "url": "https://www.nasa.gov/wp-content/plugins/gravityforms/assets/js/dist/vendor-theme.min.js",
+        "url": "https://www.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.nasa.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 135,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 135
       },
       {
         "id": 55,
-        "url": "https://www.nasa.gov/wp-content/plugins/gravityforms/assets/js/dist/scripts-theme.min.js",
+        "url": "https://www.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.nasa.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 135,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 135
       },
       {
         "id": 56,
-        "url": "https://www.nasa.gov/_static/",
+        "url": "https://www.nasa.gov/{seg}",
         "domain": "www.nasa.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 136,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 136
       },
       {
         "id": 57,
-        "url": "https://www.nasa.gov/_static/",
+        "url": "https://www.nasa.gov/{seg}",
         "domain": "www.nasa.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 136,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 136
       },
       {
         "id": 59,
-        "url": "https://www.youtube.com/embed/z4KrIsRtqaE?feature=",
+        "url": "https://www.youtube.com/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "www.youtube.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 137,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 137
       },
       {
         "id": 60,
-        "url": "https://www.nasa.gov/wp-content/client-mu-plugins/uswds-framework/uswds/fonts-split/inter/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hiA.woff2",
+        "url": "https://www.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.nasa.gov",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 203,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 203
       },
       {
         "id": 61,
-        "url": "https://www.nasa.gov/wp-content/client-mu-plugins/uswds-framework/uswds/fonts/public-sans/PublicSans-Bold.woff2",
+        "url": "https://www.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.nasa.gov",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 204,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 204
       },
       {
         "id": 62,
-        "url": "https://www.nasa.gov/wp-content/uploads/2026/07/55370393243-92d34f3b55-o.jpg",
+        "url": "https://www.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
         "domain": "www.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 223,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 223
       },
       {
         "id": 63,
-        "url": "https://images-assets.nasa.gov/image/NHQ20260415_admin_0013/NHQ20260415_admin_0013~large.jpg",
+        "url": "https://images-assets.nasa.gov/{seg}/{seg}/{seg}",
         "domain": "images-assets.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 225,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 225
       },
       {
         "id": 64,
-        "url": "https://assets.science.nasa.gov/dynamicimage/assets/science/missions/chandra/2026/arms_unlabeled.jpg",
+        "url": "https://assets.science.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{n}",
         "domain": "assets.science.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 225,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 225
       },
       {
         "id": 65,
-        "url": "https://assets.science.nasa.gov/dynamicimage/assets/science/missions/webb/science/2026/07/STScI-01KV8SMVYFK67J7RPRW1HB0SKS.jpg",
+        "url": "https://assets.science.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "assets.science.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 226,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 226
       },
       {
         "id": 66,
-        "url": "https://assets.science.nasa.gov/dynamicimage/assets/science/missions/rst/science/Brown%20superjupiter%20D2%201.jpg",
+        "url": "https://assets.science.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "assets.science.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 227,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 227
       },
       {
         "id": 67,
-        "url": "https://assets.science.nasa.gov/dynamicimage/assets/science/missions/swift-observatory/homepage/swift-boost-hub/Swift_Over_Earth_Animation-2025.jpg",
+        "url": "https://assets.science.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "assets.science.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 233,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 233
       },
       {
         "id": 68,
-        "url": "https://www.nasa.gov/wp-content/uploads/2026/04/55193772552-b8cfb47b7e-o.jpg",
+        "url": "https://www.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
         "domain": "www.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 234,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 234
       },
       {
         "id": 69,
-        "url": "https://assets.science.nasa.gov/dynamicimage/assets/science/esd/articles/2026/jsc2026e394067.jpg",
+        "url": "https://assets.science.nasa.gov/{seg}/{seg}/{seg}/{seg}/articles/{n}",
         "domain": "assets.science.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 234,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 234
       },
       {
         "id": 70,
-        "url": "https://www.nasa.gov/wp-content/uploads/2026/06/rovers.jpg",
+        "url": "https://www.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
         "domain": "www.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 238,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 238
       },
       {
         "id": 71,
-        "url": "https://science.nasa.gov/wp-content/uploads/2023/06/planets3x3-pluto-colormercury-axis-tilt-nolabels-1080p.00001-print.jpg",
+        "url": "https://science.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
         "domain": "science.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 238,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 238
       },
       {
         "id": 72,
-        "url": "https://assets.science.nasa.gov/dynamicimage/assets/science/missions/hubble/releases/2017/04/STScI-01EVSG4P65KZZHCK1KJ9K32FEJ.png",
+        "url": "https://assets.science.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "assets.science.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 238,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 238
       },
       {
         "id": 73,
-        "url": "https://assets.science.nasa.gov/dynamicimage/assets/science/missions/hubble/mission/35th-anniversary/stargazing-banner-2_crop.jpg",
+        "url": "https://assets.science.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "assets.science.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 239,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 239
       },
       {
         "id": 74,
-        "url": "https://assets.science.nasa.gov/dynamicimage/assets/science/cds/eyes/common/promotion/Eyes_noText.png",
+        "url": "https://assets.science.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "assets.science.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 240,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 240
       },
       {
         "id": 75,
-        "url": "https://www.nasa.gov/wp-content/uploads/2026/07/iss074e0779393orig.jpg",
+        "url": "https://www.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
         "domain": "www.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 248,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 248
       },
       {
         "id": 76,
-        "url": "https://www.nasa.gov/wp-content/uploads/2024/05/hubble-hptau-wfc3-1-flat-finalok.jpg",
+        "url": "https://www.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
         "domain": "www.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 249,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 249
       },
       {
         "id": 77,
-        "url": "https://www.nasa.gov/wp-content/uploads/2023/03/hubble_j2034417_freggs_fullsize_0-1.jpg",
+        "url": "https://www.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
         "domain": "www.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 249,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 249
       },
       {
         "id": 78,
-        "url": "https://www.nasa.gov/wp-content/uploads/2023/03/potw2135a.jpg",
+        "url": "https://www.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
         "domain": "www.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 249,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 249
       },
       {
         "id": 79,
-        "url": "https://www.nasa.gov/wp-content/uploads/2024/04/stsci-01hv4cg0eacm1mc07e10x19knx.png",
+        "url": "https://www.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
         "domain": "www.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 250,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 250
       },
       {
         "id": 80,
-        "url": "https://www.nasa.gov/wp-content/uploads/2024/04/timelapse-crab-nebula.jpg",
+        "url": "https://www.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
         "domain": "www.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 250,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 250
       },
       {
         "id": 81,
-        "url": "https://images-assets.nasa.gov/image/stephan_quintet/stephan_quintet~large.jpg",
+        "url": "https://images-assets.nasa.gov/{seg}/{seg}/{seg}",
         "domain": "images-assets.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 251,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 251
       },
       {
         "id": 82,
-        "url": "https://images-assets.nasa.gov/image/GSFC_20171208_Archive_e002059/GSFC_20171208_Archive_e002059~large.jpg",
+        "url": "https://images-assets.nasa.gov/{seg}/{seg}/{seg}",
         "domain": "images-assets.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 251,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 251
       },
       {
         "id": 83,
-        "url": "https://www.nasa.gov/wp-content/uploads/2025/04/3dmodels-cygnus-astro-74ffde.jpg",
+        "url": "https://www.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
         "domain": "www.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 252,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 252
       },
       {
         "id": 84,
-        "url": "https://images-assets.nasa.gov/image/PIA21089/PIA21089~orig.jpg",
+        "url": "https://images-assets.nasa.gov/{seg}/{seg}/{seg}",
         "domain": "images-assets.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 252,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 252
       },
       {
         "id": 85,
-        "url": "https://www.youtube.com/s/player/4918c89a/www-player.css",
+        "url": "https://www.youtube.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.youtube.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 371,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 371
       },
       {
         "id": 86,
-        "url": "https://www.youtube.com/s/_/ytembeds/_/ss/k=ytembeds.base.PH6_DL9O46E.L.W.O/am=AAAAIA/d=0/br=1/rs=AGKMywFxWiUuLumaXtnx7XK0qW5dDqXKKw",
+        "url": "https://www.youtube.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.youtube.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 372,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 372
       },
       {
         "id": 87,
-        "url": "https://www.youtube.com/s/_/ytembeds/_/js/k=ytembeds.base.en_US.wO8pDB8x2Mw.es5.O/am=AAAAIA/d=1/br=1/rs=AGKMywEWNjjxadROwyUjz-x89wXaex57gQ/m=root,base",
+        "url": "https://www.youtube.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.youtube.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 373,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 373
       },
       {
         "id": 88,
-        "url": "https://www.youtube.com/s/player/4918c89a/player_embed.vflset/en_US/base.js",
+        "url": "https://www.youtube.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.youtube.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 374,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 374
       },
       {
         "id": 89,
-        "url": "https://fonts.gstatic.com/s/roboto/v48/KFO7CnqEu92Fr1ME7kSn66aGLdTylUAMa3yUBA.woff2",
+        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "fonts.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 480,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 480
       },
       {
         "id": 90,
-        "url": "https://plus.nasa.gov/wp-json/nasaplus/v1/live",
+        "url": "https://plus.nasa.gov/{seg}/{seg}/{seg}/{seg}",
         "domain": "plus.nasa.gov",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 482,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 482
       },
       {
         "id": 91,
-        "url": "https://images-assets.nasa.gov/image/NHQ20260415_admin_0013/NHQ20260415_admin_0013~large.jpg",
+        "url": "https://images-assets.nasa.gov/{seg}/{seg}/{seg}",
         "domain": "images-assets.nasa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 545,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 545
       },
       {
         "id": 94,
-        "url": "https://www.youtube.com/s/_/ytembeds/_/js/k=ytembeds.base.en_US.wO8pDB8x2Mw.es5.O/am=AAAAIA/d=1/exm=base,root/ed=1/br=1/rs=AGKMywEWNjjxadROwyUjz-x89wXaex57gQ/m=r78Drb",
+        "url": "https://www.youtube.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.youtube.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 707,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 707
       },
       {
         "id": 95,
-        "url": "https://i.ytimg.com/vi/z4KrIsRtqaE/maxresdefault.jpg",
+        "url": "https://i.ytimg.com/{seg}/{seg}/{seg}",
         "domain": "i.ytimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 868,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 868
       },
       {
         "id": 96,
-        "url": "https://www.google.com/js/th/_ZodXtu6iLZeOcgnLxSwLj1r_R8gz6h0BjDKVrQL29Q.js",
+        "url": "https://www.google.com/{seg}/{seg}/{seg}",
         "domain": "www.google.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1209,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1209
       },
       {
         "id": 98,
-        "url": "https://jnn-pa.googleapis.com/$rpc/google.internal.waa.v1.Waa/GenerateIT",
+        "url": "https://jnn-pa.googleapis.com/{seg}/{seg}/{seg}",
         "domain": "jnn-pa.googleapis.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1343,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1343
       },
       {
         "id": 99,
-        "url": "https://www.youtube.com/youtubei/v1/log_event?alt=",
+        "url": "https://www.youtube.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "www.youtube.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 3387,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 3387
       },
       {
         "id": 100,
-        "url": "https://www.youtube.com/youtubei/v1/log_event?alt=",
+        "url": "https://www.youtube.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "www.youtube.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": null,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 4564,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 4564
       },
       {
         "id": 101,
-        "url": "https://www.youtube.com/api/stats/atr?ns=&el=&cpn=&ver=&cmt=&fs=&rt=&euri=&lact=&cl=&mos=&volume=&cbr=&cbrver=&c=&cver=&cplayer=&cos=&cplatform=&epm=&hl=&cr=&len=&fexp=&feature=&muted=&docid=",
+        "url": "https://www.youtube.com/api/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&ver=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&hl=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "www.youtube.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": null,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 4585,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 4585
       },
       {
         "id": 102,
-        "url": "https://www.youtube.com/youtubei/v1/log_event?alt=",
+        "url": "https://www.youtube.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "www.youtube.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": null,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 4587,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 4587
       }
     ],
     "domains": [
@@ -3666,7 +3666,7 @@
     ],
     "cookies": [
       {
-        "name": "__Secure-YNID",
+        "name": "[redacted]",
         "domain": ".youtube.com",
         "path": "/",
         "sameSite": "None",
@@ -3676,7 +3676,7 @@
         "thirdParty": true
       },
       {
-        "name": "YSC",
+        "name": "[redacted]",
         "domain": ".youtube.com",
         "path": "/",
         "sameSite": "None",
@@ -3686,7 +3686,7 @@
         "thirdParty": true
       },
       {
-        "name": "__Secure-ROLLOUT_TOKEN",
+        "name": "[redacted]",
         "domain": ".youtube.com",
         "path": "/",
         "sameSite": "None",
@@ -3696,7 +3696,7 @@
         "thirdParty": true
       },
       {
-        "name": "VISITOR_INFO1_LIVE",
+        "name": "[redacted:long-token]",
         "domain": ".youtube.com",
         "path": "/",
         "sameSite": "None",
@@ -3706,7 +3706,7 @@
         "thirdParty": true
       },
       {
-        "name": "VISITOR_PRIVACY_METADATA",
+        "name": "[redacted]",
         "domain": ".youtube.com",
         "path": "/",
         "sameSite": "None",
@@ -3717,6 +3717,12 @@
       }
     ],
     "storage": [],
+    "fingerprintEvents": [
+      {
+        "api": "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
+        "count": 1
+      }
+    ],
     "fingerprintDetections": [
       {
         "kind": "input-monitoring",
@@ -3735,7 +3741,7 @@
             "body"
           ],
           "thirdPartyOrigins": [
-            "https://www.google.com"
+            "https://www.google.com/"
           ],
           "totalListenerCalls": 6
         }
@@ -3765,7 +3771,7 @@
             "document"
           ],
           "thirdPartyOrigins": [
-            "https://www.google.com"
+            "https://www.google.com/"
           ],
           "totalListenerCalls": 18
         }
@@ -3784,27 +3790,21 @@
         }
       }
     ],
-    "fingerprintEvents": [
-      {
-        "api": "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
-        "count": 1
-      }
-    ],
+    "privacyPolicy": {
+      "url": "https://www.nasa.gov/privacy",
+      "claims": [],
+      "mentionedEntities": [],
+      "unmentionedEntities": [],
+      "policyTextLength": 15354
+    },
     "screenshot": null,
     "warnings": [
       "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
       "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
       "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
       "This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
-      "Read the site's privacy policy (https://www.nasa.gov/privacy/) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
-    ],
-    "privacyPolicy": {
-      "url": "https://www.nasa.gov/privacy/",
-      "claims": [],
-      "mentionedEntities": [],
-      "unmentionedEntities": [],
-      "policyTextLength": 15354
-    }
+      "Read the site's privacy policy (https://www.nasa.gov/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ]
   },
   "diff": {
     "totalRequests": {
@@ -3946,27 +3946,17 @@
         "thirdParty": false
       },
       {
-        "name": "_ga_82GWVTTXCZ",
+        "name": "[redacted]",
         "domain": ".nasa.gov",
         "thirdParty": false
       },
       {
-        "name": "_ga_CSLL4ZEK4L",
-        "domain": ".nasa.gov",
-        "thirdParty": false
-      },
-      {
-        "name": "_parsely_session",
+        "name": "[redacted]",
         "domain": ".www.nasa.gov",
         "thirdParty": false
       },
       {
-        "name": "_parsely_visitor",
-        "domain": ".www.nasa.gov",
-        "thirdParty": false
-      },
-      {
-        "name": "",
+        "name": "[redacted]",
         "domain": "www.nasa.gov",
         "thirdParty": false
       }
@@ -3988,12 +3978,12 @@
     "No blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
     "No blocking: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
     "No blocking: This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
-    "No blocking: Read the site's privacy policy (https://www.nasa.gov/privacy/) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
+    "No blocking: Read the site's privacy policy (https://www.nasa.gov/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
     "Brave-list blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
     "Brave-list blocking: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
     "Brave-list blocking: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
     "Brave-list blocking: This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
-    "Brave-list blocking: Read the site's privacy policy (https://www.nasa.gov/privacy/) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    "Brave-list blocking: Read the site's privacy policy (https://www.nasa.gov/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
   ],
   "share": {
     "id": "20260706-9ded9afa956074e84816d56759ba9948",

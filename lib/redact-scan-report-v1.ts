@@ -16,7 +16,7 @@ import {
   redactUrlV2,
   type RedactionCounters
 } from "./redaction-v2";
-import { REPORT_ID_PATTERN } from "./report-validation";
+import { isCanonicalReportShare } from "./report-locator";
 import type {
   ComparisonScanResult,
   ConsentInteractionSummary,
@@ -540,11 +540,8 @@ function redactPixelEvents(events: PixelEventSummary[]): PixelEventSummary[] {
 }
 
 function copyValidatedShare(share: ReportShare | undefined): { share?: ReportShare } {
-  if (!share || !REPORT_ID_PATTERN.test(share.id)) return {};
-  const pagePath = `/reports/${share.id}`;
-  const validJsonPaths = new Set([`/api/reports/${share.id}`, `/reports/${share.id}.json`]);
-  if (share.path !== pagePath || !validJsonPaths.has(share.jsonPath)) return {};
-  return { share: { id: share.id, path: pagePath, jsonPath: share.jsonPath } };
+  if (!share || !isCanonicalReportShare(share)) return {};
+  return { share: { ...share } };
 }
 
 function redactWarnings(warnings: string[], pass: RedactionPass): string[] {

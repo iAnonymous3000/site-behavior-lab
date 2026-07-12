@@ -32,7 +32,7 @@
     },
     "conditions": {
       "requestedUrl": "https://www.mozilla.org/",
-      "finalUrl": "https://www.mozilla.org/en-US/",
+      "finalUrl": "https://www.mozilla.org/{seg}",
       "scannedAt": "2026-07-02T15:21:22.989Z",
       "chromiumVersion": "149.0.7827.55",
       "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
@@ -49,6 +49,13 @@
       "automation": "playwright-chromium",
       "headless": true,
       "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "classification",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-02T01:00:58.178Z"
+      },
       "trackerCatalog": {
         "source": "Hand-curated service catalog",
         "version": "hand-curated-2026.06",
@@ -57,14 +64,7 @@
         "curatedOverrides": 133,
         "license": "AGPL-3.0-or-later"
       },
-      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
-      "adblock": {
-        "active": true,
-        "source": "Brave default ad-block lists",
-        "lists": 31,
-        "fetchedAt": "2026-07-02T01:00:58.178Z"
-      },
-      "shieldsMode": "classification"
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
     },
     "requests": [
       {
@@ -76,704 +76,704 @@
         "status": 302,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 45,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 45
       },
       {
         "id": 2,
-        "url": "https://www.mozilla.org/en-US/",
+        "url": "https://www.mozilla.org/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 195,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 195
       },
       {
         "id": 3,
-        "url": "https://www.mozilla.org/media/js/site.8f1217edbde0.js",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 528,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 528
       },
       {
         "id": 4,
-        "url": "https://www.mozilla.org/media/css/protocol-mozilla.54ea44c214ed.css",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 528,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 528
       },
       {
         "id": 5,
-        "url": "https://www.mozilla.org/media/css/m24-navigation-and-footer.038277dadfff.css",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 529,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 529
       },
       {
         "id": 6,
-        "url": "https://www.mozilla.org/media/css/m24-root.c79048453ab7.css",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 530,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 530
       },
       {
         "id": 7,
-        "url": "https://www.mozilla.org/media/css/m24-base.cb7020016bcf.css",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 531,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 531
       },
       {
         "id": 8,
-        "url": "https://www.mozilla.org/media/css/m24-home.d8deebbf1639.css",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 531,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 531
       },
       {
         "id": 9,
-        "url": "https://www.mozilla.org/media/css/foundation-fundraising-banner.04bf6551ea7e.css",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 532,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 532
       },
       {
         "id": 10,
-        "url": "https://www.mozilla.org/media/js/gtm-snippet.b5b7c885f8fa.js",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 532,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 532
       },
       {
         "id": 11,
-        "url": "https://www.mozilla.org/media/cms/images/showcase-som-2025.width-1376.png",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 532,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 532
       },
       {
         "id": 12,
-        "url": "https://www.mozilla.org/media/js/newsletter.988c40f6c26c.js",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 533,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 533
       },
       {
         "id": 13,
-        "url": "https://www.mozilla.org/media/img/banners/fundraiser/banner-green.png",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 553,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 553
       },
       {
         "id": 14,
-        "url": "https://www.mozilla.org/media/js/sentry.729c728748fa.js",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 555,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 555
       },
       {
         "id": 15,
-        "url": "https://www.mozilla.org/media/js/lib.c6b4f4c6aed8.js",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 557,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 557
       },
       {
         "id": 16,
-        "url": "https://www.mozilla.org/media/js/fxa.8c097c9145ff.js",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 559,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 559
       },
       {
         "id": 17,
-        "url": "https://www.mozilla.org/media/js/data.a85f0425619e.js",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 559,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 559
       },
       {
         "id": 18,
-        "url": "https://www.mozilla.org/media/js/m24-ui.a40c4b15e29f.js",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 559,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 559
       },
       {
         "id": 19,
-        "url": "https://www.mozilla.org/media/js/stub-attribution.819aeb6b157b.js",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 560,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 560
       },
       {
         "id": 20,
-        "url": "https://www.mozilla.org/media/js/m24-animation.6371da6532a7.js",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 560,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 560
       },
       {
         "id": 21,
-        "url": "https://www.mozilla.org/media/js/foundation_fundraising_banner_midyear2026.3a3e4fc7ccb2.js",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 562,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 562
       },
       {
         "id": 22,
-        "url": "https://www.mozilla.org/media/js/consent-banner.497ea1aa3e76.js",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 562,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 562
       },
       {
         "id": 23,
-        "url": "https://www.mozilla.org/media/img/logos/m24/lockup-black.f2ddba3f0724.svg",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 563,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 563
       },
       {
         "id": 24,
-        "url": "https://www.mozilla.org/media/img/logos/mozilla/ads/Mozilla_Ads_Logo.6ed26d0eac2b.svg",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 563,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 563
       },
       {
         "id": 25,
-        "url": "https://www.mozilla.org/media/protocol/img/logos/firefox/browser/logo.eb1324e44442.svg",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 620,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 620
       },
       {
         "id": 26,
-        "url": "https://www.mozilla.org/media/protocol/img/icons/arrow-right.a1e6e0252c06.svg",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 621,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 621
       },
       {
         "id": 27,
-        "url": "https://www.mozilla.org/media/img/logos/thunderbird/logo-thunderbird.121e9c0fed45.svg",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 621,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 621
       },
       {
         "id": 28,
-        "url": "https://www.mozilla.org/media/protocol/img/logos/mozilla/vpn/logo.c648f487bfb8.svg",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 623,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 623
       },
       {
         "id": 29,
-        "url": "https://www.mozilla.org/media/protocol/img/logos/firefox/monitor/logo.d97e5516f9e6.svg",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 624,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 624
       },
       {
         "id": 30,
-        "url": "https://www.mozilla.org/media/protocol/img/logos/firefox/relay/logo.d42a8b52e44c.svg",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 624,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 624
       },
       {
         "id": 31,
-        "url": "https://www.mozilla.org/media/img/logos/solo/logo-solo.643cbd69b0d8.svg",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 624,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 624
       },
       {
         "id": 32,
-        "url": "https://www.mozilla.org/media/img/logos/0din/logo-0din.50589c5926d2.svg",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 625,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 625
       },
       {
         "id": 33,
-        "url": "https://www.mozilla.org/media/img/logos/tabstack/logo-tabstack.4551b75d8e6b.svg",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 625,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 625
       },
       {
         "id": 34,
-        "url": "https://www.mozilla.org/media/img/icons/m24-small/glasses.8c98d766725a.svg",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 625,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 625
       },
       {
         "id": 35,
-        "url": "https://www.mozilla.org/media/img/icons/m24-small/arrow-right.81a74c691dc2.svg",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 625,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 625
       },
       {
         "id": 36,
-        "url": "https://www.mozilla.org/media/protocol/fonts/mozilla-text/MozillaText-SemiBold.b126cc23eddf.woff2",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 626,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 626
       },
       {
         "id": 37,
-        "url": "https://www.mozilla.org/media/img/icons/social/bluesky/white.8fd522097881.svg",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 626,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 626
       },
       {
         "id": 38,
-        "url": "https://www.mozilla.org/media/protocol/img/icons/social/instagram/white.a7014a6150b3.svg",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 626,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 626
       },
       {
         "id": 39,
-        "url": "https://www.mozilla.org/media/protocol/img/icons/social/linkedin/white.cdc0e910cc1e.svg",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 627,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 627
       },
       {
         "id": 40,
-        "url": "https://www.mozilla.org/media/protocol/img/icons/social/tiktok/white.599403de7ac0.svg",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 627,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 627
       },
       {
         "id": 41,
-        "url": "https://www.mozilla.org/media/protocol/img/icons/social/spotify/white.aa5334e85bae.svg",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 627,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 627
       },
       {
         "id": 42,
-        "url": "https://www.mozilla.org/media/protocol/img/icons/social/youtube/white.4f314c43c69d.svg",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 628,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 628
       },
       {
         "id": 43,
-        "url": "https://www.mozilla.org/media/protocol/img/icons/globe-white.4887e287b713.svg",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 628,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 628
       },
       {
         "id": 44,
-        "url": "https://www.mozilla.org/media/protocol/img/icons/caret-down-white.19fd9f88ce53.svg",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 628,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 628
       },
       {
         "id": 45,
-        "url": "https://www.mozilla.org/media/protocol/fonts/mozilla-headline/MozillaHeadline-SemiBold.bccc6c46c123.woff2",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 629,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 629
       },
       {
         "id": 46,
-        "url": "https://www.mozilla.org/media/protocol/fonts/mozilla-text/MozillaText-Regular.71c103450d6d.woff2",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 629,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 629
       },
       {
         "id": 47,
-        "url": "https://www.mozilla.org/media/protocol/fonts/mozilla-text/MozillaText-Bold.4af7ce689fd6.woff2",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 630,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 630
       },
       {
         "id": 48,
-        "url": "https://www.mozilla.org/media/cms/images/donate.2e16d0ba.fill-800x400.jpg",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 637,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 637
       },
       {
         "id": 49,
-        "url": "https://www.mozilla.org/media/cms/images/collective-mobile-1450.2e16d0ba.fill-600x600.jpg",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 637,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 637
       },
       {
         "id": 50,
-        "url": "https://www.mozilla.org/media/cms/images/image1.2e16d0ba.fill-600x600.jpg",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 638,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 638
       },
       {
         "id": 51,
-        "url": "https://www.mozilla.org/media/cms/images/lamp-mobile-1450.2e16d0ba.fill-600x600.jpg",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 638,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 638
       },
       {
         "id": 52,
-        "url": "https://www.mozilla.org/media/cms/images/ventures-mobile-1450_GxBP35h.2e16d0ba.fill-600x600.jpg",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 638,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 638
       },
       {
         "id": 53,
-        "url": "https://www.mozilla.org/media/cms/images/ecosystem-mobile-1450.2e16d0ba.fill-600x600.jpg",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 639,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 639
       },
       {
         "id": 54,
-        "url": "https://www.mozilla.org/media/cms/images/image3.2e16d0ba.fill-400x400.png",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 639,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 639
       },
       {
         "id": 55,
-        "url": "https://www.mozilla.org/media/protocol/img/icons/close.9acb8a225e09.svg",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 648,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 648
       },
       {
         "id": 56,
-        "url": "https://www.mozilla.org/media/cms/images/image2.2e16d0ba.fill-800x400.png",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1387,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1387
       },
       {
         "id": 57,
-        "url": "https://www.mozilla.org/media/cms/images/np-1450.2e16d0ba.fill-800x400.jpg",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1387,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1387
       },
       {
         "id": 58,
-        "url": "https://www.mozilla.org/media/img/logos/m24/symbol-white.05fe537b39ce.svg",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1388,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1388
       },
       {
         "id": 59,
-        "url": "https://www.mozilla.org/media/img/logos/m24/wordmark-white.2d673bb5b33a.svg",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1388,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1388
       }
     ],
     "domains": [
@@ -798,22 +798,22 @@
     ],
     "cookies": [],
     "storage": [],
-    "fingerprintDetections": [],
     "fingerprintEvents": [],
+    "fingerprintDetections": [],
+    "privacyPolicy": {
+      "url": "https://www.mozilla.org/{seg}/privacy/{seg}",
+      "claims": [],
+      "mentionedEntities": [],
+      "unmentionedEntities": [],
+      "policyTextLength": 3220
+    },
     "screenshot": null,
     "warnings": [
       "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
       "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
       "This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
-      "Read the site's privacy policy (https://www.mozilla.org/en-US/privacy/websites/) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
-    ],
-    "privacyPolicy": {
-      "url": "https://www.mozilla.org/en-US/privacy/websites/",
-      "claims": [],
-      "mentionedEntities": [],
-      "unmentionedEntities": [],
-      "policyTextLength": 3220
-    }
+      "Read the site's privacy policy (https://www.mozilla.org/{seg}/privacy/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ]
   },
   "variant": {
     "ok": true,
@@ -836,7 +836,7 @@
     },
     "conditions": {
       "requestedUrl": "https://www.mozilla.org/",
-      "finalUrl": "https://www.mozilla.org/en-US/",
+      "finalUrl": "https://www.mozilla.org/{seg}",
       "scannedAt": "2026-07-02T15:21:29.139Z",
       "chromiumVersion": "149.0.7827.55",
       "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
@@ -853,6 +853,13 @@
       "automation": "playwright-chromium",
       "headless": true,
       "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "block-simulation",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-02T01:00:58.178Z"
+      },
       "trackerCatalog": {
         "source": "Hand-curated service catalog",
         "version": "hand-curated-2026.06",
@@ -861,14 +868,7 @@
         "curatedOverrides": 133,
         "license": "AGPL-3.0-or-later"
       },
-      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
-      "adblock": {
-        "active": true,
-        "source": "Brave default ad-block lists",
-        "lists": 31,
-        "fetchedAt": "2026-07-02T01:00:58.178Z"
-      },
-      "shieldsMode": "block-simulation"
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
     },
     "requests": [
       {
@@ -880,704 +880,704 @@
         "status": 302,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 47,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 47
       },
       {
         "id": 2,
-        "url": "https://www.mozilla.org/en-US/",
+        "url": "https://www.mozilla.org/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 82,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 82
       },
       {
         "id": 3,
-        "url": "https://www.mozilla.org/media/js/site.8f1217edbde0.js",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 138,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 138
       },
       {
         "id": 4,
-        "url": "https://www.mozilla.org/media/css/protocol-mozilla.54ea44c214ed.css",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 141,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 141
       },
       {
         "id": 5,
-        "url": "https://www.mozilla.org/media/css/m24-navigation-and-footer.038277dadfff.css",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 141,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 141
       },
       {
         "id": 6,
-        "url": "https://www.mozilla.org/media/css/m24-root.c79048453ab7.css",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 142,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 142
       },
       {
         "id": 7,
-        "url": "https://www.mozilla.org/media/css/m24-base.cb7020016bcf.css",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 143,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 143
       },
       {
         "id": 8,
-        "url": "https://www.mozilla.org/media/css/m24-home.d8deebbf1639.css",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 143,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 143
       },
       {
         "id": 9,
-        "url": "https://www.mozilla.org/media/css/foundation-fundraising-banner.04bf6551ea7e.css",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 144,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 144
       },
       {
         "id": 10,
-        "url": "https://www.mozilla.org/media/js/gtm-snippet.b5b7c885f8fa.js",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 144,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 144
       },
       {
         "id": 11,
-        "url": "https://www.mozilla.org/media/cms/images/showcase-som-2025.width-1376.png",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 147,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 147
       },
       {
         "id": 12,
-        "url": "https://www.mozilla.org/media/js/newsletter.988c40f6c26c.js",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 147,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 147
       },
       {
         "id": 13,
-        "url": "https://www.mozilla.org/media/img/banners/fundraiser/banner-green.png",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 171,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 171
       },
       {
         "id": 14,
-        "url": "https://www.mozilla.org/media/js/sentry.729c728748fa.js",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 174,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 174
       },
       {
         "id": 15,
-        "url": "https://www.mozilla.org/media/js/lib.c6b4f4c6aed8.js",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 175,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 175
       },
       {
         "id": 16,
-        "url": "https://www.mozilla.org/media/js/fxa.8c097c9145ff.js",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 177,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 177
       },
       {
         "id": 17,
-        "url": "https://www.mozilla.org/media/js/data.a85f0425619e.js",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 177,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 177
       },
       {
         "id": 18,
-        "url": "https://www.mozilla.org/media/js/m24-ui.a40c4b15e29f.js",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 178,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 178
       },
       {
         "id": 19,
-        "url": "https://www.mozilla.org/media/js/stub-attribution.819aeb6b157b.js",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 178,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 178
       },
       {
         "id": 20,
-        "url": "https://www.mozilla.org/media/js/m24-animation.6371da6532a7.js",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 179,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 179
       },
       {
         "id": 21,
-        "url": "https://www.mozilla.org/media/js/foundation_fundraising_banner_midyear2026.3a3e4fc7ccb2.js",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 179,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 179
       },
       {
         "id": 22,
-        "url": "https://www.mozilla.org/media/js/consent-banner.497ea1aa3e76.js",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 181,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 181
       },
       {
         "id": 23,
-        "url": "https://www.mozilla.org/media/img/logos/m24/lockup-black.f2ddba3f0724.svg",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 182,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 182
       },
       {
         "id": 24,
-        "url": "https://www.mozilla.org/media/img/logos/mozilla/ads/Mozilla_Ads_Logo.6ed26d0eac2b.svg",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 182,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 182
       },
       {
         "id": 25,
-        "url": "https://www.mozilla.org/media/protocol/img/logos/firefox/browser/logo.eb1324e44442.svg",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 240,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 240
       },
       {
         "id": 26,
-        "url": "https://www.mozilla.org/media/protocol/img/icons/arrow-right.a1e6e0252c06.svg",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 241,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 241
       },
       {
         "id": 27,
-        "url": "https://www.mozilla.org/media/img/logos/thunderbird/logo-thunderbird.121e9c0fed45.svg",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 241,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 241
       },
       {
         "id": 28,
-        "url": "https://www.mozilla.org/media/protocol/img/logos/mozilla/vpn/logo.c648f487bfb8.svg",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 243,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 243
       },
       {
         "id": 29,
-        "url": "https://www.mozilla.org/media/protocol/img/logos/firefox/monitor/logo.d97e5516f9e6.svg",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 244,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 244
       },
       {
         "id": 30,
-        "url": "https://www.mozilla.org/media/protocol/img/logos/firefox/relay/logo.d42a8b52e44c.svg",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 244,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 244
       },
       {
         "id": 31,
-        "url": "https://www.mozilla.org/media/img/logos/solo/logo-solo.643cbd69b0d8.svg",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 245,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 245
       },
       {
         "id": 32,
-        "url": "https://www.mozilla.org/media/img/logos/0din/logo-0din.50589c5926d2.svg",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 245,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 245
       },
       {
         "id": 33,
-        "url": "https://www.mozilla.org/media/img/logos/tabstack/logo-tabstack.4551b75d8e6b.svg",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 245,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 245
       },
       {
         "id": 34,
-        "url": "https://www.mozilla.org/media/img/icons/m24-small/glasses.8c98d766725a.svg",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 245,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 245
       },
       {
         "id": 35,
-        "url": "https://www.mozilla.org/media/img/icons/m24-small/arrow-right.81a74c691dc2.svg",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 246,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 246
       },
       {
         "id": 36,
-        "url": "https://www.mozilla.org/media/protocol/fonts/mozilla-text/MozillaText-SemiBold.b126cc23eddf.woff2",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 246,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 246
       },
       {
         "id": 37,
-        "url": "https://www.mozilla.org/media/img/icons/social/bluesky/white.8fd522097881.svg",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 246,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 246
       },
       {
         "id": 38,
-        "url": "https://www.mozilla.org/media/protocol/img/icons/social/instagram/white.a7014a6150b3.svg",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 247,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 247
       },
       {
         "id": 39,
-        "url": "https://www.mozilla.org/media/protocol/img/icons/social/linkedin/white.cdc0e910cc1e.svg",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 247,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 247
       },
       {
         "id": 40,
-        "url": "https://www.mozilla.org/media/protocol/img/icons/social/tiktok/white.599403de7ac0.svg",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 247,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 247
       },
       {
         "id": 41,
-        "url": "https://www.mozilla.org/media/protocol/img/icons/social/spotify/white.aa5334e85bae.svg",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 248,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 248
       },
       {
         "id": 42,
-        "url": "https://www.mozilla.org/media/protocol/img/icons/social/youtube/white.4f314c43c69d.svg",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 252,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 252
       },
       {
         "id": 43,
-        "url": "https://www.mozilla.org/media/protocol/img/icons/globe-white.4887e287b713.svg",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 253,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 253
       },
       {
         "id": 44,
-        "url": "https://www.mozilla.org/media/protocol/img/icons/caret-down-white.19fd9f88ce53.svg",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 253,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 253
       },
       {
         "id": 45,
-        "url": "https://www.mozilla.org/media/protocol/fonts/mozilla-headline/MozillaHeadline-SemiBold.bccc6c46c123.woff2",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 254,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 254
       },
       {
         "id": 46,
-        "url": "https://www.mozilla.org/media/protocol/fonts/mozilla-text/MozillaText-Regular.71c103450d6d.woff2",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 255,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 255
       },
       {
         "id": 47,
-        "url": "https://www.mozilla.org/media/protocol/fonts/mozilla-text/MozillaText-Bold.4af7ce689fd6.woff2",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 255,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 255
       },
       {
         "id": 48,
-        "url": "https://www.mozilla.org/media/cms/images/donate.2e16d0ba.fill-800x400.jpg",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 262,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 262
       },
       {
         "id": 49,
-        "url": "https://www.mozilla.org/media/cms/images/collective-mobile-1450.2e16d0ba.fill-600x600.jpg",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 263,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 263
       },
       {
         "id": 50,
-        "url": "https://www.mozilla.org/media/cms/images/image1.2e16d0ba.fill-600x600.jpg",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 264,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 264
       },
       {
         "id": 51,
-        "url": "https://www.mozilla.org/media/cms/images/lamp-mobile-1450.2e16d0ba.fill-600x600.jpg",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 264,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 264
       },
       {
         "id": 52,
-        "url": "https://www.mozilla.org/media/cms/images/ventures-mobile-1450_GxBP35h.2e16d0ba.fill-600x600.jpg",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 265,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 265
       },
       {
         "id": 53,
-        "url": "https://www.mozilla.org/media/cms/images/ecosystem-mobile-1450.2e16d0ba.fill-600x600.jpg",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 266,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 266
       },
       {
         "id": 54,
-        "url": "https://www.mozilla.org/media/cms/images/image3.2e16d0ba.fill-400x400.png",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 266,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 266
       },
       {
         "id": 55,
-        "url": "https://www.mozilla.org/media/protocol/img/icons/close.9acb8a225e09.svg",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 272,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 272
       },
       {
         "id": 56,
-        "url": "https://www.mozilla.org/media/cms/images/image2.2e16d0ba.fill-800x400.png",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 988,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 988
       },
       {
         "id": 57,
-        "url": "https://www.mozilla.org/media/cms/images/np-1450.2e16d0ba.fill-800x400.jpg",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 988,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 988
       },
       {
         "id": 58,
-        "url": "https://www.mozilla.org/media/img/logos/m24/symbol-white.05fe537b39ce.svg",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 989,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 989
       },
       {
         "id": 59,
-        "url": "https://www.mozilla.org/media/img/logos/m24/wordmark-white.2d673bb5b33a.svg",
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.mozilla.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 989,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 989
       }
     ],
     "domains": [
@@ -1602,23 +1602,23 @@
     ],
     "cookies": [],
     "storage": [],
-    "fingerprintDetections": [],
     "fingerprintEvents": [],
+    "fingerprintDetections": [],
+    "privacyPolicy": {
+      "url": "https://www.mozilla.org/{seg}/privacy/{seg}",
+      "claims": [],
+      "mentionedEntities": [],
+      "unmentionedEntities": [],
+      "policyTextLength": 3220
+    },
     "screenshot": null,
     "warnings": [
       "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
       "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
       "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
       "This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
-      "Read the site's privacy policy (https://www.mozilla.org/en-US/privacy/websites/) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
-    ],
-    "privacyPolicy": {
-      "url": "https://www.mozilla.org/en-US/privacy/websites/",
-      "claims": [],
-      "mentionedEntities": [],
-      "unmentionedEntities": [],
-      "policyTextLength": 3220
-    }
+      "Read the site's privacy policy (https://www.mozilla.org/{seg}/privacy/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ]
   },
   "diff": {
     "totalRequests": {
@@ -1684,12 +1684,12 @@
     "No blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
     "No blocking: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
     "No blocking: This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
-    "No blocking: Read the site's privacy policy (https://www.mozilla.org/en-US/privacy/websites/) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
+    "No blocking: Read the site's privacy policy (https://www.mozilla.org/{seg}/privacy/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
     "Brave-list blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
     "Brave-list blocking: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
     "Brave-list blocking: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
     "Brave-list blocking: This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
-    "Brave-list blocking: Read the site's privacy policy (https://www.mozilla.org/en-US/privacy/websites/) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    "Brave-list blocking: Read the site's privacy policy (https://www.mozilla.org/{seg}/privacy/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
   ],
   "share": {
     "id": "20260702-87853a360c06c60a21dbe102f8da8093",

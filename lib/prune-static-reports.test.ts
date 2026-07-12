@@ -1,11 +1,13 @@
 import assert from "node:assert/strict";
-import { mkdtemp, readdir, rm, writeFile } from "node:fs/promises";
+import { access, mkdtemp, readdir, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, test } from "node:test";
 import { pruneStaticReports } from "./prune-static-reports";
+import { buildProvenanceEntry, committedSidecarFilename } from "./redaction-provenance";
+import { redactScanReportV1 } from "./redact-scan-report-v1";
 import { makeScanReportV1 } from "./scan-report-v2-fixtures";
-import type { ScanResult } from "./types";
+import type { ScanReport, ScanResult } from "./types";
 
 const DAY_MS = 24 * 60 * 60 * 1_000;
 
@@ -30,7 +32,18 @@ function makeResult(domain: string, scannedAt: string): ScanResult {
 }
 
 async function writeReport(id: string, report: unknown): Promise<void> {
-  await writeFile(path.join(reportsDir, `${id}.json`), `${JSON.stringify(report)}\n`);
+  const redacted = redactScanReportV1(report as ScanReport).report;
+  await writeFile(path.join(reportsDir, `${id}.json`), `${JSON.stringify(redacted)}\n`);
+  const createdAt =
+    redacted.reportType === "comparison" ? redacted.scannedAt : redacted.conditions.scannedAt;
+  const sidecar = buildProvenanceEntry({
+    reportId: id,
+    publicReport: redacted,
+    writtenAt: "2026-07-12T00:00:00.000Z",
+    createdAt,
+    expiresAt: null
+  });
+  await writeFile(path.join(reportsDir, committedSidecarFilename(id)), `${JSON.stringify(sidecar)}\n`);
 }
 
 test("age pruning removes stale reports but keeps each site's newest generations", async () => {
@@ -52,13 +65,21 @@ test("age pruning removes stale reports but keeps each site's newest generations
   assert.equal(removed.length, 1);
   assert.match(removed[0], /20260101-a+\.json$/);
   const remaining = await readdir(reportsDir);
-  assert.equal(remaining.length, 2);
+  assert.equal(remaining.filter((file) => /^\d{8}-[a-f0-9]{32}\.json$/.test(file)).length, 2);
+  assert.equal(remaining.filter((file) => file.endsWith(".provenance.json")).length, 2);
+  await assert.rejects(
+    () => access(path.join(reportsDir, "20260101-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.provenance.json")),
+    /ENOENT/
+  );
 });
 
 test("a file the reader cannot read is never deleted", async () => {
   const now = Date.parse("2026-07-10T00:00:00.000Z");
   await writeFile(path.join(reportsDir, "20250101-dddddddddddddddddddddddddddddddd.json"), "{\n");
-  await writeReport("20250101-eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee", { ...makeResult("two.example.dev", "2025-01-01T00:00:00.000Z"), requests: [null] });
+  await writeFile(
+    path.join(reportsDir, "20250101-eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee.json"),
+    `${JSON.stringify({ ...makeResult("two.example.dev", "2025-01-01T00:00:00.000Z"), requests: [null] })}\n`
+  );
 
   const { removed, warnings } = await pruneStaticReports(reportsDir, {
     maxAgeMs: 7 * DAY_MS,
@@ -89,4 +110,32 @@ test("the count cap trims oldest unprotected reports first", async () => {
 
   assert.equal(removed.length, 1);
   assert.match(removed[0], /20260708-a+\.json$/);
+});
+
+test("unknown provenance is retained while verified pruning removes the whole bundle", async () => {
+  const now = Date.parse("2026-07-10T00:00:00.000Z");
+  const missingId = "20250101-11111111111111111111111111111111";
+  const missing = redactScanReportV1(makeResult("unknown.example.dev", "2025-01-01T00:00:00.000Z")).report;
+  await writeFile(path.join(reportsDir, `${missingId}.json`), `${JSON.stringify(missing)}\n`);
+
+  const verifiedId = "20250101-22222222222222222222222222222222";
+  await writeReport(verifiedId, makeResult("verified.example.dev", "2025-01-01T00:00:00.000Z"));
+  const danglingId = "20250101-33333333333333333333333333333333";
+  await writeFile(path.join(reportsDir, committedSidecarFilename(danglingId)), "{}\n");
+
+  const { removed, warnings } = await pruneStaticReports(reportsDir, {
+    maxAgeMs: 7 * DAY_MS,
+    maxCount: 100,
+    keepPerSite: 0,
+    now
+  });
+
+  assert.deepEqual(removed, [path.join(reportsDir, `${verifiedId}.json`)]);
+  assert.equal(warnings.length, 2);
+  assert.equal(warnings.some((warning) => warning.includes("no-sidecar")), true);
+  assert.equal(warnings.some((warning) => warning.includes("dangling")), true);
+  await access(path.join(reportsDir, `${missingId}.json`));
+  await access(path.join(reportsDir, committedSidecarFilename(danglingId)));
+  await assert.rejects(() => access(path.join(reportsDir, `${verifiedId}.json`)), /ENOENT/);
+  await assert.rejects(() => access(path.join(reportsDir, committedSidecarFilename(verifiedId))), /ENOENT/);
 });

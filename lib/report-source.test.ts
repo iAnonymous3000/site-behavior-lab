@@ -1,8 +1,11 @@
 import assert from "node:assert/strict";
-import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, test } from "node:test";
+import { buildProvenanceEntry, committedSidecarFilename } from "./redaction-provenance";
+import { redactScanReportV1 } from "./redact-scan-report-v1";
+import { buildStaticReportShare } from "./report-locator";
 import { readStoredReportForId } from "./report-source";
 import { SCAN_REPORT_SCHEMA_VERSION, type ScanResult } from "./types";
 
@@ -45,8 +48,9 @@ test("readStoredReportForId answers typed outcomes for committed reports", async
   assert.equal(nullEntryRead.outcome, "unreadable");
 
   const validId = "20260618-dddddddddddddddddddddddddddddddd";
-  const wire = `${JSON.stringify(makeScanResult())}\n`;
-  await writeFile(path.join(rootDir, "public", "reports", `${validId}.json`), wire);
+  const report = makeScanResult();
+  report.share = buildStaticReportShare(validId);
+  const wire = await writeManagedReport(validId, report);
   const found = await readStoredReportForId(validId, rootDir);
   assert.equal(found.outcome, "found");
   if (found.outcome !== "found") throw new Error("expected found");
@@ -54,6 +58,29 @@ test("readStoredReportForId answers typed outcomes for committed reports", async
   assert.equal(found.stored.schemaVersion, 1);
   // The wire is the committed bytes verbatim.
   assert.equal(found.wire, wire);
+});
+
+test("committed reports fail closed when their sidecar is missing or mismatched", async () => {
+  const missingId = "20260618-11111111111111111111111111111111";
+  const missingReport = redactScanReportV1(makeScanResult()).report;
+  await writeFile(
+    path.join(rootDir, "public", "reports", `${missingId}.json`),
+    `${JSON.stringify(missingReport)}\n`
+  );
+  assert.deepEqual(await readStoredReportForId(missingId, rootDir), {
+    outcome: "unreadable",
+    error: "invalid"
+  });
+
+  const mismatchId = "20260618-22222222222222222222222222222222";
+  await writeManagedReport(mismatchId, makeScanResult());
+  const sidecarPath = path.join(rootDir, "public", "reports", committedSidecarFilename(mismatchId));
+  const sidecar = JSON.parse(await readFile(sidecarPath, "utf8")) as Record<string, unknown>;
+  await writeFile(sidecarPath, `${JSON.stringify({ ...sidecar, publicDigest: "0".repeat(64) })}\n`);
+  assert.deepEqual(await readStoredReportForId(mismatchId, rootDir), {
+    outcome: "unreadable",
+    error: "invalid"
+  });
 });
 
 test("a future schema version is a typed capability gap, not invalid data", async () => {
@@ -124,4 +151,21 @@ function makeScanResult(): ScanResult {
     screenshot: null,
     warnings: []
   };
+}
+
+async function writeManagedReport(id: string, input: ScanResult): Promise<string> {
+  const report = redactScanReportV1(input).report;
+  const wire = `${JSON.stringify(report)}\n`;
+  const createdAt = report.conditions.scannedAt;
+  const sidecar = buildProvenanceEntry({
+    reportId: id,
+    publicReport: report,
+    writtenAt: "2026-07-12T00:00:00.000Z",
+    createdAt,
+    expiresAt: null
+  });
+  const reportsDir = path.join(rootDir, "public", "reports");
+  await writeFile(path.join(reportsDir, `${id}.json`), wire);
+  await writeFile(path.join(reportsDir, committedSidecarFilename(id)), `${JSON.stringify(sidecar)}\n`);
+  return wire;
 }

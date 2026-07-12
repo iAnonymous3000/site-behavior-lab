@@ -49,6 +49,13 @@
       "automation": "playwright-chromium",
       "headless": true,
       "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "classification",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-02T01:00:58.178Z"
+      },
       "trackerCatalog": {
         "source": "Hand-curated service catalog",
         "version": "hand-curated-2026.06",
@@ -57,14 +64,7 @@
         "curatedOverrides": 133,
         "license": "AGPL-3.0-or-later"
       },
-      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
-      "adblock": {
-        "active": true,
-        "source": "Brave default ad-block lists",
-        "lists": 31,
-        "fetchedAt": "2026-07-02T01:00:58.178Z"
-      },
-      "shieldsMode": "classification"
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
     },
     "requests": [
       {
@@ -76,356 +76,356 @@
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 37,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 37
       },
       {
         "id": 2,
-        "url": "https://www.facebook.com/ajax/qm/",
+        "url": "https://www.facebook.com/{seg}/{seg}",
         "domain": "www.facebook.com",
         "method": "POST",
         "resourceType": "ping",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 246,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 246
       },
       {
         "id": 3,
-        "url": "https://static.xx.fbcdn.net/rsrc.php/v5/yz/l/0,cross/k7eh01q-xZZ2eq0d6oRx7T7TF2-QXH5TPT9DWDYPz6DhfgQe914iiBfvP3p6y_S61oONMKn3YhINqU49pVNahkCkvx2I9b7Pb8K.css",
+        "url": "https://static.xx.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.xx.fbcdn.net",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 247,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 247
       },
       {
         "id": 4,
-        "url": "https://static.xx.fbcdn.net/rsrc.php/ye/r/949Iq5tt9Te.webp",
+        "url": "https://static.xx.fbcdn.net/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.xx.fbcdn.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 571,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 571
       },
       {
         "id": 5,
-        "url": "https://static.xx.fbcdn.net/rsrc.php/yl/r/9AJbVCy4-G1.woff2",
+        "url": "https://static.xx.fbcdn.net/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.xx.fbcdn.net",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 587,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 587
       },
       {
         "id": 6,
-        "url": "https://static.xx.fbcdn.net/rsrc.php/yQ/r/-pkMfchyeAZ.woff2",
+        "url": "https://static.xx.fbcdn.net/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.xx.fbcdn.net",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 588,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 588
       },
       {
         "id": 7,
-        "url": "https://static.xx.fbcdn.net/rsrc.php/v4/yX/r/4wLeY5_5Fx0.js",
+        "url": "https://static.xx.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.xx.fbcdn.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 598,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 598
       },
       {
         "id": 8,
-        "url": "https://static.xx.fbcdn.net/rsrc.php/v4iE844/yu/l/en_US-j/_yeITozsVZAiQoHxnpPlvfS3zO9Yh0eT9MpJHhB6TVJNR_dWnUPIGoOv_kkAv_-wGQgXdYivvCwsHHKy1uKLQ_0jLSF6kN-2GoifAozIMNFBkkw1JtOGoHMq0nyQSP3ZLAfTJYyv9bRR4jcu4yAsukPWHDsVjQqltBeBhusk2amyJhKMh2otzgdunJl3g9q4pR78qL69VqNNp4Gm1BHl-lElGzTH4Lah-t55E7mOl6Gkjq0OVeavkZc4HIHnCJZCcc2ZP1Mq8wypiAW_bfkGAIldq2b_lh-AMUuK2ufRhAdmh5DEndjkC1LYw5WWi7IP1HIUYBqZ4h.js",
+        "url": "https://static.xx.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.xx.fbcdn.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 600,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 600
       },
       {
         "id": 9,
-        "url": "https://static.xx.fbcdn.net/rsrc.php/v4iDgM4/y8/l/en_US-j/Gyi9qWlikwi.js",
+        "url": "https://static.xx.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.xx.fbcdn.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 601,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 601
       },
       {
         "id": 10,
-        "url": "https://static.xx.fbcdn.net/rsrc.php/v4iIEl4/ye/l/en_US-j/_zj7rCroXQFKWrG_GKDPZZ.js",
+        "url": "https://static.xx.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.xx.fbcdn.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 601,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 601
       },
       {
         "id": 11,
-        "url": "https://static.xx.fbcdn.net/rsrc.php/v4iT5u4/yA/l/en_US-j/XNiicEukBkizNZ0KNn4OLVtftubJV0czw82Yz_4vfOJLPy3k8641OfSldlUDUZRIYNbjRmu7gYjQjwu7xUJ2DlyU72OqDwSuA8Ya7eSNpDNxgKVIPNHOqVL96kBE_MK1MUiBPjeDhbrr4tShlOg4ZYKX0hePZ2GqKu-kUqm8HXN6FrYZ.js",
+        "url": "https://static.xx.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.xx.fbcdn.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 601,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 601
       },
       {
         "id": 12,
-        "url": "https://static.xx.fbcdn.net/rsrc.php/v4iJVq4/yV/l/en_US-j/esPUxsztnYb.js",
+        "url": "https://static.xx.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.xx.fbcdn.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 602,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 602
       },
       {
         "id": 13,
-        "url": "https://static.xx.fbcdn.net/rsrc.php/v4imgg4/yr/l/en_US-j/V15tj8h63LNXV_vKBEegn763T-omr2qwML2OjEpNOBjYRtKQGwG0ihEa-9ML_Y_MRXHBlvxuIMFsRSR_169Kn2AO-Qx8lcabVTDOwgx-s7CoHnI3XLoYQF64vO2zT06LS1ity9KFzyFGG8nQWShO2h-PYdOQEKEXaGJ8DwBsqEPHSH1YTvtL32s_6TN5GUvR7zmf91oXroJ7K59X9C3AwQd1t3qNKef6G-hKocd89O_LiCUWDnXRwDHCkV8R1onn-JtdZ7PJrsOfCedTPWKCFM-z_0Q2ncNh9-DZBIN8jKeHWrECl3_n5Wu6jBGHRQaSS1OrajkDar.js",
+        "url": "https://static.xx.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.xx.fbcdn.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 602,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 602
       },
       {
         "id": 14,
-        "url": "https://static.xx.fbcdn.net/rsrc.php/v4iTlQ4/y_/l/en_US-j/j_1E7vbBQ08.js",
+        "url": "https://static.xx.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.xx.fbcdn.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 602,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 602
       },
       {
         "id": 15,
-        "url": "https://static.xx.fbcdn.net/rsrc.php/v4iyii4/y7/l/en_US-j/961M3jn59Dg.js",
+        "url": "https://static.xx.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.xx.fbcdn.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 602,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 602
       },
       {
         "id": 16,
-        "url": "https://static.xx.fbcdn.net/rsrc.php/v4idc84/yZ/l/en_US-j/WpW1k5QlG-M.js",
+        "url": "https://static.xx.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.xx.fbcdn.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 603,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 603
       },
       {
         "id": 17,
-        "url": "https://static.xx.fbcdn.net/rsrc.php/v4ieWN4/yo/l/en_US-j/Orwtrw1xWvwVjqPiyLSYqxaByKEikRSYFx2Dfz-7-832YCPfv43i0iwrruBGGEYFdGhwCEsLVMyJV6uBpr9kvHpcAdF4Q4yS3Q5yLIhLjdtTF59V3TtN2HhP51QCeCZRMWgwI6-NhAsCA5LxvyfVWAYRn5Q5XLynIoHzskHM2TrHr72z775NzKCi2Sch9boWyHYdnzATCB6ghfjDQ.js",
+        "url": "https://static.xx.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.xx.fbcdn.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 603,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 603
       },
       {
         "id": 18,
-        "url": "https://static.xx.fbcdn.net/rsrc.php/v5/yn/l/0,cross/kYW4akR-m8tg8T_6-Yirbb.css",
+        "url": "https://static.xx.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.xx.fbcdn.net",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 603,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 603
       },
       {
         "id": 19,
-        "url": "https://static.xx.fbcdn.net/rsrc.php/v4idBq4/yB/l/en_US-j/HRKZ_ubfyeh.js",
+        "url": "https://static.xx.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.xx.fbcdn.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 802,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 802
       },
       {
         "id": 20,
-        "url": "https://static.xx.fbcdn.net/rsrc.php/v4/yl/r/Vyih8rPt4ed.js",
+        "url": "https://static.xx.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.xx.fbcdn.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 803,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 803
       },
       {
         "id": 21,
-        "url": "https://static.xx.fbcdn.net/rsrc.php/v4/yv/r/0mN7_sUzXN1.js",
+        "url": "https://static.xx.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.xx.fbcdn.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 804,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 804
       },
       {
         "id": 22,
-        "url": "https://static.xx.fbcdn.net/rsrc.php/v4ih0s4/y_/l/en_US-j/Sb0xdxhOUdl.js",
+        "url": "https://static.xx.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.xx.fbcdn.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 805,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 805
       },
       {
         "id": 23,
-        "url": "https://static.xx.fbcdn.net/rsrc.php/v4iYTg4/yQ/l/en_US-j/K6Di99Gpjsl.js",
+        "url": "https://static.xx.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.xx.fbcdn.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 805,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 805
       },
       {
         "id": 24,
-        "url": "https://static.xx.fbcdn.net/rsrc.php/v4/yU/r/DcrX2w7W64E.js",
+        "url": "https://static.xx.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.xx.fbcdn.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 806,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 806
       },
       {
         "id": 25,
-        "url": "https://www.facebook.com/ajax/bz",
+        "url": "https://www.facebook.com/{seg}/{seg}",
         "domain": "www.facebook.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 851,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 851
       },
       {
         "id": 26,
-        "url": "https://www.instagram.com/accounts/xuserid/",
+        "url": "https://www.instagram.com/{seg}/{seg}",
         "domain": "www.instagram.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 857,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 857
       },
       {
         "id": 27,
-        "url": "https://www.facebook.com/ajax/bz",
+        "url": "https://www.facebook.com/{seg}/{seg}",
         "domain": "www.facebook.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 907,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 907
       },
       {
         "id": 28,
-        "url": "https://static.xx.fbcdn.net/rsrc.php/yb/r/HpEiFYDux5j.webp",
+        "url": "https://static.xx.fbcdn.net/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.xx.fbcdn.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 953,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 953
       },
       {
         "id": 29,
-        "url": "https://www.facebook.com/ajax/bz",
+        "url": "https://www.facebook.com/{seg}/{seg}",
         "domain": "www.facebook.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1801,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1801
       },
       {
         "id": 30,
-        "url": "https://www.facebook.com/ajax/bz",
+        "url": "https://www.facebook.com/{seg}/{seg}",
         "domain": "www.facebook.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 4371,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 4371
       }
     ],
     "domains": [
@@ -476,7 +476,7 @@
     ],
     "cookies": [
       {
-        "name": "datr",
+        "name": "[redacted]",
         "domain": ".facebook.com",
         "path": "/",
         "sameSite": "None",
@@ -486,7 +486,7 @@
         "thirdParty": false
       },
       {
-        "name": "fr",
+        "name": "[redacted]",
         "domain": ".facebook.com",
         "path": "/",
         "sameSite": "None",
@@ -496,7 +496,7 @@
         "thirdParty": false
       },
       {
-        "name": "sb",
+        "name": "[redacted]",
         "domain": ".facebook.com",
         "path": "/",
         "sameSite": "None",
@@ -506,7 +506,7 @@
         "thirdParty": false
       },
       {
-        "name": "wd",
+        "name": "[redacted]",
         "domain": ".facebook.com",
         "path": "/",
         "sameSite": "Lax",
@@ -519,28 +519,50 @@
     "storage": [
       {
         "area": "localStorage",
-        "key": "signal_flush_timestamp",
+        "key": "[redacted]",
         "valueBytes": 13
       },
       {
         "area": "localStorage",
-        "key": "Session",
+        "key": "[redacted]",
         "valueBytes": 20
       },
       {
         "area": "localStorage",
-        "key": "hb_timestamp",
+        "key": "[redacted]",
         "valueBytes": 13
       },
       {
         "area": "localStorage",
-        "key": "banzai:last_storage_flush",
+        "key": "[redacted]",
         "valueBytes": 15
       },
       {
         "area": "sessionStorage",
-        "key": "TabId",
+        "key": "[redacted]",
         "valueBytes": 6
+      }
+    ],
+    "fingerprintEvents": [
+      {
+        "api": "canvas.measureText",
+        "count": 74
+      },
+      {
+        "api": "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
+        "count": 2
+      },
+      {
+        "api": "webgl.getParameter.UNMASKED_VENDOR_WEBGL",
+        "count": 2
+      },
+      {
+        "api": "canvas.toDataURL",
+        "count": 1
+      },
+      {
+        "api": "webgl.readPixels",
+        "count": 1
       }
     ],
     "fingerprintDetections": [
@@ -574,7 +596,7 @@
             "window"
           ],
           "thirdPartyOrigins": [
-            "https://static.xx.fbcdn.net"
+            "https://static.xx.fbcdn.net/"
           ],
           "totalListenerCalls": 21
         }
@@ -609,7 +631,7 @@
             "window"
           ],
           "thirdPartyOrigins": [
-            "https://static.xx.fbcdn.net"
+            "https://static.xx.fbcdn.net/"
           ],
           "totalListenerCalls": 62
         }
@@ -631,38 +653,8 @@
         }
       }
     ],
-    "fingerprintEvents": [
-      {
-        "api": "canvas.measureText",
-        "count": 74
-      },
-      {
-        "api": "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
-        "count": 2
-      },
-      {
-        "api": "webgl.getParameter.UNMASKED_VENDOR_WEBGL",
-        "count": 2
-      },
-      {
-        "api": "canvas.toDataURL",
-        "count": 1
-      },
-      {
-        "api": "webgl.readPixels",
-        "count": 1
-      }
-    ],
-    "screenshot": null,
-    "warnings": [
-      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling or clicking except one scripted choice on the cookie/consent banner (disclosed below). Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
-      "Counts are a lower bound: trackers that load only after further interaction, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
-      "This visit was asked to choose \"Accept all\" on a cookie/consent banner, but no recognizable control was found (the banner may not be shown to this scanner's location, the choice may sit behind a settings layer, or the control is not in the catalog). Results reflect the pre-consent state.",
-      "This scan typed a synthetic test value into 2 form fields (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
-      "Read the site's privacy policy (https://www.facebook.com/privacy/policy/) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
-    ],
     "privacyPolicy": {
-      "url": "https://www.facebook.com/privacy/policy/",
+      "url": "https://www.facebook.com/privacy/policy",
       "claims": [
         {
           "kind": "no-selling-or-sharing",
@@ -676,7 +668,15 @@
     "consentInteraction": {
       "mode": "accept-all",
       "clicked": false
-    }
+    },
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling or clicking except one scripted choice on the cookie/consent banner (disclosed below). Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after further interaction, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+      "This visit was asked to choose \"Accept all\" on a cookie/consent banner, but no recognizable control was found (the banner may not be shown to this scanner's location, the choice may sit behind a settings layer, or the control is not in the catalog). Results reflect the pre-consent state.",
+      "This scan typed a synthetic test value into 2 form fields (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
+      "Read the site's privacy policy (https://www.facebook.com/privacy/policy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ]
   },
   "variant": {
     "ok": true,
@@ -716,6 +716,13 @@
       "automation": "playwright-chromium",
       "headless": true,
       "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "classification",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-02T01:00:58.178Z"
+      },
       "trackerCatalog": {
         "source": "Hand-curated service catalog",
         "version": "hand-curated-2026.06",
@@ -724,14 +731,7 @@
         "curatedOverrides": 133,
         "license": "AGPL-3.0-or-later"
       },
-      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
-      "adblock": {
-        "active": true,
-        "source": "Brave default ad-block lists",
-        "lists": 31,
-        "fetchedAt": "2026-07-02T01:00:58.178Z"
-      },
-      "shieldsMode": "classification"
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
     },
     "requests": [
       {
@@ -743,356 +743,356 @@
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 44,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 44
       },
       {
         "id": 2,
-        "url": "https://www.facebook.com/ajax/qm/",
+        "url": "https://www.facebook.com/{seg}/{seg}",
         "domain": "www.facebook.com",
         "method": "POST",
         "resourceType": "ping",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 320,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 320
       },
       {
         "id": 3,
-        "url": "https://static.xx.fbcdn.net/rsrc.php/v5/yz/l/0,cross/k7eh01q-xZZ2eq0d6oRx7T7TF2-QXH5TPT9DWDYPz6DhfgQe914iiBfvP3p6y_S61oONMKn3YhINqU49pVNahkCkvx2I9b7Pb8K.css",
+        "url": "https://static.xx.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.xx.fbcdn.net",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 320,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 320
       },
       {
         "id": 4,
-        "url": "https://static.xx.fbcdn.net/rsrc.php/ye/r/949Iq5tt9Te.webp",
+        "url": "https://static.xx.fbcdn.net/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.xx.fbcdn.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 664,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 664
       },
       {
         "id": 5,
-        "url": "https://static.xx.fbcdn.net/rsrc.php/yl/r/9AJbVCy4-G1.woff2",
+        "url": "https://static.xx.fbcdn.net/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.xx.fbcdn.net",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 679,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 679
       },
       {
         "id": 6,
-        "url": "https://static.xx.fbcdn.net/rsrc.php/yQ/r/-pkMfchyeAZ.woff2",
+        "url": "https://static.xx.fbcdn.net/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.xx.fbcdn.net",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 680,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 680
       },
       {
         "id": 7,
-        "url": "https://static.xx.fbcdn.net/rsrc.php/v4/yX/r/4wLeY5_5Fx0.js",
+        "url": "https://static.xx.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.xx.fbcdn.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 691,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 691
       },
       {
         "id": 8,
-        "url": "https://static.xx.fbcdn.net/rsrc.php/v4iE844/yu/l/en_US-j/_yeITozsVZAiQoHxnpPlvfS3zO9Yh0eT9MpJHhB6TVJNR_dWnUPIGoOv_kkAv_-wGQgXdYivvCwsHHKy1uKLQ_0jLSF6kN-2GoifAozIMNFBkkw1JtOGoHMq0nyQSP3ZLAfTJYyv9bRR4jcu4yAsukPWHDsVjQqltBeBhusk2amyJhKMh2otzgdunJl3g9q4pR78qL69VqNNp4Gm1BHl-lElGzTH4Lah-t55E7mOl6Gkjq0OVeavkZc4HIHnCJZCcc2ZP1Mq8wypiAW_bfkGAIldq2b_lh-AMUuK2ufRhAdmh5DEndjkC1LYw5WWi7IP1HIUYBqZ4h.js",
+        "url": "https://static.xx.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.xx.fbcdn.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 692,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 692
       },
       {
         "id": 9,
-        "url": "https://static.xx.fbcdn.net/rsrc.php/v4iDgM4/y8/l/en_US-j/Gyi9qWlikwi.js",
+        "url": "https://static.xx.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.xx.fbcdn.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 692,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 692
       },
       {
         "id": 10,
-        "url": "https://static.xx.fbcdn.net/rsrc.php/v4iIEl4/ye/l/en_US-j/_zj7rCroXQFKWrG_GKDPZZ.js",
+        "url": "https://static.xx.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.xx.fbcdn.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 693,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 693
       },
       {
         "id": 11,
-        "url": "https://static.xx.fbcdn.net/rsrc.php/v4iT5u4/yA/l/en_US-j/XNiicEukBkizNZ0KNn4OLVtftubJV0czw82Yz_4vfOJLPy3k8641OfSldlUDUZRIYNbjRmu7gYjQjwu7xUJ2DlyU72OqDwSuA8Ya7eSNpDNxgKVIPNHOqVL96kBE_MK1MUiBPjeDhbrr4tShlOg4ZYKX0hePZ2GqKu-kUqm8HXN6FrYZ.js",
+        "url": "https://static.xx.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.xx.fbcdn.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 693,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 693
       },
       {
         "id": 12,
-        "url": "https://static.xx.fbcdn.net/rsrc.php/v4iJVq4/yV/l/en_US-j/esPUxsztnYb.js",
+        "url": "https://static.xx.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.xx.fbcdn.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 693,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 693
       },
       {
         "id": 13,
-        "url": "https://static.xx.fbcdn.net/rsrc.php/v4imgg4/yr/l/en_US-j/V15tj8h63LNXV_vKBEegn763T-omr2qwML2OjEpNOBjYRtKQGwG0ihEa-9ML_Y_MRXHBlvxuIMFsRSR_169Kn2AO-Qx8lcabVTDOwgx-s7CoHnI3XLoYQF64vO2zT06LS1ity9KFzyFGG8nQWShO2h-PYdOQEKEXaGJ8DwBsqEPHSH1YTvtL32s_6TN5GUvR7zmf91oXroJ7K59X9C3AwQd1t3qNKef6G-hKocd89O_LiCUWDnXRwDHCkV8R1onn-JtdZ7PJrsOfCedTPWKCFM-z_0Q2ncNh9-DZBIN8jKeHWrECl3_n5Wu6jBGHRQaSS1OrajkDar.js",
+        "url": "https://static.xx.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.xx.fbcdn.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 694,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 694
       },
       {
         "id": 14,
-        "url": "https://static.xx.fbcdn.net/rsrc.php/v4iTlQ4/y_/l/en_US-j/j_1E7vbBQ08.js",
+        "url": "https://static.xx.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.xx.fbcdn.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 694,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 694
       },
       {
         "id": 15,
-        "url": "https://static.xx.fbcdn.net/rsrc.php/v4iyii4/y7/l/en_US-j/961M3jn59Dg.js",
+        "url": "https://static.xx.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.xx.fbcdn.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 694,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 694
       },
       {
         "id": 16,
-        "url": "https://static.xx.fbcdn.net/rsrc.php/v4idc84/yZ/l/en_US-j/WpW1k5QlG-M.js",
+        "url": "https://static.xx.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.xx.fbcdn.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 694,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 694
       },
       {
         "id": 17,
-        "url": "https://static.xx.fbcdn.net/rsrc.php/v4ieWN4/yo/l/en_US-j/Orwtrw1xWvwVjqPiyLSYqxaByKEikRSYFx2Dfz-7-832YCPfv43i0iwrruBGGEYFdGhwCEsLVMyJV6uBpr9kvHpcAdF4Q4yS3Q5yLIhLjdtTF59V3TtN2HhP51QCeCZRMWgwI6-NhAsCA5LxvyfVWAYRn5Q5XLynIoHzskHM2TrHr72z775NzKCi2Sch9boWyHYdnzATCB6ghfjDQ.js",
+        "url": "https://static.xx.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.xx.fbcdn.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 695,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 695
       },
       {
         "id": 18,
-        "url": "https://static.xx.fbcdn.net/rsrc.php/v5/yn/l/0,cross/kYW4akR-m8tg8T_6-Yirbb.css",
+        "url": "https://static.xx.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.xx.fbcdn.net",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 695,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 695
       },
       {
         "id": 19,
-        "url": "https://static.xx.fbcdn.net/rsrc.php/v4idBq4/yB/l/en_US-j/HRKZ_ubfyeh.js",
+        "url": "https://static.xx.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.xx.fbcdn.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 919,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 919
       },
       {
         "id": 20,
-        "url": "https://static.xx.fbcdn.net/rsrc.php/v4/yl/r/Vyih8rPt4ed.js",
+        "url": "https://static.xx.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.xx.fbcdn.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 920,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 920
       },
       {
         "id": 21,
-        "url": "https://static.xx.fbcdn.net/rsrc.php/v4/yv/r/0mN7_sUzXN1.js",
+        "url": "https://static.xx.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.xx.fbcdn.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 921,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 921
       },
       {
         "id": 22,
-        "url": "https://static.xx.fbcdn.net/rsrc.php/v4ih0s4/y_/l/en_US-j/Sb0xdxhOUdl.js",
+        "url": "https://static.xx.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.xx.fbcdn.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 921,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 921
       },
       {
         "id": 23,
-        "url": "https://static.xx.fbcdn.net/rsrc.php/v4iYTg4/yQ/l/en_US-j/K6Di99Gpjsl.js",
+        "url": "https://static.xx.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.xx.fbcdn.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 922,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 922
       },
       {
         "id": 24,
-        "url": "https://static.xx.fbcdn.net/rsrc.php/v4/yU/r/DcrX2w7W64E.js",
+        "url": "https://static.xx.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.xx.fbcdn.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 922,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 922
       },
       {
         "id": 25,
-        "url": "https://www.facebook.com/ajax/bz",
+        "url": "https://www.facebook.com/{seg}/{seg}",
         "domain": "www.facebook.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 970,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 970
       },
       {
         "id": 26,
-        "url": "https://www.instagram.com/accounts/xuserid/",
+        "url": "https://www.instagram.com/{seg}/{seg}",
         "domain": "www.instagram.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 972,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 972
       },
       {
         "id": 27,
-        "url": "https://www.facebook.com/ajax/bz",
+        "url": "https://www.facebook.com/{seg}/{seg}",
         "domain": "www.facebook.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1018,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1018
       },
       {
         "id": 28,
-        "url": "https://static.xx.fbcdn.net/rsrc.php/yb/r/HpEiFYDux5j.webp",
+        "url": "https://static.xx.fbcdn.net/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.xx.fbcdn.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1068,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1068
       },
       {
         "id": 29,
-        "url": "https://www.facebook.com/ajax/bz",
+        "url": "https://www.facebook.com/{seg}/{seg}",
         "domain": "www.facebook.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1914,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1914
       },
       {
         "id": 30,
-        "url": "https://www.facebook.com/ajax/bz",
+        "url": "https://www.facebook.com/{seg}/{seg}",
         "domain": "www.facebook.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 4473,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 4473
       }
     ],
     "domains": [
@@ -1143,7 +1143,7 @@
     ],
     "cookies": [
       {
-        "name": "datr",
+        "name": "[redacted]",
         "domain": ".facebook.com",
         "path": "/",
         "sameSite": "None",
@@ -1153,7 +1153,7 @@
         "thirdParty": false
       },
       {
-        "name": "fr",
+        "name": "[redacted]",
         "domain": ".facebook.com",
         "path": "/",
         "sameSite": "None",
@@ -1163,7 +1163,7 @@
         "thirdParty": false
       },
       {
-        "name": "sb",
+        "name": "[redacted]",
         "domain": ".facebook.com",
         "path": "/",
         "sameSite": "None",
@@ -1173,7 +1173,7 @@
         "thirdParty": false
       },
       {
-        "name": "wd",
+        "name": "[redacted]",
         "domain": ".facebook.com",
         "path": "/",
         "sameSite": "Lax",
@@ -1186,28 +1186,50 @@
     "storage": [
       {
         "area": "localStorage",
-        "key": "signal_flush_timestamp",
+        "key": "[redacted]",
         "valueBytes": 13
       },
       {
         "area": "localStorage",
-        "key": "Session",
+        "key": "[redacted]",
         "valueBytes": 20
       },
       {
         "area": "localStorage",
-        "key": "hb_timestamp",
+        "key": "[redacted]",
         "valueBytes": 13
       },
       {
         "area": "localStorage",
-        "key": "banzai:last_storage_flush",
+        "key": "[redacted]",
         "valueBytes": 18
       },
       {
         "area": "sessionStorage",
-        "key": "TabId",
+        "key": "[redacted]",
         "valueBytes": 6
+      }
+    ],
+    "fingerprintEvents": [
+      {
+        "api": "canvas.measureText",
+        "count": 74
+      },
+      {
+        "api": "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
+        "count": 2
+      },
+      {
+        "api": "webgl.getParameter.UNMASKED_VENDOR_WEBGL",
+        "count": 2
+      },
+      {
+        "api": "canvas.toDataURL",
+        "count": 1
+      },
+      {
+        "api": "webgl.readPixels",
+        "count": 1
       }
     ],
     "fingerprintDetections": [
@@ -1241,7 +1263,7 @@
             "window"
           ],
           "thirdPartyOrigins": [
-            "https://static.xx.fbcdn.net"
+            "https://static.xx.fbcdn.net/"
           ],
           "totalListenerCalls": 21
         }
@@ -1276,7 +1298,7 @@
             "window"
           ],
           "thirdPartyOrigins": [
-            "https://static.xx.fbcdn.net"
+            "https://static.xx.fbcdn.net/"
           ],
           "totalListenerCalls": 62
         }
@@ -1298,38 +1320,8 @@
         }
       }
     ],
-    "fingerprintEvents": [
-      {
-        "api": "canvas.measureText",
-        "count": 74
-      },
-      {
-        "api": "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
-        "count": 2
-      },
-      {
-        "api": "webgl.getParameter.UNMASKED_VENDOR_WEBGL",
-        "count": 2
-      },
-      {
-        "api": "canvas.toDataURL",
-        "count": 1
-      },
-      {
-        "api": "webgl.readPixels",
-        "count": 1
-      }
-    ],
-    "screenshot": null,
-    "warnings": [
-      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling or clicking except one scripted choice on the cookie/consent banner (disclosed below). Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
-      "Counts are a lower bound: trackers that load only after further interaction, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
-      "This visit was asked to choose \"Reject all\" on a cookie/consent banner, but no recognizable control was found (the banner may not be shown to this scanner's location, the choice may sit behind a settings layer, or the control is not in the catalog). Results reflect the pre-consent state.",
-      "This scan typed a synthetic test value into 2 form fields (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
-      "Read the site's privacy policy (https://www.facebook.com/privacy/policy/) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
-    ],
     "privacyPolicy": {
-      "url": "https://www.facebook.com/privacy/policy/",
+      "url": "https://www.facebook.com/privacy/policy",
       "claims": [
         {
           "kind": "no-selling-or-sharing",
@@ -1343,7 +1335,15 @@
     "consentInteraction": {
       "mode": "reject-all",
       "clicked": false
-    }
+    },
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling or clicking except one scripted choice on the cookie/consent banner (disclosed below). Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after further interaction, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+      "This visit was asked to choose \"Reject all\" on a cookie/consent banner, but no recognizable control was found (the banner may not be shown to this scanner's location, the choice may sit behind a settings layer, or the control is not in the catalog). Results reflect the pre-consent state.",
+      "This scan typed a synthetic test value into 2 form fields (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
+      "Read the site's privacy policy (https://www.facebook.com/privacy/policy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ]
   },
   "diff": {
     "totalRequests": {
@@ -1410,12 +1410,12 @@
     "Accept-all attempt: Counts are a lower bound: trackers that load only after further interaction, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
     "Accept-all attempt: This visit was asked to choose \"Accept all\" on a cookie/consent banner, but no recognizable control was found (the banner may not be shown to this scanner's location, the choice may sit behind a settings layer, or the control is not in the catalog). Results reflect the pre-consent state.",
     "Accept-all attempt: This scan typed a synthetic test value into 2 form fields (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
-    "Accept-all attempt: Read the site's privacy policy (https://www.facebook.com/privacy/policy/) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
+    "Accept-all attempt: Read the site's privacy policy (https://www.facebook.com/privacy/policy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
     "Reject-all attempt: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling or clicking except one scripted choice on the cookie/consent banner (disclosed below). Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
     "Reject-all attempt: Counts are a lower bound: trackers that load only after further interaction, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
     "Reject-all attempt: This visit was asked to choose \"Reject all\" on a cookie/consent banner, but no recognizable control was found (the banner may not be shown to this scanner's location, the choice may sit behind a settings layer, or the control is not in the catalog). Results reflect the pre-consent state.",
     "Reject-all attempt: This scan typed a synthetic test value into 2 form fields (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
-    "Reject-all attempt: Read the site's privacy policy (https://www.facebook.com/privacy/policy/) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    "Reject-all attempt: Read the site's privacy policy (https://www.facebook.com/privacy/policy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
   ],
   "share": {
     "id": "20260702-be513e655b868392b559ec18e78a751f",

@@ -49,6 +49,13 @@
       "automation": "playwright-chromium",
       "headless": true,
       "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "classification",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-02T01:00:58.178Z"
+      },
       "trackerCatalog": {
         "source": "Hand-curated service catalog",
         "version": "hand-curated-2026.06",
@@ -57,14 +64,7 @@
         "curatedOverrides": 133,
         "license": "AGPL-3.0-or-later"
       },
-      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
-      "adblock": {
-        "active": true,
-        "source": "Brave default ad-block lists",
-        "lists": 31,
-        "fetchedAt": "2026-07-02T01:00:58.178Z"
-      },
-      "shieldsMode": "classification"
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
     },
     "requests": [
       {
@@ -76,1764 +76,1764 @@
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 44,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 44
       },
       {
         "id": 2,
-        "url": "https://www.roblox.com/js/utilities/bundleVerifier.js",
+        "url": "https://www.roblox.com/{seg}/{seg}/{seg}",
         "domain": "www.roblox.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 226,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 226
       },
       {
         "id": 3,
-        "url": "https://css.rbxcdn.com/04f0603c9d207351f843c05666d1fab59924c4947c0ce5d6a83e1f0f60f1ab3c-FoundationCss.css",
+        "url": "https://css.rbxcdn.com/{seg}",
         "domain": "css.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 227,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 227
       },
       {
         "id": 4,
-        "url": "https://css.rbxcdn.com/c01f541c73f530d01262962e8290884bdd1d1d823c031a984d166d7afffc0722-ReactStyleGuide.css",
+        "url": "https://css.rbxcdn.com/{seg}",
         "domain": "css.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 227,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 227
       },
       {
         "id": 5,
-        "url": "https://css.rbxcdn.com/43d0191ac8f6cbfd0d690529f7f43c212abb45213c43d7575e44b3c9141b10a6-StyleGuide.css",
+        "url": "https://css.rbxcdn.com/{seg}",
         "domain": "css.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 227,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 227
       },
       {
         "id": 6,
-        "url": "https://css.rbxcdn.com/3e19a797e2ce0522.woff2",
+        "url": "https://css.rbxcdn.com/{seg}",
         "domain": "css.rbxcdn.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 227,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 227
       },
       {
         "id": 7,
-        "url": "https://css.rbxcdn.com/7f3ddcb5a3796526.woff2",
+        "url": "https://css.rbxcdn.com/{seg}",
         "domain": "css.rbxcdn.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 227,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 227
       },
       {
         "id": 8,
-        "url": "https://css.rbxcdn.com/5f8b8d5d1962b747.woff2",
+        "url": "https://css.rbxcdn.com/{seg}",
         "domain": "css.rbxcdn.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 228,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 228
       },
       {
         "id": 9,
-        "url": "https://css.rbxcdn.com/77cbcd18c888e0f1.woff2",
+        "url": "https://css.rbxcdn.com/{seg}",
         "domain": "css.rbxcdn.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 228,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 228
       },
       {
         "id": 10,
-        "url": "https://css.rbxcdn.com/ef552f4ac70dd3209c70b94a377f66e3828905b9672bb67c661122403a6d15b7-Builder.css",
+        "url": "https://css.rbxcdn.com/{seg}",
         "domain": "css.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 228,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 228
       },
       {
         "id": 11,
-        "url": "https://css.rbxcdn.com/04f1210583fa8e85a56204ea2442012e57addf09809ab10e9934fa490d56ee49-Thumbnails.css",
+        "url": "https://css.rbxcdn.com/{seg}",
         "domain": "css.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 228,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 228
       },
       {
         "id": 12,
-        "url": "https://css.rbxcdn.com/b8f8f15a57a66e73469ae72eea7d8905346afa78b9f2397627cd099f7dcc779a-CaptchaCore.css",
+        "url": "https://css.rbxcdn.com/{seg}",
         "domain": "css.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 228,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 228
       },
       {
         "id": 13,
-        "url": "https://css.rbxcdn.com/425750fcea32cbd87363ee2d46539a13eee157b6c0b565dbe4389b416614f269-EmailVerifyCodeModal.css",
+        "url": "https://css.rbxcdn.com/{seg}",
         "domain": "css.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 228,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 228
       },
       {
         "id": 14,
-        "url": "https://css.rbxcdn.com/35eeb539938d75bc8acaf963f36f47337ee389d29fe5f03d6341d944b222dd9c-Challenge.css",
+        "url": "https://css.rbxcdn.com/{seg}",
         "domain": "css.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 232,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 232
       },
       {
         "id": 15,
-        "url": "https://css.rbxcdn.com/f77e16b9fa5823882aaa0cdabade9706b9ba2b7e050d23d2831da138a58e5f7f-VerificationUpsell.css",
+        "url": "https://css.rbxcdn.com/{seg}",
         "domain": "css.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 232,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 232
       },
       {
         "id": 16,
-        "url": "https://css.rbxcdn.com/b2cff71de0c286e8f85b1a26a8b87a8cd7f77422c592849ad5114ac5d929c575.css",
+        "url": "https://css.rbxcdn.com/{seg}",
         "domain": "css.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 232,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 232
       },
       {
         "id": 17,
-        "url": "https://css.rbxcdn.com/f4ed959380b4fc9cde4a75ee094409f2223b0279a6ab0c2ef2f75fc81d87fe15-AccountSwitcher.css",
+        "url": "https://css.rbxcdn.com/{seg}",
         "domain": "css.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 232,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 232
       },
       {
         "id": 18,
-        "url": "https://css.rbxcdn.com/9bfc48ea40a698035ea8cbe3d3e94bd06d3aac48969bedceb6d8ba5ff17ff84d.css",
+        "url": "https://css.rbxcdn.com/{seg}",
         "domain": "css.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 232,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 232
       },
       {
         "id": 19,
-        "url": "https://css.rbxcdn.com/32d58c1c5a9ae6e2513c0b90531f2cef316c923dcef15ac0cbf496a6e4326b67-SearchLandingPage.css",
+        "url": "https://css.rbxcdn.com/{seg}",
         "domain": "css.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 232,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 232
       },
       {
         "id": 20,
-        "url": "https://css.rbxcdn.com/c2a3d9199cc0af7a8fbe9bc68e10f8145f94e400d2d65c5db0cb8587b717226b-Navigation.css",
+        "url": "https://css.rbxcdn.com/{seg}",
         "domain": "css.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 233,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 233
       },
       {
         "id": 21,
-        "url": "https://css.rbxcdn.com/0f638d9cad3d450dec6771c2db09c9e8954b25b6ef84423d94f291b6c480471f-CookieBannerV3.css",
+        "url": "https://css.rbxcdn.com/{seg}",
         "domain": "css.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 233,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 233
       },
       {
         "id": 22,
-        "url": "https://css.rbxcdn.com/02d4ecbc73d33b96f0489c327af814617ada8f908fe279d406634adc368b5ee0-Footer.css",
+        "url": "https://css.rbxcdn.com/{seg}",
         "domain": "css.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 233,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 233
       },
       {
         "id": 23,
-        "url": "https://css.rbxcdn.com/2152a305a6a0a3d5a56e402aa4e3e9db865ff7bfa813e7b7ad780bf9876b5cc4-AccessManagementUpsellV2.css",
+        "url": "https://css.rbxcdn.com/{seg}",
         "domain": "css.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 233,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 233
       },
       {
         "id": 24,
-        "url": "https://css.rbxcdn.com/d34bbc63d993960437f0f7cc9c86bfb8a4a1368f403fef686aa68871a5f8ee91-ReactLanding.css",
+        "url": "https://css.rbxcdn.com/{seg}",
         "domain": "css.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 233,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 233
       },
       {
         "id": 25,
-        "url": "https://css.rbxcdn.com/bc960ab1460ffb77f7d3e4cfd68381d1ee9ed8e96a02991524ee01d72532d365-Captcha.css",
+        "url": "https://css.rbxcdn.com/{seg}",
         "domain": "css.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 233,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 233
       },
       {
         "id": 26,
-        "url": "https://css.rbxcdn.com/7dfc7837b5da6850e13413c630b37da7e88aeb610ca2c7d4e8b71b02cbdc6ba6.css",
+        "url": "https://css.rbxcdn.com/{seg}",
         "domain": "css.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 233,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 233
       },
       {
         "id": 27,
-        "url": "https://css.rbxcdn.com/3c4bd9b17b9020d9ebc87d4542a68a949a9de6150a55a92f0e65514520ee777e-ItemPurchaseUpsell.css",
+        "url": "https://css.rbxcdn.com/{seg}",
         "domain": "css.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 234,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 234
       },
       {
         "id": 28,
-        "url": "https://css.rbxcdn.com/344ef49ef21d7c83c962928f052ca934f16efd9d21d8ce7709a8b72cf1461266-ItemPurchase.css",
+        "url": "https://css.rbxcdn.com/{seg}",
         "domain": "css.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 234,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 234
       },
       {
         "id": 29,
-        "url": "https://css.rbxcdn.com/37b5bc69ed67ee094c95e908d68d809c55c28ab8f34ed714a7541f1f5eeacfa6-IdVerification.css",
+        "url": "https://css.rbxcdn.com/{seg}",
         "domain": "css.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 234,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 234
       },
       {
         "id": 30,
-        "url": "https://css.rbxcdn.com/d45e200658a1343116bbf4a88c367d093758085e7d001918d641c85b2143468f-AccessManagementUpsell.css",
+        "url": "https://css.rbxcdn.com/{seg}",
         "domain": "css.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 234,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 234
       },
       {
         "id": 31,
-        "url": "https://css.rbxcdn.com/69b88670b18ffafc870a935a5b08797d33d1a60e3833d1691c5215278c9f0cc4-GameLaunch.css",
+        "url": "https://css.rbxcdn.com/{seg}",
         "domain": "css.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 234,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 234
       },
       {
         "id": 32,
-        "url": "https://css.rbxcdn.com/d5a3728b78be729b693aadf79a1f45f0fa49c15fe863a0d7dd631b75f9e82207.css",
+        "url": "https://css.rbxcdn.com/{seg}",
         "domain": "css.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 234,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 234
       },
       {
         "id": 33,
-        "url": "https://js.rbxcdn.com/fc8e6f9e95e50f6da80942bd29d57886659233629d8caf66ac456117953186c6-EnvironmentUrls.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 234,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 234
       },
       {
         "id": 34,
-        "url": "https://js.rbxcdn.com/0496306d944faeb488779bad1af0738e.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 234,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 234
       },
       {
         "id": 35,
-        "url": "https://js.rbxcdn.com/5c8a2ba3737908f693394045e81ebd71c77cde6f87550ea51f7833e8c98200ae.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 234,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 234
       },
       {
         "id": 36,
-        "url": "https://js.rbxcdn.com/2f0fd0c2760ff1898187af6df3b764f4b08f77a315d0a33654f105f61b0ea6d0.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 234,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 234
       },
       {
         "id": 37,
-        "url": "https://js.rbxcdn.com/550770736b9bc9ea1af289d3d412ece690ced7125fc53981cdf5b0ada0b7f345-HeaderScripts.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 235,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 235
       },
       {
         "id": 38,
-        "url": "https://js.rbxcdn.com/f85ce090699c1c3962762b8a2f8b252f0f2a7d0424c146f41d6c5abbf0147a57.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 235,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 235
       },
       {
         "id": 39,
-        "url": "https://js.rbxcdn.com/df47f66829660d787c2cf8d32e529e6572da3a7987668896b2b45a3f916fb6c6-Theme.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 235,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 235
       },
       {
         "id": 40,
-        "url": "https://js.rbxcdn.com/1d87d1231072878a0f6164e84b8cfa6f90a1b31b18ba5d8f410b947d4b029fe8.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 235,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 235
       },
       {
         "id": 41,
-        "url": "https://js.rbxcdn.com/4bae454bf5dab3028073fea1e91b6f19.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 235,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 235
       },
       {
         "id": 42,
-        "url": "https://js.rbxcdn.com/730a5206adda5785166891801b1e0f9ae622a95558b260a144db60278b243f5f.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 235,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 235
       },
       {
         "id": 43,
-        "url": "https://js.rbxcdn.com/4d2c3582a51f181b1d85fcc080513179bebd9bbde79534e1803bb0bf69132445-TranslationResources.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 235,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 235
       },
       {
         "id": 44,
-        "url": "https://js.rbxcdn.com/9731c232fa99c58b0dafafc81cc7905b.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 235,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 235
       },
       {
         "id": 45,
-        "url": "https://js.rbxcdn.com/bfb3e7a7efed2f8ba4d12dc9fdb70dce1ff97ee13e988833a8638cf3ed8fd7f8.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 235,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 235
       },
       {
         "id": 46,
-        "url": "https://js.rbxcdn.com/b777b9e53f7bea48829373f8b5132239336c126976c04604d6181d22779e2f7d-CoreUtilities.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 235,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 235
       },
       {
         "id": 47,
-        "url": "https://js.rbxcdn.com/41bd9f2b3a9485661a0c9637526141c355311899d473b7a4ad2cca837f5e47f0.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 236,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 236
       },
       {
         "id": 48,
-        "url": "https://js.rbxcdn.com/c27f57f4a397dabc2fe3b74fec93c2401913bdf49373f9339c00b6f18b32d2ac.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 236,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 236
       },
       {
         "id": 49,
-        "url": "https://js.rbxcdn.com/63b59480fef503ff6648900d1051bae7531757a38ce24f77587552fca279d16c.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 236,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 236
       },
       {
         "id": 50,
-        "url": "https://js.rbxcdn.com/95f8bb82135ec3f4173f3194002ad0d239b3384622912fa4a7e93e506c0ab6e1-ReactUtilities.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 238,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 238
       },
       {
         "id": 51,
-        "url": "https://js.rbxcdn.com/59e33e660d43722b733768bb6e14e9cb8a4a8c76237d0c584d563ac9e1f98886-ReactStyleGuide.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 238,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 238
       },
       {
         "id": 52,
-        "url": "https://js.rbxcdn.com/22e8dd84d4adffa8222b96a369c69b860cd5ccd0200a380b20617e75be8baeaf-Sentry.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 238,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 238
       },
       {
         "id": 53,
-        "url": "https://js.rbxcdn.com/f237746d0aea12de9860040043f8d9bee7dab0baf4a87bb6fc87de6d160c4000.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 238,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 238
       },
       {
         "id": 54,
-        "url": "https://js.rbxcdn.com/3756ad214dde52cb58a1300177547475.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 238,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 238
       },
       {
         "id": 55,
-        "url": "https://js.rbxcdn.com/e3ee1d26df4ed304eedf103641f389dcfe507d24f0aa079d366824f187f14ffa-AngularJsUtilities.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 238,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 238
       },
       {
         "id": 56,
-        "url": "https://js.rbxcdn.com/47aa20a4d7ec095fabb9db116c99c5c798b2fa37161a5f59a340cb352279596f.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 239,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 239
       },
       {
         "id": 57,
-        "url": "https://js.rbxcdn.com/ba5d413f79f011f940d39e7e03e48d1d53037e493348b5f93b8caf55fc301b9c-Thumbnails.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 239,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 239
       },
       {
         "id": 58,
-        "url": "https://js.rbxcdn.com/932cd731257164fc9eba426e6b3c5c8d08469faafc68ceb51f979f331807631d-PresenceStatus.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 239,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 239
       },
       {
         "id": 59,
-        "url": "https://js.rbxcdn.com/7f4c2753c55dc89d4c9bf2dbfbf34e224194f6255457c0bd8c8c1ed0e6350f3a.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 239,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 239
       },
       {
         "id": 60,
-        "url": "https://js.rbxcdn.com/215fe9b0fe92491f665645f65f57db6668d716af72e02465db259b715f061118.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 239,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 239
       },
       {
         "id": 61,
-        "url": "https://js.rbxcdn.com/22d5ad7788622164771c3a767cdb21d73ca0b9cbfd24dd9b918fd3d748d5c5a1-RealTime.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 239,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 239
       },
       {
         "id": 62,
-        "url": "https://js.rbxcdn.com/8e79851738baf4a99514ce726568faa52a0155d6298e0ed7521a210bde79c688-CaptchaCore.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 239,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 239
       },
       {
         "id": 63,
-        "url": "https://js.rbxcdn.com/5b3170c956b0c87ade14d298bcf45d0bae3991c1b427b7e1624bf94e488792c0-EmailVerifyCodeModal.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 239,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 239
       },
       {
         "id": 64,
-        "url": "https://js.rbxcdn.com/13ef4632f5c4d016e52497847bf825dbef083fc27576c677e36bb0f6b5ffdea3.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 239,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 239
       },
       {
         "id": 65,
-        "url": "https://js.rbxcdn.com/cfcd81415cfff6b93a5e4b3af0fc378467122eb075bc63b1934c6136ae6cf8ac.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 239,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 239
       },
       {
         "id": 66,
-        "url": "https://js.rbxcdn.com/998bccb1ea2b5d4955660c7f3325baef7d4660b7215d34da952b0c69192aa50f-Challenge.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 239,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 239
       },
       {
         "id": 67,
-        "url": "https://js.rbxcdn.com/264d4bed21a614e8a15806c5d97af0aa92f26a99f5bf89b2e94cd705728b9f1f.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 239,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 239
       },
       {
         "id": 68,
-        "url": "https://js.rbxcdn.com/5fbd8389fb24177a5be64285e12645c445dee91f0a686d5bed5865f0e009d387.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 240,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 240
       },
       {
         "id": 69,
-        "url": "https://js.rbxcdn.com/94a14bf31ad0a75d3878f6772e6d5a251e7da9b64894e2176a07f65f4d79d8a3.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 240,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 240
       },
       {
         "id": 70,
-        "url": "https://js.rbxcdn.com/e92d027c197738388b36f7a8164dd7bdfc61a638ac1acaeb577a92fb77a98857.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 240,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 240
       },
       {
         "id": 71,
-        "url": "https://js.rbxcdn.com/b41227fe1ecc1f4409f2e33f02d4d968f6d6389349d2221f481ff3b34e01a257.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 240,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 240
       },
       {
         "id": 72,
-        "url": "https://js.rbxcdn.com/993eb6cb9b2ed18baadeca1088086e99ede5c9877cb7fe9700e0c6854bfeefe0.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 240,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 240
       },
       {
         "id": 73,
-        "url": "https://js.rbxcdn.com/88bacf62dae20f1d352d30afbd3df4c64ba7a24c551c6ee02152719cfb11b830.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 240,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 240
       },
       {
         "id": 74,
-        "url": "https://js.rbxcdn.com/44ff0f2cc820b734456e36bcd3528a30460f0576ff6ff17478b2d84824b64abd.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 240,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 240
       },
       {
         "id": 75,
-        "url": "https://js.rbxcdn.com/e7e3731285889059db29156a67cd4e5358a2dbf2102a88f49403c524cab2ba91.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 240,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 240
       },
       {
         "id": 76,
-        "url": "https://js.rbxcdn.com/37e403d2aa6bd395faab8904f1be6844e5ca2a04f22db4581f6f586f97502094.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 240,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 240
       },
       {
         "id": 77,
-        "url": "https://js.rbxcdn.com/3fec2c529efef400a78a26a5c0a2d33e3e7ec0a13971616a31cd958214c71e37.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 240,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 240
       },
       {
         "id": 78,
-        "url": "https://js.rbxcdn.com/0fe97bffcb328f446dd0f247d2d42e740d354ef70bd54b9371ece139569a5e72.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 240,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 240
       },
       {
         "id": 79,
-        "url": "https://js.rbxcdn.com/730fcbf0eba6dd82de9b0029e157627f023e6f448059c5b4c6a4f356222b3ac0.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 240,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 240
       },
       {
         "id": 80,
-        "url": "https://js.rbxcdn.com/2da1b676b979a60ce3b9471d919f53c6523c606f10e6ba75fa3c168945b8455a.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 241,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 241
       },
       {
         "id": 81,
-        "url": "https://js.rbxcdn.com/e8589b4de7e49cffa448d5ced862119339a4a366e7a9df35b7e886b68b3f9453.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 241,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 241
       },
       {
         "id": 82,
-        "url": "https://js.rbxcdn.com/ea02dd03dee8d01ac1d70c79d1a67cd19f1a2cee81b5796e32ae0102917d8992-VerificationUpsell.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 241,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 241
       },
       {
         "id": 83,
-        "url": "https://js.rbxcdn.com/dfee8106f7071b80bbaa47687ee322da9fc2014fff0a788fbdb70f2c2d804ef8.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 242,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 242
       },
       {
         "id": 84,
-        "url": "https://js.rbxcdn.com/8fcc9e5eaaf61b9acd481c37ec0024f1c8afec224ddcf2381209a2e3f5c3d206.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 242,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 242
       },
       {
         "id": 85,
-        "url": "https://js.rbxcdn.com/c4b0a446b38285f3db5472340f4ef27d737c87b78348e36dc7acbcfec89d70bf.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 245,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 245
       },
       {
         "id": 86,
-        "url": "https://js.rbxcdn.com/0f91ae7a3efbb94ac1888931d53d6309fc65812b5a64b240c4861d9ab48011e1.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 245,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 245
       },
       {
         "id": 87,
-        "url": "https://js.rbxcdn.com/ebc57f8a4aabceab9f38dda880bf11c04f2c92f441e535f0bcaa21b294736e65.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 245,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 245
       },
       {
         "id": 88,
-        "url": "https://js.rbxcdn.com/6c0972180de4ca6dc1e7e9be4b449202a4dc4276433366237719d8f6e08efe4f.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 245,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 245
       },
       {
         "id": 89,
-        "url": "https://js.rbxcdn.com/e4375c197a361f33c4df0667defc9d2df5ea277f976a2efdceeb4af2a4eb515f-AccountSwitcher.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 245,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 245
       },
       {
         "id": 90,
-        "url": "https://js.rbxcdn.com/8bb519e5ff19cfc45bbf0fb7bfcf333106922bf91abce540c3ff310336604cda.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 245,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 245
       },
       {
         "id": 91,
-        "url": "https://js.rbxcdn.com/63dacb1fad541c7c50a937cbab11cd0858b78187acc6c0af105381aa406e7147.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 245,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 245
       },
       {
         "id": 92,
-        "url": "https://js.rbxcdn.com/cd456bb506f1b0b06a2eb645ca018d367185ca84725ec00d524e35ce431f4a8c.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 246,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 246
       },
       {
         "id": 93,
-        "url": "https://js.rbxcdn.com/922f1f640898de9a575c904140589572eab24dd3d62cbb01bfb2ae58510d72d5-SearchLandingPage.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 246,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 246
       },
       {
         "id": 94,
-        "url": "https://js.rbxcdn.com/babce206b492515143d22e96c7508c6c11b2f1298a66f5d98b0b2c567c005962.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 246,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 246
       },
       {
         "id": 95,
-        "url": "https://js.rbxcdn.com/05355f4f42e31d8469852179b730ec7f252467eb07a3139c9f3c2551f378bb9c.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 246,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 246
       },
       {
         "id": 96,
-        "url": "https://js.rbxcdn.com/127ef9d672fff484481f8f8a46d05f1ac814a864cff3a4525c356e1769f1988b-Navigation.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 246,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 246
       },
       {
         "id": 97,
-        "url": "https://js.rbxcdn.com/acb69086253120ce7945704ce42a0b684c9171ed587de439e2c0f9479fd4ad51.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 246,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 246
       },
       {
         "id": 98,
-        "url": "https://js.rbxcdn.com/f7a2223fcac09a0964ba847871b03f19d9d4075838f6fef4c918c018188e39fa.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 246,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 246
       },
       {
         "id": 99,
-        "url": "https://js.rbxcdn.com/3e545d98e98d8a8a188a4ef6ce70138b165954d7b45c0c0e54a5cf23ad0cc12b.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 246,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 246
       },
       {
         "id": 100,
-        "url": "https://js.rbxcdn.com/e171b6008ca0199b35099c1bf14e13b50d48456d5f4db1208a2421ef55e11de0.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 247,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 247
       },
       {
         "id": 101,
-        "url": "https://js.rbxcdn.com/537d3ec6e2cbc418604174fc9628078ed3fd4adc40e41637bc716c735a60677a.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 247,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 247
       },
       {
         "id": 102,
-        "url": "https://js.rbxcdn.com/836e14b57fccdb2e94d99a75c3a644639b642e89d1b5e13f617f3af93905dd08.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 247,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 247
       },
       {
         "id": 103,
-        "url": "https://js.rbxcdn.com/1f5c50ba918a5773a2e4a0308683747225b446c67f5089282954865c0e0f76a6.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 247,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 247
       },
       {
         "id": 104,
-        "url": "https://js.rbxcdn.com/216135f7ba01885698bc4fc47c508d6830140f104c1cd855133a09b2a9a0e02c.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 247,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 247
       },
       {
         "id": 105,
-        "url": "https://js.rbxcdn.com/d9482ca08d78ada04ff95cbf7240c16acafd2e1cd8a6fb2729a26798e8abf7ad.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 247,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 247
       },
       {
         "id": 106,
-        "url": "https://js.rbxcdn.com/5b4d2974640af2d875cc0e4a6c40f515e8ad343b0525513f03d93c35bcf9d7d7.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 247,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 247
       },
       {
         "id": 107,
-        "url": "https://js.rbxcdn.com/13b3b0cf97cfb5da4538eb0c59f252188b4f724f9328c264a58d24a714e41fe5.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 247,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 247
       },
       {
         "id": 108,
-        "url": "https://js.rbxcdn.com/0477c995fb7f2d892410c1f80189d044.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 247,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 247
       },
       {
         "id": 109,
-        "url": "https://js.rbxcdn.com/35606b039fece6df25a74e7c01fd589a6770b6ff6f4f93e7255bf65f25267a47-StyleGuide.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 247,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 247
       },
       {
         "id": 110,
-        "url": "https://js.rbxcdn.com/0c81cd2082f742a1d2172f1a7577718f98acb633bf60d77623e2763a7b12100c-Builder.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 248,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 248
       },
       {
         "id": 111,
-        "url": "https://js.rbxcdn.com/afb4ccdf2bd35f548be38a0f6f713688c247878f36577967dd380b0931d2850c-CookieBannerV3.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 248,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 248
       },
       {
         "id": 112,
-        "url": "https://js.rbxcdn.com/d0e52d0d965be24069cbad066cb9cb59db4b77f59ca5353c47b8b31ab4f07082-Footer.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 251,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 251
       },
       {
         "id": 113,
-        "url": "https://js.rbxcdn.com/7043536ec0248f489b68b5e62dd3336f6962fb50d18a65b766453a206a772d4f.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 251,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 251
       },
       {
         "id": 114,
-        "url": "https://js.rbxcdn.com/cbae3669084e2a46b6f7730f4ec3e09af389fc747b2affe7e5173e463227ab4b.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 252,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 252
       },
       {
         "id": 115,
-        "url": "https://js.rbxcdn.com/86454aaeb93e433dee8f3b486d83bbaec4504a0191894fb4bf139c684515de1f-AccessManagementUpsellV2.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 252,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 252
       },
       {
         "id": 116,
-        "url": "https://js.rbxcdn.com/7f9c52f6ff5099533899102c817c9a114e783eb23164263dfc12b3ec96210556.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 252,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 252
       },
       {
         "id": 117,
-        "url": "https://js.rbxcdn.com/8efa7fd4122a8eae414d87e84d53e6a6d452252672feb08fe00aaa9a6ffaa325.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 252,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 252
       },
       {
         "id": 118,
-        "url": "https://js.rbxcdn.com/efdb189af6aa210780d5b5216bd069dacf7eff3bd369163d64b5c186af607459.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 252,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 252
       },
       {
         "id": 119,
-        "url": "https://js.rbxcdn.com/b9796ea7983f6d73db40cdbbb06c1b6e2011c9958e67ecd9e4e02ba266800954.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 252,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 252
       },
       {
         "id": 120,
-        "url": "https://js.rbxcdn.com/458e4db7e6e243b2dc68967195eefe76d8329aa041cc0144cc28962e7ee3ea60.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 252,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 252
       },
       {
         "id": 121,
-        "url": "https://js.rbxcdn.com/4df6ec52559e1c250d3f2e8286e1ffca9f33998dcddcfaf096a4bcd364bbf808.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 253,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 253
       },
       {
         "id": 122,
-        "url": "https://js.rbxcdn.com/ef0d5bf50bd1c7c225e07156087085a29bb9b23ee09368dee2338a64fe9a7745.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 253,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 253
       },
       {
         "id": 123,
-        "url": "https://js.rbxcdn.com/56e8c0d2592fc01e7e4d3035bc927c760b8691af07d1f099a8add40bdbcf88a3-ReactLanding.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 253,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 253
       },
       {
         "id": 124,
-        "url": "https://js.rbxcdn.com/223c92c968e6f34fe940a47d339bfa5a7463d581dce4a0b68bfcf880d903127c.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 253,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 253
       },
       {
         "id": 125,
-        "url": "https://js.rbxcdn.com/5f2ee2913bf919a8576bbe4120a6d41b933e814a4779a0a3fc1d9d941c5ee368.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 253,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 253
       },
       {
         "id": 126,
-        "url": "https://js.rbxcdn.com/686bd55707be42af370b81d2f36f55b6e10c56edb105502b3f9f0a34f7412bf5.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 253,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 253
       },
       {
         "id": 127,
-        "url": "https://js.rbxcdn.com/b604dac29d89b56aef30844f099c5640c2f1870a97a06f4e692208d24097f9ed-Captcha.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 253,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 253
       },
       {
         "id": 128,
-        "url": "https://js.rbxcdn.com/e63c728cbb3b8b19183c6444acda3e8f09b2009689025aab54ef54330352aede-ItemPurchaseUpsell.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 254,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 254
       },
       {
         "id": 129,
-        "url": "https://js.rbxcdn.com/c8462fd29169772279c11fd00d86989691ab980a6f609efdc4b6770ccc431877.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 254,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 254
       },
       {
         "id": 130,
-        "url": "https://js.rbxcdn.com/93b87ee7ac50dd94377a95fab2382fbaca3d96d15d5de6a567536c7ce17f5ced.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 254,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 254
       },
       {
         "id": 131,
-        "url": "https://js.rbxcdn.com/c8ac397606b8d4dfab9ea0d9af928273fcc51341a741b50ee831308aaed3517b-ItemDetailsHydrationService.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 254,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 254
       },
       {
         "id": 132,
-        "url": "https://js.rbxcdn.com/83b2d43f7b602baff53f0b4275445b5af437137bf4e8d090d4badf5aafa33856-ItemPurchase.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 254,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 254
       },
       {
         "id": 133,
-        "url": "https://js.rbxcdn.com/0f75a173261ace474005809f5a4f985eb1f6974dd0a74683bb734a4f837f768d.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 254,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 254
       },
       {
         "id": 134,
-        "url": "https://js.rbxcdn.com/54c13aaea011e94d285d4171277dbaa0a2ec1bf763b408d71f2adc7f72bad919.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 255,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 255
       },
       {
         "id": 135,
-        "url": "https://js.rbxcdn.com/6d0743dbab0070921c5bb3eff46802cead3a6881479fd3c902639ffba397d5f3-IdVerification.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 255,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 255
       },
       {
         "id": 136,
-        "url": "https://js.rbxcdn.com/d2103009f17303199e698315acec635d3ebd96fb6072fa9804cd14c6fef0914d.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 255,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 255
       },
       {
         "id": 137,
-        "url": "https://js.rbxcdn.com/4e3e9c2f50f98960207aef1cc243c85914cda72e2c1f78ea66f35f61096e2c8a-AccessManagementUpsell.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 255,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 255
       },
       {
         "id": 138,
-        "url": "https://js.rbxcdn.com/5561a1ace4160b2e7fdbf4bc8e1aa4e36ff56a92e4108d4bb7b843598feaed93-GameLaunch.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 255,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 255
       },
       {
         "id": 139,
-        "url": "https://js.rbxcdn.com/5d2b10e51dd6cc2329604087e74e8eeb57c37024d75e0be8c47eca40e741a269.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 255,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 255
       },
       {
         "id": 140,
-        "url": "https://js.rbxcdn.com/104fc0b1b860e8b9c3150a45a77c1093c81dae936d4912e83a9a63ca4c52b571.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 255,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 255
       },
       {
         "id": 141,
-        "url": "https://js.rbxcdn.com/18a39f1adad50fcd69442f5ddd58c68c80ee0ff59fadc808ffda3195ceb492a8.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 255,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 255
       },
       {
         "id": 142,
-        "url": "https://js.rbxcdn.com/64daef195122aa9c881d456010e7b98d698b1c6b1aaba58c81abc27da0db8fed.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 256,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 256
       },
       {
         "id": 143,
-        "url": "https://js.rbxcdn.com/82bb10e00a11a0ed0fe4982ebec5f260.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 256,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 256
       },
       {
         "id": 144,
-        "url": "https://roblox.com/js/hsts.js",
+        "url": "https://roblox.com/{seg}/{seg}",
         "domain": "roblox.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 805,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 805
       },
       {
         "id": 145,
-        "url": "https://ecsv2.roblox.com/www/e.png",
+        "url": "https://ecsv2.roblox.com/{seg}/{seg}",
         "domain": "ecsv2.roblox.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 819,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 819
       },
       {
         "id": 146,
-        "url": "https://metrics.roblox.com/v1/thumbnails/metadata",
+        "url": "https://metrics.roblox.com/{seg}/{seg}/{seg}",
         "domain": "metrics.roblox.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 846,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 846
       },
       {
         "id": 147,
-        "url": "https://apis.roblox.com/rotating-client-service/v1/prelude/latest",
+        "url": "https://apis.roblox.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "apis.roblox.com",
         "method": "GET",
         "resourceType": "script",
         "status": 401,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 935,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 935
       },
       {
         "id": 148,
-        "url": "https://o293668.ingest.us.sentry.io/api/4509158985826304/envelope/?sentry_version=&sentry_key=&sentry_client=",
+        "url": "https://o293668.ingest.us.sentry.io/api/{n}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "o293668.ingest.us.sentry.io",
         "method": "POST",
         "resourceType": "fetch",
@@ -1845,584 +1845,584 @@
           "category": "error monitoring",
           "confidence": "curated"
         },
-        "startedAtMs": 1226,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1226
       },
       {
         "id": 149,
-        "url": "https://apis.roblox.com/guac-v2/v1/bundles/user-heartbeats",
+        "url": "https://apis.roblox.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "apis.roblox.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1325,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1325
       },
       {
         "id": 150,
-        "url": "https://ecsv2.roblox.com/www/e.png",
+        "url": "https://ecsv2.roblox.com/{seg}/{seg}",
         "domain": "ecsv2.roblox.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1403,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1403
       },
       {
         "id": 151,
-        "url": "https://apis.rbxcdn.com/captcha/v1/metadata",
+        "url": "https://apis.rbxcdn.com/{seg}/{seg}/{seg}",
         "domain": "apis.rbxcdn.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1706,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1706
       },
       {
         "id": 152,
-        "url": "https://css.rbxcdn.com/9a0cad3cab3175e0.woff2",
+        "url": "https://css.rbxcdn.com/{seg}",
         "domain": "css.rbxcdn.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1772,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1772
       },
       {
         "id": 153,
-        "url": "https://locale.roblox.com/v1/locales",
+        "url": "https://locale.roblox.com/{seg}/{seg}",
         "domain": "locale.roblox.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1832,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1832
       },
       {
         "id": 154,
-        "url": "https://apis.roblox.com/guac-v2/v1/bundles/cookie-policy",
+        "url": "https://apis.roblox.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "apis.roblox.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1832,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1832
       },
       {
         "id": 155,
-        "url": "https://apis.roblox.com/guac-v2/v1/bundles/cookie-policy",
+        "url": "https://apis.roblox.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "apis.roblox.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1833,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1833
       },
       {
         "id": 156,
-        "url": "https://apis.roblox.com/guac-v2/v1/bundles/footer-ui",
+        "url": "https://apis.roblox.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "apis.roblox.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1833,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1833
       },
       {
         "id": 157,
-        "url": "https://images.rbxcdn.com/2928664fe1fc6aca88583a6f606d60ba-apple-badge-en_us-ULTWHOBG.svg",
+        "url": "https://images.rbxcdn.com/{seg}",
         "domain": "images.rbxcdn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1833,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1833
       },
       {
         "id": 158,
-        "url": "https://images.rbxcdn.com/df567a27fa3f48d96cc95c01a1703b87-google-badge-en_us-MLKMXS7C.svg",
+        "url": "https://images.rbxcdn.com/{seg}",
         "domain": "images.rbxcdn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1833,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1833
       },
       {
         "id": 159,
-        "url": "https://images.rbxcdn.com/319095e8b40952b12b266eb47a2b2c40-playstation-badge-en_us-Y4CVRMGY.svg",
+        "url": "https://images.rbxcdn.com/{seg}",
         "domain": "images.rbxcdn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1833,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1833
       },
       {
         "id": 160,
-        "url": "https://images.rbxcdn.com/1c0855f1be21f499eb7a4027e5dd1d86-xbox-badge-en_us-OXEWQ2KC.svg",
+        "url": "https://images.rbxcdn.com/{seg}",
         "domain": "images.rbxcdn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1833,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1833
       },
       {
         "id": 161,
-        "url": "https://images.rbxcdn.com/0eb85925bd5a3e685d5cdfc482fad198-meta-quest-badge-en_us-ECIU6JNY.svg",
+        "url": "https://images.rbxcdn.com/{seg}",
         "domain": "images.rbxcdn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1834,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1834
       },
       {
         "id": 162,
-        "url": "https://images.rbxcdn.com/31d4e713ead43eb25da2aea42b6e36e9-microsoft-badge-en_us-VYLUO7EK.svg",
+        "url": "https://images.rbxcdn.com/{seg}",
         "domain": "images.rbxcdn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1834,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1834
       },
       {
         "id": 163,
-        "url": "https://images.rbxcdn.com/484d5f5fbd1e763ce57ae6ad39d88a6a-amazon-badge-en_us-TGDZWUNE.png",
+        "url": "https://images.rbxcdn.com/{seg}",
         "domain": "images.rbxcdn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1834,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1834
       },
       {
         "id": 164,
-        "url": "https://images.rbxcdn.com/a47d34e15ee107ca785d669df617c993-galaxy-badge-en_us-D53PVFS6.webp",
+        "url": "https://images.rbxcdn.com/{seg}",
         "domain": "images.rbxcdn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1834,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1834
       },
       {
         "id": 165,
-        "url": "https://images.rbxcdn.com/78413c0d5e05d6c36720ecc0c3013cbc-vignette.png",
+        "url": "https://images.rbxcdn.com/{seg}",
         "domain": "images.rbxcdn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1836,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1836
       },
       {
         "id": 166,
-        "url": "https://images.rbxcdn.com/059b09408c6b199c.gif",
+        "url": "https://images.rbxcdn.com/{seg}",
         "domain": "images.rbxcdn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1836,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1836
       },
       {
         "id": 167,
-        "url": "https://ecsv2.roblox.com/www/e.png",
+        "url": "https://ecsv2.roblox.com/{seg}/{seg}",
         "domain": "ecsv2.roblox.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1899,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1899
       },
       {
         "id": 168,
-        "url": "https://locale.roblox.com/v1/locales/user-localization-locus-supported-locales",
+        "url": "https://locale.roblox.com/{seg}/{seg}/{seg}",
         "domain": "locale.roblox.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1899,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1899
       },
       {
         "id": 169,
-        "url": "https://apis.roblox.com/product-experimentation-platform/v1/projects/1/values",
+        "url": "https://apis.roblox.com/{seg}/{seg}/{seg}/{n}/{seg}",
         "domain": "apis.roblox.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1900,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1900
       },
       {
         "id": 170,
-        "url": "https://apis.roblox.com/product-experimentation-platform/v1/projects/1/values",
+        "url": "https://apis.roblox.com/{seg}/{seg}/{seg}/{n}/{seg}",
         "domain": "apis.roblox.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1903,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1903
       },
       {
         "id": 171,
-        "url": "https://apis.roblox.com/product-experimentation-platform/v1/projects/1/values",
+        "url": "https://apis.roblox.com/{seg}/{seg}/{seg}/{n}/{seg}",
         "domain": "apis.roblox.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1907,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1907
       },
       {
         "id": 172,
-        "url": "https://apis.roblox.com/otp-service/v1/metadata",
+        "url": "https://apis.roblox.com/{seg}/{seg}/{seg}",
         "domain": "apis.roblox.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1908,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1908
       },
       {
         "id": 173,
-        "url": "https://apis.roblox.com/guac-v2/v1/bundles/intl-auth-compliance",
+        "url": "https://apis.roblox.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "apis.roblox.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1908,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1908
       },
       {
         "id": 174,
-        "url": "https://apis.roblox.com/guac-v2/v1/bundles/intl-auth-compliance",
+        "url": "https://apis.roblox.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "apis.roblox.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1908,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1908
       },
       {
         "id": 175,
-        "url": "https://auth.roblox.com/v2/metadata",
+        "url": "https://auth.roblox.com/{seg}/{seg}",
         "domain": "auth.roblox.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1909,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1909
       },
       {
         "id": 176,
-        "url": "https://apis.roblox.com/product-experimentation-platform/v1/projects/1/values",
+        "url": "https://apis.roblox.com/{seg}/{seg}/{seg}/{n}/{seg}",
         "domain": "apis.roblox.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1909,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1909
       },
       {
         "id": 177,
-        "url": "https://apis.roblox.com/product-experimentation-platform/v1/projects/1/values",
+        "url": "https://apis.roblox.com/{seg}/{seg}/{seg}/{n}/{seg}",
         "domain": "apis.roblox.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1911,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1911
       },
       {
         "id": 178,
-        "url": "https://apis.roblox.com/guac-v2/v1/bundles/content-rating-logo",
+        "url": "https://apis.roblox.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "apis.roblox.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1912,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1912
       },
       {
         "id": 179,
-        "url": "https://ecsv2.roblox.com/www/e.png",
+        "url": "https://ecsv2.roblox.com/{seg}/{seg}",
         "domain": "ecsv2.roblox.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1916,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1916
       },
       {
         "id": 180,
-        "url": "https://ecsv2.roblox.com/www/e.png",
+        "url": "https://ecsv2.roblox.com/{seg}/{seg}",
         "domain": "ecsv2.roblox.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1917,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1917
       },
       {
         "id": 181,
-        "url": "https://ecsv2.roblox.com/www/e.png",
+        "url": "https://ecsv2.roblox.com/{seg}/{seg}",
         "domain": "ecsv2.roblox.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1917,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1917
       },
       {
         "id": 182,
-        "url": "https://ecsv2.roblox.com/www/e.png",
+        "url": "https://ecsv2.roblox.com/{seg}/{seg}",
         "domain": "ecsv2.roblox.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2047,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2047
       },
       {
         "id": 183,
-        "url": "https://ecsv2.roblox.com/www/e.png",
+        "url": "https://ecsv2.roblox.com/{seg}/{seg}",
         "domain": "ecsv2.roblox.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2074,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2074
       },
       {
         "id": 184,
-        "url": "https://locale.roblox.com/v1/locales/user-localization-locus-supported-locales",
+        "url": "https://locale.roblox.com/{seg}/{seg}/{seg}",
         "domain": "locale.roblox.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2075,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2075
       },
       {
         "id": 185,
-        "url": "https://ecsv2.roblox.com/www/e.png",
+        "url": "https://ecsv2.roblox.com/{seg}/{seg}",
         "domain": "ecsv2.roblox.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2117,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2117
       },
       {
         "id": 186,
-        "url": "https://images.rbxcdn.com/5f05bc6223b75052b594b38016762a77-marketing_bg_05202026.jpg",
+        "url": "https://images.rbxcdn.com/{seg}",
         "domain": "images.rbxcdn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 2126,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2126
       },
       {
         "id": 187,
-        "url": "https://apis.roblox.com/user-agreements/v1/agreements-resolution-signup/web",
+        "url": "https://apis.roblox.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "apis.roblox.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2148,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2148
       },
       {
         "id": 188,
-        "url": "https://realtime.roblox.com/notifications/negotiate",
+        "url": "https://realtime.roblox.com/{seg}/{seg}",
         "domain": "realtime.roblox.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": null,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2251,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2251
       },
       {
         "id": 189,
-        "url": "https://ecsv2.roblox.com/www/e.png",
+        "url": "https://ecsv2.roblox.com/{seg}/{seg}",
         "domain": "ecsv2.roblox.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2805,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2805
       },
       {
         "id": 190,
-        "url": "https://ecsv2.roblox.com/www/e.png",
+        "url": "https://ecsv2.roblox.com/{seg}/{seg}",
         "domain": "ecsv2.roblox.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 3444,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 3444
       },
       {
         "id": 191,
-        "url": "https://ecsv2.roblox.com/www/e.png",
+        "url": "https://ecsv2.roblox.com/{seg}/{seg}",
         "domain": "ecsv2.roblox.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 4559,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 4559
       },
       {
         "id": 192,
-        "url": "https://ecsv2.roblox.com/www/e.png",
+        "url": "https://ecsv2.roblox.com/{seg}/{seg}",
         "domain": "ecsv2.roblox.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 4723,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 4723
       },
       {
         "id": 193,
-        "url": "https://ecsv2.roblox.com/www/e.png",
+        "url": "https://ecsv2.roblox.com/{seg}/{seg}",
         "domain": "ecsv2.roblox.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 4747,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 4747
       },
       {
         "id": 194,
-        "url": "https://ecsv2.roblox.com/www/e.png",
+        "url": "https://ecsv2.roblox.com/{seg}/{seg}",
         "domain": "ecsv2.roblox.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 5197,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 5197
       },
       {
         "id": 195,
-        "url": "https://ecsv2.roblox.com/www/e.png",
+        "url": "https://ecsv2.roblox.com/{seg}/{seg}",
         "domain": "ecsv2.roblox.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 5333,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 5333
       },
       {
         "id": 196,
-        "url": "https://realtime.roblox.com/notifications/negotiate",
+        "url": "https://realtime.roblox.com/{seg}/{seg}",
         "domain": "realtime.roblox.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": null,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 6351,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 6351
       }
     ],
     "domains": [
@@ -2605,7 +2605,7 @@
     ],
     "cookies": [
       {
-        "name": "rbx-ip2",
+        "name": "[redacted]",
         "domain": ".roblox.com",
         "path": "/",
         "sameSite": "Lax",
@@ -2615,7 +2615,7 @@
         "thirdParty": false
       },
       {
-        "name": "RBXEventTrackerV2",
+        "name": "[redacted:long-token]",
         "domain": ".roblox.com",
         "path": "/",
         "sameSite": "Lax",
@@ -2625,7 +2625,7 @@
         "thirdParty": false
       },
       {
-        "name": "GuestData",
+        "name": "[redacted]",
         "domain": ".roblox.com",
         "path": "/",
         "sameSite": "Lax",
@@ -2635,7 +2635,7 @@
         "thirdParty": false
       },
       {
-        "name": "RBXPaymentsFlowContext",
+        "name": "[redacted]",
         "domain": ".roblox.com",
         "path": "/",
         "sameSite": "Lax",
@@ -2645,7 +2645,7 @@
         "thirdParty": false
       },
       {
-        "name": "RBXcb",
+        "name": "[redacted]",
         "domain": ".roblox.com",
         "path": "/",
         "sameSite": "Lax",
@@ -2658,30 +2658,31 @@
     "storage": [
       {
         "area": "localStorage",
-        "key": "RBXReturn",
+        "key": "[redacted]",
         "valueBytes": 24
       },
       {
         "area": "localStorage",
-        "key": "Roblox.Api.Locales.getLocales",
+        "key": "[redacted]",
         "valueBytes": 14825
       },
       {
         "area": "localStorage",
-        "key": "RobloxLocaleCode",
+        "key": "[redacted]",
         "valueBytes": 5
       },
       {
         "area": "localStorage",
-        "key": "CachedUserId",
+        "key": "[redacted]",
         "valueBytes": 4
       },
       {
         "area": "localStorage",
-        "key": "Roblox.CrossTabCommunication.Kingmaker.masterId",
+        "key": "[redacted]",
         "valueBytes": 36
       }
     ],
+    "fingerprintEvents": [],
     "fingerprintDetections": [
       {
         "kind": "input-monitoring",
@@ -2703,7 +2704,7 @@
             "window"
           ],
           "thirdPartyOrigins": [
-            "https://js.rbxcdn.com"
+            "https://js.rbxcdn.com/"
           ],
           "totalListenerCalls": 87
         }
@@ -2738,13 +2739,12 @@
             "window"
           ],
           "thirdPartyOrigins": [
-            "https://js.rbxcdn.com"
+            "https://js.rbxcdn.com/"
           ],
           "totalListenerCalls": 199
         }
       }
     ],
-    "fingerprintEvents": [],
     "screenshot": null,
     "warnings": [
       "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
@@ -2790,6 +2790,13 @@
       "automation": "playwright-chromium",
       "headless": true,
       "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "block-simulation",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-02T01:00:58.178Z"
+      },
       "trackerCatalog": {
         "source": "Hand-curated service catalog",
         "version": "hand-curated-2026.06",
@@ -2798,14 +2805,7 @@
         "curatedOverrides": 133,
         "license": "AGPL-3.0-or-later"
       },
-      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
-      "adblock": {
-        "active": true,
-        "source": "Brave default ad-block lists",
-        "lists": 31,
-        "fetchedAt": "2026-07-02T01:00:58.178Z"
-      },
-      "shieldsMode": "block-simulation"
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
     },
     "requests": [
       {
@@ -2817,2132 +2817,2132 @@
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 49,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 49
       },
       {
         "id": 2,
-        "url": "https://www.roblox.com/js/utilities/bundleVerifier.js",
+        "url": "https://www.roblox.com/{seg}/{seg}/{seg}",
         "domain": "www.roblox.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 268,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 268
       },
       {
         "id": 3,
-        "url": "https://css.rbxcdn.com/04f0603c9d207351f843c05666d1fab59924c4947c0ce5d6a83e1f0f60f1ab3c-FoundationCss.css",
+        "url": "https://css.rbxcdn.com/{seg}",
         "domain": "css.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 270,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 270
       },
       {
         "id": 4,
-        "url": "https://css.rbxcdn.com/c01f541c73f530d01262962e8290884bdd1d1d823c031a984d166d7afffc0722-ReactStyleGuide.css",
+        "url": "https://css.rbxcdn.com/{seg}",
         "domain": "css.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 270,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 270
       },
       {
         "id": 5,
-        "url": "https://css.rbxcdn.com/43d0191ac8f6cbfd0d690529f7f43c212abb45213c43d7575e44b3c9141b10a6-StyleGuide.css",
+        "url": "https://css.rbxcdn.com/{seg}",
         "domain": "css.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 270,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 270
       },
       {
         "id": 6,
-        "url": "https://css.rbxcdn.com/3e19a797e2ce0522.woff2",
+        "url": "https://css.rbxcdn.com/{seg}",
         "domain": "css.rbxcdn.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 270,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 270
       },
       {
         "id": 7,
-        "url": "https://css.rbxcdn.com/7f3ddcb5a3796526.woff2",
+        "url": "https://css.rbxcdn.com/{seg}",
         "domain": "css.rbxcdn.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 270,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 270
       },
       {
         "id": 8,
-        "url": "https://css.rbxcdn.com/5f8b8d5d1962b747.woff2",
+        "url": "https://css.rbxcdn.com/{seg}",
         "domain": "css.rbxcdn.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 271,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 271
       },
       {
         "id": 9,
-        "url": "https://css.rbxcdn.com/77cbcd18c888e0f1.woff2",
+        "url": "https://css.rbxcdn.com/{seg}",
         "domain": "css.rbxcdn.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 271,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 271
       },
       {
         "id": 10,
-        "url": "https://css.rbxcdn.com/ef552f4ac70dd3209c70b94a377f66e3828905b9672bb67c661122403a6d15b7-Builder.css",
+        "url": "https://css.rbxcdn.com/{seg}",
         "domain": "css.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 272,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 272
       },
       {
         "id": 11,
-        "url": "https://css.rbxcdn.com/04f1210583fa8e85a56204ea2442012e57addf09809ab10e9934fa490d56ee49-Thumbnails.css",
+        "url": "https://css.rbxcdn.com/{seg}",
         "domain": "css.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 272,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 272
       },
       {
         "id": 12,
-        "url": "https://css.rbxcdn.com/b8f8f15a57a66e73469ae72eea7d8905346afa78b9f2397627cd099f7dcc779a-CaptchaCore.css",
+        "url": "https://css.rbxcdn.com/{seg}",
         "domain": "css.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 272,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 272
       },
       {
         "id": 13,
-        "url": "https://css.rbxcdn.com/425750fcea32cbd87363ee2d46539a13eee157b6c0b565dbe4389b416614f269-EmailVerifyCodeModal.css",
+        "url": "https://css.rbxcdn.com/{seg}",
         "domain": "css.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 272,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 272
       },
       {
         "id": 14,
-        "url": "https://css.rbxcdn.com/35eeb539938d75bc8acaf963f36f47337ee389d29fe5f03d6341d944b222dd9c-Challenge.css",
+        "url": "https://css.rbxcdn.com/{seg}",
         "domain": "css.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 272,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 272
       },
       {
         "id": 15,
-        "url": "https://css.rbxcdn.com/f77e16b9fa5823882aaa0cdabade9706b9ba2b7e050d23d2831da138a58e5f7f-VerificationUpsell.css",
+        "url": "https://css.rbxcdn.com/{seg}",
         "domain": "css.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 274,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 274
       },
       {
         "id": 16,
-        "url": "https://css.rbxcdn.com/b2cff71de0c286e8f85b1a26a8b87a8cd7f77422c592849ad5114ac5d929c575.css",
+        "url": "https://css.rbxcdn.com/{seg}",
         "domain": "css.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 274,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 274
       },
       {
         "id": 17,
-        "url": "https://css.rbxcdn.com/f4ed959380b4fc9cde4a75ee094409f2223b0279a6ab0c2ef2f75fc81d87fe15-AccountSwitcher.css",
+        "url": "https://css.rbxcdn.com/{seg}",
         "domain": "css.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 274,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 274
       },
       {
         "id": 18,
-        "url": "https://css.rbxcdn.com/9bfc48ea40a698035ea8cbe3d3e94bd06d3aac48969bedceb6d8ba5ff17ff84d.css",
+        "url": "https://css.rbxcdn.com/{seg}",
         "domain": "css.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 275,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 275
       },
       {
         "id": 19,
-        "url": "https://css.rbxcdn.com/32d58c1c5a9ae6e2513c0b90531f2cef316c923dcef15ac0cbf496a6e4326b67-SearchLandingPage.css",
+        "url": "https://css.rbxcdn.com/{seg}",
         "domain": "css.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 275,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 275
       },
       {
         "id": 20,
-        "url": "https://css.rbxcdn.com/c2a3d9199cc0af7a8fbe9bc68e10f8145f94e400d2d65c5db0cb8587b717226b-Navigation.css",
+        "url": "https://css.rbxcdn.com/{seg}",
         "domain": "css.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 275,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 275
       },
       {
         "id": 21,
-        "url": "https://css.rbxcdn.com/0f638d9cad3d450dec6771c2db09c9e8954b25b6ef84423d94f291b6c480471f-CookieBannerV3.css",
+        "url": "https://css.rbxcdn.com/{seg}",
         "domain": "css.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 275,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 275
       },
       {
         "id": 22,
-        "url": "https://css.rbxcdn.com/02d4ecbc73d33b96f0489c327af814617ada8f908fe279d406634adc368b5ee0-Footer.css",
+        "url": "https://css.rbxcdn.com/{seg}",
         "domain": "css.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 275,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 275
       },
       {
         "id": 23,
-        "url": "https://css.rbxcdn.com/2152a305a6a0a3d5a56e402aa4e3e9db865ff7bfa813e7b7ad780bf9876b5cc4-AccessManagementUpsellV2.css",
+        "url": "https://css.rbxcdn.com/{seg}",
         "domain": "css.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 275,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 275
       },
       {
         "id": 24,
-        "url": "https://css.rbxcdn.com/d34bbc63d993960437f0f7cc9c86bfb8a4a1368f403fef686aa68871a5f8ee91-ReactLanding.css",
+        "url": "https://css.rbxcdn.com/{seg}",
         "domain": "css.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 275,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 275
       },
       {
         "id": 25,
-        "url": "https://css.rbxcdn.com/bc960ab1460ffb77f7d3e4cfd68381d1ee9ed8e96a02991524ee01d72532d365-Captcha.css",
+        "url": "https://css.rbxcdn.com/{seg}",
         "domain": "css.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 275,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 275
       },
       {
         "id": 26,
-        "url": "https://css.rbxcdn.com/7dfc7837b5da6850e13413c630b37da7e88aeb610ca2c7d4e8b71b02cbdc6ba6.css",
+        "url": "https://css.rbxcdn.com/{seg}",
         "domain": "css.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 275,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 275
       },
       {
         "id": 27,
-        "url": "https://css.rbxcdn.com/3c4bd9b17b9020d9ebc87d4542a68a949a9de6150a55a92f0e65514520ee777e-ItemPurchaseUpsell.css",
+        "url": "https://css.rbxcdn.com/{seg}",
         "domain": "css.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 276,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 276
       },
       {
         "id": 28,
-        "url": "https://css.rbxcdn.com/344ef49ef21d7c83c962928f052ca934f16efd9d21d8ce7709a8b72cf1461266-ItemPurchase.css",
+        "url": "https://css.rbxcdn.com/{seg}",
         "domain": "css.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 276,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 276
       },
       {
         "id": 29,
-        "url": "https://css.rbxcdn.com/37b5bc69ed67ee094c95e908d68d809c55c28ab8f34ed714a7541f1f5eeacfa6-IdVerification.css",
+        "url": "https://css.rbxcdn.com/{seg}",
         "domain": "css.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 276,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 276
       },
       {
         "id": 30,
-        "url": "https://css.rbxcdn.com/d45e200658a1343116bbf4a88c367d093758085e7d001918d641c85b2143468f-AccessManagementUpsell.css",
+        "url": "https://css.rbxcdn.com/{seg}",
         "domain": "css.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 276,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 276
       },
       {
         "id": 31,
-        "url": "https://css.rbxcdn.com/69b88670b18ffafc870a935a5b08797d33d1a60e3833d1691c5215278c9f0cc4-GameLaunch.css",
+        "url": "https://css.rbxcdn.com/{seg}",
         "domain": "css.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 276,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 276
       },
       {
         "id": 32,
-        "url": "https://css.rbxcdn.com/d5a3728b78be729b693aadf79a1f45f0fa49c15fe863a0d7dd631b75f9e82207.css",
+        "url": "https://css.rbxcdn.com/{seg}",
         "domain": "css.rbxcdn.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 276,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 276
       },
       {
         "id": 33,
-        "url": "https://js.rbxcdn.com/fc8e6f9e95e50f6da80942bd29d57886659233629d8caf66ac456117953186c6-EnvironmentUrls.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 276,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 276
       },
       {
         "id": 34,
-        "url": "https://js.rbxcdn.com/0496306d944faeb488779bad1af0738e.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 277,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 277
       },
       {
         "id": 35,
-        "url": "https://js.rbxcdn.com/5c8a2ba3737908f693394045e81ebd71c77cde6f87550ea51f7833e8c98200ae.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 277,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 277
       },
       {
         "id": 36,
-        "url": "https://js.rbxcdn.com/2f0fd0c2760ff1898187af6df3b764f4b08f77a315d0a33654f105f61b0ea6d0.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 281,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 281
       },
       {
         "id": 37,
-        "url": "https://js.rbxcdn.com/550770736b9bc9ea1af289d3d412ece690ced7125fc53981cdf5b0ada0b7f345-HeaderScripts.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 281,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 281
       },
       {
         "id": 38,
-        "url": "https://js.rbxcdn.com/f85ce090699c1c3962762b8a2f8b252f0f2a7d0424c146f41d6c5abbf0147a57.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 281,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 281
       },
       {
         "id": 39,
-        "url": "https://js.rbxcdn.com/df47f66829660d787c2cf8d32e529e6572da3a7987668896b2b45a3f916fb6c6-Theme.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 282,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 282
       },
       {
         "id": 40,
-        "url": "https://js.rbxcdn.com/1d87d1231072878a0f6164e84b8cfa6f90a1b31b18ba5d8f410b947d4b029fe8.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 282,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 282
       },
       {
         "id": 41,
-        "url": "https://js.rbxcdn.com/4bae454bf5dab3028073fea1e91b6f19.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 282,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 282
       },
       {
         "id": 42,
-        "url": "https://js.rbxcdn.com/730a5206adda5785166891801b1e0f9ae622a95558b260a144db60278b243f5f.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 283,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 283
       },
       {
         "id": 43,
-        "url": "https://js.rbxcdn.com/4d2c3582a51f181b1d85fcc080513179bebd9bbde79534e1803bb0bf69132445-TranslationResources.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 283,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 283
       },
       {
         "id": 44,
-        "url": "https://js.rbxcdn.com/9731c232fa99c58b0dafafc81cc7905b.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 283,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 283
       },
       {
         "id": 45,
-        "url": "https://js.rbxcdn.com/bfb3e7a7efed2f8ba4d12dc9fdb70dce1ff97ee13e988833a8638cf3ed8fd7f8.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 283,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 283
       },
       {
         "id": 46,
-        "url": "https://js.rbxcdn.com/b777b9e53f7bea48829373f8b5132239336c126976c04604d6181d22779e2f7d-CoreUtilities.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 284,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 284
       },
       {
         "id": 47,
-        "url": "https://js.rbxcdn.com/41bd9f2b3a9485661a0c9637526141c355311899d473b7a4ad2cca837f5e47f0.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 284,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 284
       },
       {
         "id": 48,
-        "url": "https://js.rbxcdn.com/c27f57f4a397dabc2fe3b74fec93c2401913bdf49373f9339c00b6f18b32d2ac.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 284,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 284
       },
       {
         "id": 49,
-        "url": "https://js.rbxcdn.com/63b59480fef503ff6648900d1051bae7531757a38ce24f77587552fca279d16c.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 284,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 284
       },
       {
         "id": 50,
-        "url": "https://js.rbxcdn.com/95f8bb82135ec3f4173f3194002ad0d239b3384622912fa4a7e93e506c0ab6e1-ReactUtilities.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 285,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 285
       },
       {
         "id": 51,
-        "url": "https://js.rbxcdn.com/59e33e660d43722b733768bb6e14e9cb8a4a8c76237d0c584d563ac9e1f98886-ReactStyleGuide.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 285,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 285
       },
       {
         "id": 52,
-        "url": "https://js.rbxcdn.com/22e8dd84d4adffa8222b96a369c69b860cd5ccd0200a380b20617e75be8baeaf-Sentry.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 285,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 285
       },
       {
         "id": 53,
-        "url": "https://js.rbxcdn.com/f237746d0aea12de9860040043f8d9bee7dab0baf4a87bb6fc87de6d160c4000.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 285,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 285
       },
       {
         "id": 54,
-        "url": "https://js.rbxcdn.com/3756ad214dde52cb58a1300177547475.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 285,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 285
       },
       {
         "id": 55,
-        "url": "https://js.rbxcdn.com/e3ee1d26df4ed304eedf103641f389dcfe507d24f0aa079d366824f187f14ffa-AngularJsUtilities.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 286,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 286
       },
       {
         "id": 56,
-        "url": "https://js.rbxcdn.com/47aa20a4d7ec095fabb9db116c99c5c798b2fa37161a5f59a340cb352279596f.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 286,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 286
       },
       {
         "id": 57,
-        "url": "https://js.rbxcdn.com/ba5d413f79f011f940d39e7e03e48d1d53037e493348b5f93b8caf55fc301b9c-Thumbnails.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 286,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 286
       },
       {
         "id": 58,
-        "url": "https://js.rbxcdn.com/932cd731257164fc9eba426e6b3c5c8d08469faafc68ceb51f979f331807631d-PresenceStatus.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 286,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 286
       },
       {
         "id": 59,
-        "url": "https://js.rbxcdn.com/7f4c2753c55dc89d4c9bf2dbfbf34e224194f6255457c0bd8c8c1ed0e6350f3a.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 287,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 287
       },
       {
         "id": 60,
-        "url": "https://js.rbxcdn.com/215fe9b0fe92491f665645f65f57db6668d716af72e02465db259b715f061118.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 287,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 287
       },
       {
         "id": 61,
-        "url": "https://js.rbxcdn.com/22d5ad7788622164771c3a767cdb21d73ca0b9cbfd24dd9b918fd3d748d5c5a1-RealTime.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 287,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 287
       },
       {
         "id": 62,
-        "url": "https://js.rbxcdn.com/8e79851738baf4a99514ce726568faa52a0155d6298e0ed7521a210bde79c688-CaptchaCore.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 287,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 287
       },
       {
         "id": 63,
-        "url": "https://js.rbxcdn.com/5b3170c956b0c87ade14d298bcf45d0bae3991c1b427b7e1624bf94e488792c0-EmailVerifyCodeModal.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 288,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 288
       },
       {
         "id": 64,
-        "url": "https://js.rbxcdn.com/cfcd81415cfff6b93a5e4b3af0fc378467122eb075bc63b1934c6136ae6cf8ac.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 288,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 288
       },
       {
         "id": 65,
-        "url": "https://js.rbxcdn.com/13ef4632f5c4d016e52497847bf825dbef083fc27576c677e36bb0f6b5ffdea3.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 288,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 288
       },
       {
         "id": 66,
-        "url": "https://js.rbxcdn.com/998bccb1ea2b5d4955660c7f3325baef7d4660b7215d34da952b0c69192aa50f-Challenge.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 288,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 288
       },
       {
         "id": 67,
-        "url": "https://js.rbxcdn.com/b41227fe1ecc1f4409f2e33f02d4d968f6d6389349d2221f481ff3b34e01a257.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 289,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 289
       },
       {
         "id": 68,
-        "url": "https://js.rbxcdn.com/2da1b676b979a60ce3b9471d919f53c6523c606f10e6ba75fa3c168945b8455a.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 289,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 289
       },
       {
         "id": 69,
-        "url": "https://js.rbxcdn.com/e92d027c197738388b36f7a8164dd7bdfc61a638ac1acaeb577a92fb77a98857.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 289,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 289
       },
       {
         "id": 70,
-        "url": "https://js.rbxcdn.com/94a14bf31ad0a75d3878f6772e6d5a251e7da9b64894e2176a07f65f4d79d8a3.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 289,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 289
       },
       {
         "id": 71,
-        "url": "https://js.rbxcdn.com/0fe97bffcb328f446dd0f247d2d42e740d354ef70bd54b9371ece139569a5e72.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 289,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 289
       },
       {
         "id": 72,
-        "url": "https://js.rbxcdn.com/993eb6cb9b2ed18baadeca1088086e99ede5c9877cb7fe9700e0c6854bfeefe0.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 290,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 290
       },
       {
         "id": 73,
-        "url": "https://js.rbxcdn.com/37e403d2aa6bd395faab8904f1be6844e5ca2a04f22db4581f6f586f97502094.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 290,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 290
       },
       {
         "id": 74,
-        "url": "https://js.rbxcdn.com/730fcbf0eba6dd82de9b0029e157627f023e6f448059c5b4c6a4f356222b3ac0.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 295,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 295
       },
       {
         "id": 75,
-        "url": "https://js.rbxcdn.com/e8589b4de7e49cffa448d5ced862119339a4a366e7a9df35b7e886b68b3f9453.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 296,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 296
       },
       {
         "id": 76,
-        "url": "https://js.rbxcdn.com/3fec2c529efef400a78a26a5c0a2d33e3e7ec0a13971616a31cd958214c71e37.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 296,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 296
       },
       {
         "id": 77,
-        "url": "https://js.rbxcdn.com/88bacf62dae20f1d352d30afbd3df4c64ba7a24c551c6ee02152719cfb11b830.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 297,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 297
       },
       {
         "id": 78,
-        "url": "https://js.rbxcdn.com/e7e3731285889059db29156a67cd4e5358a2dbf2102a88f49403c524cab2ba91.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 297,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 297
       },
       {
         "id": 79,
-        "url": "https://js.rbxcdn.com/44ff0f2cc820b734456e36bcd3528a30460f0576ff6ff17478b2d84824b64abd.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 298,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 298
       },
       {
         "id": 80,
-        "url": "https://js.rbxcdn.com/264d4bed21a614e8a15806c5d97af0aa92f26a99f5bf89b2e94cd705728b9f1f.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 298,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 298
       },
       {
         "id": 81,
-        "url": "https://js.rbxcdn.com/5fbd8389fb24177a5be64285e12645c445dee91f0a686d5bed5865f0e009d387.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 298,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 298
       },
       {
         "id": 82,
-        "url": "https://js.rbxcdn.com/ea02dd03dee8d01ac1d70c79d1a67cd19f1a2cee81b5796e32ae0102917d8992-VerificationUpsell.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 299,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 299
       },
       {
         "id": 83,
-        "url": "https://js.rbxcdn.com/8fcc9e5eaaf61b9acd481c37ec0024f1c8afec224ddcf2381209a2e3f5c3d206.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 299,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 299
       },
       {
         "id": 84,
-        "url": "https://js.rbxcdn.com/dfee8106f7071b80bbaa47687ee322da9fc2014fff0a788fbdb70f2c2d804ef8.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 299,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 299
       },
       {
         "id": 85,
-        "url": "https://js.rbxcdn.com/c4b0a446b38285f3db5472340f4ef27d737c87b78348e36dc7acbcfec89d70bf.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 300,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 300
       },
       {
         "id": 86,
-        "url": "https://js.rbxcdn.com/0f91ae7a3efbb94ac1888931d53d6309fc65812b5a64b240c4861d9ab48011e1.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 300,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 300
       },
       {
         "id": 87,
-        "url": "https://js.rbxcdn.com/ebc57f8a4aabceab9f38dda880bf11c04f2c92f441e535f0bcaa21b294736e65.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 300,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 300
       },
       {
         "id": 88,
-        "url": "https://js.rbxcdn.com/6c0972180de4ca6dc1e7e9be4b449202a4dc4276433366237719d8f6e08efe4f.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 300,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 300
       },
       {
         "id": 89,
-        "url": "https://js.rbxcdn.com/e4375c197a361f33c4df0667defc9d2df5ea277f976a2efdceeb4af2a4eb515f-AccountSwitcher.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 301,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 301
       },
       {
         "id": 90,
-        "url": "https://js.rbxcdn.com/63dacb1fad541c7c50a937cbab11cd0858b78187acc6c0af105381aa406e7147.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 301,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 301
       },
       {
         "id": 91,
-        "url": "https://js.rbxcdn.com/8bb519e5ff19cfc45bbf0fb7bfcf333106922bf91abce540c3ff310336604cda.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 301,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 301
       },
       {
         "id": 92,
-        "url": "https://js.rbxcdn.com/cd456bb506f1b0b06a2eb645ca018d367185ca84725ec00d524e35ce431f4a8c.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 301,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 301
       },
       {
         "id": 93,
-        "url": "https://js.rbxcdn.com/922f1f640898de9a575c904140589572eab24dd3d62cbb01bfb2ae58510d72d5-SearchLandingPage.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 305,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 305
       },
       {
         "id": 94,
-        "url": "https://js.rbxcdn.com/babce206b492515143d22e96c7508c6c11b2f1298a66f5d98b0b2c567c005962.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 306,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 306
       },
       {
         "id": 95,
-        "url": "https://js.rbxcdn.com/05355f4f42e31d8469852179b730ec7f252467eb07a3139c9f3c2551f378bb9c.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 306,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 306
       },
       {
         "id": 96,
-        "url": "https://js.rbxcdn.com/127ef9d672fff484481f8f8a46d05f1ac814a864cff3a4525c356e1769f1988b-Navigation.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 307,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 307
       },
       {
         "id": 97,
-        "url": "https://js.rbxcdn.com/1f5c50ba918a5773a2e4a0308683747225b446c67f5089282954865c0e0f76a6.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 307,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 307
       },
       {
         "id": 98,
-        "url": "https://js.rbxcdn.com/3e545d98e98d8a8a188a4ef6ce70138b165954d7b45c0c0e54a5cf23ad0cc12b.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 307,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 307
       },
       {
         "id": 99,
-        "url": "https://js.rbxcdn.com/13b3b0cf97cfb5da4538eb0c59f252188b4f724f9328c264a58d24a714e41fe5.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 308,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 308
       },
       {
         "id": 100,
-        "url": "https://js.rbxcdn.com/836e14b57fccdb2e94d99a75c3a644639b642e89d1b5e13f617f3af93905dd08.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 308,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 308
       },
       {
         "id": 101,
-        "url": "https://js.rbxcdn.com/d9482ca08d78ada04ff95cbf7240c16acafd2e1cd8a6fb2729a26798e8abf7ad.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 309,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 309
       },
       {
         "id": 102,
-        "url": "https://js.rbxcdn.com/216135f7ba01885698bc4fc47c508d6830140f104c1cd855133a09b2a9a0e02c.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 309,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 309
       },
       {
         "id": 103,
-        "url": "https://js.rbxcdn.com/e171b6008ca0199b35099c1bf14e13b50d48456d5f4db1208a2421ef55e11de0.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 309,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 309
       },
       {
         "id": 104,
-        "url": "https://js.rbxcdn.com/f7a2223fcac09a0964ba847871b03f19d9d4075838f6fef4c918c018188e39fa.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 310,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 310
       },
       {
         "id": 105,
-        "url": "https://js.rbxcdn.com/537d3ec6e2cbc418604174fc9628078ed3fd4adc40e41637bc716c735a60677a.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 310,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 310
       },
       {
         "id": 106,
-        "url": "https://js.rbxcdn.com/acb69086253120ce7945704ce42a0b684c9171ed587de439e2c0f9479fd4ad51.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 310,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 310
       },
       {
         "id": 107,
-        "url": "https://js.rbxcdn.com/5b4d2974640af2d875cc0e4a6c40f515e8ad343b0525513f03d93c35bcf9d7d7.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 310,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 310
       },
       {
         "id": 108,
-        "url": "https://js.rbxcdn.com/0477c995fb7f2d892410c1f80189d044.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 323,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 323
       },
       {
         "id": 109,
-        "url": "https://js.rbxcdn.com/35606b039fece6df25a74e7c01fd589a6770b6ff6f4f93e7255bf65f25267a47-StyleGuide.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 324,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 324
       },
       {
         "id": 110,
-        "url": "https://js.rbxcdn.com/0c81cd2082f742a1d2172f1a7577718f98acb633bf60d77623e2763a7b12100c-Builder.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 324,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 324
       },
       {
         "id": 111,
-        "url": "https://js.rbxcdn.com/afb4ccdf2bd35f548be38a0f6f713688c247878f36577967dd380b0931d2850c-CookieBannerV3.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 325,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 325
       },
       {
         "id": 112,
-        "url": "https://js.rbxcdn.com/d0e52d0d965be24069cbad066cb9cb59db4b77f59ca5353c47b8b31ab4f07082-Footer.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 325,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 325
       },
       {
         "id": 113,
-        "url": "https://js.rbxcdn.com/cbae3669084e2a46b6f7730f4ec3e09af389fc747b2affe7e5173e463227ab4b.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 325,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 325
       },
       {
         "id": 114,
-        "url": "https://js.rbxcdn.com/7043536ec0248f489b68b5e62dd3336f6962fb50d18a65b766453a206a772d4f.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 326,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 326
       },
       {
         "id": 115,
-        "url": "https://js.rbxcdn.com/86454aaeb93e433dee8f3b486d83bbaec4504a0191894fb4bf139c684515de1f-AccessManagementUpsellV2.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 326,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 326
       },
       {
         "id": 116,
-        "url": "https://js.rbxcdn.com/7f9c52f6ff5099533899102c817c9a114e783eb23164263dfc12b3ec96210556.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 326,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 326
       },
       {
         "id": 117,
-        "url": "https://js.rbxcdn.com/4df6ec52559e1c250d3f2e8286e1ffca9f33998dcddcfaf096a4bcd364bbf808.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 326,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 326
       },
       {
         "id": 118,
-        "url": "https://js.rbxcdn.com/458e4db7e6e243b2dc68967195eefe76d8329aa041cc0144cc28962e7ee3ea60.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 327,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 327
       },
       {
         "id": 119,
-        "url": "https://js.rbxcdn.com/b9796ea7983f6d73db40cdbbb06c1b6e2011c9958e67ecd9e4e02ba266800954.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 327,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 327
       },
       {
         "id": 120,
-        "url": "https://js.rbxcdn.com/efdb189af6aa210780d5b5216bd069dacf7eff3bd369163d64b5c186af607459.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 327,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 327
       },
       {
         "id": 121,
-        "url": "https://js.rbxcdn.com/8efa7fd4122a8eae414d87e84d53e6a6d452252672feb08fe00aaa9a6ffaa325.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 328,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 328
       },
       {
         "id": 122,
-        "url": "https://js.rbxcdn.com/ef0d5bf50bd1c7c225e07156087085a29bb9b23ee09368dee2338a64fe9a7745.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 328,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 328
       },
       {
         "id": 123,
-        "url": "https://js.rbxcdn.com/56e8c0d2592fc01e7e4d3035bc927c760b8691af07d1f099a8add40bdbcf88a3-ReactLanding.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 328,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 328
       },
       {
         "id": 124,
-        "url": "https://js.rbxcdn.com/686bd55707be42af370b81d2f36f55b6e10c56edb105502b3f9f0a34f7412bf5.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 329,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 329
       },
       {
         "id": 125,
-        "url": "https://js.rbxcdn.com/223c92c968e6f34fe940a47d339bfa5a7463d581dce4a0b68bfcf880d903127c.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 329,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 329
       },
       {
         "id": 126,
-        "url": "https://js.rbxcdn.com/5f2ee2913bf919a8576bbe4120a6d41b933e814a4779a0a3fc1d9d941c5ee368.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 329,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 329
       },
       {
         "id": 127,
-        "url": "https://js.rbxcdn.com/b604dac29d89b56aef30844f099c5640c2f1870a97a06f4e692208d24097f9ed-Captcha.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 330,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 330
       },
       {
         "id": 128,
-        "url": "https://js.rbxcdn.com/e63c728cbb3b8b19183c6444acda3e8f09b2009689025aab54ef54330352aede-ItemPurchaseUpsell.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 330,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 330
       },
       {
         "id": 129,
-        "url": "https://js.rbxcdn.com/93b87ee7ac50dd94377a95fab2382fbaca3d96d15d5de6a567536c7ce17f5ced.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 330,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 330
       },
       {
         "id": 130,
-        "url": "https://js.rbxcdn.com/c8462fd29169772279c11fd00d86989691ab980a6f609efdc4b6770ccc431877.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 330,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 330
       },
       {
         "id": 131,
-        "url": "https://js.rbxcdn.com/c8ac397606b8d4dfab9ea0d9af928273fcc51341a741b50ee831308aaed3517b-ItemDetailsHydrationService.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 331,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 331
       },
       {
         "id": 132,
-        "url": "https://js.rbxcdn.com/83b2d43f7b602baff53f0b4275445b5af437137bf4e8d090d4badf5aafa33856-ItemPurchase.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 331,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 331
       },
       {
         "id": 133,
-        "url": "https://js.rbxcdn.com/54c13aaea011e94d285d4171277dbaa0a2ec1bf763b408d71f2adc7f72bad919.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 331,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 331
       },
       {
         "id": 134,
-        "url": "https://js.rbxcdn.com/0f75a173261ace474005809f5a4f985eb1f6974dd0a74683bb734a4f837f768d.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 331,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 331
       },
       {
         "id": 135,
-        "url": "https://js.rbxcdn.com/6d0743dbab0070921c5bb3eff46802cead3a6881479fd3c902639ffba397d5f3-IdVerification.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 332,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 332
       },
       {
         "id": 136,
-        "url": "https://js.rbxcdn.com/d2103009f17303199e698315acec635d3ebd96fb6072fa9804cd14c6fef0914d.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 332,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 332
       },
       {
         "id": 137,
-        "url": "https://js.rbxcdn.com/4e3e9c2f50f98960207aef1cc243c85914cda72e2c1f78ea66f35f61096e2c8a-AccessManagementUpsell.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 332,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 332
       },
       {
         "id": 138,
-        "url": "https://js.rbxcdn.com/5561a1ace4160b2e7fdbf4bc8e1aa4e36ff56a92e4108d4bb7b843598feaed93-GameLaunch.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 332,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 332
       },
       {
         "id": 139,
-        "url": "https://js.rbxcdn.com/5d2b10e51dd6cc2329604087e74e8eeb57c37024d75e0be8c47eca40e741a269.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 333,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 333
       },
       {
         "id": 140,
-        "url": "https://js.rbxcdn.com/104fc0b1b860e8b9c3150a45a77c1093c81dae936d4912e83a9a63ca4c52b571.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 333,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 333
       },
       {
         "id": 141,
-        "url": "https://js.rbxcdn.com/18a39f1adad50fcd69442f5ddd58c68c80ee0ff59fadc808ffda3195ceb492a8.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 333,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 333
       },
       {
         "id": 142,
-        "url": "https://js.rbxcdn.com/64daef195122aa9c881d456010e7b98d698b1c6b1aaba58c81abc27da0db8fed.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 333,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 333
       },
       {
         "id": 143,
-        "url": "https://js.rbxcdn.com/82bb10e00a11a0ed0fe4982ebec5f260.js",
+        "url": "https://js.rbxcdn.com/{seg}",
         "domain": "js.rbxcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 334,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 334
       },
       {
         "id": 144,
-        "url": "https://roblox.com/js/hsts.js",
+        "url": "https://roblox.com/{seg}/{seg}",
         "domain": "roblox.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 697,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 697
       },
       {
         "id": 147,
-        "url": "https://apis.roblox.com/rotating-client-service/v1/prelude/latest",
+        "url": "https://apis.roblox.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "apis.roblox.com",
         "method": "GET",
         "resourceType": "script",
         "status": 401,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 875,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 875
       },
       {
         "id": 149,
-        "url": "https://apis.roblox.com/guac-v2/v1/bundles/user-heartbeats",
+        "url": "https://apis.roblox.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "apis.roblox.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1266,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1266
       },
       {
         "id": 151,
-        "url": "https://apis.rbxcdn.com/captcha/v1/metadata",
+        "url": "https://apis.rbxcdn.com/{seg}/{seg}/{seg}",
         "domain": "apis.rbxcdn.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1646,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1646
       },
       {
         "id": 152,
-        "url": "https://css.rbxcdn.com/9a0cad3cab3175e0.woff2",
+        "url": "https://css.rbxcdn.com/{seg}",
         "domain": "css.rbxcdn.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1716,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1716
       },
       {
         "id": 153,
-        "url": "https://locale.roblox.com/v1/locales",
+        "url": "https://locale.roblox.com/{seg}/{seg}",
         "domain": "locale.roblox.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1773,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1773
       },
       {
         "id": 154,
-        "url": "https://apis.roblox.com/guac-v2/v1/bundles/cookie-policy",
+        "url": "https://apis.roblox.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "apis.roblox.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1773,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1773
       },
       {
         "id": 155,
-        "url": "https://apis.roblox.com/guac-v2/v1/bundles/cookie-policy",
+        "url": "https://apis.roblox.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "apis.roblox.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1776,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1776
       },
       {
         "id": 156,
-        "url": "https://apis.roblox.com/guac-v2/v1/bundles/footer-ui",
+        "url": "https://apis.roblox.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "apis.roblox.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1776,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1776
       },
       {
         "id": 157,
-        "url": "https://images.rbxcdn.com/2928664fe1fc6aca88583a6f606d60ba-apple-badge-en_us-ULTWHOBG.svg",
+        "url": "https://images.rbxcdn.com/{seg}",
         "domain": "images.rbxcdn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1777,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1777
       },
       {
         "id": 158,
-        "url": "https://images.rbxcdn.com/df567a27fa3f48d96cc95c01a1703b87-google-badge-en_us-MLKMXS7C.svg",
+        "url": "https://images.rbxcdn.com/{seg}",
         "domain": "images.rbxcdn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1777,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1777
       },
       {
         "id": 159,
-        "url": "https://images.rbxcdn.com/319095e8b40952b12b266eb47a2b2c40-playstation-badge-en_us-Y4CVRMGY.svg",
+        "url": "https://images.rbxcdn.com/{seg}",
         "domain": "images.rbxcdn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1777,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1777
       },
       {
         "id": 160,
-        "url": "https://images.rbxcdn.com/1c0855f1be21f499eb7a4027e5dd1d86-xbox-badge-en_us-OXEWQ2KC.svg",
+        "url": "https://images.rbxcdn.com/{seg}",
         "domain": "images.rbxcdn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1777,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1777
       },
       {
         "id": 161,
-        "url": "https://images.rbxcdn.com/0eb85925bd5a3e685d5cdfc482fad198-meta-quest-badge-en_us-ECIU6JNY.svg",
+        "url": "https://images.rbxcdn.com/{seg}",
         "domain": "images.rbxcdn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1777,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1777
       },
       {
         "id": 162,
-        "url": "https://images.rbxcdn.com/31d4e713ead43eb25da2aea42b6e36e9-microsoft-badge-en_us-VYLUO7EK.svg",
+        "url": "https://images.rbxcdn.com/{seg}",
         "domain": "images.rbxcdn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1778,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1778
       },
       {
         "id": 163,
-        "url": "https://images.rbxcdn.com/484d5f5fbd1e763ce57ae6ad39d88a6a-amazon-badge-en_us-TGDZWUNE.png",
+        "url": "https://images.rbxcdn.com/{seg}",
         "domain": "images.rbxcdn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1778,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1778
       },
       {
         "id": 164,
-        "url": "https://images.rbxcdn.com/a47d34e15ee107ca785d669df617c993-galaxy-badge-en_us-D53PVFS6.webp",
+        "url": "https://images.rbxcdn.com/{seg}",
         "domain": "images.rbxcdn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1778,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1778
       },
       {
         "id": 165,
-        "url": "https://images.rbxcdn.com/78413c0d5e05d6c36720ecc0c3013cbc-vignette.png",
+        "url": "https://images.rbxcdn.com/{seg}",
         "domain": "images.rbxcdn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1780,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1780
       },
       {
         "id": 166,
-        "url": "https://images.rbxcdn.com/059b09408c6b199c.gif",
+        "url": "https://images.rbxcdn.com/{seg}",
         "domain": "images.rbxcdn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1780,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1780
       },
       {
         "id": 168,
-        "url": "https://locale.roblox.com/v1/locales/user-localization-locus-supported-locales",
+        "url": "https://locale.roblox.com/{seg}/{seg}/{seg}",
         "domain": "locale.roblox.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1835,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1835
       },
       {
         "id": 169,
-        "url": "https://apis.roblox.com/product-experimentation-platform/v1/projects/1/values",
+        "url": "https://apis.roblox.com/{seg}/{seg}/{seg}/{n}/{seg}",
         "domain": "apis.roblox.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1836,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1836
       },
       {
         "id": 170,
-        "url": "https://apis.roblox.com/product-experimentation-platform/v1/projects/1/values",
+        "url": "https://apis.roblox.com/{seg}/{seg}/{seg}/{n}/{seg}",
         "domain": "apis.roblox.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1838,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1838
       },
       {
         "id": 171,
-        "url": "https://apis.roblox.com/product-experimentation-platform/v1/projects/1/values",
+        "url": "https://apis.roblox.com/{seg}/{seg}/{seg}/{n}/{seg}",
         "domain": "apis.roblox.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1839,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1839
       },
       {
         "id": 172,
-        "url": "https://apis.roblox.com/otp-service/v1/metadata",
+        "url": "https://apis.roblox.com/{seg}/{seg}/{seg}",
         "domain": "apis.roblox.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1840,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1840
       },
       {
         "id": 173,
-        "url": "https://apis.roblox.com/guac-v2/v1/bundles/intl-auth-compliance",
+        "url": "https://apis.roblox.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "apis.roblox.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1840,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1840
       },
       {
         "id": 174,
-        "url": "https://apis.roblox.com/guac-v2/v1/bundles/intl-auth-compliance",
+        "url": "https://apis.roblox.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "apis.roblox.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1841,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1841
       },
       {
         "id": 175,
-        "url": "https://auth.roblox.com/v2/metadata",
+        "url": "https://auth.roblox.com/{seg}/{seg}",
         "domain": "auth.roblox.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1842,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1842
       },
       {
         "id": 176,
-        "url": "https://apis.roblox.com/product-experimentation-platform/v1/projects/1/values",
+        "url": "https://apis.roblox.com/{seg}/{seg}/{seg}/{n}/{seg}",
         "domain": "apis.roblox.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1843,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1843
       },
       {
         "id": 177,
-        "url": "https://apis.roblox.com/product-experimentation-platform/v1/projects/1/values",
+        "url": "https://apis.roblox.com/{seg}/{seg}/{seg}/{n}/{seg}",
         "domain": "apis.roblox.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1845,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1845
       },
       {
         "id": 178,
-        "url": "https://apis.roblox.com/guac-v2/v1/bundles/content-rating-logo",
+        "url": "https://apis.roblox.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "apis.roblox.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1845,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1845
       },
       {
         "id": 181,
-        "url": "https://locale.roblox.com/v1/locales/user-localization-locus-supported-locales",
+        "url": "https://locale.roblox.com/{seg}/{seg}/{seg}",
         "domain": "locale.roblox.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1868,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1868
       },
       {
         "id": 186,
-        "url": "https://images.rbxcdn.com/5f05bc6223b75052b594b38016762a77-marketing_bg_05202026.jpg",
+        "url": "https://images.rbxcdn.com/{seg}",
         "domain": "images.rbxcdn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 2093,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2093
       },
       {
         "id": 187,
-        "url": "https://apis.roblox.com/user-agreements/v1/agreements-resolution-signup/web",
+        "url": "https://apis.roblox.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "apis.roblox.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2137,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2137
       },
       {
         "id": 188,
-        "url": "https://realtime.roblox.com/notifications/negotiate",
+        "url": "https://realtime.roblox.com/{seg}/{seg}",
         "domain": "realtime.roblox.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": null,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2175,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2175
       },
       {
         "id": 197,
-        "url": "https://realtime.roblox.com/notifications/negotiate",
+        "url": "https://realtime.roblox.com/{seg}/{seg}",
         "domain": "realtime.roblox.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": null,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 7261,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 7261
       }
     ],
     "domains": [
@@ -5081,7 +5081,7 @@
     ],
     "cookies": [
       {
-        "name": "rbx-ip2",
+        "name": "[redacted]",
         "domain": ".roblox.com",
         "path": "/",
         "sameSite": "Lax",
@@ -5091,7 +5091,7 @@
         "thirdParty": false
       },
       {
-        "name": "RBXEventTrackerV2",
+        "name": "[redacted:long-token]",
         "domain": ".roblox.com",
         "path": "/",
         "sameSite": "Lax",
@@ -5101,7 +5101,7 @@
         "thirdParty": false
       },
       {
-        "name": "GuestData",
+        "name": "[redacted]",
         "domain": ".roblox.com",
         "path": "/",
         "sameSite": "Lax",
@@ -5111,7 +5111,7 @@
         "thirdParty": false
       },
       {
-        "name": "RBXPaymentsFlowContext",
+        "name": "[redacted]",
         "domain": ".roblox.com",
         "path": "/",
         "sameSite": "Lax",
@@ -5121,7 +5121,7 @@
         "thirdParty": false
       },
       {
-        "name": "RBXcb",
+        "name": "[redacted]",
         "domain": ".roblox.com",
         "path": "/",
         "sameSite": "Lax",
@@ -5134,30 +5134,31 @@
     "storage": [
       {
         "area": "localStorage",
-        "key": "RBXReturn",
+        "key": "[redacted]",
         "valueBytes": 24
       },
       {
         "area": "localStorage",
-        "key": "Roblox.Api.Locales.getLocales",
+        "key": "[redacted]",
         "valueBytes": 14825
       },
       {
         "area": "localStorage",
-        "key": "RobloxLocaleCode",
+        "key": "[redacted]",
         "valueBytes": 5
       },
       {
         "area": "localStorage",
-        "key": "CachedUserId",
+        "key": "[redacted]",
         "valueBytes": 4
       },
       {
         "area": "localStorage",
-        "key": "Roblox.CrossTabCommunication.Kingmaker.masterId",
+        "key": "[redacted]",
         "valueBytes": 36
       }
     ],
+    "fingerprintEvents": [],
     "fingerprintDetections": [
       {
         "kind": "input-monitoring",
@@ -5179,7 +5180,7 @@
             "window"
           ],
           "thirdPartyOrigins": [
-            "https://js.rbxcdn.com"
+            "https://js.rbxcdn.com/"
           ],
           "totalListenerCalls": 87
         }
@@ -5214,13 +5215,12 @@
             "window"
           ],
           "thirdPartyOrigins": [
-            "https://js.rbxcdn.com"
+            "https://js.rbxcdn.com/"
           ],
           "totalListenerCalls": 199
         }
       }
     ],
-    "fingerprintEvents": [],
     "screenshot": null,
     "warnings": [
       "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",

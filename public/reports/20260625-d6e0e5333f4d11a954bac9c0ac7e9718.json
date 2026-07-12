@@ -49,6 +49,13 @@
       "automation": "playwright-chromium",
       "headless": true,
       "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "classification",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-06-19T17:24:24.927Z"
+      },
       "trackerCatalog": {
         "source": "Hand-curated service catalog",
         "version": "hand-curated-2026.06",
@@ -57,14 +64,7 @@
         "curatedOverrides": 133,
         "license": "AGPL-3.0-or-later"
       },
-      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
-      "adblock": {
-        "active": true,
-        "source": "Brave default ad-block lists",
-        "lists": 31,
-        "fetchedAt": "2026-06-19T17:24:24.927Z"
-      },
-      "shieldsMode": "classification"
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
     },
     "requests": [
       {
@@ -76,8 +76,8 @@
         "status": 302,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 33,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 33
       },
       {
         "id": 2,
@@ -88,1148 +88,1148 @@
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 48,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 48
       },
       {
         "id": 3,
-        "url": "https://assets.guim.co.uk/polyfill.io/v3/polyfill.min.js?rum=&features=&flags=&callback=&unknown=&cacheClear=",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&callback=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "other",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 720,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 720
       },
       {
         "id": 4,
-        "url": "https://assets.guim.co.uk/assets/frameworks.client.web.43c344cdcf55a381da73.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "other",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 721,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 721
       },
       {
         "id": 5,
-        "url": "https://assets.guim.co.uk/static/frontend/fonts/guardian-headline/noalts-not-hinted/GHGuardianHeadline-Bold.woff2",
+        "url": "https://assets.guim.co.uk/static/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 721,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 721
       },
       {
         "id": 6,
-        "url": "https://assets.guim.co.uk/static/frontend/fonts/guardian-textegyptian/noalts-not-hinted/GuardianTextEgyptian-Regular.woff2",
+        "url": "https://assets.guim.co.uk/static/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 721,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 721
       },
       {
         "id": 7,
-        "url": "https://assets.guim.co.uk/assets/frameworks.client.web.43c344cdcf55a381da73.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 722,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 722
       },
       {
         "id": 8,
-        "url": "https://assets.guim.co.uk/assets/index.client.web.987f283b49c417774a68.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 722,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 722
       },
       {
         "id": 9,
-        "url": "https://i.guim.co.uk/img/media/a25aedb9223fc6bbef453a4017a24fe95b2dd8ee/719_277_1997_1598/master/1997.jpg?width=&dpr=&s=&crop=",
+        "url": "https://i.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "i.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 722,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 722
       },
       {
         "id": 10,
-        "url": "https://i.guim.co.uk/img/media/ec932b94762b4c950c8161b2cdc03927ab7e7062/467_0_4306_3444/master/4306.jpg?width=&dpr=&s=&crop=",
+        "url": "https://i.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "i.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 722,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 722
       },
       {
         "id": 11,
-        "url": "https://i.guim.co.uk/img/uploads/2022/03/19/Moira_Donegan,_L.png?width=&dpr=&s=&crop=",
+        "url": "https://i.guim.co.uk/{seg}/{seg}/{n}/{n}/{n}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "i.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 751,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 751
       },
       {
         "id": 12,
-        "url": "https://i.guim.co.uk/img/media/14e7dbc3decbbaafdbf2f770343187a43c9d61bf/683_0_4000_4000/master/4000.jpg?width=&dpr=&s=&crop=",
+        "url": "https://i.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "i.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 752,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 752
       },
       {
         "id": 13,
-        "url": "https://i.guim.co.uk/img/media/c25d724f142f839da80c58ad3285b574b52d4dc8/0_0_1548_1238/master/1548.jpg?width=&dpr=&s=&crop=",
+        "url": "https://i.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "i.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 753,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 753
       },
       {
         "id": 14,
-        "url": "https://assets.guim.co.uk/polyfill.io/v3/polyfill.min.js?rum=&features=&flags=&callback=&unknown=&cacheClear=",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&callback=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 754,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 754
       },
       {
         "id": 15,
-        "url": "https://assets.guim.co.uk/commercial/5d7771c5694ea8c48439/graun.standalone.commercial.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 754,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 754
       },
       {
         "id": 16,
-        "url": "https://i.guim.co.uk/img/media/389f641f2ce3214507bd4607ba2f26fd934538b1/1168_0_5840_4672/master/5840.jpg?width=&dpr=&s=&crop=",
+        "url": "https://i.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "i.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 755,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 755
       },
       {
         "id": 17,
-        "url": "https://i.guim.co.uk/img/media/a97688fd96d43da56bf2cee596d5443f6784fe00/2192_796_4999_3998/master/4999.jpg?width=&dpr=&s=&crop=",
+        "url": "https://i.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "i.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 755,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 755
       },
       {
         "id": 18,
-        "url": "https://i.guim.co.uk/img/media/14e7dbc3decbbaafdbf2f770343187a43c9d61bf/1_0_4998_4000/master/4998.jpg?width=&dpr=&s=&crop=",
+        "url": "https://i.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "i.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 755,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 755
       },
       {
         "id": 19,
-        "url": "https://i.guim.co.uk/img/media/0d21fa4fc7c709efa612ee8b908850b47e3b7b84/70_0_5859_4688/master/5859.jpg?width=&dpr=&s=&crop=",
+        "url": "https://i.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "i.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 756,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 756
       },
       {
         "id": 20,
-        "url": "https://i.guim.co.uk/img/media/526da2261fed2c058d30bdb593c38383157afaed/985_0_4915_3933/master/4915.jpg?width=&dpr=&s=&crop=",
+        "url": "https://i.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "i.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 757,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 757
       },
       {
         "id": 21,
-        "url": "https://i.guim.co.uk/img/media/aa30069444a642e264f800ff2fda0dd65b2475de/974_573_1890_1513/master/1890.jpg?width=&dpr=&s=&crop=",
+        "url": "https://i.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "i.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 758,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 758
       },
       {
         "id": 22,
-        "url": "https://i.guim.co.uk/img/media/8f75929f734fb075e37fde28cd65ea3f2200e93a/7_0_2501_2000/master/2501.jpg?width=&dpr=&s=&crop=",
+        "url": "https://i.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "i.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 758,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 758
       },
       {
         "id": 23,
-        "url": "https://assets.guim.co.uk/assets/index.client.web.987f283b49c417774a68.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "other",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 758,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 758
       },
       {
         "id": 24,
-        "url": "https://i.guim.co.uk/img/media/ce326ce866a029185045f6d75b0a849b141790cb/581_0_5756_4606/master/5756.jpg?width=&dpr=&s=&crop=",
+        "url": "https://i.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "i.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 759,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 759
       },
       {
         "id": 25,
-        "url": "https://i.guim.co.uk/img/media/e0170b5a023ecf9d478880ee2e1cd2b42631a37b/458_0_4585_3668/master/4585.jpg?width=&dpr=&s=&crop=",
+        "url": "https://i.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "i.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 759,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 759
       },
       {
         "id": 26,
-        "url": "https://i.guim.co.uk/img/media/b6ef597f5bd546ee5734935e21bd071c8b6a4701/1387_0_6933_5547/master/6933.jpg?width=&dpr=&s=&crop=",
+        "url": "https://i.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "i.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 760,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 760
       },
       {
         "id": 27,
-        "url": "https://assets.guim.co.uk/commercial/5d7771c5694ea8c48439/graun.standalone.commercial.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "other",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 761,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 761
       },
       {
         "id": 28,
-        "url": "https://assets.guim.co.uk/static/frontend/css/print.css",
+        "url": "https://assets.guim.co.uk/static/{seg}/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 762,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 762
       },
       {
         "id": 29,
-        "url": "https://assets.guim.co.uk/static/frontend/fonts/guardian-textsans/noalts-not-hinted/GuardianTextSans-Regular.woff2",
+        "url": "https://assets.guim.co.uk/static/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 822,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 822
       },
       {
         "id": 30,
-        "url": "https://assets.guim.co.uk/static/frontend/fonts/guardian-textsans/noalts-not-hinted/GuardianTextSans-Bold.woff2",
+        "url": "https://assets.guim.co.uk/static/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 823,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 823
       },
       {
         "id": 31,
-        "url": "https://assets.guim.co.uk/static/frontend/fonts/guardian-headline/noalts-not-hinted/GHGuardianHeadline-Medium.woff2",
+        "url": "https://assets.guim.co.uk/static/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 824,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 824
       },
       {
         "id": 32,
-        "url": "https://assets.guim.co.uk/static/frontend/fonts/guardian-textsans/noalts-not-hinted/GuardianTextSans-RegularItalic.woff2",
+        "url": "https://assets.guim.co.uk/static/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 824,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 824
       },
       {
         "id": 33,
-        "url": "https://i.guim.co.uk/img/media/89eb4dbaf3eef58e2425447c509b723d02348706/387_0_2090_1671/master/2090.jpg?width=&dpr=&s=&crop=",
+        "url": "https://i.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "i.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 824,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 824
       },
       {
         "id": 34,
-        "url": "https://i.guim.co.uk/img/media/5917d6493d1dd84799ab00906f07132fd5652c49/851_0_6880_5504/master/6880.jpg?width=&dpr=&s=&crop=",
+        "url": "https://i.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "i.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 825,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 825
       },
       {
         "id": 35,
-        "url": "https://i.guim.co.uk/img/media/524f7c1ae43b7280b23e24944fdaea18d894093d/370_0_5000_4000/master/5000.jpg?width=&dpr=&s=&crop=",
+        "url": "https://i.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "i.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 828,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 828
       },
       {
         "id": 36,
-        "url": "https://i.guim.co.uk/img/media/730995518dc604ca68408dafd8ea8dcfb27a0e23/372_0_5257_4205/master/5257.jpg?width=&dpr=&s=&crop=",
+        "url": "https://i.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "i.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 828,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 828
       },
       {
         "id": 37,
-        "url": "https://i.guim.co.uk/img/media/ce66498719f86a06f61edfbbc497e49b1b7efb8a/516_0_5160_4128/master/5160.jpg?width=&dpr=&s=&crop=",
+        "url": "https://i.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "i.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 829,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 829
       },
       {
         "id": 38,
-        "url": "https://i.guim.co.uk/img/uploads/2023/08/03/Soccer-v7_TREAT.png?width=&dpr=&s=&crop=",
+        "url": "https://i.guim.co.uk/{seg}/{seg}/{n}/{n}/{n}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "i.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 837,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 837
       },
       {
         "id": 39,
-        "url": "https://i.guim.co.uk/img/uploads/2023/01/20/margaret_sullivan.png?width=&dpr=&s=&crop=",
+        "url": "https://i.guim.co.uk/{seg}/{seg}/{n}/{n}/{n}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "i.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 839,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 839
       },
       {
         "id": 40,
-        "url": "https://i.guim.co.uk/img/uploads/2022/03/19/Moira_Donegan,_L.png?width=&dpr=&s=&crop=",
+        "url": "https://i.guim.co.uk/{seg}/{seg}/{n}/{n}/{n}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "i.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 840,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 840
       },
       {
         "id": 41,
-        "url": "https://i.guim.co.uk/img/uploads/2023/06/27/Alexander_Hurst_V2.png?width=&dpr=&s=&crop=",
+        "url": "https://i.guim.co.uk/{seg}/{seg}/{n}/{n}/{n}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "i.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 841,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 841
       },
       {
         "id": 42,
-        "url": "https://i.guim.co.uk/img/uploads/2019/02/13/Adrian_Chiles,_L.png?width=&dpr=&s=&crop=",
+        "url": "https://i.guim.co.uk/{seg}/{seg}/{n}/{n}/{n}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "i.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 842,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 842
       },
       {
         "id": 43,
-        "url": "https://i.guim.co.uk/img/media/81fa43c5d6ce2b397830713cf44e7d6282bf1d77/317_0_1350_1080/1350.jpg?width=&dpr=&s=&crop=",
+        "url": "https://i.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "i.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 893,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 893
       },
       {
         "id": 44,
-        "url": "https://assets.guim.co.uk/assets/5863.client.web.f8d7a57a15a43d143aaf.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 985,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 985
       },
       {
         "id": 45,
-        "url": "https://assets.guim.co.uk/assets/5993.client.web.783b8a5b8a0ecd74a5b7.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 986,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 986
       },
       {
         "id": 46,
-        "url": "https://assets.guim.co.uk/assets/5100.client.web.58c143343a5b964e04d6.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 986,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 986
       },
       {
         "id": 47,
-        "url": "https://assets.guim.co.uk/assets/7034.client.web.41fb678e62f2598aa5d2.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 987,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 987
       },
       {
         "id": 48,
-        "url": "https://assets.guim.co.uk/assets/Metrics-island.client.web.2634e56955d45d48bae9.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 988,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 988
       },
       {
         "id": 49,
-        "url": "https://assets.guim.co.uk/assets/SetABTests-island.client.web.575b4bdaa62ed0e3448e.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 988,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 988
       },
       {
         "id": 50,
-        "url": "https://assets.guim.co.uk/assets/SetAdTargeting-island.client.web.0d7fe9df2a70fc38e4ef.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 989,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 989
       },
       {
         "id": 51,
-        "url": "https://assets.guim.co.uk/assets/7007.client.web.394554cec0bbd188fd41.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 989,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 989
       },
       {
         "id": 52,
-        "url": "https://assets.guim.co.uk/assets/9883.client.web.8665e0b40aa5591bd877.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 989,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 989
       },
       {
         "id": 53,
-        "url": "https://assets.guim.co.uk/assets/6359.client.web.824ed966c22967abce18.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 989,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 989
       },
       {
         "id": 54,
-        "url": "https://assets.guim.co.uk/assets/2867.client.web.b964801cc8533b75050b.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 990,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 990
       },
       {
         "id": 55,
-        "url": "https://assets.guim.co.uk/assets/TopBar-island.client.web.c5838b8d9e69ece60b3d.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 990,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 990
       },
       {
         "id": 56,
-        "url": "https://assets.guim.co.uk/assets/1492.client.web.1f2637a705b866d910a6.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 990,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 990
       },
       {
         "id": 57,
-        "url": "https://assets.guim.co.uk/assets/1899.client.web.40d9574515e9b4c76eff.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 993,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 993
       },
       {
         "id": 58,
-        "url": "https://assets.guim.co.uk/assets/Titlepiece-island.client.web.24c6e15e165b074b7cc6.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 993,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 993
       },
       {
         "id": 59,
-        "url": "https://ophan.theguardian.com/img/1",
+        "url": "https://ophan.theguardian.com/{seg}/{n}",
         "domain": "ophan.theguardian.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 204,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 994,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 994
       },
       {
         "id": 60,
-        "url": "https://ophan.theguardian.com/img/2",
+        "url": "https://ophan.theguardian.com/{seg}/{n}",
         "domain": "ophan.theguardian.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 204,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 994,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 994
       },
       {
         "id": 61,
-        "url": "https://ophan.theguardian.com/img/2",
+        "url": "https://ophan.theguardian.com/{seg}/{n}",
         "domain": "ophan.theguardian.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 204,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 994,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 994
       },
       {
         "id": 62,
-        "url": "https://sourcepoint.theguardian.com/unified/wrapperMessagingWithoutDetection.js",
+        "url": "https://sourcepoint.theguardian.com/{seg}/{seg}",
         "domain": "sourcepoint.theguardian.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 995,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 995
       },
       {
         "id": 63,
-        "url": "https://ophan.theguardian.com/img/2",
+        "url": "https://ophan.theguardian.com/{seg}/{n}",
         "domain": "ophan.theguardian.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 204,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1080,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1080
       },
       {
         "id": 64,
-        "url": "https://assets.guim.co.uk/assets/3491.client.web.acb051746e8c69b6909e.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1088,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1088
       },
       {
         "id": 65,
-        "url": "https://assets.guim.co.uk/assets/3394.client.web.11cb9c690a09556aeceb.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1089,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1089
       },
       {
         "id": 66,
-        "url": "https://assets.guim.co.uk/assets/3318.client.web.5d92d90eb6c33f305bc3.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1093,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1093
       },
       {
         "id": 67,
-        "url": "https://assets.guim.co.uk/assets/2891.client.web.96a6ecfbe2bf9868956a.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1093,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1093
       },
       {
         "id": 68,
-        "url": "https://assets.guim.co.uk/assets/1503.client.web.cdcc342f5a6e463b5820.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1094,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1094
       },
       {
         "id": 69,
-        "url": "https://assets.guim.co.uk/assets/7638.client.web.9d541c811d88f25af734.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1094,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1094
       },
       {
         "id": 70,
-        "url": "https://assets.guim.co.uk/assets/265.client.web.7644c4a7df415bab4252.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1094,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1094
       },
       {
         "id": 71,
-        "url": "https://assets.guim.co.uk/assets/1263.client.web.9057b65e55f94670c982.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1095,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1095
       },
       {
         "id": 72,
-        "url": "https://assets.guim.co.uk/assets/ScrollableHighlights-island.client.web.242d4a2ea88d811a4b36.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1095,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1095
       },
       {
         "id": 73,
-        "url": "https://assets.guim.co.uk/assets/6768.client.web.0735efb2fd224c936cf9.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1096,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1096
       },
       {
         "id": 74,
-        "url": "https://assets.guim.co.uk/assets/3136.client.web.33a3607a0345ff55b254.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1096,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1096
       },
       {
         "id": 75,
-        "url": "https://assets.guim.co.uk/assets/DirectoryPageNav-island.client.web.61064cc88cd19be51c2c.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1096,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1096
       },
       {
         "id": 76,
-        "url": "https://sourcepoint.theguardian.com/wrapper/v2/meta-data",
+        "url": "https://sourcepoint.theguardian.com/{seg}/{seg}/{seg}",
         "domain": "sourcepoint.theguardian.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1109,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1109
       },
       {
         "id": 77,
-        "url": "https://sourcepoint.theguardian.com/unified/4.40.1/usnat.f12613136193900e32e2.bundle.js",
+        "url": "https://sourcepoint.theguardian.com/{seg}/{seg}/{seg}",
         "domain": "sourcepoint.theguardian.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1112,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1112
       },
       {
         "id": 78,
-        "url": "https://ophan.theguardian.com/img/2",
+        "url": "https://ophan.theguardian.com/{seg}/{n}",
         "domain": "ophan.theguardian.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 204,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1115,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1115
       },
       {
         "id": 79,
-        "url": "https://sourcepoint.theguardian.com/wrapper/v2/messages",
+        "url": "https://sourcepoint.theguardian.com/{seg}/{seg}/{seg}",
         "domain": "sourcepoint.theguardian.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1137,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1137
       },
       {
         "id": 80,
-        "url": "https://assets.guim.co.uk/assets/4501.client.web.ae17c42ee373d0271f91.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1173,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1173
       },
       {
         "id": 81,
-        "url": "https://ophan.theguardian.com/img/2",
+        "url": "https://ophan.theguardian.com/{seg}/{n}",
         "domain": "ophan.theguardian.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 204,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1173,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1173
       },
       {
         "id": 82,
-        "url": "https://sourcepoint.theguardian.com/wrapper/v2/meta-data",
+        "url": "https://sourcepoint.theguardian.com/{seg}/{seg}/{seg}",
         "domain": "sourcepoint.theguardian.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1210,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1210
       },
       {
         "id": 83,
-        "url": "https://sourcepoint.theguardian.com/wrapper/v2/pv-data",
+        "url": "https://sourcepoint.theguardian.com/{seg}/{seg}/{seg}",
         "domain": "sourcepoint.theguardian.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1212,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1212
       },
       {
         "id": 84,
-        "url": "https://ophan.theguardian.com/img/2",
+        "url": "https://ophan.theguardian.com/{seg}/{n}",
         "domain": "ophan.theguardian.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 204,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1212,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1212
       },
       {
         "id": 85,
-        "url": "https://assets.guim.co.uk/commercial/b907b76c569ba57fd97f/graun.395.commercial.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1220,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1220
       },
       {
         "id": 86,
-        "url": "https://assets.guim.co.uk/commercial/c89e47254875553420fa/graun.599.commercial.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1220,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1220
       },
       {
         "id": 87,
-        "url": "https://assets.guim.co.uk/commercial/a8628f38abf16fa722eb/graun.120.commercial.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1221,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1221
       },
       {
         "id": 88,
-        "url": "https://assets.guim.co.uk/commercial/e25495d0625efdc4c3f3/graun.661.commercial.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1221,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1221
       },
       {
         "id": 89,
-        "url": "https://assets.guim.co.uk/commercial/a34e77c4e6845270408c/graun.899.commercial.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1222,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1222
       },
       {
         "id": 90,
-        "url": "https://assets.guim.co.uk/commercial/1eeb19dd6da42366d5f0/graun.consented-advertising.commercial.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1222,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1222
       },
       {
         "id": 91,
-        "url": "https://ophan.theguardian.com/img/2",
+        "url": "https://ophan.theguardian.com/{seg}/{n}",
         "domain": "ophan.theguardian.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 204,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1222,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1222
       },
       {
         "id": 92,
-        "url": "https://contributions.guardianapis.com/header",
+        "url": "https://contributions.guardianapis.com/{seg}",
         "domain": "contributions.guardianapis.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1223,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1223
       },
       {
         "id": 93,
-        "url": "https://sourcepoint.theguardian.com/us_pm/index.html",
+        "url": "https://sourcepoint.theguardian.com/{seg}/{seg}",
         "domain": "sourcepoint.theguardian.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1224,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1224
       },
       {
         "id": 94,
-        "url": "https://cdn.privacy-mgmt.com/wrapper/v2/meta-data?accountId=&env=&metadata=&propertyId=",
+        "url": "https://cdn.privacy-mgmt.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "cdn.privacy-mgmt.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1255,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1255
       },
       {
         "id": 95,
-        "url": "https://sourcepoint.theguardian.com/PrivacyManagerUS.b9d1f.css",
+        "url": "https://sourcepoint.theguardian.com/{seg}",
         "domain": "sourcepoint.theguardian.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1266,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1266
       },
       {
         "id": 96,
-        "url": "https://sourcepoint.theguardian.com/polyfills.01516.js",
+        "url": "https://sourcepoint.theguardian.com/{seg}",
         "domain": "sourcepoint.theguardian.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1267,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1267
       },
       {
         "id": 97,
-        "url": "https://sourcepoint.theguardian.com/PrivacyManagerUS.6a027.js",
+        "url": "https://sourcepoint.theguardian.com/{seg}",
         "domain": "sourcepoint.theguardian.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1268,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1268
       },
       {
         "id": 98,
@@ -1245,8 +1245,8 @@
           "category": "advertising",
           "confidence": "curated"
         },
-        "startedAtMs": 1269,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1269
       },
       {
         "id": 99,
@@ -1257,8 +1257,8 @@
         "status": 302,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1269,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1269
       },
       {
         "id": 100,
@@ -1269,36 +1269,36 @@
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1287,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1287
       },
       {
         "id": 101,
-        "url": "https://sourcepoint.theguardian.com/mms/v2/message",
+        "url": "https://sourcepoint.theguardian.com/{seg}/{seg}/{seg}",
         "domain": "sourcepoint.theguardian.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1312,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1312
       },
       {
         "id": 102,
-        "url": "https://cdn.confiant-integrations.net/7oDgiTsq88US4rrBG0_Nxpafkrg/gpt_and_prebid/config.js",
+        "url": "https://cdn.confiant-integrations.net/{seg}/{seg}/{seg}",
         "domain": "cdn.confiant-integrations.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1334,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1334
       },
       {
         "id": 103,
-        "url": "https://securepubads.g.doubleclick.net/tag/js/gpt.js",
+        "url": "https://securepubads.g.doubleclick.net/{seg}/{seg}/{seg}",
         "domain": "securepubads.g.doubleclick.net",
         "method": "GET",
         "resourceType": "script",
@@ -1310,240 +1310,240 @@
           "category": "advertising",
           "confidence": "curated"
         },
-        "startedAtMs": 1335,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1335
       },
       {
         "id": 104,
-        "url": "https://marketingplatform.google.com/about/enterprise/",
+        "url": "https://marketingplatform.google.com/about/{seg}",
         "domain": "marketingplatform.google.com",
         "method": "HEAD",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1335,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1335
       },
       {
         "id": 105,
-        "url": "https://assets.guim.co.uk/assets/AlreadyVisited-island.client.web.c2612107fb4b7951196a.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1338,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1338
       },
       {
         "id": 106,
-        "url": "https://assets.guim.co.uk/assets/AdmiralScript-island.client.web.c890f4d0f6cc8240a90d.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1338,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1338
       },
       {
         "id": 107,
-        "url": "https://assets.guim.co.uk/assets/FocusStyles-island.client.web.a1d081e2a888750e252e.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1341,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1341
       },
       {
         "id": 108,
-        "url": "https://assets.guim.co.uk/assets/ShowHideContainers-island.client.web.174750d1593668209f3f.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1343,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1343
       },
       {
         "id": 109,
-        "url": "https://assets.guim.co.uk/assets/BrazeMessaging-island.client.web.c9167eb65b1881527741.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1343,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1343
       },
       {
         "id": 110,
-        "url": "https://assets.guim.co.uk/assets/ReaderRevenueDev-island.client.web.0535919c73f306367c8e.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1344,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1344
       },
       {
         "id": 111,
-        "url": "https://assets.guim.co.uk/assets/GoogleOneTap-island.client.web.1aa6f78b5dbbce04f8ea.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1344,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1344
       },
       {
         "id": 112,
-        "url": "https://assets.guim.co.uk/assets/EditionSwitcherBanner-island.client.web.e486b879549f8b3ac84b.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1345,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1345
       },
       {
         "id": 113,
-        "url": "https://assets.guim.co.uk/assets/3141.client.web.ac54800689b432f5534c.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1345,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1345
       },
       {
         "id": 114,
-        "url": "https://assets.guim.co.uk/assets/1772.client.web.a186f24ac91544734c64.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1345,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1345
       },
       {
         "id": 115,
-        "url": "https://assets.guim.co.uk/assets/StickyBottomBanner-island.client.web.803408caa0dcc66d9dc5.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1347,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1347
       },
       {
         "id": 116,
-        "url": "https://assets.guim.co.uk/polyfill.io/v3/polyfill.min.js?rum=&features=&flags=&callback=&unknown=&cacheClear=",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&callback=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "other",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1394,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1394
       },
       {
         "id": 117,
-        "url": "https://assets.guim.co.uk/assets/frameworks.client.web.43c344cdcf55a381da73.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "other",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1395,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1395
       },
       {
         "id": 118,
-        "url": "https://assets.guim.co.uk/assets/index.client.web.987f283b49c417774a68.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "other",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1395,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1395
       },
       {
         "id": 119,
-        "url": "https://assets.guim.co.uk/commercial/5d7771c5694ea8c48439/graun.standalone.commercial.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "other",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1398,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1398
       },
       {
         "id": 120,
-        "url": "https://cdn.privacy-mgmt.com/usnat/vendor-list/categories?siteId=&consentLanguage=",
+        "url": "https://cdn.privacy-mgmt.com/{seg}/{seg}/categories?%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "cdn.privacy-mgmt.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1408,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1408
       },
       {
         "id": 121,
-        "url": "https://ophan.theguardian.com/img/2",
+        "url": "https://ophan.theguardian.com/{seg}/{n}",
         "domain": "ophan.theguardian.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 204,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1413,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1413
       },
       {
         "id": 122,
-        "url": "https://contributions.guardianapis.com/banner",
+        "url": "https://contributions.guardianapis.com/{seg}",
         "domain": "contributions.guardianapis.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1416,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1416
       },
       {
         "id": 123,
-        "url": "https://securepubads.g.doubleclick.net/pagead/managed/js/gpt/m202606220101/pubads_impl.js",
+        "url": "https://securepubads.g.doubleclick.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "securepubads.g.doubleclick.net",
         "method": "GET",
         "resourceType": "script",
@@ -1555,36 +1555,36 @@
           "category": "advertising",
           "confidence": "curated"
         },
-        "startedAtMs": 1440,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1440
       },
       {
         "id": 124,
-        "url": "https://cdn.privacy-mgmt.com/usnat/consent/7417/default-consent",
+        "url": "https://cdn.privacy-mgmt.com/{seg}/{seg}/{n}/{seg}",
         "domain": "cdn.privacy-mgmt.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1440,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1440
       },
       {
         "id": 125,
-        "url": "https://cdn.confiant-integrations.net/gptprebidnative/202606101730/wrap.js",
+        "url": "https://cdn.confiant-integrations.net/{seg}/{n}/{seg}",
         "domain": "cdn.confiant-integrations.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1470,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1470
       },
       {
         "id": 126,
-        "url": "https://securepubads.g.doubleclick.net/pagead/managed/dict/m202606180101/gpt",
+        "url": "https://securepubads.g.doubleclick.net/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "securepubads.g.doubleclick.net",
         "method": "GET",
         "resourceType": "other",
@@ -1596,12 +1596,12 @@
           "category": "advertising",
           "confidence": "curated"
         },
-        "startedAtMs": 1471,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1471
       },
       {
         "id": 127,
-        "url": "https://cm.g.doubleclick.net/partnerpixels?rdp=&gpp=&gpp_sid=&url=",
+        "url": "https://cm.g.doubleclick.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "cm.g.doubleclick.net",
         "method": "GET",
         "resourceType": "document",
@@ -1613,12 +1613,12 @@
           "category": "advertising",
           "confidence": "curated"
         },
-        "startedAtMs": 1592,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1592
       },
       {
         "id": 128,
-        "url": "https://ads.pubmatic.com/AdServer/js/google-esp.js",
+        "url": "https://ads.pubmatic.com/{seg}/{seg}/{seg}",
         "domain": "ads.pubmatic.com",
         "method": "GET",
         "resourceType": "script",
@@ -1630,36 +1630,36 @@
           "category": "advertising / supply-side platform",
           "confidence": "curated"
         },
-        "startedAtMs": 1598,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1598
       },
       {
         "id": 129,
-        "url": "https://dmp.im-apps.net/secure-signal/provider.js",
+        "url": "https://dmp.im-apps.net/{seg}/{seg}",
         "domain": "dmp.im-apps.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1599,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1599
       },
       {
         "id": 130,
-        "url": "https://oa.openxcdn.net/esp.js",
+        "url": "https://oa.openxcdn.net/{seg}",
         "domain": "oa.openxcdn.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1599,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1599
       },
       {
         "id": 131,
-        "url": "https://tags.crwdcntrl.net/lt/c/16589/sync.min.js",
+        "url": "https://tags.crwdcntrl.net/{seg}/{seg}/{n}/{seg}",
         "domain": "tags.crwdcntrl.net",
         "method": "GET",
         "resourceType": "script",
@@ -1671,60 +1671,60 @@
           "category": "advertising / data management",
           "confidence": "curated"
         },
-        "startedAtMs": 1599,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1599
       },
       {
         "id": 132,
-        "url": "https://cdn.id5-sync.com/api/1.0/esp.js",
+        "url": "https://cdn.id5-sync.com/api/{seg}/{seg}",
         "domain": "cdn.id5-sync.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1599,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1599
       },
       {
         "id": 133,
-        "url": "https://invstatic101.creativecdn.com/encrypted-signals/encrypted-tag-g.js",
-        "domain": "invstatic101.creativecdn.com",
+        "url": "https://{label}.creativecdn.com/{seg}/{seg}",
+        "domain": "{label}.creativecdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1599,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1599
       },
       {
         "id": 134,
-        "url": "https://connectid.analytics.yahoo.com/connectId-gpt.js",
+        "url": "https://connectid.analytics.yahoo.com/{seg}",
         "domain": "connectid.analytics.yahoo.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1600,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1600
       },
       {
         "id": 135,
-        "url": "https://cdn.mgaru.dev/static/myGaruStandalone.js",
+        "url": "https://cdn.mgaru.dev/static/{seg}",
         "domain": "cdn.mgaru.dev",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1600,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1600
       },
       {
         "id": 136,
-        "url": "https://static.criteo.net/js/ld/publishertag.ids.js",
+        "url": "https://static.criteo.net/{seg}/{seg}/{seg}",
         "domain": "static.criteo.net",
         "method": "GET",
         "resourceType": "script",
@@ -1736,36 +1736,36 @@
           "category": "advertising",
           "confidence": "curated"
         },
-        "startedAtMs": 1600,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1600
       },
       {
         "id": 137,
-        "url": "https://interactive.guim.co.uk/fonts/guss-webfonts/GuardianTextSansWeb/GuardianTextSansWeb-Regular.woff2",
+        "url": "https://interactive.guim.co.uk/{seg}/{seg}/{seg}/{seg}",
         "domain": "interactive.guim.co.uk",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1725,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1725
       },
       {
         "id": 138,
-        "url": "https://sync6.im-apps.net/9001/pid?ref=&page=",
+        "url": "https://sync6.im-apps.net/{n}/{seg}?ref=&page=",
         "domain": "sync6.im-apps.net",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1735,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1735
       },
       {
         "id": 139,
-        "url": "https://bcp.crwdcntrl.net/6/map?xcid=",
+        "url": "https://bcp.crwdcntrl.net/{n}/{seg}?%5Bredacted%5D=",
         "domain": "bcp.crwdcntrl.net",
         "method": "POST",
         "resourceType": "xhr",
@@ -1777,48 +1777,48 @@
           "category": "advertising / data management",
           "confidence": "curated"
         },
-        "startedAtMs": 1744,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1744
       },
       {
         "id": 140,
-        "url": "https://id5-sync.com/api/esp/increment?counter=",
+        "url": "https://id5-sync.com/api/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "id5-sync.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 204,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1759,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1759
       },
       {
         "id": 141,
-        "url": "https://ups.analytics.yahoo.com/ups/58813/fed?gpp=&gpp_sid=&v=&url=",
+        "url": "https://ups.analytics.yahoo.com/{seg}/{n}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&v=&%5Bredacted%5D=",
         "domain": "ups.analytics.yahoo.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1767,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1767
       },
       {
         "id": 142,
-        "url": "https://ident.mygaru.com/v2/id?partner_id=",
+        "url": "https://ident.mygaru.com/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "ident.mygaru.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1849,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1849
       },
       {
         "id": 143,
-        "url": "https://oajs.openx.net/esp?url=&rid=",
+        "url": "https://oajs.openx.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "oajs.openx.net",
         "method": "GET",
         "resourceType": "fetch",
@@ -1830,84 +1830,84 @@
           "category": "advertising / exchange",
           "confidence": "curated"
         },
-        "startedAtMs": 1866,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1866
       },
       {
         "id": 144,
-        "url": "https://assets.guim.co.uk/assets/2974.client.web.5aed17c181f6fcdc701a.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1947,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1947
       },
       {
         "id": 145,
-        "url": "https://assets.guim.co.uk/assets/4406.client.web.c6affdf7d76dd96faaba.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1948,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1948
       },
       {
         "id": 146,
-        "url": "https://assets.guim.co.uk/assets/4897.client.web.1468b74bc1ffa98095b7.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1949,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1949
       },
       {
         "id": 147,
-        "url": "https://ophan.theguardian.com/img/2",
+        "url": "https://ophan.theguardian.com/{seg}/{n}",
         "domain": "ophan.theguardian.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 204,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1962,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1962
       },
       {
         "id": 148,
-        "url": "https://ophan.theguardian.com/img/2",
+        "url": "https://ophan.theguardian.com/{seg}/{n}",
         "domain": "ophan.theguardian.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 204,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2018,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2018
       },
       {
         "id": 149,
-        "url": "https://ophan.theguardian.com/img/2",
+        "url": "https://ophan.theguardian.com/{seg}/{n}",
         "domain": "ophan.theguardian.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 204,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2019,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2019
       },
       {
         "id": 150,
-        "url": "https://oajs.openx.net/esp?url=&rid=&cc=",
+        "url": "https://oajs.openx.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "oajs.openx.net",
         "method": "GET",
         "resourceType": "fetch",
@@ -1919,12 +1919,12 @@
           "category": "advertising / exchange",
           "confidence": "curated"
         },
-        "startedAtMs": 2068,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2068
       },
       {
         "id": 151,
-        "url": "https://google-bidout-d.openx.net/w/1.0/pd?plm=",
+        "url": "https://google-bidout-d.openx.net/{seg}/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "google-bidout-d.openx.net",
         "method": "GET",
         "resourceType": "document",
@@ -1936,48 +1936,48 @@
           "category": "advertising / exchange",
           "confidence": "curated"
         },
-        "startedAtMs": 2161,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2161
       },
       {
         "id": 152,
-        "url": "https://ophan.theguardian.com/img/2",
+        "url": "https://ophan.theguardian.com/{seg}/{n}",
         "domain": "ophan.theguardian.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 204,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2188,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2188
       },
       {
         "id": 153,
-        "url": "https://ophan.theguardian.com/img/2",
+        "url": "https://ophan.theguardian.com/{seg}/{n}",
         "domain": "ophan.theguardian.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 204,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2225,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2225
       },
       {
         "id": 154,
-        "url": "https://ep1.adtrafficquality.google/getconfig/sodar?sv=&tid=&tv=&st=&sjk=",
+        "url": "https://ep1.adtrafficquality.google/{seg}/{seg}?%5Bredacted%5D=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "ep1.adtrafficquality.google",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 2597,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2597
       },
       {
         "id": 155,
-        "url": "https://securepubads.g.doubleclick.net/gampad/ads?pvsid=&correlator=&eid=&output=&gdfp_req=&vrg=&ptt=&impl=&rdp=&gpp=&gpp_sid=&iu_parts=&enc_prev_ius=&prev_iu_szs=&fluid=&ifi=&didk=&dids=&adfs=&sfv=&fsbs=&sc=&cookie_enabled=&abxe=&dt=&lmt=&adxs=&adys=&biw=&bih=&scr_x=&scr_y=&btvi=&ucis=&oid=&u_his=&u_h=&u_w=&u_ah=&u_aw=&u_cd=&u_sd=&dmc=&bc=&nvt=&uach=&url=&vis=&psz=&msz=&fws=&ohw=&a3p=&dlt=&idt=&prev_scp=&cust_params=&adks=&frm=&eoidce=",
+        "url": "https://securepubads.g.doubleclick.net/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "securepubads.g.doubleclick.net",
         "method": "GET",
         "resourceType": "fetch",
@@ -1989,13 +1989,13 @@
           "category": "advertising",
           "confidence": "curated"
         },
-        "startedAtMs": 2598,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2598
       },
       {
         "id": 156,
-        "url": "https://0a3a1988c3231071240c298ab8cdd979.safeframe.googlesyndication.com/safeframe/1-0-45/html/container.html",
-        "domain": "0a3a1988c3231071240c298ab8cdd979.safeframe.googlesyndication.com",
+        "url": "https://{label}.safeframe.googlesyndication.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.safeframe.googlesyndication.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -2006,12 +2006,12 @@
           "category": "advertising",
           "confidence": "curated"
         },
-        "startedAtMs": 2600,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2600
       },
       {
         "id": 157,
-        "url": "https://pagead2.googlesyndication.com/pagead/ping?e=",
+        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "pagead2.googlesyndication.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -2023,48 +2023,48 @@
           "category": "advertising",
           "confidence": "curated"
         },
-        "startedAtMs": 2605,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2605
       },
       {
         "id": 158,
-        "url": "https://ep2.adtrafficquality.google/sodar/sodar2.js",
+        "url": "https://ep2.adtrafficquality.google/{seg}/{seg}",
         "domain": "ep2.adtrafficquality.google",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 2653,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2653
       },
       {
         "id": 159,
-        "url": "https://ep2.adtrafficquality.google/sodar/sodar2/255/runner.html",
+        "url": "https://ep2.adtrafficquality.google/{seg}/{seg}/{n}/{seg}",
         "domain": "ep2.adtrafficquality.google",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 2706,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2706
       },
       {
         "id": 160,
-        "url": "https://www.google.com/recaptcha/api2/aframe",
+        "url": "https://www.google.com/{seg}/{seg}/{seg}",
         "domain": "www.google.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 2707,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2707
       },
       {
         "id": 161,
-        "url": "https://pagead2.googlesyndication.com/bg/18knlKBqUv1EhgrdMKqAfIDQle70aO93iXF1N1uLBtA.js",
+        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}",
         "domain": "pagead2.googlesyndication.com",
         "method": "GET",
         "resourceType": "script",
@@ -2076,12 +2076,12 @@
           "category": "advertising",
           "confidence": "curated"
         },
-        "startedAtMs": 2722,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2722
       },
       {
         "id": 162,
-        "url": "https://pagead2.googlesyndication.com/pagead/sodar?id=&v=&li=&jk=&rc=",
+        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}?id=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "pagead2.googlesyndication.com",
         "method": "GET",
         "resourceType": "image",
@@ -2093,24 +2093,24 @@
           "category": "advertising",
           "confidence": "curated"
         },
-        "startedAtMs": 2795,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2795
       },
       {
         "id": 163,
-        "url": "https://ep2.adtrafficquality.google/generate_204?4FjExg=",
+        "url": "https://ep2.adtrafficquality.google/{seg}?%5Bredacted%5D=",
         "domain": "ep2.adtrafficquality.google",
         "method": "GET",
         "resourceType": "image",
         "status": 204,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 2833,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2833
       },
       {
         "id": 164,
-        "url": "https://gum.criteo.com/syncframe?origin=&topUrl=&gpp=&gpp_sid=",
+        "url": "https://gum.criteo.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "gum.criteo.com",
         "method": "GET",
         "resourceType": "document",
@@ -2122,96 +2122,96 @@
           "category": "advertising",
           "confidence": "curated"
         },
-        "startedAtMs": 3022,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 3022
       },
       {
         "id": 165,
-        "url": "https://cdn.ampproject.org/rtv/012605071401000/amp4ads-v0.js",
+        "url": "https://cdn.ampproject.org/{seg}/{n}/{seg}",
         "domain": "cdn.ampproject.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 3328,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 3328
       },
       {
         "id": 166,
-        "url": "https://cdn.ampproject.org/rtv/012605071401000/v0/amp-ad-exit-0.1.js",
+        "url": "https://cdn.ampproject.org/{seg}/{n}/{seg}/{seg}",
         "domain": "cdn.ampproject.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 3328,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 3328
       },
       {
         "id": 167,
-        "url": "https://cdn.ampproject.org/rtv/012605071401000/v0/amp-analytics-0.1.js",
+        "url": "https://cdn.ampproject.org/{seg}/{n}/{seg}/{seg}",
         "domain": "cdn.ampproject.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 3328,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 3328
       },
       {
         "id": 168,
-        "url": "https://cdn.ampproject.org/rtv/012605071401000/v0/amp-fit-text-0.1.js",
+        "url": "https://cdn.ampproject.org/{seg}/{n}/{seg}/{seg}",
         "domain": "cdn.ampproject.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 3328,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 3328
       },
       {
         "id": 169,
-        "url": "https://cdn.ampproject.org/rtv/012605071401000/v0/amp-form-0.1.js",
+        "url": "https://cdn.ampproject.org/{seg}/{n}/{seg}/{seg}",
         "domain": "cdn.ampproject.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 3329,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 3329
       },
       {
         "id": 170,
-        "url": "https://fonts.googleapis.com/css?family=",
+        "url": "https://fonts.googleapis.com/{seg}?%5Bredacted%5D=",
         "domain": "fonts.googleapis.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 3329,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 3329
       },
       {
         "id": 171,
-        "url": "https://protected-by.clarium.io/pixel?tag=&v=&s=&h=&cb=&d=&id=",
+        "url": "https://protected-by.clarium.io/{seg}?%5Bredacted%5D=&v=&%5Bredacted%5D=&%5Bredacted%5D=&cb=&%5Bredacted%5D=&id=",
         "domain": "protected-by.clarium.io",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 3332,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 3332
       },
       {
         "id": 172,
-        "url": "https://tpc.googlesyndication.com/pagead/images/adchoices/en_bl.png",
+        "url": "https://tpc.googlesyndication.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "tpc.googlesyndication.com",
         "method": "GET",
         "resourceType": "image",
@@ -2223,12 +2223,12 @@
           "category": "advertising",
           "confidence": "curated"
         },
-        "startedAtMs": 3333,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 3333
       },
       {
         "id": 173,
-        "url": "https://tpc.googlesyndication.com/pagead/images/adchoices/adchoices_blue_wb.png",
+        "url": "https://tpc.googlesyndication.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "tpc.googlesyndication.com",
         "method": "GET",
         "resourceType": "image",
@@ -2240,12 +2240,12 @@
           "category": "advertising",
           "confidence": "curated"
         },
-        "startedAtMs": 3333,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 3333
       },
       {
         "id": 174,
-        "url": "https://securepubads.g.doubleclick.net/pagead/adview?ai=&sigh=&uach_m=&cid=&template_id=&ebtr=",
+        "url": "https://securepubads.g.doubleclick.net/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "securepubads.g.doubleclick.net",
         "method": "GET",
         "resourceType": "image",
@@ -2257,276 +2257,276 @@
           "category": "advertising",
           "confidence": "curated"
         },
-        "startedAtMs": 3333,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 3333
       },
       {
         "id": 175,
-        "url": "https://ep1.adtrafficquality.google/pagead/sodar?id=&v=&t=&li=&jk=&bg=",
+        "url": "https://ep1.adtrafficquality.google/{seg}/{seg}?id=&v=&t=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "ep1.adtrafficquality.google",
         "method": "GET",
         "resourceType": "image",
         "status": 204,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 3372,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 3372
       },
       {
         "id": 176,
-        "url": "https://fonts.gstatic.com/s/opensans/v44/memvYaGs126MiZpBA-UvWbX2vVnXBbObj2OVTSKmu1aB.woff2",
+        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "fonts.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": null,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 3449,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 3449
       },
       {
         "id": 177,
-        "url": "https://fonts.gstatic.com/s/opensans/v44/memvYaGs126MiZpBA-UvWbX2vVnXBbObj2OVTSumu1aB.woff2",
+        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "fonts.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": null,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 3449,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 3449
       },
       {
         "id": 178,
-        "url": "https://fonts.gstatic.com/s/opensans/v44/memvYaGs126MiZpBA-UvWbX2vVnXBbObj2OVTSOmu1aB.woff2",
+        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "fonts.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": null,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 3450,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 3450
       },
       {
         "id": 179,
-        "url": "https://fonts.gstatic.com/s/opensans/v44/memvYaGs126MiZpBA-UvWbX2vVnXBbObj2OVTSymu1aB.woff2",
+        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "fonts.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": null,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 3450,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 3450
       },
       {
         "id": 180,
-        "url": "https://fonts.gstatic.com/s/opensans/v44/memvYaGs126MiZpBA-UvWbX2vVnXBbObj2OVTS2mu1aB.woff2",
+        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "fonts.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": null,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 3450,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 3450
       },
       {
         "id": 181,
-        "url": "https://fonts.gstatic.com/s/opensans/v44/memvYaGs126MiZpBA-UvWbX2vVnXBbObj2OVTVOmu1aB.woff2",
+        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "fonts.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": null,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 3450,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 3450
       },
       {
         "id": 182,
-        "url": "https://fonts.gstatic.com/s/opensans/v44/memvYaGs126MiZpBA-UvWbX2vVnXBbObj2OVTUGmu1aB.woff2",
+        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "fonts.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": null,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 3451,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 3451
       },
       {
         "id": 183,
-        "url": "https://fonts.gstatic.com/s/opensans/v44/memvYaGs126MiZpBA-UvWbX2vVnXBbObj2OVTSCmu1aB.woff2",
+        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "fonts.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": null,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 3451,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 3451
       },
       {
         "id": 184,
-        "url": "https://fonts.gstatic.com/s/opensans/v44/memvYaGs126MiZpBA-UvWbX2vVnXBbObj2OVTSGmu1aB.woff2",
+        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "fonts.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": null,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 3451,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 3451
       },
       {
         "id": 185,
-        "url": "https://fonts.gstatic.com/s/opensans/v44/memvYaGs126MiZpBA-UvWbX2vVnXBbObj2OVTS-muw.woff2",
+        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "fonts.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": null,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 3452,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 3452
       },
       {
         "id": 186,
-        "url": "https://fonts.gstatic.com/s/opensans/v44/memvYaGs126MiZpBA-UvWbX2vVnXBbObj2OVTSKmu1aB.woff2",
+        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "fonts.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": null,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 3452,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 3452
       },
       {
         "id": 187,
-        "url": "https://fonts.gstatic.com/s/opensans/v44/memvYaGs126MiZpBA-UvWbX2vVnXBbObj2OVTSumu1aB.woff2",
+        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "fonts.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": null,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 3452,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 3452
       },
       {
         "id": 188,
-        "url": "https://fonts.gstatic.com/s/opensans/v44/memvYaGs126MiZpBA-UvWbX2vVnXBbObj2OVTSOmu1aB.woff2",
+        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "fonts.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": null,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 3452,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 3452
       },
       {
         "id": 189,
-        "url": "https://fonts.gstatic.com/s/opensans/v44/memvYaGs126MiZpBA-UvWbX2vVnXBbObj2OVTSymu1aB.woff2",
+        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "fonts.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": null,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 3452,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 3452
       },
       {
         "id": 190,
-        "url": "https://fonts.gstatic.com/s/opensans/v44/memvYaGs126MiZpBA-UvWbX2vVnXBbObj2OVTS2mu1aB.woff2",
+        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "fonts.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": null,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 3452,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 3452
       },
       {
         "id": 191,
-        "url": "https://fonts.gstatic.com/s/opensans/v44/memvYaGs126MiZpBA-UvWbX2vVnXBbObj2OVTVOmu1aB.woff2",
+        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "fonts.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": null,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 3452,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 3452
       },
       {
         "id": 192,
-        "url": "https://fonts.gstatic.com/s/opensans/v44/memvYaGs126MiZpBA-UvWbX2vVnXBbObj2OVTUGmu1aB.woff2",
+        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "fonts.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": null,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 3452,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 3452
       },
       {
         "id": 193,
-        "url": "https://fonts.gstatic.com/s/opensans/v44/memvYaGs126MiZpBA-UvWbX2vVnXBbObj2OVTSCmu1aB.woff2",
+        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "fonts.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": null,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 3452,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 3452
       },
       {
         "id": 194,
-        "url": "https://fonts.gstatic.com/s/opensans/v44/memvYaGs126MiZpBA-UvWbX2vVnXBbObj2OVTSGmu1aB.woff2",
+        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "fonts.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": null,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 3452,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 3452
       },
       {
         "id": 195,
-        "url": "https://fonts.gstatic.com/s/opensans/v44/memvYaGs126MiZpBA-UvWbX2vVnXBbObj2OVTS-muw.woff2",
+        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "fonts.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": null,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 3455,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 3455
       },
       {
         "id": 196,
-        "url": "https://www.google.com/pagead/drt/ui",
+        "url": "https://www.google.com/{seg}/{seg}/{seg}",
         "domain": "www.google.com",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 3458,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 3458
       },
       {
         "id": 197,
-        "url": "https://googleads.g.doubleclick.net/pagead/drt/si?st=",
+        "url": "https://googleads.g.doubleclick.net/{seg}/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "googleads.g.doubleclick.net",
         "method": "GET",
         "resourceType": "image",
@@ -2538,12 +2538,12 @@
           "category": "advertising",
           "confidence": "curated"
         },
-        "startedAtMs": 3482,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 3482
       },
       {
         "id": 198,
-        "url": "https://securepubads.g.doubleclick.net/btr/view?ai=&sigh=&uach_m=&cid=&template_id=&ibtr=",
+        "url": "https://securepubads.g.doubleclick.net/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "securepubads.g.doubleclick.net",
         "method": "GET",
         "resourceType": "image",
@@ -2555,8 +2555,8 @@
           "category": "advertising",
           "confidence": "curated"
         },
-        "startedAtMs": 3499,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 3499
       }
     ],
     "domains": [
@@ -2766,7 +2766,7 @@
         ]
       },
       {
-        "domain": "0a3a1988c3231071240c298ab8cdd979.safeframe.googlesyndication.com",
+        "domain": "{label}.safeframe.googlesyndication.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": {
@@ -3008,7 +3008,7 @@
         ]
       },
       {
-        "domain": "invstatic101.creativecdn.com",
+        "domain": "{label}.creativecdn.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -3185,7 +3185,7 @@
     ],
     "cookies": [
       {
-        "name": "uid",
+        "name": "[redacted]",
         "domain": ".criteo.com",
         "path": "/",
         "sameSite": "None",
@@ -3195,7 +3195,7 @@
         "thirdParty": true
       },
       {
-        "name": "_cc_dc",
+        "name": "[redacted]",
         "domain": ".crwdcntrl.net",
         "path": "/",
         "sameSite": "None",
@@ -3205,7 +3205,7 @@
         "thirdParty": true
       },
       {
-        "name": "_cc_id",
+        "name": "[redacted]",
         "domain": ".crwdcntrl.net",
         "path": "/",
         "sameSite": "None",
@@ -3235,7 +3235,7 @@
         "thirdParty": true
       },
       {
-        "name": "imid_secure",
+        "name": "[redacted]",
         "domain": ".im-apps.net",
         "path": "/",
         "sameSite": "None",
@@ -3245,7 +3245,7 @@
         "thirdParty": true
       },
       {
-        "name": "imid_created_secure",
+        "name": "[redacted]",
         "domain": ".im-apps.net",
         "path": "/",
         "sameSite": "None",
@@ -3255,7 +3255,7 @@
         "thirdParty": true
       },
       {
-        "name": "i",
+        "name": "[redacted]",
         "domain": ".openx.net",
         "path": "/",
         "sameSite": "None",
@@ -3265,7 +3265,7 @@
         "thirdParty": true
       },
       {
-        "name": "usnatUUID",
+        "name": "[redacted]",
         "domain": ".theguardian.com",
         "path": "/",
         "sameSite": "None",
@@ -3275,7 +3275,7 @@
         "thirdParty": false
       },
       {
-        "name": "bwid",
+        "name": "[redacted]",
         "domain": ".theguardian.com",
         "path": "/",
         "sameSite": "None",
@@ -3285,7 +3285,7 @@
         "thirdParty": false
       },
       {
-        "name": "bwid_withoutSameSiteForIncompatibleClients",
+        "name": "[redacted]",
         "domain": ".theguardian.com",
         "path": "/",
         "sameSite": "Lax",
@@ -3295,7 +3295,7 @@
         "thirdParty": false
       },
       {
-        "name": "lotame_domain_check",
+        "name": "[redacted]",
         "domain": ".theguardian.com",
         "path": "/",
         "sameSite": "Lax",
@@ -3305,7 +3305,7 @@
         "thirdParty": false
       },
       {
-        "name": "_pubcid",
+        "name": "[redacted]",
         "domain": ".theguardian.com",
         "path": "/",
         "sameSite": "Lax",
@@ -3315,7 +3315,7 @@
         "thirdParty": false
       },
       {
-        "name": "_cc_id",
+        "name": "[redacted]",
         "domain": ".theguardian.com",
         "path": "/",
         "sameSite": "Lax",
@@ -3325,7 +3325,7 @@
         "thirdParty": false
       },
       {
-        "name": "panoramaId_expiry",
+        "name": "[redacted]",
         "domain": ".theguardian.com",
         "path": "/",
         "sameSite": "Lax",
@@ -3335,7 +3335,7 @@
         "thirdParty": false
       },
       {
-        "name": "panoramaId",
+        "name": "[redacted]",
         "domain": ".theguardian.com",
         "path": "/",
         "sameSite": "Lax",
@@ -3345,7 +3345,7 @@
         "thirdParty": false
       },
       {
-        "name": "panoramaIdType",
+        "name": "[redacted]",
         "domain": ".theguardian.com",
         "path": "/",
         "sameSite": "Lax",
@@ -3355,7 +3355,7 @@
         "thirdParty": false
       },
       {
-        "name": "connectId",
+        "name": "[redacted]",
         "domain": ".theguardian.com",
         "path": "/",
         "sameSite": "None",
@@ -3365,7 +3365,7 @@
         "thirdParty": false
       },
       {
-        "name": "__gads",
+        "name": "[redacted]",
         "domain": ".theguardian.com",
         "path": "/",
         "sameSite": "None",
@@ -3375,7 +3375,7 @@
         "thirdParty": false
       },
       {
-        "name": "__gpi",
+        "name": "[redacted]",
         "domain": ".theguardian.com",
         "path": "/",
         "sameSite": "None",
@@ -3385,7 +3385,7 @@
         "thirdParty": false
       },
       {
-        "name": "__eoi",
+        "name": "[redacted]",
         "domain": ".theguardian.com",
         "path": "/",
         "sameSite": "None",
@@ -3395,7 +3395,7 @@
         "thirdParty": false
       },
       {
-        "name": "gu_client_ab_tests",
+        "name": "[redacted]",
         "domain": "www.theguardian.com",
         "path": "/",
         "sameSite": "Lax",
@@ -3405,7 +3405,7 @@
         "thirdParty": false
       },
       {
-        "name": "gu_v2_mvt_id",
+        "name": "[redacted]",
         "domain": "www.theguardian.com",
         "path": "/",
         "sameSite": "Lax",
@@ -3415,7 +3415,7 @@
         "thirdParty": false
       },
       {
-        "name": "GU_geo_country",
+        "name": "[redacted]",
         "domain": "www.theguardian.com",
         "path": "/",
         "sameSite": "Lax",
@@ -3428,125 +3428,126 @@
     "storage": [
       {
         "area": "localStorage",
-        "key": "gu.adManagerGroup",
+        "key": "[redacted]",
         "valueBytes": 1
       },
       {
         "area": "localStorage",
-        "key": "_GESPSK-esp.pubmatic.com",
+        "key": "[redacted]",
         "valueBytes": 75
       },
       {
         "area": "localStorage",
-        "key": "_GESPSK-crwdcntrl.net",
+        "key": "[redacted]",
         "valueBytes": 98
       },
       {
         "area": "localStorage",
-        "key": "panoramaId_expiry",
+        "key": "[redacted]",
         "valueBytes": 13
       },
       {
         "area": "localStorage",
-        "key": "panoramaId",
+        "key": "[redacted]",
         "valueBytes": 64
       },
       {
         "area": "localStorage",
-        "key": "panoramaIdType",
+        "key": "[redacted]",
         "valueBytes": 10
       },
       {
         "area": "localStorage",
-        "key": "_GESPSK-id5-sync.com",
+        "key": "[redacted]",
         "valueBytes": 71
       },
       {
         "area": "localStorage",
-        "key": "_GESPSK-esp.criteo.com",
+        "key": "[redacted]",
         "valueBytes": 73
       },
       {
         "area": "localStorage",
-        "key": "_cc_id",
+        "key": "[redacted]",
         "valueBytes": 32
       },
       {
         "area": "localStorage",
-        "key": "_sp_user_consent_7417",
+        "key": "[redacted:long-token]",
         "valueBytes": 812
       },
       {
         "area": "localStorage",
-        "key": "connectId",
+        "key": "[redacted]",
         "valueBytes": 68
       },
       {
         "area": "localStorage",
-        "key": "myg_otp",
+        "key": "[redacted]",
         "valueBytes": 177
       },
       {
         "area": "localStorage",
-        "key": "_pubcid",
+        "key": "[redacted]",
         "valueBytes": 36
       },
       {
         "area": "localStorage",
-        "key": "_sp_non_keyed_local_state",
+        "key": "[redacted]",
         "valueBytes": 52
       },
       {
         "area": "localStorage",
-        "key": "_im_uid.9001",
+        "key": "[redacted]",
         "valueBytes": 18
       },
       {
         "area": "localStorage",
-        "key": "_GESPSK-intimatemerger.com",
+        "key": "[redacted]",
         "valueBytes": 57
       },
       {
         "area": "localStorage",
-        "key": "_GESPSK-yahoo.com",
+        "key": "[redacted]",
         "valueBytes": 68
       },
       {
         "area": "localStorage",
-        "key": "_sp_local_state",
+        "key": "[redacted]",
         "valueBytes": 161
       },
       {
         "area": "localStorage",
-        "key": "_GESPSK-openx",
+        "key": "[redacted]",
         "valueBytes": 70
       },
       {
         "area": "localStorage",
-        "key": "_cc_id_update_ts",
+        "key": "[redacted]",
         "valueBytes": 13
       },
       {
         "area": "localStorage",
-        "key": "_GESPSK-mygaruID",
+        "key": "[redacted]",
         "valueBytes": 156
       },
       {
         "area": "localStorage",
-        "key": "_GESPSK-rtbhouse",
+        "key": "[redacted]",
         "valueBytes": 67
       },
       {
         "area": "localStorage",
-        "key": "_im_uid_mt.9001",
+        "key": "[redacted]",
         "valueBytes": 29
       },
       {
         "area": "localStorage",
-        "key": "rtbhouse-esp",
+        "key": "[redacted]",
         "valueBytes": 36
       }
     ],
+    "fingerprintEvents": [],
     "fingerprintDetections": [
       {
         "kind": "input-monitoring",
@@ -3565,9 +3566,9 @@
             "window"
           ],
           "thirdPartyOrigins": [
-            "https://assets.guim.co.uk",
-            "https://cdn.ampproject.org",
-            "https://securepubads.g.doubleclick.net"
+            "https://assets.guim.co.uk/",
+            "https://cdn.ampproject.org/",
+            "https://securepubads.g.doubleclick.net/"
           ],
           "totalListenerCalls": 24
         }
@@ -3598,15 +3599,14 @@
             "window"
           ],
           "thirdPartyOrigins": [
-            "https://assets.guim.co.uk",
-            "https://cdn.ampproject.org",
-            "https://securepubads.g.doubleclick.net"
+            "https://assets.guim.co.uk/",
+            "https://cdn.ampproject.org/",
+            "https://securepubads.g.doubleclick.net/"
           ],
           "totalListenerCalls": 57
         }
       }
     ],
-    "fingerprintEvents": [],
     "screenshot": null,
     "warnings": [
       "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
@@ -3651,6 +3651,13 @@
       "automation": "playwright-chromium",
       "headless": true,
       "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "block-simulation",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-06-19T17:24:24.927Z"
+      },
       "trackerCatalog": {
         "source": "Hand-curated service catalog",
         "version": "hand-curated-2026.06",
@@ -3659,14 +3666,7 @@
         "curatedOverrides": 133,
         "license": "AGPL-3.0-or-later"
       },
-      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
-      "adblock": {
-        "active": true,
-        "source": "Brave default ad-block lists",
-        "lists": 31,
-        "fetchedAt": "2026-06-19T17:24:24.927Z"
-      },
-      "shieldsMode": "block-simulation"
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
     },
     "requests": [
       {
@@ -3678,8 +3678,8 @@
         "status": 302,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 35,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 35
       },
       {
         "id": 2,
@@ -3690,968 +3690,968 @@
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 48,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 48
       },
       {
         "id": 3,
-        "url": "https://assets.guim.co.uk/polyfill.io/v3/polyfill.min.js?rum=&features=&flags=&callback=&unknown=&cacheClear=",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&callback=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "other",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 93,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 93
       },
       {
         "id": 4,
-        "url": "https://assets.guim.co.uk/assets/frameworks.client.web.43c344cdcf55a381da73.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "other",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 93,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 93
       },
       {
         "id": 5,
-        "url": "https://assets.guim.co.uk/static/frontend/fonts/guardian-headline/noalts-not-hinted/GHGuardianHeadline-Bold.woff2",
+        "url": "https://assets.guim.co.uk/static/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 94,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 94
       },
       {
         "id": 6,
-        "url": "https://assets.guim.co.uk/static/frontend/fonts/guardian-textegyptian/noalts-not-hinted/GuardianTextEgyptian-Regular.woff2",
+        "url": "https://assets.guim.co.uk/static/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 94,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 94
       },
       {
         "id": 7,
-        "url": "https://assets.guim.co.uk/assets/frameworks.client.web.43c344cdcf55a381da73.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 94,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 94
       },
       {
         "id": 8,
-        "url": "https://assets.guim.co.uk/assets/index.client.web.987f283b49c417774a68.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 94,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 94
       },
       {
         "id": 9,
-        "url": "https://i.guim.co.uk/img/media/a25aedb9223fc6bbef453a4017a24fe95b2dd8ee/719_277_1997_1598/master/1997.jpg?width=&dpr=&s=&crop=",
+        "url": "https://i.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "i.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 98,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 98
       },
       {
         "id": 10,
-        "url": "https://i.guim.co.uk/img/media/ec932b94762b4c950c8161b2cdc03927ab7e7062/467_0_4306_3444/master/4306.jpg?width=&dpr=&s=&crop=",
+        "url": "https://i.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "i.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 98,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 98
       },
       {
         "id": 11,
-        "url": "https://i.guim.co.uk/img/uploads/2022/03/19/Moira_Donegan,_L.png?width=&dpr=&s=&crop=",
+        "url": "https://i.guim.co.uk/{seg}/{seg}/{n}/{n}/{n}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "i.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 125,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 125
       },
       {
         "id": 12,
-        "url": "https://i.guim.co.uk/img/media/14e7dbc3decbbaafdbf2f770343187a43c9d61bf/683_0_4000_4000/master/4000.jpg?width=&dpr=&s=&crop=",
+        "url": "https://i.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "i.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 127,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 127
       },
       {
         "id": 13,
-        "url": "https://i.guim.co.uk/img/media/c25d724f142f839da80c58ad3285b574b52d4dc8/0_0_1548_1238/master/1548.jpg?width=&dpr=&s=&crop=",
+        "url": "https://i.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "i.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 130,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 130
       },
       {
         "id": 14,
-        "url": "https://assets.guim.co.uk/polyfill.io/v3/polyfill.min.js?rum=&features=&flags=&callback=&unknown=&cacheClear=",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&callback=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 131,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 131
       },
       {
         "id": 15,
-        "url": "https://assets.guim.co.uk/commercial/5d7771c5694ea8c48439/graun.standalone.commercial.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 131,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 131
       },
       {
         "id": 16,
-        "url": "https://i.guim.co.uk/img/media/389f641f2ce3214507bd4607ba2f26fd934538b1/1168_0_5840_4672/master/5840.jpg?width=&dpr=&s=&crop=",
+        "url": "https://i.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "i.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 132,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 132
       },
       {
         "id": 17,
-        "url": "https://i.guim.co.uk/img/media/a97688fd96d43da56bf2cee596d5443f6784fe00/2192_796_4999_3998/master/4999.jpg?width=&dpr=&s=&crop=",
+        "url": "https://i.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "i.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 132,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 132
       },
       {
         "id": 18,
-        "url": "https://i.guim.co.uk/img/media/14e7dbc3decbbaafdbf2f770343187a43c9d61bf/1_0_4998_4000/master/4998.jpg?width=&dpr=&s=&crop=",
+        "url": "https://i.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "i.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 133,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 133
       },
       {
         "id": 19,
-        "url": "https://i.guim.co.uk/img/media/0d21fa4fc7c709efa612ee8b908850b47e3b7b84/70_0_5859_4688/master/5859.jpg?width=&dpr=&s=&crop=",
+        "url": "https://i.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "i.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 133,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 133
       },
       {
         "id": 20,
-        "url": "https://assets.guim.co.uk/assets/index.client.web.987f283b49c417774a68.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "other",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 136,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 136
       },
       {
         "id": 21,
-        "url": "https://i.guim.co.uk/img/media/526da2261fed2c058d30bdb593c38383157afaed/985_0_4915_3933/master/4915.jpg?width=&dpr=&s=&crop=",
+        "url": "https://i.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "i.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 137,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 137
       },
       {
         "id": 22,
-        "url": "https://i.guim.co.uk/img/media/aa30069444a642e264f800ff2fda0dd65b2475de/974_573_1890_1513/master/1890.jpg?width=&dpr=&s=&crop=",
+        "url": "https://i.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "i.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 137,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 137
       },
       {
         "id": 23,
-        "url": "https://i.guim.co.uk/img/media/8f75929f734fb075e37fde28cd65ea3f2200e93a/7_0_2501_2000/master/2501.jpg?width=&dpr=&s=&crop=",
+        "url": "https://i.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "i.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 138,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 138
       },
       {
         "id": 24,
-        "url": "https://i.guim.co.uk/img/media/ce326ce866a029185045f6d75b0a849b141790cb/581_0_5756_4606/master/5756.jpg?width=&dpr=&s=&crop=",
+        "url": "https://i.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "i.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 138,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 138
       },
       {
         "id": 25,
-        "url": "https://i.guim.co.uk/img/media/e0170b5a023ecf9d478880ee2e1cd2b42631a37b/458_0_4585_3668/master/4585.jpg?width=&dpr=&s=&crop=",
+        "url": "https://i.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "i.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 138,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 138
       },
       {
         "id": 26,
-        "url": "https://assets.guim.co.uk/commercial/5d7771c5694ea8c48439/graun.standalone.commercial.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "other",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 139,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 139
       },
       {
         "id": 27,
-        "url": "https://i.guim.co.uk/img/media/b6ef597f5bd546ee5734935e21bd071c8b6a4701/1387_0_6933_5547/master/6933.jpg?width=&dpr=&s=&crop=",
+        "url": "https://i.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "i.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 139,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 139
       },
       {
         "id": 28,
-        "url": "https://assets.guim.co.uk/static/frontend/css/print.css",
+        "url": "https://assets.guim.co.uk/static/{seg}/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 139,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 139
       },
       {
         "id": 29,
-        "url": "https://i.guim.co.uk/img/uploads/2023/08/03/Soccer-v7_TREAT.png?width=&dpr=&s=&crop=",
+        "url": "https://i.guim.co.uk/{seg}/{seg}/{n}/{n}/{n}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "i.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 162,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 162
       },
       {
         "id": 30,
-        "url": "https://i.guim.co.uk/img/uploads/2023/01/20/margaret_sullivan.png?width=&dpr=&s=&crop=",
+        "url": "https://i.guim.co.uk/{seg}/{seg}/{n}/{n}/{n}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "i.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 163,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 163
       },
       {
         "id": 31,
-        "url": "https://i.guim.co.uk/img/uploads/2022/03/19/Moira_Donegan,_L.png?width=&dpr=&s=&crop=",
+        "url": "https://i.guim.co.uk/{seg}/{seg}/{n}/{n}/{n}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "i.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 164,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 164
       },
       {
         "id": 32,
-        "url": "https://i.guim.co.uk/img/uploads/2023/06/27/Alexander_Hurst_V2.png?width=&dpr=&s=&crop=",
+        "url": "https://i.guim.co.uk/{seg}/{seg}/{n}/{n}/{n}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "i.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 164,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 164
       },
       {
         "id": 33,
-        "url": "https://i.guim.co.uk/img/uploads/2019/02/13/Adrian_Chiles,_L.png?width=&dpr=&s=&crop=",
+        "url": "https://i.guim.co.uk/{seg}/{seg}/{n}/{n}/{n}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "i.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 164,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 164
       },
       {
         "id": 34,
-        "url": "https://assets.guim.co.uk/static/frontend/fonts/guardian-textsans/noalts-not-hinted/GuardianTextSans-Regular.woff2",
+        "url": "https://assets.guim.co.uk/static/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 227,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 227
       },
       {
         "id": 35,
-        "url": "https://assets.guim.co.uk/static/frontend/fonts/guardian-textsans/noalts-not-hinted/GuardianTextSans-Bold.woff2",
+        "url": "https://assets.guim.co.uk/static/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 227,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 227
       },
       {
         "id": 36,
-        "url": "https://assets.guim.co.uk/static/frontend/fonts/guardian-headline/noalts-not-hinted/GHGuardianHeadline-Medium.woff2",
+        "url": "https://assets.guim.co.uk/static/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 228,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 228
       },
       {
         "id": 37,
-        "url": "https://assets.guim.co.uk/static/frontend/fonts/guardian-textsans/noalts-not-hinted/GuardianTextSans-RegularItalic.woff2",
+        "url": "https://assets.guim.co.uk/static/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 228,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 228
       },
       {
         "id": 38,
-        "url": "https://i.guim.co.uk/img/media/89eb4dbaf3eef58e2425447c509b723d02348706/387_0_2090_1671/master/2090.jpg?width=&dpr=&s=&crop=",
+        "url": "https://i.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "i.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 229,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 229
       },
       {
         "id": 39,
-        "url": "https://i.guim.co.uk/img/media/5917d6493d1dd84799ab00906f07132fd5652c49/851_0_6880_5504/master/6880.jpg?width=&dpr=&s=&crop=",
+        "url": "https://i.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "i.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 230,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 230
       },
       {
         "id": 40,
-        "url": "https://i.guim.co.uk/img/media/524f7c1ae43b7280b23e24944fdaea18d894093d/370_0_5000_4000/master/5000.jpg?width=&dpr=&s=&crop=",
+        "url": "https://i.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "i.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 234,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 234
       },
       {
         "id": 41,
-        "url": "https://i.guim.co.uk/img/media/730995518dc604ca68408dafd8ea8dcfb27a0e23/372_0_5257_4205/master/5257.jpg?width=&dpr=&s=&crop=",
+        "url": "https://i.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "i.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 235,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 235
       },
       {
         "id": 42,
-        "url": "https://i.guim.co.uk/img/media/ce66498719f86a06f61edfbbc497e49b1b7efb8a/516_0_5160_4128/master/5160.jpg?width=&dpr=&s=&crop=",
+        "url": "https://i.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "i.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 235,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 235
       },
       {
         "id": 43,
-        "url": "https://i.guim.co.uk/img/media/81fa43c5d6ce2b397830713cf44e7d6282bf1d77/317_0_1350_1080/1350.jpg?width=&dpr=&s=&crop=",
+        "url": "https://i.guim.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}?width=&dpr=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "i.guim.co.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 244,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 244
       },
       {
         "id": 44,
-        "url": "https://assets.guim.co.uk/assets/5863.client.web.f8d7a57a15a43d143aaf.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 317,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 317
       },
       {
         "id": 45,
-        "url": "https://assets.guim.co.uk/assets/5993.client.web.783b8a5b8a0ecd74a5b7.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 319,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 319
       },
       {
         "id": 46,
-        "url": "https://assets.guim.co.uk/assets/5100.client.web.58c143343a5b964e04d6.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 320,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 320
       },
       {
         "id": 47,
-        "url": "https://assets.guim.co.uk/assets/7034.client.web.41fb678e62f2598aa5d2.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 320,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 320
       },
       {
         "id": 48,
-        "url": "https://assets.guim.co.uk/assets/Metrics-island.client.web.2634e56955d45d48bae9.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 321,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 321
       },
       {
         "id": 49,
-        "url": "https://assets.guim.co.uk/assets/SetABTests-island.client.web.575b4bdaa62ed0e3448e.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 321,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 321
       },
       {
         "id": 50,
-        "url": "https://assets.guim.co.uk/assets/SetAdTargeting-island.client.web.0d7fe9df2a70fc38e4ef.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 321,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 321
       },
       {
         "id": 51,
-        "url": "https://assets.guim.co.uk/assets/7007.client.web.394554cec0bbd188fd41.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 322,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 322
       },
       {
         "id": 52,
-        "url": "https://assets.guim.co.uk/assets/9883.client.web.8665e0b40aa5591bd877.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 323,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 323
       },
       {
         "id": 53,
-        "url": "https://assets.guim.co.uk/assets/6359.client.web.824ed966c22967abce18.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 323,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 323
       },
       {
         "id": 54,
-        "url": "https://assets.guim.co.uk/assets/2867.client.web.b964801cc8533b75050b.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 324,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 324
       },
       {
         "id": 55,
-        "url": "https://assets.guim.co.uk/assets/TopBar-island.client.web.c5838b8d9e69ece60b3d.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 324,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 324
       },
       {
         "id": 56,
-        "url": "https://assets.guim.co.uk/assets/1492.client.web.1f2637a705b866d910a6.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 325,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 325
       },
       {
         "id": 57,
-        "url": "https://assets.guim.co.uk/assets/1899.client.web.40d9574515e9b4c76eff.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 325,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 325
       },
       {
         "id": 58,
-        "url": "https://assets.guim.co.uk/assets/Titlepiece-island.client.web.24c6e15e165b074b7cc6.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 325,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 325
       },
       {
         "id": 62,
-        "url": "https://sourcepoint.theguardian.com/unified/wrapperMessagingWithoutDetection.js",
+        "url": "https://sourcepoint.theguardian.com/{seg}/{seg}",
         "domain": "sourcepoint.theguardian.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 328,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 328
       },
       {
         "id": 64,
-        "url": "https://assets.guim.co.uk/assets/3491.client.web.acb051746e8c69b6909e.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 434,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 434
       },
       {
         "id": 65,
-        "url": "https://assets.guim.co.uk/assets/3394.client.web.11cb9c690a09556aeceb.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 436,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 436
       },
       {
         "id": 66,
-        "url": "https://assets.guim.co.uk/assets/3318.client.web.5d92d90eb6c33f305bc3.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 436,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 436
       },
       {
         "id": 67,
-        "url": "https://assets.guim.co.uk/assets/2891.client.web.96a6ecfbe2bf9868956a.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 436,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 436
       },
       {
         "id": 68,
-        "url": "https://assets.guim.co.uk/assets/1503.client.web.cdcc342f5a6e463b5820.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 437,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 437
       },
       {
         "id": 69,
-        "url": "https://assets.guim.co.uk/assets/7638.client.web.9d541c811d88f25af734.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 437,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 437
       },
       {
         "id": 70,
-        "url": "https://assets.guim.co.uk/assets/265.client.web.7644c4a7df415bab4252.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 438,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 438
       },
       {
         "id": 71,
-        "url": "https://assets.guim.co.uk/assets/1263.client.web.9057b65e55f94670c982.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 439,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 439
       },
       {
         "id": 72,
-        "url": "https://assets.guim.co.uk/assets/ScrollableHighlights-island.client.web.242d4a2ea88d811a4b36.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 439,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 439
       },
       {
         "id": 73,
-        "url": "https://assets.guim.co.uk/assets/6768.client.web.0735efb2fd224c936cf9.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 440,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 440
       },
       {
         "id": 74,
-        "url": "https://assets.guim.co.uk/assets/3136.client.web.33a3607a0345ff55b254.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 440,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 440
       },
       {
         "id": 75,
-        "url": "https://assets.guim.co.uk/assets/DirectoryPageNav-island.client.web.61064cc88cd19be51c2c.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 441,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 441
       },
       {
         "id": 77,
-        "url": "https://sourcepoint.theguardian.com/unified/4.40.1/usnat.f12613136193900e32e2.bundle.js",
+        "url": "https://sourcepoint.theguardian.com/{seg}/{seg}/{seg}",
         "domain": "sourcepoint.theguardian.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 444,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 444
       },
       {
         "id": 78,
-        "url": "https://sourcepoint.theguardian.com/wrapper/v2/meta-data",
+        "url": "https://sourcepoint.theguardian.com/{seg}/{seg}/{seg}",
         "domain": "sourcepoint.theguardian.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 447,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 447
       },
       {
         "id": 79,
-        "url": "https://sourcepoint.theguardian.com/wrapper/v2/messages",
+        "url": "https://sourcepoint.theguardian.com/{seg}/{seg}/{seg}",
         "domain": "sourcepoint.theguardian.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 492,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 492
       },
       {
         "id": 80,
-        "url": "https://sourcepoint.theguardian.com/wrapper/v2/meta-data",
+        "url": "https://sourcepoint.theguardian.com/{seg}/{seg}/{seg}",
         "domain": "sourcepoint.theguardian.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 536,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 536
       },
       {
         "id": 83,
-        "url": "https://assets.guim.co.uk/commercial/b907b76c569ba57fd97f/graun.395.commercial.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 542,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 542
       },
       {
         "id": 84,
-        "url": "https://assets.guim.co.uk/commercial/c89e47254875553420fa/graun.599.commercial.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 543,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 543
       },
       {
         "id": 85,
-        "url": "https://assets.guim.co.uk/commercial/a8628f38abf16fa722eb/graun.120.commercial.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 544,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 544
       },
       {
         "id": 86,
-        "url": "https://assets.guim.co.uk/commercial/e25495d0625efdc4c3f3/graun.661.commercial.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 544,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 544
       },
       {
         "id": 87,
-        "url": "https://assets.guim.co.uk/commercial/a34e77c4e6845270408c/graun.899.commercial.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 545,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 545
       },
       {
         "id": 88,
-        "url": "https://assets.guim.co.uk/commercial/1eeb19dd6da42366d5f0/graun.consented-advertising.commercial.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 546,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 546
       },
       {
         "id": 91,
-        "url": "https://sourcepoint.theguardian.com/us_pm/index.html",
+        "url": "https://sourcepoint.theguardian.com/{seg}/{seg}",
         "domain": "sourcepoint.theguardian.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 550,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 550
       },
       {
         "id": 92,
@@ -4662,56 +4662,56 @@
         "status": 302,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 550,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 550
       },
       {
         "id": 93,
-        "url": "https://cdn.privacy-mgmt.com/wrapper/v2/meta-data?accountId=&env=&metadata=&propertyId=",
+        "url": "https://cdn.privacy-mgmt.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "cdn.privacy-mgmt.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 551,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 551
       },
       {
         "id": 94,
-        "url": "https://sourcepoint.theguardian.com/PrivacyManagerUS.b9d1f.css",
+        "url": "https://sourcepoint.theguardian.com/{seg}",
         "domain": "sourcepoint.theguardian.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 593,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 593
       },
       {
         "id": 95,
-        "url": "https://sourcepoint.theguardian.com/polyfills.01516.js",
+        "url": "https://sourcepoint.theguardian.com/{seg}",
         "domain": "sourcepoint.theguardian.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 594,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 594
       },
       {
         "id": 96,
-        "url": "https://sourcepoint.theguardian.com/PrivacyManagerUS.6a027.js",
+        "url": "https://sourcepoint.theguardian.com/{seg}",
         "domain": "sourcepoint.theguardian.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 594,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 594
       },
       {
         "id": 97,
@@ -4722,308 +4722,308 @@
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 595,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 595
       },
       {
         "id": 98,
-        "url": "https://assets.guim.co.uk/assets/4501.client.web.ae17c42ee373d0271f91.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 597,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 597
       },
       {
         "id": 100,
-        "url": "https://contributions.guardianapis.com/header",
+        "url": "https://contributions.guardianapis.com/{seg}",
         "domain": "contributions.guardianapis.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 602,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 602
       },
       {
         "id": 103,
-        "url": "https://sourcepoint.theguardian.com/mms/v2/message",
+        "url": "https://sourcepoint.theguardian.com/{seg}/{seg}/{seg}",
         "domain": "sourcepoint.theguardian.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 657,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 657
       },
       {
         "id": 104,
-        "url": "https://assets.guim.co.uk/polyfill.io/v3/polyfill.min.js?rum=&features=&flags=&callback=&unknown=&cacheClear=",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&callback=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "other",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 659,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 659
       },
       {
         "id": 105,
-        "url": "https://assets.guim.co.uk/assets/frameworks.client.web.43c344cdcf55a381da73.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "other",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 660,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 660
       },
       {
         "id": 106,
-        "url": "https://assets.guim.co.uk/assets/index.client.web.987f283b49c417774a68.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "other",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 660,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 660
       },
       {
         "id": 107,
-        "url": "https://assets.guim.co.uk/commercial/5d7771c5694ea8c48439/graun.standalone.commercial.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "other",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 661,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 661
       },
       {
         "id": 110,
-        "url": "https://assets.guim.co.uk/assets/AlreadyVisited-island.client.web.c2612107fb4b7951196a.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 673,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 673
       },
       {
         "id": 111,
-        "url": "https://assets.guim.co.uk/assets/AdmiralScript-island.client.web.c890f4d0f6cc8240a90d.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 675,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 675
       },
       {
         "id": 112,
-        "url": "https://assets.guim.co.uk/assets/FocusStyles-island.client.web.a1d081e2a888750e252e.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 675,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 675
       },
       {
         "id": 113,
-        "url": "https://assets.guim.co.uk/assets/ShowHideContainers-island.client.web.174750d1593668209f3f.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 676,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 676
       },
       {
         "id": 114,
-        "url": "https://assets.guim.co.uk/assets/BrazeMessaging-island.client.web.c9167eb65b1881527741.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 676,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 676
       },
       {
         "id": 115,
-        "url": "https://assets.guim.co.uk/assets/ReaderRevenueDev-island.client.web.0535919c73f306367c8e.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 677,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 677
       },
       {
         "id": 116,
-        "url": "https://assets.guim.co.uk/assets/GoogleOneTap-island.client.web.1aa6f78b5dbbce04f8ea.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 677,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 677
       },
       {
         "id": 117,
-        "url": "https://assets.guim.co.uk/assets/EditionSwitcherBanner-island.client.web.e486b879549f8b3ac84b.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 677,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 677
       },
       {
         "id": 118,
-        "url": "https://assets.guim.co.uk/assets/3141.client.web.ac54800689b432f5534c.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 679,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 679
       },
       {
         "id": 119,
-        "url": "https://assets.guim.co.uk/assets/1772.client.web.a186f24ac91544734c64.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 680,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 680
       },
       {
         "id": 120,
-        "url": "https://assets.guim.co.uk/assets/StickyBottomBanner-island.client.web.803408caa0dcc66d9dc5.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 680,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 680
       },
       {
         "id": 122,
-        "url": "https://contributions.guardianapis.com/banner",
+        "url": "https://contributions.guardianapis.com/{seg}",
         "domain": "contributions.guardianapis.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 753,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 753
       },
       {
         "id": 124,
-        "url": "https://cdn.privacy-mgmt.com/usnat/vendor-list/categories?siteId=&consentLanguage=",
+        "url": "https://cdn.privacy-mgmt.com/{seg}/{seg}/categories?%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "cdn.privacy-mgmt.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 919,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 919
       },
       {
         "id": 125,
-        "url": "https://cdn.privacy-mgmt.com/usnat/consent/7417/default-consent",
+        "url": "https://cdn.privacy-mgmt.com/{seg}/{seg}/{n}/{seg}",
         "domain": "cdn.privacy-mgmt.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 930,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 930
       },
       {
         "id": 126,
-        "url": "https://interactive.guim.co.uk/fonts/guss-webfonts/GuardianTextSansWeb/GuardianTextSansWeb-Regular.woff2",
+        "url": "https://interactive.guim.co.uk/{seg}/{seg}/{seg}/{seg}",
         "domain": "interactive.guim.co.uk",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1017,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1017
       },
       {
         "id": 127,
-        "url": "https://assets.guim.co.uk/assets/2974.client.web.5aed17c181f6fcdc701a.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1194,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1194
       },
       {
         "id": 128,
-        "url": "https://assets.guim.co.uk/assets/4406.client.web.c6affdf7d76dd96faaba.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1195,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1195
       },
       {
         "id": 129,
-        "url": "https://assets.guim.co.uk/assets/4897.client.web.1468b74bc1ffa98095b7.js",
+        "url": "https://assets.guim.co.uk/{seg}/{seg}",
         "domain": "assets.guim.co.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1196,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1196
       }
     ],
     "domains": [
@@ -5130,7 +5130,7 @@
     ],
     "cookies": [
       {
-        "name": "gu_client_ab_tests",
+        "name": "[redacted]",
         "domain": "www.theguardian.com",
         "path": "/",
         "sameSite": "Lax",
@@ -5140,7 +5140,7 @@
         "thirdParty": false
       },
       {
-        "name": "gu_v2_mvt_id",
+        "name": "[redacted]",
         "domain": "www.theguardian.com",
         "path": "/",
         "sameSite": "Lax",
@@ -5150,7 +5150,7 @@
         "thirdParty": false
       },
       {
-        "name": "GU_geo_country",
+        "name": "[redacted]",
         "domain": "www.theguardian.com",
         "path": "/",
         "sameSite": "Lax",
@@ -5163,20 +5163,21 @@
     "storage": [
       {
         "area": "localStorage",
-        "key": "_sp_non_keyed_local_state",
+        "key": "[redacted]",
         "valueBytes": 52
       },
       {
         "area": "localStorage",
-        "key": "_sp_user_consent_7417",
+        "key": "[redacted:long-token]",
         "valueBytes": 778
       },
       {
         "area": "localStorage",
-        "key": "_sp_local_state",
+        "key": "[redacted]",
         "valueBytes": 161
       }
     ],
+    "fingerprintEvents": [],
     "fingerprintDetections": [
       {
         "kind": "input-monitoring",
@@ -5194,7 +5195,7 @@
             "window"
           ],
           "thirdPartyOrigins": [
-            "https://assets.guim.co.uk"
+            "https://assets.guim.co.uk/"
           ],
           "totalListenerCalls": 12
         }
@@ -5223,13 +5224,12 @@
             "window"
           ],
           "thirdPartyOrigins": [
-            "https://assets.guim.co.uk"
+            "https://assets.guim.co.uk/"
           ],
           "totalListenerCalls": 33
         }
       }
     ],
-    "fingerprintEvents": [],
     "screenshot": null,
     "warnings": [
       "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
@@ -5356,7 +5356,12 @@
         "tracker": null
       },
       {
-        "domain": "0a3a1988c3231071240c298ab8cdd979.safeframe.googlesyndication.com",
+        "domain": "{label}.creativecdn.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.safeframe.googlesyndication.com",
         "requests": 1,
         "tracker": {
           "domain": "googlesyndication.com",
@@ -5461,11 +5466,6 @@
         "tracker": null
       },
       {
-        "domain": "invstatic101.creativecdn.com",
-        "requests": 1,
-        "tracker": null
-      },
-      {
         "domain": "marketingplatform.google.com",
         "requests": 1,
         "tracker": null
@@ -5552,17 +5552,12 @@
     "addedCookies": [],
     "removedCookies": [
       {
-        "name": "uid",
+        "name": "[redacted]",
         "domain": ".criteo.com",
         "thirdParty": true
       },
       {
-        "name": "_cc_dc",
-        "domain": ".crwdcntrl.net",
-        "thirdParty": true
-      },
-      {
-        "name": "_cc_id",
+        "name": "[redacted]",
         "domain": ".crwdcntrl.net",
         "thirdParty": true
       },
@@ -5577,173 +5572,23 @@
         "thirdParty": true
       },
       {
-        "name": "imid_created_secure",
+        "name": "[redacted]",
         "domain": ".im-apps.net",
         "thirdParty": true
       },
       {
-        "name": "imid_secure",
-        "domain": ".im-apps.net",
-        "thirdParty": true
-      },
-      {
-        "name": "i",
+        "name": "[redacted]",
         "domain": ".openx.net",
         "thirdParty": true
       },
       {
-        "name": "__eoi",
-        "domain": ".theguardian.com",
-        "thirdParty": false
-      },
-      {
-        "name": "__gads",
-        "domain": ".theguardian.com",
-        "thirdParty": false
-      },
-      {
-        "name": "__gpi",
-        "domain": ".theguardian.com",
-        "thirdParty": false
-      },
-      {
-        "name": "_cc_id",
-        "domain": ".theguardian.com",
-        "thirdParty": false
-      },
-      {
-        "name": "_pubcid",
-        "domain": ".theguardian.com",
-        "thirdParty": false
-      },
-      {
-        "name": "bwid",
-        "domain": ".theguardian.com",
-        "thirdParty": false
-      },
-      {
-        "name": "bwid_withoutSameSiteForIncompatibleClients",
-        "domain": ".theguardian.com",
-        "thirdParty": false
-      },
-      {
-        "name": "connectId",
-        "domain": ".theguardian.com",
-        "thirdParty": false
-      },
-      {
-        "name": "lotame_domain_check",
-        "domain": ".theguardian.com",
-        "thirdParty": false
-      },
-      {
-        "name": "panoramaId",
-        "domain": ".theguardian.com",
-        "thirdParty": false
-      },
-      {
-        "name": "panoramaId_expiry",
-        "domain": ".theguardian.com",
-        "thirdParty": false
-      },
-      {
-        "name": "panoramaIdType",
-        "domain": ".theguardian.com",
-        "thirdParty": false
-      },
-      {
-        "name": "usnatUUID",
+        "name": "[redacted]",
         "domain": ".theguardian.com",
         "thirdParty": false
       }
     ],
     "addedStorageKeys": [],
-    "removedStorageKeys": [
-      {
-        "area": "localStorage",
-        "key": "_cc_id"
-      },
-      {
-        "area": "localStorage",
-        "key": "_cc_id_update_ts"
-      },
-      {
-        "area": "localStorage",
-        "key": "_GESPSK-crwdcntrl.net"
-      },
-      {
-        "area": "localStorage",
-        "key": "_GESPSK-esp.criteo.com"
-      },
-      {
-        "area": "localStorage",
-        "key": "_GESPSK-esp.pubmatic.com"
-      },
-      {
-        "area": "localStorage",
-        "key": "_GESPSK-id5-sync.com"
-      },
-      {
-        "area": "localStorage",
-        "key": "_GESPSK-intimatemerger.com"
-      },
-      {
-        "area": "localStorage",
-        "key": "_GESPSK-mygaruID"
-      },
-      {
-        "area": "localStorage",
-        "key": "_GESPSK-openx"
-      },
-      {
-        "area": "localStorage",
-        "key": "_GESPSK-rtbhouse"
-      },
-      {
-        "area": "localStorage",
-        "key": "_GESPSK-yahoo.com"
-      },
-      {
-        "area": "localStorage",
-        "key": "_im_uid_mt.9001"
-      },
-      {
-        "area": "localStorage",
-        "key": "_im_uid.9001"
-      },
-      {
-        "area": "localStorage",
-        "key": "_pubcid"
-      },
-      {
-        "area": "localStorage",
-        "key": "connectId"
-      },
-      {
-        "area": "localStorage",
-        "key": "gu.adManagerGroup"
-      },
-      {
-        "area": "localStorage",
-        "key": "myg_otp"
-      },
-      {
-        "area": "localStorage",
-        "key": "panoramaId"
-      },
-      {
-        "area": "localStorage",
-        "key": "panoramaId_expiry"
-      },
-      {
-        "area": "localStorage",
-        "key": "panoramaIdType"
-      },
-      {
-        "area": "localStorage",
-        "key": "rtbhouse-esp"
-      }
-    ],
+    "removedStorageKeys": [],
     "addedFingerprinting": [],
     "removedFingerprinting": [],
     "addedProvenance": [],

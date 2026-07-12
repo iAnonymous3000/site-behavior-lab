@@ -1,11 +1,7 @@
-import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { REPORT_ID_PATTERN } from "./report-validation";
-import {
-  readStoredScanReport,
-  type ReadStoredScanReportError,
-  type StoredScanReport
-} from "./scan-report-reader";
+import type { ReadStoredScanReportError, StoredScanReport } from "./scan-report-reader";
+import { readStaticReportBundle } from "./static-report-files";
 
 /**
  * Server/build-time report lookup shared by the report page, its social
@@ -41,31 +37,14 @@ export async function readStoredReportForId(id: string, rootDir = process.cwd())
 
 async function readCommittedReport(id: string, rootDir: string): Promise<ReportSourceReadResult | null> {
   if (!REPORT_ID_PATTERN.test(id)) return null;
-  const filePath = path.join(rootDir, "public", "reports", `${id}.json`);
-
-  let contents: string;
-  try {
-    contents = await readFile(filePath, "utf8");
-  } catch (error) {
-    if (isFileMissing(error)) return null;
-    throw error;
+  const read = await readStaticReportBundle(path.join(rootDir, "public", "reports"), id);
+  if (read.outcome === "not-found") return null;
+  if (read.outcome === "unreadable") {
+    return {
+      outcome: "unreadable",
+      error: read.error,
+      ...(read.violations ? { violations: read.violations } : {})
+    };
   }
-
-  let parsed: unknown;
-  try {
-    parsed = JSON.parse(contents) as unknown;
-  } catch (error) {
-    if (error instanceof SyntaxError) return { outcome: "unreadable", error: "invalid" };
-    throw error;
-  }
-
-  const read = readStoredScanReport(parsed);
-  if (!read.ok) {
-    return { outcome: "unreadable", error: read.error, ...(read.violations ? { violations: read.violations } : {}) };
-  }
-  return { outcome: "found", stored: read.stored, wire: contents, origin: "committed" };
-}
-
-function isFileMissing(error: unknown): boolean {
-  return Boolean(error && typeof error === "object" && "code" in error && (error as { code?: string }).code === "ENOENT");
+  return { outcome: "found", stored: read.stored, wire: read.wire, origin: "committed" };
 }

@@ -49,6 +49,13 @@
       "automation": "playwright-chromium",
       "headless": true,
       "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "classification",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-02T01:00:58.178Z"
+      },
       "trackerCatalog": {
         "source": "Hand-curated service catalog",
         "version": "hand-curated-2026.06",
@@ -57,14 +64,7 @@
         "curatedOverrides": 133,
         "license": "AGPL-3.0-or-later"
       },
-      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
-      "adblock": {
-        "active": true,
-        "source": "Brave default ad-block lists",
-        "lists": 31,
-        "fetchedAt": "2026-07-02T01:00:58.178Z"
-      },
-      "shieldsMode": "classification"
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
     },
     "requests": [
       {
@@ -76,416 +76,416 @@
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 49,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 49
       },
       {
         "id": 2,
-        "url": "https://www.gov.uk/assets/frontend/views/_homepage-64a9f4f542bbda5bcdae1df09ea442583c3981460eb5cd3be12e18ba1885ba31.css",
+        "url": "https://www.gov.uk/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.gov.uk",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 94,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 94
       },
       {
         "id": 3,
-        "url": "https://www.gov.uk/assets/frontend/govuk_publishing_components/vendor/lux/lux-measurer-d66192b1b665d415e1874e49a48138b7ae339548aa6cdb8687c7f9933e72b969.js",
+        "url": "https://www.gov.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.gov.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 95,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 95
       },
       {
         "id": 4,
-        "url": "https://www.gov.uk/assets/frontend/govuk_publishing_components/rum-custom-data-b9e1806d1da2fa8ef1855d01aa71ba5eb0afc010dd2c4de3672cc7c7a39b0c8c.js",
+        "url": "https://www.gov.uk/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.gov.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 95,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 95
       },
       {
         "id": 5,
-        "url": "https://www.gov.uk/assets/frontend/govuk_publishing_components/rum-loader-a65b10e18ceeba3bd8a2eac507c7f2c513cdc82f35097df903fdea87f1dc2e33.js",
+        "url": "https://www.gov.uk/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.gov.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 95,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 95
       },
       {
         "id": 6,
-        "url": "https://www.gov.uk/assets/frontend/govuk_publishing_components/load-analytics-271e37e8217a5a334485ddacf3b89104ab3c51a15fbdba31a9f6a2c54938aa14.js",
+        "url": "https://www.gov.uk/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.gov.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 97,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 97
       },
       {
         "id": 7,
-        "url": "https://www.gov.uk/assets/frontend/application-ba92d5259951525f2909164827f59c97dd819c22ec24ac82051f52477ec5ddc1.css",
+        "url": "https://www.gov.uk/{seg}/{seg}/{seg}",
         "domain": "www.gov.uk",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 97,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 97
       },
       {
         "id": 8,
-        "url": "https://www.gov.uk/assets/frontend/application-bc78d9cdda9de9f9c4a5f8dd6cb36a6a4db7fb9499b182a9d944fba041094b1f.js",
+        "url": "https://www.gov.uk/{seg}/{seg}/{seg}",
         "domain": "www.gov.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 98,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 98
       },
       {
         "id": 9,
-        "url": "https://www.gov.uk/assets/frontend/govuk_publishing_components/icon-close-eecb5fdf67d1688ddf2f93e6e09d5f87b9b24e0fc53596ad2a65cf187c2c7c76.svg",
+        "url": "https://www.gov.uk/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.gov.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 168,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 168
       },
       {
         "id": 10,
-        "url": "https://www.gov.uk/assets/frontend/govuk-crest-9f82a3631d8ac5feb4660345a2b44ca98f077b48248f2cc139a0f412355bebef.svg",
+        "url": "https://www.gov.uk/{seg}/{seg}/{seg}",
         "domain": "www.gov.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 169,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 169
       },
       {
         "id": 11,
-        "url": "https://www.gov.uk/assets/frontend/bold-b542beb274-v2-35bf540bb39615b6a517986f3aa83f7fefa1efd1878603eeeb196488078542d1.woff2",
+        "url": "https://www.gov.uk/{seg}/{seg}/{seg}",
         "domain": "www.gov.uk",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 170,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 170
       },
       {
         "id": 12,
-        "url": "https://www.gov.uk/assets/frontend/light-94a07e06a1-v2-01565b0034e61d4609689bbb7ae0be844701f3812c8fe029fa1659b7ef3aa94f.woff2",
+        "url": "https://www.gov.uk/{seg}/{seg}/{seg}",
         "domain": "www.gov.uk",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 171,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 171
       },
       {
         "id": 13,
-        "url": "https://www.gov.uk/assets/frontend/homepage/find-a-job-4d38717b0451da3bb223ddea7f681d79e48c1c022da5a08f16aba3f681503150.png",
+        "url": "https://www.gov.uk/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.gov.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 199,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 199
       },
       {
         "id": 14,
-        "url": "https://www.gov.uk/assets/frontend/homepage/national-insurance-featured-7169e3631b639dcfc7be22469daf155ad0aa7516143ff8cf2e6f95ba29c8656c.png",
+        "url": "https://www.gov.uk/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.gov.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 200,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 200
       },
       {
         "id": 15,
-        "url": "https://www.gov.uk/assets/frontend/homepage/cost-of-living-featured-4cd41cec449e0bd47e707812a5c3b5c52726bed0acb4f31c9b66548cc6ff6309.png",
+        "url": "https://www.gov.uk/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.gov.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 200,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 200
       },
       {
         "id": 16,
-        "url": "https://www.gov.uk/assets/frontend/app-promo/govuk-app-icon-0bca94cf05737106d8e80f32a66f773d7b6ff9b9652fc555917d855914309af0.png",
+        "url": "https://www.gov.uk/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.gov.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 201,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 201
       },
       {
         "id": 17,
-        "url": "https://www.gov.uk/api/search/autocomplete.json",
+        "url": "https://www.gov.uk/api/search/{seg}",
         "domain": "www.gov.uk",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 848,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 848
       },
       {
         "id": 18,
-        "url": "https://www.gov.uk/api/search/autocomplete.json",
+        "url": "https://www.gov.uk/api/search/{seg}",
         "domain": "www.gov.uk",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 851,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 851
       },
       {
         "id": 19,
-        "url": "https://www.gov.uk/api/search/autocomplete.json",
+        "url": "https://www.gov.uk/api/search/{seg}",
         "domain": "www.gov.uk",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 853,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 853
       },
       {
         "id": 20,
-        "url": "https://www.gov.uk/api/search/autocomplete.json",
+        "url": "https://www.gov.uk/api/search/{seg}",
         "domain": "www.gov.uk",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 858,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 858
       },
       {
         "id": 21,
-        "url": "https://www.gov.uk/api/search/autocomplete.json",
+        "url": "https://www.gov.uk/api/search/{seg}",
         "domain": "www.gov.uk",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 860,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 860
       },
       {
         "id": 22,
-        "url": "https://www.gov.uk/api/search/autocomplete.json",
+        "url": "https://www.gov.uk/api/search/{seg}",
         "domain": "www.gov.uk",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 863,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 863
       },
       {
         "id": 23,
-        "url": "https://www.gov.uk/api/search/autocomplete.json",
+        "url": "https://www.gov.uk/api/search/{seg}",
         "domain": "www.gov.uk",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 865,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 865
       },
       {
         "id": 24,
-        "url": "https://www.gov.uk/api/search/autocomplete.json",
+        "url": "https://www.gov.uk/api/search/{seg}",
         "domain": "www.gov.uk",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 868,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 868
       },
       {
         "id": 25,
-        "url": "https://www.gov.uk/api/search/autocomplete.json",
+        "url": "https://www.gov.uk/api/search/{seg}",
         "domain": "www.gov.uk",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 870,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 870
       },
       {
         "id": 26,
-        "url": "https://www.gov.uk/api/search/autocomplete.json",
+        "url": "https://www.gov.uk/api/search/{seg}",
         "domain": "www.gov.uk",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 874,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 874
       },
       {
         "id": 27,
-        "url": "https://www.gov.uk/api/search/autocomplete.json",
+        "url": "https://www.gov.uk/api/search/{seg}",
         "domain": "www.gov.uk",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 877,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 877
       },
       {
         "id": 28,
-        "url": "https://www.gov.uk/api/search/autocomplete.json",
+        "url": "https://www.gov.uk/api/search/{seg}",
         "domain": "www.gov.uk",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 879,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 879
       },
       {
         "id": 29,
-        "url": "https://www.gov.uk/api/search/autocomplete.json",
+        "url": "https://www.gov.uk/api/search/{seg}",
         "domain": "www.gov.uk",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 880,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 880
       },
       {
         "id": 30,
-        "url": "https://www.gov.uk/api/search/autocomplete.json",
+        "url": "https://www.gov.uk/api/search/{seg}",
         "domain": "www.gov.uk",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 882,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 882
       },
       {
         "id": 31,
-        "url": "https://www.gov.uk/api/search/autocomplete.json",
+        "url": "https://www.gov.uk/api/search/{seg}",
         "domain": "www.gov.uk",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 885,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 885
       },
       {
         "id": 32,
-        "url": "https://www.gov.uk/api/search/autocomplete.json",
+        "url": "https://www.gov.uk/api/search/{seg}",
         "domain": "www.gov.uk",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 888,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 888
       },
       {
         "id": 33,
-        "url": "https://www.gov.uk/api/search/autocomplete.json",
+        "url": "https://www.gov.uk/api/search/{seg}",
         "domain": "www.gov.uk",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 891,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 891
       },
       {
         "id": 34,
-        "url": "https://www.gov.uk/api/search/autocomplete.json",
+        "url": "https://www.gov.uk/api/search/{seg}",
         "domain": "www.gov.uk",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 893,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 893
       },
       {
         "id": 35,
-        "url": "https://www.gov.uk/api/search/autocomplete.json",
+        "url": "https://www.gov.uk/api/search/{seg}",
         "domain": "www.gov.uk",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 895,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 895
       }
     ],
     "domains": [
@@ -510,7 +510,7 @@
     ],
     "cookies": [
       {
-        "name": "cookies_policy",
+        "name": "[redacted]",
         "domain": "www.gov.uk",
         "path": "/",
         "sameSite": "Lax",
@@ -521,17 +521,10 @@
       }
     ],
     "storage": [],
-    "fingerprintDetections": [],
     "fingerprintEvents": [],
-    "screenshot": null,
-    "warnings": [
-      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
-      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
-      "This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
-      "Read the site's privacy policy (https://www.gov.uk/help/privacy-notice) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
-    ],
+    "fingerprintDetections": [],
     "privacyPolicy": {
-      "url": "https://www.gov.uk/help/privacy-notice",
+      "url": "https://www.gov.uk/help/{seg}",
       "claims": [
         {
           "kind": "no-selling-or-sharing",
@@ -541,7 +534,14 @@
       "mentionedEntities": [],
       "unmentionedEntities": [],
       "policyTextLength": 11663
-    }
+    },
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+      "This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
+      "Read the site's privacy policy (https://www.gov.uk/help/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ]
   },
   "variant": {
     "ok": true,
@@ -581,6 +581,13 @@
       "automation": "playwright-chromium",
       "headless": true,
       "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "block-simulation",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-02T01:00:58.178Z"
+      },
       "trackerCatalog": {
         "source": "Hand-curated service catalog",
         "version": "hand-curated-2026.06",
@@ -589,14 +596,7 @@
         "curatedOverrides": 133,
         "license": "AGPL-3.0-or-later"
       },
-      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
-      "adblock": {
-        "active": true,
-        "source": "Brave default ad-block lists",
-        "lists": 31,
-        "fetchedAt": "2026-07-02T01:00:58.178Z"
-      },
-      "shieldsMode": "block-simulation"
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
     },
     "requests": [
       {
@@ -608,416 +608,416 @@
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 42,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 42
       },
       {
         "id": 2,
-        "url": "https://www.gov.uk/assets/frontend/views/_homepage-64a9f4f542bbda5bcdae1df09ea442583c3981460eb5cd3be12e18ba1885ba31.css",
+        "url": "https://www.gov.uk/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.gov.uk",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 88,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 88
       },
       {
         "id": 3,
-        "url": "https://www.gov.uk/assets/frontend/govuk_publishing_components/vendor/lux/lux-measurer-d66192b1b665d415e1874e49a48138b7ae339548aa6cdb8687c7f9933e72b969.js",
+        "url": "https://www.gov.uk/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.gov.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 88,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 88
       },
       {
         "id": 4,
-        "url": "https://www.gov.uk/assets/frontend/govuk_publishing_components/rum-custom-data-b9e1806d1da2fa8ef1855d01aa71ba5eb0afc010dd2c4de3672cc7c7a39b0c8c.js",
+        "url": "https://www.gov.uk/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.gov.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 89,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 89
       },
       {
         "id": 5,
-        "url": "https://www.gov.uk/assets/frontend/govuk_publishing_components/rum-loader-a65b10e18ceeba3bd8a2eac507c7f2c513cdc82f35097df903fdea87f1dc2e33.js",
+        "url": "https://www.gov.uk/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.gov.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 89,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 89
       },
       {
         "id": 6,
-        "url": "https://www.gov.uk/assets/frontend/govuk_publishing_components/load-analytics-271e37e8217a5a334485ddacf3b89104ab3c51a15fbdba31a9f6a2c54938aa14.js",
+        "url": "https://www.gov.uk/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.gov.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 90,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 90
       },
       {
         "id": 7,
-        "url": "https://www.gov.uk/assets/frontend/application-ba92d5259951525f2909164827f59c97dd819c22ec24ac82051f52477ec5ddc1.css",
+        "url": "https://www.gov.uk/{seg}/{seg}/{seg}",
         "domain": "www.gov.uk",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 90,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 90
       },
       {
         "id": 8,
-        "url": "https://www.gov.uk/assets/frontend/application-bc78d9cdda9de9f9c4a5f8dd6cb36a6a4db7fb9499b182a9d944fba041094b1f.js",
+        "url": "https://www.gov.uk/{seg}/{seg}/{seg}",
         "domain": "www.gov.uk",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 91,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 91
       },
       {
         "id": 9,
-        "url": "https://www.gov.uk/assets/frontend/govuk_publishing_components/icon-close-eecb5fdf67d1688ddf2f93e6e09d5f87b9b24e0fc53596ad2a65cf187c2c7c76.svg",
+        "url": "https://www.gov.uk/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.gov.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 156,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 156
       },
       {
         "id": 10,
-        "url": "https://www.gov.uk/assets/frontend/govuk-crest-9f82a3631d8ac5feb4660345a2b44ca98f077b48248f2cc139a0f412355bebef.svg",
+        "url": "https://www.gov.uk/{seg}/{seg}/{seg}",
         "domain": "www.gov.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 157,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 157
       },
       {
         "id": 11,
-        "url": "https://www.gov.uk/assets/frontend/bold-b542beb274-v2-35bf540bb39615b6a517986f3aa83f7fefa1efd1878603eeeb196488078542d1.woff2",
+        "url": "https://www.gov.uk/{seg}/{seg}/{seg}",
         "domain": "www.gov.uk",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 158,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 158
       },
       {
         "id": 12,
-        "url": "https://www.gov.uk/assets/frontend/light-94a07e06a1-v2-01565b0034e61d4609689bbb7ae0be844701f3812c8fe029fa1659b7ef3aa94f.woff2",
+        "url": "https://www.gov.uk/{seg}/{seg}/{seg}",
         "domain": "www.gov.uk",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 158,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 158
       },
       {
         "id": 13,
-        "url": "https://www.gov.uk/assets/frontend/homepage/find-a-job-4d38717b0451da3bb223ddea7f681d79e48c1c022da5a08f16aba3f681503150.png",
+        "url": "https://www.gov.uk/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.gov.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 174,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 174
       },
       {
         "id": 14,
-        "url": "https://www.gov.uk/assets/frontend/homepage/national-insurance-featured-7169e3631b639dcfc7be22469daf155ad0aa7516143ff8cf2e6f95ba29c8656c.png",
+        "url": "https://www.gov.uk/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.gov.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 174,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 174
       },
       {
         "id": 15,
-        "url": "https://www.gov.uk/assets/frontend/homepage/cost-of-living-featured-4cd41cec449e0bd47e707812a5c3b5c52726bed0acb4f31c9b66548cc6ff6309.png",
+        "url": "https://www.gov.uk/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.gov.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 175,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 175
       },
       {
         "id": 16,
-        "url": "https://www.gov.uk/assets/frontend/app-promo/govuk-app-icon-0bca94cf05737106d8e80f32a66f773d7b6ff9b9652fc555917d855914309af0.png",
+        "url": "https://www.gov.uk/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.gov.uk",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 175,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 175
       },
       {
         "id": 17,
-        "url": "https://www.gov.uk/api/search/autocomplete.json",
+        "url": "https://www.gov.uk/api/search/{seg}",
         "domain": "www.gov.uk",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 821,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 821
       },
       {
         "id": 18,
-        "url": "https://www.gov.uk/api/search/autocomplete.json",
+        "url": "https://www.gov.uk/api/search/{seg}",
         "domain": "www.gov.uk",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 824,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 824
       },
       {
         "id": 19,
-        "url": "https://www.gov.uk/api/search/autocomplete.json",
+        "url": "https://www.gov.uk/api/search/{seg}",
         "domain": "www.gov.uk",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 826,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 826
       },
       {
         "id": 20,
-        "url": "https://www.gov.uk/api/search/autocomplete.json",
+        "url": "https://www.gov.uk/api/search/{seg}",
         "domain": "www.gov.uk",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 828,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 828
       },
       {
         "id": 21,
-        "url": "https://www.gov.uk/api/search/autocomplete.json",
+        "url": "https://www.gov.uk/api/search/{seg}",
         "domain": "www.gov.uk",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 830,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 830
       },
       {
         "id": 22,
-        "url": "https://www.gov.uk/api/search/autocomplete.json",
+        "url": "https://www.gov.uk/api/search/{seg}",
         "domain": "www.gov.uk",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 832,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 832
       },
       {
         "id": 23,
-        "url": "https://www.gov.uk/api/search/autocomplete.json",
+        "url": "https://www.gov.uk/api/search/{seg}",
         "domain": "www.gov.uk",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 835,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 835
       },
       {
         "id": 24,
-        "url": "https://www.gov.uk/api/search/autocomplete.json",
+        "url": "https://www.gov.uk/api/search/{seg}",
         "domain": "www.gov.uk",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 837,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 837
       },
       {
         "id": 25,
-        "url": "https://www.gov.uk/api/search/autocomplete.json",
+        "url": "https://www.gov.uk/api/search/{seg}",
         "domain": "www.gov.uk",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 841,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 841
       },
       {
         "id": 26,
-        "url": "https://www.gov.uk/api/search/autocomplete.json",
+        "url": "https://www.gov.uk/api/search/{seg}",
         "domain": "www.gov.uk",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 844,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 844
       },
       {
         "id": 27,
-        "url": "https://www.gov.uk/api/search/autocomplete.json",
+        "url": "https://www.gov.uk/api/search/{seg}",
         "domain": "www.gov.uk",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 846,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 846
       },
       {
         "id": 28,
-        "url": "https://www.gov.uk/api/search/autocomplete.json",
+        "url": "https://www.gov.uk/api/search/{seg}",
         "domain": "www.gov.uk",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 848,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 848
       },
       {
         "id": 29,
-        "url": "https://www.gov.uk/api/search/autocomplete.json",
+        "url": "https://www.gov.uk/api/search/{seg}",
         "domain": "www.gov.uk",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 851,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 851
       },
       {
         "id": 30,
-        "url": "https://www.gov.uk/api/search/autocomplete.json",
+        "url": "https://www.gov.uk/api/search/{seg}",
         "domain": "www.gov.uk",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 853,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 853
       },
       {
         "id": 31,
-        "url": "https://www.gov.uk/api/search/autocomplete.json",
+        "url": "https://www.gov.uk/api/search/{seg}",
         "domain": "www.gov.uk",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 855,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 855
       },
       {
         "id": 32,
-        "url": "https://www.gov.uk/api/search/autocomplete.json",
+        "url": "https://www.gov.uk/api/search/{seg}",
         "domain": "www.gov.uk",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 857,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 857
       },
       {
         "id": 33,
-        "url": "https://www.gov.uk/api/search/autocomplete.json",
+        "url": "https://www.gov.uk/api/search/{seg}",
         "domain": "www.gov.uk",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 859,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 859
       },
       {
         "id": 34,
-        "url": "https://www.gov.uk/api/search/autocomplete.json",
+        "url": "https://www.gov.uk/api/search/{seg}",
         "domain": "www.gov.uk",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 862,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 862
       },
       {
         "id": 35,
-        "url": "https://www.gov.uk/api/search/autocomplete.json",
+        "url": "https://www.gov.uk/api/search/{seg}",
         "domain": "www.gov.uk",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 864,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 864
       }
     ],
     "domains": [
@@ -1042,7 +1042,7 @@
     ],
     "cookies": [
       {
-        "name": "cookies_policy",
+        "name": "[redacted]",
         "domain": "www.gov.uk",
         "path": "/",
         "sameSite": "Lax",
@@ -1053,18 +1053,10 @@
       }
     ],
     "storage": [],
-    "fingerprintDetections": [],
     "fingerprintEvents": [],
-    "screenshot": null,
-    "warnings": [
-      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
-      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
-      "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
-      "This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
-      "Read the site's privacy policy (https://www.gov.uk/help/privacy-notice) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
-    ],
+    "fingerprintDetections": [],
     "privacyPolicy": {
-      "url": "https://www.gov.uk/help/privacy-notice",
+      "url": "https://www.gov.uk/help/{seg}",
       "claims": [
         {
           "kind": "no-selling-or-sharing",
@@ -1074,7 +1066,15 @@
       "mentionedEntities": [],
       "unmentionedEntities": [],
       "policyTextLength": 11663
-    }
+    },
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+      "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+      "This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
+      "Read the site's privacy policy (https://www.gov.uk/help/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ]
   },
   "diff": {
     "totalRequests": {
@@ -1140,12 +1140,12 @@
     "No blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
     "No blocking: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
     "No blocking: This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
-    "No blocking: Read the site's privacy policy (https://www.gov.uk/help/privacy-notice) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
+    "No blocking: Read the site's privacy policy (https://www.gov.uk/help/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
     "Brave-list blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
     "Brave-list blocking: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
     "Brave-list blocking: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
     "Brave-list blocking: This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
-    "Brave-list blocking: Read the site's privacy policy (https://www.gov.uk/help/privacy-notice) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    "Brave-list blocking: Read the site's privacy policy (https://www.gov.uk/help/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
   ],
   "share": {
     "id": "20260702-5431288f18e490a89a0b9df2cfb5e2d3",

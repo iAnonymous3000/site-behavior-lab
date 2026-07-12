@@ -49,6 +49,13 @@
       "automation": "playwright-chromium",
       "headless": true,
       "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "classification",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-06-19T17:24:24.927Z"
+      },
       "trackerCatalog": {
         "source": "Hand-curated service catalog",
         "version": "hand-curated-2026.06",
@@ -57,14 +64,7 @@
         "curatedOverrides": 133,
         "license": "AGPL-3.0-or-later"
       },
-      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
-      "adblock": {
-        "active": true,
-        "source": "Brave default ad-block lists",
-        "lists": 31,
-        "fetchedAt": "2026-06-19T17:24:24.927Z"
-      },
-      "shieldsMode": "classification"
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
     },
     "requests": [
       {
@@ -76,80 +76,80 @@
         "status": 403,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 31,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 31
       },
       {
         "id": 2,
-        "url": "https://ct.captcha-delivery.com/c.js",
+        "url": "https://ct.captcha-delivery.com/{seg}",
         "domain": "ct.captcha-delivery.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 63,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 63
       },
       {
         "id": 3,
-        "url": "https://geo.captcha-delivery.com/captcha/?initialCid=&hash=&cid=&t=&referer=&s=&e=&dm=",
+        "url": "https://geo.captcha-delivery.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&cid=&t=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "geo.captcha-delivery.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 89,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 89
       },
       {
         "id": 4,
-        "url": "https://static.captcha-delivery.com/captcha/assets/tpl/6dc485c0c428c35b53577b146dc6f9179f55ef9ad41b327a2a179998839364bf/index.css",
+        "url": "https://static.captcha-delivery.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.captcha-delivery.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 135,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 135
       },
       {
         "id": 5,
-        "url": "https://static.captcha-delivery.com/common/fonts/roboto/font-face.css",
+        "url": "https://static.captcha-delivery.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.captcha-delivery.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 135,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 135
       },
       {
         "id": 6,
-        "url": "https://static.captcha-delivery.com/captcha/assets/set/082f83a7e6a085431c2604ecb28746f66ee8096c/logo.png?update_cache=",
+        "url": "https://static.captcha-delivery.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "static.captcha-delivery.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 135,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 135
       },
       {
         "id": 7,
-        "url": "https://static.captcha-delivery.com/common/fonts/roboto/roboto.woff2",
+        "url": "https://static.captcha-delivery.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.captcha-delivery.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 169,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 169
       }
     ],
     "domains": [
@@ -223,12 +223,12 @@
     "storage": [
       {
         "area": "sessionStorage",
-        "key": "ddOriginalReferrer",
+        "key": "[redacted]",
         "valueBytes": 0
       }
     ],
-    "fingerprintDetections": [],
     "fingerprintEvents": [],
+    "fingerprintDetections": [],
     "screenshot": null,
     "warnings": [
       "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
@@ -274,6 +274,13 @@
       "automation": "playwright-chromium",
       "headless": true,
       "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "block-simulation",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-06-19T17:24:24.927Z"
+      },
       "trackerCatalog": {
         "source": "Hand-curated service catalog",
         "version": "hand-curated-2026.06",
@@ -282,14 +289,7 @@
         "curatedOverrides": 133,
         "license": "AGPL-3.0-or-later"
       },
-      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
-      "adblock": {
-        "active": true,
-        "source": "Brave default ad-block lists",
-        "lists": 31,
-        "fetchedAt": "2026-06-19T17:24:24.927Z"
-      },
-      "shieldsMode": "block-simulation"
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
     },
     "requests": [
       {
@@ -301,80 +301,80 @@
         "status": 403,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 35,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 35
       },
       {
         "id": 2,
-        "url": "https://ct.captcha-delivery.com/c.js",
+        "url": "https://ct.captcha-delivery.com/{seg}",
         "domain": "ct.captcha-delivery.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 82,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 82
       },
       {
         "id": 3,
-        "url": "https://geo.captcha-delivery.com/captcha/?initialCid=&hash=&cid=&t=&referer=&s=&e=&dm=",
+        "url": "https://geo.captcha-delivery.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&cid=&t=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "geo.captcha-delivery.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 106,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 106
       },
       {
         "id": 4,
-        "url": "https://static.captcha-delivery.com/captcha/assets/tpl/6dc485c0c428c35b53577b146dc6f9179f55ef9ad41b327a2a179998839364bf/index.css",
+        "url": "https://static.captcha-delivery.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.captcha-delivery.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 145,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 145
       },
       {
         "id": 5,
-        "url": "https://static.captcha-delivery.com/common/fonts/roboto/font-face.css",
+        "url": "https://static.captcha-delivery.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.captcha-delivery.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 146,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 146
       },
       {
         "id": 6,
-        "url": "https://static.captcha-delivery.com/captcha/assets/set/082f83a7e6a085431c2604ecb28746f66ee8096c/logo.png?update_cache=",
+        "url": "https://static.captcha-delivery.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "static.captcha-delivery.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 146,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 146
       },
       {
         "id": 7,
-        "url": "https://static.captcha-delivery.com/common/fonts/roboto/roboto.woff2",
+        "url": "https://static.captcha-delivery.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.captcha-delivery.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 162,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 162
       }
     ],
     "domains": [
@@ -448,12 +448,12 @@
     "storage": [
       {
         "area": "sessionStorage",
-        "key": "ddOriginalReferrer",
+        "key": "[redacted]",
         "valueBytes": 0
       }
     ],
-    "fingerprintDetections": [],
     "fingerprintEvents": [],
+    "fingerprintDetections": [],
     "screenshot": null,
     "warnings": [
       "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",

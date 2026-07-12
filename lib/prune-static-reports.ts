@@ -1,7 +1,11 @@
-import { readdir, readFile, rm } from "node:fs/promises";
 import path from "node:path";
-import { readStoredScanReport } from "./scan-report-reader";
 import { toReportView } from "./scan-report-view";
+import {
+  listDanglingStaticSidecarIds,
+  listStaticReportCandidateIds,
+  readStaticReportBundle,
+  removeStaticReportBundle
+} from "./static-report-files";
 
 /**
  * Retention pruning for the committed report corpus (public/reports/). Ported
@@ -25,8 +29,6 @@ import { toReportView } from "./scan-report-view";
  * app, worker, or browser code.
  */
 
-const REPORT_FILE_PATTERN = /^([0-9]{8}-[0-9a-f]{32})\.json$/;
-
 export type PruneOptions = {
   maxAgeMs: number;
   maxCount: number;
@@ -41,6 +43,7 @@ export type PruneResult = {
 };
 
 type ReportRecord = {
+  id: string;
   path: string;
   scannedAtMs: number;
   domain: string | null;
@@ -70,7 +73,13 @@ export async function pruneStaticReports(reportsDir: string, options: PruneOptio
     .slice(options.maxCount)
     .forEach((record) => removePaths.add(record.path));
 
-  await Promise.all([...removePaths].map((filePath) => rm(filePath, { force: true })));
+  await Promise.all(
+    [...removePaths].map(async (filePath) => {
+      const record = records.find((candidate) => candidate.path === filePath);
+      if (!record) throw new Error(`Missing static report record for ${filePath}`);
+      await removeStaticReportBundle(reportsDir, record.id);
+    })
+  );
   return { removed: [...removePaths].sort(), warnings };
 }
 
@@ -99,33 +108,18 @@ function newestPerSite(records: ReportRecord[], keepPerSite: number): Set<Report
 
 async function readReportRecords(reportsDir: string): Promise<{ records: ReportRecord[]; warnings: string[] }> {
   const warnings: string[] = [];
-  let entries;
-  try {
-    entries = await readdir(reportsDir, { withFileTypes: true });
-  } catch (error) {
-    if (isMissingDirectory(error)) return { records: [], warnings };
-    throw error;
+  for (const id of await listDanglingStaticSidecarIds(reportsDir)) {
+    warnings.push(`Keeping dangling static report sidecar ${id}.provenance.json (never pruned).`);
   }
 
   const records: ReportRecord[] = [];
-  for (const entry of entries) {
-    const match = entry.isFile() ? REPORT_FILE_PATTERN.exec(entry.name) : null;
-    if (!match) continue;
-
-    const filePath = path.join(reportsDir, entry.name);
-    let parsed: unknown;
-    try {
-      parsed = JSON.parse(await readFile(filePath, "utf8")) as unknown;
-    } catch (error) {
-      warnings.push(
-        `Keeping unparseable static report ${entry.name} (never pruned): ${error instanceof Error ? error.message : String(error)}`
-      );
-      continue;
-    }
-
-    const read = readStoredScanReport(parsed);
-    if (!read.ok) {
-      warnings.push(`Keeping unreadable static report ${entry.name} (never pruned): ${read.error}`);
+  for (const id of await listStaticReportCandidateIds(reportsDir)) {
+    const file = `${id}.json`;
+    const filePath = path.join(reportsDir, file);
+    const read = await readStaticReportBundle(reportsDir, id);
+    if (read.outcome !== "found") {
+      const reason = read.outcome === "not-found" ? "missing-report" : read.reason;
+      warnings.push(`Keeping unreadable or unmanaged static report ${file} (never pruned): ${reason}`);
       continue;
     }
 
@@ -136,11 +130,12 @@ async function readReportRecords(reportsDir: string): Promise<{ records: ReportR
     const retainAt = view.latestRunAt ?? view.scannedAt;
     const scannedAtMs = retainAt === null ? Number.NaN : Date.parse(retainAt);
     if (!Number.isFinite(scannedAtMs)) {
-      warnings.push(`Keeping static report without a readable scan time ${entry.name} (never pruned).`);
+      warnings.push(`Keeping static report without a readable scan time ${file} (never pruned).`);
       continue;
     }
 
     records.push({
+      id,
       path: filePath,
       scannedAtMs,
       domain: view.domain ? view.domain.toLowerCase().replace(/^www\./, "") : null,
@@ -167,8 +162,4 @@ function retentionKind(stored: Parameters<typeof toReportView>[0]): string {
   const report = stored.report;
   if (report.reportType !== "comparison") return "single";
   return report.experiment.kind === "intervention" ? report.experiment.axis : report.experiment.kind;
-}
-
-function isMissingDirectory(error: unknown): boolean {
-  return Boolean(error && typeof error === "object" && "code" in error && (error as { code?: string }).code === "ENOENT");
 }

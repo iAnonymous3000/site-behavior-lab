@@ -49,6 +49,13 @@
       "automation": "playwright-chromium",
       "headless": true,
       "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "classification",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-02T01:00:58.178Z"
+      },
       "trackerCatalog": {
         "source": "Hand-curated service catalog",
         "version": "hand-curated-2026.06",
@@ -57,14 +64,7 @@
         "curatedOverrides": 133,
         "license": "AGPL-3.0-or-later"
       },
-      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
-      "adblock": {
-        "active": true,
-        "source": "Brave default ad-block lists",
-        "lists": 31,
-        "fetchedAt": "2026-07-02T01:00:58.178Z"
-      },
-      "shieldsMode": "classification"
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
     },
     "requests": [
       {
@@ -76,828 +76,828 @@
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 45,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 45
       },
       {
         "id": 2,
-        "url": "https://home.unicode.org/wp-content/plugins/fusion-core/css/comment-form.min.css",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 234,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 234
       },
       {
         "id": 3,
-        "url": "https://home.unicode.org/wp-content/plugins/fusion-core/css/privacy.min.css",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 235,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 235
       },
       {
         "id": 4,
-        "url": "https://home.unicode.org/wp-content/plugins/fusion-core/css/faqs.min.css",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 235,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 235
       },
       {
         "id": 5,
-        "url": "https://home.unicode.org/wp-content/plugins/fusion-core/css/portfolio.min.css",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 236,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 236
       },
       {
         "id": 6,
-        "url": "https://home.unicode.org/wp-content/themes/Avada/style.css",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 236,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 236
       },
       {
         "id": 7,
-        "url": "https://home.unicode.org/wp-content/themes/unicode/style.css",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 236,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 236
       },
       {
         "id": 8,
-        "url": "https://home.unicode.org/wp-content/themes/unicode/characters.css",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 237,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 237
       },
       {
         "id": 9,
-        "url": "https://home.unicode.org/wp-content/themes/Avada/assets/css/style.min.css",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 238,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 238
       },
       {
         "id": 10,
-        "url": "https://home.unicode.org/wp-content/plugins/easy-fancybox/fancybox/1.5.4/jquery.fancybox.min.css",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 238,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 238
       },
       {
         "id": 11,
-        "url": "https://home.unicode.org/wp-includes/js/jquery/jquery.min.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 239,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 239
       },
       {
         "id": 12,
-        "url": "https://home.unicode.org/wp-includes/js/jquery/jquery-migrate.min.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 239,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 239
       },
       {
         "id": 13,
-        "url": "https://home.unicode.org/wp-content/uploads/2019/12/Unicode-Logo-Final-Blue-95x112.jpg",
+        "url": "https://home.unicode.org/{seg}/{seg}/{n}/{n}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 245,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 245
       },
       {
         "id": 14,
-        "url": "https://home.unicode.org/wp-content/uploads/2020/08/play.png",
+        "url": "https://home.unicode.org/{seg}/{seg}/{n}/{n}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 245,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 245
       },
       {
         "id": 15,
-        "url": "https://home.unicode.org/wp-content/themes/unicode/submenu.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 269,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 269
       },
       {
         "id": 16,
-        "url": "https://home.unicode.org/wp-content/themes/unicode/hero.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 270,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 270
       },
       {
         "id": 17,
-        "url": "https://home.unicode.org/wp-content/plugins/easy-fancybox/vendor/purify.min.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 289,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 289
       },
       {
         "id": 18,
-        "url": "https://home.unicode.org/wp-content/plugins/easy-fancybox/fancybox/1.5.4/jquery.fancybox.min.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 290,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 290
       },
       {
         "id": 19,
-        "url": "https://home.unicode.org/wp-content/themes/Avada/includes/lib/assets/min/js/library/cssua.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 322,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 322
       },
       {
         "id": 20,
-        "url": "https://home.unicode.org/wp-content/plugins/fusion-builder/assets/js/min/general/fusion-animations.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 323,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 323
       },
       {
         "id": 21,
-        "url": "https://home.unicode.org/wp-content/themes/Avada/includes/lib/assets/min/js/general/awb-tabs-widget.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 324,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 324
       },
       {
         "id": 22,
-        "url": "https://home.unicode.org/wp-content/themes/Avada/includes/lib/assets/min/js/general/awb-vertical-menu-widget.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 324,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 324
       },
       {
         "id": 23,
-        "url": "https://home.unicode.org/wp-content/themes/Avada/includes/lib/assets/min/js/library/modernizr.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 324,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 324
       },
       {
         "id": 24,
-        "url": "https://home.unicode.org/wp-content/themes/Avada/includes/lib/assets/min/js/general/fusion.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 325,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 325
       },
       {
         "id": 25,
-        "url": "https://home.unicode.org/wp-content/themes/Avada/includes/lib/assets/min/js/library/swiper.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 326,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 326
       },
       {
         "id": 26,
-        "url": "https://home.unicode.org/wp-content/themes/Avada/includes/lib/assets/min/js/library/bootstrap.transition.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 327,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 327
       },
       {
         "id": 27,
-        "url": "https://home.unicode.org/wp-content/themes/Avada/includes/lib/assets/min/js/library/bootstrap.tooltip.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 327,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 327
       },
       {
         "id": 28,
-        "url": "https://home.unicode.org/wp-content/themes/Avada/includes/lib/assets/min/js/library/jquery.requestAnimationFrame.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 328,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 328
       },
       {
         "id": 29,
-        "url": "https://home.unicode.org/wp-content/themes/Avada/includes/lib/assets/min/js/library/jquery.easing.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 328,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 328
       },
       {
         "id": 30,
-        "url": "https://home.unicode.org/wp-content/themes/Avada/includes/lib/assets/min/js/library/jquery.fitvids.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 328,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 328
       },
       {
         "id": 31,
-        "url": "https://home.unicode.org/wp-content/themes/Avada/includes/lib/assets/min/js/library/jquery.flexslider.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 328,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 328
       },
       {
         "id": 32,
-        "url": "https://home.unicode.org/wp-content/themes/Avada/includes/lib/assets/min/js/library/jquery.ilightbox.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 329,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 329
       },
       {
         "id": 33,
-        "url": "https://home.unicode.org/wp-content/themes/Avada/includes/lib/assets/min/js/library/jquery.mousewheel.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 331,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 331
       },
       {
         "id": 34,
-        "url": "https://home.unicode.org/wp-content/themes/Avada/includes/lib/assets/min/js/library/jquery.fade.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 331,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 331
       },
       {
         "id": 35,
-        "url": "https://home.unicode.org/wp-content/themes/Avada/includes/lib/assets/min/js/library/imagesLoaded.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 332,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 332
       },
       {
         "id": 36,
-        "url": "https://home.unicode.org/wp-content/themes/Avada/includes/lib/assets/min/js/general/fusion-equal-heights.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 332,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 332
       },
       {
         "id": 37,
-        "url": "https://home.unicode.org/wp-content/themes/Avada/includes/lib/assets/min/js/library/fusion-parallax.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 333,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 333
       },
       {
         "id": 38,
-        "url": "https://home.unicode.org/wp-content/themes/Avada/includes/lib/assets/min/js/library/fusion-video-general.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 333,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 333
       },
       {
         "id": 39,
-        "url": "https://home.unicode.org/wp-content/themes/Avada/includes/lib/assets/min/js/library/fusion-video-bg.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 333,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 333
       },
       {
         "id": 40,
-        "url": "https://home.unicode.org/wp-content/themes/Avada/includes/lib/assets/min/js/general/fusion-lightbox.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 334,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 334
       },
       {
         "id": 41,
-        "url": "https://home.unicode.org/wp-content/themes/Avada/includes/lib/assets/min/js/general/fusion-tooltip.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 334,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 334
       },
       {
         "id": 42,
-        "url": "https://home.unicode.org/wp-content/themes/Avada/includes/lib/assets/min/js/general/fusion-sharing-box.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 334,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 334
       },
       {
         "id": 43,
-        "url": "https://home.unicode.org/wp-content/themes/Avada/includes/lib/assets/min/js/library/jquery.sticky-kit.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 336,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 336
       },
       {
         "id": 44,
-        "url": "https://home.unicode.org/wp-content/themes/Avada/includes/lib/assets/min/js/library/fusion-youtube.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 337,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 337
       },
       {
         "id": 45,
-        "url": "https://home.unicode.org/wp-content/themes/Avada/includes/lib/assets/min/js/library/vimeoPlayer.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 337,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 337
       },
       {
         "id": 46,
-        "url": "https://home.unicode.org/wp-content/themes/Avada/includes/lib/assets/min/js/general/fusion-general-global.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 337,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 337
       },
       {
         "id": 47,
-        "url": "https://home.unicode.org/wp-content/themes/Avada/assets/min/js/general/avada-general-footer.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 338,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 338
       },
       {
         "id": 48,
-        "url": "https://home.unicode.org/wp-content/themes/Avada/assets/min/js/general/avada-quantity.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 338,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 338
       },
       {
         "id": 49,
-        "url": "https://home.unicode.org/wp-content/themes/Avada/assets/min/js/general/avada-crossfade-images.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 339,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 339
       },
       {
         "id": 50,
-        "url": "https://home.unicode.org/wp-content/themes/Avada/assets/min/js/general/avada-select.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 339,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 339
       },
       {
         "id": 51,
-        "url": "https://home.unicode.org/wp-content/themes/Avada/includes/lib/assets/min/js/general/fusion-alert.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 340,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 340
       },
       {
         "id": 52,
-        "url": "https://home.unicode.org/wp-content/plugins/fusion-builder/assets/js/min/general/awb-off-canvas.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 340,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 340
       },
       {
         "id": 53,
-        "url": "https://home.unicode.org/wp-content/themes/Avada/includes/lib/assets/min/js/general/fusion-flexslider.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 340,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 340
       },
       {
         "id": 54,
-        "url": "https://home.unicode.org/wp-content/plugins/fusion-builder/assets/js/min/general/fusion-column-legacy.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 341,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 341
       },
       {
         "id": 55,
-        "url": "https://home.unicode.org/wp-content/plugins/fusion-builder/assets/js/min/general/awb-background-slider.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 343,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 343
       },
       {
         "id": 56,
-        "url": "https://home.unicode.org/wp-content/plugins/fusion-builder/assets/js/min/general/fusion-container.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 344,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 344
       },
       {
         "id": 57,
-        "url": "https://home.unicode.org/wp-content/themes/Avada/assets/min/js/library/jquery.elasticslider.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 344,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 344
       },
       {
         "id": 58,
-        "url": "https://home.unicode.org/wp-content/themes/Avada/assets/min/js/general/avada-elastic-slider.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 344,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 344
       },
       {
         "id": 59,
-        "url": "https://home.unicode.org/wp-content/themes/Avada/assets/min/js/general/avada-side-header-scroll.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 345,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 345
       },
       {
         "id": 60,
-        "url": "https://home.unicode.org/wp-content/themes/Avada/assets/min/js/general/avada-drop-down.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 345,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 345
       },
       {
         "id": 61,
-        "url": "https://home.unicode.org/wp-content/themes/Avada/assets/min/js/general/avada-to-top.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 345,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 345
       },
       {
         "id": 62,
-        "url": "https://home.unicode.org/wp-content/themes/Avada/assets/min/js/general/avada-header.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 346,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 346
       },
       {
         "id": 63,
-        "url": "https://home.unicode.org/wp-content/themes/Avada/assets/min/js/general/avada-menu.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 346,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 346
       },
       {
         "id": 64,
-        "url": "https://home.unicode.org/wp-content/themes/Avada/assets/min/js/library/bootstrap.scrollspy.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 346,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 346
       },
       {
         "id": 65,
-        "url": "https://home.unicode.org/wp-content/themes/Avada/assets/min/js/general/avada-scrollspy.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 347,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 347
       },
       {
         "id": 66,
-        "url": "https://home.unicode.org/wp-content/themes/Avada/includes/lib/assets/min/js/general/fusion-responsive-typography.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 347,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 347
       },
       {
         "id": 67,
-        "url": "https://home.unicode.org/wp-content/themes/Avada/includes/lib/assets/min/js/general/fusion-scroll-to-anchor.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 347,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 347
       },
       {
         "id": 68,
-        "url": "https://home.unicode.org/wp-content/plugins/fusion-builder/assets/js/min/general/fusion-video.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 347,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 347
       },
       {
         "id": 69,
-        "url": "https://home.unicode.org/wp-content/plugins/fusion-builder/assets/js/min/general/fusion-column.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 348,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 348
       },
       {
         "id": 70,
-        "url": "https://www.google-analytics.com/analytics.js",
+        "url": "https://www.google-analytics.com/{seg}",
         "domain": "www.google-analytics.com",
         "method": "GET",
         "resourceType": "script",
@@ -909,60 +909,60 @@
           "category": "analytics / tag management",
           "confidence": "curated"
         },
-        "startedAtMs": 348,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 348
       },
       {
         "id": 71,
-        "url": "https://fonts.gstatic.com/s/sourcesans3/v19/nwpMtKy2OAdR1K-IwhWudF-R3woqZ-LYxnN18YRx.woff2",
+        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "fonts.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 424,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 424
       },
       {
         "id": 72,
-        "url": "https://home.unicode.org/wp-content/themes/unicode/images/badge.gif",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 425,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 425
       },
       {
         "id": 73,
-        "url": "https://fonts.gstatic.com/s/sourcesans3/v19/nwpStKy2OAdR1K-IwhWudF-R3w8aZejZ5HZV8Q.woff2",
+        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "fonts.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 426,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 426
       },
       {
         "id": 74,
-        "url": "https://home.unicode.org/wp-content/themes/Avada/includes/lib/assets/fonts/icomoon/awb-icons.woff",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 426,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 426
       },
       {
         "id": 75,
-        "url": "https://www.google-analytics.com/j/collect?v=&_v=&a=&t=&_s=&dl=&ul=&dt=&sr=&vp=&_u=&jid=&gjid=&cid=&tid=&_gid=&_r=&_slc=&z=",
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&%5Bredacted%5D=&%5Bredacted%5D=&t=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "www.google-analytics.com",
         "method": "POST",
         "resourceType": "xhr",
@@ -974,12 +974,12 @@
           "category": "analytics / tag management",
           "confidence": "curated"
         },
-        "startedAtMs": 615,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 615
       },
       {
         "id": 76,
-        "url": "https://www.googletagmanager.com/gtag/js?id=&cx=&_slc=",
+        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "www.googletagmanager.com",
         "method": "GET",
         "resourceType": "script",
@@ -991,12 +991,12 @@
           "category": "analytics / tag management",
           "confidence": "curated"
         },
-        "startedAtMs": 641,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 641
       },
       {
         "id": 77,
-        "url": "https://www.google-analytics.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&_eu=&are=&cid=&frm=&ir=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&_s=&tag_exp=&dl=&dt=&sid=&sct=&seg=&_tu=&en=&_fv=&_ss=&_ee=&tfd=",
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "www.google-analytics.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -1008,12 +1008,12 @@
           "category": "analytics / tag management",
           "confidence": "curated"
         },
-        "startedAtMs": 898,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 898
       },
       {
         "id": 78,
-        "url": "https://www.google-analytics.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&_eu=&are=&cid=&frm=&ir=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&_s=&tag_exp=&dl=&dt=&sid=&sct=&seg=&en=&_ee=&_et=&tfd=",
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "www.google-analytics.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -1025,20 +1025,20 @@
           "category": "analytics / tag management",
           "confidence": "curated"
         },
-        "startedAtMs": 4124,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 4124
       },
       {
         "id": 79,
-        "url": "https://www.google.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&_eu=&are=&cid=&frm=&ir=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&_s=&tag_exp=&dl=&dt=&sid=&sct=&seg=&en=&_ee=&_et=&tfd=&gaf=",
+        "url": "https://www.google.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": null,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 4125,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 4125
       }
     ],
     "domains": [
@@ -1155,7 +1155,7 @@
         "thirdParty": false
       },
       {
-        "name": "_ga_JP5GS8YZK5",
+        "name": "[redacted]",
         "domain": ".unicode.org",
         "path": "/",
         "sameSite": "Lax",
@@ -1166,8 +1166,8 @@
       }
     ],
     "storage": [],
-    "fingerprintDetections": [],
     "fingerprintEvents": [],
+    "fingerprintDetections": [],
     "screenshot": null,
     "warnings": [
       "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
@@ -1213,6 +1213,13 @@
       "automation": "playwright-chromium",
       "headless": true,
       "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "block-simulation",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-02T01:00:58.178Z"
+      },
       "trackerCatalog": {
         "source": "Hand-curated service catalog",
         "version": "hand-curated-2026.06",
@@ -1221,14 +1228,7 @@
         "curatedOverrides": 133,
         "license": "AGPL-3.0-or-later"
       },
-      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
-      "adblock": {
-        "active": true,
-        "source": "Brave default ad-block lists",
-        "lists": 31,
-        "fetchedAt": "2026-07-02T01:00:58.178Z"
-      },
-      "shieldsMode": "block-simulation"
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
     },
     "requests": [
       {
@@ -1240,872 +1240,872 @@
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 47,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 47
       },
       {
         "id": 2,
-        "url": "https://home.unicode.org/wp-content/plugins/fusion-core/css/comment-form.min.css",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 128,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 128
       },
       {
         "id": 3,
-        "url": "https://home.unicode.org/wp-content/plugins/fusion-core/css/privacy.min.css",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 129,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 129
       },
       {
         "id": 4,
-        "url": "https://home.unicode.org/wp-content/plugins/fusion-core/css/faqs.min.css",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 131,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 131
       },
       {
         "id": 5,
-        "url": "https://home.unicode.org/wp-content/plugins/fusion-core/css/portfolio.min.css",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 131,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 131
       },
       {
         "id": 6,
-        "url": "https://home.unicode.org/wp-content/themes/Avada/style.css",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 132,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 132
       },
       {
         "id": 7,
-        "url": "https://home.unicode.org/wp-content/themes/unicode/style.css",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 132,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 132
       },
       {
         "id": 8,
-        "url": "https://home.unicode.org/wp-content/themes/unicode/characters.css",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 132,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 132
       },
       {
         "id": 9,
-        "url": "https://home.unicode.org/wp-content/themes/Avada/assets/css/style.min.css",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 133,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 133
       },
       {
         "id": 10,
-        "url": "https://home.unicode.org/wp-content/plugins/easy-fancybox/fancybox/1.5.4/jquery.fancybox.min.css",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 133,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 133
       },
       {
         "id": 11,
-        "url": "https://home.unicode.org/wp-includes/js/jquery/jquery.min.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 133,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 133
       },
       {
         "id": 12,
-        "url": "https://home.unicode.org/wp-includes/js/jquery/jquery-migrate.min.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 134,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 134
       },
       {
         "id": 13,
-        "url": "https://home.unicode.org/wp-content/uploads/2019/12/Unicode-Logo-Final-Blue-95x112.jpg",
+        "url": "https://home.unicode.org/{seg}/{seg}/{n}/{n}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 139,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 139
       },
       {
         "id": 14,
-        "url": "https://home.unicode.org/wp-content/uploads/2020/08/play.png",
+        "url": "https://home.unicode.org/{seg}/{seg}/{n}/{n}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 140,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 140
       },
       {
         "id": 15,
-        "url": "https://home.unicode.org/wp-content/themes/unicode/submenu.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 160,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 160
       },
       {
         "id": 16,
-        "url": "https://home.unicode.org/wp-content/themes/unicode/hero.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 162,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 162
       },
       {
         "id": 17,
-        "url": "https://home.unicode.org/wp-content/plugins/easy-fancybox/vendor/purify.min.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 175,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 175
       },
       {
         "id": 18,
-        "url": "https://home.unicode.org/wp-content/plugins/easy-fancybox/fancybox/1.5.4/jquery.fancybox.min.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 209,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 209
       },
       {
         "id": 19,
-        "url": "https://home.unicode.org/wp-content/themes/Avada/includes/lib/assets/min/js/library/cssua.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 210,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 210
       },
       {
         "id": 20,
-        "url": "https://home.unicode.org/wp-content/plugins/fusion-builder/assets/js/min/general/fusion-animations.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 211,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 211
       },
       {
         "id": 21,
-        "url": "https://home.unicode.org/wp-content/themes/Avada/includes/lib/assets/min/js/general/awb-tabs-widget.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 211,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 211
       },
       {
         "id": 22,
-        "url": "https://home.unicode.org/wp-content/themes/Avada/includes/lib/assets/min/js/general/awb-vertical-menu-widget.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 211,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 211
       },
       {
         "id": 23,
-        "url": "https://home.unicode.org/wp-content/themes/Avada/includes/lib/assets/min/js/library/modernizr.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 212,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 212
       },
       {
         "id": 24,
-        "url": "https://home.unicode.org/wp-content/themes/Avada/includes/lib/assets/min/js/general/fusion.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 212,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 212
       },
       {
         "id": 25,
-        "url": "https://home.unicode.org/wp-content/themes/Avada/includes/lib/assets/min/js/library/swiper.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 212,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 212
       },
       {
         "id": 26,
-        "url": "https://home.unicode.org/wp-content/themes/Avada/includes/lib/assets/min/js/library/bootstrap.transition.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 212,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 212
       },
       {
         "id": 27,
-        "url": "https://home.unicode.org/wp-content/themes/Avada/includes/lib/assets/min/js/library/bootstrap.tooltip.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 212,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 212
       },
       {
         "id": 28,
-        "url": "https://home.unicode.org/wp-content/themes/Avada/includes/lib/assets/min/js/library/jquery.requestAnimationFrame.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 213,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 213
       },
       {
         "id": 29,
-        "url": "https://home.unicode.org/wp-content/themes/Avada/includes/lib/assets/min/js/library/jquery.easing.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 213,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 213
       },
       {
         "id": 30,
-        "url": "https://home.unicode.org/wp-content/themes/Avada/includes/lib/assets/min/js/library/jquery.fitvids.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 213,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 213
       },
       {
         "id": 31,
-        "url": "https://home.unicode.org/wp-content/themes/Avada/includes/lib/assets/min/js/library/jquery.flexslider.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 213,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 213
       },
       {
         "id": 32,
-        "url": "https://home.unicode.org/wp-content/themes/Avada/includes/lib/assets/min/js/library/jquery.ilightbox.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 214,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 214
       },
       {
         "id": 33,
-        "url": "https://home.unicode.org/wp-content/themes/Avada/includes/lib/assets/min/js/library/jquery.mousewheel.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 214,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 214
       },
       {
         "id": 34,
-        "url": "https://home.unicode.org/wp-content/themes/Avada/includes/lib/assets/min/js/library/jquery.fade.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 216,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 216
       },
       {
         "id": 35,
-        "url": "https://home.unicode.org/wp-content/themes/Avada/includes/lib/assets/min/js/library/imagesLoaded.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 216,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 216
       },
       {
         "id": 36,
-        "url": "https://home.unicode.org/wp-content/themes/Avada/includes/lib/assets/min/js/general/fusion-equal-heights.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 217,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 217
       },
       {
         "id": 37,
-        "url": "https://home.unicode.org/wp-content/themes/Avada/includes/lib/assets/min/js/library/fusion-parallax.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 217,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 217
       },
       {
         "id": 38,
-        "url": "https://home.unicode.org/wp-content/themes/Avada/includes/lib/assets/min/js/library/fusion-video-general.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 220,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 220
       },
       {
         "id": 39,
-        "url": "https://home.unicode.org/wp-content/themes/Avada/includes/lib/assets/min/js/library/fusion-video-bg.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 221,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 221
       },
       {
         "id": 40,
-        "url": "https://home.unicode.org/wp-content/themes/Avada/includes/lib/assets/min/js/general/fusion-lightbox.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 221,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 221
       },
       {
         "id": 41,
-        "url": "https://home.unicode.org/wp-content/themes/Avada/includes/lib/assets/min/js/general/fusion-tooltip.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 221,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 221
       },
       {
         "id": 42,
-        "url": "https://home.unicode.org/wp-content/themes/Avada/includes/lib/assets/min/js/general/fusion-sharing-box.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 222,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 222
       },
       {
         "id": 43,
-        "url": "https://home.unicode.org/wp-content/themes/Avada/includes/lib/assets/min/js/library/jquery.sticky-kit.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 222,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 222
       },
       {
         "id": 44,
-        "url": "https://home.unicode.org/wp-content/themes/Avada/includes/lib/assets/min/js/library/fusion-youtube.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 223,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 223
       },
       {
         "id": 45,
-        "url": "https://home.unicode.org/wp-content/themes/Avada/includes/lib/assets/min/js/library/vimeoPlayer.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 223,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 223
       },
       {
         "id": 46,
-        "url": "https://home.unicode.org/wp-content/themes/Avada/includes/lib/assets/min/js/general/fusion-general-global.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 223,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 223
       },
       {
         "id": 47,
-        "url": "https://home.unicode.org/wp-content/themes/Avada/assets/min/js/general/avada-general-footer.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 224,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 224
       },
       {
         "id": 48,
-        "url": "https://home.unicode.org/wp-content/themes/Avada/assets/min/js/general/avada-quantity.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 224,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 224
       },
       {
         "id": 49,
-        "url": "https://home.unicode.org/wp-content/themes/Avada/assets/min/js/general/avada-crossfade-images.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 225,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 225
       },
       {
         "id": 50,
-        "url": "https://home.unicode.org/wp-content/themes/Avada/assets/min/js/general/avada-select.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 225,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 225
       },
       {
         "id": 51,
-        "url": "https://home.unicode.org/wp-content/themes/Avada/includes/lib/assets/min/js/general/fusion-alert.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 226,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 226
       },
       {
         "id": 52,
-        "url": "https://home.unicode.org/wp-content/plugins/fusion-builder/assets/js/min/general/awb-off-canvas.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 226,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 226
       },
       {
         "id": 53,
-        "url": "https://home.unicode.org/wp-content/themes/Avada/includes/lib/assets/min/js/general/fusion-flexslider.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 226,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 226
       },
       {
         "id": 54,
-        "url": "https://home.unicode.org/wp-content/plugins/fusion-builder/assets/js/min/general/fusion-column-legacy.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 227,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 227
       },
       {
         "id": 55,
-        "url": "https://home.unicode.org/wp-content/plugins/fusion-builder/assets/js/min/general/awb-background-slider.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 227,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 227
       },
       {
         "id": 56,
-        "url": "https://home.unicode.org/wp-content/plugins/fusion-builder/assets/js/min/general/fusion-container.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 228,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 228
       },
       {
         "id": 57,
-        "url": "https://home.unicode.org/wp-content/themes/Avada/assets/min/js/library/jquery.elasticslider.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 228,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 228
       },
       {
         "id": 58,
-        "url": "https://home.unicode.org/wp-content/themes/Avada/assets/min/js/general/avada-elastic-slider.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 229,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 229
       },
       {
         "id": 59,
-        "url": "https://home.unicode.org/wp-content/themes/Avada/assets/min/js/general/avada-side-header-scroll.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 229,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 229
       },
       {
         "id": 60,
-        "url": "https://home.unicode.org/wp-content/themes/Avada/assets/min/js/general/avada-drop-down.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 229,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 229
       },
       {
         "id": 61,
-        "url": "https://home.unicode.org/wp-content/themes/Avada/assets/min/js/general/avada-to-top.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 230,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 230
       },
       {
         "id": 62,
-        "url": "https://home.unicode.org/wp-content/themes/Avada/assets/min/js/general/avada-header.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 230,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 230
       },
       {
         "id": 63,
-        "url": "https://home.unicode.org/wp-content/themes/Avada/assets/min/js/general/avada-menu.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 230,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 230
       },
       {
         "id": 64,
-        "url": "https://home.unicode.org/wp-content/themes/Avada/assets/min/js/library/bootstrap.scrollspy.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 231,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 231
       },
       {
         "id": 65,
-        "url": "https://home.unicode.org/wp-content/themes/Avada/assets/min/js/general/avada-scrollspy.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 231,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 231
       },
       {
         "id": 66,
-        "url": "https://home.unicode.org/wp-content/themes/Avada/includes/lib/assets/min/js/general/fusion-responsive-typography.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 232,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 232
       },
       {
         "id": 67,
-        "url": "https://home.unicode.org/wp-content/themes/Avada/includes/lib/assets/min/js/general/fusion-scroll-to-anchor.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 232,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 232
       },
       {
         "id": 68,
-        "url": "https://home.unicode.org/wp-content/plugins/fusion-builder/assets/js/min/general/fusion-video.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 232,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 232
       },
       {
         "id": 69,
-        "url": "https://home.unicode.org/wp-content/plugins/fusion-builder/assets/js/min/general/fusion-column.js",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 233,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 233
       },
       {
         "id": 71,
-        "url": "https://fonts.gstatic.com/s/sourcesans3/v19/nwpMtKy2OAdR1K-IwhWudF-R3woqZ-LYxnN18YRx.woff2",
+        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "fonts.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 310,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 310
       },
       {
         "id": 72,
-        "url": "https://home.unicode.org/wp-content/themes/unicode/images/badge.gif",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 310,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 310
       },
       {
         "id": 73,
-        "url": "https://fonts.gstatic.com/s/sourcesans3/v19/nwpStKy2OAdR1K-IwhWudF-R3w8aZejZ5HZV8Q.woff2",
+        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "fonts.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 311,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 311
       },
       {
         "id": 74,
-        "url": "https://home.unicode.org/wp-content/themes/Avada/includes/lib/assets/fonts/icomoon/awb-icons.woff",
+        "url": "https://home.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "home.unicode.org",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 311,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 311
       }
     ],
     "domains": [
@@ -2142,8 +2142,8 @@
     ],
     "cookies": [],
     "storage": [],
-    "fingerprintDetections": [],
     "fingerprintEvents": [],
+    "fingerprintDetections": [],
     "screenshot": null,
     "warnings": [
       "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
@@ -2237,17 +2237,17 @@
         "thirdParty": false
       },
       {
-        "name": "_ga_JP5GS8YZK5",
-        "domain": ".unicode.org",
-        "thirdParty": false
-      },
-      {
         "name": "_gat",
         "domain": ".unicode.org",
         "thirdParty": false
       },
       {
         "name": "_gid",
+        "domain": ".unicode.org",
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
         "domain": ".unicode.org",
         "thirdParty": false
       }

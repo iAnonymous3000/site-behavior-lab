@@ -49,6 +49,13 @@
       "automation": "playwright-chromium",
       "headless": true,
       "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "classification",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-02T01:00:58.178Z"
+      },
       "trackerCatalog": {
         "source": "Hand-curated service catalog",
         "version": "hand-curated-2026.06",
@@ -57,14 +64,7 @@
         "curatedOverrides": 133,
         "license": "AGPL-3.0-or-later"
       },
-      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
-      "adblock": {
-        "active": true,
-        "source": "Brave default ad-block lists",
-        "lists": 31,
-        "fetchedAt": "2026-07-02T01:00:58.178Z"
-      },
-      "shieldsMode": "classification"
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
     },
     "requests": [
       {
@@ -76,668 +76,668 @@
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 283,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 283
       },
       {
         "id": 2,
-        "url": "https://asset.chase.com/content/dam/cpo-static/fonts/opensans.woff2",
+        "url": "https://asset.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "asset.chase.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 363,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 363
       },
       {
         "id": 3,
-        "url": "https://asset.chase.com/content/dam/cpo-static/fonts/opensans-semibold.woff2",
+        "url": "https://asset.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "asset.chase.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 363,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 363
       },
       {
         "id": 4,
-        "url": "https://asset.chase.com/content/dam/cpo-static/fonts/opensans-bold.woff2",
+        "url": "https://asset.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "asset.chase.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 364,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 364
       },
       {
         "id": 5,
-        "url": "https://asset.chase.com/content/dam/cpo-static/fonts/opensans-light.woff2",
+        "url": "https://asset.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "asset.chase.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 364,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 364
       },
       {
         "id": 6,
-        "url": "https://asset.chase.com/content/dam/cpo-static/fonts/opensans-italic.woff2",
+        "url": "https://asset.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "asset.chase.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 365,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 365
       },
       {
         "id": 7,
-        "url": "https://asset.chase.com/content/dam/cpo-static/fonts/opensans-semibold-italic.woff2",
+        "url": "https://asset.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "asset.chase.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 365,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 365
       },
       {
         "id": 8,
-        "url": "https://asset.chase.com/content/dam/cpo-static/fonts/opensans-bold-italic.woff2",
+        "url": "https://asset.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "asset.chase.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 365,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 365
       },
       {
         "id": 9,
-        "url": "https://www.chase.com/hp/_next/static/css/02bdcc1e55664d73.css",
+        "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
         "domain": "www.chase.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 366,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 366
       },
       {
         "id": 10,
-        "url": "https://www.chase.com/hp/_next/static/css/87f1ed0adba4a3cb.css",
+        "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
         "domain": "www.chase.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 366,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 366
       },
       {
         "id": 11,
-        "url": "https://www.chase.com/hp/_next/static/css/506977c510afde34.css",
+        "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
         "domain": "www.chase.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 367,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 367
       },
       {
         "id": 12,
-        "url": "https://www.chase.com/hp/_next/static/css/7433a92c6e14621b.css",
+        "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
         "domain": "www.chase.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 367,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 367
       },
       {
         "id": 13,
-        "url": "https://www.chase.com/hp/_next/static/css/0b335024e913b188.css",
+        "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
         "domain": "www.chase.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 370,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 370
       },
       {
         "id": 14,
-        "url": "https://asset.chase.com/web/library/digddsautomation/reportingjs/Reporting.js",
+        "url": "https://asset.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "asset.chase.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 370,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 370
       },
       {
         "id": 15,
-        "url": "https://asset.chase.com/web/marketing-ui/web-configs-2/prod/configs.json",
+        "url": "https://asset.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "asset.chase.com",
         "method": "GET",
         "resourceType": "other",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 370,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 370
       },
       {
         "id": 16,
-        "url": "https://www.chase.com/content/dam/unified-assets/logo/chase/chase-logo/additional-file-formats/logo_chase_headerfooter.svg",
+        "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.chase.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 371,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 371
       },
       {
         "id": 17,
-        "url": "https://www.chase.com/hp/_next/static/chunks/webpack-e12406599a56dfdf.js",
+        "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
         "domain": "www.chase.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 508,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 508
       },
       {
         "id": 18,
-        "url": "https://www.chase.com/hp/_next/static/chunks/fd9d1056-89398aec3d4c17a5.js",
+        "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
         "domain": "www.chase.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 531,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 531
       },
       {
         "id": 19,
-        "url": "https://www.chase.com/hp/_next/static/chunks/115-e4548381648d94f2.js",
+        "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
         "domain": "www.chase.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 533,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 533
       },
       {
         "id": 20,
-        "url": "https://www.chase.com/hp/_next/static/chunks/main-app-931c4ac36967136e.js",
+        "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
         "domain": "www.chase.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 537,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 537
       },
       {
         "id": 21,
-        "url": "https://www.chase.com/hp/_next/static/chunks/app/error-87d189627e0426e4.js",
+        "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/app/{seg}",
         "domain": "www.chase.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 537,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 537
       },
       {
         "id": 22,
-        "url": "https://www.chase.com/hp/_next/static/chunks/3fb8c554-288de12757a28551.js",
+        "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
         "domain": "www.chase.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 538,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 538
       },
       {
         "id": 23,
-        "url": "https://www.chase.com/hp/_next/static/chunks/66ceac94-9687b2a42be03f82.js",
+        "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
         "domain": "www.chase.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 540,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 540
       },
       {
         "id": 24,
-        "url": "https://www.chase.com/hp/_next/static/chunks/66655bf7-ca634af0ebbb3096.js",
+        "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
         "domain": "www.chase.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 540,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 540
       },
       {
         "id": 25,
-        "url": "https://www.chase.com/hp/_next/static/chunks/998-fe1fe5bbe6413f13.js",
+        "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
         "domain": "www.chase.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 540,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 540
       },
       {
         "id": 26,
-        "url": "https://www.chase.com/hp/_next/static/chunks/499-31b449975a3f45a9.js",
+        "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
         "domain": "www.chase.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 541,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 541
       },
       {
         "id": 27,
-        "url": "https://www.chase.com/hp/_next/static/chunks/app/page-fa1bf0c247b73ff0.js",
+        "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/app/{seg}",
         "domain": "www.chase.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 541,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 541
       },
       {
         "id": 28,
-        "url": "https://s2.go-mpulse.net/boomerang/9GMXG-P9JCU-47Q2G-PYE6D-MR9ML",
+        "url": "https://s2.go-mpulse.net/{seg}/{seg}",
         "domain": "s2.go-mpulse.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 545,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 545
       },
       {
         "id": 29,
-        "url": "https://static.chasecdn.com/loc/result",
+        "url": "https://static.chasecdn.com/{seg}/{seg}",
         "domain": "static.chasecdn.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 729,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 729
       },
       {
         "id": 30,
-        "url": "https://www.chase.com/apps/services/tags/https/www.chase.com/",
+        "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.chase.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 730,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 730
       },
       {
         "id": 31,
-        "url": "https://www.chase.com/auth/fcc/js/channela.js",
+        "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.chase.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 902,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 902
       },
       {
         "id": 32,
-        "url": "https://static.chasecdn.com/web/library/pseaegis/aegis-binaries/dfs.js",
+        "url": "https://static.chasecdn.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.chasecdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 903,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 903
       },
       {
         "id": 33,
-        "url": "https://www.chase.com/content/dam/unified-assets/logo/chase/chase-logo/additional-file-formats/logo_chase_headerfooter.svg",
+        "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.chase.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 950,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 950
       },
       {
         "id": 34,
-        "url": "https://asset.chase.com/web/marketing-ui/web-configs-2/prod/configs.json",
+        "url": "https://asset.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "asset.chase.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 992,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 992
       },
       {
         "id": 35,
-        "url": "https://asset.chase.com/splitio/sdk/memberships/18190527914906455016128667385461868436",
+        "url": "https://asset.chase.com/{seg}/{seg}/{seg}/{n}",
         "domain": "asset.chase.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 992,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 992
       },
       {
         "id": 36,
-        "url": "https://asset.chase.com/splitio/sdk/splitChanges",
+        "url": "https://asset.chase.com/{seg}/{seg}/{seg}",
         "domain": "asset.chase.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 994,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 994
       },
       {
         "id": 37,
-        "url": "https://www.chase.com/content/dam/unified-assets/illustration/chase-spot-illustrations/briefcase/mds_ill_briefcase_linear_gry.svg",
+        "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.chase.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1028,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1028
       },
       {
         "id": 38,
-        "url": "https://www.chase.com/content/dam/unified-assets/illustration/chase-spot-illustrations/card/mds_ill_card_linear_gry.svg",
+        "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.chase.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1028,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1028
       },
       {
         "id": 39,
-        "url": "https://www.chase.com/content/dam/unified-assets/illustration/chase-spot-illustrations/check/mds_ill_check_linear_gry.svg",
+        "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.chase.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1028,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1028
       },
       {
         "id": 40,
-        "url": "https://www.chase.com/content/dam/unified-assets/illustration/chase-spot-illustrations/plane/mds_ill_plane_linear_gry.svg",
+        "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.chase.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1029,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1029
       },
       {
         "id": 41,
-        "url": "https://www.chase.com/content/dam/unified-assets/illustration/chase-spot-illustrations/piggy-bank/mds_ill_piggy_bank_linear_gry.svg",
+        "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.chase.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1029,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1029
       },
       {
         "id": 42,
-        "url": "https://www.chase.com/content/dam/unified-assets/illustration/chase-spot-illustrations/home/mds_ill_home_linear_gry.svg",
+        "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/home",
         "domain": "www.chase.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1030,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1030
       },
       {
         "id": 43,
-        "url": "https://www.chase.com/content/dam/unified-assets/illustration/chase-spot-illustrations/car/mds_ill_car_linear_gry.svg",
+        "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.chase.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1033,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1033
       },
       {
         "id": 44,
-        "url": "https://www.chase.com/content/dam/unified-assets/illustration/chase-spot-illustrations/chart-line/mds_ill_chart_line_linear_gry.svg",
+        "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.chase.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1034,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1034
       },
       {
         "id": 45,
-        "url": "https://www.chase.com/content/dam/unified-assets/illustration/chase-spot-illustrations/building/mds_ill_building_linear_gry.svg",
+        "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.chase.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1034,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1034
       },
       {
         "id": 46,
-        "url": "https://www.chase.com/content/dam/unified-assets/illustration/chase-spot-illustrations/people-message/mds_ill_people_message_linear_gry.svg",
+        "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.chase.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1034,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1034
       },
       {
         "id": 47,
-        "url": "https://www.chase.com/content/dam/unified-assets/illustration/chase-spot-illustrations/credit-score/mds_ill_credit_score_linear_gry.svg",
+        "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.chase.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1035,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1035
       },
       {
         "id": 48,
-        "url": "https://asset.chase.com/web/library/pseaegis/aegis-levo/5.0.0/levo.js",
+        "url": "https://asset.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "asset.chase.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1055,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1055
       },
       {
         "id": 49,
-        "url": "https://c.go-mpulse.net/api/config.json?key=&d=&t=&v=&sl=&si=&plugins=&acao=&ak.ai=",
+        "url": "https://c.go-mpulse.net/api/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&t=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "c.go-mpulse.net",
         "method": "GET",
         "resourceType": "xhr",
         "status": 204,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1060,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1060
       },
       {
         "id": 50,
-        "url": "https://www.chase.com/content/dam/image/creatives/masterbrand-icons/mobile-check-icon.png",
+        "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.chase.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1094,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1094
       },
       {
         "id": 51,
-        "url": "https://www.chase.com/content/dam/structured-images/XCRT/Flexible-Templates/Triplets/2022/august/B0722-568810-Triplet.jpg",
+        "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.chase.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1107,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1107
       },
       {
         "id": 52,
-        "url": "https://www.chase.com/content/dam/structured-images/XCRT/Flexible-Templates/Triplets/2024/july/B0524-3314057-Triplet.jpg",
+        "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.chase.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1107,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1107
       },
       {
         "id": 53,
-        "url": "https://www.chase.com/content/dam/structured-images/XCRT/Flexible-Templates/Triplets/2024/september/B0624-3503456-Enroll-Triplet-V1.jpg",
+        "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.chase.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1108,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1108
       },
       {
         "id": 54,
-        "url": "https://www.chase.com/content/dam/image/creatives/icon/mbl-app-3-2.jpg",
+        "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.chase.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1138,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1138
       },
       {
         "id": 55,
-        "url": "https://www.chase.com/auth/fcc/js/channela.js",
+        "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.chase.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1575,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1575
       },
       {
         "id": 57,
-        "url": "https://asset.chase.com/splitio/events//testImpressions/beacon",
+        "url": "https://asset.chase.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "asset.chase.com",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 7217,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 7217
       }
     ],
     "domains": [
@@ -819,7 +819,7 @@
     ],
     "cookies": [
       {
-        "name": "AKA_A2",
+        "name": "[redacted]",
         "domain": ".chase.com",
         "path": "/",
         "sameSite": "Lax",
@@ -829,7 +829,7 @@
         "thirdParty": false
       },
       {
-        "name": "AMCV_EA673DFC5A2F19060A495C9C@AdobeOrg",
+        "name": "[redacted]",
         "domain": ".chase.com",
         "path": "/",
         "sameSite": "Lax",
@@ -839,7 +839,7 @@
         "thirdParty": false
       },
       {
-        "name": "_tmprememberme",
+        "name": "[redacted]",
         "domain": ".chase.com",
         "path": "/",
         "sameSite": "None",
@@ -849,7 +849,7 @@
         "thirdParty": false
       },
       {
-        "name": "store~logon~treatmentParameter",
+        "name": "[redacted]",
         "domain": ".chase.com",
         "path": "/",
         "sameSite": "None",
@@ -859,7 +859,7 @@
         "thirdParty": false
       },
       {
-        "name": "PC_1_0",
+        "name": "[redacted]",
         "domain": ".chase.com",
         "path": "/",
         "sameSite": "Lax",
@@ -869,7 +869,7 @@
         "thirdParty": false
       },
       {
-        "name": "NyJB5Jgn",
+        "name": "[redacted]",
         "domain": ".chase.com",
         "path": "/",
         "sameSite": "Lax",
@@ -879,7 +879,7 @@
         "thirdParty": false
       },
       {
-        "name": "dfs_E_5",
+        "name": "[redacted]",
         "domain": ".chase.com",
         "path": "/",
         "sameSite": "None",
@@ -889,7 +889,7 @@
         "thirdParty": false
       },
       {
-        "name": "dfs_E_7",
+        "name": "[redacted]",
         "domain": ".chase.com",
         "path": "/",
         "sameSite": "None",
@@ -899,7 +899,7 @@
         "thirdParty": false
       },
       {
-        "name": "dfs_E_8",
+        "name": "[redacted]",
         "domain": ".chase.com",
         "path": "/",
         "sameSite": "None",
@@ -909,7 +909,7 @@
         "thirdParty": false
       },
       {
-        "name": "dfs_E_4",
+        "name": "[redacted]",
         "domain": ".chase.com",
         "path": "/",
         "sameSite": "None",
@@ -919,7 +919,7 @@
         "thirdParty": false
       },
       {
-        "name": "dfs_E_6",
+        "name": "[redacted]",
         "domain": ".chase.com",
         "path": "/",
         "sameSite": "None",
@@ -929,7 +929,7 @@
         "thirdParty": false
       },
       {
-        "name": "dfs_F_6",
+        "name": "[redacted]",
         "domain": ".chase.com",
         "path": "/",
         "sameSite": "None",
@@ -939,7 +939,7 @@
         "thirdParty": false
       },
       {
-        "name": "dfs_F_5",
+        "name": "[redacted]",
         "domain": ".chase.com",
         "path": "/",
         "sameSite": "None",
@@ -949,7 +949,7 @@
         "thirdParty": false
       },
       {
-        "name": "dfs_F_7",
+        "name": "[redacted]",
         "domain": ".chase.com",
         "path": "/",
         "sameSite": "None",
@@ -959,7 +959,7 @@
         "thirdParty": false
       },
       {
-        "name": "fireOnce",
+        "name": "[redacted]",
         "domain": "www.chase.com",
         "path": "/",
         "sameSite": "Lax",
@@ -969,7 +969,7 @@
         "thirdParty": false
       },
       {
-        "name": "tml",
+        "name": "[redacted]",
         "domain": "www.chase.com",
         "path": "/",
         "sameSite": "Lax",
@@ -982,419 +982,308 @@
     "storage": [
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.CWO_187163",
+        "key": "[redacted]",
         "valueBytes": 851
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.CWO_208024",
+        "key": "[redacted]",
         "valueBytes": 919
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.CWO_185404",
+        "key": "[redacted]",
         "valueBytes": 882
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.public_hl_mortgage-ab-cwo-203518",
+        "key": "[redacted]",
         "valueBytes": 906
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.hash",
+        "key": "[redacted]",
         "valueBytes": 8
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.public_cfb_navigation_196549",
+        "key": "[redacted]",
         "valueBytes": 903
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.public_cfb_homepage_hero_203401",
+        "key": "[redacted]",
         "valueBytes": 939
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.public_hl_heloc_cwo215185",
+        "key": "[redacted]",
         "valueBytes": 897
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.public_hl_bgoffer_205559",
+        "key": "[redacted]",
         "valueBytes": 898
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.CWO_196541",
+        "key": "[redacted]",
         "valueBytes": 884
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.CWO_180740",
+        "key": "[redacted]",
         "valueBytes": 851
       },
       {
         "area": "localStorage",
-        "key": "browserFingerprint",
+        "key": "[redacted]",
         "valueBytes": 45
       },
       {
         "area": "localStorage",
-        "key": "__dip_bs_flag",
+        "key": "[redacted]",
         "valueBytes": 38
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.public_payments_banner_185404",
+        "key": "[redacted]",
         "valueBytes": 938
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.hp-login-212107",
+        "key": "[redacted]",
         "valueBytes": 2385
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.hp-plu-217434",
+        "key": "[redacted]",
         "valueBytes": 2260
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.global_split_test_cwo_188708",
+        "key": "[redacted]",
         "valueBytes": 901
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.public_cfb_checking_203668",
+        "key": "[redacted]",
         "valueBytes": 932
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.public_hl_mortgage_home_aa_cwo_212750",
+        "key": "[redacted]",
         "valueBytes": 912
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.splits.lastUpdated",
+        "key": "[redacted]",
         "valueBytes": 13
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.CWO_214651",
+        "key": "[redacted]",
         "valueBytes": 884
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.public_cfb_homepage_verticals_203238",
+        "key": "[redacted]",
         "valueBytes": 909
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.public_hl_ctaheader_cwo213884",
+        "key": "[redacted]",
         "valueBytes": 906
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.public_cfb_nav_219614",
+        "key": "[redacted]",
         "valueBytes": 896
       },
       {
         "area": "localStorage",
-        "key": "l_FTzyeq12rr",
+        "key": "[redacted]",
         "valueBytes": 23
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.public_digital_product_identity_monitoring_redirect_190989",
+        "key": "[redacted]",
         "valueBytes": 932
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.cwo_189469",
+        "key": "[redacted]",
         "valueBytes": 884
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.CWO_184390",
+        "key": "[redacted]",
         "valueBytes": 849
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.public_cfb_nav_214884",
+        "key": "[redacted]",
         "valueBytes": 892
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.public_cfb_homepage_sbw_213883",
+        "key": "[redacted]",
         "valueBytes": 939
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.splits.till",
+        "key": "[redacted]",
         "valueBytes": 13
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.public_cfb_homepage_hero_195492",
+        "key": "[redacted]",
         "valueBytes": 903
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.18190527914906455016128667385461868436.largeSegments.till",
+        "key": "[redacted]",
         "valueBytes": 2
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.public_cfb_quickaccept_214745",
+        "key": "[redacted]",
         "valueBytes": 903
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.CWO_183804",
+        "key": "[redacted]",
         "valueBytes": 883
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.CWO_183201",
+        "key": "[redacted]",
         "valueBytes": 852
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.psrefinance-campaign-ab-cwo-207092",
+        "key": "[redacted]",
         "valueBytes": 908
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.mortgage-campaign-ab-cwo-207092",
+        "key": "[redacted]",
         "valueBytes": 904
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.cwo-178061",
+        "key": "[redacted]",
         "valueBytes": 850
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.public_quickaccept_188946",
+        "key": "[redacted]",
         "valueBytes": 901
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.public_checking_tc_pdp_188708",
+        "key": "[redacted]",
         "valueBytes": 901
       },
       {
         "area": "localStorage",
-        "key": "FTzyeq12rr",
+        "key": "[redacted]",
         "valueBytes": 88
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.CWO_213885",
+        "key": "[redacted]",
         "valueBytes": 917
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.CWO_179710",
+        "key": "[redacted]",
         "valueBytes": 849
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.CWO_211573",
+        "key": "[redacted]",
         "valueBytes": 885
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.public_chp-navigation_189866",
+        "key": "[redacted]",
         "valueBytes": 900
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.CWO_188505",
+        "key": "[redacted]",
         "valueBytes": 882
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.mortgage-dist-app-calc-ab-cwo210089",
+        "key": "[redacted]",
         "valueBytes": 908
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.CWO_204197",
+        "key": "[redacted]",
         "valueBytes": 882
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.public_hl_mortgage_redirect_176951",
+        "key": "[redacted]",
         "valueBytes": 908
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.CWO_179028",
+        "key": "[redacted]",
         "valueBytes": 851
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.trafficType.user",
+        "key": "[redacted]",
         "valueBytes": 2
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.CWO_175018",
+        "key": "[redacted]",
         "valueBytes": 849
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.testing_flag",
+        "key": "[redacted]",
         "valueBytes": 887
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.public_cps_offer_191825",
+        "key": "[redacted]",
         "valueBytes": 898
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.public_cfb_retirement_cta_202740",
+        "key": "[redacted]",
         "valueBytes": 906
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.CWO_197101",
+        "key": "[redacted]",
         "valueBytes": 917
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.public_digital_product_credit_journey_redirect_190989",
+        "key": "[redacted]",
         "valueBytes": 928
       },
       {
         "area": "sessionStorage",
-        "key": "pages-visited",
+        "key": "[redacted]",
         "valueBytes": 1
       },
       {
         "area": "sessionStorage",
-        "key": "siteSessionSig",
+        "key": "[redacted]",
         "valueBytes": 64
       },
       {
         "area": "sessionStorage",
-        "key": "siteSessionId",
+        "key": "[redacted]",
         "valueBytes": 36
-      }
-    ],
-    "fingerprintDetections": [
-      {
-        "kind": "canvas-fingerprinting",
-        "heuristic": "openwpm-canvas-v1",
-        "count": 2,
-        "evidence": {
-          "readApis": [
-            "canvas.toDataURL"
-          ],
-          "maxCanvasWidth": 300,
-          "maxCanvasHeight": 150,
-          "maxDistinctTextCharacters": 15,
-          "maxTextWriteCalls": 1
-        }
-      },
-      {
-        "kind": "canvas-font-fingerprinting",
-        "heuristic": "canvas-font-probing-v1",
-        "count": 2,
-        "evidence": {
-          "measureTextCalls": 182,
-          "maxDistinctFonts": 91,
-          "maxDistinctTextSamples": 1,
-          "maxTextLength": 6
-        }
-      },
-      {
-        "kind": "input-monitoring",
-        "heuristic": "input-listener-coverage-v1",
-        "count": 1,
-        "evidence": {
-          "eventTypes": [
-            "change",
-            "input",
-            "keydown",
-            "keypress",
-            "keyup",
-            "paste"
-          ],
-          "listenerTargets": [
-            "document",
-            "input",
-            "other"
-          ],
-          "thirdPartyOrigins": [
-            "https://asset.chase.com",
-            "https://s2.go-mpulse.net"
-          ],
-          "totalListenerCalls": 25
-        }
-      },
-      {
-        "kind": "session-recording",
-        "heuristic": "interaction-listener-coverage-v1",
-        "count": 1,
-        "evidence": {
-          "eventTypes": [
-            "click",
-            "input",
-            "keydown",
-            "keyup",
-            "mousedown",
-            "mousemove",
-            "mouseup",
-            "pointerdown",
-            "scroll",
-            "touchstart",
-            "visibilitychange",
-            "wheel"
-          ],
-          "listenerTargets": [
-            "body",
-            "document",
-            "input",
-            "window"
-          ],
-          "thirdPartyOrigins": [
-            "https://asset.chase.com",
-            "https://s2.go-mpulse.net"
-          ],
-          "totalListenerCalls": 35
-        }
-      },
-      {
-        "kind": "webgl-fingerprinting",
-        "heuristic": "webgl-entropy-read-v1",
-        "count": 1,
-        "evidence": {
-          "readApis": [
-            "webgl2.readPixels"
-          ],
-          "parameters": [
-            "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
-            "webgl.getParameter.UNMASKED_VENDOR_WEBGL"
-          ],
-          "getParameterCalls": 9,
-          "readPixelsCalls": 1
-        }
-      },
-      {
-        "kind": "webrtc-fingerprinting",
-        "heuristic": "webrtc-peerconnection-v1",
-        "count": 1,
-        "evidence": {
-          "constructorCalls": 1,
-          "createDataChannelCalls": 2,
-          "createOfferCalls": 2,
-          "setLocalDescriptionCalls": 2
-        }
       }
     ],
     "fingerprintEvents": [
@@ -1443,17 +1332,119 @@
         "count": 1
       }
     ],
-    "screenshot": null,
-    "warnings": [
-      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling or clicking except one scripted choice on the cookie/consent banner (disclosed below). Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
-      "Counts are a lower bound: trackers that load only after further interaction, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
-      "Blocked a request that could not be verified as public: https://securej.chase.com/__imp_apg__/api/dip/v1/dip",
-      "This visit was asked to choose \"Accept all\" on a cookie/consent banner, but no recognizable control was found (the banner may not be shown to this scanner's location, the choice may sit behind a settings layer, or the control is not in the catalog). Results reflect the pre-consent state.",
-      "This scan typed a synthetic test value into 2 form fields (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
-      "Read the site's privacy policy (https://www.chase.com/digital/resources/privacy-security/privacy/online-privacy-policy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    "fingerprintDetections": [
+      {
+        "kind": "canvas-fingerprinting",
+        "heuristic": "openwpm-canvas-v1",
+        "count": 2,
+        "evidence": {
+          "readApis": [
+            "canvas.toDataURL"
+          ],
+          "maxCanvasWidth": 300,
+          "maxCanvasHeight": 150,
+          "maxDistinctTextCharacters": 15,
+          "maxTextWriteCalls": 1
+        }
+      },
+      {
+        "kind": "canvas-font-fingerprinting",
+        "heuristic": "canvas-font-probing-v1",
+        "count": 2,
+        "evidence": {
+          "measureTextCalls": 182,
+          "maxDistinctFonts": 91,
+          "maxDistinctTextSamples": 1,
+          "maxTextLength": 6
+        }
+      },
+      {
+        "kind": "input-monitoring",
+        "heuristic": "input-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "change",
+            "input",
+            "keydown",
+            "keypress",
+            "keyup",
+            "paste"
+          ],
+          "listenerTargets": [
+            "document",
+            "input",
+            "other"
+          ],
+          "thirdPartyOrigins": [
+            "https://asset.chase.com/",
+            "https://s2.go-mpulse.net/"
+          ],
+          "totalListenerCalls": 25
+        }
+      },
+      {
+        "kind": "session-recording",
+        "heuristic": "interaction-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "click",
+            "input",
+            "keydown",
+            "keyup",
+            "mousedown",
+            "mousemove",
+            "mouseup",
+            "pointerdown",
+            "scroll",
+            "touchstart",
+            "visibilitychange",
+            "wheel"
+          ],
+          "listenerTargets": [
+            "body",
+            "document",
+            "input",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://asset.chase.com/",
+            "https://s2.go-mpulse.net/"
+          ],
+          "totalListenerCalls": 35
+        }
+      },
+      {
+        "kind": "webgl-fingerprinting",
+        "heuristic": "webgl-entropy-read-v1",
+        "count": 1,
+        "evidence": {
+          "readApis": [
+            "webgl2.readPixels"
+          ],
+          "parameters": [
+            "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
+            "webgl.getParameter.UNMASKED_VENDOR_WEBGL"
+          ],
+          "getParameterCalls": 9,
+          "readPixelsCalls": 1
+        }
+      },
+      {
+        "kind": "webrtc-fingerprinting",
+        "heuristic": "webrtc-peerconnection-v1",
+        "count": 1,
+        "evidence": {
+          "constructorCalls": 1,
+          "createDataChannelCalls": 2,
+          "createOfferCalls": 2,
+          "setLocalDescriptionCalls": 2
+        }
+      }
     ],
     "privacyPolicy": {
-      "url": "https://www.chase.com/digital/resources/privacy-security/privacy/online-privacy-policy",
+      "url": "https://www.chase.com/{seg}/{seg}/{seg}/privacy/{seg}",
       "claims": [],
       "mentionedEntities": [],
       "unmentionedEntities": [],
@@ -1462,7 +1453,16 @@
     "consentInteraction": {
       "mode": "accept-all",
       "clicked": false
-    }
+    },
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling or clicking except one scripted choice on the cookie/consent banner (disclosed below). Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after further interaction, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+      "Blocked a request that could not be verified as public: https://securej.chase.com/{seg}/api/{seg}/{seg}/{seg}",
+      "This visit was asked to choose \"Accept all\" on a cookie/consent banner, but no recognizable control was found (the banner may not be shown to this scanner's location, the choice may sit behind a settings layer, or the control is not in the catalog). Results reflect the pre-consent state.",
+      "This scan typed a synthetic test value into 2 form fields (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
+      "Read the site's privacy policy (https://www.chase.com/{seg}/{seg}/{seg}/privacy/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ]
   },
   "variant": {
     "ok": true,
@@ -1502,6 +1502,13 @@
       "automation": "playwright-chromium",
       "headless": true,
       "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "classification",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-02T01:00:58.178Z"
+      },
       "trackerCatalog": {
         "source": "Hand-curated service catalog",
         "version": "hand-curated-2026.06",
@@ -1510,14 +1517,7 @@
         "curatedOverrides": 133,
         "license": "AGPL-3.0-or-later"
       },
-      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
-      "adblock": {
-        "active": true,
-        "source": "Brave default ad-block lists",
-        "lists": 31,
-        "fetchedAt": "2026-07-02T01:00:58.178Z"
-      },
-      "shieldsMode": "classification"
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
     },
     "requests": [
       {
@@ -1529,680 +1529,680 @@
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 45,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 45
       },
       {
         "id": 2,
-        "url": "https://asset.chase.com/content/dam/cpo-static/fonts/opensans.woff2",
+        "url": "https://asset.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "asset.chase.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 129,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 129
       },
       {
         "id": 3,
-        "url": "https://asset.chase.com/content/dam/cpo-static/fonts/opensans-semibold.woff2",
+        "url": "https://asset.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "asset.chase.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 129,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 129
       },
       {
         "id": 4,
-        "url": "https://asset.chase.com/content/dam/cpo-static/fonts/opensans-bold.woff2",
+        "url": "https://asset.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "asset.chase.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 129,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 129
       },
       {
         "id": 5,
-        "url": "https://asset.chase.com/content/dam/cpo-static/fonts/opensans-light.woff2",
+        "url": "https://asset.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "asset.chase.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 131,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 131
       },
       {
         "id": 6,
-        "url": "https://asset.chase.com/content/dam/cpo-static/fonts/opensans-italic.woff2",
+        "url": "https://asset.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "asset.chase.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 131,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 131
       },
       {
         "id": 7,
-        "url": "https://asset.chase.com/content/dam/cpo-static/fonts/opensans-semibold-italic.woff2",
+        "url": "https://asset.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "asset.chase.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 131,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 131
       },
       {
         "id": 8,
-        "url": "https://asset.chase.com/content/dam/cpo-static/fonts/opensans-bold-italic.woff2",
+        "url": "https://asset.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "asset.chase.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 131,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 131
       },
       {
         "id": 9,
-        "url": "https://www.chase.com/hp/_next/static/css/02bdcc1e55664d73.css",
+        "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
         "domain": "www.chase.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 131,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 131
       },
       {
         "id": 10,
-        "url": "https://www.chase.com/hp/_next/static/css/87f1ed0adba4a3cb.css",
+        "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
         "domain": "www.chase.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 135,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 135
       },
       {
         "id": 11,
-        "url": "https://www.chase.com/hp/_next/static/css/506977c510afde34.css",
+        "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
         "domain": "www.chase.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 135,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 135
       },
       {
         "id": 12,
-        "url": "https://www.chase.com/hp/_next/static/css/7433a92c6e14621b.css",
+        "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
         "domain": "www.chase.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 136,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 136
       },
       {
         "id": 13,
-        "url": "https://www.chase.com/hp/_next/static/css/0b335024e913b188.css",
+        "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
         "domain": "www.chase.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 136,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 136
       },
       {
         "id": 14,
-        "url": "https://asset.chase.com/web/library/digddsautomation/reportingjs/Reporting.js",
+        "url": "https://asset.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "asset.chase.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 136,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 136
       },
       {
         "id": 15,
-        "url": "https://asset.chase.com/web/marketing-ui/web-configs-2/prod/configs.json",
+        "url": "https://asset.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "asset.chase.com",
         "method": "GET",
         "resourceType": "other",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 136,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 136
       },
       {
         "id": 16,
-        "url": "https://www.chase.com/content/dam/unified-assets/logo/chase/chase-logo/additional-file-formats/logo_chase_headerfooter.svg",
+        "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.chase.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 137,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 137
       },
       {
         "id": 17,
-        "url": "https://www.chase.com/hp/_next/static/chunks/webpack-e12406599a56dfdf.js",
+        "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
         "domain": "www.chase.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 216,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 216
       },
       {
         "id": 18,
-        "url": "https://www.chase.com/hp/_next/static/chunks/fd9d1056-89398aec3d4c17a5.js",
+        "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
         "domain": "www.chase.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 218,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 218
       },
       {
         "id": 19,
-        "url": "https://www.chase.com/hp/_next/static/chunks/115-e4548381648d94f2.js",
+        "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
         "domain": "www.chase.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 222,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 222
       },
       {
         "id": 20,
-        "url": "https://www.chase.com/hp/_next/static/chunks/main-app-931c4ac36967136e.js",
+        "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
         "domain": "www.chase.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 223,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 223
       },
       {
         "id": 21,
-        "url": "https://www.chase.com/hp/_next/static/chunks/app/error-87d189627e0426e4.js",
+        "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/app/{seg}",
         "domain": "www.chase.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 225,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 225
       },
       {
         "id": 22,
-        "url": "https://www.chase.com/hp/_next/static/chunks/3fb8c554-288de12757a28551.js",
+        "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
         "domain": "www.chase.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 226,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 226
       },
       {
         "id": 23,
-        "url": "https://www.chase.com/hp/_next/static/chunks/66ceac94-9687b2a42be03f82.js",
+        "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
         "domain": "www.chase.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 226,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 226
       },
       {
         "id": 24,
-        "url": "https://www.chase.com/hp/_next/static/chunks/66655bf7-ca634af0ebbb3096.js",
+        "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
         "domain": "www.chase.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 226,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 226
       },
       {
         "id": 25,
-        "url": "https://www.chase.com/hp/_next/static/chunks/998-fe1fe5bbe6413f13.js",
+        "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
         "domain": "www.chase.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 227,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 227
       },
       {
         "id": 26,
-        "url": "https://www.chase.com/hp/_next/static/chunks/499-31b449975a3f45a9.js",
+        "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
         "domain": "www.chase.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 227,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 227
       },
       {
         "id": 27,
-        "url": "https://www.chase.com/hp/_next/static/chunks/app/page-fa1bf0c247b73ff0.js",
+        "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/app/{seg}",
         "domain": "www.chase.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 228,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 228
       },
       {
         "id": 28,
-        "url": "https://s2.go-mpulse.net/boomerang/9GMXG-P9JCU-47Q2G-PYE6D-MR9ML",
+        "url": "https://s2.go-mpulse.net/{seg}/{seg}",
         "domain": "s2.go-mpulse.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 232,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 232
       },
       {
         "id": 29,
-        "url": "https://static.chasecdn.com/loc/result",
+        "url": "https://static.chasecdn.com/{seg}/{seg}",
         "domain": "static.chasecdn.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 408,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 408
       },
       {
         "id": 30,
-        "url": "https://www.chase.com/apps/services/tags/https/www.chase.com/",
+        "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.chase.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 409,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 409
       },
       {
         "id": 31,
-        "url": "https://www.chase.com/auth/fcc/js/channela.js",
+        "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.chase.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 517,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 517
       },
       {
         "id": 32,
-        "url": "https://static.chasecdn.com/web/library/pseaegis/aegis-binaries/dfs.js",
+        "url": "https://static.chasecdn.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.chasecdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 518,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 518
       },
       {
         "id": 33,
-        "url": "https://www.chase.com/content/dam/unified-assets/logo/chase/chase-logo/additional-file-formats/logo_chase_headerfooter.svg",
+        "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.chase.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 563,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 563
       },
       {
         "id": 34,
-        "url": "https://asset.chase.com/web/marketing-ui/web-configs-2/prod/configs.json",
+        "url": "https://asset.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "asset.chase.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 603,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 603
       },
       {
         "id": 35,
-        "url": "https://asset.chase.com/splitio/sdk/memberships/37680815220040039841127971395846627249",
+        "url": "https://asset.chase.com/{seg}/{seg}/{seg}/{n}",
         "domain": "asset.chase.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 606,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 606
       },
       {
         "id": 36,
-        "url": "https://asset.chase.com/splitio/sdk/splitChanges",
+        "url": "https://asset.chase.com/{seg}/{seg}/{seg}",
         "domain": "asset.chase.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 607,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 607
       },
       {
         "id": 37,
-        "url": "https://www.chase.com/content/dam/unified-assets/logo/chase/chase-logo/additional-file-formats/logo_chase_headerfooter.svg",
+        "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.chase.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 645,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 645
       },
       {
         "id": 38,
-        "url": "https://www.chase.com/content/dam/unified-assets/illustration/chase-spot-illustrations/briefcase/mds_ill_briefcase_linear_gry.svg",
+        "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.chase.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 646,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 646
       },
       {
         "id": 39,
-        "url": "https://www.chase.com/content/dam/unified-assets/illustration/chase-spot-illustrations/card/mds_ill_card_linear_gry.svg",
+        "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.chase.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 646,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 646
       },
       {
         "id": 40,
-        "url": "https://www.chase.com/content/dam/unified-assets/illustration/chase-spot-illustrations/check/mds_ill_check_linear_gry.svg",
+        "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.chase.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 646,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 646
       },
       {
         "id": 41,
-        "url": "https://www.chase.com/content/dam/unified-assets/illustration/chase-spot-illustrations/plane/mds_ill_plane_linear_gry.svg",
+        "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.chase.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 647,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 647
       },
       {
         "id": 42,
-        "url": "https://www.chase.com/content/dam/unified-assets/illustration/chase-spot-illustrations/piggy-bank/mds_ill_piggy_bank_linear_gry.svg",
+        "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.chase.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 647,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 647
       },
       {
         "id": 43,
-        "url": "https://www.chase.com/content/dam/unified-assets/illustration/chase-spot-illustrations/home/mds_ill_home_linear_gry.svg",
+        "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/home",
         "domain": "www.chase.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 650,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 650
       },
       {
         "id": 44,
-        "url": "https://www.chase.com/content/dam/unified-assets/illustration/chase-spot-illustrations/car/mds_ill_car_linear_gry.svg",
+        "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.chase.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 650,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 650
       },
       {
         "id": 45,
-        "url": "https://www.chase.com/content/dam/unified-assets/illustration/chase-spot-illustrations/chart-line/mds_ill_chart_line_linear_gry.svg",
+        "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.chase.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 651,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 651
       },
       {
         "id": 46,
-        "url": "https://www.chase.com/content/dam/unified-assets/illustration/chase-spot-illustrations/building/mds_ill_building_linear_gry.svg",
+        "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.chase.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 651,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 651
       },
       {
         "id": 47,
-        "url": "https://www.chase.com/content/dam/unified-assets/illustration/chase-spot-illustrations/people-message/mds_ill_people_message_linear_gry.svg",
+        "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.chase.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 652,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 652
       },
       {
         "id": 48,
-        "url": "https://www.chase.com/content/dam/unified-assets/illustration/chase-spot-illustrations/credit-score/mds_ill_credit_score_linear_gry.svg",
+        "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.chase.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 652,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 652
       },
       {
         "id": 49,
-        "url": "https://asset.chase.com/web/library/pseaegis/aegis-levo/5.0.0/levo.js",
+        "url": "https://asset.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "asset.chase.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 676,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 676
       },
       {
         "id": 50,
-        "url": "https://c.go-mpulse.net/api/config.json?key=&d=&t=&v=&sl=&si=&plugins=&acao=&ak.ai=",
+        "url": "https://c.go-mpulse.net/api/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&t=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "c.go-mpulse.net",
         "method": "GET",
         "resourceType": "xhr",
         "status": 204,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 681,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 681
       },
       {
         "id": 51,
-        "url": "https://www.chase.com/content/dam/image/creatives/masterbrand-icons/mobile-check-icon.png",
+        "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.chase.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 689,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 689
       },
       {
         "id": 52,
-        "url": "https://www.chase.com/content/dam/structured-images/XCRT/Flexible-Templates/Triplets/2022/august/B0722-568810-Triplet.jpg",
+        "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.chase.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 704,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 704
       },
       {
         "id": 53,
-        "url": "https://www.chase.com/content/dam/structured-images/XCRT/Flexible-Templates/Triplets/2024/july/B0524-3314057-Triplet.jpg",
+        "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.chase.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 705,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 705
       },
       {
         "id": 54,
-        "url": "https://www.chase.com/content/dam/structured-images/XCRT/Flexible-Templates/Triplets/2024/september/B0624-3503456-Enroll-Triplet-V1.jpg",
+        "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.chase.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 705,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 705
       },
       {
         "id": 55,
-        "url": "https://www.chase.com/content/dam/image/creatives/icon/mbl-app-3-2.jpg",
+        "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.chase.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 746,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 746
       },
       {
         "id": 56,
-        "url": "https://www.chase.com/auth/fcc/js/channela.js",
+        "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.chase.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 807,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 807
       },
       {
         "id": 58,
-        "url": "https://asset.chase.com/splitio/events//testImpressions/beacon",
+        "url": "https://asset.chase.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "asset.chase.com",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 6095,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 6095
       }
     ],
     "domains": [
@@ -2284,7 +2284,7 @@
     ],
     "cookies": [
       {
-        "name": "AKA_A2",
+        "name": "[redacted]",
         "domain": ".chase.com",
         "path": "/",
         "sameSite": "Lax",
@@ -2294,7 +2294,7 @@
         "thirdParty": false
       },
       {
-        "name": "AMCV_EA673DFC5A2F19060A495C9C@AdobeOrg",
+        "name": "[redacted]",
         "domain": ".chase.com",
         "path": "/",
         "sameSite": "Lax",
@@ -2304,7 +2304,7 @@
         "thirdParty": false
       },
       {
-        "name": "_tmprememberme",
+        "name": "[redacted]",
         "domain": ".chase.com",
         "path": "/",
         "sameSite": "None",
@@ -2314,7 +2314,7 @@
         "thirdParty": false
       },
       {
-        "name": "store~logon~treatmentParameter",
+        "name": "[redacted]",
         "domain": ".chase.com",
         "path": "/",
         "sameSite": "None",
@@ -2324,7 +2324,7 @@
         "thirdParty": false
       },
       {
-        "name": "PC_1_0",
+        "name": "[redacted]",
         "domain": ".chase.com",
         "path": "/",
         "sameSite": "Lax",
@@ -2334,7 +2334,7 @@
         "thirdParty": false
       },
       {
-        "name": "NyJB5Jgn",
+        "name": "[redacted]",
         "domain": ".chase.com",
         "path": "/",
         "sameSite": "Lax",
@@ -2344,7 +2344,7 @@
         "thirdParty": false
       },
       {
-        "name": "dfs_E_5",
+        "name": "[redacted]",
         "domain": ".chase.com",
         "path": "/",
         "sameSite": "None",
@@ -2354,7 +2354,7 @@
         "thirdParty": false
       },
       {
-        "name": "dfs_E_7",
+        "name": "[redacted]",
         "domain": ".chase.com",
         "path": "/",
         "sameSite": "None",
@@ -2364,7 +2364,7 @@
         "thirdParty": false
       },
       {
-        "name": "dfs_E_8",
+        "name": "[redacted]",
         "domain": ".chase.com",
         "path": "/",
         "sameSite": "None",
@@ -2374,7 +2374,7 @@
         "thirdParty": false
       },
       {
-        "name": "dfs_E_4",
+        "name": "[redacted]",
         "domain": ".chase.com",
         "path": "/",
         "sameSite": "None",
@@ -2384,7 +2384,7 @@
         "thirdParty": false
       },
       {
-        "name": "dfs_E_6",
+        "name": "[redacted]",
         "domain": ".chase.com",
         "path": "/",
         "sameSite": "None",
@@ -2394,7 +2394,7 @@
         "thirdParty": false
       },
       {
-        "name": "dfs_F_6",
+        "name": "[redacted]",
         "domain": ".chase.com",
         "path": "/",
         "sameSite": "None",
@@ -2404,7 +2404,7 @@
         "thirdParty": false
       },
       {
-        "name": "dfs_F_5",
+        "name": "[redacted]",
         "domain": ".chase.com",
         "path": "/",
         "sameSite": "None",
@@ -2414,7 +2414,7 @@
         "thirdParty": false
       },
       {
-        "name": "dfs_F_7",
+        "name": "[redacted]",
         "domain": ".chase.com",
         "path": "/",
         "sameSite": "None",
@@ -2424,7 +2424,7 @@
         "thirdParty": false
       },
       {
-        "name": "tml",
+        "name": "[redacted]",
         "domain": "www.chase.com",
         "path": "/",
         "sameSite": "Lax",
@@ -2434,7 +2434,7 @@
         "thirdParty": false
       },
       {
-        "name": "fireOnce",
+        "name": "[redacted]",
         "domain": "www.chase.com",
         "path": "/",
         "sameSite": "Lax",
@@ -2447,419 +2447,308 @@
     "storage": [
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.CWO_187163",
+        "key": "[redacted]",
         "valueBytes": 851
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.CWO_208024",
+        "key": "[redacted]",
         "valueBytes": 919
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.CWO_185404",
+        "key": "[redacted]",
         "valueBytes": 882
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.public_hl_mortgage-ab-cwo-203518",
+        "key": "[redacted]",
         "valueBytes": 906
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.hash",
+        "key": "[redacted]",
         "valueBytes": 8
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.public_cfb_navigation_196549",
+        "key": "[redacted]",
         "valueBytes": 903
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.public_cfb_homepage_hero_203401",
+        "key": "[redacted]",
         "valueBytes": 939
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.public_hl_heloc_cwo215185",
+        "key": "[redacted]",
         "valueBytes": 897
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.public_hl_bgoffer_205559",
+        "key": "[redacted]",
         "valueBytes": 898
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.CWO_196541",
+        "key": "[redacted]",
         "valueBytes": 884
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.CWO_180740",
+        "key": "[redacted]",
         "valueBytes": 851
       },
       {
         "area": "localStorage",
-        "key": "browserFingerprint",
+        "key": "[redacted]",
         "valueBytes": 45
       },
       {
         "area": "localStorage",
-        "key": "__dip_bs_flag",
+        "key": "[redacted]",
         "valueBytes": 38
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.public_payments_banner_185404",
+        "key": "[redacted]",
         "valueBytes": 938
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.hp-login-212107",
+        "key": "[redacted]",
         "valueBytes": 2385
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.hp-plu-217434",
+        "key": "[redacted]",
         "valueBytes": 2260
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.global_split_test_cwo_188708",
+        "key": "[redacted]",
         "valueBytes": 901
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.public_cfb_checking_203668",
+        "key": "[redacted]",
         "valueBytes": 932
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.public_hl_mortgage_home_aa_cwo_212750",
+        "key": "[redacted]",
         "valueBytes": 912
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.splits.lastUpdated",
+        "key": "[redacted]",
         "valueBytes": 13
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.CWO_214651",
+        "key": "[redacted]",
         "valueBytes": 884
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.public_cfb_homepage_verticals_203238",
+        "key": "[redacted]",
         "valueBytes": 909
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.public_hl_ctaheader_cwo213884",
+        "key": "[redacted]",
         "valueBytes": 906
       },
       {
         "area": "localStorage",
-        "key": "l_FTzyeq12rr",
+        "key": "[redacted]",
         "valueBytes": 22
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.public_cfb_nav_219614",
+        "key": "[redacted]",
         "valueBytes": 896
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.public_digital_product_identity_monitoring_redirect_190989",
+        "key": "[redacted]",
         "valueBytes": 932
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.cwo_189469",
+        "key": "[redacted]",
         "valueBytes": 884
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.CWO_184390",
+        "key": "[redacted]",
         "valueBytes": 849
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.public_cfb_nav_214884",
+        "key": "[redacted]",
         "valueBytes": 892
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.public_cfb_homepage_sbw_213883",
+        "key": "[redacted]",
         "valueBytes": 939
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.splits.till",
+        "key": "[redacted]",
         "valueBytes": 13
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.public_cfb_homepage_hero_195492",
+        "key": "[redacted]",
         "valueBytes": 903
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.CWO_183201",
+        "key": "[redacted]",
         "valueBytes": 852
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.public_cfb_quickaccept_214745",
+        "key": "[redacted]",
         "valueBytes": 903
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.CWO_183804",
+        "key": "[redacted]",
         "valueBytes": 883
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.psrefinance-campaign-ab-cwo-207092",
+        "key": "[redacted]",
         "valueBytes": 908
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.mortgage-campaign-ab-cwo-207092",
+        "key": "[redacted]",
         "valueBytes": 904
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.cwo-178061",
+        "key": "[redacted]",
         "valueBytes": 850
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.public_quickaccept_188946",
+        "key": "[redacted]",
         "valueBytes": 901
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.public_checking_tc_pdp_188708",
+        "key": "[redacted]",
         "valueBytes": 901
       },
       {
         "area": "localStorage",
-        "key": "FTzyeq12rr",
+        "key": "[redacted]",
         "valueBytes": 88
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.CWO_213885",
+        "key": "[redacted]",
         "valueBytes": 917
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.CWO_179710",
+        "key": "[redacted]",
         "valueBytes": 849
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.CWO_211573",
+        "key": "[redacted]",
         "valueBytes": 885
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.public_chp-navigation_189866",
+        "key": "[redacted]",
         "valueBytes": 900
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.CWO_188505",
+        "key": "[redacted]",
         "valueBytes": 882
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.mortgage-dist-app-calc-ab-cwo210089",
+        "key": "[redacted]",
         "valueBytes": 908
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.CWO_204197",
+        "key": "[redacted]",
         "valueBytes": 882
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.public_hl_mortgage_redirect_176951",
+        "key": "[redacted]",
         "valueBytes": 908
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.CWO_179028",
+        "key": "[redacted]",
         "valueBytes": 851
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.trafficType.user",
+        "key": "[redacted]",
         "valueBytes": 2
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.37680815220040039841127971395846627249.largeSegments.till",
+        "key": "[redacted]",
         "valueBytes": 2
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.CWO_175018",
+        "key": "[redacted]",
         "valueBytes": 849
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.testing_flag",
+        "key": "[redacted]",
         "valueBytes": 887
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.public_cps_offer_191825",
+        "key": "[redacted]",
         "valueBytes": 898
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.public_cfb_retirement_cta_202740",
+        "key": "[redacted]",
         "valueBytes": 906
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.CWO_197101",
+        "key": "[redacted]",
         "valueBytes": 917
       },
       {
         "area": "localStorage",
-        "key": "pub.SPLITIO.split.public_digital_product_credit_journey_redirect_190989",
+        "key": "[redacted]",
         "valueBytes": 928
       },
       {
         "area": "sessionStorage",
-        "key": "pages-visited",
+        "key": "[redacted]",
         "valueBytes": 1
       },
       {
         "area": "sessionStorage",
-        "key": "siteSessionSig",
+        "key": "[redacted]",
         "valueBytes": 64
       },
       {
         "area": "sessionStorage",
-        "key": "siteSessionId",
+        "key": "[redacted]",
         "valueBytes": 36
-      }
-    ],
-    "fingerprintDetections": [
-      {
-        "kind": "canvas-fingerprinting",
-        "heuristic": "openwpm-canvas-v1",
-        "count": 2,
-        "evidence": {
-          "readApis": [
-            "canvas.toDataURL"
-          ],
-          "maxCanvasWidth": 300,
-          "maxCanvasHeight": 150,
-          "maxDistinctTextCharacters": 15,
-          "maxTextWriteCalls": 1
-        }
-      },
-      {
-        "kind": "canvas-font-fingerprinting",
-        "heuristic": "canvas-font-probing-v1",
-        "count": 2,
-        "evidence": {
-          "measureTextCalls": 182,
-          "maxDistinctFonts": 91,
-          "maxDistinctTextSamples": 1,
-          "maxTextLength": 6
-        }
-      },
-      {
-        "kind": "input-monitoring",
-        "heuristic": "input-listener-coverage-v1",
-        "count": 1,
-        "evidence": {
-          "eventTypes": [
-            "change",
-            "input",
-            "keydown",
-            "keypress",
-            "keyup",
-            "paste"
-          ],
-          "listenerTargets": [
-            "document",
-            "input",
-            "other"
-          ],
-          "thirdPartyOrigins": [
-            "https://asset.chase.com",
-            "https://s2.go-mpulse.net"
-          ],
-          "totalListenerCalls": 25
-        }
-      },
-      {
-        "kind": "session-recording",
-        "heuristic": "interaction-listener-coverage-v1",
-        "count": 1,
-        "evidence": {
-          "eventTypes": [
-            "click",
-            "input",
-            "keydown",
-            "keyup",
-            "mousedown",
-            "mousemove",
-            "mouseup",
-            "pointerdown",
-            "scroll",
-            "touchstart",
-            "visibilitychange",
-            "wheel"
-          ],
-          "listenerTargets": [
-            "body",
-            "document",
-            "input",
-            "window"
-          ],
-          "thirdPartyOrigins": [
-            "https://asset.chase.com",
-            "https://s2.go-mpulse.net"
-          ],
-          "totalListenerCalls": 35
-        }
-      },
-      {
-        "kind": "webgl-fingerprinting",
-        "heuristic": "webgl-entropy-read-v1",
-        "count": 1,
-        "evidence": {
-          "readApis": [
-            "webgl2.readPixels"
-          ],
-          "parameters": [
-            "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
-            "webgl.getParameter.UNMASKED_VENDOR_WEBGL"
-          ],
-          "getParameterCalls": 9,
-          "readPixelsCalls": 1
-        }
-      },
-      {
-        "kind": "webrtc-fingerprinting",
-        "heuristic": "webrtc-peerconnection-v1",
-        "count": 1,
-        "evidence": {
-          "constructorCalls": 1,
-          "createDataChannelCalls": 2,
-          "createOfferCalls": 2,
-          "setLocalDescriptionCalls": 2
-        }
       }
     ],
     "fingerprintEvents": [
@@ -2908,17 +2797,119 @@
         "count": 1
       }
     ],
-    "screenshot": null,
-    "warnings": [
-      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling or clicking except one scripted choice on the cookie/consent banner (disclosed below). Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
-      "Counts are a lower bound: trackers that load only after further interaction, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
-      "Blocked a request that could not be verified as public: https://securej.chase.com/__imp_apg__/api/dip/v1/dip",
-      "This visit was asked to choose \"Reject all\" on a cookie/consent banner, but no recognizable control was found (the banner may not be shown to this scanner's location, the choice may sit behind a settings layer, or the control is not in the catalog). Results reflect the pre-consent state.",
-      "This scan typed a synthetic test value into 2 form fields (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
-      "Read the site's privacy policy (https://www.chase.com/digital/resources/privacy-security/privacy/online-privacy-policy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    "fingerprintDetections": [
+      {
+        "kind": "canvas-fingerprinting",
+        "heuristic": "openwpm-canvas-v1",
+        "count": 2,
+        "evidence": {
+          "readApis": [
+            "canvas.toDataURL"
+          ],
+          "maxCanvasWidth": 300,
+          "maxCanvasHeight": 150,
+          "maxDistinctTextCharacters": 15,
+          "maxTextWriteCalls": 1
+        }
+      },
+      {
+        "kind": "canvas-font-fingerprinting",
+        "heuristic": "canvas-font-probing-v1",
+        "count": 2,
+        "evidence": {
+          "measureTextCalls": 182,
+          "maxDistinctFonts": 91,
+          "maxDistinctTextSamples": 1,
+          "maxTextLength": 6
+        }
+      },
+      {
+        "kind": "input-monitoring",
+        "heuristic": "input-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "change",
+            "input",
+            "keydown",
+            "keypress",
+            "keyup",
+            "paste"
+          ],
+          "listenerTargets": [
+            "document",
+            "input",
+            "other"
+          ],
+          "thirdPartyOrigins": [
+            "https://asset.chase.com/",
+            "https://s2.go-mpulse.net/"
+          ],
+          "totalListenerCalls": 25
+        }
+      },
+      {
+        "kind": "session-recording",
+        "heuristic": "interaction-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "click",
+            "input",
+            "keydown",
+            "keyup",
+            "mousedown",
+            "mousemove",
+            "mouseup",
+            "pointerdown",
+            "scroll",
+            "touchstart",
+            "visibilitychange",
+            "wheel"
+          ],
+          "listenerTargets": [
+            "body",
+            "document",
+            "input",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://asset.chase.com/",
+            "https://s2.go-mpulse.net/"
+          ],
+          "totalListenerCalls": 35
+        }
+      },
+      {
+        "kind": "webgl-fingerprinting",
+        "heuristic": "webgl-entropy-read-v1",
+        "count": 1,
+        "evidence": {
+          "readApis": [
+            "webgl2.readPixels"
+          ],
+          "parameters": [
+            "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
+            "webgl.getParameter.UNMASKED_VENDOR_WEBGL"
+          ],
+          "getParameterCalls": 9,
+          "readPixelsCalls": 1
+        }
+      },
+      {
+        "kind": "webrtc-fingerprinting",
+        "heuristic": "webrtc-peerconnection-v1",
+        "count": 1,
+        "evidence": {
+          "constructorCalls": 1,
+          "createDataChannelCalls": 2,
+          "createOfferCalls": 2,
+          "setLocalDescriptionCalls": 2
+        }
+      }
     ],
     "privacyPolicy": {
-      "url": "https://www.chase.com/digital/resources/privacy-security/privacy/online-privacy-policy",
+      "url": "https://www.chase.com/{seg}/{seg}/{seg}/privacy/{seg}",
       "claims": [],
       "mentionedEntities": [],
       "unmentionedEntities": [],
@@ -2927,7 +2918,16 @@
     "consentInteraction": {
       "mode": "reject-all",
       "clicked": false
-    }
+    },
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling or clicking except one scripted choice on the cookie/consent banner (disclosed below). Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after further interaction, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+      "Blocked a request that could not be verified as public: https://securej.chase.com/{seg}/api/{seg}/{seg}/{seg}",
+      "This visit was asked to choose \"Reject all\" on a cookie/consent banner, but no recognizable control was found (the banner may not be shown to this scanner's location, the choice may sit behind a settings layer, or the control is not in the catalog). Results reflect the pre-consent state.",
+      "This scan typed a synthetic test value into 2 form fields (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
+      "Read the site's privacy policy (https://www.chase.com/{seg}/{seg}/{seg}/privacy/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ]
   },
   "diff": {
     "totalRequests": {
@@ -2976,18 +2976,8 @@
     "removedEntities": [],
     "addedCookies": [],
     "removedCookies": [],
-    "addedStorageKeys": [
-      {
-        "area": "localStorage",
-        "key": "pub.SPLITIO.37680815220040039841127971395846627249.largeSegments.till"
-      }
-    ],
-    "removedStorageKeys": [
-      {
-        "area": "localStorage",
-        "key": "pub.SPLITIO.18190527914906455016128667385461868436.largeSegments.till"
-      }
-    ],
+    "addedStorageKeys": [],
+    "removedStorageKeys": [],
     "addedFingerprinting": [],
     "removedFingerprinting": [],
     "addedProvenance": [],
@@ -3002,16 +2992,16 @@
     "Consent comparison runs are sequential automated visits: one asked to click the banner's accept-all choice, one asked to click reject-all (first layer only). A run where no control was clicked reflects the pre-consent state instead; see each run's consent note. Differences can also come from timing, experiments, cache state, or bot detection.",
     "Accept-all attempt: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling or clicking except one scripted choice on the cookie/consent banner (disclosed below). Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
     "Accept-all attempt: Counts are a lower bound: trackers that load only after further interaction, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
-    "Accept-all attempt: Blocked a request that could not be verified as public: https://securej.chase.com/__imp_apg__/api/dip/v1/dip",
+    "Accept-all attempt: Blocked a request that could not be verified as public: https://securej.chase.com/{seg}/api/{seg}/{seg}/{seg}",
     "Accept-all attempt: This visit was asked to choose \"Accept all\" on a cookie/consent banner, but no recognizable control was found (the banner may not be shown to this scanner's location, the choice may sit behind a settings layer, or the control is not in the catalog). Results reflect the pre-consent state.",
     "Accept-all attempt: This scan typed a synthetic test value into 2 form fields (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
-    "Accept-all attempt: Read the site's privacy policy (https://www.chase.com/digital/resources/privacy-security/privacy/online-privacy-policy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
+    "Accept-all attempt: Read the site's privacy policy (https://www.chase.com/{seg}/{seg}/{seg}/privacy/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
     "Reject-all attempt: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling or clicking except one scripted choice on the cookie/consent banner (disclosed below). Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
     "Reject-all attempt: Counts are a lower bound: trackers that load only after further interaction, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
-    "Reject-all attempt: Blocked a request that could not be verified as public: https://securej.chase.com/__imp_apg__/api/dip/v1/dip",
+    "Reject-all attempt: Blocked a request that could not be verified as public: https://securej.chase.com/{seg}/api/{seg}/{seg}/{seg}",
     "Reject-all attempt: This visit was asked to choose \"Reject all\" on a cookie/consent banner, but no recognizable control was found (the banner may not be shown to this scanner's location, the choice may sit behind a settings layer, or the control is not in the catalog). Results reflect the pre-consent state.",
     "Reject-all attempt: This scan typed a synthetic test value into 2 form fields (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
-    "Reject-all attempt: Read the site's privacy policy (https://www.chase.com/digital/resources/privacy-security/privacy/online-privacy-policy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    "Reject-all attempt: Read the site's privacy policy (https://www.chase.com/{seg}/{seg}/{seg}/privacy/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
   ],
   "share": {
     "id": "20260702-9332b5c3739c39fbae4ffe2615c67e2b",

@@ -49,6 +49,13 @@
       "automation": "playwright-chromium",
       "headless": true,
       "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "classification",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-02T01:00:58.178Z"
+      },
       "trackerCatalog": {
         "source": "Hand-curated service catalog",
         "version": "hand-curated-2026.06",
@@ -57,14 +64,7 @@
         "curatedOverrides": 133,
         "license": "AGPL-3.0-or-later"
       },
-      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
-      "adblock": {
-        "active": true,
-        "source": "Brave default ad-block lists",
-        "lists": 31,
-        "fetchedAt": "2026-07-02T01:00:58.178Z"
-      },
-      "shieldsMode": "classification"
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
     },
     "requests": [
       {
@@ -76,152 +76,152 @@
         "status": 403,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 47,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 47
       },
       {
         "id": 2,
-        "url": "https://www.goodrx.com/3t7fwqG6/captcha/captcha.js",
+        "url": "https://www.goodrx.com/{seg}/{seg}/{seg}",
         "domain": "www.goodrx.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 120,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 120
       },
       {
         "id": 3,
-        "url": "https://fonts.googleapis.com/css2?family=&display=",
+        "url": "https://fonts.googleapis.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "fonts.googleapis.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 331,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 331
       },
       {
         "id": 4,
-        "url": "https://client.px-cloud.net/PX3t7fwqG6/main.min.js",
+        "url": "https://client.px-cloud.net/{seg}/{seg}",
         "domain": "client.px-cloud.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 331,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 331
       },
       {
         "id": 5,
-        "url": "https://fonts.gstatic.com/s/roboto/v51/KFO7CnqEu92Fr1ME7kSn66aGLdTylUAMa3yUBA.woff2",
+        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "fonts.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 381,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 381
       },
       {
         "id": 6,
-        "url": "https://ift.px-cloud.net/ns?c=",
+        "url": "https://ift.px-cloud.net/{seg}?%5Bredacted%5D=",
         "domain": "ift.px-cloud.net",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 439,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 439
       },
       {
         "id": 7,
-        "url": "https://www.goodrx.com/3t7fwqG6/xhr/assets/js/bundle",
+        "url": "https://www.goodrx.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.goodrx.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 449,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 449
       },
       {
         "id": 8,
-        "url": "https://fonts.googleapis.com/css2?family=&display=",
+        "url": "https://fonts.googleapis.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "fonts.googleapis.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 570,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 570
       },
       {
         "id": 9,
-        "url": "https://www.goodrx.com/3t7fwqG6/captcha/captcha.js",
+        "url": "https://www.goodrx.com/{seg}/{seg}/{seg}",
         "domain": "www.goodrx.com",
         "method": "HEAD",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 595,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 595
       },
       {
         "id": 10,
-        "url": "https://client.px-cloud.net/PX3t7fwqG6/main.min.js",
+        "url": "https://client.px-cloud.net/{seg}/{seg}",
         "domain": "client.px-cloud.net",
         "method": "HEAD",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 595,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 595
       },
       {
         "id": 11,
-        "url": "https://fonts.gstatic.com/s/roboto/v51/KFO7CnqEu92Fr1ME7kSn66aGLdTylUAMa3yUBA.woff2",
+        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "fonts.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 624,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 624
       },
       {
         "id": 12,
-        "url": "https://collector-px3t7fwqg6.px-client.net/b/g?payload=&appId=&tag=&uuid=&ft=&seq=&en=&bi=&cs=&pc=&sid=&vid=&ci=&pxhd=&cts=&hid=",
-        "domain": "collector-px3t7fwqg6.px-client.net",
+        "url": "https://{label}.px-client.net/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "domain": "{label}.px-client.net",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 720,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 720
       },
       {
         "id": 13,
-        "url": "https://www.goodrx.com/3t7fwqG6/xhr/assets/js/bundle",
+        "url": "https://www.goodrx.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.goodrx.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1309,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1309
       }
     ],
     "domains": [
@@ -279,7 +279,7 @@
         ]
       },
       {
-        "domain": "collector-px3t7fwqg6.px-client.net",
+        "domain": "{label}.px-client.net",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -310,7 +310,7 @@
     ],
     "cookies": [
       {
-        "name": "grx_unique_id",
+        "name": "[redacted]",
         "domain": ".goodrx.com",
         "path": "/",
         "sameSite": "Lax",
@@ -320,7 +320,7 @@
         "thirdParty": false
       },
       {
-        "name": "optimizelyEndUserId",
+        "name": "[redacted]",
         "domain": ".goodrx.com",
         "path": "/",
         "sameSite": "Lax",
@@ -330,7 +330,7 @@
         "thirdParty": false
       },
       {
-        "name": "isVisitedHomepage",
+        "name": "[redacted]",
         "domain": ".goodrx.com",
         "path": "/",
         "sameSite": "Lax",
@@ -340,7 +340,7 @@
         "thirdParty": false
       },
       {
-        "name": "grx_visit_start",
+        "name": "[redacted]",
         "domain": ".goodrx.com",
         "path": "/",
         "sameSite": "Lax",
@@ -350,7 +350,7 @@
         "thirdParty": false
       },
       {
-        "name": "grx_sa",
+        "name": "[redacted]",
         "domain": ".goodrx.com",
         "path": "/",
         "sameSite": "Lax",
@@ -360,7 +360,7 @@
         "thirdParty": false
       },
       {
-        "name": "grx_location",
+        "name": "[redacted]",
         "domain": ".goodrx.com",
         "path": "/",
         "sameSite": "Lax",
@@ -370,7 +370,7 @@
         "thirdParty": false
       },
       {
-        "name": "_pxvid",
+        "name": "[redacted]",
         "domain": ".goodrx.com",
         "path": "/",
         "sameSite": "Lax",
@@ -380,7 +380,7 @@
         "thirdParty": false
       },
       {
-        "name": "_px2",
+        "name": "[redacted]",
         "domain": ".goodrx.com",
         "path": "/",
         "sameSite": "Lax",
@@ -390,7 +390,7 @@
         "thirdParty": false
       },
       {
-        "name": "pxcts",
+        "name": "[redacted]",
         "domain": ".goodrx.com",
         "path": "/",
         "sameSite": "Lax",
@@ -400,7 +400,7 @@
         "thirdParty": false
       },
       {
-        "name": "_pxhd",
+        "name": "[redacted]",
         "domain": "www.goodrx.com",
         "path": "/",
         "sameSite": "Lax",
@@ -413,28 +413,54 @@
     "storage": [
       {
         "area": "localStorage",
-        "key": "PX3t7fwqG6_px-ff",
+        "key": "[redacted:long-token]",
         "valueBytes": 164
       },
       {
         "area": "localStorage",
-        "key": "PX3t7fwqG6_px_hvd",
+        "key": "[redacted:long-token]",
         "valueBytes": 32
       },
       {
         "area": "localStorage",
-        "key": "PX3t7fwqG6_px_fp",
+        "key": "[redacted:long-token]",
         "valueBytes": 5492
       },
       {
         "area": "localStorage",
-        "key": "PX3t7fwqG6_px_af",
+        "key": "[redacted:long-token]",
         "valueBytes": 1
       },
       {
         "area": "sessionStorage",
-        "key": "pxsid",
+        "key": "[redacted]",
         "valueBytes": 36
+      }
+    ],
+    "fingerprintEvents": [
+      {
+        "api": "webgl.readPixels",
+        "count": 11
+      },
+      {
+        "api": "canvas.toDataURL",
+        "count": 3
+      },
+      {
+        "api": "audio.OfflineAudioContext.startRendering",
+        "count": 1
+      },
+      {
+        "api": "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
+        "count": 1
+      },
+      {
+        "api": "webgl.getParameter.UNMASKED_VENDOR_WEBGL",
+        "count": 1
+      },
+      {
+        "api": "webgl2.readPixels",
+        "count": 1
       }
     ],
     "fingerprintDetections": [
@@ -453,7 +479,7 @@
             "document"
           ],
           "thirdPartyOrigins": [
-            "https://client.px-cloud.net"
+            "https://client.px-cloud.net/"
           ],
           "totalListenerCalls": 4
         }
@@ -483,7 +509,7 @@
             "document"
           ],
           "thirdPartyOrigins": [
-            "https://client.px-cloud.net"
+            "https://client.px-cloud.net/"
           ],
           "totalListenerCalls": 28
         }
@@ -504,32 +530,6 @@
           "getParameterCalls": 25,
           "readPixelsCalls": 12
         }
-      }
-    ],
-    "fingerprintEvents": [
-      {
-        "api": "webgl.readPixels",
-        "count": 11
-      },
-      {
-        "api": "canvas.toDataURL",
-        "count": 3
-      },
-      {
-        "api": "audio.OfflineAudioContext.startRendering",
-        "count": 1
-      },
-      {
-        "api": "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
-        "count": 1
-      },
-      {
-        "api": "webgl.getParameter.UNMASKED_VENDOR_WEBGL",
-        "count": 1
-      },
-      {
-        "api": "webgl2.readPixels",
-        "count": 1
       }
     ],
     "screenshot": null,
@@ -577,6 +577,13 @@
       "automation": "playwright-chromium",
       "headless": true,
       "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "block-simulation",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-02T01:00:58.178Z"
+      },
       "trackerCatalog": {
         "source": "Hand-curated service catalog",
         "version": "hand-curated-2026.06",
@@ -585,14 +592,7 @@
         "curatedOverrides": 133,
         "license": "AGPL-3.0-or-later"
       },
-      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
-      "adblock": {
-        "active": true,
-        "source": "Brave default ad-block lists",
-        "lists": 31,
-        "fetchedAt": "2026-07-02T01:00:58.178Z"
-      },
-      "shieldsMode": "block-simulation"
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
     },
     "requests": [
       {
@@ -604,152 +604,152 @@
         "status": 403,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 49,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 49
       },
       {
         "id": 2,
-        "url": "https://www.goodrx.com/3t7fwqG6/captcha/captcha.js",
+        "url": "https://www.goodrx.com/{seg}/{seg}/{seg}",
         "domain": "www.goodrx.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 121,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 121
       },
       {
         "id": 3,
-        "url": "https://fonts.googleapis.com/css2?family=&display=",
+        "url": "https://fonts.googleapis.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "fonts.googleapis.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 324,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 324
       },
       {
         "id": 4,
-        "url": "https://client.px-cloud.net/PX3t7fwqG6/main.min.js",
+        "url": "https://client.px-cloud.net/{seg}/{seg}",
         "domain": "client.px-cloud.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 324,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 324
       },
       {
         "id": 5,
-        "url": "https://ift.px-cloud.net/ns?c=",
+        "url": "https://ift.px-cloud.net/{seg}?%5Bredacted%5D=",
         "domain": "ift.px-cloud.net",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 388,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 388
       },
       {
         "id": 6,
-        "url": "https://www.goodrx.com/3t7fwqG6/xhr/assets/js/bundle",
+        "url": "https://www.goodrx.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.goodrx.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 399,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 399
       },
       {
         "id": 7,
-        "url": "https://fonts.gstatic.com/s/roboto/v51/KFO7CnqEu92Fr1ME7kSn66aGLdTylUAMa3yUBA.woff2",
+        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "fonts.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 407,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 407
       },
       {
         "id": 8,
-        "url": "https://fonts.googleapis.com/css2?family=&display=",
+        "url": "https://fonts.googleapis.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "fonts.googleapis.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 515,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 515
       },
       {
         "id": 9,
-        "url": "https://www.goodrx.com/3t7fwqG6/captcha/captcha.js",
+        "url": "https://www.goodrx.com/{seg}/{seg}/{seg}",
         "domain": "www.goodrx.com",
         "method": "HEAD",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 533,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 533
       },
       {
         "id": 10,
-        "url": "https://client.px-cloud.net/PX3t7fwqG6/main.min.js",
+        "url": "https://client.px-cloud.net/{seg}/{seg}",
         "domain": "client.px-cloud.net",
         "method": "HEAD",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 534,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 534
       },
       {
         "id": 11,
-        "url": "https://fonts.gstatic.com/s/roboto/v51/KFO7CnqEu92Fr1ME7kSn66aGLdTylUAMa3yUBA.woff2",
+        "url": "https://fonts.gstatic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "fonts.gstatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 566,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 566
       },
       {
         "id": 12,
-        "url": "https://collector-px3t7fwqg6.px-client.net/b/g?payload=&appId=&tag=&uuid=&ft=&seq=&en=&bi=&cs=&pc=&sid=&vid=&ci=&pxhd=&cts=&hid=",
-        "domain": "collector-px3t7fwqg6.px-client.net",
+        "url": "https://{label}.px-client.net/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "domain": "{label}.px-client.net",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 643,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 643
       },
       {
         "id": 13,
-        "url": "https://www.goodrx.com/3t7fwqG6/xhr/assets/js/bundle",
+        "url": "https://www.goodrx.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.goodrx.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1247,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1247
       }
     ],
     "domains": [
@@ -807,7 +807,7 @@
         ]
       },
       {
-        "domain": "collector-px3t7fwqg6.px-client.net",
+        "domain": "{label}.px-client.net",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -838,7 +838,7 @@
     ],
     "cookies": [
       {
-        "name": "grx_unique_id",
+        "name": "[redacted]",
         "domain": ".goodrx.com",
         "path": "/",
         "sameSite": "Lax",
@@ -848,7 +848,7 @@
         "thirdParty": false
       },
       {
-        "name": "optimizelyEndUserId",
+        "name": "[redacted]",
         "domain": ".goodrx.com",
         "path": "/",
         "sameSite": "Lax",
@@ -858,7 +858,7 @@
         "thirdParty": false
       },
       {
-        "name": "isVisitedHomepage",
+        "name": "[redacted]",
         "domain": ".goodrx.com",
         "path": "/",
         "sameSite": "Lax",
@@ -868,7 +868,7 @@
         "thirdParty": false
       },
       {
-        "name": "grx_visit_start",
+        "name": "[redacted]",
         "domain": ".goodrx.com",
         "path": "/",
         "sameSite": "Lax",
@@ -878,7 +878,7 @@
         "thirdParty": false
       },
       {
-        "name": "grx_sa",
+        "name": "[redacted]",
         "domain": ".goodrx.com",
         "path": "/",
         "sameSite": "Lax",
@@ -888,7 +888,7 @@
         "thirdParty": false
       },
       {
-        "name": "grx_location",
+        "name": "[redacted]",
         "domain": ".goodrx.com",
         "path": "/",
         "sameSite": "Lax",
@@ -898,7 +898,7 @@
         "thirdParty": false
       },
       {
-        "name": "_pxvid",
+        "name": "[redacted]",
         "domain": ".goodrx.com",
         "path": "/",
         "sameSite": "Lax",
@@ -908,7 +908,7 @@
         "thirdParty": false
       },
       {
-        "name": "_px2",
+        "name": "[redacted]",
         "domain": ".goodrx.com",
         "path": "/",
         "sameSite": "Lax",
@@ -918,7 +918,7 @@
         "thirdParty": false
       },
       {
-        "name": "pxcts",
+        "name": "[redacted]",
         "domain": ".goodrx.com",
         "path": "/",
         "sameSite": "Lax",
@@ -928,7 +928,7 @@
         "thirdParty": false
       },
       {
-        "name": "_pxhd",
+        "name": "[redacted]",
         "domain": "www.goodrx.com",
         "path": "/",
         "sameSite": "Lax",
@@ -941,28 +941,54 @@
     "storage": [
       {
         "area": "localStorage",
-        "key": "PX3t7fwqG6_px-ff",
+        "key": "[redacted:long-token]",
         "valueBytes": 164
       },
       {
         "area": "localStorage",
-        "key": "PX3t7fwqG6_px_hvd",
+        "key": "[redacted:long-token]",
         "valueBytes": 32
       },
       {
         "area": "localStorage",
-        "key": "PX3t7fwqG6_px_fp",
+        "key": "[redacted:long-token]",
         "valueBytes": 5492
       },
       {
         "area": "localStorage",
-        "key": "PX3t7fwqG6_px_af",
+        "key": "[redacted:long-token]",
         "valueBytes": 1
       },
       {
         "area": "sessionStorage",
-        "key": "pxsid",
+        "key": "[redacted]",
         "valueBytes": 36
+      }
+    ],
+    "fingerprintEvents": [
+      {
+        "api": "webgl.readPixels",
+        "count": 11
+      },
+      {
+        "api": "canvas.toDataURL",
+        "count": 3
+      },
+      {
+        "api": "audio.OfflineAudioContext.startRendering",
+        "count": 1
+      },
+      {
+        "api": "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
+        "count": 1
+      },
+      {
+        "api": "webgl.getParameter.UNMASKED_VENDOR_WEBGL",
+        "count": 1
+      },
+      {
+        "api": "webgl2.readPixels",
+        "count": 1
       }
     ],
     "fingerprintDetections": [
@@ -981,7 +1007,7 @@
             "document"
           ],
           "thirdPartyOrigins": [
-            "https://client.px-cloud.net"
+            "https://client.px-cloud.net/"
           ],
           "totalListenerCalls": 4
         }
@@ -1011,7 +1037,7 @@
             "document"
           ],
           "thirdPartyOrigins": [
-            "https://client.px-cloud.net"
+            "https://client.px-cloud.net/"
           ],
           "totalListenerCalls": 28
         }
@@ -1032,32 +1058,6 @@
           "getParameterCalls": 25,
           "readPixelsCalls": 12
         }
-      }
-    ],
-    "fingerprintEvents": [
-      {
-        "api": "webgl.readPixels",
-        "count": 11
-      },
-      {
-        "api": "canvas.toDataURL",
-        "count": 3
-      },
-      {
-        "api": "audio.OfflineAudioContext.startRendering",
-        "count": 1
-      },
-      {
-        "api": "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
-        "count": 1
-      },
-      {
-        "api": "webgl.getParameter.UNMASKED_VENDOR_WEBGL",
-        "count": 1
-      },
-      {
-        "api": "webgl2.readPixels",
-        "count": 1
       }
     ],
     "screenshot": null,

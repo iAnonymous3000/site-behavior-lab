@@ -32,7 +32,7 @@
     },
     "conditions": {
       "requestedUrl": "https://www.craigslist.org/",
-      "finalUrl": "https://www.craigslist.org/area/raleigh",
+      "finalUrl": "https://www.craigslist.org/{seg}/{seg}",
       "scannedAt": "2026-07-02T15:29:05.789Z",
       "chromiumVersion": "149.0.7827.55",
       "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
@@ -49,6 +49,13 @@
       "automation": "playwright-chromium",
       "headless": true,
       "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "classification",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-02T01:00:58.178Z"
+      },
       "trackerCatalog": {
         "source": "Hand-curated service catalog",
         "version": "hand-curated-2026.06",
@@ -57,14 +64,7 @@
         "curatedOverrides": 133,
         "license": "AGPL-3.0-or-later"
       },
-      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
-      "adblock": {
-        "active": true,
-        "source": "Brave default ad-block lists",
-        "lists": 31,
-        "fetchedAt": "2026-07-02T01:00:58.178Z"
-      },
-      "shieldsMode": "classification"
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
     },
     "requests": [
       {
@@ -76,8 +76,8 @@
         "status": 302,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 41,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 41
       },
       {
         "id": 2,
@@ -88,320 +88,320 @@
         "status": 302,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 176,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 176
       },
       {
         "id": 3,
-        "url": "https://www.craigslist.org/area/raleigh",
+        "url": "https://www.craigslist.org/{seg}/{seg}",
         "domain": "www.craigslist.org",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 407,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 407
       },
       {
         "id": 4,
-        "url": "https://www.craigslist.org/static/www/d58afecda5261cb9fcb91b2d144412254d004485.js",
+        "url": "https://www.craigslist.org/static/{seg}/{seg}",
         "domain": "www.craigslist.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 451,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 451
       },
       {
         "id": 5,
-        "url": "https://www.craigslist.org/static/www/localStorage-092e9f9e2f09450529e744902aa7cdb3a5cc868d.html",
+        "url": "https://www.craigslist.org/static/{seg}/{seg}",
         "domain": "www.craigslist.org",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 470,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 470
       },
       {
         "id": 6,
-        "url": "https://www.craigslist.org/static/d/5943353/www/manifest.js",
+        "url": "https://www.craigslist.org/static/{seg}/{n}/{seg}/{seg}",
         "domain": "www.craigslist.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 500,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 500
       },
       {
         "id": 7,
-        "url": "https://www.craigslist.org/static/www/homePage-2026-06-22-14-04-f960ed0beb99215a5dd0c9854eb6971fe106f39f.css",
+        "url": "https://www.craigslist.org/static/{seg}/{seg}",
         "domain": "www.craigslist.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 516,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 516
       },
       {
         "id": 8,
-        "url": "https://www.craigslist.org/static/www/browsePostings-2026-07-01-07-37-15be18143852a691798f1d85768e6cbc2f83995f.js",
+        "url": "https://www.craigslist.org/static/{seg}/{seg}",
         "domain": "www.craigslist.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 516,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 516
       },
       {
         "id": 9,
-        "url": "https://sapi.craigslist.org/web/v8/suggest/search",
+        "url": "https://sapi.craigslist.org/{seg}/{seg}/{seg}/search",
         "domain": "sapi.craigslist.org",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1252,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1252
       },
       {
         "id": 10,
-        "url": "https://sapi.craigslist.org/web/v8/suggest/search",
+        "url": "https://sapi.craigslist.org/{seg}/{seg}/{seg}/search",
         "domain": "sapi.craigslist.org",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1256,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1256
       },
       {
         "id": 11,
-        "url": "https://sapi.craigslist.org/web/v8/suggest/search",
+        "url": "https://sapi.craigslist.org/{seg}/{seg}/{seg}/search",
         "domain": "sapi.craigslist.org",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1259,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1259
       },
       {
         "id": 12,
-        "url": "https://sapi.craigslist.org/web/v8/suggest/search",
+        "url": "https://sapi.craigslist.org/{seg}/{seg}/{seg}/search",
         "domain": "sapi.craigslist.org",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1261,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1261
       },
       {
         "id": 13,
-        "url": "https://sapi.craigslist.org/web/v8/suggest/search",
+        "url": "https://sapi.craigslist.org/{seg}/{seg}/{seg}/search",
         "domain": "sapi.craigslist.org",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1265,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1265
       },
       {
         "id": 14,
-        "url": "https://sapi.craigslist.org/web/v8/suggest/search",
+        "url": "https://sapi.craigslist.org/{seg}/{seg}/{seg}/search",
         "domain": "sapi.craigslist.org",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1267,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1267
       },
       {
         "id": 15,
-        "url": "https://sapi.craigslist.org/web/v8/suggest/search",
+        "url": "https://sapi.craigslist.org/{seg}/{seg}/{seg}/search",
         "domain": "sapi.craigslist.org",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1269,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1269
       },
       {
         "id": 16,
-        "url": "https://sapi.craigslist.org/web/v8/suggest/search",
+        "url": "https://sapi.craigslist.org/{seg}/{seg}/{seg}/search",
         "domain": "sapi.craigslist.org",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1271,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1271
       },
       {
         "id": 17,
-        "url": "https://sapi.craigslist.org/web/v8/suggest/search",
+        "url": "https://sapi.craigslist.org/{seg}/{seg}/{seg}/search",
         "domain": "sapi.craigslist.org",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1273,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1273
       },
       {
         "id": 18,
-        "url": "https://sapi.craigslist.org/web/v8/suggest/search",
+        "url": "https://sapi.craigslist.org/{seg}/{seg}/{seg}/search",
         "domain": "sapi.craigslist.org",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1275,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1275
       },
       {
         "id": 19,
-        "url": "https://sapi.craigslist.org/web/v8/suggest/search",
+        "url": "https://sapi.craigslist.org/{seg}/{seg}/{seg}/search",
         "domain": "sapi.craigslist.org",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1277,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1277
       },
       {
         "id": 20,
-        "url": "https://sapi.craigslist.org/web/v8/suggest/search",
+        "url": "https://sapi.craigslist.org/{seg}/{seg}/{seg}/search",
         "domain": "sapi.craigslist.org",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1282,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1282
       },
       {
         "id": 21,
-        "url": "https://sapi.craigslist.org/web/v8/suggest/search",
+        "url": "https://sapi.craigslist.org/{seg}/{seg}/{seg}/search",
         "domain": "sapi.craigslist.org",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1285,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1285
       },
       {
         "id": 22,
-        "url": "https://sapi.craigslist.org/web/v8/suggest/search",
+        "url": "https://sapi.craigslist.org/{seg}/{seg}/{seg}/search",
         "domain": "sapi.craigslist.org",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1287,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1287
       },
       {
         "id": 23,
-        "url": "https://sapi.craigslist.org/web/v8/suggest/search",
+        "url": "https://sapi.craigslist.org/{seg}/{seg}/{seg}/search",
         "domain": "sapi.craigslist.org",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1289,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1289
       },
       {
         "id": 24,
-        "url": "https://sapi.craigslist.org/web/v8/suggest/search",
+        "url": "https://sapi.craigslist.org/{seg}/{seg}/{seg}/search",
         "domain": "sapi.craigslist.org",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1292,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1292
       },
       {
         "id": 25,
-        "url": "https://sapi.craigslist.org/web/v8/suggest/search",
+        "url": "https://sapi.craigslist.org/{seg}/{seg}/{seg}/search",
         "domain": "sapi.craigslist.org",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1296,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1296
       },
       {
         "id": 26,
-        "url": "https://sapi.craigslist.org/web/v8/suggest/search",
+        "url": "https://sapi.craigslist.org/{seg}/{seg}/{seg}/search",
         "domain": "sapi.craigslist.org",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1305,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1305
       },
       {
         "id": 27,
-        "url": "https://sapi.craigslist.org/web/v8/suggest/search",
+        "url": "https://sapi.craigslist.org/{seg}/{seg}/{seg}/search",
         "domain": "sapi.craigslist.org",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1308,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1308
       },
       {
         "id": 28,
-        "url": "https://sapi.craigslist.org/web/v8/suggest/search",
+        "url": "https://sapi.craigslist.org/{seg}/{seg}/{seg}/search",
         "domain": "sapi.craigslist.org",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1311,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1311
       }
     ],
     "domains": [
@@ -450,7 +450,7 @@
     ],
     "cookies": [
       {
-        "name": "cl_b",
+        "name": "[redacted]",
         "domain": ".craigslist.org",
         "path": "/",
         "sameSite": "Lax",
@@ -460,7 +460,7 @@
         "thirdParty": false
       },
       {
-        "name": "cl_def_hp_www",
+        "name": "[redacted]",
         "domain": ".craigslist.org",
         "path": "/",
         "sameSite": "Lax",
@@ -473,26 +473,19 @@
     "storage": [
       {
         "area": "localStorage",
-        "key": "cl_ux_config",
+        "key": "[redacted]",
         "valueBytes": 246
       },
       {
         "area": "localStorage",
-        "key": "logged_v1",
+        "key": "[redacted]",
         "valueBytes": 2
       }
     ],
-    "fingerprintDetections": [],
     "fingerprintEvents": [],
-    "screenshot": null,
-    "warnings": [
-      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
-      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
-      "This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
-      "Read the site's privacy policy (https://www.craigslist.org/about/privacy.policy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
-    ],
+    "fingerprintDetections": [],
     "privacyPolicy": {
-      "url": "https://www.craigslist.org/about/privacy.policy",
+      "url": "https://www.craigslist.org/about/{seg}",
       "claims": [
         {
           "kind": "no-selling-or-sharing",
@@ -502,7 +495,14 @@
       "mentionedEntities": [],
       "unmentionedEntities": [],
       "policyTextLength": 5871
-    }
+    },
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+      "This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
+      "Read the site's privacy policy (https://www.craigslist.org/about/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ]
   },
   "variant": {
     "ok": true,
@@ -525,7 +525,7 @@
     },
     "conditions": {
       "requestedUrl": "https://www.craigslist.org/",
-      "finalUrl": "https://www.craigslist.org/area/raleigh",
+      "finalUrl": "https://www.craigslist.org/{seg}/{seg}",
       "scannedAt": "2026-07-02T15:29:11.691Z",
       "chromiumVersion": "149.0.7827.55",
       "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
@@ -542,6 +542,13 @@
       "automation": "playwright-chromium",
       "headless": true,
       "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "block-simulation",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-02T01:00:58.178Z"
+      },
       "trackerCatalog": {
         "source": "Hand-curated service catalog",
         "version": "hand-curated-2026.06",
@@ -550,14 +557,7 @@
         "curatedOverrides": 133,
         "license": "AGPL-3.0-or-later"
       },
-      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
-      "adblock": {
-        "active": true,
-        "source": "Brave default ad-block lists",
-        "lists": 31,
-        "fetchedAt": "2026-07-02T01:00:58.178Z"
-      },
-      "shieldsMode": "block-simulation"
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
     },
     "requests": [
       {
@@ -569,8 +569,8 @@
         "status": 302,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 42,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 42
       },
       {
         "id": 2,
@@ -581,320 +581,320 @@
         "status": 302,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 82,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 82
       },
       {
         "id": 3,
-        "url": "https://www.craigslist.org/area/raleigh",
+        "url": "https://www.craigslist.org/{seg}/{seg}",
         "domain": "www.craigslist.org",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 123,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 123
       },
       {
         "id": 4,
-        "url": "https://www.craigslist.org/static/www/d58afecda5261cb9fcb91b2d144412254d004485.js",
+        "url": "https://www.craigslist.org/static/{seg}/{seg}",
         "domain": "www.craigslist.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 166,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 166
       },
       {
         "id": 5,
-        "url": "https://www.craigslist.org/static/www/localStorage-092e9f9e2f09450529e744902aa7cdb3a5cc868d.html",
+        "url": "https://www.craigslist.org/static/{seg}/{seg}",
         "domain": "www.craigslist.org",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 184,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 184
       },
       {
         "id": 6,
-        "url": "https://www.craigslist.org/static/d/5943353/www/manifest.js",
+        "url": "https://www.craigslist.org/static/{seg}/{n}/{seg}/{seg}",
         "domain": "www.craigslist.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 215,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 215
       },
       {
         "id": 7,
-        "url": "https://www.craigslist.org/static/www/homePage-2026-06-22-14-04-f960ed0beb99215a5dd0c9854eb6971fe106f39f.css",
+        "url": "https://www.craigslist.org/static/{seg}/{seg}",
         "domain": "www.craigslist.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 232,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 232
       },
       {
         "id": 8,
-        "url": "https://www.craigslist.org/static/www/browsePostings-2026-07-01-07-37-15be18143852a691798f1d85768e6cbc2f83995f.js",
+        "url": "https://www.craigslist.org/static/{seg}/{seg}",
         "domain": "www.craigslist.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 233,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 233
       },
       {
         "id": 9,
-        "url": "https://sapi.craigslist.org/web/v8/suggest/search",
+        "url": "https://sapi.craigslist.org/{seg}/{seg}/{seg}/search",
         "domain": "sapi.craigslist.org",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 956,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 956
       },
       {
         "id": 10,
-        "url": "https://sapi.craigslist.org/web/v8/suggest/search",
+        "url": "https://sapi.craigslist.org/{seg}/{seg}/{seg}/search",
         "domain": "sapi.craigslist.org",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 958,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 958
       },
       {
         "id": 11,
-        "url": "https://sapi.craigslist.org/web/v8/suggest/search",
+        "url": "https://sapi.craigslist.org/{seg}/{seg}/{seg}/search",
         "domain": "sapi.craigslist.org",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 960,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 960
       },
       {
         "id": 12,
-        "url": "https://sapi.craigslist.org/web/v8/suggest/search",
+        "url": "https://sapi.craigslist.org/{seg}/{seg}/{seg}/search",
         "domain": "sapi.craigslist.org",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 967,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 967
       },
       {
         "id": 13,
-        "url": "https://sapi.craigslist.org/web/v8/suggest/search",
+        "url": "https://sapi.craigslist.org/{seg}/{seg}/{seg}/search",
         "domain": "sapi.craigslist.org",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 969,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 969
       },
       {
         "id": 14,
-        "url": "https://sapi.craigslist.org/web/v8/suggest/search",
+        "url": "https://sapi.craigslist.org/{seg}/{seg}/{seg}/search",
         "domain": "sapi.craigslist.org",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 974,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 974
       },
       {
         "id": 15,
-        "url": "https://sapi.craigslist.org/web/v8/suggest/search",
+        "url": "https://sapi.craigslist.org/{seg}/{seg}/{seg}/search",
         "domain": "sapi.craigslist.org",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 977,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 977
       },
       {
         "id": 16,
-        "url": "https://sapi.craigslist.org/web/v8/suggest/search",
+        "url": "https://sapi.craigslist.org/{seg}/{seg}/{seg}/search",
         "domain": "sapi.craigslist.org",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 981,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 981
       },
       {
         "id": 17,
-        "url": "https://sapi.craigslist.org/web/v8/suggest/search",
+        "url": "https://sapi.craigslist.org/{seg}/{seg}/{seg}/search",
         "domain": "sapi.craigslist.org",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 983,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 983
       },
       {
         "id": 18,
-        "url": "https://sapi.craigslist.org/web/v8/suggest/search",
+        "url": "https://sapi.craigslist.org/{seg}/{seg}/{seg}/search",
         "domain": "sapi.craigslist.org",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 987,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 987
       },
       {
         "id": 19,
-        "url": "https://sapi.craigslist.org/web/v8/suggest/search",
+        "url": "https://sapi.craigslist.org/{seg}/{seg}/{seg}/search",
         "domain": "sapi.craigslist.org",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 990,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 990
       },
       {
         "id": 20,
-        "url": "https://sapi.craigslist.org/web/v8/suggest/search",
+        "url": "https://sapi.craigslist.org/{seg}/{seg}/{seg}/search",
         "domain": "sapi.craigslist.org",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 992,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 992
       },
       {
         "id": 21,
-        "url": "https://sapi.craigslist.org/web/v8/suggest/search",
+        "url": "https://sapi.craigslist.org/{seg}/{seg}/{seg}/search",
         "domain": "sapi.craigslist.org",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 996,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 996
       },
       {
         "id": 22,
-        "url": "https://sapi.craigslist.org/web/v8/suggest/search",
+        "url": "https://sapi.craigslist.org/{seg}/{seg}/{seg}/search",
         "domain": "sapi.craigslist.org",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 998,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 998
       },
       {
         "id": 23,
-        "url": "https://sapi.craigslist.org/web/v8/suggest/search",
+        "url": "https://sapi.craigslist.org/{seg}/{seg}/{seg}/search",
         "domain": "sapi.craigslist.org",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1001,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1001
       },
       {
         "id": 24,
-        "url": "https://sapi.craigslist.org/web/v8/suggest/search",
+        "url": "https://sapi.craigslist.org/{seg}/{seg}/{seg}/search",
         "domain": "sapi.craigslist.org",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1003,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1003
       },
       {
         "id": 25,
-        "url": "https://sapi.craigslist.org/web/v8/suggest/search",
+        "url": "https://sapi.craigslist.org/{seg}/{seg}/{seg}/search",
         "domain": "sapi.craigslist.org",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1008,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1008
       },
       {
         "id": 26,
-        "url": "https://sapi.craigslist.org/web/v8/suggest/search",
+        "url": "https://sapi.craigslist.org/{seg}/{seg}/{seg}/search",
         "domain": "sapi.craigslist.org",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1011,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1011
       },
       {
         "id": 27,
-        "url": "https://sapi.craigslist.org/web/v8/suggest/search",
+        "url": "https://sapi.craigslist.org/{seg}/{seg}/{seg}/search",
         "domain": "sapi.craigslist.org",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1020,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1020
       },
       {
         "id": 28,
-        "url": "https://sapi.craigslist.org/web/v8/suggest/search",
+        "url": "https://sapi.craigslist.org/{seg}/{seg}/{seg}/search",
         "domain": "sapi.craigslist.org",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1022,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1022
       }
     ],
     "domains": [
@@ -943,7 +943,7 @@
     ],
     "cookies": [
       {
-        "name": "cl_b",
+        "name": "[redacted]",
         "domain": ".craigslist.org",
         "path": "/",
         "sameSite": "Lax",
@@ -953,7 +953,7 @@
         "thirdParty": false
       },
       {
-        "name": "cl_def_hp_www",
+        "name": "[redacted]",
         "domain": ".craigslist.org",
         "path": "/",
         "sameSite": "Lax",
@@ -966,27 +966,19 @@
     "storage": [
       {
         "area": "localStorage",
-        "key": "cl_ux_config",
+        "key": "[redacted]",
         "valueBytes": 246
       },
       {
         "area": "localStorage",
-        "key": "logged_v1",
+        "key": "[redacted]",
         "valueBytes": 2
       }
     ],
-    "fingerprintDetections": [],
     "fingerprintEvents": [],
-    "screenshot": null,
-    "warnings": [
-      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
-      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
-      "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
-      "This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
-      "Read the site's privacy policy (https://www.craigslist.org/about/privacy.policy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
-    ],
+    "fingerprintDetections": [],
     "privacyPolicy": {
-      "url": "https://www.craigslist.org/about/privacy.policy",
+      "url": "https://www.craigslist.org/about/{seg}",
       "claims": [
         {
           "kind": "no-selling-or-sharing",
@@ -996,7 +988,15 @@
       "mentionedEntities": [],
       "unmentionedEntities": [],
       "policyTextLength": 5871
-    }
+    },
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+      "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+      "This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
+      "Read the site's privacy policy (https://www.craigslist.org/about/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ]
   },
   "diff": {
     "totalRequests": {
@@ -1062,12 +1062,12 @@
     "No blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
     "No blocking: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
     "No blocking: This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
-    "No blocking: Read the site's privacy policy (https://www.craigslist.org/about/privacy.policy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
+    "No blocking: Read the site's privacy policy (https://www.craigslist.org/about/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
     "Brave-list blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
     "Brave-list blocking: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
     "Brave-list blocking: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
     "Brave-list blocking: This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
-    "Brave-list blocking: Read the site's privacy policy (https://www.craigslist.org/about/privacy.policy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    "Brave-list blocking: Read the site's privacy policy (https://www.craigslist.org/about/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
   ],
   "share": {
     "id": "20260702-38e663b527e6b5667cbefcd090abffa2",

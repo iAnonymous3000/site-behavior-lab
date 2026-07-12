@@ -49,6 +49,13 @@
       "automation": "playwright-chromium",
       "headless": true,
       "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "classification",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-06-19T17:24:24.927Z"
+      },
       "trackerCatalog": {
         "source": "Hand-curated service catalog",
         "version": "hand-curated-2026.06",
@@ -57,14 +64,7 @@
         "curatedOverrides": 133,
         "license": "AGPL-3.0-or-later"
       },
-      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
-      "adblock": {
-        "active": true,
-        "source": "Brave default ad-block lists",
-        "lists": 31,
-        "fetchedAt": "2026-06-19T17:24:24.927Z"
-      },
-      "shieldsMode": "classification"
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
     },
     "requests": [
       {
@@ -76,1224 +76,1224 @@
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 34,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 34
       },
       {
         "id": 2,
-        "url": "https://static.wellsfargo.com/assets/js/wfui/appdynamics/appdEUMConfig.js",
+        "url": "https://static.wellsfargo.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.wellsfargo.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 320,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 320
       },
       {
         "id": 3,
-        "url": "https://www.wellsfargo.com/ui/javascript/homepage-ui/homepage_iaoffer.8a866c1ac4c7dbe4a545.js",
+        "url": "https://www.wellsfargo.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.wellsfargo.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 320,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 320
       },
       {
         "id": 4,
-        "url": "https://www.wellsfargo.com/ui/javascript/homepage-ui/app_preload.12627343b5c8b29d2a69.js",
+        "url": "https://www.wellsfargo.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.wellsfargo.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 322,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 322
       },
       {
         "id": 5,
-        "url": "https://www.wellsfargo.com/ui/css/homepage-ui/ps-homepage.fa7865a70015de76db8d.css",
+        "url": "https://www.wellsfargo.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.wellsfargo.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 322,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 322
       },
       {
         "id": 6,
-        "url": "https://www17.wellsfargomedia.com/assets/images/rwd/wf_logo_220x23.png",
+        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www17.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 323,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 323
       },
       {
         "id": 7,
-        "url": "https://www17.wellsfargomedia.com/assets/images/contextual/responsive/hpprimary/wfi_ph_hppb_8329906_v3_1700x700.jpg",
+        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www17.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 323,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 323
       },
       {
         "id": 8,
-        "url": "https://www17.wellsfargomedia.com/assets/images/contextual/responsive/smlprimary/wfi000_ic_b-wf_icon_house_gradient_default_64x64.png",
+        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www17.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 323,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 323
       },
       {
         "id": 9,
-        "url": "https://www.wellsfargo.com/xapi/product-service-research/content-provider/v2/exo/decision",
+        "url": "https://www.wellsfargo.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.wellsfargo.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 405,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 405
       },
       {
         "id": 10,
-        "url": "https://www.wellsfargo.com/target/offers/conversations",
+        "url": "https://www.wellsfargo.com/{seg}/{seg}/{seg}",
         "domain": "www.wellsfargo.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 407,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 407
       },
       {
         "id": 11,
-        "url": "https://www17.wellsfargomedia.com/assets/images/contextual/responsive/smlprimary/wf_ic_check-mark_con-gra_hpps_64x64.png",
+        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www17.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 411,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 411
       },
       {
         "id": 12,
-        "url": "https://www17.wellsfargomedia.com/assets/images/contextual/responsive/smlprimary/wfi000_ic_b-wf_icon_ui_card_gradient_default_64x64.png",
+        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www17.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 412,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 412
       },
       {
         "id": 13,
-        "url": "https://www.wellsfargo.com/ui/javascript/homepage-ui/ps-homepage.d91072ae97ba4d17e9f1.js",
+        "url": "https://www.wellsfargo.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.wellsfargo.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 432,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 432
       },
       {
         "id": 14,
-        "url": "https://static.wellsfargo.com/assets/js/wfui/container/wfui-container-bottom.js",
+        "url": "https://static.wellsfargo.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.wellsfargo.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 434,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 434
       },
       {
         "id": 15,
-        "url": "https://www.wellsfargo.com/MmJcHZqQENwsIe_HVA/QaimkSLXNDkccw/Y3R7TH0B/FC9R/QT0rIgoC",
+        "url": "https://www.wellsfargo.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.wellsfargo.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 434,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 434
       },
       {
         "id": 16,
-        "url": "https://www17.wellsfargomedia.com/assets/images/rwd/first_time_experience-account_summary.png",
+        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www17.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 435,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 435
       },
       {
         "id": 17,
-        "url": "https://www17.wellsfargomedia.com/assets/images/contextual/responsive/lpromo/wfi000_ph_bc_1600x700.jpg",
+        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www17.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 435,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 435
       },
       {
         "id": 18,
-        "url": "https://www17.wellsfargomedia.com/assets/images/contextual/responsive/smlpromo/wfi_ph_g_2181743355-def-financialgoals_hpsp_616x353.jpg",
+        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www17.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 436,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 436
       },
       {
         "id": 19,
-        "url": "https://www17.wellsfargomedia.com/assets/images/contextual/responsive/smlpromo/wfi_ph_g_2051210591-def-borrowing_hpsp_616x353.jpg",
+        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www17.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 437,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 437
       },
       {
         "id": 20,
-        "url": "https://www17.wellsfargomedia.com/assets/images/contextual/responsive/smlpromo/wfi_ph_hpsp_fsalockup_616x353.jpg",
+        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www17.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 438,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 438
       },
       {
         "id": 21,
-        "url": "https://www17.wellsfargomedia.com/assets/images/rwd/Fargo-Spending-Insights-Wells-Fargo-Mobile-App-2025.png",
+        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www17.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 438,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 438
       },
       {
         "id": 22,
-        "url": "https://www17.wellsfargomedia.com/assets/images/rwd/App_Store_Badge.png",
+        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www17.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 439,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 439
       },
       {
         "id": 23,
-        "url": "https://www17.wellsfargomedia.com/assets/images/rwd/GooglePlay_Badge.png",
+        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www17.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 439,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 439
       },
       {
         "id": 24,
-        "url": "https://www17.wellsfargomedia.com/assets/images/sprite/responsive-sprite-v15.png",
+        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www17.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 467,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 467
       },
       {
         "id": 25,
-        "url": "https://www17.wellsfargomedia.com/assets/fonts/wellsfargosans-rg.woff2",
+        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}",
         "domain": "www17.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 468,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 468
       },
       {
         "id": 26,
-        "url": "https://www17.wellsfargomedia.com/assets/fonts/wellsfargosans-sbd.woff2",
+        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}",
         "domain": "www17.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 468,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 468
       },
       {
         "id": 27,
-        "url": "https://www17.wellsfargomedia.com/assets/fonts/wellsfargosans-bd.woff2",
+        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}",
         "domain": "www17.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 469,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 469
       },
       {
         "id": 28,
-        "url": "https://www17.wellsfargomedia.com/assets/fonts/wellsfargosans-lt.woff2",
+        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}",
         "domain": "www17.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 469,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 469
       },
       {
         "id": 29,
-        "url": "https://c1.wfinterface.com/mt/hp/launch.js",
+        "url": "https://c1.wfinterface.com/{seg}/{seg}/{seg}",
         "domain": "c1.wfinterface.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 564,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 564
       },
       {
         "id": 30,
-        "url": "https://static.wellsfargo.com/assets/js/pcmp/prod/wellsfargo.com/scripttemplates/otSDKStub.js",
+        "url": "https://static.wellsfargo.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.wellsfargo.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 564,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 564
       },
       {
         "id": 31,
-        "url": "https://www.wellsfargo.com/MmJcHZqQENwsIe_HVA/QaimkSLXNDkccw/Y3R7TH0B/FC9R/QT0rIgoC",
+        "url": "https://www.wellsfargo.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.wellsfargo.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 201,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 677,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 677
       },
       {
         "id": 32,
-        "url": "https://static.wellsfargo.com/assets/js/pcmp/prod/wellsfargo.com/consent/ec31ce42-18f4-4288-9419-e97e758f2d39/ec31ce42-18f4-4288-9419-e97e758f2d39.json",
+        "url": "https://static.wellsfargo.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.wellsfargo.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 681,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 681
       },
       {
         "id": 33,
-        "url": "https://www.wellsfargo.com/xapi/product-service-research/public-product-offers/v1/app/initialize",
+        "url": "https://www.wellsfargo.com/{seg}/{seg}/{seg}/{seg}/app/{seg}",
         "domain": "www.wellsfargo.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 685,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 685
       },
       {
         "id": 34,
-        "url": "https://connect.secure.wellsfargo.com/auth/static/depm/depm_wrapper.js",
+        "url": "https://connect.secure.wellsfargo.com/{seg}/static/{seg}/{seg}",
         "domain": "connect.secure.wellsfargo.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 687,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 687
       },
       {
         "id": 35,
-        "url": "https://www.wellsfargo.com/as/jsLog",
+        "url": "https://www.wellsfargo.com/{seg}/{seg}",
         "domain": "www.wellsfargo.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 688,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 688
       },
       {
         "id": 36,
-        "url": "https://www.wellsfargo.com/as/jsLog",
+        "url": "https://www.wellsfargo.com/{seg}/{seg}",
         "domain": "www.wellsfargo.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 765,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 765
       },
       {
         "id": 37,
-        "url": "https://geolocation.onetrust.com/cookieconsentpub/v1/geo/location",
+        "url": "https://geolocation.onetrust.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "geolocation.onetrust.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 810,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 810
       },
       {
         "id": 38,
-        "url": "https://connect.secure.wellsfargo.com/auth/static/depm/8556c7b1.js",
+        "url": "https://connect.secure.wellsfargo.com/{seg}/static/{seg}/{seg}",
         "domain": "connect.secure.wellsfargo.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 826,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 826
       },
       {
         "id": 39,
-        "url": "https://edge.adobedc.net/ee/v2/interact?dataStreamId=",
+        "url": "https://edge.adobedc.net/{seg}/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "edge.adobedc.net",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 844,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 844
       },
       {
         "id": 40,
-        "url": "https://www.wellsfargo.com/as/jsLog",
+        "url": "https://www.wellsfargo.com/{seg}/{seg}",
         "domain": "www.wellsfargo.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 844,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 844
       },
       {
         "id": 41,
-        "url": "https://www17.wellsfargomedia.com/mkt/marketing/digital-containers/images/target/1700x700/4a_hppb_marquee_banner_1700x700.jpg?impolicy=",
+        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "www17.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 844,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 844
       },
       {
         "id": 42,
-        "url": "https://www17.wellsfargomedia.com/assets/images/contextual/responsive/smlpromo/wfi_ph_g_1614430716-savings_hpsp_616x353.jpg",
+        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www17.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 845,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 845
       },
       {
         "id": 43,
-        "url": "https://www17.wellsfargomedia.com/mkt/marketing/digital-containers/images/616x353/wfi_ph_g_1263166552-protecting_hpsp_616x353.jpg",
+        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www17.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 846,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 846
       },
       {
         "id": 44,
-        "url": "https://www17.wellsfargomedia.com/mkt/marketing/digital-containers/images/616x353/wfi_ph_g_1472303553-lifesync_hpsp_616x353.jpg",
+        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www17.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 846,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 846
       },
       {
         "id": 45,
-        "url": "https://www17.wellsfargomedia.com/mkt-cloud/marketing/digital-containers/images/64x64/wfi000_ic_b_graduation-hat_color-gradient_64x64.png",
+        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www17.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 847,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 847
       },
       {
         "id": 46,
-        "url": "https://www17.wellsfargomedia.com/mkt/marketing/digital-containers/images/64x64/creditcard_color_gradient_64x64x.png",
+        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www17.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 847,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 847
       },
       {
         "id": 47,
-        "url": "https://www17.wellsfargomedia.com/mkt/marketing/digital-containers/images/64x64/wfi000_ic_b-wf_icon_ui_card_gradient_64x64.png",
+        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www17.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 848,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 848
       },
       {
         "id": 48,
-        "url": "https://www17.wellsfargomedia.com/assets/images/homepage/card_background-gradient-375x2172.png",
+        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www17.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 852,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 852
       },
       {
         "id": 49,
-        "url": "https://static.wellsfargo.com/assets/js/pcmp/prod/wellsfargo.com/scripttemplates/202507.1.0/otBannerSdk.js",
+        "url": "https://static.wellsfargo.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.wellsfargo.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 853,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 853
       },
       {
         "id": 50,
-        "url": "https://static.wellsfargo.com/assets/js/pcmp/prod/wellsfargo.com/consent/ec31ce42-18f4-4288-9419-e97e758f2d39/01988685-59ac-7e3f-8651-a92ac4822fe9/en.json",
+        "url": "https://static.wellsfargo.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.wellsfargo.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 921,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 921
       },
       {
         "id": 51,
-        "url": "https://connect.secure.wellsfargo.com/auth/static/prefs/login-userprefs.min.js",
+        "url": "https://connect.secure.wellsfargo.com/{seg}/static/{seg}/{seg}",
         "domain": "connect.secure.wellsfargo.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 937,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 937
       },
       {
         "id": 52,
-        "url": "https://connect.secure.wellsfargo.com/auth/static/prefs/atadun.js",
+        "url": "https://connect.secure.wellsfargo.com/{seg}/static/{seg}/{seg}",
         "domain": "connect.secure.wellsfargo.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1040,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1040
       },
       {
         "id": 53,
-        "url": "https://okra.wf.com/iframe/9B8ED233-984B-4DE5-A7B6-3A370D9FF48B/lightbox.html?mkt=",
+        "url": "https://okra.wf.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "okra.wf.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1044,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1044
       },
       {
         "id": 54,
-        "url": "https://okra.wf.com/params/sri/9B8ED233-984B-4DE5-A7B6-3A370D9FF48B",
+        "url": "https://okra.wf.com/{seg}/{seg}/{seg}",
         "domain": "okra.wf.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1091,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1091
       },
       {
         "id": 55,
-        "url": "https://okra.wf.com/v2/9B8ED233-984B-4DE5-A7B6-3A370D9FF48B/api.js",
+        "url": "https://okra.wf.com/{seg}/{seg}/{seg}",
         "domain": "okra.wf.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1293,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1293
       },
       {
         "id": 56,
-        "url": "https://connect.secure.wellsfargo.com/accounts/static/7M/accounts/short/accounts-cache.js",
+        "url": "https://connect.secure.wellsfargo.com/{seg}/static/{seg}/{seg}/{seg}/{seg}",
         "domain": "connect.secure.wellsfargo.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1301,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1301
       },
       {
         "id": 57,
-        "url": "https://www17.wellsfargomedia.com/assets/images/rwd/volunteers_cars_616x353.jpg",
+        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www17.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1323,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1323
       },
       {
         "id": 58,
-        "url": "https://www17.wellsfargomedia.com/assets/images/rwd/women-in-greenhouse_616x353.png",
+        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www17.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1324,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1324
       },
       {
         "id": 59,
-        "url": "https://static.wellsfargo.com/assets/js/pcmp/prod/wellsfargo.com/scripttemplates/202507.1.0/assets/otFlat.json",
+        "url": "https://static.wellsfargo.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.wellsfargo.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1347,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1347
       },
       {
         "id": 60,
-        "url": "https://static.wellsfargo.com/assets/js/pcmp/prod/wellsfargo.com/scripttemplates/202507.1.0/assets/v2/otPcCenter.json",
+        "url": "https://static.wellsfargo.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.wellsfargo.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1348,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1348
       },
       {
         "id": 61,
-        "url": "https://static.wellsfargo.com/assets/js/pcmp/prod/wellsfargo.com/scripttemplates/202507.1.0/assets/otCommonStyles.css",
+        "url": "https://static.wellsfargo.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.wellsfargo.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1349,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1349
       },
       {
         "id": 62,
-        "url": "https://connect.secure.wf.com/tacowup/v3.1/JLRcPycnMV7hU7",
+        "url": "https://connect.secure.wf.com/{seg}/{seg}/{seg}",
         "domain": "connect.secure.wf.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1352,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1352
       },
       {
         "id": 63,
-        "url": "https://okra.wf.com/v2/9B8ED233-984B-4DE5-A7B6-3A370D9FF48B/settings",
+        "url": "https://okra.wf.com/{seg}/{seg}/settings",
         "domain": "okra.wf.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1414,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1414
       },
       {
         "id": 64,
-        "url": "https://connect.secure.wellsfargo.com/accounts/static/7M/accounts/public/js/runtime.72f40c45d61e7f4ab0c7.js",
+        "url": "https://connect.secure.wellsfargo.com/{seg}/static/{seg}/{seg}/{seg}/{seg}",
         "domain": "connect.secure.wellsfargo.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1471,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1471
       },
       {
         "id": 65,
-        "url": "https://connect.secure.wellsfargo.com/accounts/static/7M/accounts/public/js/vendor.aa878227d6dbc54a2684.js",
+        "url": "https://connect.secure.wellsfargo.com/{seg}/static/{seg}/{seg}/{seg}/{seg}",
         "domain": "connect.secure.wellsfargo.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1472,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1472
       },
       {
         "id": 66,
-        "url": "https://connect.secure.wellsfargo.com/accounts/static/7M/accounts/public/js/main.847c6f647be38fe7852b.js",
+        "url": "https://connect.secure.wellsfargo.com/{seg}/static/{seg}/{seg}/{seg}/{seg}",
         "domain": "connect.secure.wellsfargo.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1472,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1472
       },
       {
         "id": 67,
-        "url": "https://connect.secure.wellsfargo.com/accounts/static/7M/accounts/public/js/wfui.45585d45fe6f9b7b2989.js",
+        "url": "https://connect.secure.wellsfargo.com/{seg}/static/{seg}/{seg}/{seg}/{seg}",
         "domain": "connect.secure.wellsfargo.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1473,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1473
       },
       {
         "id": 68,
-        "url": "https://connect.secure.wellsfargo.com/accounts/static/7M/accounts/public/stylesheets/main.63d24707eeef5b54b8d6.css",
+        "url": "https://connect.secure.wellsfargo.com/{seg}/static/{seg}/{seg}/{seg}/{seg}",
         "domain": "connect.secure.wellsfargo.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1474,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1474
       },
       {
         "id": 69,
-        "url": "https://connect.secure.wellsfargo.com/accounts/static/7M/accounts/public/stylesheets/wfui.50698972ee91a83f3627.css",
+        "url": "https://connect.secure.wellsfargo.com/{seg}/static/{seg}/{seg}/{seg}/{seg}",
         "domain": "connect.secure.wellsfargo.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1474,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1474
       },
       {
         "id": 70,
-        "url": "https://static.wellsfargo.com/assets/js/wfui/appdynamics/adrum-ext.js",
+        "url": "https://static.wellsfargo.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.wellsfargo.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1479,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1479
       },
       {
         "id": 71,
-        "url": "https://c1.wfinterface.com/mt/shared/gbx/olb/v6/detector-dom.min.js",
+        "url": "https://c1.wfinterface.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "c1.wfinterface.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1486,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1486
       },
       {
         "id": 72,
-        "url": "https://c1.wfinterface.com/mt/shared/aep/alloy.js",
+        "url": "https://c1.wfinterface.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "c1.wfinterface.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1487,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1487
       },
       {
         "id": 73,
-        "url": "https://connect.secure.wf.com/tacowup/v3.1/XSFUa7cedi45c0Mamn",
+        "url": "https://connect.secure.wf.com/{seg}/{seg}/{seg}",
         "domain": "connect.secure.wf.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1490,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1490
       },
       {
         "id": 74,
-        "url": "https://connect.secure.wellsfargo.com/jenny/nd",
+        "url": "https://connect.secure.wellsfargo.com/{seg}/{seg}",
         "domain": "connect.secure.wellsfargo.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1493,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1493
       },
       {
         "id": 75,
-        "url": "https://connect.secure.wf.com/tacowup/v3.1/dWgB37PDl5uWB5Qa",
+        "url": "https://connect.secure.wf.com/{seg}/{seg}/{seg}",
         "domain": "connect.secure.wf.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1609,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1609
       },
       {
         "id": 76,
-        "url": "https://connect.secure.wf.com/tacowup/v3.1/LpXKzTr0ZLLLooVxE",
+        "url": "https://connect.secure.wf.com/{seg}/{seg}/{seg}",
         "domain": "connect.secure.wf.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1704,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1704
       },
       {
         "id": 77,
-        "url": "https://www.wellsfargo.com/as/jsLog",
+        "url": "https://www.wellsfargo.com/{seg}/{seg}",
         "domain": "www.wellsfargo.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1820,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1820
       },
       {
         "id": 78,
-        "url": "https://connect.secure.wf.com/tacowup/v3.1/qoV9QOAkSasEt",
+        "url": "https://connect.secure.wf.com/{seg}/{seg}/{seg}",
         "domain": "connect.secure.wf.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1840,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1840
       },
       {
         "id": 79,
-        "url": "https://static.wellsfargo.com/assets/js/wfui/appdynamics/adrum-ext.b4436be974de477658d4a93afb752165.js",
+        "url": "https://static.wellsfargo.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.wellsfargo.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1956,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1956
       },
       {
         "id": 80,
-        "url": "https://www.wellsfargo.com/MmJcHZqQENwsIe_HVA/QaimkSLXNDkccw/Y3R7TH0B/FC9R/QT0rIgoC",
+        "url": "https://www.wellsfargo.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.wellsfargo.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 201,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1968,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1968
       },
       {
         "id": 81,
-        "url": "https://static.wellsfargo.com/assets/js/pcmp/prod/wellsfargo.com/consent/ec31ce42-18f4-4288-9419-e97e758f2d39/01988685-59ac-7e3f-8651-a92ac4822fe9/logos/static/ot_guard_logo.svg",
+        "url": "https://static.wellsfargo.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.wellsfargo.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1980,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1980
       },
       {
         "id": 82,
-        "url": "https://static.wellsfargo.com/assets/js/pcmp/prod/wellsfargo.com/consent/ec31ce42-18f4-4288-9419-e97e758f2d39/01988685-59ac-7e3f-8651-a92ac4822fe9/logos/1b74778f-ed65-4e19-a2c4-8004202c5cdc/01987b71-446e-7a64-aa67-5d9e56da6410/54c9288e-ddd9-4d22-88f3-c9edcb7158ec/WF-Logo-188x50-noleftlarger-x1.png",
+        "url": "https://static.wellsfargo.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.wellsfargo.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1995,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1995
       },
       {
         "id": 83,
-        "url": "https://static.wellsfargo.com/assets/js/pcmp/prod/wellsfargo.com/consent/ec31ce42-18f4-4288-9419-e97e758f2d39/01988685-59ac-7e3f-8651-a92ac4822fe9/logos/static/powered_by_logo.svg",
+        "url": "https://static.wellsfargo.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.wellsfargo.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1996,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1996
       },
       {
         "id": 84,
-        "url": "https://www.wellsfargo.com/assets/images/global/s.gif",
+        "url": "https://www.wellsfargo.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.wellsfargo.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2036,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2036
       },
       {
         "id": 85,
-        "url": "https://www.wellsfargo.com/MmJcHZqQENwsIe_HVA/QaimkSLXNDkccw/Y3R7TH0B/FC9R/QT0rIgoC",
+        "url": "https://www.wellsfargo.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.wellsfargo.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 201,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2050,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2050
       },
       {
         "id": 86,
-        "url": "https://www.wellsfargo.com/assets/images/global/s.gif",
+        "url": "https://www.wellsfargo.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.wellsfargo.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2074,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2074
       },
       {
         "id": 87,
-        "url": "https://www.wellsfargo.com/assets/images/global/s.gif",
+        "url": "https://www.wellsfargo.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.wellsfargo.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2075,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2075
       },
       {
         "id": 88,
-        "url": "https://www.wellsfargo.com/assets/images/global/s.gif",
+        "url": "https://www.wellsfargo.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.wellsfargo.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2075,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2075
       },
       {
         "id": 89,
-        "url": "https://www.wellsfargo.com/assets/images/global/s.gif",
+        "url": "https://www.wellsfargo.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.wellsfargo.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2075,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2075
       },
       {
         "id": 90,
-        "url": "https://www.wellsfargo.com/assets/images/global/s.gif",
+        "url": "https://www.wellsfargo.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.wellsfargo.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2076,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2076
       },
       {
         "id": 91,
-        "url": "https://www.wellsfargo.com/assets/images/global/s.gif",
+        "url": "https://www.wellsfargo.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.wellsfargo.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2076,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2076
       },
       {
         "id": 92,
-        "url": "https://www.wellsfargo.com/assets/images/global/s.gif",
+        "url": "https://www.wellsfargo.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.wellsfargo.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2076,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2076
       },
       {
         "id": 93,
-        "url": "https://www.wellsfargo.com/assets/images/global/s.gif",
+        "url": "https://www.wellsfargo.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.wellsfargo.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2077,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2077
       },
       {
         "id": 94,
-        "url": "https://www.wellsfargo.com/assets/images/global/s.gif",
+        "url": "https://www.wellsfargo.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.wellsfargo.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2077,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2077
       },
       {
         "id": 95,
-        "url": "https://www.wellsfargo.com/assets/images/global/s.gif",
+        "url": "https://www.wellsfargo.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.wellsfargo.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2077,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2077
       },
       {
         "id": 96,
-        "url": "https://www.wellsfargo.com/assets/images/global/s.gif",
+        "url": "https://www.wellsfargo.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.wellsfargo.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2078,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2078
       },
       {
         "id": 97,
-        "url": "https://www.wellsfargo.com/assets/images/global/s.gif",
+        "url": "https://www.wellsfargo.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.wellsfargo.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2080,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2080
       },
       {
         "id": 98,
-        "url": "https://okra.wf.com/fc/gt2/public_key/9B8ED233-984B-4DE5-A7B6-3A370D9FF48B",
+        "url": "https://okra.wf.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "okra.wf.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 2081,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2081
       },
       {
         "id": 99,
-        "url": "https://www.wellsfargo.com/xapi/product-service-research/public-product-offers/v1/offer/useraction",
+        "url": "https://www.wellsfargo.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.wellsfargo.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 204,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2088,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2088
       },
       {
         "id": 100,
-        "url": "https://www.wellsfargo.com/xapi/product-service-research/public-product-offers/v1/offer/useraction",
+        "url": "https://www.wellsfargo.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.wellsfargo.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 204,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2089,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2089
       },
       {
         "id": 101,
-        "url": "https://www.wellsfargo.com/xapi/product-service-research/public-product-offers/v1/offer/useraction",
+        "url": "https://www.wellsfargo.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.wellsfargo.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 204,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2091,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2091
       },
       {
         "id": 102,
-        "url": "https://www.wellsfargo.com/xapi/product-service-research/public-product-offers/v1/offer/useraction",
+        "url": "https://www.wellsfargo.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.wellsfargo.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 204,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2091,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2091
       },
       {
         "id": 103,
-        "url": "https://adobedc.demdex.net/ee/v1/privacy/set-consent?configId=&requestId=",
+        "url": "https://adobedc.demdex.net/{seg}/{seg}/privacy/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "adobedc.demdex.net",
         "method": "POST",
         "resourceType": "fetch",
@@ -1305,132 +1305,132 @@
           "category": "analytics / advertising",
           "confidence": "curated"
         },
-        "startedAtMs": 2104,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2104
       },
       {
         "id": 104,
-        "url": "https://gbxreport-prod.wf.com/glassbox/reporting/0C458F45-AC71-02CE-34D8-401C8A313B38/cls_report?_cls_s=&_cls_v=&pv=&f_cls_s=",
+        "url": "https://gbxreport-prod.wf.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "gbxreport-prod.wf.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 2165,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2165
       },
       {
         "id": 105,
-        "url": "https://www.wellsfargo.com/as/jsLog",
+        "url": "https://www.wellsfargo.com/{seg}/{seg}",
         "domain": "www.wellsfargo.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2185,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2185
       },
       {
         "id": 106,
-        "url": "https://www.wellsfargo.com/MmJcHZqQENwsIe_HVA/QaimkSLXNDkccw/Y3R7TH0B/FC9R/QT0rIgoC",
+        "url": "https://www.wellsfargo.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.wellsfargo.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 201,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2197,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2197
       },
       {
         "id": 107,
-        "url": "https://www.wellsfargo.com/as/jsLog",
+        "url": "https://www.wellsfargo.com/{seg}/{seg}",
         "domain": "www.wellsfargo.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2202,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2202
       },
       {
         "id": 108,
-        "url": "https://www.wellsfargo.com/as/jsLog",
+        "url": "https://www.wellsfargo.com/{seg}/{seg}",
         "domain": "www.wellsfargo.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2223,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2223
       },
       {
         "id": 109,
-        "url": "https://okra.wf.com/fc/a/?callback=&category=&action=&session_token=&data%5Bpublic_key%5D=&data%5Bsite%5D=",
+        "url": "https://okra.wf.com/{seg}/{seg}?callback=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "okra.wf.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 2263,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2263
       },
       {
         "id": 110,
-        "url": "https://okra.wf.com/v2/9B8ED233-984B-4DE5-A7B6-3A370D9FF48B/settings",
+        "url": "https://okra.wf.com/{seg}/{seg}/settings",
         "domain": "okra.wf.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 2263,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2263
       },
       {
         "id": 111,
-        "url": "https://cm.everesttech.net/cm/dd?d_uuid=",
+        "url": "https://cm.everesttech.net/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "cm.everesttech.net",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 2303,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2303
       },
       {
         "id": 112,
-        "url": "https://ort.wellsfargo.com/securereporting/reporting/v1/csp",
+        "url": "https://ort.wellsfargo.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "ort.wellsfargo.com",
         "method": "POST",
         "resourceType": "other",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2305,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2305
       },
       {
         "id": 113,
-        "url": "https://aa.agkn.com/adscores/g.pixel?sid=&aam=",
+        "url": "https://aa.agkn.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "aa.agkn.com",
         "method": "GET",
         "resourceType": "image",
         "status": null,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 2305,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2305
       },
       {
         "id": 114,
-        "url": "https://idsync.rlcdn.com/365868.gif?partner_uid=",
+        "url": "https://idsync.rlcdn.com/{seg}?%5Bredacted%5D=",
         "domain": "idsync.rlcdn.com",
         "method": "GET",
         "resourceType": "image",
@@ -1442,12 +1442,12 @@
           "category": "identity / advertising",
           "confidence": "curated"
         },
-        "startedAtMs": 2307,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2307
       },
       {
         "id": 115,
-        "url": "https://cm.g.doubleclick.net/pixel?google_nid=&google_cm=&gdpr=&gdpr_consent=&google_hm=",
+        "url": "https://cm.g.doubleclick.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "cm.g.doubleclick.net",
         "method": "GET",
         "resourceType": "image",
@@ -1459,24 +1459,24 @@
           "category": "advertising",
           "confidence": "curated"
         },
-        "startedAtMs": 2307,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2307
       },
       {
         "id": 116,
-        "url": "https://ort.wellsfargo.com/securereporting/reporting/v1/csp",
+        "url": "https://ort.wellsfargo.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "ort.wellsfargo.com",
         "method": "POST",
         "resourceType": "other",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2308,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2308
       },
       {
         "id": 117,
-        "url": "https://c.bing.com/c.gif?uid=&Red3=&gdpr=&gdpr_consent=",
+        "url": "https://c.bing.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "c.bing.com",
         "method": "GET",
         "resourceType": "image",
@@ -1488,24 +1488,24 @@
           "category": "advertising / analytics",
           "confidence": "curated"
         },
-        "startedAtMs": 2308,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2308
       },
       {
         "id": 118,
-        "url": "https://cms.analytics.yahoo.com/cms?partner_id=&_hosted_id=&gdpr=&gdpr_consent=",
+        "url": "https://cms.analytics.yahoo.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "cms.analytics.yahoo.com",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 2308,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2308
       },
       {
         "id": 119,
-        "url": "https://trc.taboola.com/sg/adobe/1/cm?gdpr=&gdpr_consent=",
+        "url": "https://trc.taboola.com/{seg}/{seg}/{n}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "trc.taboola.com",
         "method": "GET",
         "resourceType": "image",
@@ -1517,12 +1517,12 @@
           "category": "advertising / recommendations",
           "confidence": "curated"
         },
-        "startedAtMs": 2308,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2308
       },
       {
         "id": 120,
-        "url": "https://s.amazon-adsystem.com/dcm?pid=",
+        "url": "https://s.amazon-adsystem.com/{seg}?%5Bredacted%5D=",
         "domain": "s.amazon-adsystem.com",
         "method": "GET",
         "resourceType": "image",
@@ -1534,36 +1534,36 @@
           "category": "advertising",
           "confidence": "curated"
         },
-        "startedAtMs": 2308,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2308
       },
       {
         "id": 121,
-        "url": "https://www.wellsfargo.com/as/jsLog",
+        "url": "https://www.wellsfargo.com/{seg}/{seg}",
         "domain": "www.wellsfargo.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2322,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2322
       },
       {
         "id": 122,
-        "url": "https://ups.analytics.yahoo.com/ups/58782/cms?partner_id=&_hosted_id=&gdpr=&gdpr_consent=",
+        "url": "https://ups.analytics.yahoo.com/{seg}/{n}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "ups.analytics.yahoo.com",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 2349,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2349
       },
       {
         "id": 123,
-        "url": "https://cm.g.doubleclick.net/pixel?google_nid=&google_cm=&gdpr=&gdpr_consent=&google_hm=&google_tc=",
+        "url": "https://cm.g.doubleclick.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "cm.g.doubleclick.net",
         "method": "GET",
         "resourceType": "image",
@@ -1575,12 +1575,12 @@
           "category": "advertising",
           "confidence": "curated"
         },
-        "startedAtMs": 2401,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2401
       },
       {
         "id": 124,
-        "url": "https://dpm.demdex.net/ibs:dpid=411&dpuuid=aj2MEwAAAJ-iywOF",
+        "url": "https://dpm.demdex.net/{seg}",
         "domain": "dpm.demdex.net",
         "method": "GET",
         "resourceType": "image",
@@ -1592,12 +1592,12 @@
           "category": "analytics / advertising",
           "confidence": "curated"
         },
-        "startedAtMs": 2417,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2417
       },
       {
         "id": 125,
-        "url": "https://dpm.demdex.net/ibs:dpid=771&dpuuid=&google_error=15?gdpr=&gdpr_consent=",
+        "url": "https://dpm.demdex.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "dpm.demdex.net",
         "method": "GET",
         "resourceType": "image",
@@ -1609,36 +1609,36 @@
           "category": "analytics / advertising",
           "confidence": "curated"
         },
-        "startedAtMs": 2426,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2426
       },
       {
         "id": 126,
-        "url": "https://connect.secure.wf.com/tacowup/v3.1/GE1QOe9UARGn1",
+        "url": "https://connect.secure.wf.com/{seg}/{seg}/{seg}",
         "domain": "connect.secure.wf.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 2493,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2493
       },
       {
         "id": 127,
-        "url": "https://ups.analytics.yahoo.com/ups/58782/cms?partner_id=&_hosted_id=&gdpr=&gdpr_consent=&uid=&verify=",
+        "url": "https://ups.analytics.yahoo.com/{seg}/{n}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "ups.analytics.yahoo.com",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 2503,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2503
       },
       {
         "id": 128,
-        "url": "https://dpm.demdex.net/ibs:dpid=30646?dpuuid=",
+        "url": "https://dpm.demdex.net/{seg}?%5Bredacted%5D=",
         "domain": "dpm.demdex.net",
         "method": "GET",
         "resourceType": "image",
@@ -1650,12 +1650,12 @@
           "category": "analytics / advertising",
           "confidence": "curated"
         },
-        "startedAtMs": 2534,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2534
       },
       {
         "id": 129,
-        "url": "https://s.amazon-adsystem.com/dcm?pid=&dcc=",
+        "url": "https://s.amazon-adsystem.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "s.amazon-adsystem.com",
         "method": "GET",
         "resourceType": "image",
@@ -1667,12 +1667,12 @@
           "category": "advertising",
           "confidence": "curated"
         },
-        "startedAtMs": 2644,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2644
       },
       {
         "id": 130,
-        "url": "https://dpm.demdex.net/ibs:dpid=139200&dpuuid=aNLsjDzLRtSgHOLuSdesnQ&redir=https%3A%2F%2Fs.amazon-adsystem.com%2Fecm3%3Fex%3Dadobe.com%26id%3D%24%7BDD_UUID%7D",
+        "url": "https://dpm.demdex.net/{seg}",
         "domain": "dpm.demdex.net",
         "method": "GET",
         "resourceType": "image",
@@ -1684,12 +1684,12 @@
           "category": "analytics / advertising",
           "confidence": "curated"
         },
-        "startedAtMs": 2756,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2756
       },
       {
         "id": 131,
-        "url": "https://s.amazon-adsystem.com/ecm3?ex=&id=",
+        "url": "https://s.amazon-adsystem.com/{seg}?%5Bredacted%5D=&id=",
         "domain": "s.amazon-adsystem.com",
         "method": "GET",
         "resourceType": "image",
@@ -1701,140 +1701,140 @@
           "category": "advertising",
           "confidence": "curated"
         },
-        "startedAtMs": 2781,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2781
       },
       {
         "id": 132,
-        "url": "https://edge.adobedc.net/ee/or2/v1/privacy/set-consent?configId=&requestId=",
+        "url": "https://edge.adobedc.net/{seg}/{seg}/{seg}/privacy/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "edge.adobedc.net",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 2862,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2862
       },
       {
         "id": 133,
-        "url": "https://edge.adobedc.net/ee/or2/v1/interact?configId=&requestId=",
+        "url": "https://edge.adobedc.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "edge.adobedc.net",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 2898,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2898
       },
       {
         "id": 134,
-        "url": "https://edge.adobedc.net/ee/or2/v1/interact?configId=&requestId=",
+        "url": "https://edge.adobedc.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "edge.adobedc.net",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 2899,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2899
       },
       {
         "id": 135,
-        "url": "https://pdx-col.eum-appdynamics.com/eumcollector/beacons/browser/v1/AD-AAB-ABJ-PZF/adrum",
+        "url": "https://pdx-col.eum-appdynamics.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "pdx-col.eum-appdynamics.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 3033,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 3033
       },
       {
         "id": 136,
-        "url": "https://connect.secure.wf.com/tacowup/v3.1/cNfEHhAWMugoAeS",
+        "url": "https://connect.secure.wf.com/{seg}/{seg}/{seg}",
         "domain": "connect.secure.wf.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 3487,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 3487
       },
       {
         "id": 137,
-        "url": "https://connect.secure.wf.com/tacolog/api/v1/sendLogs",
+        "url": "https://connect.secure.wf.com/{seg}/api/{seg}/{seg}",
         "domain": "connect.secure.wf.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 3989,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 3989
       },
       {
         "id": 138,
-        "url": "https://connect.secure.wellsfargo.com/ATADUN/2.2/w/w-642409/init/js/",
+        "url": "https://connect.secure.wellsfargo.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "connect.secure.wellsfargo.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 8833,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 8833
       },
       {
         "id": 139,
-        "url": "https://connect.secure.wf.com/tacowup/v3.1/vVD4PCOMy65",
+        "url": "https://connect.secure.wf.com/{seg}/{seg}/{seg}",
         "domain": "connect.secure.wf.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 9489,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 9489
       },
       {
         "id": 140,
-        "url": "https://connect.secure.wf.com/tacowup/v3.1/vbHXejv8gmqFi",
+        "url": "https://connect.secure.wf.com/{seg}/{seg}/{seg}",
         "domain": "connect.secure.wf.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 10487,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 10487
       },
       {
         "id": 141,
-        "url": "https://connect.secure.wf.com/tacowup/v3.1/pEqGmSRDESD9N3ZX",
+        "url": "https://connect.secure.wf.com/{seg}/{seg}/{seg}",
         "domain": "connect.secure.wf.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": null,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 11464,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 11464
       },
       {
         "id": 142,
-        "url": "https://privacyportal.onetrust.com/request/v1/consentreceipts/anonymous",
+        "url": "https://privacyportal.onetrust.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "privacyportal.onetrust.com",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 11507,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 11507
       }
     ],
     "domains": [
@@ -2198,7 +2198,7 @@
     ],
     "cookies": [
       {
-        "name": "ad-id",
+        "name": "[redacted]",
         "domain": ".amazon-adsystem.com",
         "path": "/",
         "sameSite": "None",
@@ -2208,7 +2208,7 @@
         "thirdParty": true
       },
       {
-        "name": "ad-privacy",
+        "name": "[redacted]",
         "domain": ".amazon-adsystem.com",
         "path": "/",
         "sameSite": "None",
@@ -2218,7 +2218,7 @@
         "thirdParty": true
       },
       {
-        "name": "IDSYNC",
+        "name": "[redacted]",
         "domain": ".analytics.yahoo.com",
         "path": "/",
         "sameSite": "None",
@@ -2228,7 +2228,7 @@
         "thirdParty": true
       },
       {
-        "name": "demdex",
+        "name": "[redacted]",
         "domain": ".demdex.net",
         "path": "/",
         "sameSite": "None",
@@ -2248,7 +2248,7 @@
         "thirdParty": true
       },
       {
-        "name": "dpm",
+        "name": "[redacted]",
         "domain": ".dpm.demdex.net",
         "path": "/",
         "sameSite": "None",
@@ -2258,7 +2258,7 @@
         "thirdParty": true
       },
       {
-        "name": "A3",
+        "name": "[redacted]",
         "domain": ".yahoo.com",
         "path": "/",
         "sameSite": "None",
@@ -2268,9 +2268,9 @@
         "thirdParty": true
       },
       {
-        "name": "_cls_cfgver",
+        "name": "[redacted]",
         "domain": "gbxreport-prod.wf.com",
-        "path": "/glassbox/reporting/0C458F45-AC71-02CE-34D8-401C8A313B38",
+        "path": "/{seg}/{seg}/{seg}",
         "sameSite": "None",
         "secure": true,
         "httpOnly": true,
@@ -2278,9 +2278,9 @@
         "thirdParty": true
       },
       {
-        "name": "_cls_v",
+        "name": "[redacted]",
         "domain": "gbxreport-prod.wf.com",
-        "path": "/glassbox/reporting/0C458F45-AC71-02CE-34D8-401C8A313B38",
+        "path": "/{seg}/{seg}/{seg}",
         "sameSite": "None",
         "secure": true,
         "httpOnly": true,
@@ -2288,9 +2288,9 @@
         "thirdParty": true
       },
       {
-        "name": "_cls_s",
+        "name": "[redacted]",
         "domain": "gbxreport-prod.wf.com",
-        "path": "/glassbox/reporting/0C458F45-AC71-02CE-34D8-401C8A313B38",
+        "path": "/{seg}/{seg}/{seg}",
         "sameSite": "None",
         "secure": true,
         "httpOnly": true,
@@ -2298,9 +2298,9 @@
         "thirdParty": true
       },
       {
-        "name": "rto",
+        "name": "[redacted]",
         "domain": "gbxreport-prod.wf.com",
-        "path": "/glassbox/reporting/0C458F45-AC71-02CE-34D8-401C8A313B38",
+        "path": "/{seg}/{seg}/{seg}",
         "sameSite": "None",
         "secure": true,
         "httpOnly": true,
@@ -2308,7 +2308,7 @@
         "thirdParty": true
       },
       {
-        "name": "AWSALBTGCORS",
+        "name": "[redacted]",
         "domain": "gbxreport-prod.wf.com",
         "path": "/",
         "sameSite": "None",
@@ -2318,7 +2318,7 @@
         "thirdParty": true
       },
       {
-        "name": "ISD_AB_COOKIE",
+        "name": "[redacted]",
         "domain": ".connect.secure.wellsfargo.com",
         "path": "/",
         "sameSite": "Lax",
@@ -2328,7 +2328,7 @@
         "thirdParty": false
       },
       {
-        "name": "DCID",
+        "name": "[redacted]",
         "domain": ".connect.secure.wellsfargo.com",
         "path": "/",
         "sameSite": "Lax",
@@ -2338,7 +2338,7 @@
         "thirdParty": false
       },
       {
-        "name": "DCID",
+        "name": "[redacted]",
         "domain": ".static.wellsfargo.com",
         "path": "/",
         "sameSite": "Lax",
@@ -2348,7 +2348,7 @@
         "thirdParty": false
       },
       {
-        "name": "CookiesAreEnabled",
+        "name": "[redacted]",
         "domain": ".wellsfargo.com",
         "path": "/",
         "sameSite": "Lax",
@@ -2358,7 +2358,7 @@
         "thirdParty": false
       },
       {
-        "name": "INLANG",
+        "name": "[redacted]",
         "domain": ".wellsfargo.com",
         "path": "/",
         "sameSite": "Lax",
@@ -2368,7 +2368,7 @@
         "thirdParty": false
       },
       {
-        "name": "wfacookie",
+        "name": "[redacted]",
         "domain": ".wellsfargo.com",
         "path": "/",
         "sameSite": "Lax",
@@ -2378,7 +2378,7 @@
         "thirdParty": false
       },
       {
-        "name": "bm_sz",
+        "name": "[redacted]",
         "domain": ".wellsfargo.com",
         "path": "/",
         "sameSite": "Lax",
@@ -2388,7 +2388,7 @@
         "thirdParty": false
       },
       {
-        "name": "bmuid",
+        "name": "[redacted]",
         "domain": ".wellsfargo.com",
         "path": "/",
         "sameSite": "None",
@@ -2398,7 +2398,7 @@
         "thirdParty": false
       },
       {
-        "name": "cdContextId",
+        "name": "[redacted]",
         "domain": ".wellsfargo.com",
         "path": "/",
         "sameSite": "None",
@@ -2408,7 +2408,7 @@
         "thirdParty": false
       },
       {
-        "name": "cdSNum",
+        "name": "[redacted]",
         "domain": ".wellsfargo.com",
         "path": "/",
         "sameSite": "None",
@@ -2418,7 +2418,7 @@
         "thirdParty": false
       },
       {
-        "name": "ndsid",
+        "name": "[redacted]",
         "domain": ".wellsfargo.com",
         "path": "/",
         "sameSite": "None",
@@ -2438,7 +2438,7 @@
         "thirdParty": false
       },
       {
-        "name": "_cls_v",
+        "name": "[redacted]",
         "domain": ".wellsfargo.com",
         "path": "/",
         "sameSite": "None",
@@ -2448,7 +2448,7 @@
         "thirdParty": false
       },
       {
-        "name": "_cls_s",
+        "name": "[redacted]",
         "domain": ".wellsfargo.com",
         "path": "/",
         "sameSite": "None",
@@ -2458,7 +2458,7 @@
         "thirdParty": false
       },
       {
-        "name": "kndctr_1BAA15F354F731E60A4C98A4_AdobeOrg_identity",
+        "name": "[redacted:long-token]",
         "domain": ".wellsfargo.com",
         "path": "/",
         "sameSite": "None",
@@ -2468,7 +2468,7 @@
         "thirdParty": false
       },
       {
-        "name": "kndctr_1BAA15F354F731E60A4C98A4_AdobeOrg_cluster",
+        "name": "[redacted:long-token]",
         "domain": ".wellsfargo.com",
         "path": "/",
         "sameSite": "None",
@@ -2478,7 +2478,7 @@
         "thirdParty": false
       },
       {
-        "name": "kndctr_1BAA15F354F731E60A4C98A4_AdobeOrg_consent",
+        "name": "[redacted:long-token]",
         "domain": ".wellsfargo.com",
         "path": "/",
         "sameSite": "None",
@@ -2498,7 +2498,7 @@
         "thirdParty": false
       },
       {
-        "name": "rto",
+        "name": "[redacted]",
         "domain": ".wellsfargo.com",
         "path": "/",
         "sameSite": "None",
@@ -2508,7 +2508,7 @@
         "thirdParty": false
       },
       {
-        "name": "wcmcookiehp",
+        "name": "[redacted]",
         "domain": ".www.wellsfargo.com",
         "path": "/",
         "sameSite": "Lax",
@@ -2518,7 +2518,7 @@
         "thirdParty": false
       },
       {
-        "name": "wcmcookiewf",
+        "name": "[redacted]",
         "domain": ".www.wellsfargo.com",
         "path": "/",
         "sameSite": "Lax",
@@ -2528,7 +2528,7 @@
         "thirdParty": false
       },
       {
-        "name": "NGDCID",
+        "name": "[redacted]",
         "domain": ".www.wellsfargo.com",
         "path": "/",
         "sameSite": "Lax",
@@ -2538,7 +2538,7 @@
         "thirdParty": false
       },
       {
-        "name": "DCID",
+        "name": "[redacted]",
         "domain": ".www.wellsfargo.com",
         "path": "/",
         "sameSite": "Lax",
@@ -2548,7 +2548,7 @@
         "thirdParty": false
       },
       {
-        "name": "akacd_m2pr",
+        "name": "[redacted]",
         "domain": "connect.secure.wellsfargo.com",
         "path": "/",
         "sameSite": "None",
@@ -2558,7 +2558,7 @@
         "thirdParty": false
       },
       {
-        "name": "ADRUM_BTa",
+        "name": "[redacted]",
         "domain": "connect.secure.wellsfargo.com",
         "path": "/",
         "sameSite": "Lax",
@@ -2568,7 +2568,7 @@
         "thirdParty": false
       },
       {
-        "name": "ADRUM_BT1",
+        "name": "[redacted]",
         "domain": "connect.secure.wellsfargo.com",
         "path": "/",
         "sameSite": "Lax",
@@ -2578,7 +2578,7 @@
         "thirdParty": false
       },
       {
-        "name": "ISD_WWWAF_COOKIE",
+        "name": "[redacted]",
         "domain": "www.wellsfargo.com",
         "path": "/",
         "sameSite": "Lax",
@@ -2588,7 +2588,7 @@
         "thirdParty": false
       },
       {
-        "name": "akacd_wwwhp",
+        "name": "[redacted]",
         "domain": "www.wellsfargo.com",
         "path": "/",
         "sameSite": "None",
@@ -2598,7 +2598,7 @@
         "thirdParty": false
       },
       {
-        "name": "f1d6754344f6dcf3d3ac5f9d76312dd7",
+        "name": "[redacted:hex-like]",
         "domain": "www.wellsfargo.com",
         "path": "/",
         "sameSite": "Lax",
@@ -2608,7 +2608,7 @@
         "thirdParty": false
       },
       {
-        "name": "acd30c6430a1aa42301b9de9e30c8b14",
+        "name": "[redacted:hex-like]",
         "domain": "www.wellsfargo.com",
         "path": "/",
         "sameSite": "Lax",
@@ -2618,7 +2618,7 @@
         "thirdParty": false
       },
       {
-        "name": "ISD_WCM_COOKIE",
+        "name": "[redacted]",
         "domain": "www.wellsfargo.com",
         "path": "/",
         "sameSite": "Lax",
@@ -2628,7 +2628,7 @@
         "thirdParty": false
       },
       {
-        "name": "dti_bcs",
+        "name": "[redacted]",
         "domain": "www.wellsfargo.com",
         "path": "/",
         "sameSite": "Lax",
@@ -2638,7 +2638,7 @@
         "thirdParty": false
       },
       {
-        "name": "ADRUM_BTa",
+        "name": "[redacted]",
         "domain": "www.wellsfargo.com",
         "path": "/",
         "sameSite": "Lax",
@@ -2648,7 +2648,7 @@
         "thirdParty": false
       },
       {
-        "name": "ADRUM_BT1",
+        "name": "[redacted]",
         "domain": "www.wellsfargo.com",
         "path": "/",
         "sameSite": "Lax",
@@ -2661,73 +2661,103 @@
     "storage": [
       {
         "area": "localStorage",
-        "key": "com.adobe.alloy.1BAA15F354F731E60A4C98A4_AdobeOrg.consentHashes.Adobe.2.0",
+        "key": "[redacted]",
         "valueBytes": 10
       },
       {
         "area": "localStorage",
-        "key": "detectedFonts_2.1.5",
+        "key": "[redacted]",
         "valueBytes": 194
       },
       {
         "area": "localStorage",
-        "key": "cdTabList",
+        "key": "[redacted]",
         "valueBytes": 64
       },
       {
         "area": "localStorage",
-        "key": "cdSrvrState",
+        "key": "[redacted]",
         "valueBytes": 810
       },
       {
         "area": "localStorage",
-        "key": "gb.cors_ready",
+        "key": "[redacted]",
         "valueBytes": 4
       },
       {
         "area": "localStorage",
-        "key": "cdContextId",
+        "key": "[redacted]",
         "valueBytes": 9
       },
       {
         "area": "localStorage",
-        "key": "cdSNum",
+        "key": "[redacted]",
         "valueBytes": 106
       },
       {
         "area": "localStorage",
-        "key": "ADRUM_CLIENTINFO",
+        "key": "[redacted]",
         "valueBytes": 110
       },
       {
         "area": "localStorage",
-        "key": "bmuid",
+        "key": "[redacted]",
         "valueBytes": 60
       },
       {
         "area": "localStorage",
-        "key": "ADRUM_AGENT_INFO",
+        "key": "[redacted]",
         "valueBytes": 61
       },
       {
         "area": "localStorage",
-        "key": "gb.sid",
+        "key": "[redacted]",
         "valueBytes": 38
       },
       {
         "area": "sessionStorage",
-        "key": "cdTabData",
+        "key": "[redacted]",
         "valueBytes": 71
       },
       {
         "area": "sessionStorage",
-        "key": "gb.btabid",
+        "key": "[redacted]",
         "valueBytes": 36
       },
       {
         "area": "sessionStorage",
-        "key": "gb.psn",
+        "key": "[redacted]",
         "valueBytes": 1
+      }
+    ],
+    "fingerprintEvents": [
+      {
+        "api": "canvas.measureText",
+        "count": 68
+      },
+      {
+        "api": "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
+        "count": 6
+      },
+      {
+        "api": "webgl.getParameter.UNMASKED_VENDOR_WEBGL",
+        "count": 6
+      },
+      {
+        "api": "canvas.toDataURL",
+        "count": 3
+      },
+      {
+        "api": "audio.OfflineAudioContext.startRendering",
+        "count": 2
+      },
+      {
+        "api": "webgl2.getParameter.UNMASKED_RENDERER_WEBGL",
+        "count": 1
+      },
+      {
+        "api": "webgl2.getParameter.UNMASKED_VENDOR_WEBGL",
+        "count": 1
       }
     ],
     "fingerprintDetections": [
@@ -2793,9 +2823,9 @@
             "window"
           ],
           "thirdPartyOrigins": [
-            "https://c1.wfinterface.com",
-            "https://connect.secure.wellsfargo.com",
-            "https://static.wellsfargo.com"
+            "https://c1.wfinterface.com/",
+            "https://connect.secure.wellsfargo.com/",
+            "https://static.wellsfargo.com/"
           ],
           "totalListenerCalls": 36
         }
@@ -2830,42 +2860,12 @@
             "window"
           ],
           "thirdPartyOrigins": [
-            "https://c1.wfinterface.com",
-            "https://connect.secure.wellsfargo.com",
-            "https://static.wellsfargo.com"
+            "https://c1.wfinterface.com/",
+            "https://connect.secure.wellsfargo.com/",
+            "https://static.wellsfargo.com/"
           ],
           "totalListenerCalls": 101
         }
-      }
-    ],
-    "fingerprintEvents": [
-      {
-        "api": "canvas.measureText",
-        "count": 68
-      },
-      {
-        "api": "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
-        "count": 6
-      },
-      {
-        "api": "webgl.getParameter.UNMASKED_VENDOR_WEBGL",
-        "count": 6
-      },
-      {
-        "api": "canvas.toDataURL",
-        "count": 3
-      },
-      {
-        "api": "audio.OfflineAudioContext.startRendering",
-        "count": 2
-      },
-      {
-        "api": "webgl2.getParameter.UNMASKED_RENDERER_WEBGL",
-        "count": 1
-      },
-      {
-        "api": "webgl2.getParameter.UNMASKED_VENDOR_WEBGL",
-        "count": 1
       }
     ],
     "screenshot": null,
@@ -2914,6 +2914,13 @@
       "automation": "playwright-chromium",
       "headless": true,
       "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "block-simulation",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-06-19T17:24:24.927Z"
+      },
       "trackerCatalog": {
         "source": "Hand-curated service catalog",
         "version": "hand-curated-2026.06",
@@ -2922,14 +2929,7 @@
         "curatedOverrides": 133,
         "license": "AGPL-3.0-or-later"
       },
-      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
-      "adblock": {
-        "active": true,
-        "source": "Brave default ad-block lists",
-        "lists": 31,
-        "fetchedAt": "2026-06-19T17:24:24.927Z"
-      },
-      "shieldsMode": "block-simulation"
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
     },
     "requests": [
       {
@@ -2941,920 +2941,920 @@
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 36,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 36
       },
       {
         "id": 2,
-        "url": "https://static.wellsfargo.com/assets/js/wfui/appdynamics/appdEUMConfig.js",
+        "url": "https://static.wellsfargo.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.wellsfargo.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 242,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 242
       },
       {
         "id": 3,
-        "url": "https://www.wellsfargo.com/ui/javascript/homepage-ui/homepage_iaoffer.8a866c1ac4c7dbe4a545.js",
+        "url": "https://www.wellsfargo.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.wellsfargo.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 242,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 242
       },
       {
         "id": 4,
-        "url": "https://www.wellsfargo.com/ui/javascript/homepage-ui/app_preload.12627343b5c8b29d2a69.js",
+        "url": "https://www.wellsfargo.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.wellsfargo.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 243,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 243
       },
       {
         "id": 5,
-        "url": "https://www.wellsfargo.com/ui/css/homepage-ui/ps-homepage.fa7865a70015de76db8d.css",
+        "url": "https://www.wellsfargo.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.wellsfargo.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 243,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 243
       },
       {
         "id": 6,
-        "url": "https://www17.wellsfargomedia.com/assets/images/rwd/wf_logo_220x23.png",
+        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www17.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 244,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 244
       },
       {
         "id": 7,
-        "url": "https://www17.wellsfargomedia.com/assets/images/contextual/responsive/hpprimary/wfi_ph_hppb_8329906_v3_1700x700.jpg",
+        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www17.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 244,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 244
       },
       {
         "id": 8,
-        "url": "https://www17.wellsfargomedia.com/assets/images/contextual/responsive/smlprimary/wfi000_ic_b-wf_icon_house_gradient_default_64x64.png",
+        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www17.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 244,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 244
       },
       {
         "id": 9,
-        "url": "https://www.wellsfargo.com/xapi/product-service-research/content-provider/v2/exo/decision",
+        "url": "https://www.wellsfargo.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.wellsfargo.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 326,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 326
       },
       {
         "id": 10,
-        "url": "https://www.wellsfargo.com/target/offers/conversations",
+        "url": "https://www.wellsfargo.com/{seg}/{seg}/{seg}",
         "domain": "www.wellsfargo.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 329,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 329
       },
       {
         "id": 11,
-        "url": "https://www17.wellsfargomedia.com/assets/images/contextual/responsive/smlprimary/wf_ic_check-mark_con-gra_hpps_64x64.png",
+        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www17.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 331,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 331
       },
       {
         "id": 12,
-        "url": "https://www17.wellsfargomedia.com/assets/images/contextual/responsive/smlprimary/wfi000_ic_b-wf_icon_ui_card_gradient_default_64x64.png",
+        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www17.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 332,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 332
       },
       {
         "id": 13,
-        "url": "https://www.wellsfargo.com/ui/javascript/homepage-ui/ps-homepage.d91072ae97ba4d17e9f1.js",
+        "url": "https://www.wellsfargo.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.wellsfargo.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 354,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 354
       },
       {
         "id": 14,
-        "url": "https://static.wellsfargo.com/assets/js/wfui/container/wfui-container-bottom.js",
+        "url": "https://static.wellsfargo.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.wellsfargo.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 355,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 355
       },
       {
         "id": 15,
-        "url": "https://www.wellsfargo.com/MmJcHZqQENwsIe_HVA/QaimkSLXNDkccw/Y3R7TH0B/FC9R/QT0rIgoC",
+        "url": "https://www.wellsfargo.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.wellsfargo.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 356,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 356
       },
       {
         "id": 16,
-        "url": "https://www17.wellsfargomedia.com/assets/images/rwd/first_time_experience-account_summary.png",
+        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www17.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 356,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 356
       },
       {
         "id": 17,
-        "url": "https://www17.wellsfargomedia.com/assets/images/contextual/responsive/lpromo/wfi000_ph_bc_1600x700.jpg",
+        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www17.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 358,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 358
       },
       {
         "id": 18,
-        "url": "https://www17.wellsfargomedia.com/assets/images/contextual/responsive/smlpromo/wfi_ph_g_2181743355-def-financialgoals_hpsp_616x353.jpg",
+        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www17.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 359,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 359
       },
       {
         "id": 19,
-        "url": "https://www17.wellsfargomedia.com/assets/images/contextual/responsive/smlpromo/wfi_ph_g_2051210591-def-borrowing_hpsp_616x353.jpg",
+        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www17.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 360,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 360
       },
       {
         "id": 20,
-        "url": "https://www17.wellsfargomedia.com/assets/images/contextual/responsive/smlpromo/wfi_ph_hpsp_fsalockup_616x353.jpg",
+        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www17.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 361,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 361
       },
       {
         "id": 21,
-        "url": "https://www17.wellsfargomedia.com/assets/images/rwd/Fargo-Spending-Insights-Wells-Fargo-Mobile-App-2025.png",
+        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www17.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 361,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 361
       },
       {
         "id": 22,
-        "url": "https://www17.wellsfargomedia.com/assets/images/rwd/App_Store_Badge.png",
+        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www17.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 362,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 362
       },
       {
         "id": 23,
-        "url": "https://www17.wellsfargomedia.com/assets/images/rwd/GooglePlay_Badge.png",
+        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www17.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 363,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 363
       },
       {
         "id": 24,
-        "url": "https://www17.wellsfargomedia.com/assets/images/sprite/responsive-sprite-v15.png",
+        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www17.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 380,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 380
       },
       {
         "id": 25,
-        "url": "https://www17.wellsfargomedia.com/assets/fonts/wellsfargosans-rg.woff2",
+        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}",
         "domain": "www17.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 386,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 386
       },
       {
         "id": 26,
-        "url": "https://www17.wellsfargomedia.com/assets/fonts/wellsfargosans-sbd.woff2",
+        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}",
         "domain": "www17.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 387,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 387
       },
       {
         "id": 27,
-        "url": "https://www17.wellsfargomedia.com/assets/fonts/wellsfargosans-bd.woff2",
+        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}",
         "domain": "www17.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 390,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 390
       },
       {
         "id": 28,
-        "url": "https://www17.wellsfargomedia.com/assets/fonts/wellsfargosans-lt.woff2",
+        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}",
         "domain": "www17.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 393,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 393
       },
       {
         "id": 29,
-        "url": "https://c1.wfinterface.com/mt/hp/launch.js",
+        "url": "https://c1.wfinterface.com/{seg}/{seg}/{seg}",
         "domain": "c1.wfinterface.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 490,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 490
       },
       {
         "id": 30,
-        "url": "https://static.wellsfargo.com/assets/js/pcmp/prod/wellsfargo.com/scripttemplates/otSDKStub.js",
+        "url": "https://static.wellsfargo.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.wellsfargo.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 491,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 491
       },
       {
         "id": 31,
-        "url": "https://www.wellsfargo.com/MmJcHZqQENwsIe_HVA/QaimkSLXNDkccw/Y3R7TH0B/FC9R/QT0rIgoC",
+        "url": "https://www.wellsfargo.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.wellsfargo.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 201,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 603,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 603
       },
       {
         "id": 32,
-        "url": "https://static.wellsfargo.com/assets/js/pcmp/prod/wellsfargo.com/consent/ec31ce42-18f4-4288-9419-e97e758f2d39/ec31ce42-18f4-4288-9419-e97e758f2d39.json",
+        "url": "https://static.wellsfargo.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "static.wellsfargo.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 608,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 608
       },
       {
         "id": 33,
-        "url": "https://www.wellsfargo.com/xapi/product-service-research/public-product-offers/v1/app/initialize",
+        "url": "https://www.wellsfargo.com/{seg}/{seg}/{seg}/{seg}/app/{seg}",
         "domain": "www.wellsfargo.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 612,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 612
       },
       {
         "id": 34,
-        "url": "https://connect.secure.wellsfargo.com/auth/static/depm/depm_wrapper.js",
+        "url": "https://connect.secure.wellsfargo.com/{seg}/static/{seg}/{seg}",
         "domain": "connect.secure.wellsfargo.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 614,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 614
       },
       {
         "id": 36,
-        "url": "https://edge.adobedc.net/ee/v2/interact?dataStreamId=",
+        "url": "https://edge.adobedc.net/{seg}/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "edge.adobedc.net",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 649,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 649
       },
       {
         "id": 38,
-        "url": "https://www17.wellsfargomedia.com/mkt/marketing/digital-containers/images/target/1700x700/4a_hppb_marquee_banner_1700x700.jpg?impolicy=",
+        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "www17.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 650,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 650
       },
       {
         "id": 39,
-        "url": "https://www17.wellsfargomedia.com/mkt/marketing/digital-containers/images/616x353/wfi_ph_g_1472303553-lifesync_hpsp_616x353.jpg",
+        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www17.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 650,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 650
       },
       {
         "id": 40,
-        "url": "https://www17.wellsfargomedia.com/mkt/marketing/digital-containers/images/616x353/wfi_ph_g_1263166552-protecting_hpsp_616x353.jpg",
+        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www17.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 650,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 650
       },
       {
         "id": 41,
-        "url": "https://www17.wellsfargomedia.com/mkt/marketing/digital-containers/images/616x353/wfi_ph_g_1184079607-financialgoals_hpsp_616x353.jpg",
+        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www17.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 651,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 651
       },
       {
         "id": 42,
-        "url": "https://www17.wellsfargomedia.com/mkt-cloud/marketing/digital-containers/images/64x64/wfi000_ic_b_graduation-hat_color-gradient_64x64.png",
+        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www17.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 651,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 651
       },
       {
         "id": 43,
-        "url": "https://www17.wellsfargomedia.com/mkt/marketing/digital-containers/images/64x64/wfi000_ic_b-wf_icon_ui_card_gradient_64x64.png",
+        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www17.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 652,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 652
       },
       {
         "id": 44,
-        "url": "https://www17.wellsfargomedia.com/mkt/marketing/digital-containers/images/1600x700/onekey_hplp2_1600x700.jpg",
+        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www17.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 653,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 653
       },
       {
         "id": 45,
-        "url": "https://www17.wellsfargomedia.com/assets/images/homepage/card_background-gradient-375x2172.png",
+        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www17.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 655,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 655
       },
       {
         "id": 47,
-        "url": "https://connect.secure.wellsfargo.com/auth/static/prefs/login-userprefs.min.js",
+        "url": "https://connect.secure.wellsfargo.com/{seg}/static/{seg}/{seg}",
         "domain": "connect.secure.wellsfargo.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 722,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 722
       },
       {
         "id": 48,
-        "url": "https://connect.secure.wellsfargo.com/auth/static/depm/8556c7b1.js",
+        "url": "https://connect.secure.wellsfargo.com/{seg}/static/{seg}/{seg}",
         "domain": "connect.secure.wellsfargo.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 789,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 789
       },
       {
         "id": 51,
-        "url": "https://connect.secure.wellsfargo.com/auth/static/prefs/atadun.js",
+        "url": "https://connect.secure.wellsfargo.com/{seg}/static/{seg}/{seg}",
         "domain": "connect.secure.wellsfargo.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 825,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 825
       },
       {
         "id": 52,
-        "url": "https://okra.wf.com/iframe/9B8ED233-984B-4DE5-A7B6-3A370D9FF48B/lightbox.html?mkt=",
+        "url": "https://okra.wf.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "okra.wf.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 828,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 828
       },
       {
         "id": 53,
-        "url": "https://okra.wf.com/params/sri/9B8ED233-984B-4DE5-A7B6-3A370D9FF48B",
+        "url": "https://okra.wf.com/{seg}/{seg}/{seg}",
         "domain": "okra.wf.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 852,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 852
       },
       {
         "id": 54,
-        "url": "https://okra.wf.com/v2/9B8ED233-984B-4DE5-A7B6-3A370D9FF48B/api.js",
+        "url": "https://okra.wf.com/{seg}/{seg}/{seg}",
         "domain": "okra.wf.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 926,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 926
       },
       {
         "id": 55,
-        "url": "https://okra.wf.com/v2/9B8ED233-984B-4DE5-A7B6-3A370D9FF48B/settings",
+        "url": "https://okra.wf.com/{seg}/{seg}/settings",
         "domain": "okra.wf.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1001,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1001
       },
       {
         "id": 56,
-        "url": "https://okra.wf.com/fc/gt2/public_key/9B8ED233-984B-4DE5-A7B6-3A370D9FF48B",
+        "url": "https://okra.wf.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "okra.wf.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1098,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1098
       },
       {
         "id": 57,
-        "url": "https://okra.wf.com/fc/a/?callback=&category=&action=&session_token=&data%5Bpublic_key%5D=&data%5Bsite%5D=",
+        "url": "https://okra.wf.com/{seg}/{seg}?callback=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "okra.wf.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1209,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1209
       },
       {
         "id": 58,
-        "url": "https://okra.wf.com/v2/9B8ED233-984B-4DE5-A7B6-3A370D9FF48B/settings",
+        "url": "https://okra.wf.com/{seg}/{seg}/settings",
         "domain": "okra.wf.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1211,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1211
       },
       {
         "id": 59,
-        "url": "https://connect.secure.wellsfargo.com/accounts/static/7M/accounts/short/accounts-cache.js",
+        "url": "https://connect.secure.wellsfargo.com/{seg}/static/{seg}/{seg}/{seg}/{seg}",
         "domain": "connect.secure.wellsfargo.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1376,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1376
       },
       {
         "id": 61,
-        "url": "https://www17.wellsfargomedia.com/assets/images/rwd/volunteers_cars_616x353.jpg",
+        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www17.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1390,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1390
       },
       {
         "id": 62,
-        "url": "https://www17.wellsfargomedia.com/assets/images/rwd/women-in-greenhouse_616x353.png",
+        "url": "https://www17.wellsfargomedia.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www17.wellsfargomedia.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1391,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1391
       },
       {
         "id": 63,
-        "url": "https://connect.secure.wellsfargo.com/accounts/static/7M/accounts/public/js/runtime.72f40c45d61e7f4ab0c7.js",
+        "url": "https://connect.secure.wellsfargo.com/{seg}/static/{seg}/{seg}/{seg}/{seg}",
         "domain": "connect.secure.wellsfargo.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1402,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1402
       },
       {
         "id": 64,
-        "url": "https://connect.secure.wellsfargo.com/accounts/static/7M/accounts/public/js/vendor.aa878227d6dbc54a2684.js",
+        "url": "https://connect.secure.wellsfargo.com/{seg}/static/{seg}/{seg}/{seg}/{seg}",
         "domain": "connect.secure.wellsfargo.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1404,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1404
       },
       {
         "id": 65,
-        "url": "https://connect.secure.wellsfargo.com/accounts/static/7M/accounts/public/js/main.847c6f647be38fe7852b.js",
+        "url": "https://connect.secure.wellsfargo.com/{seg}/static/{seg}/{seg}/{seg}/{seg}",
         "domain": "connect.secure.wellsfargo.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1405,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1405
       },
       {
         "id": 66,
-        "url": "https://connect.secure.wellsfargo.com/accounts/static/7M/accounts/public/js/wfui.45585d45fe6f9b7b2989.js",
+        "url": "https://connect.secure.wellsfargo.com/{seg}/static/{seg}/{seg}/{seg}/{seg}",
         "domain": "connect.secure.wellsfargo.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1407,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1407
       },
       {
         "id": 67,
-        "url": "https://connect.secure.wellsfargo.com/accounts/static/7M/accounts/public/stylesheets/main.63d24707eeef5b54b8d6.css",
+        "url": "https://connect.secure.wellsfargo.com/{seg}/static/{seg}/{seg}/{seg}/{seg}",
         "domain": "connect.secure.wellsfargo.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1408,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1408
       },
       {
         "id": 68,
-        "url": "https://connect.secure.wellsfargo.com/accounts/static/7M/accounts/public/stylesheets/wfui.50698972ee91a83f3627.css",
+        "url": "https://connect.secure.wellsfargo.com/{seg}/static/{seg}/{seg}/{seg}/{seg}",
         "domain": "connect.secure.wellsfargo.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1408,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1408
       },
       {
         "id": 69,
-        "url": "https://connect.secure.wf.com/tacowup/v3.1/2boScUsDRuEpfuo723p",
+        "url": "https://connect.secure.wf.com/{seg}/{seg}/{seg}",
         "domain": "connect.secure.wf.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1417,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1417
       },
       {
         "id": 71,
-        "url": "https://connect.secure.wf.com/tacowup/v3.1/A6c16Ckn6c4j",
+        "url": "https://connect.secure.wf.com/{seg}/{seg}/{seg}",
         "domain": "connect.secure.wf.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1537,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1537
       },
       {
         "id": 72,
-        "url": "https://connect.secure.wf.com/tacowup/v3.1/OS3JaeopU1TDM3xGniP",
+        "url": "https://connect.secure.wf.com/{seg}/{seg}/{seg}",
         "domain": "connect.secure.wf.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1636,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1636
       },
       {
         "id": 73,
-        "url": "https://connect.secure.wf.com/tacowup/v3.1/T51bDlm3Bcaj",
+        "url": "https://connect.secure.wf.com/{seg}/{seg}/{seg}",
         "domain": "connect.secure.wf.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1749,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1749
       },
       {
         "id": 74,
-        "url": "https://connect.secure.wf.com/tacowup/v3.1/StscVZoTDxOb",
+        "url": "https://connect.secure.wf.com/{seg}/{seg}/{seg}",
         "domain": "connect.secure.wf.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1883,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1883
       },
       {
         "id": 76,
-        "url": "https://www.wellsfargo.com/MmJcHZqQENwsIe_HVA/QaimkSLXNDkccw/Y3R7TH0B/FC9R/QT0rIgoC",
+        "url": "https://www.wellsfargo.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.wellsfargo.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 201,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1927,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1927
       },
       {
         "id": 78,
-        "url": "https://www.wellsfargo.com/MmJcHZqQENwsIe_HVA/QaimkSLXNDkccw/Y3R7TH0B/FC9R/QT0rIgoC",
+        "url": "https://www.wellsfargo.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.wellsfargo.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 201,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1969,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1969
       },
       {
         "id": 91,
-        "url": "https://www.wellsfargo.com/xapi/product-service-research/public-product-offers/v1/offer/useraction",
+        "url": "https://www.wellsfargo.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.wellsfargo.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 204,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1985,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1985
       },
       {
         "id": 92,
-        "url": "https://www.wellsfargo.com/xapi/product-service-research/public-product-offers/v1/offer/useraction",
+        "url": "https://www.wellsfargo.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.wellsfargo.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 204,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1985,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1985
       },
       {
         "id": 93,
-        "url": "https://www.wellsfargo.com/xapi/product-service-research/public-product-offers/v1/offer/useraction",
+        "url": "https://www.wellsfargo.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.wellsfargo.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 204,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1986,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1986
       },
       {
         "id": 94,
-        "url": "https://www.wellsfargo.com/xapi/product-service-research/public-product-offers/v1/offer/useraction",
+        "url": "https://www.wellsfargo.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.wellsfargo.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 204,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1986,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1986
       },
       {
         "id": 99,
-        "url": "https://connect.secure.wf.com/tacowup/v3.1/7UnP2lsCKPUUnXHBDLjb",
+        "url": "https://connect.secure.wf.com/{seg}/{seg}/{seg}",
         "domain": "connect.secure.wf.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 2541,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2541
       },
       {
         "id": 100,
-        "url": "https://connect.secure.wf.com/tacowup/v3.1/3JHKoqxkSPbgZ86",
+        "url": "https://connect.secure.wf.com/{seg}/{seg}/{seg}",
         "domain": "connect.secure.wf.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 3538,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 3538
       },
       {
         "id": 101,
-        "url": "https://connect.secure.wf.com/tacolog/api/v1/sendLogs",
+        "url": "https://connect.secure.wf.com/{seg}/api/{seg}/{seg}",
         "domain": "connect.secure.wf.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 4040,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 4040
       },
       {
         "id": 102,
-        "url": "https://connect.secure.wf.com/tacowup/v3.1/CnR8tJnDT2keS",
+        "url": "https://connect.secure.wf.com/{seg}/{seg}/{seg}",
         "domain": "connect.secure.wf.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 9541,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 9541
       }
     ],
     "domains": [
@@ -3976,7 +3976,7 @@
     ],
     "cookies": [
       {
-        "name": "ISD_AB_COOKIE",
+        "name": "[redacted]",
         "domain": ".connect.secure.wellsfargo.com",
         "path": "/",
         "sameSite": "Lax",
@@ -3986,7 +3986,7 @@
         "thirdParty": false
       },
       {
-        "name": "DCID",
+        "name": "[redacted]",
         "domain": ".connect.secure.wellsfargo.com",
         "path": "/",
         "sameSite": "Lax",
@@ -3996,7 +3996,7 @@
         "thirdParty": false
       },
       {
-        "name": "CookiesAreEnabled",
+        "name": "[redacted]",
         "domain": ".wellsfargo.com",
         "path": "/",
         "sameSite": "Lax",
@@ -4006,7 +4006,7 @@
         "thirdParty": false
       },
       {
-        "name": "INLANG",
+        "name": "[redacted]",
         "domain": ".wellsfargo.com",
         "path": "/",
         "sameSite": "Lax",
@@ -4016,7 +4016,7 @@
         "thirdParty": false
       },
       {
-        "name": "wfacookie",
+        "name": "[redacted]",
         "domain": ".wellsfargo.com",
         "path": "/",
         "sameSite": "Lax",
@@ -4026,7 +4026,7 @@
         "thirdParty": false
       },
       {
-        "name": "bm_sz",
+        "name": "[redacted]",
         "domain": ".wellsfargo.com",
         "path": "/",
         "sameSite": "Lax",
@@ -4036,7 +4036,7 @@
         "thirdParty": false
       },
       {
-        "name": "bmuid",
+        "name": "[redacted]",
         "domain": ".wellsfargo.com",
         "path": "/",
         "sameSite": "None",
@@ -4046,7 +4046,7 @@
         "thirdParty": false
       },
       {
-        "name": "cdContextId",
+        "name": "[redacted]",
         "domain": ".wellsfargo.com",
         "path": "/",
         "sameSite": "None",
@@ -4056,7 +4056,7 @@
         "thirdParty": false
       },
       {
-        "name": "cdSNum",
+        "name": "[redacted]",
         "domain": ".wellsfargo.com",
         "path": "/",
         "sameSite": "None",
@@ -4076,7 +4076,7 @@
         "thirdParty": false
       },
       {
-        "name": "wcmcookiehp",
+        "name": "[redacted]",
         "domain": ".www.wellsfargo.com",
         "path": "/",
         "sameSite": "Lax",
@@ -4086,7 +4086,7 @@
         "thirdParty": false
       },
       {
-        "name": "NGDCID",
+        "name": "[redacted]",
         "domain": ".www.wellsfargo.com",
         "path": "/",
         "sameSite": "Lax",
@@ -4096,7 +4096,7 @@
         "thirdParty": false
       },
       {
-        "name": "DCID",
+        "name": "[redacted]",
         "domain": ".www.wellsfargo.com",
         "path": "/",
         "sameSite": "Lax",
@@ -4106,7 +4106,7 @@
         "thirdParty": false
       },
       {
-        "name": "akacd_m2pr",
+        "name": "[redacted]",
         "domain": "connect.secure.wellsfargo.com",
         "path": "/",
         "sameSite": "None",
@@ -4116,7 +4116,7 @@
         "thirdParty": false
       },
       {
-        "name": "ISD_WWWAF_COOKIE",
+        "name": "[redacted]",
         "domain": "www.wellsfargo.com",
         "path": "/",
         "sameSite": "Lax",
@@ -4126,7 +4126,7 @@
         "thirdParty": false
       },
       {
-        "name": "akacd_wwwhp",
+        "name": "[redacted]",
         "domain": "www.wellsfargo.com",
         "path": "/",
         "sameSite": "None",
@@ -4136,7 +4136,7 @@
         "thirdParty": false
       },
       {
-        "name": "f1d6754344f6dcf3d3ac5f9d76312dd7",
+        "name": "[redacted:hex-like]",
         "domain": "www.wellsfargo.com",
         "path": "/",
         "sameSite": "Lax",
@@ -4146,7 +4146,7 @@
         "thirdParty": false
       },
       {
-        "name": "acd30c6430a1aa42301b9de9e30c8b14",
+        "name": "[redacted:hex-like]",
         "domain": "www.wellsfargo.com",
         "path": "/",
         "sameSite": "Lax",
@@ -4156,7 +4156,7 @@
         "thirdParty": false
       },
       {
-        "name": "dti_bcs",
+        "name": "[redacted]",
         "domain": "www.wellsfargo.com",
         "path": "/",
         "sameSite": "Lax",
@@ -4166,7 +4166,7 @@
         "thirdParty": false
       },
       {
-        "name": "ADRUM_BTa",
+        "name": "[redacted]",
         "domain": "www.wellsfargo.com",
         "path": "/",
         "sameSite": "Lax",
@@ -4176,7 +4176,7 @@
         "thirdParty": false
       },
       {
-        "name": "ADRUM_BT1",
+        "name": "[redacted]",
         "domain": "www.wellsfargo.com",
         "path": "/",
         "sameSite": "Lax",
@@ -4189,38 +4189,64 @@
     "storage": [
       {
         "area": "localStorage",
-        "key": "cdSNum",
+        "key": "[redacted]",
         "valueBytes": 106
       },
       {
         "area": "localStorage",
-        "key": "detectedFonts_2.1.5",
+        "key": "[redacted]",
         "valueBytes": 194
       },
       {
         "area": "localStorage",
-        "key": "cdTabList",
+        "key": "[redacted]",
         "valueBytes": 64
       },
       {
         "area": "localStorage",
-        "key": "cdSrvrState",
+        "key": "[redacted]",
         "valueBytes": 810
       },
       {
         "area": "localStorage",
-        "key": "bmuid",
+        "key": "[redacted]",
         "valueBytes": 60
       },
       {
         "area": "localStorage",
-        "key": "cdContextId",
+        "key": "[redacted]",
         "valueBytes": 9
       },
       {
         "area": "sessionStorage",
-        "key": "cdTabData",
+        "key": "[redacted]",
         "valueBytes": 71
+      }
+    ],
+    "fingerprintEvents": [
+      {
+        "api": "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
+        "count": 6
+      },
+      {
+        "api": "webgl.getParameter.UNMASKED_VENDOR_WEBGL",
+        "count": 6
+      },
+      {
+        "api": "audio.OfflineAudioContext.startRendering",
+        "count": 2
+      },
+      {
+        "api": "canvas.toDataURL",
+        "count": 2
+      },
+      {
+        "api": "webgl2.getParameter.UNMASKED_RENDERER_WEBGL",
+        "count": 1
+      },
+      {
+        "api": "webgl2.getParameter.UNMASKED_VENDOR_WEBGL",
+        "count": 1
       }
     ],
     "fingerprintDetections": [
@@ -4273,7 +4299,7 @@
             "other"
           ],
           "thirdPartyOrigins": [
-            "https://connect.secure.wellsfargo.com"
+            "https://connect.secure.wellsfargo.com/"
           ],
           "totalListenerCalls": 14
         }
@@ -4307,36 +4333,10 @@
             "window"
           ],
           "thirdPartyOrigins": [
-            "https://connect.secure.wellsfargo.com"
+            "https://connect.secure.wellsfargo.com/"
           ],
           "totalListenerCalls": 48
         }
-      }
-    ],
-    "fingerprintEvents": [
-      {
-        "api": "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
-        "count": 6
-      },
-      {
-        "api": "webgl.getParameter.UNMASKED_VENDOR_WEBGL",
-        "count": 6
-      },
-      {
-        "api": "audio.OfflineAudioContext.startRendering",
-        "count": 2
-      },
-      {
-        "api": "canvas.toDataURL",
-        "count": 2
-      },
-      {
-        "api": "webgl2.getParameter.UNMASKED_RENDERER_WEBGL",
-        "count": 1
-      },
-      {
-        "api": "webgl2.getParameter.UNMASKED_VENDOR_WEBGL",
-        "count": 1
       }
     ],
     "screenshot": null,
@@ -4543,22 +4543,17 @@
     "addedCookies": [],
     "removedCookies": [
       {
-        "name": "ad-id",
+        "name": "[redacted]",
         "domain": ".amazon-adsystem.com",
         "thirdParty": true
       },
       {
-        "name": "ad-privacy",
-        "domain": ".amazon-adsystem.com",
-        "thirdParty": true
-      },
-      {
-        "name": "IDSYNC",
+        "name": "[redacted]",
         "domain": ".analytics.yahoo.com",
         "thirdParty": true
       },
       {
-        "name": "demdex",
+        "name": "[redacted]",
         "domain": ".demdex.net",
         "thirdParty": true
       },
@@ -4568,72 +4563,32 @@
         "thirdParty": true
       },
       {
-        "name": "dpm",
+        "name": "[redacted]",
         "domain": ".dpm.demdex.net",
         "thirdParty": true
       },
       {
-        "name": "A3",
+        "name": "[redacted]",
         "domain": ".yahoo.com",
         "thirdParty": true
       },
       {
-        "name": "_cls_cfgver",
+        "name": "[redacted]",
         "domain": "gbxreport-prod.wf.com",
         "thirdParty": true
       },
       {
-        "name": "_cls_s",
+        "name": "[redacted]",
         "domain": "gbxreport-prod.wf.com",
         "thirdParty": true
       },
       {
-        "name": "_cls_v",
-        "domain": "gbxreport-prod.wf.com",
-        "thirdParty": true
-      },
-      {
-        "name": "AWSALBTGCORS",
-        "domain": "gbxreport-prod.wf.com",
-        "thirdParty": true
-      },
-      {
-        "name": "rto",
-        "domain": "gbxreport-prod.wf.com",
-        "thirdParty": true
-      },
-      {
-        "name": "DCID",
+        "name": "[redacted]",
         "domain": ".static.wellsfargo.com",
         "thirdParty": false
       },
       {
-        "name": "_cls_s",
-        "domain": ".wellsfargo.com",
-        "thirdParty": false
-      },
-      {
-        "name": "_cls_v",
-        "domain": ".wellsfargo.com",
-        "thirdParty": false
-      },
-      {
-        "name": "kndctr_1BAA15F354F731E60A4C98A4_AdobeOrg_cluster",
-        "domain": ".wellsfargo.com",
-        "thirdParty": false
-      },
-      {
-        "name": "kndctr_1BAA15F354F731E60A4C98A4_AdobeOrg_consent",
-        "domain": ".wellsfargo.com",
-        "thirdParty": false
-      },
-      {
-        "name": "kndctr_1BAA15F354F731E60A4C98A4_AdobeOrg_identity",
-        "domain": ".wellsfargo.com",
-        "thirdParty": false
-      },
-      {
-        "name": "ndsid",
+        "name": "[redacted:long-token]",
         "domain": ".wellsfargo.com",
         "thirdParty": false
       },
@@ -4641,64 +4596,10 @@
         "name": "OptanonConsent",
         "domain": ".wellsfargo.com",
         "thirdParty": false
-      },
-      {
-        "name": "rto",
-        "domain": ".wellsfargo.com",
-        "thirdParty": false
-      },
-      {
-        "name": "wcmcookiewf",
-        "domain": ".www.wellsfargo.com",
-        "thirdParty": false
-      },
-      {
-        "name": "ADRUM_BT1",
-        "domain": "connect.secure.wellsfargo.com",
-        "thirdParty": false
-      },
-      {
-        "name": "ADRUM_BTa",
-        "domain": "connect.secure.wellsfargo.com",
-        "thirdParty": false
-      },
-      {
-        "name": "ISD_WCM_COOKIE",
-        "domain": "www.wellsfargo.com",
-        "thirdParty": false
       }
     ],
     "addedStorageKeys": [],
-    "removedStorageKeys": [
-      {
-        "area": "localStorage",
-        "key": "ADRUM_AGENT_INFO"
-      },
-      {
-        "area": "localStorage",
-        "key": "ADRUM_CLIENTINFO"
-      },
-      {
-        "area": "localStorage",
-        "key": "com.adobe.alloy.1BAA15F354F731E60A4C98A4_AdobeOrg.consentHashes.Adobe.2.0"
-      },
-      {
-        "area": "localStorage",
-        "key": "gb.cors_ready"
-      },
-      {
-        "area": "localStorage",
-        "key": "gb.sid"
-      },
-      {
-        "area": "sessionStorage",
-        "key": "gb.btabid"
-      },
-      {
-        "area": "sessionStorage",
-        "key": "gb.psn"
-      }
-    ],
+    "removedStorageKeys": [],
     "addedFingerprinting": [],
     "removedFingerprinting": [
       {

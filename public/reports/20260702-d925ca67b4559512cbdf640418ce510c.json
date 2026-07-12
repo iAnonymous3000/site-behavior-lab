@@ -49,6 +49,13 @@
       "automation": "playwright-chromium",
       "headless": true,
       "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "classification",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-02T01:00:58.178Z"
+      },
       "trackerCatalog": {
         "source": "Hand-curated service catalog",
         "version": "hand-curated-2026.06",
@@ -57,14 +64,7 @@
         "curatedOverrides": 133,
         "license": "AGPL-3.0-or-later"
       },
-      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
-      "adblock": {
-        "active": true,
-        "source": "Brave default ad-block lists",
-        "lists": 31,
-        "fetchedAt": "2026-07-02T01:00:58.178Z"
-      },
-      "shieldsMode": "classification"
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
     },
     "requests": [
       {
@@ -76,216 +76,216 @@
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 41,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 41
       },
       {
         "id": 2,
-        "url": "https://www.discover.com/etc.clientlibs/dfs-core/clientlibs/clientlib-core/resources/font/discoversans/woff2/DiscoverSans-Semibold.woff2",
+        "url": "https://www.discover.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.discover.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 186,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 186
       },
       {
         "id": 3,
-        "url": "https://www.discover.com/etc.clientlibs/dfs-core/clientlibs/clientlib-core/resources/font/discoversans/woff2/DiscoverSans-Medium.woff2",
+        "url": "https://www.discover.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.discover.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 188,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 188
       },
       {
         "id": 4,
-        "url": "https://www.discover.com/etc.clientlibs/dfs-core/clientlibs/clientlib-core/resources/font/discoversans/woff2/DiscoverSans-Bold.woff2",
+        "url": "https://www.discover.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.discover.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 190,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 190
       },
       {
         "id": 5,
-        "url": "https://www.discover.com/etc.clientlibs/dfs-cards-portfolio/clientlibs/clientlib-base.min.ACSHASHca746905d03333b084bcce376653f09e.css",
+        "url": "https://www.discover.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.discover.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 190,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 190
       },
       {
         "id": 6,
-        "url": "https://www.discover.com/etc.clientlibs/dfs-cards-portfolio/clientlibs/clientlib-head.min.ACSHASH0877a465ede14bfdf1735ee2175636bd.js",
+        "url": "https://www.discover.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.discover.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 190,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 190
       },
       {
         "id": 7,
-        "url": "https://www.discover.com/content/dam/discover/en_us/gateway/tiles/JC_Image_Desktop-opt.webp",
+        "url": "https://www.discover.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.discover.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 191,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 191
       },
       {
         "id": 8,
-        "url": "https://www.discover.com/content/dam/discover/en_us/gateway/css/gateway-seo-mrq.min.css",
+        "url": "https://www.discover.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.discover.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 191,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 191
       },
       {
         "id": 9,
-        "url": "https://www.discover.com/content/dam/dfs/credit-cards/static/css/dmp/dmp-homepage.css",
+        "url": "https://www.discover.com/{seg}/{seg}/{seg}/{seg}/static/{seg}",
         "domain": "www.discover.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 192,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 192
       },
       {
         "id": 10,
-        "url": "https://www.discover.com/content/dam/dfs/online-banking/images/fdic-dark-logo.svg",
+        "url": "https://www.discover.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.discover.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 193,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 193
       },
       {
         "id": 11,
-        "url": "https://www.discover.com/content/dam/discover/en_us/global/logos/discover-logo.svg",
+        "url": "https://www.discover.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.discover.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 194,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 194
       },
       {
         "id": 12,
-        "url": "https://www.discover.com/content/dam/discover/en_us/credit-cards/card-portfolio/images/global/icon-spyglass.png",
+        "url": "https://www.discover.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.discover.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 196,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 196
       },
       {
         "id": 13,
-        "url": "https://www.discover.com/content/dam/discover/en_us/gateway/gatewayNav_creditcards-banner.png",
+        "url": "https://www.discover.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.discover.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 197,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 197
       },
       {
         "id": 14,
-        "url": "https://www.discover.com/etc.clientlibs/dfs-cards-portfolio/clientlibs/clientlib-base.min.ACSHASH99a14f1f4fb05d1df5a963ceeb5d2d72.js",
+        "url": "https://www.discover.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.discover.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 197,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 197
       },
       {
         "id": 15,
-        "url": "https://www.discover.com/content/dam/discover/en_us/credit-cards/card-portfolio/scripts/js/clicktale/clicktale.js",
+        "url": "https://www.discover.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.discover.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 197,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 197
       },
       {
         "id": 16,
-        "url": "https://portal.discover.com/global/public/scripts/discover_toolkit.js",
+        "url": "https://portal.discover.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "portal.discover.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 197,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 197
       },
       {
         "id": 17,
-        "url": "https://www.discover.com/etc.clientlibs/dfs-cards-portfolio/clientlibs/clientlib-homepage.min.ACSHASHb2a62f8e3b8e740a46bcee283487e1f2.js",
+        "url": "https://www.discover.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.discover.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 198,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 198
       },
       {
         "id": 18,
-        "url": "https://www.discover.com/eguRDrh82IDN/CcfOql/NAYVQN/YEaSGpaEL3miww/NF0eYBMRMgs/bAIPbHwc/CSwB",
+        "url": "https://www.discover.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.discover.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 198,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 198
       },
       {
         "id": 19,
-        "url": "https://assets.adobedtm.com/1e5ef0994701/d37390dc6a0a/launch-c54b9d72c46c.min.js",
+        "url": "https://assets.adobedtm.com/{seg}/{seg}/{seg}",
         "domain": "assets.adobedtm.com",
         "method": "GET",
         "resourceType": "script",
@@ -297,360 +297,360 @@
           "category": "analytics / advertising",
           "confidence": "curated"
         },
-        "startedAtMs": 198,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 198
       },
       {
         "id": 20,
-        "url": "https://www.discover.com/content/dam/discover/en_us/gateway/calculate-savings-opt.webp",
+        "url": "https://www.discover.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.discover.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 198,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 198
       },
       {
         "id": 21,
-        "url": "https://www.discover.com/content/dam/discover/en_us/credit-cards/card-acquisitions/site-experience/custom-script-v1.js",
+        "url": "https://www.discover.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.discover.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 199,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 199
       },
       {
         "id": 22,
-        "url": "https://www.discover.com/content/dam/discover/en_us/credit-cards/card-portfolio/images/applications/dmp-tile/loader.gif",
+        "url": "https://www.discover.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.discover.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 199,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 199
       },
       {
         "id": 23,
-        "url": "https://www.discover.com/content/dam/discover/en_us/gateway/midnav/Credit-Card-Multiple.png",
+        "url": "https://www.discover.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.discover.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 199,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 199
       },
       {
         "id": 24,
-        "url": "https://www.discover.com/content/dam/discover/en_us/gateway/midnav/Bank.png",
+        "url": "https://www.discover.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.discover.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 199,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 199
       },
       {
         "id": 25,
-        "url": "https://www.discover.com/content/dam/discover/en_us/gateway/midnav/PersonDollar-Midnight.webp",
+        "url": "https://www.discover.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.discover.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 200,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 200
       },
       {
         "id": 26,
-        "url": "https://www.discover.com/content/dam/dfs/credit-cards/applications/dmp-tile/images/loader.gif",
+        "url": "https://www.discover.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.discover.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 200,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 200
       },
       {
         "id": 27,
-        "url": "https://www.discover.com/content/discover/en/_jcr_content/root/responsivegrid/colctrlcomp_159898971/par_1/image.coreimg.png/1687279275955/card-array-d.png",
+        "url": "https://www.discover.com/{seg}/{seg}/en/{seg}/{seg}/{seg}",
         "domain": "www.discover.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 200,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 200
       },
       {
         "id": 28,
-        "url": "https://www.discover.com/content/dam/discover/en_us/global/icons/privacyoptions-sm.svg",
+        "url": "https://www.discover.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.discover.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 201,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 201
       },
       {
         "id": 29,
-        "url": "https://www.discover.com/content/dam/dfs/credit-cards/static/js/homepage-js/dmp-scripts.js",
+        "url": "https://www.discover.com/{seg}/{seg}/{seg}/{seg}/static/{seg}",
         "domain": "www.discover.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 201,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 201
       },
       {
         "id": 30,
-        "url": "https://www.discover.com/content/dam/discover/en_us/gateway/js/itp-menu.js",
+        "url": "https://www.discover.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.discover.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 201,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 201
       },
       {
         "id": 31,
-        "url": "https://portal.discover.com/web/enterprise/login/login-importmap.json",
+        "url": "https://portal.discover.com/{seg}/{seg}/login/{seg}",
         "domain": "portal.discover.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 373,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 373
       },
       {
         "id": 32,
-        "url": "https://cdn.branch.io/branch-latest.min.js",
+        "url": "https://cdn.branch.io/{seg}",
         "domain": "cdn.branch.io",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 373,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 373
       },
       {
         "id": 33,
-        "url": "https://s.go-mpulse.net/boomerang/RL6FP-7VUY8-NDC3K-X55B8-GT8C6",
+        "url": "https://s.go-mpulse.net/{seg}/{seg}",
         "domain": "s.go-mpulse.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 428,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 428
       },
       {
         "id": 34,
-        "url": "https://www.discover.com/etc.clientlibs/dfs-cards-portfolio/clientlibs/clientlib-dependency/resources/images/down.png",
+        "url": "https://www.discover.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.discover.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 428,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 428
       },
       {
         "id": 35,
-        "url": "https://www.discover.com/etc.clientlibs/dfs-cards-portfolio/clientlibs/clientlib-dependency/resources/images/sprite.png",
+        "url": "https://www.discover.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.discover.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 428,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 428
       },
       {
         "id": 36,
-        "url": "https://www.discover.com/content/dam/discover/en_us/gateway/tiles/Box_B_Brand_Q4.jpg",
+        "url": "https://www.discover.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.discover.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 429,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 429
       },
       {
         "id": 37,
-        "url": "https://www.discover.com/content/dam/discover/en_us/gateway/tiles/Q3_2026_BoxC_KnownVersion.jpg",
+        "url": "https://www.discover.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.discover.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 429,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 429
       },
       {
         "id": 38,
-        "url": "https://www.discover.com/content/dam/discover/en_us/gateway/tiles/D.com_Placement_D_270x196.png",
+        "url": "https://www.discover.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.discover.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 430,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 430
       },
       {
         "id": 39,
-        "url": "https://www.discover.com/content/dam/discover/en_us/gateway/tiles/E_bluecard_contactless_payment_mobile.jpg",
+        "url": "https://www.discover.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.discover.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 430,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 430
       },
       {
         "id": 40,
-        "url": "https://www.discover.com/content/dam/discover/en_us/gateway/tiles/B%20C%20(460x196)_PreQual.jpg",
+        "url": "https://www.discover.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.discover.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 432,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 432
       },
       {
         "id": 41,
-        "url": "https://www.discover.com/content/dam/discover/en_us/gateway/group-289.svg",
+        "url": "https://www.discover.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.discover.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 432,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 432
       },
       {
         "id": 42,
-        "url": "https://www.discover.com/etc.clientlibs/dfs-core/clientlibs/clientlib-core/resources/font/sans-pro/WOFF2/TTF/SourceSans3-It.ttf.woff2",
+        "url": "https://www.discover.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.discover.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 433,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 433
       },
       {
         "id": 43,
-        "url": "https://www.discover.com/etc.clientlibs/dfs-core/clientlibs/clientlib-core/resources/font/dnicons/ttf/dnicons.ttf",
+        "url": "https://www.discover.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.discover.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 433,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 433
       },
       {
         "id": 44,
-        "url": "https://www.discover.com/eguRDrh82IDN/CcfOql/NAYVQN/YEaSGpaEL3miww/NF0eYBMRMgs/bAIPbHwc/CSwB",
+        "url": "https://www.discover.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.discover.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 201,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 601,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 601
       },
       {
         "id": 45,
-        "url": "https://portal.discover.com/web/enterprise/login/index-BG8siatn.js",
+        "url": "https://portal.discover.com/{seg}/{seg}/login/{seg}",
         "domain": "portal.discover.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 637,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 637
       },
       {
         "id": 46,
-        "url": "https://www.discover.com/etc.clientlibs/dfs-cards-portfolio/clientlibs/clientlib-dependency/resources/images/utility-icons.png",
+        "url": "https://www.discover.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.discover.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 656,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 656
       },
       {
         "id": 47,
-        "url": "https://content.discover.com/fp//upaqcodv2ybhvs4z.js",
+        "url": "https://content.discover.com/{seg}/{seg}",
         "domain": "content.discover.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 663,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 663
       },
       {
         "id": 48,
-        "url": "https://cdnssl.clicktale.net/www15/ptc/fd145cf2-4109-439c-97f8-e0bc3c3e290d.js",
+        "url": "https://cdnssl.clicktale.net/{seg}/{seg}/{seg}",
         "domain": "cdnssl.clicktale.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 669,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 669
       },
       {
         "id": 49,
-        "url": "https://adobedc.demdex.net/ee/v1/identity/acquire?configId=&requestId=",
+        "url": "https://adobedc.demdex.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "adobedc.demdex.net",
         "method": "POST",
         "resourceType": "fetch",
@@ -662,36 +662,36 @@
           "category": "analytics / advertising",
           "confidence": "curated"
         },
-        "startedAtMs": 710,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 710
       },
       {
         "id": 50,
-        "url": "https://app.link/_r?sdk=&branch_key=&callback=",
+        "url": "https://app.link/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&callback=",
         "domain": "app.link",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 718,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 718
       },
       {
         "id": 51,
-        "url": "https://c.go-mpulse.net/api/config.json?key=&d=&t=&v=&sl=&si=&plugins=&acao=&ak.ai=",
+        "url": "https://c.go-mpulse.net/api/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&t=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "c.go-mpulse.net",
         "method": "GET",
         "resourceType": "xhr",
         "status": 204,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 720,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 720
       },
       {
         "id": 52,
-        "url": "https://www.datadoghq-browser-agent.com/us1/v5/datadog-rum.js",
+        "url": "https://www.datadoghq-browser-agent.com/{seg}/{seg}/{seg}",
         "domain": "www.datadoghq-browser-agent.com",
         "method": "GET",
         "resourceType": "script",
@@ -703,588 +703,588 @@
           "category": "performance monitoring",
           "confidence": "curated"
         },
-        "startedAtMs": 781,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 781
       },
       {
         "id": 53,
-        "url": "https://cdnssl.clicktale.net/ptc/fd145cf2-4109-439c-97f8-e0bc3c3e290d.js",
+        "url": "https://cdnssl.clicktale.net/{seg}/{seg}",
         "domain": "cdnssl.clicktale.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 922,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 922
       },
       {
         "id": 54,
-        "url": "https://cdnssl.clicktale.net/uxa/xdframe-single-domain-1.3.3.html?pid=",
+        "url": "https://cdnssl.clicktale.net/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "cdnssl.clicktale.net",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 929,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 929
       },
       {
         "id": 55,
-        "url": "https://smetrics.discover.com/ee/va6/v1/identity/acquire",
+        "url": "https://smetrics.discover.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "smetrics.discover.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 961,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 961
       },
       {
         "id": 56,
-        "url": "https://cdnssl.clicktale.net/www15/ptc/fd145cf2-4109-439c-97f8-e0bc3c3e290d.js",
+        "url": "https://cdnssl.clicktale.net/{seg}/{seg}/{seg}",
         "domain": "cdnssl.clicktale.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 961,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 961
       },
       {
         "id": 57,
-        "url": "https://smetrics.discover.com/ee/va6/v1/interact",
+        "url": "https://smetrics.discover.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "smetrics.discover.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 962,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 962
       },
       {
         "id": 58,
-        "url": "https://api2.branch.io/v1/open",
+        "url": "https://api2.branch.io/{seg}/{seg}",
         "domain": "api2.branch.io",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1015,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1015
       },
       {
         "id": 59,
-        "url": "https://cdnssl.clicktale.net/pcc/fd145cf2-4109-439c-97f8-e0bc3c3e290d.js?DeploymentConfigName=&Version=",
+        "url": "https://cdnssl.clicktale.net/{seg}/{seg}?%5Bredacted%5D=&Version=",
         "domain": "cdnssl.clicktale.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1028,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1028
       },
       {
         "id": 60,
-        "url": "https://cdnssl.clicktale.net/www/bridge-WR110.js",
+        "url": "https://cdnssl.clicktale.net/{seg}/{seg}",
         "domain": "cdnssl.clicktale.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1029,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1029
       },
       {
         "id": 61,
-        "url": "https://content.discover.com/FnsrCTcQVQif6BTn",
+        "url": "https://content.discover.com/{seg}",
         "domain": "content.discover.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1127,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1127
       },
       {
         "id": 62,
-        "url": "https://content.discover.com/vvf6bveS9bLAYT9v",
+        "url": "https://content.discover.com/{seg}",
         "domain": "content.discover.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1128,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1128
       },
       {
         "id": 63,
-        "url": "https://www.discover.com/content/dam/discover/en_us/gateway/tiles/Box_B_Brand_LCS.jpg",
+        "url": "https://www.discover.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.discover.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1136,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1136
       },
       {
         "id": 64,
-        "url": "https://www.discover.com/content/dam/discover/en_us/gateway/tiles/danceB_C_460x196_PreQual.jpg",
+        "url": "https://www.discover.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.discover.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1137,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1137
       },
       {
         "id": 65,
-        "url": "https://www.discover.com/content/dam/discover/en_us/gateway/tiles/Q3_Site_Marketing_In_299x196.jpg",
+        "url": "https://www.discover.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.discover.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1138,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1138
       },
       {
         "id": 66,
-        "url": "https://www.discover.com/content/dam/discover/en_us/gateway/tiles/DPL_BoxD_299x196.jpg",
+        "url": "https://www.discover.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.discover.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1138,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1138
       },
       {
         "id": 67,
-        "url": "https://smetrics.discover.com/ee/va6/v1/interact",
+        "url": "https://smetrics.discover.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "smetrics.discover.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1139,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1139
       },
       {
         "id": 68,
-        "url": "https://content.discover.com/BCPVIULyu3lIXTvJ",
+        "url": "https://content.discover.com/{seg}",
         "domain": "content.discover.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1140,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1140
       },
       {
         "id": 69,
-        "url": "https://c.clicktale.net/pageview?ex=&dt=&pvt=&la=&uc=&url=&dr=&dw=&dh=&ww=&wh=&sw=&sh=&uu=&sn=&hd=&v=&pid=&pn=&ct=",
+        "url": "https://c.clicktale.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "c.clicktale.net",
         "method": "POST",
         "resourceType": "xhr",
         "status": 204,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1154,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1154
       },
       {
         "id": 70,
-        "url": "https://c.clicktale.net/pageEvent?value=&ct=&isETR=&isCustomHashId=&v=&pid=&pn=&sn=&uu=&r=",
+        "url": "https://c.clicktale.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "c.clicktale.net",
         "method": "GET",
         "resourceType": "image",
         "status": 204,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1165,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1165
       },
       {
         "id": 71,
-        "url": "https://browser-intake-datadoghq.com/api/v2/rum?ddsource=&ddtags=&dd-api-key=&dd-evp-origin-version=&dd-evp-origin=&dd-request-id=&batch_time=",
+        "url": "https://browser-intake-datadoghq.com/api/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "browser-intake-datadoghq.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 202,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1174,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1174
       },
       {
         "id": 72,
-        "url": "https://browser-intake-datadoghq.com/api/v2/rum?ddsource=&ddtags=&dd-api-key=&dd-evp-origin-version=&dd-evp-origin=&dd-request-id=&batch_time=",
+        "url": "https://browser-intake-datadoghq.com/api/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "browser-intake-datadoghq.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 202,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1177,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1177
       },
       {
         "id": 73,
-        "url": "https://browser-intake-datadoghq.com/api/v2/rum?ddsource=&ddtags=&dd-api-key=&dd-evp-origin-version=&dd-evp-origin=&dd-request-id=&batch_time=",
+        "url": "https://browser-intake-datadoghq.com/api/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "browser-intake-datadoghq.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 202,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1181,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1181
       },
       {
         "id": 74,
-        "url": "https://api2.branch.io/v1/pageview",
+        "url": "https://api2.branch.io/{seg}/{seg}",
         "domain": "api2.branch.io",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1189,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1189
       },
       {
         "id": 75,
-        "url": "https://browser-intake-datadoghq.com/api/v2/rum?ddsource=&ddtags=&dd-api-key=&dd-evp-origin-version=&dd-evp-origin=&dd-request-id=&batch_time=",
+        "url": "https://browser-intake-datadoghq.com/api/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "browser-intake-datadoghq.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 202,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1290,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1290
       },
       {
         "id": 76,
-        "url": "https://content.discover.com/fp/clear.png",
+        "url": "https://content.discover.com/{seg}/{seg}",
         "domain": "content.discover.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1383,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1383
       },
       {
         "id": 77,
-        "url": "https://content.discover.com/siQTaaWpIKjDB9OA",
+        "url": "https://content.discover.com/{seg}",
         "domain": "content.discover.com",
         "method": "GET",
         "resourceType": "script",
         "status": 204,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1384,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1384
       },
       {
         "id": 78,
-        "url": "https://content.discover.com/siQTaaWpIKjDB9OA",
+        "url": "https://content.discover.com/{seg}",
         "domain": "content.discover.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1387,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1387
       },
       {
         "id": 79,
-        "url": "https://content.discover.com/jaFuyzr77mUuRBCB",
+        "url": "https://content.discover.com/{seg}",
         "domain": "content.discover.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1387,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1387
       },
       {
         "id": 80,
-        "url": "https://content.discover.com/V-TF8qx4FNmmYQls",
+        "url": "https://content.discover.com/{seg}",
         "domain": "content.discover.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1389,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1389
       },
       {
         "id": 81,
-        "url": "https://h.online-metrix.net/5ZxLdmFDIBXw5VnD?e4bc903a2ace47aa=",
+        "url": "https://h.online-metrix.net/{seg}?%5Bredacted%5D=",
         "domain": "h.online-metrix.net",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1390,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1390
       },
       {
         "id": 82,
-        "url": "https://h64.online-metrix.net/dXHg4hXBaU7buJgn?2adf67a2db7d09be=",
+        "url": "https://h64.online-metrix.net/{seg}?%5Bredacted%5D=",
         "domain": "h64.online-metrix.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1405,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1405
       },
       {
         "id": 83,
-        "url": "https://content.discover.com/LG3eE3rOShBPp41z",
+        "url": "https://content.discover.com/{seg}",
         "domain": "content.discover.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1405,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1405
       },
       {
         "id": 84,
-        "url": "https://o7f2hmf67dviswkqi6wbnt733pi4mxhm36bzfq3u646c992a3233d819sac.d.aa.online-metrix.net/zsmc6cZW-yG-RL_o?3b8273a92a7f205b=",
-        "domain": "o7f2hmf67dviswkqi6wbnt733pi4mxhm36bzfq3u646c992a3233d819sac.d.aa.online-metrix.net",
+        "url": "https://{label}.d.aa.online-metrix.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.d.aa.online-metrix.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1406,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1406
       },
       {
         "id": 85,
-        "url": "https://content.discover.com/39PGCkw81WESfh1U",
+        "url": "https://content.discover.com/{seg}",
         "domain": "content.discover.com",
         "method": "GET",
         "resourceType": "script",
         "status": 204,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1821,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1821
       },
       {
         "id": 86,
-        "url": "https://c.clicktale.net/pageEvent?value=&ct=&isETR=&isCustomHashId=&v=&pid=&pn=&sn=&uu=&r=",
+        "url": "https://c.clicktale.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "c.clicktale.net",
         "method": "GET",
         "resourceType": "image",
         "status": 204,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1836,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1836
       },
       {
         "id": 87,
-        "url": "https://c.clicktale.net/pageEvent?value=&ct=&isETR=&isCustomHashId=&v=&pid=&pn=&sn=&uu=&r=",
+        "url": "https://c.clicktale.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "c.clicktale.net",
         "method": "GET",
         "resourceType": "image",
         "status": 204,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1837,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1837
       },
       {
         "id": 88,
-        "url": "https://c.clicktale.net/pageEvent?value=&ct=&isETR=&isCustomHashId=&v=&pid=&pn=&sn=&uu=&r=",
+        "url": "https://c.clicktale.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "c.clicktale.net",
         "method": "GET",
         "resourceType": "image",
         "status": 204,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1837,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1837
       },
       {
         "id": 89,
-        "url": "https://content.discover.com/39PGCkw81WESfh1U",
+        "url": "https://content.discover.com/{seg}",
         "domain": "content.discover.com",
         "method": "GET",
         "resourceType": "script",
         "status": 204,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1839,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1839
       },
       {
         "id": 90,
-        "url": "https://content.discover.com/WQx97fEX3hGqFnDg",
+        "url": "https://content.discover.com/{seg}",
         "domain": "content.discover.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1846,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1846
       },
       {
         "id": 91,
-        "url": "https://content.discover.com/8GwBnHJWwaXy-bZ_",
+        "url": "https://content.discover.com/{seg}",
         "domain": "content.discover.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1846,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1846
       },
       {
         "id": 92,
-        "url": "https://content.discover.com/ouCYFcGMw1EMnYnF",
+        "url": "https://content.discover.com/{seg}",
         "domain": "content.discover.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1877,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1877
       },
       {
         "id": 93,
-        "url": "https://c.clicktale.net/dvar?v=&pid=&pn=&sn=&uu=&dv=&ct=&r=",
+        "url": "https://c.clicktale.net/{seg}?v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "c.clicktale.net",
         "method": "GET",
         "resourceType": "image",
         "status": 204,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1894,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1894
       },
       {
         "id": 94,
-        "url": "https://h.online-metrix.net/xCShMR87SKLim56u?5c190ef0ea2b7a2d=&jf=",
+        "url": "https://h.online-metrix.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "h.online-metrix.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1905,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1905
       },
       {
         "id": 95,
-        "url": "https://content.discover.com/siQTaaWpIKjDB9OA",
+        "url": "https://content.discover.com/{seg}",
         "domain": "content.discover.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1940,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1940
       },
       {
         "id": 96,
-        "url": "https://content.discover.com/39PGCkw81WESfh1U",
+        "url": "https://content.discover.com/{seg}",
         "domain": "content.discover.com",
         "method": "GET",
         "resourceType": "script",
         "status": 204,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1942,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1942
       },
       {
         "id": 97,
-        "url": "https://www.discover.com/eguRDrh82IDN/CcfOql/NAYVQN/YEaSGpaEL3miww/NF0eYBMRMgs/bAIPbHwc/CSwB",
+        "url": "https://www.discover.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.discover.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 201,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1986,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1986
       },
       {
         "id": 98,
-        "url": "https://content.discover.com/siQTaaWpIKjDB9OA",
+        "url": "https://content.discover.com/{seg}",
         "domain": "content.discover.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2401,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2401
       },
       {
         "id": 99,
-        "url": "https://content.discover.com/siQTaaWpIKjDB9OA",
+        "url": "https://content.discover.com/{seg}",
         "domain": "content.discover.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2439,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2439
       },
       {
         "id": 100,
-        "url": "https://content.discover.com/39PGCkw81WESfh1U",
+        "url": "https://content.discover.com/{seg}",
         "domain": "content.discover.com",
         "method": "GET",
         "resourceType": "script",
         "status": 204,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2574,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2574
       },
       {
         "id": 101,
-        "url": "https://assets.adobedtm.com/1e5ef0994701/d37390dc6a0a/304a5647508f/RCa7ff936fdac846ffb5852eeb6ed50199-source.min.js",
+        "url": "https://assets.adobedtm.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "assets.adobedtm.com",
         "method": "GET",
         "resourceType": "script",
@@ -1296,20 +1296,20 @@
           "category": "analytics / advertising",
           "confidence": "curated"
         },
-        "startedAtMs": 3702,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 3702
       },
       {
         "id": 102,
-        "url": "https://smetrics.discover.com/ee/va6/v1/interact",
+        "url": "https://smetrics.discover.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "smetrics.discover.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 3717,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 3717
       }
     ],
     "domains": [
@@ -1501,7 +1501,7 @@
         ]
       },
       {
-        "domain": "o7f2hmf67dviswkqi6wbnt733pi4mxhm36bzfq3u646c992a3233d819sac.d.aa.online-metrix.net",
+        "domain": "{label}.d.aa.online-metrix.net",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -1579,7 +1579,7 @@
     ],
     "cookies": [
       {
-        "name": "_s",
+        "name": "[redacted]",
         "domain": ".app.link",
         "path": "/",
         "sameSite": "None",
@@ -1589,7 +1589,7 @@
         "thirdParty": true
       },
       {
-        "name": "_cs_id___2052",
+        "name": "[redacted]",
         "domain": ".cdnssl.clicktale.net",
         "path": "/",
         "sameSite": "None",
@@ -1599,7 +1599,7 @@
         "thirdParty": true
       },
       {
-        "name": "_cs_s___2052",
+        "name": "[redacted]",
         "domain": ".cdnssl.clicktale.net",
         "path": "/",
         "sameSite": "None",
@@ -1609,7 +1609,7 @@
         "thirdParty": true
       },
       {
-        "name": "demdex",
+        "name": "[redacted]",
         "domain": ".demdex.net",
         "path": "/",
         "sameSite": "None",
@@ -1619,7 +1619,7 @@
         "thirdParty": true
       },
       {
-        "name": "bm_sz",
+        "name": "[redacted]",
         "domain": ".discover.com",
         "path": "/",
         "sameSite": "None",
@@ -1629,7 +1629,7 @@
         "thirdParty": false
       },
       {
-        "name": "kndctr_0D6C4673527839230A490D45_AdobeOrg_cluster",
+        "name": "[redacted:long-token]",
         "domain": ".discover.com",
         "path": "/",
         "sameSite": "None",
@@ -1639,7 +1639,7 @@
         "thirdParty": false
       },
       {
-        "name": "kndctr_0D6C4673527839230A490D45_AdobeOrg_identity",
+        "name": "[redacted:long-token]",
         "domain": ".discover.com",
         "path": "/",
         "sameSite": "None",
@@ -1649,7 +1649,7 @@
         "thirdParty": false
       },
       {
-        "name": "AMCV_0D6C4673527839230A490D45%40AdobeOrg",
+        "name": "[redacted]",
         "domain": ".discover.com",
         "path": "/",
         "sameSite": "None",
@@ -1659,7 +1659,7 @@
         "thirdParty": false
       },
       {
-        "name": "s_vncm",
+        "name": "[redacted]",
         "domain": ".discover.com",
         "path": "/",
         "sameSite": "Lax",
@@ -1669,7 +1669,7 @@
         "thirdParty": false
       },
       {
-        "name": "s_ivc",
+        "name": "[redacted]",
         "domain": ".discover.com",
         "path": "/",
         "sameSite": "Lax",
@@ -1679,7 +1679,7 @@
         "thirdParty": false
       },
       {
-        "name": "_cs_c",
+        "name": "[redacted]",
         "domain": ".discover.com",
         "path": "/",
         "sameSite": "None",
@@ -1689,7 +1689,7 @@
         "thirdParty": false
       },
       {
-        "name": "mbox",
+        "name": "[redacted]",
         "domain": ".discover.com",
         "path": "/",
         "sameSite": "None",
@@ -1699,7 +1699,7 @@
         "thirdParty": false
       },
       {
-        "name": "mboxEdgeCluster",
+        "name": "[redacted]",
         "domain": ".discover.com",
         "path": "/",
         "sameSite": "None",
@@ -1709,7 +1709,7 @@
         "thirdParty": false
       },
       {
-        "name": "_cs_id",
+        "name": "[redacted]",
         "domain": ".discover.com",
         "path": "/",
         "sameSite": "None",
@@ -1719,7 +1719,7 @@
         "thirdParty": false
       },
       {
-        "name": "_cs_s",
+        "name": "[redacted]",
         "domain": ".discover.com",
         "path": "/",
         "sameSite": "None",
@@ -1739,7 +1739,7 @@
         "thirdParty": false
       },
       {
-        "name": "_dd_s",
+        "name": "[redacted]",
         "domain": ".discover.com",
         "path": "/",
         "sameSite": "Strict",
@@ -1749,7 +1749,7 @@
         "thirdParty": false
       },
       {
-        "name": "thx_guid",
+        "name": "[redacted]",
         "domain": "content.discover.com",
         "path": "/",
         "sameSite": "None",
@@ -1759,7 +1759,7 @@
         "thirdParty": false
       },
       {
-        "name": "tmx_guid",
+        "name": "[redacted]",
         "domain": "content.discover.com",
         "path": "/",
         "sameSite": "None",
@@ -1769,7 +1769,7 @@
         "thirdParty": false
       },
       {
-        "name": "DCID",
+        "name": "[redacted]",
         "domain": "portal.discover.com",
         "path": "/",
         "sameSite": "Lax",
@@ -1779,7 +1779,7 @@
         "thirdParty": false
       },
       {
-        "name": "x-orig",
+        "name": "[redacted]",
         "domain": "www.discover.com",
         "path": "/",
         "sameSite": "Lax",
@@ -1789,7 +1789,7 @@
         "thirdParty": false
       },
       {
-        "name": "DCID",
+        "name": "[redacted]",
         "domain": "www.discover.com",
         "path": "/",
         "sameSite": "Lax",
@@ -1802,118 +1802,168 @@
     "storage": [
       {
         "area": "localStorage",
-        "key": "CTpartition",
+        "key": "[redacted]",
         "valueBytes": 5
       },
       {
         "area": "localStorage",
-        "key": "CTrecordingLink",
+        "key": "[redacted]",
         "valueBytes": 26
       },
       {
         "area": "localStorage",
-        "key": "ak_a",
+        "key": "[redacted]",
         "valueBytes": 32
       },
       {
         "area": "localStorage",
-        "key": "5718FABB002E",
+        "key": "[redacted:hex-like]",
         "valueBytes": 94
       },
       {
         "area": "localStorage",
-        "key": "ak_ax",
+        "key": "[redacted]",
         "valueBytes": 2
       },
       {
         "area": "localStorage",
-        "key": "ed73f20edbf2b74",
+        "key": "[redacted:hex-like]",
         "valueBytes": 64
       },
       {
         "area": "localStorage",
-        "key": "branch_session_first",
+        "key": "[redacted]",
         "valueBytes": 343
       },
       {
         "area": "localStorage",
-        "key": "ed73f20edbf2b73",
+        "key": "[redacted:hex-like]",
         "valueBytes": 46
       },
       {
         "area": "localStorage",
-        "key": "com.adobe.reactor.core.visitorTracking.sessionCount",
+        "key": "[redacted]",
         "valueBytes": 1
       },
       {
         "area": "localStorage",
-        "key": "CTguid",
+        "key": "[redacted]",
         "valueBytes": 36
       },
       {
         "area": "localStorage",
-        "key": "CTuserID",
+        "key": "[redacted]",
         "valueBytes": 125
       },
       {
         "area": "localStorage",
-        "key": "com.adobe.reactor.core.visitorTracking.pagesViewed",
+        "key": "[redacted]",
         "valueBytes": 1
       },
       {
         "area": "sessionStorage",
-        "key": "com.adobe.reactor.core.visitorTracking.trafficSource",
+        "key": "[redacted]",
         "valueBytes": 0
       },
       {
         "area": "sessionStorage",
-        "key": "CTpartition",
+        "key": "[redacted]",
         "valueBytes": 5
       },
       {
         "area": "sessionStorage",
-        "key": "com.adobe.reactor.dataElements.TargetEdsKey",
+        "key": "[redacted]",
         "valueBytes": 4
       },
       {
         "area": "sessionStorage",
-        "key": "CTrecordingLink",
+        "key": "[redacted]",
         "valueBytes": 26
       },
       {
         "area": "sessionStorage",
-        "key": "com.adobe.reactor.core.visitorTracking.landingTime",
+        "key": "[redacted]",
         "valueBytes": 13
       },
       {
         "area": "sessionStorage",
-        "key": "branch_session",
+        "key": "[redacted]",
         "valueBytes": 343
       },
       {
         "area": "sessionStorage",
-        "key": "TAB_ID",
+        "key": "[redacted]",
         "valueBytes": 36
       },
       {
         "area": "sessionStorage",
-        "key": "CTguid",
+        "key": "[redacted]",
         "valueBytes": 36
       },
       {
         "area": "sessionStorage",
-        "key": "com.adobe.reactor.core.visitorTracking.landingPage",
+        "key": "[redacted]",
         "valueBytes": 25
       },
       {
         "area": "sessionStorage",
-        "key": "CTuserID",
+        "key": "[redacted]",
         "valueBytes": 125
       },
       {
         "area": "sessionStorage",
-        "key": "com.adobe.reactor.core.visitorTracking.pagesViewed",
+        "key": "[redacted]",
         "valueBytes": 1
+      }
+    ],
+    "fingerprintEvents": [
+      {
+        "api": "canvas.getImageData",
+        "count": 5
+      },
+      {
+        "api": "webgl2.readPixels",
+        "count": 5
+      },
+      {
+        "api": "webrtc.RTCPeerConnection.createDataChannel",
+        "count": 4
+      },
+      {
+        "api": "webrtc.RTCPeerConnection.createOffer",
+        "count": 4
+      },
+      {
+        "api": "webrtc.RTCPeerConnection.setLocalDescription",
+        "count": 4
+      },
+      {
+        "api": "canvas.toDataURL",
+        "count": 3
+      },
+      {
+        "api": "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
+        "count": 3
+      },
+      {
+        "api": "webgl.getParameter.UNMASKED_VENDOR_WEBGL",
+        "count": 3
+      },
+      {
+        "api": "webrtc.RTCPeerConnection",
+        "count": 2
+      },
+      {
+        "api": "audio.OfflineAudioContext.startRendering",
+        "count": 1
+      },
+      {
+        "api": "webgl2.getParameter.UNMASKED_RENDERER_WEBGL",
+        "count": 1
+      },
+      {
+        "api": "webgl2.getParameter.UNMASKED_VENDOR_WEBGL",
+        "count": 1
       }
     ],
     "fingerprintDetections": [
@@ -1979,11 +2029,11 @@
             "window"
           ],
           "thirdPartyOrigins": [
-            "https://cdnssl.clicktale.net",
-            "https://content.discover.com",
-            "https://portal.discover.com",
-            "https://s.go-mpulse.net",
-            "https://www.datadoghq-browser-agent.com"
+            "https://cdnssl.clicktale.net/",
+            "https://content.discover.com/",
+            "https://portal.discover.com/",
+            "https://s.go-mpulse.net/",
+            "https://www.datadoghq-browser-agent.com/"
           ],
           "totalListenerCalls": 23
         }
@@ -2017,75 +2067,16 @@
             "window"
           ],
           "thirdPartyOrigins": [
-            "https://assets.adobedtm.com",
-            "https://cdn.branch.io",
-            "https://cdnssl.clicktale.net",
-            "https://content.discover.com",
-            "https://s.go-mpulse.net",
-            "https://www.datadoghq-browser-agent.com"
+            "https://assets.adobedtm.com/",
+            "https://cdn.branch.io/",
+            "https://cdnssl.clicktale.net/",
+            "https://content.discover.com/",
+            "https://s.go-mpulse.net/",
+            "https://www.datadoghq-browser-agent.com/"
           ],
           "totalListenerCalls": 73
         }
       }
-    ],
-    "fingerprintEvents": [
-      {
-        "api": "canvas.getImageData",
-        "count": 5
-      },
-      {
-        "api": "webgl2.readPixels",
-        "count": 5
-      },
-      {
-        "api": "webrtc.RTCPeerConnection.createDataChannel",
-        "count": 4
-      },
-      {
-        "api": "webrtc.RTCPeerConnection.createOffer",
-        "count": 4
-      },
-      {
-        "api": "webrtc.RTCPeerConnection.setLocalDescription",
-        "count": 4
-      },
-      {
-        "api": "canvas.toDataURL",
-        "count": 3
-      },
-      {
-        "api": "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
-        "count": 3
-      },
-      {
-        "api": "webgl.getParameter.UNMASKED_VENDOR_WEBGL",
-        "count": 3
-      },
-      {
-        "api": "webrtc.RTCPeerConnection",
-        "count": 2
-      },
-      {
-        "api": "audio.OfflineAudioContext.startRendering",
-        "count": 1
-      },
-      {
-        "api": "webgl2.getParameter.UNMASKED_RENDERER_WEBGL",
-        "count": 1
-      },
-      {
-        "api": "webgl2.getParameter.UNMASKED_VENDOR_WEBGL",
-        "count": 1
-      }
-    ],
-    "screenshot": null,
-    "warnings": [
-      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling or clicking except one scripted choice on the cookie/consent banner (disclosed below). Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
-      "Counts are a lower bound: trackers that load only after further interaction, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
-      "This visit was asked to choose \"Accept all\" on a cookie/consent banner, but no recognizable control was found (the banner may not be shown to this scanner's location, the choice may sit behind a settings layer, or the control is not in the catalog). Results reflect the pre-consent state.",
-      "One or more requests were blocked or failed at connection time. This scan did not record whether that was a private-address guard block or an ordinary connection failure (a DNS or connect error), so no private-network claim is made.",
-      "Resolved 2 first-party subdomains that are CNAME aliases for third-party trackers (CNAME cloaking), which request-URL matching alone would miss.",
-      "Read the site's privacy policy (https://www.discover.com/privacy-statement/) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
     ],
     "cnameCloaks": [
       {
@@ -2110,7 +2101,7 @@
       }
     ],
     "privacyPolicy": {
-      "url": "https://www.discover.com/privacy-statement/",
+      "url": "https://www.discover.com/{seg}",
       "claims": [],
       "mentionedEntities": [],
       "unmentionedEntities": [
@@ -2121,7 +2112,16 @@
     "consentInteraction": {
       "mode": "accept-all",
       "clicked": false
-    }
+    },
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling or clicking except one scripted choice on the cookie/consent banner (disclosed below). Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after further interaction, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+      "This visit was asked to choose \"Accept all\" on a cookie/consent banner, but no recognizable control was found (the banner may not be shown to this scanner's location, the choice may sit behind a settings layer, or the control is not in the catalog). Results reflect the pre-consent state.",
+      "One or more requests were blocked or failed at connection time. This scan did not record whether that was a private-address guard block or an ordinary connection failure (a DNS or connect error), so no private-network claim is made.",
+      "Resolved 2 first-party subdomains that are CNAME aliases for third-party trackers (CNAME cloaking), which request-URL matching alone would miss.",
+      "Read the site's privacy policy (https://www.discover.com/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ]
   },
   "variant": {
     "ok": true,
@@ -2161,6 +2161,13 @@
       "automation": "playwright-chromium",
       "headless": true,
       "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "classification",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-02T01:00:58.178Z"
+      },
       "trackerCatalog": {
         "source": "Hand-curated service catalog",
         "version": "hand-curated-2026.06",
@@ -2169,14 +2176,7 @@
         "curatedOverrides": 133,
         "license": "AGPL-3.0-or-later"
       },
-      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
-      "adblock": {
-        "active": true,
-        "source": "Brave default ad-block lists",
-        "lists": 31,
-        "fetchedAt": "2026-07-02T01:00:58.178Z"
-      },
-      "shieldsMode": "classification"
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
     },
     "requests": [
       {
@@ -2188,216 +2188,216 @@
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 53,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 53
       },
       {
         "id": 2,
-        "url": "https://www.discover.com/etc.clientlibs/dfs-core/clientlibs/clientlib-core/resources/font/discoversans/woff2/DiscoverSans-Semibold.woff2",
+        "url": "https://www.discover.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.discover.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 246,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 246
       },
       {
         "id": 3,
-        "url": "https://www.discover.com/etc.clientlibs/dfs-core/clientlibs/clientlib-core/resources/font/discoversans/woff2/DiscoverSans-Medium.woff2",
+        "url": "https://www.discover.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.discover.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 248,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 248
       },
       {
         "id": 4,
-        "url": "https://www.discover.com/etc.clientlibs/dfs-core/clientlibs/clientlib-core/resources/font/discoversans/woff2/DiscoverSans-Bold.woff2",
+        "url": "https://www.discover.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.discover.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 248,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 248
       },
       {
         "id": 5,
-        "url": "https://www.discover.com/etc.clientlibs/dfs-cards-portfolio/clientlibs/clientlib-base.min.ACSHASHca746905d03333b084bcce376653f09e.css",
+        "url": "https://www.discover.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.discover.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 249,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 249
       },
       {
         "id": 6,
-        "url": "https://www.discover.com/etc.clientlibs/dfs-cards-portfolio/clientlibs/clientlib-head.min.ACSHASH0877a465ede14bfdf1735ee2175636bd.js",
+        "url": "https://www.discover.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.discover.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 249,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 249
       },
       {
         "id": 7,
-        "url": "https://www.discover.com/content/dam/discover/en_us/gateway/tiles/JC_Image_Desktop-opt.webp",
+        "url": "https://www.discover.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.discover.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 250,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 250
       },
       {
         "id": 8,
-        "url": "https://www.discover.com/content/dam/discover/en_us/gateway/css/gateway-seo-mrq.min.css",
+        "url": "https://www.discover.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.discover.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 250,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 250
       },
       {
         "id": 9,
-        "url": "https://www.discover.com/content/dam/dfs/credit-cards/static/css/dmp/dmp-homepage.css",
+        "url": "https://www.discover.com/{seg}/{seg}/{seg}/{seg}/static/{seg}",
         "domain": "www.discover.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 253,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 253
       },
       {
         "id": 10,
-        "url": "https://www.discover.com/content/dam/dfs/online-banking/images/fdic-dark-logo.svg",
+        "url": "https://www.discover.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.discover.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 253,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 253
       },
       {
         "id": 11,
-        "url": "https://www.discover.com/content/dam/discover/en_us/global/logos/discover-logo.svg",
+        "url": "https://www.discover.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.discover.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 254,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 254
       },
       {
         "id": 12,
-        "url": "https://www.discover.com/content/dam/discover/en_us/credit-cards/card-portfolio/images/global/icon-spyglass.png",
+        "url": "https://www.discover.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.discover.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 254,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 254
       },
       {
         "id": 13,
-        "url": "https://www.discover.com/content/dam/discover/en_us/gateway/gatewayNav_creditcards-banner.png",
+        "url": "https://www.discover.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.discover.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 254,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 254
       },
       {
         "id": 14,
-        "url": "https://www.discover.com/etc.clientlibs/dfs-cards-portfolio/clientlibs/clientlib-base.min.ACSHASH99a14f1f4fb05d1df5a963ceeb5d2d72.js",
+        "url": "https://www.discover.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.discover.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 254,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 254
       },
       {
         "id": 15,
-        "url": "https://www.discover.com/content/dam/discover/en_us/credit-cards/card-portfolio/scripts/js/clicktale/clicktale.js",
+        "url": "https://www.discover.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.discover.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 255,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 255
       },
       {
         "id": 16,
-        "url": "https://portal.discover.com/global/public/scripts/discover_toolkit.js",
+        "url": "https://portal.discover.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "portal.discover.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 255,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 255
       },
       {
         "id": 17,
-        "url": "https://www.discover.com/etc.clientlibs/dfs-cards-portfolio/clientlibs/clientlib-homepage.min.ACSHASHb2a62f8e3b8e740a46bcee283487e1f2.js",
+        "url": "https://www.discover.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.discover.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 255,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 255
       },
       {
         "id": 18,
-        "url": "https://www.discover.com/eguRDrh82IDN/CcfOql/NAYVQN/YEaSGpaEL3miww/NF0eYBMRMgs/bAIPbHwc/CSwB",
+        "url": "https://www.discover.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.discover.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 257,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 257
       },
       {
         "id": 19,
-        "url": "https://assets.adobedtm.com/1e5ef0994701/d37390dc6a0a/launch-c54b9d72c46c.min.js",
+        "url": "https://assets.adobedtm.com/{seg}/{seg}/{seg}",
         "domain": "assets.adobedtm.com",
         "method": "GET",
         "resourceType": "script",
@@ -2409,360 +2409,360 @@
           "category": "analytics / advertising",
           "confidence": "curated"
         },
-        "startedAtMs": 258,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 258
       },
       {
         "id": 20,
-        "url": "https://www.discover.com/content/dam/discover/en_us/gateway/calculate-savings-opt.webp",
+        "url": "https://www.discover.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.discover.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 258,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 258
       },
       {
         "id": 21,
-        "url": "https://www.discover.com/content/dam/discover/en_us/credit-cards/card-acquisitions/site-experience/custom-script-v1.js",
+        "url": "https://www.discover.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.discover.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 258,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 258
       },
       {
         "id": 22,
-        "url": "https://www.discover.com/content/dam/discover/en_us/credit-cards/card-portfolio/images/applications/dmp-tile/loader.gif",
+        "url": "https://www.discover.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.discover.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 259,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 259
       },
       {
         "id": 23,
-        "url": "https://www.discover.com/content/dam/discover/en_us/gateway/midnav/Credit-Card-Multiple.png",
+        "url": "https://www.discover.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.discover.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 259,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 259
       },
       {
         "id": 24,
-        "url": "https://www.discover.com/content/dam/discover/en_us/gateway/midnav/Bank.png",
+        "url": "https://www.discover.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.discover.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 260,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 260
       },
       {
         "id": 25,
-        "url": "https://www.discover.com/content/dam/discover/en_us/gateway/midnav/PersonDollar-Midnight.webp",
+        "url": "https://www.discover.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.discover.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 260,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 260
       },
       {
         "id": 26,
-        "url": "https://www.discover.com/content/dam/dfs/credit-cards/applications/dmp-tile/images/loader.gif",
+        "url": "https://www.discover.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.discover.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 260,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 260
       },
       {
         "id": 27,
-        "url": "https://www.discover.com/content/discover/en/_jcr_content/root/responsivegrid/colctrlcomp_159898971/par_1/image.coreimg.png/1687279275955/card-array-d.png",
+        "url": "https://www.discover.com/{seg}/{seg}/en/{seg}/{seg}/{seg}",
         "domain": "www.discover.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 261,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 261
       },
       {
         "id": 28,
-        "url": "https://www.discover.com/content/dam/discover/en_us/global/icons/privacyoptions-sm.svg",
+        "url": "https://www.discover.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.discover.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 261,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 261
       },
       {
         "id": 29,
-        "url": "https://www.discover.com/content/dam/dfs/credit-cards/static/js/homepage-js/dmp-scripts.js",
+        "url": "https://www.discover.com/{seg}/{seg}/{seg}/{seg}/static/{seg}",
         "domain": "www.discover.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 261,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 261
       },
       {
         "id": 30,
-        "url": "https://www.discover.com/content/dam/discover/en_us/gateway/js/itp-menu.js",
+        "url": "https://www.discover.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.discover.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 261,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 261
       },
       {
         "id": 31,
-        "url": "https://portal.discover.com/web/enterprise/login/login-importmap.json",
+        "url": "https://portal.discover.com/{seg}/{seg}/login/{seg}",
         "domain": "portal.discover.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 462,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 462
       },
       {
         "id": 32,
-        "url": "https://cdn.branch.io/branch-latest.min.js",
+        "url": "https://cdn.branch.io/{seg}",
         "domain": "cdn.branch.io",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 463,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 463
       },
       {
         "id": 33,
-        "url": "https://s.go-mpulse.net/boomerang/RL6FP-7VUY8-NDC3K-X55B8-GT8C6",
+        "url": "https://s.go-mpulse.net/{seg}/{seg}",
         "domain": "s.go-mpulse.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 520,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 520
       },
       {
         "id": 34,
-        "url": "https://www.discover.com/etc.clientlibs/dfs-cards-portfolio/clientlibs/clientlib-dependency/resources/images/down.png",
+        "url": "https://www.discover.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.discover.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 520,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 520
       },
       {
         "id": 35,
-        "url": "https://www.discover.com/etc.clientlibs/dfs-cards-portfolio/clientlibs/clientlib-dependency/resources/images/sprite.png",
+        "url": "https://www.discover.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.discover.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 520,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 520
       },
       {
         "id": 36,
-        "url": "https://www.discover.com/content/dam/discover/en_us/gateway/tiles/Box_B_Brand_Q4.jpg",
+        "url": "https://www.discover.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.discover.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 521,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 521
       },
       {
         "id": 37,
-        "url": "https://www.discover.com/content/dam/discover/en_us/gateway/tiles/Q3_2026_BoxC_KnownVersion.jpg",
+        "url": "https://www.discover.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.discover.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 521,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 521
       },
       {
         "id": 38,
-        "url": "https://www.discover.com/content/dam/discover/en_us/gateway/tiles/D.com_Placement_D_270x196.png",
+        "url": "https://www.discover.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.discover.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 521,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 521
       },
       {
         "id": 39,
-        "url": "https://www.discover.com/content/dam/discover/en_us/gateway/tiles/E_bluecard_contactless_payment_mobile.jpg",
+        "url": "https://www.discover.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.discover.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 522,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 522
       },
       {
         "id": 40,
-        "url": "https://www.discover.com/content/dam/discover/en_us/gateway/tiles/B%20C%20(460x196)_PreQual.jpg",
+        "url": "https://www.discover.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.discover.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 522,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 522
       },
       {
         "id": 41,
-        "url": "https://www.discover.com/content/dam/discover/en_us/gateway/group-289.svg",
+        "url": "https://www.discover.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.discover.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 522,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 522
       },
       {
         "id": 42,
-        "url": "https://www.discover.com/etc.clientlibs/dfs-core/clientlibs/clientlib-core/resources/font/sans-pro/WOFF2/TTF/SourceSans3-It.ttf.woff2",
+        "url": "https://www.discover.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.discover.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 522,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 522
       },
       {
         "id": 43,
-        "url": "https://www.discover.com/etc.clientlibs/dfs-core/clientlibs/clientlib-core/resources/font/dnicons/ttf/dnicons.ttf",
+        "url": "https://www.discover.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.discover.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 523,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 523
       },
       {
         "id": 44,
-        "url": "https://www.discover.com/eguRDrh82IDN/CcfOql/NAYVQN/YEaSGpaEL3miww/NF0eYBMRMgs/bAIPbHwc/CSwB",
+        "url": "https://www.discover.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.discover.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 201,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 711,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 711
       },
       {
         "id": 45,
-        "url": "https://portal.discover.com/web/enterprise/login/index-BG8siatn.js",
+        "url": "https://portal.discover.com/{seg}/{seg}/login/{seg}",
         "domain": "portal.discover.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 735,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 735
       },
       {
         "id": 46,
-        "url": "https://www.discover.com/etc.clientlibs/dfs-cards-portfolio/clientlibs/clientlib-dependency/resources/images/utility-icons.png",
+        "url": "https://www.discover.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.discover.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 773,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 773
       },
       {
         "id": 47,
-        "url": "https://content.discover.com/fp//j7el3hq8h82cdkp6.js",
+        "url": "https://content.discover.com/{seg}/{seg}",
         "domain": "content.discover.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 780,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 780
       },
       {
         "id": 48,
-        "url": "https://cdnssl.clicktale.net/www15/ptc/fd145cf2-4109-439c-97f8-e0bc3c3e290d.js",
+        "url": "https://cdnssl.clicktale.net/{seg}/{seg}/{seg}",
         "domain": "cdnssl.clicktale.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 787,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 787
       },
       {
         "id": 49,
-        "url": "https://adobedc.demdex.net/ee/v1/identity/acquire?configId=&requestId=",
+        "url": "https://adobedc.demdex.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "adobedc.demdex.net",
         "method": "POST",
         "resourceType": "fetch",
@@ -2774,12 +2774,12 @@
           "category": "analytics / advertising",
           "confidence": "curated"
         },
-        "startedAtMs": 839,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 839
       },
       {
         "id": 50,
-        "url": "https://www.datadoghq-browser-agent.com/us1/v5/datadog-rum.js",
+        "url": "https://www.datadoghq-browser-agent.com/{seg}/{seg}/{seg}",
         "domain": "www.datadoghq-browser-agent.com",
         "method": "GET",
         "resourceType": "script",
@@ -2791,648 +2791,648 @@
           "category": "performance monitoring",
           "confidence": "curated"
         },
-        "startedAtMs": 887,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 887
       },
       {
         "id": 51,
-        "url": "https://app.link/_r?sdk=&branch_key=&callback=",
+        "url": "https://app.link/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&callback=",
         "domain": "app.link",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 894,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 894
       },
       {
         "id": 52,
-        "url": "https://cdnssl.clicktale.net/ptc/fd145cf2-4109-439c-97f8-e0bc3c3e290d.js",
+        "url": "https://cdnssl.clicktale.net/{seg}/{seg}",
         "domain": "cdnssl.clicktale.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 988,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 988
       },
       {
         "id": 53,
-        "url": "https://cdnssl.clicktale.net/uxa/xdframe-single-domain-1.3.3.html?pid=",
+        "url": "https://cdnssl.clicktale.net/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "cdnssl.clicktale.net",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1002,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1002
       },
       {
         "id": 54,
-        "url": "https://smetrics.discover.com/ee/va6/v1/identity/acquire",
+        "url": "https://smetrics.discover.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "smetrics.discover.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1028,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1028
       },
       {
         "id": 55,
-        "url": "https://cdnssl.clicktale.net/www15/ptc/fd145cf2-4109-439c-97f8-e0bc3c3e290d.js",
+        "url": "https://cdnssl.clicktale.net/{seg}/{seg}/{seg}",
         "domain": "cdnssl.clicktale.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1030,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1030
       },
       {
         "id": 56,
-        "url": "https://smetrics.discover.com/ee/va6/v1/interact",
+        "url": "https://smetrics.discover.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "smetrics.discover.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1030,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1030
       },
       {
         "id": 57,
-        "url": "https://api2.branch.io/v1/open",
+        "url": "https://api2.branch.io/{seg}/{seg}",
         "domain": "api2.branch.io",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1079,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1079
       },
       {
         "id": 58,
-        "url": "https://cdnssl.clicktale.net/pcc/fd145cf2-4109-439c-97f8-e0bc3c3e290d.js?DeploymentConfigName=&Version=",
+        "url": "https://cdnssl.clicktale.net/{seg}/{seg}?%5Bredacted%5D=&Version=",
         "domain": "cdnssl.clicktale.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1084,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1084
       },
       {
         "id": 59,
-        "url": "https://cdnssl.clicktale.net/www/bridge-WR110.js",
+        "url": "https://cdnssl.clicktale.net/{seg}/{seg}",
         "domain": "cdnssl.clicktale.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1084,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1084
       },
       {
         "id": 60,
-        "url": "https://c.go-mpulse.net/api/config.json?key=&d=&t=&v=&sl=&si=&plugins=&acao=&ak.ai=",
+        "url": "https://c.go-mpulse.net/api/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&t=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "c.go-mpulse.net",
         "method": "GET",
         "resourceType": "xhr",
         "status": 204,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1087,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1087
       },
       {
         "id": 61,
-        "url": "https://browser-intake-datadoghq.com/api/v2/rum?ddsource=&ddtags=&dd-api-key=&dd-evp-origin-version=&dd-evp-origin=&dd-request-id=&batch_time=",
+        "url": "https://browser-intake-datadoghq.com/api/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "browser-intake-datadoghq.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 202,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1096,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1096
       },
       {
         "id": 62,
-        "url": "https://browser-intake-datadoghq.com/api/v2/rum?ddsource=&ddtags=&dd-api-key=&dd-evp-origin-version=&dd-evp-origin=&dd-request-id=&batch_time=",
+        "url": "https://browser-intake-datadoghq.com/api/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "browser-intake-datadoghq.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 202,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1103,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1103
       },
       {
         "id": 63,
-        "url": "https://browser-intake-datadoghq.com/api/v2/rum?ddsource=&ddtags=&dd-api-key=&dd-evp-origin-version=&dd-evp-origin=&dd-request-id=&batch_time=",
+        "url": "https://browser-intake-datadoghq.com/api/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "browser-intake-datadoghq.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 202,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1104,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1104
       },
       {
         "id": 64,
-        "url": "https://c.clicktale.net/pageview?ex=&dt=&pvt=&la=&uc=&url=&dr=&dw=&dh=&ww=&wh=&sw=&sh=&uu=&sn=&hd=&v=&pid=&pn=&ct=",
+        "url": "https://c.clicktale.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "c.clicktale.net",
         "method": "POST",
         "resourceType": "xhr",
         "status": 204,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1128,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1128
       },
       {
         "id": 65,
-        "url": "https://www.discover.com/content/dam/discover/en_us/gateway/tiles/Box_B_Brand_LCS.jpg",
+        "url": "https://www.discover.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.discover.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1140,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1140
       },
       {
         "id": 66,
-        "url": "https://www.discover.com/content/dam/discover/en_us/gateway/tiles/danceB_C_460x196_PreQual.jpg",
+        "url": "https://www.discover.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.discover.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1140,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1140
       },
       {
         "id": 67,
-        "url": "https://www.discover.com/content/dam/discover/en_us/gateway/tiles/Q3_Site_Marketing_In_299x196.jpg",
+        "url": "https://www.discover.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.discover.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1140,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1140
       },
       {
         "id": 68,
-        "url": "https://www.discover.com/content/dam/discover/en_us/gateway/tiles/DPL_BoxD_299x196.jpg",
+        "url": "https://www.discover.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.discover.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1141,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1141
       },
       {
         "id": 69,
-        "url": "https://smetrics.discover.com/ee/va6/v1/interact",
+        "url": "https://smetrics.discover.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "smetrics.discover.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1142,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1142
       },
       {
         "id": 70,
-        "url": "https://c.clicktale.net/pageEvent?value=&ct=&isETR=&isCustomHashId=&v=&pid=&pn=&sn=&uu=&r=",
+        "url": "https://c.clicktale.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "c.clicktale.net",
         "method": "GET",
         "resourceType": "image",
         "status": 204,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1161,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1161
       },
       {
         "id": 71,
-        "url": "https://api2.branch.io/v1/pageview",
+        "url": "https://api2.branch.io/{seg}/{seg}",
         "domain": "api2.branch.io",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1190,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1190
       },
       {
         "id": 72,
-        "url": "https://content.discover.com/MqpMd2vfakqAPxrd",
+        "url": "https://content.discover.com/{seg}",
         "domain": "content.discover.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1215,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1215
       },
       {
         "id": 73,
-        "url": "https://content.discover.com/g5Mc2IFh2WlKDnVm",
+        "url": "https://content.discover.com/{seg}",
         "domain": "content.discover.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1216,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1216
       },
       {
         "id": 74,
-        "url": "https://content.discover.com/wJbIpf35NpCmObtj",
+        "url": "https://content.discover.com/{seg}",
         "domain": "content.discover.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1217,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1217
       },
       {
         "id": 75,
-        "url": "https://k-aus1.clicktale.net/v2/recording?rt=&v=&pid=&pn=&sn=&uu=&let=&rst=&ri=&ct=",
+        "url": "https://k-aus1.clicktale.net/{seg}/{seg}?%5Bredacted%5D=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "k-aus1.clicktale.net",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1265,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1265
       },
       {
         "id": 76,
-        "url": "https://c.clicktale.net/pageEvent?value=&ct=&isETR=&isCustomHashId=&v=&pid=&pn=&sn=&uu=&r=",
+        "url": "https://c.clicktale.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "c.clicktale.net",
         "method": "GET",
         "resourceType": "image",
         "status": 204,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1361,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1361
       },
       {
         "id": 77,
-        "url": "https://c.clicktale.net/pageEvent?value=&ct=&isETR=&isCustomHashId=&v=&pid=&pn=&sn=&uu=&r=",
+        "url": "https://c.clicktale.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "c.clicktale.net",
         "method": "GET",
         "resourceType": "image",
         "status": 204,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1362,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1362
       },
       {
         "id": 78,
-        "url": "https://c.clicktale.net/pageEvent?value=&ct=&isETR=&isCustomHashId=&v=&pid=&pn=&sn=&uu=&r=",
+        "url": "https://c.clicktale.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "c.clicktale.net",
         "method": "GET",
         "resourceType": "image",
         "status": 204,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1362,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1362
       },
       {
         "id": 79,
-        "url": "https://c.clicktale.net/dvar?v=&pid=&pn=&sn=&uu=&dv=&ct=&r=",
+        "url": "https://c.clicktale.net/{seg}?v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "c.clicktale.net",
         "method": "GET",
         "resourceType": "image",
         "status": 204,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1366,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1366
       },
       {
         "id": 80,
-        "url": "https://c.clicktale.net/pageEvent?value=&ct=&isETR=&isCustomHashId=&v=&pid=&pn=&sn=&uu=&r=",
+        "url": "https://c.clicktale.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "c.clicktale.net",
         "method": "GET",
         "resourceType": "image",
         "status": 204,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1368,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1368
       },
       {
         "id": 81,
-        "url": "https://c.clicktale.net/pageEvent?value=&ct=&isETR=&isCustomHashId=&v=&pid=&pn=&sn=&uu=&r=",
+        "url": "https://c.clicktale.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "c.clicktale.net",
         "method": "GET",
         "resourceType": "image",
         "status": 204,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1368,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1368
       },
       {
         "id": 82,
-        "url": "https://browser-intake-datadoghq.com/api/v2/rum?ddsource=&ddtags=&dd-api-key=&dd-evp-origin-version=&dd-evp-origin=&dd-request-id=&batch_time=",
+        "url": "https://browser-intake-datadoghq.com/api/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "browser-intake-datadoghq.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 202,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1374,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1374
       },
       {
         "id": 83,
-        "url": "https://content.discover.com/fp/clear.png",
+        "url": "https://content.discover.com/{seg}/{seg}",
         "domain": "content.discover.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1486,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1486
       },
       {
         "id": 84,
-        "url": "https://content.discover.com/Gh0Aluxn6htGnrca",
+        "url": "https://content.discover.com/{seg}",
         "domain": "content.discover.com",
         "method": "GET",
         "resourceType": "script",
         "status": 204,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1487,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1487
       },
       {
         "id": 85,
-        "url": "https://content.discover.com/u3G4oZlSGcf4vQPe",
+        "url": "https://content.discover.com/{seg}",
         "domain": "content.discover.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1489,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1489
       },
       {
         "id": 86,
-        "url": "https://content.discover.com/Gh0Aluxn6htGnrca",
+        "url": "https://content.discover.com/{seg}",
         "domain": "content.discover.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1490,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1490
       },
       {
         "id": 87,
-        "url": "https://content.discover.com/Yhk2qz8EtCoqFNwU",
+        "url": "https://content.discover.com/{seg}",
         "domain": "content.discover.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1491,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1491
       },
       {
         "id": 88,
-        "url": "https://h.online-metrix.net/gUzUnus1EX5WzOBr?331e2716e118261f=",
+        "url": "https://h.online-metrix.net/{seg}?%5Bredacted%5D=",
         "domain": "h.online-metrix.net",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1493,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1493
       },
       {
         "id": 89,
-        "url": "https://content.discover.com/hWOFut3ZsdCaX0z3",
+        "url": "https://content.discover.com/{seg}",
         "domain": "content.discover.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1504,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1504
       },
       {
         "id": 90,
-        "url": "https://h64.online-metrix.net/LuuS8UDyAWIVZtEU?a97b0472e82f07e3=",
+        "url": "https://h64.online-metrix.net/{seg}?%5Bredacted%5D=",
         "domain": "h64.online-metrix.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1505,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1505
       },
       {
         "id": 91,
-        "url": "https://o7f2hmf6xsbvr3t5itberuduwdtrj3tgvfjxjf4yd2f0d374622ad704sac.d.aa.online-metrix.net/QYbhquXCdOiq-Vqg?ae970f7010122b3c=",
-        "domain": "o7f2hmf6xsbvr3t5itberuduwdtrj3tgvfjxjf4yd2f0d374622ad704sac.d.aa.online-metrix.net",
+        "url": "https://{label}.d.aa.online-metrix.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.d.aa.online-metrix.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1506,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1506
       },
       {
         "id": 92,
-        "url": "https://content.discover.com/e3JLa_IxEgahyVTA",
+        "url": "https://content.discover.com/{seg}",
         "domain": "content.discover.com",
         "method": "GET",
         "resourceType": "script",
         "status": 204,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1908,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1908
       },
       {
         "id": 93,
-        "url": "https://content.discover.com/e3JLa_IxEgahyVTA",
+        "url": "https://content.discover.com/{seg}",
         "domain": "content.discover.com",
         "method": "GET",
         "resourceType": "script",
         "status": 204,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1910,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1910
       },
       {
         "id": 94,
-        "url": "https://content.discover.com/ZbJc0CpIJYx9R9jT",
+        "url": "https://content.discover.com/{seg}",
         "domain": "content.discover.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1922,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1922
       },
       {
         "id": 95,
-        "url": "https://content.discover.com/hKpDVebRMRWCnfHf",
+        "url": "https://content.discover.com/{seg}",
         "domain": "content.discover.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1922,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1922
       },
       {
         "id": 96,
-        "url": "https://content.discover.com/wXhmAYmDFTWiwBvD",
+        "url": "https://content.discover.com/{seg}",
         "domain": "content.discover.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1954,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1954
       },
       {
         "id": 97,
-        "url": "https://h.online-metrix.net/U9_nYigjWHJmPHoe?a8a406cbcfa19030=&jf=",
+        "url": "https://h.online-metrix.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "h.online-metrix.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1976,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1976
       },
       {
         "id": 98,
-        "url": "https://content.discover.com/Gh0Aluxn6htGnrca",
+        "url": "https://content.discover.com/{seg}",
         "domain": "content.discover.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2019,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2019
       },
       {
         "id": 99,
-        "url": "https://content.discover.com/e3JLa_IxEgahyVTA",
+        "url": "https://content.discover.com/{seg}",
         "domain": "content.discover.com",
         "method": "GET",
         "resourceType": "script",
         "status": 204,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2021,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2021
       },
       {
         "id": 100,
-        "url": "https://www.discover.com/eguRDrh82IDN/CcfOql/NAYVQN/YEaSGpaEL3miww/NF0eYBMRMgs/bAIPbHwc/CSwB",
+        "url": "https://www.discover.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.discover.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 201,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2059,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2059
       },
       {
         "id": 101,
-        "url": "https://content.discover.com/Gh0Aluxn6htGnrca",
+        "url": "https://content.discover.com/{seg}",
         "domain": "content.discover.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2505,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2505
       },
       {
         "id": 102,
-        "url": "https://content.discover.com/Gh0Aluxn6htGnrca",
+        "url": "https://content.discover.com/{seg}",
         "domain": "content.discover.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2518,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2518
       },
       {
         "id": 103,
-        "url": "https://content.discover.com/e3JLa_IxEgahyVTA",
+        "url": "https://content.discover.com/{seg}",
         "domain": "content.discover.com",
         "method": "GET",
         "resourceType": "script",
         "status": 204,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2667,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2667
       },
       {
         "id": 104,
-        "url": "https://assets.adobedtm.com/1e5ef0994701/d37390dc6a0a/304a5647508f/RCa7ff936fdac846ffb5852eeb6ed50199-source.min.js",
+        "url": "https://assets.adobedtm.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "assets.adobedtm.com",
         "method": "GET",
         "resourceType": "script",
@@ -3444,32 +3444,32 @@
           "category": "analytics / advertising",
           "confidence": "curated"
         },
-        "startedAtMs": 3831,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 3831
       },
       {
         "id": 105,
-        "url": "https://smetrics.discover.com/ee/va6/v1/interact",
+        "url": "https://smetrics.discover.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "smetrics.discover.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 3845,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 3845
       },
       {
         "id": 106,
-        "url": "https://browser-intake-datadoghq.com/api/v2/rum?ddsource=&ddtags=&dd-api-key=&dd-evp-origin-version=&dd-evp-origin=&dd-request-id=&batch_time=",
+        "url": "https://browser-intake-datadoghq.com/api/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "browser-intake-datadoghq.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 202,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 3852,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 3852
       }
     ],
     "domains": [
@@ -3674,7 +3674,7 @@
         ]
       },
       {
-        "domain": "o7f2hmf6xsbvr3t5itberuduwdtrj3tgvfjxjf4yd2f0d374622ad704sac.d.aa.online-metrix.net",
+        "domain": "{label}.d.aa.online-metrix.net",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -3752,7 +3752,7 @@
     ],
     "cookies": [
       {
-        "name": "_s",
+        "name": "[redacted]",
         "domain": ".app.link",
         "path": "/",
         "sameSite": "None",
@@ -3762,7 +3762,7 @@
         "thirdParty": true
       },
       {
-        "name": "_cs_id___2052",
+        "name": "[redacted]",
         "domain": ".cdnssl.clicktale.net",
         "path": "/",
         "sameSite": "None",
@@ -3772,7 +3772,7 @@
         "thirdParty": true
       },
       {
-        "name": "_cs_s___2052",
+        "name": "[redacted]",
         "domain": ".cdnssl.clicktale.net",
         "path": "/",
         "sameSite": "None",
@@ -3782,7 +3782,7 @@
         "thirdParty": true
       },
       {
-        "name": "demdex",
+        "name": "[redacted]",
         "domain": ".demdex.net",
         "path": "/",
         "sameSite": "None",
@@ -3792,7 +3792,7 @@
         "thirdParty": true
       },
       {
-        "name": "bm_sz",
+        "name": "[redacted]",
         "domain": ".discover.com",
         "path": "/",
         "sameSite": "None",
@@ -3802,7 +3802,7 @@
         "thirdParty": false
       },
       {
-        "name": "kndctr_0D6C4673527839230A490D45_AdobeOrg_cluster",
+        "name": "[redacted:long-token]",
         "domain": ".discover.com",
         "path": "/",
         "sameSite": "None",
@@ -3812,7 +3812,7 @@
         "thirdParty": false
       },
       {
-        "name": "kndctr_0D6C4673527839230A490D45_AdobeOrg_identity",
+        "name": "[redacted:long-token]",
         "domain": ".discover.com",
         "path": "/",
         "sameSite": "None",
@@ -3822,7 +3822,7 @@
         "thirdParty": false
       },
       {
-        "name": "AMCV_0D6C4673527839230A490D45%40AdobeOrg",
+        "name": "[redacted]",
         "domain": ".discover.com",
         "path": "/",
         "sameSite": "None",
@@ -3832,7 +3832,7 @@
         "thirdParty": false
       },
       {
-        "name": "s_vncm",
+        "name": "[redacted]",
         "domain": ".discover.com",
         "path": "/",
         "sameSite": "Lax",
@@ -3842,7 +3842,7 @@
         "thirdParty": false
       },
       {
-        "name": "s_ivc",
+        "name": "[redacted]",
         "domain": ".discover.com",
         "path": "/",
         "sameSite": "Lax",
@@ -3852,7 +3852,7 @@
         "thirdParty": false
       },
       {
-        "name": "_cs_c",
+        "name": "[redacted]",
         "domain": ".discover.com",
         "path": "/",
         "sameSite": "None",
@@ -3862,7 +3862,7 @@
         "thirdParty": false
       },
       {
-        "name": "mbox",
+        "name": "[redacted]",
         "domain": ".discover.com",
         "path": "/",
         "sameSite": "None",
@@ -3872,7 +3872,7 @@
         "thirdParty": false
       },
       {
-        "name": "mboxEdgeCluster",
+        "name": "[redacted]",
         "domain": ".discover.com",
         "path": "/",
         "sameSite": "None",
@@ -3882,7 +3882,7 @@
         "thirdParty": false
       },
       {
-        "name": "_cs_id",
+        "name": "[redacted]",
         "domain": ".discover.com",
         "path": "/",
         "sameSite": "None",
@@ -3892,7 +3892,7 @@
         "thirdParty": false
       },
       {
-        "name": "_cs_s",
+        "name": "[redacted]",
         "domain": ".discover.com",
         "path": "/",
         "sameSite": "None",
@@ -3912,7 +3912,7 @@
         "thirdParty": false
       },
       {
-        "name": "_dd_s",
+        "name": "[redacted]",
         "domain": ".discover.com",
         "path": "/",
         "sameSite": "Strict",
@@ -3922,7 +3922,7 @@
         "thirdParty": false
       },
       {
-        "name": "thx_guid",
+        "name": "[redacted]",
         "domain": "content.discover.com",
         "path": "/",
         "sameSite": "None",
@@ -3932,7 +3932,7 @@
         "thirdParty": false
       },
       {
-        "name": "tmx_guid",
+        "name": "[redacted]",
         "domain": "content.discover.com",
         "path": "/",
         "sameSite": "None",
@@ -3942,7 +3942,7 @@
         "thirdParty": false
       },
       {
-        "name": "DCID",
+        "name": "[redacted]",
         "domain": "portal.discover.com",
         "path": "/",
         "sameSite": "Lax",
@@ -3952,7 +3952,7 @@
         "thirdParty": false
       },
       {
-        "name": "x-orig",
+        "name": "[redacted]",
         "domain": "www.discover.com",
         "path": "/",
         "sameSite": "Lax",
@@ -3962,7 +3962,7 @@
         "thirdParty": false
       },
       {
-        "name": "DCID",
+        "name": "[redacted]",
         "domain": "www.discover.com",
         "path": "/",
         "sameSite": "Lax",
@@ -3975,118 +3975,168 @@
     "storage": [
       {
         "area": "localStorage",
-        "key": "CTpartition",
+        "key": "[redacted]",
         "valueBytes": 5
       },
       {
         "area": "localStorage",
-        "key": "CTrecordingLink",
+        "key": "[redacted]",
         "valueBytes": 139
       },
       {
         "area": "localStorage",
-        "key": "ak_a",
+        "key": "[redacted]",
         "valueBytes": 32
       },
       {
         "area": "localStorage",
-        "key": "5718FABB002E",
+        "key": "[redacted:hex-like]",
         "valueBytes": 94
       },
       {
         "area": "localStorage",
-        "key": "ak_ax",
+        "key": "[redacted]",
         "valueBytes": 2
       },
       {
         "area": "localStorage",
-        "key": "ed73f20edbf2b74",
+        "key": "[redacted:hex-like]",
         "valueBytes": 64
       },
       {
         "area": "localStorage",
-        "key": "branch_session_first",
+        "key": "[redacted]",
         "valueBytes": 343
       },
       {
         "area": "localStorage",
-        "key": "ed73f20edbf2b73",
+        "key": "[redacted:hex-like]",
         "valueBytes": 46
       },
       {
         "area": "localStorage",
-        "key": "com.adobe.reactor.core.visitorTracking.sessionCount",
+        "key": "[redacted]",
         "valueBytes": 1
       },
       {
         "area": "localStorage",
-        "key": "CTguid",
+        "key": "[redacted]",
         "valueBytes": 36
       },
       {
         "area": "localStorage",
-        "key": "CTuserID",
+        "key": "[redacted]",
         "valueBytes": 125
       },
       {
         "area": "localStorage",
-        "key": "com.adobe.reactor.core.visitorTracking.pagesViewed",
+        "key": "[redacted]",
         "valueBytes": 1
       },
       {
         "area": "sessionStorage",
-        "key": "com.adobe.reactor.core.visitorTracking.trafficSource",
+        "key": "[redacted]",
         "valueBytes": 0
       },
       {
         "area": "sessionStorage",
-        "key": "CTpartition",
+        "key": "[redacted]",
         "valueBytes": 5
       },
       {
         "area": "sessionStorage",
-        "key": "com.adobe.reactor.dataElements.TargetEdsKey",
+        "key": "[redacted]",
         "valueBytes": 4
       },
       {
         "area": "sessionStorage",
-        "key": "CTrecordingLink",
+        "key": "[redacted]",
         "valueBytes": 139
       },
       {
         "area": "sessionStorage",
-        "key": "com.adobe.reactor.core.visitorTracking.landingTime",
+        "key": "[redacted]",
         "valueBytes": 13
       },
       {
         "area": "sessionStorage",
-        "key": "branch_session",
+        "key": "[redacted]",
         "valueBytes": 343
       },
       {
         "area": "sessionStorage",
-        "key": "TAB_ID",
+        "key": "[redacted]",
         "valueBytes": 36
       },
       {
         "area": "sessionStorage",
-        "key": "CTguid",
+        "key": "[redacted]",
         "valueBytes": 36
       },
       {
         "area": "sessionStorage",
-        "key": "com.adobe.reactor.core.visitorTracking.landingPage",
+        "key": "[redacted]",
         "valueBytes": 25
       },
       {
         "area": "sessionStorage",
-        "key": "CTuserID",
+        "key": "[redacted]",
         "valueBytes": 125
       },
       {
         "area": "sessionStorage",
-        "key": "com.adobe.reactor.core.visitorTracking.pagesViewed",
+        "key": "[redacted]",
         "valueBytes": 1
+      }
+    ],
+    "fingerprintEvents": [
+      {
+        "api": "canvas.getImageData",
+        "count": 5
+      },
+      {
+        "api": "webgl2.readPixels",
+        "count": 5
+      },
+      {
+        "api": "webrtc.RTCPeerConnection.createDataChannel",
+        "count": 4
+      },
+      {
+        "api": "webrtc.RTCPeerConnection.createOffer",
+        "count": 4
+      },
+      {
+        "api": "webrtc.RTCPeerConnection.setLocalDescription",
+        "count": 4
+      },
+      {
+        "api": "canvas.toDataURL",
+        "count": 3
+      },
+      {
+        "api": "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
+        "count": 3
+      },
+      {
+        "api": "webgl.getParameter.UNMASKED_VENDOR_WEBGL",
+        "count": 3
+      },
+      {
+        "api": "webrtc.RTCPeerConnection",
+        "count": 2
+      },
+      {
+        "api": "audio.OfflineAudioContext.startRendering",
+        "count": 1
+      },
+      {
+        "api": "webgl2.getParameter.UNMASKED_RENDERER_WEBGL",
+        "count": 1
+      },
+      {
+        "api": "webgl2.getParameter.UNMASKED_VENDOR_WEBGL",
+        "count": 1
       }
     ],
     "fingerprintDetections": [
@@ -4152,11 +4202,11 @@
             "window"
           ],
           "thirdPartyOrigins": [
-            "https://cdnssl.clicktale.net",
-            "https://content.discover.com",
-            "https://portal.discover.com",
-            "https://s.go-mpulse.net",
-            "https://www.datadoghq-browser-agent.com"
+            "https://cdnssl.clicktale.net/",
+            "https://content.discover.com/",
+            "https://portal.discover.com/",
+            "https://s.go-mpulse.net/",
+            "https://www.datadoghq-browser-agent.com/"
           ],
           "totalListenerCalls": 28
         }
@@ -4191,75 +4241,16 @@
             "window"
           ],
           "thirdPartyOrigins": [
-            "https://assets.adobedtm.com",
-            "https://cdn.branch.io",
-            "https://cdnssl.clicktale.net",
-            "https://content.discover.com",
-            "https://s.go-mpulse.net",
-            "https://www.datadoghq-browser-agent.com"
+            "https://assets.adobedtm.com/",
+            "https://cdn.branch.io/",
+            "https://cdnssl.clicktale.net/",
+            "https://content.discover.com/",
+            "https://s.go-mpulse.net/",
+            "https://www.datadoghq-browser-agent.com/"
           ],
           "totalListenerCalls": 88
         }
       }
-    ],
-    "fingerprintEvents": [
-      {
-        "api": "canvas.getImageData",
-        "count": 5
-      },
-      {
-        "api": "webgl2.readPixels",
-        "count": 5
-      },
-      {
-        "api": "webrtc.RTCPeerConnection.createDataChannel",
-        "count": 4
-      },
-      {
-        "api": "webrtc.RTCPeerConnection.createOffer",
-        "count": 4
-      },
-      {
-        "api": "webrtc.RTCPeerConnection.setLocalDescription",
-        "count": 4
-      },
-      {
-        "api": "canvas.toDataURL",
-        "count": 3
-      },
-      {
-        "api": "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
-        "count": 3
-      },
-      {
-        "api": "webgl.getParameter.UNMASKED_VENDOR_WEBGL",
-        "count": 3
-      },
-      {
-        "api": "webrtc.RTCPeerConnection",
-        "count": 2
-      },
-      {
-        "api": "audio.OfflineAudioContext.startRendering",
-        "count": 1
-      },
-      {
-        "api": "webgl2.getParameter.UNMASKED_RENDERER_WEBGL",
-        "count": 1
-      },
-      {
-        "api": "webgl2.getParameter.UNMASKED_VENDOR_WEBGL",
-        "count": 1
-      }
-    ],
-    "screenshot": null,
-    "warnings": [
-      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling or clicking except one scripted choice on the cookie/consent banner (disclosed below). Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
-      "Counts are a lower bound: trackers that load only after further interaction, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
-      "This visit was asked to choose \"Reject all\" on a cookie/consent banner, but no recognizable control was found (the banner may not be shown to this scanner's location, the choice may sit behind a settings layer, or the control is not in the catalog). Results reflect the pre-consent state.",
-      "One or more requests were blocked or failed at connection time. This scan did not record whether that was a private-address guard block or an ordinary connection failure (a DNS or connect error), so no private-network claim is made.",
-      "Resolved 2 first-party subdomains that are CNAME aliases for third-party trackers (CNAME cloaking), which request-URL matching alone would miss.",
-      "Read the site's privacy policy (https://www.discover.com/privacy-statement/) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
     ],
     "cnameCloaks": [
       {
@@ -4284,7 +4275,7 @@
       }
     ],
     "privacyPolicy": {
-      "url": "https://www.discover.com/privacy-statement/",
+      "url": "https://www.discover.com/{seg}",
       "claims": [],
       "mentionedEntities": [],
       "unmentionedEntities": [
@@ -4295,7 +4286,16 @@
     "consentInteraction": {
       "mode": "reject-all",
       "clicked": false
-    }
+    },
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling or clicking except one scripted choice on the cookie/consent banner (disclosed below). Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after further interaction, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+      "This visit was asked to choose \"Reject all\" on a cookie/consent banner, but no recognizable control was found (the banner may not be shown to this scanner's location, the choice may sit behind a settings layer, or the control is not in the catalog). Results reflect the pre-consent state.",
+      "One or more requests were blocked or failed at connection time. This scan did not record whether that was a private-address guard block or an ordinary connection failure (a DNS or connect error), so no private-network claim is made.",
+      "Resolved 2 first-party subdomains that are CNAME aliases for third-party trackers (CNAME cloaking), which request-URL matching alone would miss.",
+      "Read the site's privacy policy (https://www.discover.com/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ]
   },
   "diff": {
     "totalRequests": {
@@ -4343,20 +4343,9 @@
         "domain": "k-aus1.clicktale.net",
         "requests": 1,
         "tracker": null
-      },
-      {
-        "domain": "o7f2hmf6xsbvr3t5itberuduwdtrj3tgvfjxjf4yd2f0d374622ad704sac.d.aa.online-metrix.net",
-        "requests": 1,
-        "tracker": null
       }
     ],
-    "removedDomains": [
-      {
-        "domain": "o7f2hmf67dviswkqi6wbnt733pi4mxhm36bzfq3u646c992a3233d819sac.d.aa.online-metrix.net",
-        "requests": 1,
-        "tracker": null
-      }
-    ],
+    "removedDomains": [],
     "addedEntities": [],
     "removedEntities": [],
     "addedCookies": [],
@@ -4380,13 +4369,13 @@
     "Accept-all attempt: This visit was asked to choose \"Accept all\" on a cookie/consent banner, but no recognizable control was found (the banner may not be shown to this scanner's location, the choice may sit behind a settings layer, or the control is not in the catalog). Results reflect the pre-consent state.",
     "Accept-all attempt: One or more requests were blocked or failed at connection time. This scan did not record whether that was a private-address guard block or an ordinary connection failure (a DNS or connect error), so no private-network claim is made.",
     "Accept-all attempt: Resolved 2 first-party subdomains that are CNAME aliases for third-party trackers (CNAME cloaking), which request-URL matching alone would miss.",
-    "Accept-all attempt: Read the site's privacy policy (https://www.discover.com/privacy-statement/) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
+    "Accept-all attempt: Read the site's privacy policy (https://www.discover.com/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
     "Reject-all attempt: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling or clicking except one scripted choice on the cookie/consent banner (disclosed below). Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
     "Reject-all attempt: Counts are a lower bound: trackers that load only after further interaction, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
     "Reject-all attempt: This visit was asked to choose \"Reject all\" on a cookie/consent banner, but no recognizable control was found (the banner may not be shown to this scanner's location, the choice may sit behind a settings layer, or the control is not in the catalog). Results reflect the pre-consent state.",
     "Reject-all attempt: One or more requests were blocked or failed at connection time. This scan did not record whether that was a private-address guard block or an ordinary connection failure (a DNS or connect error), so no private-network claim is made.",
     "Reject-all attempt: Resolved 2 first-party subdomains that are CNAME aliases for third-party trackers (CNAME cloaking), which request-URL matching alone would miss.",
-    "Reject-all attempt: Read the site's privacy policy (https://www.discover.com/privacy-statement/) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    "Reject-all attempt: Read the site's privacy policy (https://www.discover.com/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
   ],
   "share": {
     "id": "20260702-d925ca67b4559512cbdf640418ce510c",

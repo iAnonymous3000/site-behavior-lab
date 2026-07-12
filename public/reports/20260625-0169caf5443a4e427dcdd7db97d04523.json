@@ -49,6 +49,13 @@
       "automation": "playwright-chromium",
       "headless": true,
       "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "classification",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-06-19T17:24:24.927Z"
+      },
       "trackerCatalog": {
         "source": "Hand-curated service catalog",
         "version": "hand-curated-2026.06",
@@ -57,14 +64,7 @@
         "curatedOverrides": 133,
         "license": "AGPL-3.0-or-later"
       },
-      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
-      "adblock": {
-        "active": true,
-        "source": "Brave default ad-block lists",
-        "lists": 31,
-        "fetchedAt": "2026-06-19T17:24:24.927Z"
-      },
-      "shieldsMode": "classification"
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
     },
     "requests": [
       {
@@ -76,540 +76,540 @@
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 33,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 33
       },
       {
         "id": 2,
-        "url": "https://www.coolmathgames.com/logo.webp",
+        "url": "https://www.coolmathgames.com/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 92,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 92
       },
       {
         "id": 3,
-        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/zero-21-solitaire.jpg.webp",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 93,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 93
       },
       {
         "id": 4,
-        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/patches_linkedin.png.webp",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 94,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 94
       },
       {
         "id": 5,
-        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/vex-x3m-3.jpg.webp",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 94,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 94
       },
       {
         "id": 6,
-        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/gift-rush-3-update.jpg.webp",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 94,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 94
       },
       {
         "id": 7,
-        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/mini-sudoku-update.jpg.webp",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 94,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 94
       },
       {
         "id": 8,
-        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/soccer-challenge.png.webp",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 95,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 95
       },
       {
         "id": 9,
-        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/car-ferry.png.webp",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 96,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 96
       },
       {
         "id": 10,
-        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/arrow-direction.png.webp",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 98,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 98
       },
       {
         "id": 11,
-        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/run3_og-logo.jpg.webp",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 99,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 99
       },
       {
         "id": 12,
-        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/papasfreezeria_og-logo.jpg.webp",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 99,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 99
       },
       {
         "id": 13,
-        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/chess_og-logo.jpg.webp",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 99,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 99
       },
       {
         "id": 14,
-        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/investor-tower.png.webp",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 100,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 100
       },
       {
         "id": 15,
-        "url": "https://www.coolmathgames.com/sites/default/files/quiz/icons/2023-02/great-soccer-players-vol-1.jpg",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 100,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 100
       },
       {
         "id": 16,
-        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/cookie-clicker.jpg.webp",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 101,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 101
       },
       {
         "id": 17,
-        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/penaltykickonline_og-logo.jpg.webp",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 101,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 101
       },
       {
         "id": 18,
-        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/fireboy-watergirl-foresttemple_og-logo.jpg.webp",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 101,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 101
       },
       {
         "id": 19,
-        "url": "https://www.coolmathgames.com/sites/default/files/2021-11/papas-pizzeria.png",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 102,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 102
       },
       {
         "id": 20,
-        "url": "https://www.coolmathgames.com/_next/static/media/de42cfb9a3b980ae-s.p.woff2",
+        "url": "https://www.coolmathgames.com/{seg}/static/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 102,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 102
       },
       {
         "id": 21,
-        "url": "https://www.coolmathgames.com/_next/static/media/cc4a5103f24b59ab-s.p.woff2",
+        "url": "https://www.coolmathgames.com/{seg}/static/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 103,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 103
       },
       {
         "id": 22,
-        "url": "https://www.coolmathgames.com/_next/static/media/c166665af6ba1ec9-s.p.woff2",
+        "url": "https://www.coolmathgames.com/{seg}/static/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 104,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 104
       },
       {
         "id": 23,
-        "url": "https://www.coolmathgames.com/_next/static/media/d87379bffad347b6-s.p.woff2",
+        "url": "https://www.coolmathgames.com/{seg}/static/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 104,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 104
       },
       {
         "id": 24,
-        "url": "https://www.coolmathgames.com/_next/static/media/5f005b48945548d8-s.p.ttf",
+        "url": "https://www.coolmathgames.com/{seg}/static/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 105,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 105
       },
       {
         "id": 25,
-        "url": "https://www.coolmathgames.com/_next/static/media/9cd11c0634954621-s.p.ttf",
+        "url": "https://www.coolmathgames.com/{seg}/static/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 105,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 105
       },
       {
         "id": 26,
-        "url": "https://www.coolmathgames.com/_next/static/media/5d15ee4de3382558-s.p.ttf",
+        "url": "https://www.coolmathgames.com/{seg}/static/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 105,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 105
       },
       {
         "id": 27,
-        "url": "https://www.coolmathgames.com/_next/static/css/3db1387a7b7f7047.css",
+        "url": "https://www.coolmathgames.com/{seg}/static/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 106,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 106
       },
       {
         "id": 28,
-        "url": "https://www.coolmathgames.com/_next/static/chunks/518.a5f1da60e9792743.js",
+        "url": "https://www.coolmathgames.com/{seg}/static/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 112,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 112
       },
       {
         "id": 29,
-        "url": "https://www.coolmathgames.com/_next/static/chunks/323.107ffcdd412a17bd.js",
+        "url": "https://www.coolmathgames.com/{seg}/static/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 113,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 113
       },
       {
         "id": 30,
-        "url": "https://www.coolmathgames.com/_next/static/chunks/456-b0a52d30730bcc2f.js",
+        "url": "https://www.coolmathgames.com/{seg}/static/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 113,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 113
       },
       {
         "id": 31,
-        "url": "https://www.coolmathgames.com/_next/static/chunks/267.9af384829b6f3736.js",
+        "url": "https://www.coolmathgames.com/{seg}/static/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 114,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 114
       },
       {
         "id": 32,
-        "url": "https://www.coolmathgames.com/_next/static/chunks/708-4bd731c61febb4e7.js",
+        "url": "https://www.coolmathgames.com/{seg}/static/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 114,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 114
       },
       {
         "id": 33,
-        "url": "https://www.coolmathgames.com/_next/static/chunks/648.9af384829b6f3736.js",
+        "url": "https://www.coolmathgames.com/{seg}/static/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 114,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 114
       },
       {
         "id": 34,
-        "url": "https://www.coolmathgames.com/_next/static/chunks/webpack-487cda471bdec6a0.js",
+        "url": "https://www.coolmathgames.com/{seg}/static/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 114,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 114
       },
       {
         "id": 35,
-        "url": "https://www.coolmathgames.com/_next/static/chunks/framework-a6e0b7e30f98059a.js",
+        "url": "https://www.coolmathgames.com/{seg}/static/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 114,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 114
       },
       {
         "id": 36,
-        "url": "https://www.coolmathgames.com/_next/static/chunks/main-e9b4471d1cf1922c.js",
+        "url": "https://www.coolmathgames.com/{seg}/static/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 115,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 115
       },
       {
         "id": 37,
-        "url": "https://www.coolmathgames.com/_next/static/chunks/pages/_app-b2553b668b983e1a.js",
+        "url": "https://www.coolmathgames.com/{seg}/static/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 115,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 115
       },
       {
         "id": 38,
-        "url": "https://www.coolmathgames.com/_next/static/chunks/749-844f2aea16abc3fe.js",
+        "url": "https://www.coolmathgames.com/{seg}/static/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 115,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 115
       },
       {
         "id": 39,
-        "url": "https://www.coolmathgames.com/_next/static/chunks/585-fe4128585281316a.js",
+        "url": "https://www.coolmathgames.com/{seg}/static/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 115,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 115
       },
       {
         "id": 40,
-        "url": "https://www.coolmathgames.com/_next/static/chunks/820-29a2e513d505e206.js",
+        "url": "https://www.coolmathgames.com/{seg}/static/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 115,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 115
       },
       {
         "id": 41,
-        "url": "https://www.coolmathgames.com/_next/static/chunks/230-4ce3b7940031c473.js",
+        "url": "https://www.coolmathgames.com/{seg}/static/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 116,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 116
       },
       {
         "id": 42,
-        "url": "https://www.coolmathgames.com/_next/static/chunks/925-f832d0f97123853e.js",
+        "url": "https://www.coolmathgames.com/{seg}/static/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 116,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 116
       },
       {
         "id": 43,
-        "url": "https://www.coolmathgames.com/_next/static/chunks/261-0ad2b0de7e52a75c.js",
+        "url": "https://www.coolmathgames.com/{seg}/static/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 116,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 116
       },
       {
         "id": 44,
-        "url": "https://www.coolmathgames.com/_next/static/chunks/606-66b86a6e9ad98404.js",
+        "url": "https://www.coolmathgames.com/{seg}/static/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 116,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 116
       },
       {
         "id": 45,
-        "url": "https://www.coolmathgames.com/_next/static/chunks/47-fa3ccf2d8cda3117.js",
+        "url": "https://www.coolmathgames.com/{seg}/static/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 117,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 117
       },
       {
         "id": 46,
-        "url": "https://dev.visualwebsiteoptimizer.com/j.php?a=&u=&vn=&ph=&st=&x=",
+        "url": "https://dev.visualwebsiteoptimizer.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "dev.visualwebsiteoptimizer.com",
         "method": "GET",
         "resourceType": "xhr",
@@ -621,312 +621,312 @@
           "category": "experimentation / behavior analytics",
           "confidence": "curated"
         },
-        "startedAtMs": 117,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 117
       },
       {
         "id": 47,
-        "url": "https://www.coolmathgames.com/_next/static/chunks/328-2127e8b07d19accd.js",
+        "url": "https://www.coolmathgames.com/{seg}/static/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 117,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 117
       },
       {
         "id": 48,
-        "url": "https://www.coolmathgames.com/_next/static/chunks/pages/new-home-f2c1be6eef08e7b3.js",
+        "url": "https://www.coolmathgames.com/{seg}/static/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 117,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 117
       },
       {
         "id": 49,
-        "url": "https://www.coolmathgames.com/_next/static/prd4s6f0e7f9d4a1c/_buildManifest.js",
+        "url": "https://www.coolmathgames.com/{seg}/static/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 118,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 118
       },
       {
         "id": 50,
-        "url": "https://www.coolmathgames.com/_next/static/prd4s6f0e7f9d4a1c/_ssgManifest.js",
+        "url": "https://www.coolmathgames.com/{seg}/static/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 118,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 118
       },
       {
         "id": 51,
-        "url": "https://www.coolmathgames.com/sites/default/files/2024-09/Creative.svg",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 118,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 118
       },
       {
         "id": 52,
-        "url": "https://www.coolmathgames.com/sites/default/files/2026-06/Savings.svg",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 118,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 118
       },
       {
         "id": 53,
-        "url": "https://www.coolmathgames.com/sites/default/files/2024-09/Business.svg",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 119,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 119
       },
       {
         "id": 54,
-        "url": "https://www.coolmathgames.com/sites/default/files/2024-10/Multiplayer.svg",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 119,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 119
       },
       {
         "id": 55,
-        "url": "https://www.coolmathgames.com/sites/default/files/2024-09/Daily.svg",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 119,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 119
       },
       {
         "id": 56,
-        "url": "https://www.coolmathgames.com/sites/default/files/2024-09/Papa-series.svg",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 119,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 119
       },
       {
         "id": 57,
-        "url": "https://www.coolmathgames.com/sites/default/files/2024-09/Board-games.svg",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 120,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 120
       },
       {
         "id": 58,
-        "url": "https://www.coolmathgames.com/sites/default/files/2024-09/Escape.svg",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 120,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 120
       },
       {
         "id": 59,
-        "url": "https://www.coolmathgames.com/sites/default/files/2024-09/Physics-puzzles.svg",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 120,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 120
       },
       {
         "id": 60,
-        "url": "https://www.coolmathgames.com/sites/default/files/2026-03/collection-icon-coding.svg",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 120,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 120
       },
       {
         "id": 61,
-        "url": "https://www.coolmathgames.com/sites/default/files/2024-09/Science.svg",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 121,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 121
       },
       {
         "id": 62,
-        "url": "https://www.coolmathgames.com/sites/default/files/2024-09/Building-blocks.svg",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 121,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 121
       },
       {
         "id": 63,
-        "url": "https://www.coolmathgames.com/sites/default/files/2024-09/Applied-math.svg",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 121,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 121
       },
       {
         "id": 64,
-        "url": "https://www.coolmathgames.com/assets/svg/categories/Trivia.svg",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/categories/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 121,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 121
       },
       {
         "id": 65,
-        "url": "https://www.coolmathgames.com/sites/default/files/2024-09/Clicker.svg",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 122,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 122
       },
       {
         "id": 66,
-        "url": "https://www.coolmathgames.com/sites/default/files/2026-06/Soccer.svg",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 122,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 122
       },
       {
         "id": 67,
-        "url": "https://www.coolmathgames.com/sites/default/files/2024-09/2-player.svg",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 122,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 122
       },
       {
         "id": 68,
-        "url": "https://www.coolmathgames.com/sites/default/files/2024-09/Tower-defense.svg",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 122,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 122
       },
       {
         "id": 69,
-        "url": "https://www.coolmathgames.com/assets/svg/categories/popular-categories.svg",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/categories/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 130,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 130
       },
       {
         "id": 70,
-        "url": "https://apis.google.com/js/platform.js",
+        "url": "https://apis.google.com/{seg}/{seg}",
         "domain": "apis.google.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 225,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 225
       },
       {
         "id": 71,
-        "url": "https://www.coolmathgames.com/assets/images/about-bg.svg",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 298,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 298
       },
       {
         "id": 72,
-        "url": "https://dev.visualwebsiteoptimizer.com/cdn/edrv/worker-cb8da8ab3fc814452c5f99e83cfd2882.br.js",
+        "url": "https://dev.visualwebsiteoptimizer.com/{seg}/{seg}/{seg}",
         "domain": "dev.visualwebsiteoptimizer.com",
         "method": "GET",
         "resourceType": "xhr",
@@ -938,12 +938,12 @@
           "category": "experimentation / behavior analytics",
           "confidence": "curated"
         },
-        "startedAtMs": 342,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 342
       },
       {
         "id": 73,
-        "url": "https://dev.visualwebsiteoptimizer.com/cdn/edrv/va_gq-9bd912210ac34a96921a81e492ce07ff.br.js",
+        "url": "https://dev.visualwebsiteoptimizer.com/{seg}/{seg}/{seg}",
         "domain": "dev.visualwebsiteoptimizer.com",
         "method": "GET",
         "resourceType": "xhr",
@@ -955,12 +955,12 @@
           "category": "experimentation / behavior analytics",
           "confidence": "curated"
         },
-        "startedAtMs": 343,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 343
       },
       {
         "id": 74,
-        "url": "https://dev.visualwebsiteoptimizer.com/ee.gif?a=&s=&_cu=&e=",
+        "url": "https://dev.visualwebsiteoptimizer.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "dev.visualwebsiteoptimizer.com",
         "method": "GET",
         "resourceType": "image",
@@ -972,12 +972,12 @@
           "category": "experimentation / behavior analytics",
           "confidence": "curated"
         },
-        "startedAtMs": 344,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 344
       },
       {
         "id": 75,
-        "url": "https://www.googletagmanager.com/gtag/js?id=",
+        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=",
         "domain": "www.googletagmanager.com",
         "method": "GET",
         "resourceType": "script",
@@ -989,276 +989,276 @@
           "category": "analytics / tag management",
           "confidence": "curated"
         },
-        "startedAtMs": 581,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 581
       },
       {
         "id": 76,
-        "url": "https://cdn.intergient.com/1023174/71134/ramp.js",
+        "url": "https://cdn.intergient.com/{n}/{n}/{seg}",
         "domain": "cdn.intergient.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 581,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 581
       },
       {
         "id": 77,
-        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/drift-boss-advanced.png.webp",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 799,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 799
       },
       {
         "id": 78,
-        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/slice-master-new.png.webp",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 800,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 800
       },
       {
         "id": 79,
-        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/8-ball-pool-v2.png.webp",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 801,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 801
       },
       {
         "id": 80,
-        "url": "https://www.coolmathgames.com/sites/default/files/2024-01/Trivia-sports.svg",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 859,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 859
       },
       {
         "id": 81,
-        "url": "https://www.coolmathgames.com/sites/default/files/2026-03/Trivia-finlit.svg",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 859,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 859
       },
       {
         "id": 82,
-        "url": "https://www.coolmathgames.com/sites/default/files/2024-01/Trivia-fun.svg",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 860,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 860
       },
       {
         "id": 83,
-        "url": "https://www.coolmathgames.com/sites/default/files/2024-01/Trivia-science.svg",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 860,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 860
       },
       {
         "id": 84,
-        "url": "https://www.coolmathgames.com/sites/default/files/2024-01/Trivia-food.svg",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 860,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 860
       },
       {
         "id": 85,
-        "url": "https://www.coolmathgames.com/sites/default/files/2024-01/Trivia-places.svg",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 861,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 861
       },
       {
         "id": 86,
-        "url": "https://www.coolmathgames.com/assets/images/thoughtfully-curated.svg",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 861,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 861
       },
       {
         "id": 87,
-        "url": "https://www.coolmathgames.com/assets/images/privacy-focused.svg",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 861,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 861
       },
       {
         "id": 88,
-        "url": "https://www.coolmathgames.com/assets/images/learning-through-fun.svg",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 862,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 862
       },
       {
         "id": 89,
-        "url": "https://www.coolmathgames.com/assets/images/accessible.svg",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 862,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 862
       },
       {
         "id": 90,
-        "url": "https://www.coolmathgames.com/assets/images/reviewed-check.svg",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 862,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 862
       },
       {
         "id": 91,
-        "url": "https://www.coolmathgames.com/assets/images/octo.svg",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 863,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 863
       },
       {
         "id": 92,
-        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/2026-05/Coolmath%20Games%20Financial%20Literacy%20Game%20Jam%20Blog%20Thumbnail.png.webp",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 866,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 866
       },
       {
         "id": 93,
-        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/2026-05/Drift%20Boss%202026%20Update%20Blog%20Thumbnail.png.webp",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 866,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 866
       },
       {
         "id": 94,
-        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/2026-04/Introducing%20Financial%20Literacy%20Blog%20Thumbnail.png.webp",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 866,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 866
       },
       {
         "id": 95,
-        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/2026-04/How%20to%20Play%20More%20Sushi%20Blog%20Thumbnail.png.webp",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 867,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 867
       },
       {
         "id": 96,
-        "url": "https://www.coolmathgames.com/assets/images/nav_icon/icon_profile.svg",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 867,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 867
       },
       {
         "id": 97,
-        "url": "https://www.coolmathgames.com/assets/svg/random.svg",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 868,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 868
       },
       {
         "id": 98,
-        "url": "https://dev.visualwebsiteoptimizer.com/cdn/edrv/nc-910df10cb24ceeebb66507d017e820a6.br.js",
+        "url": "https://dev.visualwebsiteoptimizer.com/{seg}/{seg}/{seg}",
         "domain": "dev.visualwebsiteoptimizer.com",
         "method": "GET",
         "resourceType": "xhr",
@@ -1270,84 +1270,84 @@
           "category": "experimentation / behavior analytics",
           "confidence": "curated"
         },
-        "startedAtMs": 879,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 879
       },
       {
         "id": 99,
-        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/tinyfishing_og-logo.jpg.webp",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1195,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1195
       },
       {
         "id": 100,
-        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/worldguessr-default.png.webp",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1196,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1196
       },
       {
         "id": 101,
-        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/slice-of-the-market.jpg.webp",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1196,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1196
       },
       {
         "id": 102,
-        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/tax-season_0.png.webp",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1197,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1197
       },
       {
         "id": 103,
-        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/cryptid-kimber.jpg.webp",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1197,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1197
       },
       {
         "id": 104,
-        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/dont-get-duped.png.webp",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1198,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1198
       },
       {
         "id": 105,
-        "url": "https://dev.visualwebsiteoptimizer.com/dcdn/settings.js?a=&settings_type=&ts=&dt=&cc=",
+        "url": "https://dev.visualwebsiteoptimizer.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "dev.visualwebsiteoptimizer.com",
         "method": "GET",
         "resourceType": "script",
@@ -1359,24 +1359,24 @@
           "category": "experimentation / behavior analytics",
           "confidence": "curated"
         },
-        "startedAtMs": 1302,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1302
       },
       {
         "id": 106,
-        "url": "https://metrics.rapidedge.io/gamera.js?ltv=&audience=&partner=",
+        "url": "https://metrics.rapidedge.io/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "metrics.rapidedge.io",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1475,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1475
       },
       {
         "id": 107,
-        "url": "https://securepubads.g.doubleclick.net/tag/js/gpt.js?network-code=",
+        "url": "https://securepubads.g.doubleclick.net/{seg}/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "securepubads.g.doubleclick.net",
         "method": "GET",
         "resourceType": "script",
@@ -1388,36 +1388,36 @@
           "category": "advertising",
           "confidence": "curated"
         },
-        "startedAtMs": 1476,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1476
       },
       {
         "id": 108,
-        "url": "https://cdn.intergient.com/prebid/prebid.000a2ca3b9494b10e183.js",
+        "url": "https://cdn.intergient.com/{seg}/{seg}",
         "domain": "cdn.intergient.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1476,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1476
       },
       {
         "id": 109,
-        "url": "https://cdn.intergient.com/ramp_core.js",
+        "url": "https://cdn.intergient.com/{seg}",
         "domain": "cdn.intergient.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1477,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1477
       },
       {
         "id": 110,
-        "url": "https://www.googletagmanager.com/gtm.js?id=",
+        "url": "https://www.googletagmanager.com/{seg}?id=",
         "domain": "www.googletagmanager.com",
         "method": "GET",
         "resourceType": "script",
@@ -1429,12 +1429,12 @@
           "category": "analytics / tag management",
           "confidence": "curated"
         },
-        "startedAtMs": 1663,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1663
       },
       {
         "id": 111,
-        "url": "https://securepubads.g.doubleclick.net/pagead/managed/js/gpt/m202606230101/pubads_impl.js?cb=",
+        "url": "https://securepubads.g.doubleclick.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?cb=",
         "domain": "securepubads.g.doubleclick.net",
         "method": "GET",
         "resourceType": "script",
@@ -1446,12 +1446,12 @@
           "category": "advertising",
           "confidence": "curated"
         },
-        "startedAtMs": 1837,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1837
       },
       {
         "id": 112,
-        "url": "https://ad.doubleclick.net/ccm/s/collect?auid=&gtm=",
+        "url": "https://ad.doubleclick.net/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "ad.doubleclick.net",
         "method": "POST",
         "resourceType": "fetch",
@@ -1463,12 +1463,12 @@
           "category": "advertising",
           "confidence": "curated"
         },
-        "startedAtMs": 2919,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2919
       },
       {
         "id": 113,
-        "url": "https://www.google-analytics.com/analytics.js",
+        "url": "https://www.google-analytics.com/{seg}",
         "domain": "www.google-analytics.com",
         "method": "GET",
         "resourceType": "script",
@@ -1480,24 +1480,24 @@
           "category": "analytics / tag management",
           "confidence": "curated"
         },
-        "startedAtMs": 2920,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2920
       },
       {
         "id": 114,
-        "url": "https://www.google.com/ccm/collect?rcb=&frm=&ae=&auid=&dt=&en=&dl=&scrsrc=&rnd=&navt=&npa=&ep.ads_data_redaction=&gtm=&gcd=&dma=&tag_exp=&apve=&apvf=&apvc=&tft=&tfd=&fmt=",
+        "url": "https://www.google.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 2920,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2920
       },
       {
         "id": 115,
-        "url": "https://www.google-analytics.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&_eu=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&_s=&tag_exp=&sid=&sct=&seg=&dl=&dt=&en=&_fv=&_nsi=&_ss=&ep.device_type=&ep.ad_blocker_detected=&up.user_type=&tfd=",
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "www.google-analytics.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -1509,24 +1509,24 @@
           "category": "analytics / tag management",
           "confidence": "curated"
         },
-        "startedAtMs": 2975,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2975
       },
       {
         "id": 116,
-        "url": "https://fundingchoicesmessages.google.com/i/45966600?ers=",
+        "url": "https://fundingchoicesmessages.google.com/{seg}/{n}?%5Bredacted%5D=",
         "domain": "fundingchoicesmessages.google.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 3081,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 3081
       },
       {
         "id": 117,
-        "url": "https://www.google-analytics.com/j/collect?v=&_v=&a=&t=&ni=&_s=&dl=&ul=&dt=&sr=&vp=&ec=&ea=&el=&_u=&jid=&gjid=&cid=&tid=&_gid=&_r=&_slc=&gtm=&gcd=&dma=&tag_exp=&z=",
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&%5Bredacted%5D=&%5Bredacted%5D=&t=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "www.google-analytics.com",
         "method": "POST",
         "resourceType": "xhr",
@@ -1538,132 +1538,132 @@
           "category": "analytics / tag management",
           "confidence": "curated"
         },
-        "startedAtMs": 3166,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 3166
       },
       {
         "id": 118,
-        "url": "https://fundingchoicesmessages.google.com/el/AGSKWxXUGhKoUaiC6TFs-ATPtpkUKLYmU8sl-DoPi_VxNDeXyAXJ5c6uhGEIkCofemVQ9A7DAbu5xhYaqaEsOuMk9Zp4-iMgA0WWZDi7AiHkniEITiPtA-zWijutNZ7SSK82I5ehtWeqCw==",
+        "url": "https://fundingchoicesmessages.google.com/{seg}/{seg}",
         "domain": "fundingchoicesmessages.google.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 204,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 3289,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 3289
       },
       {
         "id": 119,
-        "url": "https://fundingchoicesmessages.google.com/el/AGSKWxXUGhKoUaiC6TFs-ATPtpkUKLYmU8sl-DoPi_VxNDeXyAXJ5c6uhGEIkCofemVQ9A7DAbu5xhYaqaEsOuMk9Zp4-iMgA0WWZDi7AiHkniEITiPtA-zWijutNZ7SSK82I5ehtWeqCw==",
+        "url": "https://fundingchoicesmessages.google.com/{seg}/{seg}",
         "domain": "fundingchoicesmessages.google.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 204,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 3290,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 3290
       },
       {
         "id": 120,
-        "url": "https://fundingchoicesmessages.google.com/el/AGSKWxXUGhKoUaiC6TFs-ATPtpkUKLYmU8sl-DoPi_VxNDeXyAXJ5c6uhGEIkCofemVQ9A7DAbu5xhYaqaEsOuMk9Zp4-iMgA0WWZDi7AiHkniEITiPtA-zWijutNZ7SSK82I5ehtWeqCw==",
+        "url": "https://fundingchoicesmessages.google.com/{seg}/{seg}",
         "domain": "fundingchoicesmessages.google.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 204,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 3294,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 3294
       },
       {
         "id": 121,
-        "url": "https://fundingchoicesmessages.google.com/f/AGSKWxXXoUaJ13q6pj1VzhcfhyRZA9PUDERsAWsP5iTn84sRHIxF5UVfWoyyQ7cL2jyQeNAJF4wBrGgkhEJ9Ew1vvw1k0nydNpmK1CeOo32OVCLk_Md7LeHVzhxB4yg_2iOzeD4j7SbKjg==?fccs=",
+        "url": "https://fundingchoicesmessages.google.com/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "fundingchoicesmessages.google.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 3323,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 3323
       },
       {
         "id": 122,
-        "url": "https://fonts.googleapis.com/css?family=&display=",
+        "url": "https://fonts.googleapis.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "fonts.googleapis.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 3451,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 3451
       },
       {
         "id": 123,
-        "url": "https://fundingchoicesmessages.google.com/el/AGSKWxXUGhKoUaiC6TFs-ATPtpkUKLYmU8sl-DoPi_VxNDeXyAXJ5c6uhGEIkCofemVQ9A7DAbu5xhYaqaEsOuMk9Zp4-iMgA0WWZDi7AiHkniEITiPtA-zWijutNZ7SSK82I5ehtWeqCw==",
+        "url": "https://fundingchoicesmessages.google.com/{seg}/{seg}",
         "domain": "fundingchoicesmessages.google.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 204,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 3451,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 3451
       },
       {
         "id": 124,
-        "url": "https://fundingchoicesmessages.google.com/el/AGSKWxXUGhKoUaiC6TFs-ATPtpkUKLYmU8sl-DoPi_VxNDeXyAXJ5c6uhGEIkCofemVQ9A7DAbu5xhYaqaEsOuMk9Zp4-iMgA0WWZDi7AiHkniEITiPtA-zWijutNZ7SSK82I5ehtWeqCw==",
+        "url": "https://fundingchoicesmessages.google.com/{seg}/{seg}",
         "domain": "fundingchoicesmessages.google.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 204,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 3452,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 3452
       },
       {
         "id": 125,
-        "url": "https://lh3.googleusercontent.com/xzYhFSFhl32UXolGgI1UqHBpnvA_K5I3U2_nzaXr47UlvFrWa3yA5IpAfn3Is9CrS5rPckRjNRTIHuWwicLn3rbCT5flDQrmAlLqcbHT88CH_RhQxDsh=h60",
+        "url": "https://lh3.googleusercontent.com/{seg}",
         "domain": "lh3.googleusercontent.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 3453,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 3453
       },
       {
         "id": 126,
-        "url": "https://fundingchoicesmessages.google.com/el/AGSKWxXUGhKoUaiC6TFs-ATPtpkUKLYmU8sl-DoPi_VxNDeXyAXJ5c6uhGEIkCofemVQ9A7DAbu5xhYaqaEsOuMk9Zp4-iMgA0WWZDi7AiHkniEITiPtA-zWijutNZ7SSK82I5ehtWeqCw==",
+        "url": "https://fundingchoicesmessages.google.com/{seg}/{seg}",
         "domain": "fundingchoicesmessages.google.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 204,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 3454,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 3454
       },
       {
         "id": 127,
-        "url": "https://fundingchoicesmessages.google.com/f/AGSKWxVl9--HyvSu0H1VeaSwAu2oVG_dAHg_em33QHDQTNhkQdSbjYb5DzxArqylVVEkNJWTAvR-Y1QDgHjyBwK_yhuZsYowiKbC8PnMJNmIqLO2qs_osfjomoZJNlpjpmCeZYiwM-m2tA==?fccs=",
+        "url": "https://fundingchoicesmessages.google.com/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "fundingchoicesmessages.google.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 3455,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 3455
       },
       {
         "id": 128,
-        "url": "https://tags.crwdcntrl.net/lt/c/16589/sync.min.js",
+        "url": "https://tags.crwdcntrl.net/{seg}/{seg}/{n}/{seg}",
         "domain": "tags.crwdcntrl.net",
         "method": "GET",
         "resourceType": "script",
@@ -1675,12 +1675,12 @@
           "category": "advertising / data management",
           "confidence": "curated"
         },
-        "startedAtMs": 3456,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 3456
       },
       {
         "id": 129,
-        "url": "https://static.criteo.net/js/ld/publishertag.ids.js",
+        "url": "https://static.criteo.net/{seg}/{seg}/{seg}",
         "domain": "static.criteo.net",
         "method": "GET",
         "resourceType": "script",
@@ -1692,48 +1692,48 @@
           "category": "advertising",
           "confidence": "curated"
         },
-        "startedAtMs": 3456,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 3456
       },
       {
         "id": 130,
-        "url": "https://oa.openxcdn.net/esp.js",
+        "url": "https://oa.openxcdn.net/{seg}",
         "domain": "oa.openxcdn.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 3456,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 3456
       },
       {
         "id": 131,
-        "url": "https://invstatic101.creativecdn.com/encrypted-signals/encrypted-tag-g.js",
-        "domain": "invstatic101.creativecdn.com",
+        "url": "https://{label}.creativecdn.com/{seg}/{seg}",
+        "domain": "{label}.creativecdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 3456,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 3456
       },
       {
         "id": 132,
-        "url": "https://cdn.intergient.com/pageos/V.20260623.1/pageos.js",
+        "url": "https://cdn.intergient.com/{seg}/{seg}/{seg}",
         "domain": "cdn.intergient.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 3568,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 3568
       },
       {
         "id": 133,
-        "url": "https://bcp.crwdcntrl.net/6/map?xcid=",
+        "url": "https://bcp.crwdcntrl.net/{n}/{seg}?%5Bredacted%5D=",
         "domain": "bcp.crwdcntrl.net",
         "method": "POST",
         "resourceType": "xhr",
@@ -1745,84 +1745,84 @@
           "category": "advertising / data management",
           "confidence": "curated"
         },
-        "startedAtMs": 3692,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 3692
       },
       {
         "id": 134,
-        "url": "https://cdn.intergient.com/pageos/V.20260623.1/videoCard.f860201d651f79aa38c7.js",
+        "url": "https://cdn.intergient.com/{seg}/{seg}/{seg}",
         "domain": "cdn.intergient.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 3791,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 3791
       },
       {
         "id": 135,
-        "url": "https://cdn.intergient.com/pageos/V.20260623.1/iframe/iframe.html",
+        "url": "https://cdn.intergient.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "cdn.intergient.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 3792,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 3792
       },
       {
         "id": 136,
-        "url": "https://config.playwire.com/1023174/v2/websites/71134/styles.css",
+        "url": "https://config.playwire.com/{n}/{seg}/{seg}/{n}/{seg}",
         "domain": "config.playwire.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 3797,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 3797
       },
       {
         "id": 137,
-        "url": "https://solutions.cdn.optable.co/playwire/sdk.js",
+        "url": "https://solutions.cdn.optable.co/{seg}/{seg}",
         "domain": "solutions.cdn.optable.co",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 3798,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 3798
       },
       {
         "id": 138,
-        "url": "https://cdn.intergient.com/pageos/V.20260623.1/iframe/iframe.html",
+        "url": "https://cdn.intergient.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "cdn.intergient.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 3800,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 3800
       },
       {
         "id": 139,
-        "url": "https://cdn.intergient.com/pageos/V.20260623.1/ccpa.3ecba3650dabe2bb210a.js",
+        "url": "https://cdn.intergient.com/{seg}/{seg}/{seg}",
         "domain": "cdn.intergient.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 3805,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 3805
       },
       {
         "id": 140,
-        "url": "https://c.amazon-adsystem.com/aax2/apstag.js",
+        "url": "https://c.amazon-adsystem.com/{seg}/{seg}",
         "domain": "c.amazon-adsystem.com",
         "method": "GET",
         "resourceType": "script",
@@ -1834,60 +1834,60 @@
           "category": "advertising",
           "confidence": "curated"
         },
-        "startedAtMs": 3807,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 3807
       },
       {
         "id": 141,
-        "url": "https://fundingchoicesmessages.google.com/el/AGSKWxXUGhKoUaiC6TFs-ATPtpkUKLYmU8sl-DoPi_VxNDeXyAXJ5c6uhGEIkCofemVQ9A7DAbu5xhYaqaEsOuMk9Zp4-iMgA0WWZDi7AiHkniEITiPtA-zWijutNZ7SSK82I5ehtWeqCw==",
+        "url": "https://fundingchoicesmessages.google.com/{seg}/{seg}",
         "domain": "fundingchoicesmessages.google.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 204,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 3807,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 3807
       },
       {
         "id": 142,
-        "url": "https://raw.githubusercontent.com/easylist/easylist/master/docs/1x1.gif",
+        "url": "https://raw.githubusercontent.com/{seg}/{seg}/{seg}/docs/{seg}",
         "domain": "raw.githubusercontent.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 3808,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 3808
       },
       {
         "id": 143,
-        "url": "https://cdn.intergient.com/pageos/V.20260623.1/iframe/iframe.js",
+        "url": "https://cdn.intergient.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "cdn.intergient.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 3905,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 3905
       },
       {
         "id": 144,
-        "url": "https://cdn.intergient.com/pageos/V.20260623.1/iframe/iframe.js",
+        "url": "https://cdn.intergient.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "cdn.intergient.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 3911,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 3911
       },
       {
         "id": 145,
-        "url": "https://tags.crwdcntrl.net/lt/c/17138/sync.min.js",
+        "url": "https://tags.crwdcntrl.net/{seg}/{seg}/{n}/{seg}",
         "domain": "tags.crwdcntrl.net",
         "method": "GET",
         "resourceType": "script",
@@ -1899,36 +1899,36 @@
           "category": "advertising / data management",
           "confidence": "curated"
         },
-        "startedAtMs": 3978,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 3978
       },
       {
         "id": 146,
-        "url": "https://cdn.intergient.com/cdn-cgi/challenge-platform/scripts/jsd/main.js",
+        "url": "https://cdn.intergient.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "cdn.intergient.com",
         "method": "GET",
         "resourceType": "script",
         "status": 302,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 3990,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 3990
       },
       {
         "id": 147,
-        "url": "https://cdn.intergient.com/cdn-cgi/challenge-platform/scripts/jsd/main.js",
+        "url": "https://cdn.intergient.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "cdn.intergient.com",
         "method": "GET",
         "resourceType": "script",
         "status": 302,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 4027,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 4027
       },
       {
         "id": 148,
-        "url": "https://c.amazon-adsystem.com/bao-csm/aps-comm/aps_csm.js",
+        "url": "https://c.amazon-adsystem.com/{seg}/{seg}/{seg}",
         "domain": "c.amazon-adsystem.com",
         "method": "GET",
         "resourceType": "xhr",
@@ -1940,12 +1940,12 @@
           "category": "advertising",
           "confidence": "curated"
         },
-        "startedAtMs": 4083,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 4083
       },
       {
         "id": 149,
-        "url": "https://config.aps.amazon-adsystem.com/configs/bd056b42-51db-43ce-9a8e-3b11319b5d1f",
+        "url": "https://config.aps.amazon-adsystem.com/{seg}/{seg}",
         "domain": "config.aps.amazon-adsystem.com",
         "method": "GET",
         "resourceType": "script",
@@ -1957,36 +1957,36 @@
           "category": "advertising",
           "confidence": "curated"
         },
-        "startedAtMs": 4084,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 4084
       },
       {
         "id": 150,
-        "url": "https://cdn.intergient.com/cdn-cgi/challenge-platform/h/b/scripts/jsd/25e6c66701a0/main.js",
+        "url": "https://cdn.intergient.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "cdn.intergient.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 4097,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 4097
       },
       {
         "id": 151,
-        "url": "https://cdn.intergient.com/cdn-cgi/challenge-platform/h/b/scripts/jsd/25e6c66701a0/main.js",
+        "url": "https://cdn.intergient.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "cdn.intergient.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 4128,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 4128
       },
       {
         "id": 152,
-        "url": "https://pagead2.googlesyndication.com/pagead/ping?e=",
+        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "pagead2.googlesyndication.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -1998,84 +1998,84 @@
           "category": "advertising",
           "confidence": "curated"
         },
-        "startedAtMs": 4129,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 4129
       },
       {
         "id": 153,
-        "url": "https://na.edge.optable.co/config?t=&o=",
+        "url": "https://na.edge.optable.co/{seg}?t=&%5Bredacted%5D=",
         "domain": "na.edge.optable.co",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 4151,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 4151
       },
       {
         "id": 154,
-        "url": "https://www.coolmathgames.com/sites/default/files/cmatgame_games_with_levels.json",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 4259,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 4259
       },
       {
         "id": 155,
-        "url": "https://cd836371f1d.cdn.intergient.com/fb87a4ea41",
-        "domain": "cd836371f1d.cdn.intergient.com",
+        "url": "https://{label}.cdn.intergient.com/{seg}",
+        "domain": "{label}.cdn.intergient.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 4267,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 4267
       },
       {
         "id": 156,
-        "url": "https://carbon-cdn.ccgateway.net/script?id=&parentId=",
+        "url": "https://carbon-cdn.ccgateway.net/{seg}?id=&%5Bredacted%5D=",
         "domain": "carbon-cdn.ccgateway.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 4268,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 4268
       },
       {
         "id": 157,
-        "url": "https://cdn.hadronid.net/hadron.js?url=&ref=&_it=&partner_id=",
+        "url": "https://cdn.hadronid.net/{seg}?%5Bredacted%5D=&ref=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "cdn.hadronid.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 5523,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 5523
       },
       {
         "id": 158,
-        "url": "https://cdn.id5-sync.com/api/1.0/id5-api.js",
+        "url": "https://cdn.id5-sync.com/api/{seg}/{seg}",
         "domain": "cdn.id5-sync.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 5524,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 5524
       },
       {
         "id": 159,
-        "url": "https://tags.crwdcntrl.net/lt/c/16576/sync.min.js",
+        "url": "https://tags.crwdcntrl.net/{seg}/{seg}/{n}/{seg}",
         "domain": "tags.crwdcntrl.net",
         "method": "GET",
         "resourceType": "script",
@@ -2087,60 +2087,60 @@
           "category": "advertising / data management",
           "confidence": "curated"
         },
-        "startedAtMs": 5524,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 5524
       },
       {
         "id": 160,
-        "url": "https://secure.cdn.fastclick.net/js/pubcid/latest/pubcid.min.js",
+        "url": "https://secure.cdn.fastclick.net/{seg}/{seg}/{seg}/{seg}",
         "domain": "secure.cdn.fastclick.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 5524,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 5524
       },
       {
         "id": 161,
-        "url": "https://cdn.intergient.com/cdn-cgi/challenge-platform/h/b/jsd/oneshot/25e6c66701a0/0.06455242600968059:1782417632:s7K9p_I1LqBzZ8LkW1dunB-zAVLr-l1GMCn2GQq8K0E/a116abb72f48cf97",
+        "url": "https://cdn.intergient.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "cdn.intergient.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 5592,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 5592
       },
       {
         "id": 162,
-        "url": "https://na.edge.optable.co/config?osdk=&sid=&t=&o=&cookies=&passport=",
+        "url": "https://na.edge.optable.co/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&t=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "na.edge.optable.co",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 5594,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 5594
       },
       {
         "id": 163,
-        "url": "https://www.coolmathgames.com/sites/default/files/cmatgame_games_with_levels.json",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 5604,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 5604
       },
       {
         "id": 164,
-        "url": "https://gum.criteo.com/syncframe?origin=&topUrl=&gdpr=&gdpr_consent=&gpp=&gpp_sid=",
+        "url": "https://gum.criteo.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "gum.criteo.com",
         "method": "GET",
         "resourceType": "document",
@@ -2152,12 +2152,12 @@
           "category": "advertising",
           "confidence": "curated"
         },
-        "startedAtMs": 5605,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 5605
       },
       {
         "id": 165,
-        "url": "https://idsync.rlcdn.com/712453.gif?partner_uid=",
+        "url": "https://idsync.rlcdn.com/{seg}?%5Bredacted%5D=",
         "domain": "idsync.rlcdn.com",
         "method": "GET",
         "resourceType": "image",
@@ -2169,36 +2169,36 @@
           "category": "identity / advertising",
           "confidence": "curated"
         },
-        "startedAtMs": 5643,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 5643
       },
       {
         "id": 166,
-        "url": "https://ps.eyeota.net/pixel?pid=&t=&uid=",
+        "url": "https://ps.eyeota.net/{seg}?%5Bredacted%5D=&t=&%5Bredacted%5D=",
         "domain": "ps.eyeota.net",
         "method": "GET",
         "resourceType": "script",
         "status": 302,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 5645,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 5645
       },
       {
         "id": 167,
-        "url": "https://pogo.ccgateway.net/v1/p/5bb3e20859/classification?url=",
+        "url": "https://pogo.ccgateway.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "pogo.ccgateway.net",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 5653,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 5653
       },
       {
         "id": 168,
-        "url": "https://bcp.crwdcntrl.net/6/map?xcid=",
+        "url": "https://bcp.crwdcntrl.net/{n}/{seg}?%5Bredacted%5D=",
         "domain": "bcp.crwdcntrl.net",
         "method": "POST",
         "resourceType": "xhr",
@@ -2210,132 +2210,132 @@
           "category": "advertising / data management",
           "confidence": "curated"
         },
-        "startedAtMs": 5721,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 5721
       },
       {
         "id": 169,
-        "url": "https://script-api.ccgateway.net/1/userId",
+        "url": "https://script-api.ccgateway.net/{n}/{seg}",
         "domain": "script-api.ccgateway.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 5782,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 5782
       },
       {
         "id": 170,
-        "url": "https://script-api.ccgateway.net/script/launcher/2/user.js",
+        "url": "https://script-api.ccgateway.net/{seg}/{seg}/{n}/{seg}",
         "domain": "script-api.ccgateway.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 5782,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 5782
       },
       {
         "id": 171,
-        "url": "https://script-api.ccgateway.net/script/launcher/1/customevents.js",
+        "url": "https://script-api.ccgateway.net/{seg}/{seg}/{n}/{seg}",
         "domain": "script-api.ccgateway.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 5783,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 5783
       },
       {
         "id": 172,
-        "url": "https://script-api.ccgateway.net/script/launcher/6/api.js",
+        "url": "https://script-api.ccgateway.net/{seg}/{seg}/{n}/{seg}",
         "domain": "script-api.ccgateway.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 5783,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 5783
       },
       {
         "id": 173,
-        "url": "https://api.id5-sync.com/analytics/483/id5-api-js",
+        "url": "https://api.id5-sync.com/{seg}/{n}/{seg}",
         "domain": "api.id5-sync.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 5823,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 5823
       },
       {
         "id": 174,
-        "url": "https://na.edge.optable.co/witness?osdk=&sid=&t=&o=&cookies=&passport=",
+        "url": "https://na.edge.optable.co/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&t=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "na.edge.optable.co",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 5882,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 5882
       },
       {
         "id": 175,
-        "url": "https://a.ad.gt/api/v1/u/matches/403?_it=",
+        "url": "https://a.ad.gt/api/{seg}/{seg}/{seg}/{n}?%5Bredacted%5D=",
         "domain": "a.ad.gt",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 5933,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 5933
       },
       {
         "id": 176,
-        "url": "https://id.hadron.ad.gt/v1/hadron.json?_it=&partner_id=&sync=&domain=&url=&v=",
+        "url": "https://id.hadron.ad.gt/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&v=",
         "domain": "id.hadron.ad.gt",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 5936,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 5936
       },
       {
         "id": 177,
-        "url": "https://ps.eyeota.net/pixel/bounce/?pid=&t=&uid=",
+        "url": "https://ps.eyeota.net/{seg}/{seg}?%5Bredacted%5D=&t=&%5Bredacted%5D=",
         "domain": "ps.eyeota.net",
         "method": "GET",
         "resourceType": "script",
         "status": 302,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 5992,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 5992
       },
       {
         "id": 178,
-        "url": "https://fundingchoicesmessages.google.com/f/AGSKWxVrtyHJO2I51KIaieu0e6jQpU6KgN0Vj2CwF8wdiIFO9-iv_Ix5kjkQTYVkO1REsc8Mj1mci_E7lyA6hwbhzM1bzplwKDsiSUMSIKds3Jo9mi2XissBz2NNHz6xe9k5Y6a6zLbeI8n7mLSdU0NiHP8-VPDBz5O5tUV5iHTa_WQMg9n8vRxB8VvuDvUV/__adserver._120x800a./130x600./adobject./300x350.",
+        "url": "https://fundingchoicesmessages.google.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "fundingchoicesmessages.google.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 6022,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 6022
       },
       {
         "id": 179,
-        "url": "https://pagead2.googlesyndication.com/pagead/osd.js?fcd=",
+        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "pagead2.googlesyndication.com",
         "method": "GET",
         "resourceType": "script",
@@ -2347,72 +2347,72 @@
           "category": "advertising",
           "confidence": "curated"
         },
-        "startedAtMs": 6023,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 6023
       },
       {
         "id": 180,
-        "url": "https://fundingchoicesmessages.google.com/el/AGSKWxXUGhKoUaiC6TFs-ATPtpkUKLYmU8sl-DoPi_VxNDeXyAXJ5c6uhGEIkCofemVQ9A7DAbu5xhYaqaEsOuMk9Zp4-iMgA0WWZDi7AiHkniEITiPtA-zWijutNZ7SSK82I5ehtWeqCw==",
+        "url": "https://fundingchoicesmessages.google.com/{seg}/{seg}",
         "domain": "fundingchoicesmessages.google.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 204,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 6025,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 6025
       },
       {
         "id": 181,
-        "url": "https://p.ad.gt/api/v1/p/403",
+        "url": "https://p.ad.gt/api/{seg}/{seg}/{n}",
         "domain": "p.ad.gt",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 6039,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 6039
       },
       {
         "id": 182,
-        "url": "https://ids.ad.gt/api/v1/halo_match?id=&halo_id=",
+        "url": "https://ids.ad.gt/api/{seg}/{seg}?id=&%5Bredacted%5D=",
         "domain": "ids.ad.gt",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 6040,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 6040
       },
       {
         "id": 183,
-        "url": "https://ids4.ad.gt/api/v1/ip_match?id=",
+        "url": "https://ids4.ad.gt/api/{seg}/{seg}?id=",
         "domain": "ids4.ad.gt",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 6040,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 6040
       },
       {
         "id": 184,
-        "url": "https://secure.adnxs.com/getuid?https%3A%2F%2Fids.ad.gt%2Fapi%2Fv1%2Fmatch%3Fid=&adnxs_id=&gdpr=",
+        "url": "https://secure.adnxs.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "secure.adnxs.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 6040,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 6040
       },
       {
         "id": 185,
-        "url": "https://u.openx.net/w/1.0/cm?id=&r=&gdpr=",
+        "url": "https://u.openx.net/{seg}/{seg}/{seg}?id=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "u.openx.net",
         "method": "GET",
         "resourceType": "image",
@@ -2424,12 +2424,12 @@
           "category": "advertising / exchange",
           "confidence": "curated"
         },
-        "startedAtMs": 6041,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 6041
       },
       {
         "id": 186,
-        "url": "https://image2.pubmatic.com/AdServer/UCookieSetPug?rd=&gdpr=",
+        "url": "https://image2.pubmatic.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "image2.pubmatic.com",
         "method": "GET",
         "resourceType": "image",
@@ -2441,12 +2441,12 @@
           "category": "advertising / supply-side platform",
           "confidence": "curated"
         },
-        "startedAtMs": 6041,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 6041
       },
       {
         "id": 187,
-        "url": "https://token.rubiconproject.com/token?pid=&puid=&gdpr=",
+        "url": "https://token.rubiconproject.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "token.rubiconproject.com",
         "method": "GET",
         "resourceType": "image",
@@ -2458,12 +2458,12 @@
           "category": "advertising / supply-side platform",
           "confidence": "curated"
         },
-        "startedAtMs": 6041,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 6041
       },
       {
         "id": 188,
-        "url": "https://match.adsrvr.org/track/cmf/generic?ttd_pid=&ttd_tpi=&ttd_puid=&gdpr=",
+        "url": "https://match.adsrvr.org/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "match.adsrvr.org",
         "method": "GET",
         "resourceType": "image",
@@ -2475,24 +2475,24 @@
           "category": "advertising / demand-side platform",
           "confidence": "curated"
         },
-        "startedAtMs": 6042,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 6042
       },
       {
         "id": 189,
-        "url": "https://pixel.tapad.com/idsync/ex/receive?partner_id=&partner_device_id=&partner_url=&gdpr=",
+        "url": "https://pixel.tapad.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "pixel.tapad.com",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 6042,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 6042
       },
       {
         "id": 190,
-        "url": "https://cm.g.doubleclick.net/pixel?google_cm=&google_nid=&google_hm=&id=&gdpr=",
+        "url": "https://cm.g.doubleclick.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&id=&%5Bredacted%5D=",
         "domain": "cm.g.doubleclick.net",
         "method": "GET",
         "resourceType": "image",
@@ -2504,108 +2504,108 @@
           "category": "advertising",
           "confidence": "curated"
         },
-        "startedAtMs": 6042,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 6042
       },
       {
         "id": 191,
-        "url": "https://d.turn.com/r/dd/id/L2NzaWQvMS9jaWQvMTc0ODI0MTY1OC90LzA/url/https%3A%2F%2Fids.ad.gt%2Fapi%2Fv1%2Famo_match%3Fturn_id%3D%24!%7BTURN_UUID%7D%26id%3DAU1D-0100-001782418807-0ULL45NG-W316",
+        "url": "https://d.turn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "d.turn.com",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 6042,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 6042
       },
       {
         "id": 192,
-        "url": "https://sync.go.sonobi.com/us?https%3A%2F%2Fids.ad.gt%2Fapi%2Fv1%2Fson_match%3Fid=&uid=&gdpr=",
+        "url": "https://sync.go.sonobi.com/us?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "sync.go.sonobi.com",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 6043,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 6043
       },
       {
         "id": 193,
-        "url": "https://ad.360yield.com/ux?publisher_dmp_id=&r=&gdpr=",
+        "url": "https://ad.360yield.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "ad.360yield.com",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 6043,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 6043
       },
       {
         "id": 194,
-        "url": "https://ps.eyeota.net/opt-out/ccpa?uid=&pid=",
+        "url": "https://ps.eyeota.net/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "ps.eyeota.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 6081,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 6081
       },
       {
         "id": 195,
-        "url": "https://fundingchoicesmessages.google.com/el/AGSKWxXUGhKoUaiC6TFs-ATPtpkUKLYmU8sl-DoPi_VxNDeXyAXJ5c6uhGEIkCofemVQ9A7DAbu5xhYaqaEsOuMk9Zp4-iMgA0WWZDi7AiHkniEITiPtA-zWijutNZ7SSK82I5ehtWeqCw==",
+        "url": "https://fundingchoicesmessages.google.com/{seg}/{seg}",
         "domain": "fundingchoicesmessages.google.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 204,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 6116,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 6116
       },
       {
         "id": 196,
-        "url": "https://fundingchoicesmessages.google.com/el/AGSKWxXUGhKoUaiC6TFs-ATPtpkUKLYmU8sl-DoPi_VxNDeXyAXJ5c6uhGEIkCofemVQ9A7DAbu5xhYaqaEsOuMk9Zp4-iMgA0WWZDi7AiHkniEITiPtA-zWijutNZ7SSK82I5ehtWeqCw==",
+        "url": "https://fundingchoicesmessages.google.com/{seg}/{seg}",
         "domain": "fundingchoicesmessages.google.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 204,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 6119,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 6119
       },
       {
         "id": 197,
-        "url": "https://fundingchoicesmessages.google.com/el/AGSKWxXUGhKoUaiC6TFs-ATPtpkUKLYmU8sl-DoPi_VxNDeXyAXJ5c6uhGEIkCofemVQ9A7DAbu5xhYaqaEsOuMk9Zp4-iMgA0WWZDi7AiHkniEITiPtA-zWijutNZ7SSK82I5ehtWeqCw==",
+        "url": "https://fundingchoicesmessages.google.com/{seg}/{seg}",
         "domain": "fundingchoicesmessages.google.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 204,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 6120,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 6120
       },
       {
         "id": 198,
-        "url": "https://fundingchoicesmessages.google.com/f/AGSKWxXf2JxqWIMruUiAwLwEn_qkC73GZftrGOax0R05vWTDMS1aJdEDkfdvxjEaUeDHT4wmMTREsnpJSgSAn_DgQcnjMXZhkuowZmfKIcD9g_BlT8qI3em-eWYsPtRYVQg-EkfdiMW2yQ==?fccs=",
+        "url": "https://fundingchoicesmessages.google.com/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "fundingchoicesmessages.google.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 6122,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 6122
       },
       {
         "id": 199,
-        "url": "https://www.googletagmanager.com/gtag/js?id=&l=",
+        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=",
         "domain": "www.googletagmanager.com",
         "method": "GET",
         "resourceType": "script",
@@ -2617,24 +2617,24 @@
           "category": "analytics / tag management",
           "confidence": "curated"
         },
-        "startedAtMs": 6211,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 6211
       },
       {
         "id": 200,
-        "url": "https://ids.ad.gt/api/v1/son_match?id=&uid=&gdpr=",
+        "url": "https://ids.ad.gt/api/{seg}/{seg}?id=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "ids.ad.gt",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 6250,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 6250
       },
       {
         "id": 201,
-        "url": "https://match.adsrvr.org/track/cmb/generic?ttd_pid=&ttd_tpi=&ttd_puid=&gdpr=",
+        "url": "https://match.adsrvr.org/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "match.adsrvr.org",
         "method": "GET",
         "resourceType": "image",
@@ -2646,12 +2646,12 @@
           "category": "advertising / demand-side platform",
           "confidence": "curated"
         },
-        "startedAtMs": 6252,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 6252
       },
       {
         "id": 202,
-        "url": "https://cm.g.doubleclick.net/pixel?google_cm=&google_nid=&google_hm=&id=&gdpr=&google_tc=",
+        "url": "https://cm.g.doubleclick.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&id=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "cm.g.doubleclick.net",
         "method": "GET",
         "resourceType": "image",
@@ -2663,228 +2663,228 @@
           "category": "advertising",
           "confidence": "curated"
         },
-        "startedAtMs": 6252,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 6252
       },
       {
         "id": 203,
-        "url": "https://pixel.tapad.com/idsync/ex/receive/check?partner_id=&partner_device_id=&partner_url=&gdpr=",
+        "url": "https://pixel.tapad.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "pixel.tapad.com",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 6253,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 6253
       },
       {
         "id": 204,
-        "url": "https://p.ad.gt/api/v1/con",
+        "url": "https://p.ad.gt/api/{seg}/{seg}",
         "domain": "p.ad.gt",
         "method": "POST",
         "resourceType": "ping",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 6256,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 6256
       },
       {
         "id": 205,
-        "url": "https://a.ad.gt/api/v1/collect",
+        "url": "https://a.ad.gt/api/{seg}/{seg}",
         "domain": "a.ad.gt",
         "method": "POST",
         "resourceType": "xhr",
         "status": 204,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 6261,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 6261
       },
       {
         "id": 206,
-        "url": "https://pixels.ad.gt/api/v1/getpixels?tagger_id=&url=&code=",
+        "url": "https://pixels.ad.gt/api/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "pixels.ad.gt",
         "method": "GET",
         "resourceType": "script",
         "status": 204,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 6261,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 6261
       },
       {
         "id": 207,
-        "url": "https://ids.ad.gt/api/v1/amo_match?turn_id=&id=",
+        "url": "https://ids.ad.gt/api/{seg}/{seg}?%5Bredacted%5D=&id=",
         "domain": "ids.ad.gt",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 6262,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 6262
       },
       {
         "id": 208,
-        "url": "https://fundingchoicesmessages.google.com/el/AGSKWxUxtZXpaPbW0qZiLgrLUHQt7q6ckhaxS8cil8Bm_LNVPdvEBm_AyVz4CkGY00Cku2ZNTJUjgrkbgrj2T3iXjjiV8Tupd7OXAwK_yw9C448Dw-nZdJpnJQf2wXmuRXmHs5RdNAimyw==",
+        "url": "https://fundingchoicesmessages.google.com/{seg}/{seg}",
         "domain": "fundingchoicesmessages.google.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 204,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 6265,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 6265
       },
       {
         "id": 209,
-        "url": "https://fundingchoicesmessages.google.com/f/AGSKWxXAw99EGpiJxFprBSlh9bS7dLdziEyual-mNZW626AD8w7xYHRyYXgdBHUNVUg1KCDBomaKYBoYKb3cV_hoheH-Ba2IW2NtSgxApO8-LKUly38tFxt0FHDBDU__Dn_SF_r6b7Wu8A==?fccs=",
+        "url": "https://fundingchoicesmessages.google.com/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "fundingchoicesmessages.google.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 6266,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 6266
       },
       {
         "id": 210,
-        "url": "https://ids.ad.gt/api/v1/t_match?tdid=&id=",
+        "url": "https://ids.ad.gt/api/{seg}/{seg}?%5Bredacted%5D=&id=",
         "domain": "ids.ad.gt",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 6305,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 6305
       },
       {
         "id": 211,
-        "url": "https://ids.ad.gt/api/v1/g_match?id=&gdpr=&google_error=",
+        "url": "https://ids.ad.gt/api/{seg}/{seg}?id=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "ids.ad.gt",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 6306,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 6306
       },
       {
         "id": 212,
-        "url": "https://ids.ad.gt/api/v1/tapad_match?id=&tapad_id=",
+        "url": "https://ids.ad.gt/api/{seg}/{seg}?id=&%5Bredacted%5D=",
         "domain": "ids.ad.gt",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 6307,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 6307
       },
       {
         "id": 213,
-        "url": "https://id5-sync.com/bounce",
+        "url": "https://id5-sync.com/{seg}",
         "domain": "id5-sync.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 6382,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 6382
       },
       {
         "id": 214,
-        "url": "https://lbs.eu-1-id5-sync.com/lbs/v1",
+        "url": "https://lbs.eu-1-id5-sync.com/{seg}/{seg}",
         "domain": "lbs.eu-1-id5-sync.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 6382,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 6382
       },
       {
         "id": 215,
-        "url": "https://lb.eu-1-id5-sync.com/lb/v1",
+        "url": "https://lb.eu-1-id5-sync.com/{seg}/{seg}",
         "domain": "lb.eu-1-id5-sync.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 6383,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 6383
       },
       {
         "id": 216,
-        "url": "https://fundingchoicesmessages.google.com/el/AGSKWxU781uynfPnrKcUmZ2eXQPoyfKn-YXhYj_JgzrOafYz0bL0wFmCI-Y5dkrO88y2ZF1LPv6khX8DSrpxG7lGckmVlcMPH3DPfWk6OKYxSQL_vbbmgFQ9qsBy5fBQX3V06_MEcn7iYQ==",
+        "url": "https://fundingchoicesmessages.google.com/{seg}/{seg}",
         "domain": "fundingchoicesmessages.google.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 204,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 6390,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 6390
       },
       {
         "id": 217,
-        "url": "https://script-api.ccgateway.net/setUser?parent=&site=&ccuid=&ccsid=",
+        "url": "https://script-api.ccgateway.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "script-api.ccgateway.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 6391,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 6391
       },
       {
         "id": 218,
-        "url": "https://script-api.ccgateway.net/script/bundle?id=&parentId=",
+        "url": "https://script-api.ccgateway.net/{seg}/{seg}?id=&%5Bredacted%5D=",
         "domain": "script-api.ccgateway.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 6391,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 6391
       },
       {
         "id": 219,
-        "url": "https://ad.360yield.com/ul_cb/ux?publisher_dmp_id=&r=&gdpr=",
+        "url": "https://ad.360yield.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "ad.360yield.com",
         "method": "GET",
         "resourceType": "image",
         "status": 302,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 6481,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 6481
       },
       {
         "id": 220,
-        "url": "https://pb-ing-02.ccgateway.net/v1.0/parent/5bb3e20859/engagement/trigger/page_visit",
+        "url": "https://pb-ing-02.ccgateway.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "pb-ing-02.ccgateway.net",
         "method": "POST",
         "resourceType": "fetch",
         "status": 204,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 6535,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 6535
       },
       {
         "id": 221,
-        "url": "https://sync.crwdcntrl.net/qmap?c=&tp=&tpid=&d=",
+        "url": "https://sync.crwdcntrl.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "sync.crwdcntrl.net",
         "method": "GET",
         "resourceType": "image",
@@ -2896,48 +2896,48 @@
           "category": "advertising / data management",
           "confidence": "curated"
         },
-        "startedAtMs": 6536,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 6536
       },
       {
         "id": 222,
-        "url": "https://pb-ing-02.ccgateway.net/v1.0/parent/5bb3e20859/engagement/trigger/user_sync?src=&puid=&id=&parentId=&ccsid=&ccuid=&ccpt=&pvid=&engid=&engcount=&engttl=",
+        "url": "https://pb-ing-02.ccgateway.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&id=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "pb-ing-02.ccgateway.net",
         "method": "GET",
         "resourceType": "image",
         "status": 204,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 6617,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 6617
       },
       {
         "id": 223,
-        "url": "https://ids.ad.gt/api/v1/impr_match?id=&impr_uid=",
+        "url": "https://ids.ad.gt/api/{seg}/{seg}?id=&%5Bredacted%5D=",
         "domain": "ids.ad.gt",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 6651,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 6651
       },
       {
         "id": 224,
-        "url": "https://id5-sync.com/gm/v3",
+        "url": "https://id5-sync.com/{seg}/{seg}",
         "domain": "id5-sync.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 7132,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 7132
       },
       {
         "id": 225,
-        "url": "https://www.google-analytics.com/g/collect?v=&tid=&gtm=&_p=&gcs=&gcd=&npa=&dma=&tcfd=&_eu=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&_s=&tag_exp=&sid=&sct=&seg=&dl=&dt=&en=&ep.device_type=&ep.ad_blocker_detected=&_et=&tfd=",
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "www.google-analytics.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -2949,12 +2949,12 @@
           "category": "analytics / tag management",
           "confidence": "curated"
         },
-        "startedAtMs": 8577,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 8577
       },
       {
         "id": 226,
-        "url": "https://analytics.google.com/g/collect?v=&tid=&gtm=&_p=&_gaz=&gcs=&gcd=&npa=&dma=&tcfd=&_eu=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&gaf=&_s=&tag_exp=&uid=&sid=&sct=&seg=&dl=&dt=&en=&_fv=&_ss=&ep.dimension3=&ep.dimension4=&ep.dimension5=&tfd=",
+        "url": "https://analytics.google.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "analytics.google.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -2966,12 +2966,12 @@
           "category": "analytics / tag management",
           "confidence": "curated"
         },
-        "startedAtMs": 8578,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 8578
       },
       {
         "id": 227,
-        "url": "https://stats.g.doubleclick.net/g/collect?v=&tid=&cid=&gtm=&rcb=&aip=&uid=&dma=&gcs=&gcd=&npa=&frm=&tag_exp=",
+        "url": "https://stats.g.doubleclick.net/{seg}/{seg}?v=&tid=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "stats.g.doubleclick.net",
         "method": "POST",
         "resourceType": "ping",
@@ -2983,44 +2983,44 @@
           "category": "advertising",
           "confidence": "curated"
         },
-        "startedAtMs": 8578,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 8578
       },
       {
         "id": 228,
-        "url": "https://metrics.rapidedge.io/gamera/ingest",
+        "url": "https://metrics.rapidedge.io/{seg}/{seg}",
         "domain": "metrics.rapidedge.io",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 8578,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 8578
       },
       {
         "id": 229,
-        "url": "https://www.google.com/g/collect?v=&tid=&gtm=&_p=&_gaz=&gcs=&gcd=&npa=&dma=&tcfd=&_eu=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&gaf=&_s=&tag_exp=&uid=&sid=&sct=&seg=&dl=&dt=&en=&_fv=&_ss=&ep.dimension3=&ep.dimension4=&ep.dimension5=&tfd=",
+        "url": "https://www.google.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": null,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 8582,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 8582
       },
       {
         "id": 230,
-        "url": "https://www.google.com/g/collect?v=&tid=&gtm=&_p=&gcs=&gcd=&npa=&dma=&tcfd=&_eu=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&_s=&tag_exp=&sid=&sct=&seg=&dl=&dt=&en=&ep.device_type=&ep.ad_blocker_detected=&_et=&tfd=&gaf=",
+        "url": "https://www.google.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": null,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 8582,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 8582
       }
     ],
     "domains": [
@@ -3651,7 +3651,7 @@
         ]
       },
       {
-        "domain": "invstatic101.creativecdn.com",
+        "domain": "{label}.creativecdn.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -3703,7 +3703,7 @@
         ]
       },
       {
-        "domain": "cd836371f1d.cdn.intergient.com",
+        "domain": "{label}.cdn.intergient.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -3928,7 +3928,7 @@
         "thirdParty": true
       },
       {
-        "name": "_vwo_consent",
+        "name": "[redacted]",
         "domain": ".coolmathgames.com",
         "path": "/",
         "sameSite": "Lax",
@@ -3938,7 +3938,7 @@
         "thirdParty": false
       },
       {
-        "name": "_vwo_uuid",
+        "name": "[redacted]",
         "domain": ".coolmathgames.com",
         "path": "/",
         "sameSite": "Lax",
@@ -3948,7 +3948,7 @@
         "thirdParty": false
       },
       {
-        "name": "_vwo_sn",
+        "name": "[redacted]",
         "domain": ".coolmathgames.com",
         "path": "/",
         "sameSite": "Lax",
@@ -3958,7 +3958,7 @@
         "thirdParty": false
       },
       {
-        "name": "_vwo_ds",
+        "name": "[redacted]",
         "domain": ".coolmathgames.com",
         "path": "/",
         "sameSite": "Lax",
@@ -3968,7 +3968,7 @@
         "thirdParty": false
       },
       {
-        "name": "_vis_opt_s",
+        "name": "[redacted]",
         "domain": ".coolmathgames.com",
         "path": "/",
         "sameSite": "Lax",
@@ -3978,7 +3978,7 @@
         "thirdParty": false
       },
       {
-        "name": "_vis_opt_test_cookie",
+        "name": "[redacted]",
         "domain": ".coolmathgames.com",
         "path": "/",
         "sameSite": "Lax",
@@ -3991,25 +3991,26 @@
     "storage": [
       {
         "area": "localStorage",
-        "key": "vwoSn",
+        "key": "[redacted]",
         "valueBytes": 84
       },
       {
         "area": "localStorage",
-        "key": "pw_session_config",
+        "key": "[redacted]",
         "valueBytes": 68726
       },
       {
         "area": "localStorage",
-        "key": "searchClicked",
+        "key": "[redacted]",
         "valueBytes": 0
       },
       {
         "area": "localStorage",
-        "key": "_vwo_712202_config",
+        "key": "[redacted:long-token]",
         "valueBytes": 23
       }
     ],
+    "fingerprintEvents": [],
     "fingerprintDetections": [
       {
         "kind": "session-recording",
@@ -4029,14 +4030,13 @@
             "document"
           ],
           "thirdPartyOrigins": [
-            "https://cdn.intergient.com",
-            "https://www.googletagmanager.com"
+            "https://cdn.intergient.com/",
+            "https://www.googletagmanager.com/"
           ],
           "totalListenerCalls": 9
         }
       }
     ],
-    "fingerprintEvents": [],
     "screenshot": null,
     "warnings": [
       "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
@@ -4082,6 +4082,13 @@
       "automation": "playwright-chromium",
       "headless": true,
       "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "block-simulation",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-06-19T17:24:24.927Z"
+      },
       "trackerCatalog": {
         "source": "Hand-curated service catalog",
         "version": "hand-curated-2026.06",
@@ -4090,14 +4097,7 @@
         "curatedOverrides": 133,
         "license": "AGPL-3.0-or-later"
       },
-      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
-      "adblock": {
-        "active": true,
-        "source": "Brave default ad-block lists",
-        "lists": 31,
-        "fetchedAt": "2026-06-19T17:24:24.927Z"
-      },
-      "shieldsMode": "block-simulation"
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
     },
     "requests": [
       {
@@ -4109,816 +4109,816 @@
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 40,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 40
       },
       {
         "id": 2,
-        "url": "https://www.coolmathgames.com/logo.webp",
+        "url": "https://www.coolmathgames.com/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 119,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 119
       },
       {
         "id": 3,
-        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/zero-21-solitaire.jpg.webp",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 119,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 119
       },
       {
         "id": 4,
-        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/patches_linkedin.png.webp",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 120,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 120
       },
       {
         "id": 5,
-        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/vex-x3m-3.jpg.webp",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 121,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 121
       },
       {
         "id": 6,
-        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/gift-rush-3-update.jpg.webp",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 121,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 121
       },
       {
         "id": 7,
-        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/mini-sudoku-update.jpg.webp",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 122,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 122
       },
       {
         "id": 8,
-        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/soccer-challenge.png.webp",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 122,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 122
       },
       {
         "id": 9,
-        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/car-ferry.png.webp",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 123,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 123
       },
       {
         "id": 10,
-        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/arrow-direction.png.webp",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 123,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 123
       },
       {
         "id": 11,
-        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/run3_og-logo.jpg.webp",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 124,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 124
       },
       {
         "id": 12,
-        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/papasfreezeria_og-logo.jpg.webp",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 124,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 124
       },
       {
         "id": 13,
-        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/chess_og-logo.jpg.webp",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 125,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 125
       },
       {
         "id": 14,
-        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/investor-tower.png.webp",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 125,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 125
       },
       {
         "id": 15,
-        "url": "https://www.coolmathgames.com/sites/default/files/quiz/icons/2023-02/great-soccer-players-vol-1.jpg",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 126,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 126
       },
       {
         "id": 16,
-        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/cookie-clicker.jpg.webp",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 126,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 126
       },
       {
         "id": 17,
-        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/penaltykickonline_og-logo.jpg.webp",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 127,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 127
       },
       {
         "id": 18,
-        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/fireboy-watergirl-foresttemple_og-logo.jpg.webp",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 130,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 130
       },
       {
         "id": 19,
-        "url": "https://www.coolmathgames.com/sites/default/files/2021-11/papas-pizzeria.png",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 131,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 131
       },
       {
         "id": 20,
-        "url": "https://www.coolmathgames.com/_next/static/media/de42cfb9a3b980ae-s.p.woff2",
+        "url": "https://www.coolmathgames.com/{seg}/static/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 132,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 132
       },
       {
         "id": 21,
-        "url": "https://www.coolmathgames.com/_next/static/media/cc4a5103f24b59ab-s.p.woff2",
+        "url": "https://www.coolmathgames.com/{seg}/static/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 132,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 132
       },
       {
         "id": 22,
-        "url": "https://www.coolmathgames.com/_next/static/media/c166665af6ba1ec9-s.p.woff2",
+        "url": "https://www.coolmathgames.com/{seg}/static/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 133,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 133
       },
       {
         "id": 23,
-        "url": "https://www.coolmathgames.com/_next/static/media/d87379bffad347b6-s.p.woff2",
+        "url": "https://www.coolmathgames.com/{seg}/static/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 133,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 133
       },
       {
         "id": 24,
-        "url": "https://www.coolmathgames.com/_next/static/media/5f005b48945548d8-s.p.ttf",
+        "url": "https://www.coolmathgames.com/{seg}/static/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 134,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 134
       },
       {
         "id": 25,
-        "url": "https://www.coolmathgames.com/_next/static/media/9cd11c0634954621-s.p.ttf",
+        "url": "https://www.coolmathgames.com/{seg}/static/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 134,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 134
       },
       {
         "id": 26,
-        "url": "https://www.coolmathgames.com/_next/static/media/5d15ee4de3382558-s.p.ttf",
+        "url": "https://www.coolmathgames.com/{seg}/static/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 135,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 135
       },
       {
         "id": 27,
-        "url": "https://www.coolmathgames.com/_next/static/css/3db1387a7b7f7047.css",
+        "url": "https://www.coolmathgames.com/{seg}/static/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 135,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 135
       },
       {
         "id": 28,
-        "url": "https://www.coolmathgames.com/_next/static/chunks/518.a5f1da60e9792743.js",
+        "url": "https://www.coolmathgames.com/{seg}/static/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 141,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 141
       },
       {
         "id": 29,
-        "url": "https://www.coolmathgames.com/_next/static/chunks/323.107ffcdd412a17bd.js",
+        "url": "https://www.coolmathgames.com/{seg}/static/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 142,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 142
       },
       {
         "id": 30,
-        "url": "https://www.coolmathgames.com/_next/static/chunks/456-b0a52d30730bcc2f.js",
+        "url": "https://www.coolmathgames.com/{seg}/static/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 142,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 142
       },
       {
         "id": 31,
-        "url": "https://www.coolmathgames.com/_next/static/chunks/267.9af384829b6f3736.js",
+        "url": "https://www.coolmathgames.com/{seg}/static/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 143,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 143
       },
       {
         "id": 32,
-        "url": "https://www.coolmathgames.com/_next/static/chunks/708-4bd731c61febb4e7.js",
+        "url": "https://www.coolmathgames.com/{seg}/static/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 143,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 143
       },
       {
         "id": 33,
-        "url": "https://www.coolmathgames.com/_next/static/chunks/648.9af384829b6f3736.js",
+        "url": "https://www.coolmathgames.com/{seg}/static/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 144,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 144
       },
       {
         "id": 34,
-        "url": "https://www.coolmathgames.com/_next/static/chunks/webpack-487cda471bdec6a0.js",
+        "url": "https://www.coolmathgames.com/{seg}/static/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 144,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 144
       },
       {
         "id": 35,
-        "url": "https://www.coolmathgames.com/_next/static/chunks/framework-a6e0b7e30f98059a.js",
+        "url": "https://www.coolmathgames.com/{seg}/static/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 145,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 145
       },
       {
         "id": 36,
-        "url": "https://www.coolmathgames.com/_next/static/chunks/main-e9b4471d1cf1922c.js",
+        "url": "https://www.coolmathgames.com/{seg}/static/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 145,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 145
       },
       {
         "id": 37,
-        "url": "https://www.coolmathgames.com/_next/static/chunks/pages/_app-b2553b668b983e1a.js",
+        "url": "https://www.coolmathgames.com/{seg}/static/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 145,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 145
       },
       {
         "id": 38,
-        "url": "https://www.coolmathgames.com/_next/static/chunks/749-844f2aea16abc3fe.js",
+        "url": "https://www.coolmathgames.com/{seg}/static/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 146,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 146
       },
       {
         "id": 39,
-        "url": "https://www.coolmathgames.com/_next/static/chunks/585-fe4128585281316a.js",
+        "url": "https://www.coolmathgames.com/{seg}/static/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 146,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 146
       },
       {
         "id": 40,
-        "url": "https://www.coolmathgames.com/_next/static/chunks/820-29a2e513d505e206.js",
+        "url": "https://www.coolmathgames.com/{seg}/static/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 146,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 146
       },
       {
         "id": 41,
-        "url": "https://www.coolmathgames.com/_next/static/chunks/230-4ce3b7940031c473.js",
+        "url": "https://www.coolmathgames.com/{seg}/static/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 146,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 146
       },
       {
         "id": 42,
-        "url": "https://www.coolmathgames.com/_next/static/chunks/925-f832d0f97123853e.js",
+        "url": "https://www.coolmathgames.com/{seg}/static/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 147,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 147
       },
       {
         "id": 43,
-        "url": "https://www.coolmathgames.com/_next/static/chunks/261-0ad2b0de7e52a75c.js",
+        "url": "https://www.coolmathgames.com/{seg}/static/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 147,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 147
       },
       {
         "id": 44,
-        "url": "https://www.coolmathgames.com/_next/static/chunks/606-66b86a6e9ad98404.js",
+        "url": "https://www.coolmathgames.com/{seg}/static/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 147,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 147
       },
       {
         "id": 45,
-        "url": "https://www.coolmathgames.com/_next/static/chunks/47-fa3ccf2d8cda3117.js",
+        "url": "https://www.coolmathgames.com/{seg}/static/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 148,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 148
       },
       {
         "id": 46,
-        "url": "https://www.coolmathgames.com/_next/static/chunks/328-2127e8b07d19accd.js",
+        "url": "https://www.coolmathgames.com/{seg}/static/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 148,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 148
       },
       {
         "id": 47,
-        "url": "https://www.coolmathgames.com/_next/static/chunks/pages/new-home-f2c1be6eef08e7b3.js",
+        "url": "https://www.coolmathgames.com/{seg}/static/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 148,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 148
       },
       {
         "id": 48,
-        "url": "https://www.coolmathgames.com/_next/static/prd4s6f0e7f9d4a1c/_buildManifest.js",
+        "url": "https://www.coolmathgames.com/{seg}/static/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 148,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 148
       },
       {
         "id": 49,
-        "url": "https://www.coolmathgames.com/_next/static/prd4s6f0e7f9d4a1c/_ssgManifest.js",
+        "url": "https://www.coolmathgames.com/{seg}/static/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 149,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 149
       },
       {
         "id": 50,
-        "url": "https://www.coolmathgames.com/sites/default/files/2024-09/Creative.svg",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 149,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 149
       },
       {
         "id": 51,
-        "url": "https://www.coolmathgames.com/sites/default/files/2026-06/Savings.svg",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 149,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 149
       },
       {
         "id": 52,
-        "url": "https://www.coolmathgames.com/sites/default/files/2024-09/Business.svg",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 150,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 150
       },
       {
         "id": 53,
-        "url": "https://www.coolmathgames.com/sites/default/files/2024-10/Multiplayer.svg",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 150,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 150
       },
       {
         "id": 54,
-        "url": "https://www.coolmathgames.com/sites/default/files/2024-09/Daily.svg",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 150,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 150
       },
       {
         "id": 55,
-        "url": "https://www.coolmathgames.com/sites/default/files/2024-09/Papa-series.svg",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 151,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 151
       },
       {
         "id": 56,
-        "url": "https://www.coolmathgames.com/sites/default/files/2024-09/Board-games.svg",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 151,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 151
       },
       {
         "id": 57,
-        "url": "https://www.coolmathgames.com/sites/default/files/2024-09/Escape.svg",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 151,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 151
       },
       {
         "id": 58,
-        "url": "https://www.coolmathgames.com/sites/default/files/2024-09/Physics-puzzles.svg",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 152,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 152
       },
       {
         "id": 59,
-        "url": "https://www.coolmathgames.com/sites/default/files/2026-03/collection-icon-coding.svg",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 152,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 152
       },
       {
         "id": 60,
-        "url": "https://www.coolmathgames.com/sites/default/files/2024-09/Science.svg",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 152,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 152
       },
       {
         "id": 61,
-        "url": "https://www.coolmathgames.com/sites/default/files/2024-09/Building-blocks.svg",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 163,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 163
       },
       {
         "id": 62,
-        "url": "https://www.coolmathgames.com/sites/default/files/2024-09/Applied-math.svg",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 164,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 164
       },
       {
         "id": 63,
-        "url": "https://www.coolmathgames.com/assets/svg/categories/Trivia.svg",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/categories/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 164,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 164
       },
       {
         "id": 64,
-        "url": "https://www.coolmathgames.com/sites/default/files/2024-09/Clicker.svg",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 165,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 165
       },
       {
         "id": 65,
-        "url": "https://www.coolmathgames.com/sites/default/files/2026-06/Soccer.svg",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 165,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 165
       },
       {
         "id": 66,
-        "url": "https://www.coolmathgames.com/sites/default/files/2024-09/2-player.svg",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 166,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 166
       },
       {
         "id": 67,
-        "url": "https://www.coolmathgames.com/sites/default/files/2024-09/Tower-defense.svg",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 166,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 166
       },
       {
         "id": 68,
-        "url": "https://www.coolmathgames.com/assets/svg/categories/popular-categories.svg",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/categories/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 167,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 167
       },
       {
         "id": 69,
-        "url": "https://dev.visualwebsiteoptimizer.com/j.php?a=&u=&vn=&ph=&st=&x=",
+        "url": "https://dev.visualwebsiteoptimizer.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "dev.visualwebsiteoptimizer.com",
         "method": "GET",
         "resourceType": "xhr",
@@ -4930,36 +4930,36 @@
           "category": "experimentation / behavior analytics",
           "confidence": "curated"
         },
-        "startedAtMs": 167,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 167
       },
       {
         "id": 70,
-        "url": "https://www.coolmathgames.com/assets/images/about-bg.svg",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 304,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 304
       },
       {
         "id": 71,
-        "url": "https://apis.google.com/js/platform.js",
+        "url": "https://apis.google.com/{seg}/{seg}",
         "domain": "apis.google.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 332,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 332
       },
       {
         "id": 72,
-        "url": "https://dev.visualwebsiteoptimizer.com/cdn/edrv/worker-cb8da8ab3fc814452c5f99e83cfd2882.br.js",
+        "url": "https://dev.visualwebsiteoptimizer.com/{seg}/{seg}/{seg}",
         "domain": "dev.visualwebsiteoptimizer.com",
         "method": "GET",
         "resourceType": "xhr",
@@ -4971,12 +4971,12 @@
           "category": "experimentation / behavior analytics",
           "confidence": "curated"
         },
-        "startedAtMs": 381,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 381
       },
       {
         "id": 73,
-        "url": "https://dev.visualwebsiteoptimizer.com/cdn/edrv/va_gq-9bd912210ac34a96921a81e492ce07ff.br.js",
+        "url": "https://dev.visualwebsiteoptimizer.com/{seg}/{seg}/{seg}",
         "domain": "dev.visualwebsiteoptimizer.com",
         "method": "GET",
         "resourceType": "xhr",
@@ -4988,264 +4988,264 @@
           "category": "experimentation / behavior analytics",
           "confidence": "curated"
         },
-        "startedAtMs": 382,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 382
       },
       {
         "id": 77,
-        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/drift-boss-advanced.png.webp",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 835,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 835
       },
       {
         "id": 78,
-        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/slice-master-new.png.webp",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 836,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 836
       },
       {
         "id": 79,
-        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/8-ball-pool-v2.png.webp",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 837,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 837
       },
       {
         "id": 80,
-        "url": "https://www.coolmathgames.com/sites/default/files/2024-01/Trivia-sports.svg",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 892,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 892
       },
       {
         "id": 81,
-        "url": "https://www.coolmathgames.com/sites/default/files/2026-03/Trivia-finlit.svg",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 893,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 893
       },
       {
         "id": 82,
-        "url": "https://www.coolmathgames.com/sites/default/files/2024-01/Trivia-fun.svg",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 894,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 894
       },
       {
         "id": 83,
-        "url": "https://www.coolmathgames.com/sites/default/files/2024-01/Trivia-science.svg",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 895,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 895
       },
       {
         "id": 84,
-        "url": "https://www.coolmathgames.com/sites/default/files/2024-01/Trivia-food.svg",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 897,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 897
       },
       {
         "id": 85,
-        "url": "https://www.coolmathgames.com/sites/default/files/2024-01/Trivia-places.svg",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 898,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 898
       },
       {
         "id": 86,
-        "url": "https://www.coolmathgames.com/assets/images/thoughtfully-curated.svg",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 898,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 898
       },
       {
         "id": 87,
-        "url": "https://www.coolmathgames.com/assets/images/privacy-focused.svg",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 898,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 898
       },
       {
         "id": 88,
-        "url": "https://www.coolmathgames.com/assets/images/learning-through-fun.svg",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 899,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 899
       },
       {
         "id": 89,
-        "url": "https://www.coolmathgames.com/assets/images/accessible.svg",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 899,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 899
       },
       {
         "id": 90,
-        "url": "https://www.coolmathgames.com/assets/images/reviewed-check.svg",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 900,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 900
       },
       {
         "id": 91,
-        "url": "https://www.coolmathgames.com/assets/images/octo.svg",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 900,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 900
       },
       {
         "id": 92,
-        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/2026-05/Coolmath%20Games%20Financial%20Literacy%20Game%20Jam%20Blog%20Thumbnail.png.webp",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 901,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 901
       },
       {
         "id": 93,
-        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/2026-05/Drift%20Boss%202026%20Update%20Blog%20Thumbnail.png.webp",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 901,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 901
       },
       {
         "id": 94,
-        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/2026-04/Introducing%20Financial%20Literacy%20Blog%20Thumbnail.png.webp",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 902,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 902
       },
       {
         "id": 95,
-        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/2026-04/How%20to%20Play%20More%20Sushi%20Blog%20Thumbnail.png.webp",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 902,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 902
       },
       {
         "id": 96,
-        "url": "https://www.coolmathgames.com/assets/images/nav_icon/icon_profile.svg",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 903,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 903
       },
       {
         "id": 97,
-        "url": "https://www.coolmathgames.com/assets/svg/random.svg",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 903,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 903
       },
       {
         "id": 98,
-        "url": "https://dev.visualwebsiteoptimizer.com/cdn/edrv/nc-910df10cb24ceeebb66507d017e820a6.br.js",
+        "url": "https://dev.visualwebsiteoptimizer.com/{seg}/{seg}/{seg}",
         "domain": "dev.visualwebsiteoptimizer.com",
         "method": "GET",
         "resourceType": "xhr",
@@ -5257,84 +5257,84 @@
           "category": "experimentation / behavior analytics",
           "confidence": "curated"
         },
-        "startedAtMs": 915,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 915
       },
       {
         "id": 99,
-        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/tinyfishing_og-logo.jpg.webp",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1228,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1228
       },
       {
         "id": 100,
-        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/worldguessr-default.png.webp",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1229,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1229
       },
       {
         "id": 101,
-        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/slice-of-the-market.jpg.webp",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1235,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1235
       },
       {
         "id": 102,
-        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/tax-season_0.png.webp",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1235,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1235
       },
       {
         "id": 103,
-        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/cryptid-kimber.jpg.webp",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1236,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1236
       },
       {
         "id": 104,
-        "url": "https://www.coolmathgames.com/sites/default/files/styles/next_game_teaser_item/public/dont-get-duped.png.webp",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1240,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1240
       },
       {
         "id": 105,
-        "url": "https://dev.visualwebsiteoptimizer.com/dcdn/settings.js?a=&settings_type=&ts=&dt=&cc=",
+        "url": "https://dev.visualwebsiteoptimizer.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "dev.visualwebsiteoptimizer.com",
         "method": "GET",
         "resourceType": "script",
@@ -5346,32 +5346,32 @@
           "category": "experimentation / behavior analytics",
           "confidence": "curated"
         },
-        "startedAtMs": 1359,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1359
       },
       {
         "id": 106,
-        "url": "https://www.coolmathgames.com/sites/default/files/cmatgame_games_with_levels.json",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2841,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2841
       },
       {
         "id": 107,
-        "url": "https://www.coolmathgames.com/sites/default/files/cmatgame_games_with_levels.json",
+        "url": "https://www.coolmathgames.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.coolmathgames.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 4046,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 4046
       }
     ],
     "domains": [
@@ -5428,7 +5428,7 @@
     ],
     "cookies": [
       {
-        "name": "_vwo_consent",
+        "name": "[redacted]",
         "domain": ".coolmathgames.com",
         "path": "/",
         "sameSite": "Lax",
@@ -5438,7 +5438,7 @@
         "thirdParty": false
       },
       {
-        "name": "_vwo_uuid",
+        "name": "[redacted]",
         "domain": ".coolmathgames.com",
         "path": "/",
         "sameSite": "Lax",
@@ -5448,7 +5448,7 @@
         "thirdParty": false
       },
       {
-        "name": "_vwo_sn",
+        "name": "[redacted]",
         "domain": ".coolmathgames.com",
         "path": "/",
         "sameSite": "Lax",
@@ -5458,7 +5458,7 @@
         "thirdParty": false
       },
       {
-        "name": "_vwo_ds",
+        "name": "[redacted]",
         "domain": ".coolmathgames.com",
         "path": "/",
         "sameSite": "Lax",
@@ -5468,7 +5468,7 @@
         "thirdParty": false
       },
       {
-        "name": "_vis_opt_s",
+        "name": "[redacted]",
         "domain": ".coolmathgames.com",
         "path": "/",
         "sameSite": "Lax",
@@ -5478,7 +5478,7 @@
         "thirdParty": false
       },
       {
-        "name": "_vis_opt_test_cookie",
+        "name": "[redacted]",
         "domain": ".coolmathgames.com",
         "path": "/",
         "sameSite": "Lax",
@@ -5491,22 +5491,22 @@
     "storage": [
       {
         "area": "localStorage",
-        "key": "vwoSn",
+        "key": "[redacted]",
         "valueBytes": 84
       },
       {
         "area": "localStorage",
-        "key": "searchClicked",
+        "key": "[redacted]",
         "valueBytes": 0
       },
       {
         "area": "localStorage",
-        "key": "_vwo_712202_config",
+        "key": "[redacted:long-token]",
         "valueBytes": 23
       }
     ],
-    "fingerprintDetections": [],
     "fingerprintEvents": [],
+    "fingerprintDetections": [],
     "screenshot": null,
     "warnings": [
       "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
@@ -5719,6 +5719,16 @@
         }
       },
       {
+        "domain": "{label}.cdn.intergient.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.creativecdn.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
         "domain": "ad.doubleclick.net",
         "requests": 1,
         "tracker": {
@@ -5745,11 +5755,6 @@
       },
       {
         "domain": "carbon-cdn.ccgateway.net",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "cd836371f1d.cdn.intergient.com",
         "requests": 1,
         "tracker": null
       },
@@ -5827,11 +5832,6 @@
           "category": "advertising / supply-side platform",
           "confidence": "curated"
         }
-      },
-      {
-        "domain": "invstatic101.creativecdn.com",
-        "requests": 1,
-        "tracker": null
       },
       {
         "domain": "lb.eu-1-id5-sync.com",
@@ -5996,12 +5996,7 @@
       }
     ],
     "addedStorageKeys": [],
-    "removedStorageKeys": [
-      {
-        "area": "localStorage",
-        "key": "pw_session_config"
-      }
-    ],
+    "removedStorageKeys": [],
     "addedFingerprinting": [],
     "removedFingerprinting": [
       {

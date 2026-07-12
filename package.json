@@ -33,7 +33,8 @@
     "test:unit": "rm -rf .unit-test-dist && tsc -p tsconfig.test.json && node --test --test-concurrency=1 .unit-test-dist/lib/*.test.js",
     "test:smoke": "node scripts/smoke-test.mjs",
     "typecheck": "next typegen && tsc --noEmit",
-    "reports:remediation-inventory": "node scripts/remediation-inventory.mjs"
+    "reports:remediation-inventory": "node scripts/remediation-inventory.mjs",
+    "reports:remediate": "tsc -p tsconfig.schema.json && node dist/schema/lib/remediate-reports-cli.js"
   },
   "dependencies": {
     "aws4fetch": "^1.0.20",

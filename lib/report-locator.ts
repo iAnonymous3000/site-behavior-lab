@@ -89,6 +89,33 @@ export function buildReportShare(id: string): ReportShare {
   };
 }
 
+/** Canonical persisted share fields for a committed static report. */
+export function buildStaticReportShare(id: string): ReportShare {
+  if (!REPORT_ID_PATTERN.test(id)) {
+    throw new Error("Invalid report share id.");
+  }
+  return {
+    id,
+    path: `${reportPagePath(id)}/`,
+    jsonPath: `${reportPagePath(id)}.json`
+  };
+}
+
+/**
+ * Validate the two persisted share schemes the product actually serves.
+ * Pairing is strict: runtime page/API paths and static page/file paths cannot
+ * be mixed, and the storage key's expected id must match the embedded id.
+ */
+export function isCanonicalReportShare(share: ReportShare, expectedId = share.id): boolean {
+  if (!REPORT_ID_PATTERN.test(expectedId) || share.id !== expectedId) return false;
+  const runtime = buildReportShare(expectedId);
+  const staticallyServed = buildStaticReportShare(expectedId);
+  return (
+    (share.path === runtime.path && share.jsonPath === runtime.jsonPath) ||
+    (share.path === staticallyServed.path && share.jsonPath === staticallyServed.jsonPath)
+  );
+}
+
 /**
  * Resolve a report that is known to exist as a committed/served artifact: the
  * static gallery and directory entries, the prerendered permalink, and Node FS

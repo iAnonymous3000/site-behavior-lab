@@ -49,6 +49,13 @@
       "automation": "playwright-chromium",
       "headless": true,
       "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "classification",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-02T01:00:58.178Z"
+      },
       "trackerCatalog": {
         "source": "Hand-curated service catalog",
         "version": "hand-curated-2026.06",
@@ -57,14 +64,7 @@
         "curatedOverrides": 133,
         "license": "AGPL-3.0-or-later"
       },
-      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
-      "adblock": {
-        "active": true,
-        "source": "Brave default ad-block lists",
-        "lists": 31,
-        "fetchedAt": "2026-07-02T01:00:58.178Z"
-      },
-      "shieldsMode": "classification"
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
     },
     "requests": [
       {
@@ -76,380 +76,380 @@
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 40,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 40
       },
       {
         "id": 2,
-        "url": "https://static.ietf.org/fonts/inter/import.css",
+        "url": "https://static.ietf.org/{seg}/{seg}/{seg}",
         "domain": "static.ietf.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 123,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 123
       },
       {
         "id": 3,
-        "url": "https://www.rfc-editor.org/_nuxt/1.58.2/style.Bx1zySHn.css",
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
         "domain": "www.rfc-editor.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 123,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 123
       },
       {
         "id": 4,
-        "url": "https://www.rfc-editor.org/_nuxt/1.58.2/CYVTcSXQ.js",
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
         "domain": "www.rfc-editor.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 124,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 124
       },
       {
         "id": 5,
-        "url": "https://www.rfc-editor.org/_nuxt/1.58.2/logo-mobile.CoO2D8c2.svg",
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
         "domain": "www.rfc-editor.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 199,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 199
       },
       {
         "id": 6,
-        "url": "https://www.rfc-editor.org/_nuxt/1.58.2/GBiRfs8p.js",
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
         "domain": "www.rfc-editor.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 199,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 199
       },
       {
         "id": 7,
-        "url": "https://www.rfc-editor.org/_nuxt/1.58.2/DZ0lLcOk.js",
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
         "domain": "www.rfc-editor.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 200,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 200
       },
       {
         "id": 8,
-        "url": "https://www.rfc-editor.org/_nuxt/1.58.2/BNihn4--.js",
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
         "domain": "www.rfc-editor.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 200,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 200
       },
       {
         "id": 9,
-        "url": "https://www.rfc-editor.org/_nuxt/1.58.2/C25Fi_DG.js",
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
         "domain": "www.rfc-editor.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 200,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 200
       },
       {
         "id": 10,
-        "url": "https://www.rfc-editor.org/_nuxt/1.58.2/T3T0fEsU.js",
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
         "domain": "www.rfc-editor.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 201,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 201
       },
       {
         "id": 11,
-        "url": "https://www.rfc-editor.org/_nuxt/1.58.2/BFyXDgn2.js",
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
         "domain": "www.rfc-editor.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 201,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 201
       },
       {
         "id": 12,
-        "url": "https://www.rfc-editor.org/_nuxt/1.58.2/logo-desktop.DmfyR5wx.svg",
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
         "domain": "www.rfc-editor.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 211,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 211
       },
       {
         "id": 13,
-        "url": "https://static.ietf.org/fonts/inter/inter-latin.woff2",
+        "url": "https://static.ietf.org/{seg}/{seg}/{seg}",
         "domain": "static.ietf.org",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 240,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 240
       },
       {
         "id": 14,
-        "url": "https://www.rfc-editor.org/_nuxt/1.58.2/CJdLxqja.js",
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
         "domain": "www.rfc-editor.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 352,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 352
       },
       {
         "id": 15,
-        "url": "https://www.rfc-editor.org/_nuxt/1.58.2/CqNkTj-h.js",
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
         "domain": "www.rfc-editor.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 353,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 353
       },
       {
         "id": 16,
-        "url": "https://www.rfc-editor.org/_nuxt/1.58.2/aZNZ9E2n.js",
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
         "domain": "www.rfc-editor.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 500,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 500
       },
       {
         "id": 17,
-        "url": "https://www.rfc-editor.org/_nuxt/1.58.2/BTEx6RkA.js",
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
         "domain": "www.rfc-editor.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 500,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 500
       },
       {
         "id": 18,
-        "url": "https://analytics.ietf.org/matomo.js",
+        "url": "https://analytics.ietf.org/{seg}",
         "domain": "analytics.ietf.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 705,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 705
       },
       {
         "id": 19,
-        "url": "https://www.rfc-editor.org/_nuxt/1.58.2/DC7zd9UR.js",
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
         "domain": "www.rfc-editor.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 742,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 742
       },
       {
         "id": 20,
-        "url": "https://www.rfc-editor.org/_nuxt/1.58.2/C3VFO8V1.js",
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
         "domain": "www.rfc-editor.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 743,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 743
       },
       {
         "id": 21,
-        "url": "https://www.rfc-editor.org/_nuxt/1.58.2/CMsmaCZB.js",
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
         "domain": "www.rfc-editor.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 743,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 743
       },
       {
         "id": 22,
-        "url": "https://www.rfc-editor.org/_nuxt/1.58.2/BZ_Im2sg.js",
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
         "domain": "www.rfc-editor.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 744,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 744
       },
       {
         "id": 23,
-        "url": "https://www.rfc-editor.org/_nuxt/1.58.2/B1bpT51a.js",
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
         "domain": "www.rfc-editor.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 744,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 744
       },
       {
         "id": 24,
-        "url": "https://www.rfc-editor.org/_nuxt/1.58.2/BqIJx-lG.js",
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
         "domain": "www.rfc-editor.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 744,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 744
       },
       {
         "id": 25,
-        "url": "https://www.rfc-editor.org/_nuxt/1.58.2/BKDHlMK9.js",
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
         "domain": "www.rfc-editor.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 744,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 744
       },
       {
         "id": 26,
-        "url": "https://www.rfc-editor.org/_nuxt/1.58.2/T5ykc2Hk.js",
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
         "domain": "www.rfc-editor.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 745,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 745
       },
       {
         "id": 27,
-        "url": "https://analytics.ietf.org/matomo.php?action_name=&idsite=&rec=&r=&h=&m=&s=&url=&_id=&_idn=&send_image=&_refts=&pv_id=&pf_net=&pf_srv=&pf_tfr=&pf_dm1=&pf_dm2=&pf_onl=&uadata=&cookie=&res=",
+        "url": "https://analytics.ietf.org/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "analytics.ietf.org",
         "method": "POST",
         "resourceType": "ping",
         "status": 204,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 766,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 766
       },
       {
         "id": 28,
-        "url": "https://www.rfc-editor.org/_nuxt/1.58.2/DOdv6nco.js",
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
         "domain": "www.rfc-editor.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 887,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 887
       },
       {
         "id": 29,
-        "url": "https://www.rfc-editor.org/_nuxt/1.58.2/DPBa5t6i.js",
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
         "domain": "www.rfc-editor.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 981,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 981
       },
       {
         "id": 30,
-        "url": "https://analytics.ietf.org/matomo.php?action_name=&idsite=&rec=&r=&h=&m=&s=&url=&_id=&_idn=&send_image=&_refts=&pf_net=&pf_srv=&pf_tfr=&pf_dm1=&pf_dm2=&pf_onl=&pv_id=&uadata=&cookie=&res=",
+        "url": "https://analytics.ietf.org/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "analytics.ietf.org",
         "method": "POST",
         "resourceType": "ping",
         "status": 204,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1566,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1566
       },
       {
         "id": 31,
-        "url": "https://analytics.ietf.org/matomo.php?action_name=&idsite=&rec=&r=&h=&m=&s=&url=&_id=&_idn=&send_image=&_refts=&pv_id=&uadata=&cookie=&res=",
+        "url": "https://analytics.ietf.org/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "analytics.ietf.org",
         "method": "POST",
         "resourceType": "ping",
         "status": 204,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1618,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1618
       },
       {
         "id": 32,
-        "url": "https://www.rfc-editor.org/_nuxt/1.58.2/builds/meta/3303826f-84db-40d2-97b0-74852ebcbe8e.json",
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.rfc-editor.org",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1722,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1722
       }
     ],
     "domains": [
@@ -522,7 +522,7 @@
         "thirdParty": false
       },
       {
-        "name": "_pk_id.13.9010",
+        "name": "[redacted]",
         "domain": "www.rfc-editor.org",
         "path": "/",
         "sameSite": "Lax",
@@ -532,7 +532,7 @@
         "thirdParty": false
       },
       {
-        "name": "_pk_ses.13.9010",
+        "name": "[redacted]",
         "domain": "www.rfc-editor.org",
         "path": "/",
         "sameSite": "Lax",
@@ -545,12 +545,12 @@
     "storage": [
       {
         "area": "localStorage",
-        "key": "nuxt-color-mode",
+        "key": "[redacted]",
         "valueBytes": 6
       }
     ],
-    "fingerprintDetections": [],
     "fingerprintEvents": [],
+    "fingerprintDetections": [],
     "screenshot": null,
     "warnings": [
       "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
@@ -596,6 +596,13 @@
       "automation": "playwright-chromium",
       "headless": true,
       "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "block-simulation",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-02T01:00:58.178Z"
+      },
       "trackerCatalog": {
         "source": "Hand-curated service catalog",
         "version": "hand-curated-2026.06",
@@ -604,14 +611,7 @@
         "curatedOverrides": 133,
         "license": "AGPL-3.0-or-later"
       },
-      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
-      "adblock": {
-        "active": true,
-        "source": "Brave default ad-block lists",
-        "lists": 31,
-        "fetchedAt": "2026-07-02T01:00:58.178Z"
-      },
-      "shieldsMode": "block-simulation"
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
     },
     "requests": [
       {
@@ -623,332 +623,332 @@
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 43,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 43
       },
       {
         "id": 2,
-        "url": "https://static.ietf.org/fonts/inter/import.css",
+        "url": "https://static.ietf.org/{seg}/{seg}/{seg}",
         "domain": "static.ietf.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 115,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 115
       },
       {
         "id": 3,
-        "url": "https://www.rfc-editor.org/_nuxt/1.58.2/style.Bx1zySHn.css",
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
         "domain": "www.rfc-editor.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 115,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 115
       },
       {
         "id": 4,
-        "url": "https://www.rfc-editor.org/_nuxt/1.58.2/CYVTcSXQ.js",
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
         "domain": "www.rfc-editor.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 116,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 116
       },
       {
         "id": 5,
-        "url": "https://www.rfc-editor.org/_nuxt/1.58.2/logo-mobile.CoO2D8c2.svg",
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
         "domain": "www.rfc-editor.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 179,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 179
       },
       {
         "id": 6,
-        "url": "https://www.rfc-editor.org/_nuxt/1.58.2/logo-desktop.DmfyR5wx.svg",
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
         "domain": "www.rfc-editor.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 182,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 182
       },
       {
         "id": 7,
-        "url": "https://static.ietf.org/fonts/inter/inter-latin.woff2",
+        "url": "https://static.ietf.org/{seg}/{seg}/{seg}",
         "domain": "static.ietf.org",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 209,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 209
       },
       {
         "id": 8,
-        "url": "https://www.rfc-editor.org/_nuxt/1.58.2/GBiRfs8p.js",
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
         "domain": "www.rfc-editor.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 221,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 221
       },
       {
         "id": 9,
-        "url": "https://www.rfc-editor.org/_nuxt/1.58.2/DZ0lLcOk.js",
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
         "domain": "www.rfc-editor.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 222,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 222
       },
       {
         "id": 10,
-        "url": "https://www.rfc-editor.org/_nuxt/1.58.2/BNihn4--.js",
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
         "domain": "www.rfc-editor.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 223,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 223
       },
       {
         "id": 11,
-        "url": "https://www.rfc-editor.org/_nuxt/1.58.2/C25Fi_DG.js",
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
         "domain": "www.rfc-editor.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 223,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 223
       },
       {
         "id": 12,
-        "url": "https://www.rfc-editor.org/_nuxt/1.58.2/T3T0fEsU.js",
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
         "domain": "www.rfc-editor.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 224,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 224
       },
       {
         "id": 13,
-        "url": "https://www.rfc-editor.org/_nuxt/1.58.2/BFyXDgn2.js",
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
         "domain": "www.rfc-editor.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 224,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 224
       },
       {
         "id": 14,
-        "url": "https://www.rfc-editor.org/_nuxt/1.58.2/CJdLxqja.js",
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
         "domain": "www.rfc-editor.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 396,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 396
       },
       {
         "id": 15,
-        "url": "https://www.rfc-editor.org/_nuxt/1.58.2/CqNkTj-h.js",
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
         "domain": "www.rfc-editor.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 396,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 396
       },
       {
         "id": 16,
-        "url": "https://www.rfc-editor.org/_nuxt/1.58.2/aZNZ9E2n.js",
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
         "domain": "www.rfc-editor.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 518,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 518
       },
       {
         "id": 17,
-        "url": "https://www.rfc-editor.org/_nuxt/1.58.2/BTEx6RkA.js",
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
         "domain": "www.rfc-editor.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 519,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 519
       },
       {
         "id": 19,
-        "url": "https://www.rfc-editor.org/_nuxt/1.58.2/DC7zd9UR.js",
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
         "domain": "www.rfc-editor.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 692,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 692
       },
       {
         "id": 20,
-        "url": "https://www.rfc-editor.org/_nuxt/1.58.2/C3VFO8V1.js",
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
         "domain": "www.rfc-editor.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 692,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 692
       },
       {
         "id": 21,
-        "url": "https://www.rfc-editor.org/_nuxt/1.58.2/CMsmaCZB.js",
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
         "domain": "www.rfc-editor.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 693,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 693
       },
       {
         "id": 22,
-        "url": "https://www.rfc-editor.org/_nuxt/1.58.2/BZ_Im2sg.js",
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
         "domain": "www.rfc-editor.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 694,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 694
       },
       {
         "id": 23,
-        "url": "https://www.rfc-editor.org/_nuxt/1.58.2/B1bpT51a.js",
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
         "domain": "www.rfc-editor.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 694,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 694
       },
       {
         "id": 24,
-        "url": "https://www.rfc-editor.org/_nuxt/1.58.2/BqIJx-lG.js",
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
         "domain": "www.rfc-editor.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 694,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 694
       },
       {
         "id": 25,
-        "url": "https://www.rfc-editor.org/_nuxt/1.58.2/BKDHlMK9.js",
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
         "domain": "www.rfc-editor.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 695,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 695
       },
       {
         "id": 26,
-        "url": "https://www.rfc-editor.org/_nuxt/1.58.2/T5ykc2Hk.js",
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
         "domain": "www.rfc-editor.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 695,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 695
       },
       {
         "id": 27,
-        "url": "https://www.rfc-editor.org/_nuxt/1.58.2/DOdv6nco.js",
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
         "domain": "www.rfc-editor.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 812,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 812
       },
       {
         "id": 28,
-        "url": "https://www.rfc-editor.org/_nuxt/1.58.2/DPBa5t6i.js",
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}",
         "domain": "www.rfc-editor.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 877,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 877
       },
       {
         "id": 29,
-        "url": "https://www.rfc-editor.org/_nuxt/1.58.2/builds/meta/3303826f-84db-40d2-97b0-74852ebcbe8e.json",
+        "url": "https://www.rfc-editor.org/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.rfc-editor.org",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1663,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1663
       }
     ],
     "domains": [
@@ -1009,12 +1009,12 @@
     "storage": [
       {
         "area": "localStorage",
-        "key": "nuxt-color-mode",
+        "key": "[redacted]",
         "valueBytes": 6
       }
     ],
-    "fingerprintDetections": [],
     "fingerprintEvents": [],
+    "fingerprintDetections": [],
     "screenshot": null,
     "warnings": [
       "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
@@ -1077,12 +1077,7 @@
     "addedCookies": [],
     "removedCookies": [
       {
-        "name": "_pk_id.13.9010",
-        "domain": "www.rfc-editor.org",
-        "thirdParty": false
-      },
-      {
-        "name": "_pk_ses.13.9010",
+        "name": "[redacted]",
         "domain": "www.rfc-editor.org",
         "thirdParty": false
       }

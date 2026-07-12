@@ -49,6 +49,13 @@
       "automation": "playwright-chromium",
       "headless": true,
       "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "classification",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-02T01:00:58.178Z"
+      },
       "trackerCatalog": {
         "source": "Hand-curated service catalog",
         "version": "hand-curated-2026.06",
@@ -57,14 +64,7 @@
         "curatedOverrides": 133,
         "license": "AGPL-3.0-or-later"
       },
-      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
-      "adblock": {
-        "active": true,
-        "source": "Brave default ad-block lists",
-        "lists": 31,
-        "fetchedAt": "2026-07-02T01:00:58.178Z"
-      },
-      "shieldsMode": "classification"
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
     },
     "requests": [
       {
@@ -76,8 +76,8 @@
         "status": 301,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 49,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 49
       },
       {
         "id": 2,
@@ -88,260 +88,260 @@
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 81,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 81
       },
       {
         "id": 3,
-        "url": "https://rust-lang.org/static/styles/a11y-dark.css",
+        "url": "https://rust-lang.org/static/{seg}/{seg}",
         "domain": "rust-lang.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 199,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 199
       },
       {
         "id": 4,
-        "url": "https://rust-lang.org/static/styles/vendor_10880690442070639967.css",
+        "url": "https://rust-lang.org/static/{seg}/{seg}",
         "domain": "rust-lang.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 200,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 200
       },
       {
         "id": 5,
-        "url": "https://rust-lang.org/static/styles/fonts_8049871103083011125.css",
+        "url": "https://rust-lang.org/static/{seg}/{seg}",
         "domain": "rust-lang.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 201,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 201
       },
       {
         "id": 6,
-        "url": "https://rust-lang.org/static/styles/app_17774143076088586802.css",
+        "url": "https://rust-lang.org/static/{seg}/{seg}",
         "domain": "rust-lang.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 201,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 201
       },
       {
         "id": 7,
-        "url": "https://rust-lang.org/static/images/rust-logo-blk.svg",
+        "url": "https://rust-lang.org/static/{seg}/{seg}",
         "domain": "rust-lang.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 201,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 201
       },
       {
         "id": 8,
-        "url": "https://rust-lang.org/static/images/cli.svg",
+        "url": "https://rust-lang.org/static/{seg}/{seg}",
         "domain": "rust-lang.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 201,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 201
       },
       {
         "id": 9,
-        "url": "https://rust-lang.org/static/images/webassembly.svg",
+        "url": "https://rust-lang.org/static/{seg}/{seg}",
         "domain": "rust-lang.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 220,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 220
       },
       {
         "id": 10,
-        "url": "https://rust-lang.org/static/images/networking.svg",
+        "url": "https://rust-lang.org/static/{seg}/{seg}",
         "domain": "rust-lang.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 223,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 223
       },
       {
         "id": 11,
-        "url": "https://rust-lang.org/static/images/embedded.svg",
+        "url": "https://rust-lang.org/static/{seg}/{seg}",
         "domain": "rust-lang.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 227,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 227
       },
       {
         "id": 12,
-        "url": "https://rust-lang.org/static/scripts/languages.js",
+        "url": "https://rust-lang.org/static/{seg}/{seg}",
         "domain": "rust-lang.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 227,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 227
       },
       {
         "id": 13,
-        "url": "https://rust-lang.org/static/scripts/highlight.pack.js",
+        "url": "https://rust-lang.org/static/{seg}/{seg}",
         "domain": "rust-lang.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 229,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 229
       },
       {
         "id": 14,
-        "url": "https://rust-lang.org/static/scripts/init.js",
+        "url": "https://rust-lang.org/static/{seg}/{seg}",
         "domain": "rust-lang.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 229,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 229
       },
       {
         "id": 15,
-        "url": "https://rust-lang.org/static/images/mastodon.svg",
+        "url": "https://rust-lang.org/static/{seg}/{seg}",
         "domain": "rust-lang.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 230,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 230
       },
       {
         "id": 16,
-        "url": "https://rust-lang.org/static/images/bluesky.svg",
+        "url": "https://rust-lang.org/static/{seg}/{seg}",
         "domain": "rust-lang.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 230,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 230
       },
       {
         "id": 17,
-        "url": "https://rust-lang.org/static/images/youtube.svg",
+        "url": "https://rust-lang.org/static/{seg}/{seg}",
         "domain": "rust-lang.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 230,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 230
       },
       {
         "id": 18,
-        "url": "https://rust-lang.org/static/images/github.svg",
+        "url": "https://rust-lang.org/static/{seg}/{seg}",
         "domain": "rust-lang.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 230,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 230
       },
       {
         "id": 19,
-        "url": "https://rust-lang.org/static/fonts/woff2/FiraSans-Regular.latin.woff2",
+        "url": "https://rust-lang.org/static/{seg}/{seg}/{seg}",
         "domain": "rust-lang.org",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 274,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 274
       },
       {
         "id": 20,
-        "url": "https://rust-lang.org/static/fonts/woff2/AlfaSlabOne-Regular.latin.woff2",
+        "url": "https://rust-lang.org/static/{seg}/{seg}/{seg}",
         "domain": "rust-lang.org",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 275,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 275
       },
       {
         "id": 21,
-        "url": "https://rust-lang.org/static/fonts/woff2/FiraSans-SemiBold.latin.woff2",
+        "url": "https://rust-lang.org/static/{seg}/{seg}/{seg}",
         "domain": "rust-lang.org",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 275,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 275
       },
       {
         "id": 22,
-        "url": "https://rust-lang.org/static/fonts/woff2/FiraSans-ExtraBold.latin.woff2",
+        "url": "https://rust-lang.org/static/{seg}/{seg}/{seg}",
         "domain": "rust-lang.org",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 277,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 277
       },
       {
         "id": 23,
-        "url": "https://rust-lang.org/static/fonts/woff2/FiraSans-Regular.cyrillic.woff2",
+        "url": "https://rust-lang.org/static/{seg}/{seg}/{seg}",
         "domain": "rust-lang.org",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 278,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 278
       }
     ],
     "domains": [
@@ -378,21 +378,21 @@
     ],
     "cookies": [],
     "storage": [],
-    "fingerprintDetections": [],
     "fingerprintEvents": [],
-    "screenshot": null,
-    "warnings": [
-      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
-      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
-      "Read the site's privacy policy (https://foundation.rust-lang.org/policies/privacy-policy/) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
-    ],
+    "fingerprintDetections": [],
     "privacyPolicy": {
-      "url": "https://foundation.rust-lang.org/policies/privacy-policy/",
+      "url": "https://foundation.rust-lang.org/policies/privacy-policy",
       "claims": [],
       "mentionedEntities": [],
       "unmentionedEntities": [],
       "policyTextLength": 13304
-    }
+    },
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+      "Read the site's privacy policy (https://foundation.rust-lang.org/policies/privacy-policy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ]
   },
   "variant": {
     "ok": true,
@@ -432,6 +432,13 @@
       "automation": "playwright-chromium",
       "headless": true,
       "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "block-simulation",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-02T01:00:58.178Z"
+      },
       "trackerCatalog": {
         "source": "Hand-curated service catalog",
         "version": "hand-curated-2026.06",
@@ -440,14 +447,7 @@
         "curatedOverrides": 133,
         "license": "AGPL-3.0-or-later"
       },
-      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
-      "adblock": {
-        "active": true,
-        "source": "Brave default ad-block lists",
-        "lists": 31,
-        "fetchedAt": "2026-07-02T01:00:58.178Z"
-      },
-      "shieldsMode": "block-simulation"
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
     },
     "requests": [
       {
@@ -459,8 +459,8 @@
         "status": 301,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 47,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 47
       },
       {
         "id": 2,
@@ -471,260 +471,260 @@
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 85,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 85
       },
       {
         "id": 3,
-        "url": "https://rust-lang.org/static/styles/a11y-dark.css",
+        "url": "https://rust-lang.org/static/{seg}/{seg}",
         "domain": "rust-lang.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 127,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 127
       },
       {
         "id": 4,
-        "url": "https://rust-lang.org/static/styles/vendor_10880690442070639967.css",
+        "url": "https://rust-lang.org/static/{seg}/{seg}",
         "domain": "rust-lang.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 128,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 128
       },
       {
         "id": 5,
-        "url": "https://rust-lang.org/static/styles/fonts_8049871103083011125.css",
+        "url": "https://rust-lang.org/static/{seg}/{seg}",
         "domain": "rust-lang.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 128,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 128
       },
       {
         "id": 6,
-        "url": "https://rust-lang.org/static/styles/app_17774143076088586802.css",
+        "url": "https://rust-lang.org/static/{seg}/{seg}",
         "domain": "rust-lang.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 129,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 129
       },
       {
         "id": 7,
-        "url": "https://rust-lang.org/static/images/rust-logo-blk.svg",
+        "url": "https://rust-lang.org/static/{seg}/{seg}",
         "domain": "rust-lang.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 130,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 130
       },
       {
         "id": 8,
-        "url": "https://rust-lang.org/static/images/cli.svg",
+        "url": "https://rust-lang.org/static/{seg}/{seg}",
         "domain": "rust-lang.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 130,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 130
       },
       {
         "id": 9,
-        "url": "https://rust-lang.org/static/images/webassembly.svg",
+        "url": "https://rust-lang.org/static/{seg}/{seg}",
         "domain": "rust-lang.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 149,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 149
       },
       {
         "id": 10,
-        "url": "https://rust-lang.org/static/images/networking.svg",
+        "url": "https://rust-lang.org/static/{seg}/{seg}",
         "domain": "rust-lang.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 151,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 151
       },
       {
         "id": 11,
-        "url": "https://rust-lang.org/static/images/embedded.svg",
+        "url": "https://rust-lang.org/static/{seg}/{seg}",
         "domain": "rust-lang.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 155,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 155
       },
       {
         "id": 12,
-        "url": "https://rust-lang.org/static/scripts/languages.js",
+        "url": "https://rust-lang.org/static/{seg}/{seg}",
         "domain": "rust-lang.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 156,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 156
       },
       {
         "id": 13,
-        "url": "https://rust-lang.org/static/scripts/highlight.pack.js",
+        "url": "https://rust-lang.org/static/{seg}/{seg}",
         "domain": "rust-lang.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 156,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 156
       },
       {
         "id": 14,
-        "url": "https://rust-lang.org/static/scripts/init.js",
+        "url": "https://rust-lang.org/static/{seg}/{seg}",
         "domain": "rust-lang.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 157,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 157
       },
       {
         "id": 15,
-        "url": "https://rust-lang.org/static/images/mastodon.svg",
+        "url": "https://rust-lang.org/static/{seg}/{seg}",
         "domain": "rust-lang.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 158,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 158
       },
       {
         "id": 16,
-        "url": "https://rust-lang.org/static/images/bluesky.svg",
+        "url": "https://rust-lang.org/static/{seg}/{seg}",
         "domain": "rust-lang.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 159,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 159
       },
       {
         "id": 17,
-        "url": "https://rust-lang.org/static/images/youtube.svg",
+        "url": "https://rust-lang.org/static/{seg}/{seg}",
         "domain": "rust-lang.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 159,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 159
       },
       {
         "id": 18,
-        "url": "https://rust-lang.org/static/images/github.svg",
+        "url": "https://rust-lang.org/static/{seg}/{seg}",
         "domain": "rust-lang.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 159,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 159
       },
       {
         "id": 19,
-        "url": "https://rust-lang.org/static/fonts/woff2/FiraSans-Regular.latin.woff2",
+        "url": "https://rust-lang.org/static/{seg}/{seg}/{seg}",
         "domain": "rust-lang.org",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 198,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 198
       },
       {
         "id": 20,
-        "url": "https://rust-lang.org/static/fonts/woff2/AlfaSlabOne-Regular.latin.woff2",
+        "url": "https://rust-lang.org/static/{seg}/{seg}/{seg}",
         "domain": "rust-lang.org",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 199,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 199
       },
       {
         "id": 21,
-        "url": "https://rust-lang.org/static/fonts/woff2/FiraSans-SemiBold.latin.woff2",
+        "url": "https://rust-lang.org/static/{seg}/{seg}/{seg}",
         "domain": "rust-lang.org",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 201,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 201
       },
       {
         "id": 22,
-        "url": "https://rust-lang.org/static/fonts/woff2/FiraSans-ExtraBold.latin.woff2",
+        "url": "https://rust-lang.org/static/{seg}/{seg}/{seg}",
         "domain": "rust-lang.org",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 201,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 201
       },
       {
         "id": 23,
-        "url": "https://rust-lang.org/static/fonts/woff2/FiraSans-Regular.cyrillic.woff2",
+        "url": "https://rust-lang.org/static/{seg}/{seg}/{seg}",
         "domain": "rust-lang.org",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 202,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 202
       }
     ],
     "domains": [
@@ -761,22 +761,22 @@
     ],
     "cookies": [],
     "storage": [],
-    "fingerprintDetections": [],
     "fingerprintEvents": [],
+    "fingerprintDetections": [],
+    "privacyPolicy": {
+      "url": "https://foundation.rust-lang.org/policies/privacy-policy",
+      "claims": [],
+      "mentionedEntities": [],
+      "unmentionedEntities": [],
+      "policyTextLength": 13304
+    },
     "screenshot": null,
     "warnings": [
       "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
       "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
       "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
-      "Read the site's privacy policy (https://foundation.rust-lang.org/policies/privacy-policy/) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
-    ],
-    "privacyPolicy": {
-      "url": "https://foundation.rust-lang.org/policies/privacy-policy/",
-      "claims": [],
-      "mentionedEntities": [],
-      "unmentionedEntities": [],
-      "policyTextLength": 13304
-    }
+      "Read the site's privacy policy (https://foundation.rust-lang.org/policies/privacy-policy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ]
   },
   "diff": {
     "totalRequests": {
@@ -841,11 +841,11 @@
     "Brave-list blocking comparison runs should be collected under matched crawl conditions, and the blocking run is a simulation with Brave's engine and default lists in this scanner's browser, not a live Brave visit. Differences can still reflect timing, experiments, cache state, consent state, or bot detection.",
     "No blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
     "No blocking: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
-    "No blocking: Read the site's privacy policy (https://foundation.rust-lang.org/policies/privacy-policy/) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
+    "No blocking: Read the site's privacy policy (https://foundation.rust-lang.org/policies/privacy-policy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
     "Brave-list blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
     "Brave-list blocking: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
     "Brave-list blocking: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
-    "Brave-list blocking: Read the site's privacy policy (https://foundation.rust-lang.org/policies/privacy-policy/) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    "Brave-list blocking: Read the site's privacy policy (https://foundation.rust-lang.org/policies/privacy-policy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
   ],
   "share": {
     "id": "20260702-a9f400761370142efe1726675a6be0bb",

@@ -1,9 +1,12 @@
-import { readdir, readFile } from "node:fs/promises";
-import path from "node:path";
 import { runHitRequestCap } from "./comparison-eligibility";
 import type { CorpusMetricKey, CorpusStats, MetricDistribution } from "./corpus-stats";
 import { isReservedReportDomain } from "./reserved-report-domains";
-import { readStoredScanReport } from "./scan-report-reader";
+import {
+  listDanglingStaticSidecarIds,
+  listStaticReportCandidateIds,
+  readStaticReportBundle,
+  StaticReportBundleError
+} from "./static-report-files";
 import type { ScanReport, ScanResult } from "./types";
 
 /**
@@ -11,8 +14,8 @@ import type { ScanReport, ScanResult } from "./types";
  * committed report corpus (public/corpus-stats.json; consumed by the findings
  * board via lib/corpus-stats). Ported from the former MJS script so
  * recognition goes through the canonical version-aware deep reader (RFC 14.8):
- * a malformed report is SKIPPED WITH A WARNING instead of contributing
- * silently zero-coerced values that drag every percentile down.
+ * a malformed or unmanaged report fails the managed-corpus build instead of
+ * silently disappearing or contributing zero-coerced values.
  *
  * One data point per distinct real site (most recent scan wins) so repeated
  * scans of the same domain do not skew the distribution. Reserved/test
@@ -24,7 +27,6 @@ import type { ScanReport, ScanResult } from "./types";
  * and workflows invoke. Never imported by app, worker, or browser code.
  */
 
-const REPORT_FILE_PATTERN = /^[0-9]{8}-[0-9a-f]{32}\.json$/;
 const METRIC_KEYS: CorpusMetricKey[] = [
   "thirdPartyRequests",
   "thirdPartyDomains",
@@ -47,19 +49,14 @@ export async function buildCorpusStats(reportsDir: string, now = new Date()): Pr
   // MEASURES, so the two counts are reported separately.
   const coverageDomains = new Set<string>();
 
-  for (const file of await listReportFiles(reportsDir)) {
-    let parsed: unknown;
-    try {
-      parsed = JSON.parse(await readFile(path.join(reportsDir, file), "utf8")) as unknown;
-    } catch (error) {
-      warnings.push(`Skipping unparseable corpus report ${file}: ${error instanceof Error ? error.message : String(error)}`);
-      continue;
-    }
+  const dangling = await listDanglingStaticSidecarIds(reportsDir);
+  if (dangling.length > 0) throw new StaticReportBundleError(dangling[0], "dangling-sidecar");
 
-    const read = readStoredScanReport(parsed);
-    if (!read.ok) {
-      warnings.push(`Skipping corpus report ${file}: ${read.error}${read.violations ? ` (${read.violations[0]})` : ""}`);
-      continue;
+  for (const id of await listStaticReportCandidateIds(reportsDir)) {
+    const file = `${id}.json`;
+    const read = await readStaticReportBundle(reportsDir, id);
+    if (read.outcome !== "found") {
+      throw new StaticReportBundleError(id, read.outcome === "not-found" ? "missing-report" : read.reason);
     }
     if (read.stored.schemaVersion !== 1) {
       warnings.push(`Skipping corpus report ${file}: schemaVersion 2 metrics are not comparable to the v1 distribution.`);
@@ -140,21 +137,6 @@ export async function buildCorpusStats(reportsDir: string, now = new Date()): Pr
     },
     warnings
   };
-}
-
-async function listReportFiles(reportsDir: string): Promise<string[]> {
-  try {
-    const entries = await readdir(reportsDir, { withFileTypes: true });
-    return entries
-      .filter((entry) => entry.isFile() && REPORT_FILE_PATTERN.test(entry.name))
-      .map((entry) => entry.name)
-      .sort();
-  } catch (error) {
-    if (Boolean(error && typeof error === "object" && "code" in error && (error as { code?: string }).code === "ENOENT")) {
-      return [];
-    }
-    throw error;
-  }
 }
 
 function percentile(sorted: number[], p: number): number {

@@ -49,6 +49,13 @@
       "automation": "playwright-chromium",
       "headless": true,
       "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "classification",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-02T01:00:58.178Z"
+      },
       "trackerCatalog": {
         "source": "Hand-curated service catalog",
         "version": "hand-curated-2026.06",
@@ -57,14 +64,7 @@
         "curatedOverrides": 133,
         "license": "AGPL-3.0-or-later"
       },
-      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
-      "adblock": {
-        "active": true,
-        "source": "Brave default ad-block lists",
-        "lists": 31,
-        "fetchedAt": "2026-07-02T01:00:58.178Z"
-      },
-      "shieldsMode": "classification"
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
     },
     "requests": [
       {
@@ -76,144 +76,144 @@
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 48,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 48
       },
       {
         "id": 2,
-        "url": "https://www.usa.gov/s3/files/styles/max_1440w/public/2023-02/Homepage_Banner.png.webp",
+        "url": "https://www.usa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.usa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 77,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 77
       },
       {
         "id": 3,
-        "url": "https://www.usa.gov/sites/default/files/css/css_HOzaX5HCSq_WlRlcWDRPLUTDyyL8VZQ6REn3ac2TQC8.css",
+        "url": "https://www.usa.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.usa.gov",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 77,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 77
       },
       {
         "id": 4,
-        "url": "https://www.usa.gov/sites/default/files/css/css_RS0lu12kxAKVlYtiIn6qpAq__BevSHCXAmcrTugppls.css",
+        "url": "https://www.usa.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.usa.gov",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 78,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 78
       },
       {
         "id": 5,
-        "url": "https://www.usa.gov/themes/custom/usagov/images/favicon-57.png",
+        "url": "https://www.usa.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.usa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 79,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 79
       },
       {
         "id": 6,
-        "url": "https://www.usa.gov/themes/custom/usagov/assets/img/icon-dot-gov.svg",
+        "url": "https://www.usa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.usa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 79,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 79
       },
       {
         "id": 7,
-        "url": "https://www.usa.gov/themes/custom/usagov/assets/img/icon-https.svg",
+        "url": "https://www.usa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.usa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 136,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 136
       },
       {
         "id": 8,
-        "url": "https://www.usa.gov/themes/custom/usagov/components/searchbar/images/search--dark.svg",
+        "url": "https://www.usa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.usa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 137,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 137
       },
       {
         "id": 9,
-        "url": "https://www.usa.gov/themes/custom/usagov/images/USAGov_Logo_80px.png",
+        "url": "https://www.usa.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.usa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 142,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 142
       },
       {
         "id": 10,
-        "url": "https://www.usa.gov/sites/default/files/js/js_lgXG-qbIAtdEwWFW2VoRjnVQm8s_kKg_akxfZvcl5FU.js",
+        "url": "https://www.usa.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.usa.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 142,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 142
       },
       {
         "id": 11,
-        "url": "https://www.usa.gov/modules/contrib/uswds_ckeditor_integration/js/aftermarket/uswds_accordion.js",
+        "url": "https://www.usa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.usa.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 142,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 142
       },
       {
         "id": 12,
-        "url": "https://www.usa.gov/themes/custom/usagov/scripts/modifyMobileNav.js",
+        "url": "https://www.usa.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.usa.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 143,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 143
       },
       {
         "id": 13,
-        "url": "https://script.crazyegg.com/pages/scripts/0007/9651.js",
+        "url": "https://script.crazyegg.com/{seg}/{seg}/{n}/{seg}",
         "domain": "script.crazyegg.com",
         "method": "GET",
         "resourceType": "script",
@@ -225,60 +225,60 @@
           "category": "session replay / behavior analytics",
           "confidence": "curated"
         },
-        "startedAtMs": 143,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 143
       },
       {
         "id": 14,
-        "url": "https://www.usa.gov/themes/custom/usagov/assets/img/usa-icons/close.svg",
+        "url": "https://www.usa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.usa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 143,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 143
       },
       {
         "id": 15,
-        "url": "https://www.usa.gov/themes/custom/usagov/images/Reimagined_Jump_to_Arrow.svg",
+        "url": "https://www.usa.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.usa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 143,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 143
       },
       {
         "id": 16,
-        "url": "https://www.usa.gov/themes/custom/usagov/images/topics/ICONS_Reimagined_Benefits.svg",
+        "url": "https://www.usa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.usa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 144,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 144
       },
       {
         "id": 17,
-        "url": "https://www.usa.gov/themes/custom/usagov/scripts/newFooter.js",
+        "url": "https://www.usa.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.usa.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 144,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 144
       },
       {
         "id": 18,
-        "url": "https://www.googletagmanager.com/gtm.js?id=",
+        "url": "https://www.googletagmanager.com/{seg}?id=",
         "domain": "www.googletagmanager.com",
         "method": "GET",
         "resourceType": "script",
@@ -290,132 +290,132 @@
           "category": "analytics / tag management",
           "confidence": "curated"
         },
-        "startedAtMs": 146,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 146
       },
       {
         "id": 19,
-        "url": "https://www.usa.gov/themes/custom/usagov/assets/img/sprite.svg",
+        "url": "https://www.usa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.usa.gov",
         "method": "GET",
         "resourceType": "other",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 146,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 146
       },
       {
         "id": 20,
-        "url": "https://www.usa.gov/themes/custom/usagov/assets/img/usa-icons/expand_more.svg",
+        "url": "https://www.usa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.usa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 186,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 186
       },
       {
         "id": 21,
-        "url": "https://www.usa.gov/themes/custom/usagov/fonts/source-sans-pro/sourcesanspro-regular-webfont.woff2",
+        "url": "https://www.usa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.usa.gov",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 186,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 186
       },
       {
         "id": 22,
-        "url": "https://www.usa.gov/themes/custom/usagov/images/Icon_Back_to_Top_Blue.png",
+        "url": "https://www.usa.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.usa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 187,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 187
       },
       {
         "id": 23,
-        "url": "https://www.usa.gov/themes/custom/usagov/fonts/source-sans-pro/sourcesanspro-bold-webfont.woff2",
+        "url": "https://www.usa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.usa.gov",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 187,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 187
       },
       {
         "id": 24,
-        "url": "https://www.usa.gov/themes/custom/usagov/fonts/merriweather/Latin-Merriweather-Bold.woff2",
+        "url": "https://www.usa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.usa.gov",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 188,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 188
       },
       {
         "id": 25,
-        "url": "https://www.usa.gov/themes/custom/usagov/fonts/source-sans-pro/sourcesanspro-semibold-webfont.woff2",
+        "url": "https://www.usa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.usa.gov",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 188,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 188
       },
       {
         "id": 26,
-        "url": "https://www.usa.gov/themes/custom/usagov/fonts/source-sans-pro/sourcesanspro-italic-webfont.woff2",
+        "url": "https://www.usa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.usa.gov",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 188,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 188
       },
       {
         "id": 27,
-        "url": "https://siteimproveanalytics.com/js/siteanalyze_51567.js",
+        "url": "https://siteimproveanalytics.com/{seg}/{seg}",
         "domain": "siteimproveanalytics.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 246,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 246
       },
       {
         "id": 28,
-        "url": "https://s3-us-gov-west-1.amazonaws.com/cg-4d6fb302-315f-403e-a96e-a7563ccddd3d/1.0/waittime.json",
+        "url": "https://s3-us-gov-west-1.amazonaws.com/{seg}/{seg}/{seg}",
         "domain": "s3-us-gov-west-1.amazonaws.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 254,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 254
       },
       {
         "id": 29,
-        "url": "https://www.googletagmanager.com/gtag/js?id=&cx=&gtm=",
+        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "www.googletagmanager.com",
         "method": "GET",
         "resourceType": "script",
@@ -427,12 +427,12 @@
           "category": "analytics / tag management",
           "confidence": "curated"
         },
-        "startedAtMs": 357,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 357
       },
       {
         "id": 30,
-        "url": "https://www.googletagmanager.com/gtm.js?id=&gtm=",
+        "url": "https://www.googletagmanager.com/{seg}?id=&%5Bredacted%5D=",
         "domain": "www.googletagmanager.com",
         "method": "GET",
         "resourceType": "script",
@@ -444,36 +444,36 @@
           "category": "analytics / tag management",
           "confidence": "curated"
         },
-        "startedAtMs": 358,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 358
       },
       {
         "id": 31,
-        "url": "https://dap.digitalgov.gov/Universal-Federated-Analytics-Min.js?agency=&subagency=",
+        "url": "https://dap.digitalgov.gov/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "dap.digitalgov.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 359,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 359
       },
       {
         "id": 32,
-        "url": "https://dap.digitalgov.gov/web-vitals/dist/web-vitals.attribution.iife.js",
+        "url": "https://dap.digitalgov.gov/{seg}/{seg}/{seg}",
         "domain": "dap.digitalgov.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 390,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 390
       },
       {
         "id": 33,
-        "url": "https://www.googletagmanager.com/gtag/js?id=",
+        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=",
         "domain": "www.googletagmanager.com",
         "method": "GET",
         "resourceType": "script",
@@ -485,12 +485,12 @@
           "category": "analytics / tag management",
           "confidence": "curated"
         },
-        "startedAtMs": 391,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 391
       },
       {
         "id": 34,
-        "url": "https://www.googletagmanager.com/gtag/js?id=&cx=&gtm=",
+        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "www.googletagmanager.com",
         "method": "GET",
         "resourceType": "script",
@@ -502,24 +502,24 @@
           "category": "analytics / tag management",
           "confidence": "curated"
         },
-        "startedAtMs": 392,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 392
       },
       {
         "id": 35,
-        "url": "https://51567.global.siteimproveanalytics.io/image.aspx?url=&title=&res=&accountid=&rt=&prev=&luid=&rnd=",
-        "domain": "51567.global.siteimproveanalytics.io",
+        "url": "https://{label}.global.siteimproveanalytics.io/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
+        "domain": "{label}.global.siteimproveanalytics.io",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 415,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 415
       },
       {
         "id": 36,
-        "url": "https://www.google-analytics.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&_s=&tag_exp=&dl=&dt=&sid=&sct=&seg=&en=&_fv=&_nsi=&_ss=&ep.USA_canonical_url=&ep.USA_toggle_url=&ep.USA_gtm_container_info=&ep.USA_page_language=&ep.USA_Taxonomy_Level_1_Text=&ep.USA_Taxonomy_Level_2_Text=&ep.USA_Taxonomy_Level_3_Text=&ep.USA_Taxonomy_Level_4_Text=&ep.USA_Taxonomy_Level_5_Text=&ep.USA_Taxonomy_Level_6_Text=&ep.USA_Taxonomy_Level_1_URL=&ep.USA_Taxonomy_Level_2_URL=&ep.USA_Taxonomy_Level_3_URL=&ep.USA_Taxonomy_Level_4_URL=&ep.USA_Taxonomy_Level_5_URL=&ep.USA_Taxonomy_Level_6_URL=&ep.USA_Taxonomy_4_URL_Levels=&ep.USA_page_type=&ep.USA_page_sub_type=&ep.content_group=&ep.USA_node_id=&ep.USA_page_type_2_levels=&ep.USA_month_of_year=&ep.USA_concat_pageType_and_canonicalURL=&ep.USA_url_fragment=&ep.USA_BF_benefits_project_scope_status=&ep.USA_gtm_container_id=&tfd=",
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "www.google-analytics.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -531,12 +531,12 @@
           "category": "analytics / tag management",
           "confidence": "curated"
         },
-        "startedAtMs": 526,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 526
       },
       {
         "id": 37,
-        "url": "https://www.google-analytics.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&_s=&tag_exp=&dl=&dt=&dr=&sid=&sct=&seg=&_tu=&en=&_fv=&_ss=&_ee=&ep.agency=&ep.subagency=&ep.site_topic=&ep.site_platform=&ep.script_source=&ep.version=&ep.protocol=&ep.using_parallel_tracker=&ep.hostname_dimension=&tfd=",
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "www.google-analytics.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -548,60 +548,60 @@
           "category": "analytics / tag management",
           "confidence": "curated"
         },
-        "startedAtMs": 598,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 598
       },
       {
         "id": 38,
-        "url": "https://znbabnroqffo1d7xq-cemgsa.gov1.siteintercept.qualtrics.com/SIE/?Q_ZID=",
-        "domain": "znbabnroqffo1d7xq-cemgsa.gov1.siteintercept.qualtrics.com",
+        "url": "https://{label}.gov1.siteintercept.qualtrics.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.gov1.siteintercept.qualtrics.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 671,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 671
       },
       {
         "id": 39,
-        "url": "https://gov1.siteintercept.qualtrics.com/dxjsmodule/881.721410485d67c340a412.chunk.js?Q_CLIENTVERSION=&Q_CLIENTTYPE=&Q_BRANDID=",
+        "url": "https://gov1.siteintercept.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "gov1.siteintercept.qualtrics.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 903,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 903
       },
       {
         "id": 40,
-        "url": "https://gov1.siteintercept.qualtrics.com/dxjsmodule/941.26756aa0d9c4208a080a.chunk.js?Q_CLIENTVERSION=&Q_CLIENTTYPE=&Q_BRANDID=",
+        "url": "https://gov1.siteintercept.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "gov1.siteintercept.qualtrics.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 903,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 903
       },
       {
         "id": 41,
-        "url": "https://gov1.siteintercept.qualtrics.com/WRSiteInterceptEngine/Targeting.php?Q_ZoneID=&Q_CLIENTVERSION=&Q_CLIENTTYPE=",
+        "url": "https://gov1.siteintercept.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "gov1.siteintercept.qualtrics.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1201,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1201
       },
       {
         "id": 42,
-        "url": "https://www.google-analytics.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&_eu=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&_s=&tag_exp=&dl=&dt=&sid=&sct=&seg=&_tu=&en=&ep.USA_canonical_url=&ep.USA_toggle_url=&ep.USA_gtm_container_info=&ep.USA_page_language=&ep.USA_Taxonomy_Level_1_Text=&ep.USA_Taxonomy_Level_2_Text=&ep.USA_Taxonomy_Level_3_Text=&ep.USA_Taxonomy_Level_4_Text=&ep.USA_Taxonomy_Level_5_Text=&ep.USA_Taxonomy_Level_6_Text=&ep.USA_Taxonomy_Level_1_URL=&ep.USA_Taxonomy_Level_2_URL=&ep.USA_Taxonomy_Level_3_URL=&ep.USA_Taxonomy_Level_4_URL=&ep.USA_Taxonomy_Level_5_URL=&ep.USA_Taxonomy_Level_6_URL=&ep.USA_Taxonomy_4_URL_Levels=&ep.USA_page_type=&ep.USA_page_sub_type=&ep.content_group=&ep.USA_node_id=&ep.USA_page_type_2_levels=&ep.USA_month_of_year=&ep.USA_concat_pageType_and_canonicalURL=&ep.USA_url_fragment=&ep.USA_BF_benefits_project_scope_status=&ep.USA_gtm_container_id=&_et=&tfd=",
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "www.google-analytics.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -613,12 +613,12 @@
           "category": "analytics / tag management",
           "confidence": "curated"
         },
-        "startedAtMs": 4506,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 4506
       },
       {
         "id": 43,
-        "url": "https://www.google-analytics.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&_eu=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&tag_exp=&dl=&dt=&dr=&sid=&sct=&seg=&_tu=&_s=&tfd=",
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "www.google-analytics.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -630,12 +630,12 @@
           "category": "analytics / tag management",
           "confidence": "curated"
         },
-        "startedAtMs": 4508,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 4508
       },
       {
         "id": 44,
-        "url": "https://www.google-analytics.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&_eu=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&_s=&tag_exp=&dl=&dt=&dr=&sid=&sct=&seg=&_tu=&en=&_ee=&ep.agency=&ep.subagency=&ep.site_topic=&ep.site_platform=&ep.script_source=&ep.version=&ep.protocol=&ep.using_parallel_tracker=&ep.hostname_dimension=&epn.value=&ep.metric_id=&epn.metric_value=&epn.metric_delta=&ep.metric_rating=&ep.debug_target=&ep.debug_event_type=&ep.debug_timing=&epn.event_time=&ep.event_name_dimension=&tfd=",
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "www.google-analytics.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -647,12 +647,12 @@
           "category": "analytics / tag management",
           "confidence": "curated"
         },
-        "startedAtMs": 4508,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 4508
       },
       {
         "id": 45,
-        "url": "https://www.google-analytics.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&_eu=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&_s=&tag_exp=&dl=&dt=&dr=&sid=&sct=&seg=&_tu=&en=&_ee=&ep.agency=&ep.subagency=&ep.site_topic=&ep.site_platform=&ep.script_source=&ep.version=&ep.protocol=&ep.using_parallel_tracker=&ep.hostname_dimension=&epn.value=&ep.metric_id=&epn.metric_value=&epn.metric_delta=&ep.metric_rating=&ep.debug_target=&ep.debug_event_type=&ep.debug_timing=&epn.event_time=&ep.event_name_dimension=&tfd=",
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "www.google-analytics.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -664,56 +664,56 @@
           "category": "analytics / tag management",
           "confidence": "curated"
         },
-        "startedAtMs": 4510,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 4510
       },
       {
         "id": 46,
-        "url": "https://www.google.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&_eu=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&tag_exp=&dl=&dt=&dr=&sid=&sct=&seg=&_tu=&_s=&tfd=&gaf=",
+        "url": "https://www.google.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": null,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 4510,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 4510
       },
       {
         "id": 47,
-        "url": "https://www.google.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&_eu=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&_s=&tag_exp=&dl=&dt=&sid=&sct=&seg=&_tu=&en=&ep.USA_canonical_url=&ep.USA_toggle_url=&ep.USA_gtm_container_info=&ep.USA_page_language=&ep.USA_Taxonomy_Level_1_Text=&ep.USA_Taxonomy_Level_2_Text=&ep.USA_Taxonomy_Level_3_Text=&ep.USA_Taxonomy_Level_4_Text=&ep.USA_Taxonomy_Level_5_Text=&ep.USA_Taxonomy_Level_6_Text=&ep.USA_Taxonomy_Level_1_URL=&ep.USA_Taxonomy_Level_2_URL=&ep.USA_Taxonomy_Level_3_URL=&ep.USA_Taxonomy_Level_4_URL=&ep.USA_Taxonomy_Level_5_URL=&ep.USA_Taxonomy_Level_6_URL=&ep.USA_Taxonomy_4_URL_Levels=&ep.USA_page_type=&ep.USA_page_sub_type=&ep.content_group=&ep.USA_node_id=&ep.USA_page_type_2_levels=&ep.USA_month_of_year=&ep.USA_concat_pageType_and_canonicalURL=&ep.USA_url_fragment=&ep.USA_BF_benefits_project_scope_status=&ep.USA_gtm_container_id=&_et=&tfd=&gaf=",
+        "url": "https://www.google.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": null,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 4510,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 4510
       },
       {
         "id": 48,
-        "url": "https://www.google.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&_eu=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&_s=&tag_exp=&dl=&dt=&dr=&sid=&sct=&seg=&_tu=&en=&_ee=&ep.agency=&ep.subagency=&ep.site_topic=&ep.site_platform=&ep.script_source=&ep.version=&ep.protocol=&ep.using_parallel_tracker=&ep.hostname_dimension=&epn.value=&ep.metric_id=&epn.metric_value=&epn.metric_delta=&ep.metric_rating=&ep.debug_target=&ep.debug_event_type=&ep.debug_timing=&epn.event_time=&ep.event_name_dimension=&tfd=&gaf=",
+        "url": "https://www.google.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": null,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 4511,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 4511
       },
       {
         "id": 49,
-        "url": "https://www.google.com/g/collect?v=&tid=&gtm=&_p=&gcd=&npa=&dma=&_eu=&are=&cid=&frm=&pscdl=&rcb=&sr=&uaa=&uab=&uafvl=&uam=&uamb=&uap=&uapv=&uaw=&ul=&_s=&tag_exp=&dl=&dt=&dr=&sid=&sct=&seg=&_tu=&en=&_ee=&ep.agency=&ep.subagency=&ep.site_topic=&ep.site_platform=&ep.script_source=&ep.version=&ep.protocol=&ep.using_parallel_tracker=&ep.hostname_dimension=&epn.value=&ep.metric_id=&epn.metric_value=&epn.metric_delta=&ep.metric_rating=&ep.debug_target=&ep.debug_event_type=&ep.debug_timing=&epn.event_time=&ep.event_name_dimension=&tfd=&gaf=",
+        "url": "https://www.google.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": null,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 4511,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 4511
       }
     ],
     "domains": [
@@ -834,7 +834,7 @@
         ]
       },
       {
-        "domain": "51567.global.siteimproveanalytics.io",
+        "domain": "{label}.global.siteimproveanalytics.io",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -847,7 +847,7 @@
         ]
       },
       {
-        "domain": "znbabnroqffo1d7xq-cemgsa.gov1.siteintercept.qualtrics.com",
+        "domain": "{label}.gov1.siteintercept.qualtrics.com",
         "requests": 1,
         "thirdParty": true,
         "tracker": null,
@@ -880,7 +880,7 @@
     ],
     "cookies": [
       {
-        "name": "nmstat",
+        "name": "[redacted]",
         "domain": ".usa.gov",
         "path": "/",
         "sameSite": "Lax",
@@ -890,7 +890,7 @@
         "thirdParty": false
       },
       {
-        "name": "_ga_GXFTMLX26S",
+        "name": "[redacted]",
         "domain": ".usa.gov",
         "path": "/",
         "sameSite": "Lax",
@@ -910,7 +910,7 @@
         "thirdParty": false
       },
       {
-        "name": "_ga_CSLL4ZEK4L",
+        "name": "[redacted]",
         "domain": ".usa.gov",
         "path": "/",
         "sameSite": "Strict",
@@ -920,7 +920,7 @@
         "thirdParty": false
       },
       {
-        "name": "QSI_HistorySession",
+        "name": "[redacted]",
         "domain": "www.usa.gov",
         "path": "/",
         "sameSite": "Lax",
@@ -931,6 +931,7 @@
       }
     ],
     "storage": [],
+    "fingerprintEvents": [],
     "fingerprintDetections": [
       {
         "kind": "session-recording",
@@ -951,15 +952,14 @@
             "window"
           ],
           "thirdPartyOrigins": [
-            "https://dap.digitalgov.gov",
-            "https://siteimproveanalytics.com",
-            "https://www.googletagmanager.com"
+            "https://dap.digitalgov.gov/",
+            "https://siteimproveanalytics.com/",
+            "https://www.googletagmanager.com/"
           ],
           "totalListenerCalls": 183
         }
       }
     ],
-    "fingerprintEvents": [],
     "screenshot": null,
     "warnings": [
       "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
@@ -1005,6 +1005,13 @@
       "automation": "playwright-chromium",
       "headless": true,
       "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "block-simulation",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-02T01:00:58.178Z"
+      },
       "trackerCatalog": {
         "source": "Hand-curated service catalog",
         "version": "hand-curated-2026.06",
@@ -1013,14 +1020,7 @@
         "curatedOverrides": 133,
         "license": "AGPL-3.0-or-later"
       },
-      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
-      "adblock": {
-        "active": true,
-        "source": "Brave default ad-block lists",
-        "lists": 31,
-        "fetchedAt": "2026-07-02T01:00:58.178Z"
-      },
-      "shieldsMode": "block-simulation"
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
     },
     "requests": [
       {
@@ -1032,296 +1032,296 @@
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 40,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 40
       },
       {
         "id": 2,
-        "url": "https://www.usa.gov/s3/files/styles/max_1440w/public/2023-02/Homepage_Banner.png.webp",
+        "url": "https://www.usa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.usa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 67,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 67
       },
       {
         "id": 3,
-        "url": "https://www.usa.gov/sites/default/files/css/css_HOzaX5HCSq_WlRlcWDRPLUTDyyL8VZQ6REn3ac2TQC8.css",
+        "url": "https://www.usa.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.usa.gov",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 68,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 68
       },
       {
         "id": 4,
-        "url": "https://www.usa.gov/sites/default/files/css/css_RS0lu12kxAKVlYtiIn6qpAq__BevSHCXAmcrTugppls.css",
+        "url": "https://www.usa.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.usa.gov",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 69,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 69
       },
       {
         "id": 5,
-        "url": "https://www.usa.gov/themes/custom/usagov/images/favicon-57.png",
+        "url": "https://www.usa.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.usa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 70,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 70
       },
       {
         "id": 6,
-        "url": "https://www.usa.gov/themes/custom/usagov/assets/img/icon-dot-gov.svg",
+        "url": "https://www.usa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.usa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 70,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 70
       },
       {
         "id": 7,
-        "url": "https://www.usa.gov/themes/custom/usagov/assets/img/icon-https.svg",
+        "url": "https://www.usa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.usa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 125,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 125
       },
       {
         "id": 8,
-        "url": "https://www.usa.gov/themes/custom/usagov/components/searchbar/images/search--dark.svg",
+        "url": "https://www.usa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.usa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 127,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 127
       },
       {
         "id": 9,
-        "url": "https://www.usa.gov/themes/custom/usagov/images/USAGov_Logo_80px.png",
+        "url": "https://www.usa.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.usa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 129,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 129
       },
       {
         "id": 10,
-        "url": "https://www.usa.gov/sites/default/files/js/js_lgXG-qbIAtdEwWFW2VoRjnVQm8s_kKg_akxfZvcl5FU.js",
+        "url": "https://www.usa.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.usa.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 130,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 130
       },
       {
         "id": 11,
-        "url": "https://www.usa.gov/modules/contrib/uswds_ckeditor_integration/js/aftermarket/uswds_accordion.js",
+        "url": "https://www.usa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.usa.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 131,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 131
       },
       {
         "id": 12,
-        "url": "https://www.usa.gov/themes/custom/usagov/scripts/modifyMobileNav.js",
+        "url": "https://www.usa.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.usa.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 131,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 131
       },
       {
         "id": 14,
-        "url": "https://www.usa.gov/themes/custom/usagov/assets/img/usa-icons/close.svg",
+        "url": "https://www.usa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.usa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 132,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 132
       },
       {
         "id": 15,
-        "url": "https://www.usa.gov/themes/custom/usagov/images/Reimagined_Jump_to_Arrow.svg",
+        "url": "https://www.usa.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.usa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 133,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 133
       },
       {
         "id": 16,
-        "url": "https://www.usa.gov/themes/custom/usagov/images/topics/ICONS_Reimagined_Benefits.svg",
+        "url": "https://www.usa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.usa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 135,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 135
       },
       {
         "id": 17,
-        "url": "https://www.usa.gov/themes/custom/usagov/scripts/newFooter.js",
+        "url": "https://www.usa.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.usa.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 135,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 135
       },
       {
         "id": 19,
-        "url": "https://www.usa.gov/themes/custom/usagov/assets/img/sprite.svg",
+        "url": "https://www.usa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.usa.gov",
         "method": "GET",
         "resourceType": "other",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 136,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 136
       },
       {
         "id": 20,
-        "url": "https://www.usa.gov/themes/custom/usagov/assets/img/usa-icons/expand_more.svg",
+        "url": "https://www.usa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.usa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 169,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 169
       },
       {
         "id": 21,
-        "url": "https://www.usa.gov/themes/custom/usagov/fonts/source-sans-pro/sourcesanspro-regular-webfont.woff2",
+        "url": "https://www.usa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.usa.gov",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 170,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 170
       },
       {
         "id": 22,
-        "url": "https://www.usa.gov/themes/custom/usagov/images/Icon_Back_to_Top_Blue.png",
+        "url": "https://www.usa.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.usa.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 170,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 170
       },
       {
         "id": 23,
-        "url": "https://www.usa.gov/themes/custom/usagov/fonts/source-sans-pro/sourcesanspro-bold-webfont.woff2",
+        "url": "https://www.usa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.usa.gov",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 171,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 171
       },
       {
         "id": 24,
-        "url": "https://www.usa.gov/themes/custom/usagov/fonts/merriweather/Latin-Merriweather-Bold.woff2",
+        "url": "https://www.usa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.usa.gov",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 172,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 172
       },
       {
         "id": 25,
-        "url": "https://www.usa.gov/themes/custom/usagov/fonts/source-sans-pro/sourcesanspro-semibold-webfont.woff2",
+        "url": "https://www.usa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.usa.gov",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 173,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 173
       },
       {
         "id": 26,
-        "url": "https://www.usa.gov/themes/custom/usagov/fonts/source-sans-pro/sourcesanspro-italic-webfont.woff2",
+        "url": "https://www.usa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.usa.gov",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 173,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 173
       },
       {
         "id": 28,
-        "url": "https://s3-us-gov-west-1.amazonaws.com/cg-4d6fb302-315f-403e-a96e-a7563ccddd3d/1.0/waittime.json",
+        "url": "https://s3-us-gov-west-1.amazonaws.com/{seg}/{seg}/{seg}",
         "domain": "s3-us-gov-west-1.amazonaws.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 237,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 237
       }
     ],
     "domains": [
@@ -1359,8 +1359,8 @@
     ],
     "cookies": [],
     "storage": [],
-    "fingerprintDetections": [],
     "fingerprintEvents": [],
+    "fingerprintDetections": [],
     "screenshot": null,
     "warnings": [
       "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
@@ -1448,7 +1448,12 @@
         "tracker": null
       },
       {
-        "domain": "51567.global.siteimproveanalytics.io",
+        "domain": "{label}.global.siteimproveanalytics.io",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.gov1.siteintercept.qualtrics.com",
         "requests": 1,
         "tracker": null
       },
@@ -1464,11 +1469,6 @@
       },
       {
         "domain": "siteimproveanalytics.com",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "znbabnroqffo1d7xq-cemgsa.gov1.siteintercept.qualtrics.com",
         "requests": 1,
         "tracker": null
       }
@@ -1494,22 +1494,12 @@
         "thirdParty": false
       },
       {
-        "name": "_ga_CSLL4ZEK4L",
+        "name": "[redacted]",
         "domain": ".usa.gov",
         "thirdParty": false
       },
       {
-        "name": "_ga_GXFTMLX26S",
-        "domain": ".usa.gov",
-        "thirdParty": false
-      },
-      {
-        "name": "nmstat",
-        "domain": ".usa.gov",
-        "thirdParty": false
-      },
-      {
-        "name": "QSI_HistorySession",
+        "name": "[redacted]",
         "domain": "www.usa.gov",
         "thirdParty": false
       }

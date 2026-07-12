@@ -211,7 +211,7 @@ test("valid generated consent and share literals survive exactly while invalid c
   };
   input.share = {
     id: "20260712-0123456789abcdef0123456789abcdef",
-    path: "/reports/20260712-0123456789abcdef0123456789abcdef",
+    path: "/reports/20260712-0123456789abcdef0123456789abcdef/",
     jsonPath: "/reports/20260712-0123456789abcdef0123456789abcdef.json"
   };
 

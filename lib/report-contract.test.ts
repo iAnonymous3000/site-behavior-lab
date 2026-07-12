@@ -1,11 +1,15 @@
 import assert from "node:assert/strict";
-import { readdir, readFile } from "node:fs/promises";
+import { readdir } from "node:fs/promises";
 import path from "node:path";
 import { test } from "node:test";
 import { createGpcComparisonReport } from "./compare-reports";
 import { pageGraphToScanResult } from "./pagegraph-adapter";
 import { REPORT_PRODUCER_CAPABILITIES } from "./report-producers";
 import { isScanReport } from "./report-validation";
+import {
+  listDanglingStaticSidecarIds,
+  readStaticReportBundle
+} from "./static-report-files";
 import { SCAN_REPORT_SCHEMA_VERSION, type ScanConditions, type ScanReport, type ScanRequestPayload, type ScanResult } from "./types";
 
 const DISALLOWED_STATIC_CATALOG_VALUES = new Set([
@@ -19,9 +23,15 @@ test("static fixture reports use the current ScanReport schema", async () => {
   const reportFiles = (await readdir(reportsDir)).filter((file) => /^\d{8}-[a-f0-9]{32}\.json$/.test(file));
 
   assert.ok(reportFiles.length > 0, "expected static report fixtures");
+  assert.deepEqual(await listDanglingStaticSidecarIds(reportsDir), []);
 
   for (const file of reportFiles) {
-    const report = JSON.parse(await readFile(path.join(reportsDir, file), "utf8")) as unknown;
+    const id = file.replace(/\.json$/, "");
+    const managed = await readStaticReportBundle(reportsDir, id);
+    if (managed.outcome !== "found") {
+      assert.fail(`${file} should be a current managed report (${managed.outcome === "unreadable" ? managed.reason : managed.outcome})`);
+    }
+    const report = JSON.parse(managed.wire) as unknown;
     if (!isScanReport(report)) {
       assert.fail(`${file} should be a current ScanReport`);
     }

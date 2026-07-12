@@ -49,6 +49,13 @@
       "automation": "playwright-chromium",
       "headless": true,
       "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "classification",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-02T01:00:58.178Z"
+      },
       "trackerCatalog": {
         "source": "Hand-curated service catalog",
         "version": "hand-curated-2026.06",
@@ -57,14 +64,7 @@
         "curatedOverrides": 133,
         "license": "AGPL-3.0-or-later"
       },
-      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
-      "adblock": {
-        "active": true,
-        "source": "Brave default ad-block lists",
-        "lists": 31,
-        "fetchedAt": "2026-07-02T01:00:58.178Z"
-      },
-      "shieldsMode": "classification"
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
     },
     "requests": [
       {
@@ -76,1208 +76,1208 @@
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 44,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 44
       },
       {
         "id": 2,
-        "url": "https://archive.org/offshoot_assets/index.css",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 540,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 540
       },
       {
         "id": 3,
-        "url": "https://archive.org/offshoot_assets/vendor/lit/polyfill-support.js",
+        "url": "https://archive.org/{seg}/{seg}/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 541,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 541
       },
       {
         "id": 4,
-        "url": "https://archive.org/offshoot_assets/index-DNYmAlIk.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 541,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 541
       },
       {
         "id": 5,
-        "url": "https://archive.org/offshoot_assets/rolldown-runtime-QTnfLwEv.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 542,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 542
       },
       {
         "id": 6,
-        "url": "https://archive.org/offshoot_assets/vendor-lit-dkIkkw3r.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 543,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 543
       },
       {
         "id": 7,
-        "url": "https://archive.org/offshoot_assets/vendor-shared-Da8T8437.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 543,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 543
       },
       {
         "id": 8,
-        "url": "https://archive.org/offshoot_assets/vendor-topnav-DhqjOqzC.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 543,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 543
       },
       {
         "id": 9,
-        "url": "https://archive.org/offshoot_assets/vendor-router-BJcn_WPh.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 544,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 544
       },
       {
         "id": 10,
-        "url": "https://archive.org/offshoot_assets/vendor/@webcomponents/webcomponentsjs@2.6.0/webcomponents-loader.js",
+        "url": "https://archive.org/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 545,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 545
       },
       {
         "id": 11,
-        "url": "https://archive.org/offshoot_assets/home-page-DVwtOBXn.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 862,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 862
       },
       {
         "id": 12,
-        "url": "https://archive.org/offshoot_assets/schema-org-json-ld-service-B-GwsA-V.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 862,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 862
       },
       {
         "id": 13,
-        "url": "https://archive.org/offshoot_assets/dist-DzcyDZ4x.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 864,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 864
       },
       {
         "id": 14,
-        "url": "https://archive.org/offshoot_assets/ia-status-indicator-njx7Wyxi.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 865,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 865
       },
       {
         "id": 15,
-        "url": "https://archive.org/offshoot_assets/dist-BoY5XlWM.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 865,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 865
       },
       {
         "id": 16,
-        "url": "https://archive.org/offshoot_assets/dist-C3dOIDrS.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 865,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 865
       },
       {
         "id": 17,
-        "url": "https://archive.org/offshoot_assets/icon-close-BDNnsNZ1.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 866,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 866
       },
       {
         "id": 18,
-        "url": "https://archive.org/offshoot_assets/dist-BvWKhLK3.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 866,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 866
       },
       {
         "id": 19,
-        "url": "https://archive.org/offshoot_assets/dist-Dtgnoo5g.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 867,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 867
       },
       {
         "id": 20,
-        "url": "https://archive.org/offshoot_assets/dist-DrSYZEUH.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 867,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 867
       },
       {
         "id": 21,
-        "url": "https://archive.org/offshoot_assets/dist-DJNyNEd3.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 867,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 867
       },
       {
         "id": 22,
-        "url": "https://archive.org/offshoot_assets/purify.es-RmFZhtLI.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 871,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 871
       },
       {
         "id": 23,
-        "url": "https://archive.org/offshoot_assets/ia-dropdown-search-bar-DfFnUxID.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 871,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 871
       },
       {
         "id": 24,
-        "url": "https://archive.org/offshoot_assets/dist-BOeevUYQ.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 872,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 872
       },
       {
         "id": 25,
-        "url": "https://archive.org/offshoot_assets/web-B7mCT6Yu.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 872,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 872
       },
       {
         "id": 26,
-        "url": "https://archive.org/offshoot_assets/collection-BgJMB0Jo.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 872,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 872
       },
       {
         "id": 27,
-        "url": "https://archive.org/offshoot_assets/models-BBY3w9dy.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 873,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 873
       },
       {
         "id": 28,
-        "url": "https://archive.org/offshoot_assets/basic-carousel-DjR0QzQO.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 873,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 873
       },
       {
         "id": 29,
-        "url": "https://archive.org/offshoot_assets/psa-banners-CinjiQDV.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 873,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 873
       },
       {
         "id": 30,
-        "url": "https://archive.org/offshoot_assets/alert-banner-DqNPgyAY.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 873,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 873
       },
       {
         "id": 31,
-        "url": "https://archive.org/offshoot_assets/app-footer-DRJ_XoO9.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 874,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 874
       },
       {
         "id": 32,
-        "url": "https://archive.org/offshoot_assets/app-services-BgJBKQ6L.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 874,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 874
       },
       {
         "id": 33,
-        "url": "https://archive.org/offshoot_assets/sentry-JODL9mPP.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 874,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 874
       },
       {
         "id": 34,
-        "url": "https://archive.org/offshoot_assets/exports-BS7mLcjK.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 874,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 874
       },
       {
         "id": 35,
-        "url": "https://archive.org/offshoot_assets/donation-banner-handler-BuYl0sKS.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 875,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 875
       },
       {
         "id": 36,
-        "url": "https://apollo.archive.org/js/container_ZUUaFed2.js",
+        "url": "https://apollo.archive.org/{seg}/{seg}",
         "domain": "apollo.archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 204,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 880,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 880
       },
       {
         "id": 37,
-        "url": "https://archive.org/offshoot_assets/key-value-store-manager-Cg4kN5GX.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1215,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1215
       },
       {
         "id": 38,
-        "url": "https://archive.org/offshoot_assets/dist-CrEQezQi.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1217,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1217
       },
       {
         "id": 39,
-        "url": "https://archive.org/offshoot_assets/psa-banner-service-CRzqdI8r.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1218,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1218
       },
       {
         "id": 40,
-        "url": "https://archive.org/offshoot_assets/localization-manager-C9okwsid.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1219,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1219
       },
       {
         "id": 41,
-        "url": "https://archive.org/offshoot_assets/nanoevents-1Q5f2VVm.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1219,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1219
       },
       {
         "id": 42,
-        "url": "https://archive.org/offshoot_assets/config-service-C2TtmTQ7.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1221,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1221
       },
       {
         "id": 43,
-        "url": "https://archive.org/offshoot_assets/abtest-manager-31jNk0GU.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1222,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1222
       },
       {
         "id": 44,
-        "url": "https://archive.org/offshoot_assets/theme-manager-ChU3IviN.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1222,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1222
       },
       {
         "id": 45,
-        "url": "https://archive.org/offshoot_assets/theme-option-BP5-K2Y3.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1223,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1223
       },
       {
         "id": 46,
-        "url": "https://archive.org/offshoot_assets/dist-DRIhDsfp.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1223,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1223
       },
       {
         "id": 47,
-        "url": "https://archive.org/offshoot_assets/dist-C9ajF221.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1224,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1224
       },
       {
         "id": 48,
-        "url": "https://archive.org/offshoot_assets/media-count-service-B7mfk_27.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1224,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1224
       },
       {
         "id": 49,
-        "url": "https://archive.org/offshoot_assets/wayback-search-handler-Bkq4Qa7L.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1225,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1225
       },
       {
         "id": 50,
-        "url": "https://archive.org/offshoot_assets/donation-banner-service-BK_bNiNm.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1226,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1226
       },
       {
         "id": 51,
-        "url": "https://athena.archive.org/0.gif",
+        "url": "https://athena.archive.org/{seg}",
         "domain": "athena.archive.org",
         "method": "POST",
         "resourceType": "ping",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1230,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1230
       },
       {
         "id": 52,
-        "url": "https://archive.org/offshoot_assets/app-root-controller-BnNTPiPz.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1230,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1230
       },
       {
         "id": 53,
-        "url": "https://archive.org/offshoot_assets/page-metadata-service-aWkzH5qj.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1230,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1230
       },
       {
         "id": 54,
-        "url": "https://archive.org/offshoot_assets/home-page-services-pkpFfloJ.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1231,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1231
       },
       {
         "id": 55,
-        "url": "https://sink.archive.org/api/2/envelope/",
+        "url": "https://sink.archive.org/api/{n}/{seg}",
         "domain": "sink.archive.org",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1248,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1248
       },
       {
         "id": 56,
-        "url": "https://archive.org/services/offshoot/abtest.php",
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1446,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1446
       },
       {
         "id": 57,
-        "url": "https://archive.org/services/offshoot/config.php",
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1451,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1451
       },
       {
         "id": 58,
-        "url": "https://archive.org/offshoot_assets/dist-CGKfLM_9.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1452,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1452
       },
       {
         "id": 59,
-        "url": "https://archive.org/services/offshoot/home-page/mediacounts.php",
+        "url": "https://archive.org/{seg}/{seg}/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1454,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1454
       },
       {
         "id": 60,
-        "url": "https://archive.org/offshoot_assets/tv-search-handler-BukABSCi.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1456,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1456
       },
       {
         "id": 61,
-        "url": "https://archive.org/services/donations/banner.php",
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1457,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1457
       },
       {
         "id": 62,
-        "url": "https://archive.org/offshoot_assets/dist-CHT7Pcq8.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1460,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1460
       },
       {
         "id": 63,
-        "url": "https://archive.org/services/offshoot/home-page/announcements.php",
+        "url": "https://archive.org/{seg}/{seg}/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1463,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1463
       },
       {
         "id": 64,
-        "url": "https://archive.org/services/offshoot/home-page/mediacounts.php",
+        "url": "https://archive.org/{seg}/{seg}/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1464,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1464
       },
       {
         "id": 65,
-        "url": "https://archive.org/offshoot_assets/light-BWowNk5z.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1467,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1467
       },
       {
         "id": 66,
-        "url": "https://archive.org/offshoot_assets/shared-jWVBSzSh.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1467,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1467
       },
       {
         "id": 67,
-        "url": "https://archive.org/offshoot_assets/video-BEzxxlRF.svg",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1520,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1520
       },
       {
         "id": 68,
-        "url": "https://archive.org/services/offshoot/home-page/collections.php",
+        "url": "https://archive.org/{seg}/{seg}/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1524,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1524
       },
       {
         "id": 69,
-        "url": "https://archive.org/services/offshoot/home-page/collections.php",
+        "url": "https://archive.org/{seg}/{seg}/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1531,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1531
       },
       {
         "id": 70,
-        "url": "https://archive.org/metadata/ymfubmvyx3b1ymxpyw/metadata",
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1689,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1689
       },
       {
         "id": 71,
-        "url": "https://archive.org/services/img/librivoxaudio",
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2095,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2095
       },
       {
         "id": 72,
-        "url": "https://archive.org/services/img/etree",
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2098,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2098
       },
       {
         "id": 73,
-        "url": "https://archive.org/services/img/audio_bookspoetry",
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2098,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2098
       },
       {
         "id": 74,
-        "url": "https://archive.org/services/img/apkarchive",
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2099,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2099
       },
       {
         "id": 75,
-        "url": "https://archive.org/services/img/uspto",
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2099,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2099
       },
       {
         "id": 76,
-        "url": "https://archive.org/services/img/folksoundomy",
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2107,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2107
       },
       {
         "id": 77,
-        "url": "https://archive.org/services/img/phonesoftware",
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2108,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2108
       },
       {
         "id": 78,
-        "url": "https://archive.org/services/img/booksbylanguage",
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2108,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2108
       },
       {
         "id": 79,
-        "url": "https://archive.org/services/img/internetarchivebooks",
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2109,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2109
       },
       {
         "id": 80,
-        "url": "https://archive.org/services/img/audio_religion",
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2110,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2110
       },
       {
         "id": 81,
-        "url": "https://archive.org/services/img/artsandmusicvideos",
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2110,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2110
       },
       {
         "id": 82,
-        "url": "https://archive.org/services/img/kodi_archive",
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2111,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2111
       },
       {
         "id": 83,
-        "url": "https://archive.org/services/img/tvarchive",
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2111,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2111
       },
       {
         "id": 84,
-        "url": "https://archive.org/services/img/ElectricSheep",
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2111,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2111
       },
       {
         "id": 85,
-        "url": "https://archive.org/services/img/JaiGyan",
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2112,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2112
       },
       {
         "id": 86,
-        "url": "https://archive.org/services/img/tvnews",
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2112,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2112
       },
       {
         "id": 87,
-        "url": "https://archive.org/services/img/moviesandfilms",
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2113,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2113
       },
       {
         "id": 88,
-        "url": "https://archive.org/services/img/manuals",
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2113,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2113
       },
       {
         "id": 89,
-        "url": "https://archive.org/services/img/digitallibraryindia",
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2113,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2113
       },
       {
         "id": 90,
-        "url": "https://archive.org/services/img/audio_islamic",
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2114,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2114
       },
       {
         "id": 91,
-        "url": "https://archive.org/services/img/robarts",
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2114,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2114
       },
       {
         "id": 92,
-        "url": "https://archive.org/services/img/radioprograms",
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2115,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2115
       },
       {
         "id": 93,
-        "url": "https://archive.org/services/img/open-research-datasets",
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2115,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2115
       },
       {
         "id": 94,
-        "url": "https://archive.org/services/img/folkscanomy",
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2115,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2115
       },
       {
         "id": 95,
-        "url": "https://archive.org/services/img/podcasts",
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2116,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2116
       },
       {
         "id": 96,
-        "url": "https://archive.org/services/img/usfederalcourts",
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2119,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2119
       },
       {
         "id": 97,
-        "url": "https://archive.org/services/img/additional_collections_video",
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2119,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2119
       },
       {
         "id": 98,
-        "url": "https://archive.org/services/img/vintagesoftware",
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2119,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2119
       },
       {
         "id": 99,
-        "url": "https://archive.org/services/img/cdl",
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2120,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2120
       },
       {
         "id": 100,
-        "url": "https://archive.org/services/img/europeanlibraries",
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2120,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2120
       },
       {
         "id": 101,
-        "url": "https://sink.archive.org/api/2/envelope/",
+        "url": "https://sink.archive.org/api/{n}/{seg}",
         "domain": "sink.archive.org",
         "method": "POST",
         "resourceType": "fetch",
         "status": null,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 8551,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 8551
       }
     ],
     "domains": [
@@ -1340,7 +1340,7 @@
     ],
     "cookies": [
       {
-        "name": "abtest-identifier",
+        "name": "[redacted]",
         "domain": ".archive.org",
         "path": "/",
         "sameSite": "Lax",
@@ -1350,7 +1350,7 @@
         "thirdParty": false
       },
       {
-        "name": "donation-identifier",
+        "name": "[redacted]",
         "domain": ".archive.org",
         "path": "/",
         "sameSite": "Lax",
@@ -1361,8 +1361,8 @@
       }
     ],
     "storage": [],
-    "fingerprintDetections": [],
     "fingerprintEvents": [],
+    "fingerprintDetections": [],
     "screenshot": null,
     "warnings": [
       "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
@@ -1408,6 +1408,13 @@
       "automation": "playwright-chromium",
       "headless": true,
       "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "block-simulation",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-02T01:00:58.178Z"
+      },
       "trackerCatalog": {
         "source": "Hand-curated service catalog",
         "version": "hand-curated-2026.06",
@@ -1416,14 +1423,7 @@
         "curatedOverrides": 133,
         "license": "AGPL-3.0-or-later"
       },
-      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
-      "adblock": {
-        "active": true,
-        "source": "Brave default ad-block lists",
-        "lists": 31,
-        "fetchedAt": "2026-07-02T01:00:58.178Z"
-      },
-      "shieldsMode": "block-simulation"
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
     },
     "requests": [
       {
@@ -1435,1172 +1435,1172 @@
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 48,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 48
       },
       {
         "id": 2,
-        "url": "https://archive.org/offshoot_assets/index.css",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 453,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 453
       },
       {
         "id": 3,
-        "url": "https://archive.org/offshoot_assets/vendor/lit/polyfill-support.js",
+        "url": "https://archive.org/{seg}/{seg}/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 454,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 454
       },
       {
         "id": 4,
-        "url": "https://archive.org/offshoot_assets/index-DNYmAlIk.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 455,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 455
       },
       {
         "id": 5,
-        "url": "https://archive.org/offshoot_assets/rolldown-runtime-QTnfLwEv.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 455,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 455
       },
       {
         "id": 6,
-        "url": "https://archive.org/offshoot_assets/vendor-lit-dkIkkw3r.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 455,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 455
       },
       {
         "id": 7,
-        "url": "https://archive.org/offshoot_assets/vendor-shared-Da8T8437.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 457,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 457
       },
       {
         "id": 8,
-        "url": "https://archive.org/offshoot_assets/vendor-topnav-DhqjOqzC.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 457,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 457
       },
       {
         "id": 9,
-        "url": "https://archive.org/offshoot_assets/vendor-router-BJcn_WPh.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 458,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 458
       },
       {
         "id": 10,
-        "url": "https://archive.org/offshoot_assets/vendor/@webcomponents/webcomponentsjs@2.6.0/webcomponents-loader.js",
+        "url": "https://archive.org/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 458,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 458
       },
       {
         "id": 11,
-        "url": "https://archive.org/offshoot_assets/home-page-DVwtOBXn.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 769,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 769
       },
       {
         "id": 12,
-        "url": "https://archive.org/offshoot_assets/schema-org-json-ld-service-B-GwsA-V.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 770,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 770
       },
       {
         "id": 13,
-        "url": "https://archive.org/offshoot_assets/dist-DzcyDZ4x.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 770,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 770
       },
       {
         "id": 14,
-        "url": "https://archive.org/offshoot_assets/ia-status-indicator-njx7Wyxi.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 771,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 771
       },
       {
         "id": 15,
-        "url": "https://archive.org/offshoot_assets/dist-BoY5XlWM.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 771,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 771
       },
       {
         "id": 16,
-        "url": "https://archive.org/offshoot_assets/dist-C3dOIDrS.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 774,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 774
       },
       {
         "id": 17,
-        "url": "https://archive.org/offshoot_assets/icon-close-BDNnsNZ1.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 775,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 775
       },
       {
         "id": 18,
-        "url": "https://archive.org/offshoot_assets/dist-BvWKhLK3.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 776,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 776
       },
       {
         "id": 19,
-        "url": "https://archive.org/offshoot_assets/dist-Dtgnoo5g.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 776,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 776
       },
       {
         "id": 20,
-        "url": "https://archive.org/offshoot_assets/dist-DrSYZEUH.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 776,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 776
       },
       {
         "id": 21,
-        "url": "https://archive.org/offshoot_assets/dist-DJNyNEd3.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 777,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 777
       },
       {
         "id": 22,
-        "url": "https://archive.org/offshoot_assets/purify.es-RmFZhtLI.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 777,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 777
       },
       {
         "id": 23,
-        "url": "https://archive.org/offshoot_assets/ia-dropdown-search-bar-DfFnUxID.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 778,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 778
       },
       {
         "id": 24,
-        "url": "https://archive.org/offshoot_assets/dist-BOeevUYQ.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 778,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 778
       },
       {
         "id": 25,
-        "url": "https://archive.org/offshoot_assets/web-B7mCT6Yu.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 778,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 778
       },
       {
         "id": 26,
-        "url": "https://archive.org/offshoot_assets/collection-BgJMB0Jo.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 779,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 779
       },
       {
         "id": 27,
-        "url": "https://archive.org/offshoot_assets/models-BBY3w9dy.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 779,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 779
       },
       {
         "id": 28,
-        "url": "https://archive.org/offshoot_assets/basic-carousel-DjR0QzQO.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 779,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 779
       },
       {
         "id": 29,
-        "url": "https://archive.org/offshoot_assets/psa-banners-CinjiQDV.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 780,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 780
       },
       {
         "id": 30,
-        "url": "https://archive.org/offshoot_assets/alert-banner-DqNPgyAY.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 780,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 780
       },
       {
         "id": 31,
-        "url": "https://archive.org/offshoot_assets/app-footer-DRJ_XoO9.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 780,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 780
       },
       {
         "id": 32,
-        "url": "https://archive.org/offshoot_assets/app-services-BgJBKQ6L.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 780,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 780
       },
       {
         "id": 33,
-        "url": "https://archive.org/offshoot_assets/sentry-JODL9mPP.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 781,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 781
       },
       {
         "id": 34,
-        "url": "https://archive.org/offshoot_assets/exports-BS7mLcjK.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 781,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 781
       },
       {
         "id": 35,
-        "url": "https://archive.org/offshoot_assets/donation-banner-handler-BuYl0sKS.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 781,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 781
       },
       {
         "id": 36,
-        "url": "https://apollo.archive.org/js/container_ZUUaFed2.js",
+        "url": "https://apollo.archive.org/{seg}/{seg}",
         "domain": "apollo.archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 204,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 784,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 784
       },
       {
         "id": 37,
-        "url": "https://archive.org/offshoot_assets/key-value-store-manager-Cg4kN5GX.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1153,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1153
       },
       {
         "id": 38,
-        "url": "https://archive.org/offshoot_assets/dist-CrEQezQi.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1156,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1156
       },
       {
         "id": 39,
-        "url": "https://archive.org/offshoot_assets/psa-banner-service-CRzqdI8r.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1157,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1157
       },
       {
         "id": 40,
-        "url": "https://archive.org/offshoot_assets/localization-manager-C9okwsid.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1157,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1157
       },
       {
         "id": 41,
-        "url": "https://archive.org/offshoot_assets/nanoevents-1Q5f2VVm.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1158,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1158
       },
       {
         "id": 42,
-        "url": "https://archive.org/offshoot_assets/config-service-C2TtmTQ7.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1158,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1158
       },
       {
         "id": 43,
-        "url": "https://archive.org/offshoot_assets/abtest-manager-31jNk0GU.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1159,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1159
       },
       {
         "id": 44,
-        "url": "https://archive.org/offshoot_assets/theme-manager-ChU3IviN.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1159,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1159
       },
       {
         "id": 45,
-        "url": "https://archive.org/offshoot_assets/theme-option-BP5-K2Y3.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1159,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1159
       },
       {
         "id": 46,
-        "url": "https://archive.org/offshoot_assets/dist-DRIhDsfp.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1160,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1160
       },
       {
         "id": 47,
-        "url": "https://archive.org/offshoot_assets/dist-C9ajF221.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1160,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1160
       },
       {
         "id": 48,
-        "url": "https://archive.org/offshoot_assets/media-count-service-B7mfk_27.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1161,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1161
       },
       {
         "id": 49,
-        "url": "https://archive.org/offshoot_assets/wayback-search-handler-Bkq4Qa7L.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1161,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1161
       },
       {
         "id": 51,
-        "url": "https://archive.org/offshoot_assets/donation-banner-service-BK_bNiNm.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1174,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1174
       },
       {
         "id": 53,
-        "url": "https://archive.org/offshoot_assets/app-root-controller-BnNTPiPz.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1181,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1181
       },
       {
         "id": 54,
-        "url": "https://archive.org/offshoot_assets/page-metadata-service-aWkzH5qj.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1182,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1182
       },
       {
         "id": 55,
-        "url": "https://archive.org/offshoot_assets/home-page-services-pkpFfloJ.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1183,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1183
       },
       {
         "id": 56,
-        "url": "https://archive.org/offshoot_assets/dist-CGKfLM_9.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1319,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1319
       },
       {
         "id": 57,
-        "url": "https://archive.org/services/offshoot/config.php",
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1322,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1322
       },
       {
         "id": 58,
-        "url": "https://archive.org/services/offshoot/abtest.php",
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1322,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1322
       },
       {
         "id": 59,
-        "url": "https://archive.org/services/offshoot/home-page/mediacounts.php",
+        "url": "https://archive.org/{seg}/{seg}/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1327,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1327
       },
       {
         "id": 60,
-        "url": "https://archive.org/services/donations/banner.php",
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1328,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1328
       },
       {
         "id": 61,
-        "url": "https://archive.org/offshoot_assets/tv-search-handler-BukABSCi.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1329,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1329
       },
       {
         "id": 62,
-        "url": "https://archive.org/offshoot_assets/dist-CHT7Pcq8.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1332,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1332
       },
       {
         "id": 63,
-        "url": "https://archive.org/services/offshoot/home-page/announcements.php",
+        "url": "https://archive.org/{seg}/{seg}/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1335,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1335
       },
       {
         "id": 64,
-        "url": "https://archive.org/services/offshoot/home-page/mediacounts.php",
+        "url": "https://archive.org/{seg}/{seg}/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1335,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1335
       },
       {
         "id": 65,
-        "url": "https://archive.org/offshoot_assets/light-BWowNk5z.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1338,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1338
       },
       {
         "id": 66,
-        "url": "https://archive.org/offshoot_assets/shared-jWVBSzSh.js",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1338,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1338
       },
       {
         "id": 67,
-        "url": "https://archive.org/offshoot_assets/video-BEzxxlRF.svg",
+        "url": "https://archive.org/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1383,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1383
       },
       {
         "id": 68,
-        "url": "https://archive.org/services/offshoot/home-page/collections.php",
+        "url": "https://archive.org/{seg}/{seg}/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1388,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1388
       },
       {
         "id": 69,
-        "url": "https://archive.org/services/offshoot/home-page/collections.php",
+        "url": "https://archive.org/{seg}/{seg}/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1394,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1394
       },
       {
         "id": 70,
-        "url": "https://archive.org/metadata/ymfubmvyx3b1ymxpyw/metadata",
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1766,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1766
       },
       {
         "id": 71,
-        "url": "https://archive.org/services/img/librivoxaudio",
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2419,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2419
       },
       {
         "id": 72,
-        "url": "https://archive.org/services/img/etree",
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2420,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2420
       },
       {
         "id": 73,
-        "url": "https://archive.org/services/img/audio_bookspoetry",
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2423,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2423
       },
       {
         "id": 74,
-        "url": "https://archive.org/services/img/apkarchive",
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2424,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2424
       },
       {
         "id": 75,
-        "url": "https://archive.org/services/img/uspto",
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2424,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2424
       },
       {
         "id": 76,
-        "url": "https://archive.org/services/img/folksoundomy",
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2424,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2424
       },
       {
         "id": 77,
-        "url": "https://archive.org/services/img/phonesoftware",
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2425,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2425
       },
       {
         "id": 78,
-        "url": "https://archive.org/services/img/booksbylanguage",
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2425,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2425
       },
       {
         "id": 79,
-        "url": "https://archive.org/services/img/internetarchivebooks",
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2426,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2426
       },
       {
         "id": 80,
-        "url": "https://archive.org/services/img/audio_religion",
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2426,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2426
       },
       {
         "id": 81,
-        "url": "https://archive.org/services/img/artsandmusicvideos",
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2427,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2427
       },
       {
         "id": 82,
-        "url": "https://archive.org/services/img/kodi_archive",
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2427,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2427
       },
       {
         "id": 83,
-        "url": "https://archive.org/services/img/tvarchive",
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2428,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2428
       },
       {
         "id": 84,
-        "url": "https://archive.org/services/img/ElectricSheep",
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2428,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2428
       },
       {
         "id": 85,
-        "url": "https://archive.org/services/img/JaiGyan",
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2429,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2429
       },
       {
         "id": 86,
-        "url": "https://archive.org/services/img/tvnews",
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2429,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2429
       },
       {
         "id": 87,
-        "url": "https://archive.org/services/img/moviesandfilms",
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2430,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2430
       },
       {
         "id": 88,
-        "url": "https://archive.org/services/img/manuals",
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2430,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2430
       },
       {
         "id": 89,
-        "url": "https://archive.org/services/img/digitallibraryindia",
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2430,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2430
       },
       {
         "id": 90,
-        "url": "https://archive.org/services/img/audio_islamic",
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2431,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2431
       },
       {
         "id": 91,
-        "url": "https://archive.org/services/img/robarts",
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2431,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2431
       },
       {
         "id": 92,
-        "url": "https://archive.org/services/img/radioprograms",
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2431,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2431
       },
       {
         "id": 93,
-        "url": "https://archive.org/services/img/open-research-datasets",
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2432,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2432
       },
       {
         "id": 94,
-        "url": "https://archive.org/services/img/folkscanomy",
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2432,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2432
       },
       {
         "id": 95,
-        "url": "https://archive.org/services/img/podcasts",
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2436,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2436
       },
       {
         "id": 96,
-        "url": "https://archive.org/services/img/usfederalcourts",
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2437,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2437
       },
       {
         "id": 97,
-        "url": "https://archive.org/services/img/additional_collections_video",
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2438,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2438
       },
       {
         "id": 98,
-        "url": "https://archive.org/services/img/vintagesoftware",
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2438,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2438
       },
       {
         "id": 99,
-        "url": "https://archive.org/services/img/cdl",
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2439,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2439
       },
       {
         "id": 100,
-        "url": "https://archive.org/services/img/europeanlibraries",
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
         "domain": "archive.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2439,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2439
       }
     ],
     "domains": [
@@ -2637,7 +2637,7 @@
     ],
     "cookies": [
       {
-        "name": "abtest-identifier",
+        "name": "[redacted]",
         "domain": ".archive.org",
         "path": "/",
         "sameSite": "Lax",
@@ -2647,7 +2647,7 @@
         "thirdParty": false
       },
       {
-        "name": "donation-identifier",
+        "name": "[redacted]",
         "domain": ".archive.org",
         "path": "/",
         "sameSite": "Lax",
@@ -2658,8 +2658,8 @@
       }
     ],
     "storage": [],
-    "fingerprintDetections": [],
     "fingerprintEvents": [],
+    "fingerprintDetections": [],
     "screenshot": null,
     "warnings": [
       "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",

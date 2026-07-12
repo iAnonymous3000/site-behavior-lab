@@ -49,6 +49,13 @@
       "automation": "playwright-chromium",
       "headless": true,
       "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "classification",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-02T01:00:58.178Z"
+      },
       "trackerCatalog": {
         "source": "Hand-curated service catalog",
         "version": "hand-curated-2026.06",
@@ -57,14 +64,7 @@
         "curatedOverrides": 133,
         "license": "AGPL-3.0-or-later"
       },
-      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
-      "adblock": {
-        "active": true,
-        "source": "Brave default ad-block lists",
-        "lists": 31,
-        "fetchedAt": "2026-07-02T01:00:58.178Z"
-      },
-      "shieldsMode": "classification"
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
     },
     "requests": [
       {
@@ -76,240 +76,240 @@
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 43,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 43
       },
       {
         "id": 2,
-        "url": "https://letsencrypt.org/css/le-2025-theme-input.1a84d21d314a2a165316dbe9006b36a5eefd041136c58c1efbfdd722c77b98c5.css",
+        "url": "https://letsencrypt.org/{seg}/{seg}",
         "domain": "letsencrypt.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 96,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 96
       },
       {
         "id": 3,
-        "url": "https://letsencrypt.org/fontawesome-free-6.5.2-web/css/all.min.css",
+        "url": "https://letsencrypt.org/{seg}/{seg}/{seg}",
         "domain": "letsencrypt.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 97,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 97
       },
       {
         "id": 4,
-        "url": "https://letsencrypt.org/js/le-2025-theme.baca0a37d412391799a4e5f6d58968c12b948b4c91c053a3c025ab758ffb70bc.js",
+        "url": "https://letsencrypt.org/{seg}/{seg}",
         "domain": "letsencrypt.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 98,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 98
       },
       {
         "id": 5,
-        "url": "https://letsencrypt.org/js/autoanchor.44783525c73cfeef565e5b8441cd42a848cb630d9f365def73edce4867e6f4c8.js",
+        "url": "https://letsencrypt.org/{seg}/{seg}",
         "domain": "letsencrypt.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 99,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 99
       },
       {
         "id": 6,
-        "url": "https://letsencrypt.org/js/number-animation.137c25102252dc89411a5c2d9eb00a383f12425cb7845c8d8ac4c615c0af1f8e.js",
+        "url": "https://letsencrypt.org/{seg}/{seg}",
         "domain": "letsencrypt.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 99,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 99
       },
       {
         "id": 7,
-        "url": "https://letsencrypt.org/images/language-icon128px-black.png",
+        "url": "https://letsencrypt.org/{seg}/{seg}",
         "domain": "letsencrypt.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 99,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 99
       },
       {
         "id": 8,
-        "url": "https://letsencrypt.org/images/letsencrypt-logo-horizontal.svg",
+        "url": "https://letsencrypt.org/{seg}/{seg}",
         "domain": "letsencrypt.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 100,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 100
       },
       {
         "id": 9,
-        "url": "https://letsencrypt.org/images/le-logo-lockonly.svg",
+        "url": "https://letsencrypt.org/{seg}/{seg}",
         "domain": "letsencrypt.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 132,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 132
       },
       {
         "id": 10,
-        "url": "https://letsencrypt.org/js/main.a572b61495f9d8fe4e5ec075082ddfe85e5a5ff501c15c499d3f2a4bed71afb6fe89e85f3202aa8fdeebcda97645416bfc75683c2d3471485b5668a6d5f98740.js",
+        "url": "https://letsencrypt.org/{seg}/{seg}",
         "domain": "letsencrypt.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 133,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 133
       },
       {
         "id": 11,
-        "url": "https://letsencrypt.org/js/plotly-min.js",
+        "url": "https://letsencrypt.org/{seg}/{seg}",
         "domain": "letsencrypt.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 139,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 139
       },
       {
         "id": 12,
-        "url": "https://letsencrypt.org/js/stats.js",
+        "url": "https://letsencrypt.org/{seg}/{seg}",
         "domain": "letsencrypt.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 140,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 140
       },
       {
         "id": 13,
-        "url": "https://letsencrypt.org/images/Prossimo%20Horizontal%20Full%20Color.svg",
+        "url": "https://letsencrypt.org/{seg}/{seg}",
         "domain": "letsencrypt.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 141,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 141
       },
       {
         "id": 14,
-        "url": "https://letsencrypt.org/images/Divvi-Up-Large-Full-Color-Logo.png",
+        "url": "https://letsencrypt.org/{seg}/{seg}",
         "domain": "letsencrypt.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 141,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 141
       },
       {
         "id": 15,
-        "url": "https://letsencrypt.org/images/ISRG-Logo-Blue.svg",
+        "url": "https://letsencrypt.org/{seg}/{seg}",
         "domain": "letsencrypt.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 141,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 141
       },
       {
         "id": 16,
-        "url": "https://outreach.abetterinternet.org/l/1011011/2025-01-14/31v6r",
+        "url": "https://outreach.abetterinternet.org/{seg}/{n}/{seg}/{seg}",
         "domain": "outreach.abetterinternet.org",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 147,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 147
       },
       {
         "id": 17,
-        "url": "https://letsencrypt.org/images/radiant_london_resized/radiant_london_5_1280w.jpg",
+        "url": "https://letsencrypt.org/{seg}/{seg}/{seg}",
         "domain": "letsencrypt.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 180,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 180
       },
       {
         "id": 18,
-        "url": "https://fonts.googleapis.com/css?family=",
+        "url": "https://fonts.googleapis.com/{seg}?%5Bredacted%5D=",
         "domain": "fonts.googleapis.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 620,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 620
       },
       {
         "id": 19,
-        "url": "https://outreach.abetterinternet.org/css/form.css?ver=",
+        "url": "https://outreach.abetterinternet.org/{seg}/{seg}?ver=",
         "domain": "outreach.abetterinternet.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 620,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 620
       },
       {
         "id": 20,
-        "url": "https://outreach.abetterinternet.org/js/piUtils.js?ver=",
+        "url": "https://outreach.abetterinternet.org/{seg}/{seg}?ver=",
         "domain": "outreach.abetterinternet.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 621,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 621
       },
       {
         "id": 21,
-        "url": "https://pi.pardot.com/pd.js",
+        "url": "https://pi.pardot.com/{seg}",
         "domain": "pi.pardot.com",
         "method": "GET",
         "resourceType": "script",
@@ -321,24 +321,24 @@
           "category": "marketing automation / analytics",
           "confidence": "curated"
         },
-        "startedAtMs": 716,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 716
       },
       {
         "id": 22,
-        "url": "https://d4twhgtvn0ff5.cloudfront.net/cert-timeline.tsv",
+        "url": "https://d4twhgtvn0ff5.cloudfront.net/{seg}",
         "domain": "d4twhgtvn0ff5.cloudfront.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 717,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 717
       },
       {
         "id": 23,
-        "url": "https://pi.pardot.com/analytics?ver=&pi_form=&visitor_id=&visitor_id_sign=&pi_opt_in=&campaign_id=&account_id=&title=&url=&referrer=",
+        "url": "https://pi.pardot.com/{seg}?ver=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "pi.pardot.com",
         "method": "GET",
         "resourceType": "script",
@@ -350,8 +350,8 @@
           "category": "marketing automation / analytics",
           "confidence": "curated"
         },
-        "startedAtMs": 970,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 970
       }
     ],
     "domains": [
@@ -433,16 +433,10 @@
     ],
     "cookies": [],
     "storage": [],
-    "fingerprintDetections": [],
     "fingerprintEvents": [],
-    "screenshot": null,
-    "warnings": [
-      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
-      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
-      "Read the site's privacy policy (https://letsencrypt.org/privacy/) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
-    ],
+    "fingerprintDetections": [],
     "privacyPolicy": {
-      "url": "https://letsencrypt.org/privacy/",
+      "url": "https://letsencrypt.org/privacy",
       "claims": [
         {
           "kind": "no-selling-or-sharing",
@@ -454,7 +448,13 @@
       ],
       "unmentionedEntities": [],
       "policyTextLength": 13357
-    }
+    },
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+      "Read the site's privacy policy (https://letsencrypt.org/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ]
   },
   "variant": {
     "ok": true,
@@ -494,6 +494,13 @@
       "automation": "playwright-chromium",
       "headless": true,
       "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "block-simulation",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-02T01:00:58.178Z"
+      },
       "trackerCatalog": {
         "source": "Hand-curated service catalog",
         "version": "hand-curated-2026.06",
@@ -502,14 +509,7 @@
         "curatedOverrides": 133,
         "license": "AGPL-3.0-or-later"
       },
-      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
-      "adblock": {
-        "active": true,
-        "source": "Brave default ad-block lists",
-        "lists": 31,
-        "fetchedAt": "2026-07-02T01:00:58.178Z"
-      },
-      "shieldsMode": "block-simulation"
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
     },
     "requests": [
       {
@@ -521,248 +521,248 @@
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 75,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 75
       },
       {
         "id": 2,
-        "url": "https://letsencrypt.org/css/le-2025-theme-input.1a84d21d314a2a165316dbe9006b36a5eefd041136c58c1efbfdd722c77b98c5.css",
+        "url": "https://letsencrypt.org/{seg}/{seg}",
         "domain": "letsencrypt.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 129,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 129
       },
       {
         "id": 3,
-        "url": "https://letsencrypt.org/fontawesome-free-6.5.2-web/css/all.min.css",
+        "url": "https://letsencrypt.org/{seg}/{seg}/{seg}",
         "domain": "letsencrypt.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 129,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 129
       },
       {
         "id": 4,
-        "url": "https://letsencrypt.org/js/le-2025-theme.baca0a37d412391799a4e5f6d58968c12b948b4c91c053a3c025ab758ffb70bc.js",
+        "url": "https://letsencrypt.org/{seg}/{seg}",
         "domain": "letsencrypt.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 130,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 130
       },
       {
         "id": 5,
-        "url": "https://letsencrypt.org/js/autoanchor.44783525c73cfeef565e5b8441cd42a848cb630d9f365def73edce4867e6f4c8.js",
+        "url": "https://letsencrypt.org/{seg}/{seg}",
         "domain": "letsencrypt.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 131,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 131
       },
       {
         "id": 6,
-        "url": "https://letsencrypt.org/js/number-animation.137c25102252dc89411a5c2d9eb00a383f12425cb7845c8d8ac4c615c0af1f8e.js",
+        "url": "https://letsencrypt.org/{seg}/{seg}",
         "domain": "letsencrypt.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 132,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 132
       },
       {
         "id": 7,
-        "url": "https://letsencrypt.org/images/language-icon128px-black.png",
+        "url": "https://letsencrypt.org/{seg}/{seg}",
         "domain": "letsencrypt.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 132,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 132
       },
       {
         "id": 8,
-        "url": "https://letsencrypt.org/images/letsencrypt-logo-horizontal.svg",
+        "url": "https://letsencrypt.org/{seg}/{seg}",
         "domain": "letsencrypt.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 132,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 132
       },
       {
         "id": 9,
-        "url": "https://letsencrypt.org/images/le-logo-lockonly.svg",
+        "url": "https://letsencrypt.org/{seg}/{seg}",
         "domain": "letsencrypt.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 169,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 169
       },
       {
         "id": 10,
-        "url": "https://letsencrypt.org/js/main.a572b61495f9d8fe4e5ec075082ddfe85e5a5ff501c15c499d3f2a4bed71afb6fe89e85f3202aa8fdeebcda97645416bfc75683c2d3471485b5668a6d5f98740.js",
+        "url": "https://letsencrypt.org/{seg}/{seg}",
         "domain": "letsencrypt.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 175,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 175
       },
       {
         "id": 11,
-        "url": "https://letsencrypt.org/js/plotly-min.js",
+        "url": "https://letsencrypt.org/{seg}/{seg}",
         "domain": "letsencrypt.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 176,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 176
       },
       {
         "id": 12,
-        "url": "https://letsencrypt.org/js/stats.js",
+        "url": "https://letsencrypt.org/{seg}/{seg}",
         "domain": "letsencrypt.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 177,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 177
       },
       {
         "id": 13,
-        "url": "https://letsencrypt.org/images/Prossimo%20Horizontal%20Full%20Color.svg",
+        "url": "https://letsencrypt.org/{seg}/{seg}",
         "domain": "letsencrypt.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 177,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 177
       },
       {
         "id": 14,
-        "url": "https://letsencrypt.org/images/Divvi-Up-Large-Full-Color-Logo.png",
+        "url": "https://letsencrypt.org/{seg}/{seg}",
         "domain": "letsencrypt.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 178,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 178
       },
       {
         "id": 15,
-        "url": "https://letsencrypt.org/images/ISRG-Logo-Blue.svg",
+        "url": "https://letsencrypt.org/{seg}/{seg}",
         "domain": "letsencrypt.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 179,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 179
       },
       {
         "id": 16,
-        "url": "https://outreach.abetterinternet.org/l/1011011/2025-01-14/31v6r",
+        "url": "https://outreach.abetterinternet.org/{seg}/{n}/{seg}/{seg}",
         "domain": "outreach.abetterinternet.org",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 180,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 180
       },
       {
         "id": 17,
-        "url": "https://letsencrypt.org/images/radiant_london_resized/radiant_london_5_1280w.jpg",
+        "url": "https://letsencrypt.org/{seg}/{seg}/{seg}",
         "domain": "letsencrypt.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 210,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 210
       },
       {
         "id": 18,
-        "url": "https://fonts.googleapis.com/css?family=",
+        "url": "https://fonts.googleapis.com/{seg}?%5Bredacted%5D=",
         "domain": "fonts.googleapis.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 565,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 565
       },
       {
         "id": 19,
-        "url": "https://outreach.abetterinternet.org/css/form.css?ver=",
+        "url": "https://outreach.abetterinternet.org/{seg}/{seg}?ver=",
         "domain": "outreach.abetterinternet.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 566,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 566
       },
       {
         "id": 20,
-        "url": "https://outreach.abetterinternet.org/js/piUtils.js?ver=",
+        "url": "https://outreach.abetterinternet.org/{seg}/{seg}?ver=",
         "domain": "outreach.abetterinternet.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 566,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 566
       },
       {
         "id": 22,
-        "url": "https://d4twhgtvn0ff5.cloudfront.net/cert-timeline.tsv",
+        "url": "https://d4twhgtvn0ff5.cloudfront.net/{seg}",
         "domain": "d4twhgtvn0ff5.cloudfront.net",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 667,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 667
       }
     ],
     "domains": [
@@ -826,17 +826,10 @@
     ],
     "cookies": [],
     "storage": [],
-    "fingerprintDetections": [],
     "fingerprintEvents": [],
-    "screenshot": null,
-    "warnings": [
-      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
-      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
-      "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
-      "Read the site's privacy policy (https://letsencrypt.org/privacy/) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
-    ],
+    "fingerprintDetections": [],
     "privacyPolicy": {
-      "url": "https://letsencrypt.org/privacy/",
+      "url": "https://letsencrypt.org/privacy",
       "claims": [
         {
           "kind": "no-selling-or-sharing",
@@ -846,7 +839,14 @@
       "mentionedEntities": [],
       "unmentionedEntities": [],
       "policyTextLength": 13357
-    }
+    },
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+      "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+      "Read the site's privacy policy (https://letsencrypt.org/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ]
   },
   "diff": {
     "totalRequests": {
@@ -928,11 +928,11 @@
     "Brave-list blocking comparison runs should be collected under matched crawl conditions, and the blocking run is a simulation with Brave's engine and default lists in this scanner's browser, not a live Brave visit. Differences can still reflect timing, experiments, cache state, consent state, or bot detection.",
     "No blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
     "No blocking: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
-    "No blocking: Read the site's privacy policy (https://letsencrypt.org/privacy/) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
+    "No blocking: Read the site's privacy policy (https://letsencrypt.org/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
     "Brave-list blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
     "Brave-list blocking: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
     "Brave-list blocking: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
-    "Brave-list blocking: Read the site's privacy policy (https://letsencrypt.org/privacy/) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    "Brave-list blocking: Read the site's privacy policy (https://letsencrypt.org/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
   ],
   "share": {
     "id": "20260702-f685497f3a29614960f577574b0d1d3d",

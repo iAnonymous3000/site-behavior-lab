@@ -49,6 +49,13 @@
       "automation": "playwright-chromium",
       "headless": true,
       "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "classification",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-02T01:00:58.178Z"
+      },
       "trackerCatalog": {
         "source": "Hand-curated service catalog",
         "version": "hand-curated-2026.06",
@@ -57,14 +64,7 @@
         "curatedOverrides": 133,
         "license": "AGPL-3.0-or-later"
       },
-      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
-      "adblock": {
-        "active": true,
-        "source": "Brave default ad-block lists",
-        "lists": 31,
-        "fetchedAt": "2026-07-02T01:00:58.178Z"
-      },
-      "shieldsMode": "classification"
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
     },
     "requests": [
       {
@@ -76,109 +76,109 @@
         "status": 403,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 47,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 47
       },
       {
         "id": 2,
-        "url": "https://www.govt.nz/_Incapsula_Resource",
+        "url": "https://www.govt.nz/{seg}",
         "domain": "www.govt.nz",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 148,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 148
       },
       {
         "id": 3,
-        "url": "https://www.govt.nz/_Incapsula_Resource",
+        "url": "https://www.govt.nz/{seg}",
         "domain": "www.govt.nz",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 296,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 296
       },
       {
         "id": 4,
-        "url": "https://www.govt.nz/_Incapsula_Resource",
+        "url": "https://www.govt.nz/{seg}",
         "domain": "www.govt.nz",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 300,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 300
       },
       {
         "id": 5,
-        "url": "https://microservices-static-resources.service.imperva.com/shared/fonts/inter/inter.css",
-        "domain": "microservices-static-resources.service.imperva.com",
+        "url": "https://{label}.service.imperva.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.service.imperva.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 352,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 352
       },
       {
         "id": 6,
-        "url": "https://microservices-static-resources.service.imperva.com/shared/fonts/inter/Inter-Medium.ttf",
-        "domain": "microservices-static-resources.service.imperva.com",
+        "url": "https://{label}.service.imperva.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.service.imperva.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 433,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 433
       },
       {
         "id": 7,
-        "url": "https://microservices-static-resources.service.imperva.com/shared/fonts/inter/Inter-Bold.ttf",
-        "domain": "microservices-static-resources.service.imperva.com",
+        "url": "https://{label}.service.imperva.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.service.imperva.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 433,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 433
       },
       {
         "id": 8,
-        "url": "https://microservices-static-resources.service.imperva.com/shared/fonts/inter/Inter-Regular.ttf",
-        "domain": "microservices-static-resources.service.imperva.com",
+        "url": "https://{label}.service.imperva.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.service.imperva.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 434,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 434
       },
       {
         "id": 9,
-        "url": "https://microservices-static-resources.service.imperva.com/shared/fonts/inter/Inter-Light.ttf",
-        "domain": "microservices-static-resources.service.imperva.com",
+        "url": "https://{label}.service.imperva.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.service.imperva.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 434,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 434
       }
     ],
     "domains": [
       {
-        "domain": "microservices-static-resources.service.imperva.com",
+        "domain": "{label}.service.imperva.com",
         "requests": 5,
         "thirdParty": true,
         "tracker": null,
@@ -210,7 +210,7 @@
     ],
     "cookies": [
       {
-        "name": "visid_incap_110069",
+        "name": "[redacted:long-token]",
         "domain": ".www.govt.nz",
         "path": "/",
         "sameSite": "None",
@@ -220,7 +220,7 @@
         "thirdParty": false
       },
       {
-        "name": "incap_ses_1444_110069",
+        "name": "[redacted:long-token]",
         "domain": ".www.govt.nz",
         "path": "/",
         "sameSite": "None",
@@ -230,7 +230,7 @@
         "thirdParty": false
       },
       {
-        "name": "___utmvc",
+        "name": "[redacted]",
         "domain": "www.govt.nz",
         "path": "/",
         "sameSite": "Lax",
@@ -241,8 +241,8 @@
       }
     ],
     "storage": [],
-    "fingerprintDetections": [],
     "fingerprintEvents": [],
+    "fingerprintDetections": [],
     "screenshot": null,
     "warnings": [
       "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
@@ -288,6 +288,13 @@
       "automation": "playwright-chromium",
       "headless": true,
       "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "block-simulation",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-02T01:00:58.178Z"
+      },
       "trackerCatalog": {
         "source": "Hand-curated service catalog",
         "version": "hand-curated-2026.06",
@@ -296,14 +303,7 @@
         "curatedOverrides": 133,
         "license": "AGPL-3.0-or-later"
       },
-      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
-      "adblock": {
-        "active": true,
-        "source": "Brave default ad-block lists",
-        "lists": 31,
-        "fetchedAt": "2026-07-02T01:00:58.178Z"
-      },
-      "shieldsMode": "block-simulation"
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
     },
     "requests": [
       {
@@ -315,109 +315,109 @@
         "status": 403,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 44,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 44
       },
       {
         "id": 2,
-        "url": "https://www.govt.nz/_Incapsula_Resource",
+        "url": "https://www.govt.nz/{seg}",
         "domain": "www.govt.nz",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 158,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 158
       },
       {
         "id": 3,
-        "url": "https://www.govt.nz/_Incapsula_Resource",
+        "url": "https://www.govt.nz/{seg}",
         "domain": "www.govt.nz",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 241,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 241
       },
       {
         "id": 4,
-        "url": "https://www.govt.nz/_Incapsula_Resource",
+        "url": "https://www.govt.nz/{seg}",
         "domain": "www.govt.nz",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 246,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 246
       },
       {
         "id": 5,
-        "url": "https://microservices-static-resources.service.imperva.com/shared/fonts/inter/inter.css",
-        "domain": "microservices-static-resources.service.imperva.com",
+        "url": "https://{label}.service.imperva.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.service.imperva.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 274,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 274
       },
       {
         "id": 6,
-        "url": "https://microservices-static-resources.service.imperva.com/shared/fonts/inter/Inter-Medium.ttf",
-        "domain": "microservices-static-resources.service.imperva.com",
+        "url": "https://{label}.service.imperva.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.service.imperva.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 334,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 334
       },
       {
         "id": 7,
-        "url": "https://microservices-static-resources.service.imperva.com/shared/fonts/inter/Inter-Bold.ttf",
-        "domain": "microservices-static-resources.service.imperva.com",
+        "url": "https://{label}.service.imperva.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.service.imperva.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 335,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 335
       },
       {
         "id": 8,
-        "url": "https://microservices-static-resources.service.imperva.com/shared/fonts/inter/Inter-Regular.ttf",
-        "domain": "microservices-static-resources.service.imperva.com",
+        "url": "https://{label}.service.imperva.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.service.imperva.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 335,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 335
       },
       {
         "id": 9,
-        "url": "https://microservices-static-resources.service.imperva.com/shared/fonts/inter/Inter-Light.ttf",
-        "domain": "microservices-static-resources.service.imperva.com",
+        "url": "https://{label}.service.imperva.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.service.imperva.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 336,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 336
       }
     ],
     "domains": [
       {
-        "domain": "microservices-static-resources.service.imperva.com",
+        "domain": "{label}.service.imperva.com",
         "requests": 5,
         "thirdParty": true,
         "tracker": null,
@@ -449,7 +449,7 @@
     ],
     "cookies": [
       {
-        "name": "visid_incap_110069",
+        "name": "[redacted:long-token]",
         "domain": ".www.govt.nz",
         "path": "/",
         "sameSite": "None",
@@ -459,7 +459,7 @@
         "thirdParty": false
       },
       {
-        "name": "incap_ses_160_110069",
+        "name": "[redacted:long-token]",
         "domain": ".www.govt.nz",
         "path": "/",
         "sameSite": "None",
@@ -469,7 +469,7 @@
         "thirdParty": false
       },
       {
-        "name": "___utmvc",
+        "name": "[redacted]",
         "domain": "www.govt.nz",
         "path": "/",
         "sameSite": "Lax",
@@ -480,8 +480,8 @@
       }
     ],
     "storage": [],
-    "fingerprintDetections": [],
     "fingerprintEvents": [],
+    "fingerprintDetections": [],
     "screenshot": null,
     "warnings": [
       "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
@@ -535,20 +535,8 @@
     "removedDomains": [],
     "addedEntities": [],
     "removedEntities": [],
-    "addedCookies": [
-      {
-        "name": "incap_ses_160_110069",
-        "domain": ".www.govt.nz",
-        "thirdParty": false
-      }
-    ],
-    "removedCookies": [
-      {
-        "name": "incap_ses_1444_110069",
-        "domain": ".www.govt.nz",
-        "thirdParty": false
-      }
-    ],
+    "addedCookies": [],
+    "removedCookies": [],
     "addedStorageKeys": [],
     "removedStorageKeys": [],
     "addedFingerprinting": [],

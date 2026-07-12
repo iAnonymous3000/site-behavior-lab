@@ -49,6 +49,13 @@
       "automation": "playwright-chromium",
       "headless": true,
       "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "classification",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-06-19T17:24:24.927Z"
+      },
       "trackerCatalog": {
         "source": "Hand-curated service catalog",
         "version": "hand-curated-2026.06",
@@ -57,14 +64,7 @@
         "curatedOverrides": 133,
         "license": "AGPL-3.0-or-later"
       },
-      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
-      "adblock": {
-        "active": true,
-        "source": "Brave default ad-block lists",
-        "lists": 31,
-        "fetchedAt": "2026-06-19T17:24:24.927Z"
-      },
-      "shieldsMode": "classification"
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
     },
     "requests": [
       {
@@ -76,876 +76,876 @@
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 32,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 32
       },
       {
         "id": 2,
-        "url": "https://www.eharmony.com/wplp/wp-content/plugins/psg-registration-form/assets/dist/css/registration-form-eharmony.css",
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.eharmony.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 156,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 156
       },
       {
         "id": 3,
-        "url": "https://www.eharmony.com/wplp/wp-content/themes/psg-homepage-theme/assets/dist/css/theme-eharmony.css",
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.eharmony.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 157,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 157
       },
       {
         "id": 4,
-        "url": "https://www.eharmony.com/wplp/wp-content/themes/psg-homepage-theme/assets/dist/fonts/SuisseIntl-Regular-WebS.woff2",
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.eharmony.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 158,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 158
       },
       {
         "id": 5,
-        "url": "https://www.eharmony.com/wplp/wp-content/themes/psg-homepage-theme/assets/dist/fonts/SuisseIntl-Bold-WebS.woff2",
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.eharmony.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 158,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 158
       },
       {
         "id": 6,
-        "url": "https://www.eharmony.com/wplp/wp-content/themes/psg-homepage-theme/assets/dist/fonts/national-2-compressed-bold.woff2",
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.eharmony.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 159,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 159
       },
       {
         "id": 7,
-        "url": "https://www.eharmony.com/wplp/wp-content/themes/psg-homepage-theme/assets/dist/fonts/parshicons.woff2",
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.eharmony.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 160,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 160
       },
       {
         "id": 8,
-        "url": "https://www.eharmony.com/common/dynamicconf",
+        "url": "https://www.eharmony.com/{seg}/{seg}",
         "domain": "www.eharmony.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 160,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 160
       },
       {
         "id": 9,
-        "url": "https://www.eharmony.com/homepage/wplp/wp-content/uploads/sites/5/2025/11/dating-site_-scaled.jpg",
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{n}",
         "domain": "www.eharmony.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 161,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 161
       },
       {
         "id": 10,
-        "url": "https://www.eharmony.com/wplp/wp-content/uploads/sites/5/2023/11/GWGY-1.svg",
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{n}/{n}",
         "domain": "www.eharmony.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 162,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 162
       },
       {
         "id": 11,
-        "url": "https://www.eharmony.com/wplp/wp-content/plugins/psg-landing-pages/assets/dist/images/trusted-eh-vertical.png",
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.eharmony.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 162,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 162
       },
       {
         "id": 12,
-        "url": "https://www.eharmony.com/wplp/wp-content/uploads/sites/5/2023/11/Double-Heart.svg",
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{n}/{n}",
         "domain": "www.eharmony.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 181,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 181
       },
       {
         "id": 13,
-        "url": "https://www.eharmony.com/static_cms/eharmony/static/peg_utils/peg_logger/peg_logger.js",
+        "url": "https://www.eharmony.com/{seg}/{seg}/static/{seg}/{seg}/{seg}",
         "domain": "www.eharmony.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 182,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 182
       },
       {
         "id": 14,
-        "url": "https://www.eharmony.com/wplp/wp-content/plugins/parship-tracking/assets/dist/js/frontend/page-view-duration.js",
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.eharmony.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 195,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 195
       },
       {
         "id": 15,
-        "url": "https://www.eharmony.com/wplp/wp-content/plugins/parship-tracking/assets/dist/js/frontend/global-ui-tracking.js",
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.eharmony.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 196,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 196
       },
       {
         "id": 16,
-        "url": "https://www.eharmony.com/wplp/wp-content/themes/psg-homepage-theme/assets/dist/js/theme.js",
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.eharmony.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 208,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 208
       },
       {
         "id": 17,
-        "url": "https://www.eharmony.com/wplp/wp-content/plugins/parship-tracking/assets/dist/js/frontend/ui-tracking.js",
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.eharmony.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 219,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 219
       },
       {
         "id": 18,
-        "url": "https://www.eharmony.com/static_cms/eharmony/static/peg_utils/tracking/pegtracking_combined.js",
+        "url": "https://www.eharmony.com/{seg}/{seg}/static/{seg}/{seg}/{seg}",
         "domain": "www.eharmony.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 229,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 229
       },
       {
         "id": 19,
-        "url": "https://www.eharmony.com/wplp/wp-content/uploads/sites/5/2026/05/dating-app-icon.png",
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{n}/{n}",
         "domain": "www.eharmony.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 247,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 247
       },
       {
         "id": 20,
-        "url": "https://www.eharmony.com/wplp/wp-content/plugins/psg-registration-form/assets/dist/js/registration-form.js",
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.eharmony.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 256,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 256
       },
       {
         "id": 21,
-        "url": "https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447",
+        "url": "https://static.cloudflareinsights.com/{seg}/{seg}",
         "domain": "static.cloudflareinsights.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 258,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 258
       },
       {
         "id": 22,
-        "url": "https://www.eharmony.com/wplp/wp-content/plugins/psg-registration-form/assets/dist/js/intent-questions.js",
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.eharmony.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 258,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 258
       },
       {
         "id": 23,
-        "url": "https://www.eharmony.com/wplp/wp-content/plugins/psg-landing-pages/blocks/build/lp-header/view.js",
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.eharmony.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 259,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 259
       },
       {
         "id": 24,
-        "url": "https://www.eharmony.com/wplp/wp-content/plugins/psg-landing-pages/blocks/build/slider/view.js",
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.eharmony.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 259,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 259
       },
       {
         "id": 25,
-        "url": "https://www.eharmony.com/wplp/wp-content/themes/psg-homepage-theme/assets/img/icons/eharmony/icon-check.svg",
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.eharmony.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 296,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 296
       },
       {
         "id": 26,
-        "url": "https://www.eharmony.com/wplp/wp-content/plugins/psg-registration-form/assets/dist/img/icons/eharmony/icon-check.svg",
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.eharmony.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 297,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 297
       },
       {
         "id": 27,
-        "url": "https://www.eharmony.com/wplp/wp-content/plugins/psg-registration-form/assets/dist/img/icons/eharmony/icon-mail.svg",
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.eharmony.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 297,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 297
       },
       {
         "id": 28,
-        "url": "https://www.eharmony.com/wplp/wp-content/plugins/psg-registration-form/assets/dist/img/icons/eharmony/icon-keys.svg",
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.eharmony.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 298,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 298
       },
       {
         "id": 29,
-        "url": "https://www.eharmony.com/wplp/wp-content/themes/psg-homepage-theme/assets/img/icons/eharmony/icon-arrow-forward.svg",
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.eharmony.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 298,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 298
       },
       {
         "id": 30,
-        "url": "https://www.eharmony.com/wplp/wp-content/themes/psg-homepage-theme/assets/img/icons/eharmony/Dropdown-Left.svg",
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.eharmony.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 298,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 298
       },
       {
         "id": 31,
-        "url": "https://www.eharmony.com/wplp/wp-content/themes/psg-homepage-theme/assets/img/icons/eharmony/Dropdown-Right.svg",
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.eharmony.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 298,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 298
       },
       {
         "id": 32,
-        "url": "https://www.eharmony.com/wplp/wp-content/themes/psg-homepage-theme/assets/dist/fonts/national-2-compressed-medium.woff2",
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.eharmony.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 299,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 299
       },
       {
         "id": 33,
-        "url": "https://www.eharmony.com/wplp/wp-content/uploads/sites/5/2026/06/dating-with-honest-intentions.png",
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{n}/{n}",
         "domain": "www.eharmony.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 299,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 299
       },
       {
         "id": 34,
-        "url": "https://www.eharmony.com/wplp/wp-content/uploads/sites/5/2026/06/compatible-singles.png",
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{n}/{n}",
         "domain": "www.eharmony.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 300,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 300
       },
       {
         "id": 35,
-        "url": "https://www.eharmony.com/wplp/wp-content/uploads/sites/5/2026/06/safety-1.png",
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{n}/{n}",
         "domain": "www.eharmony.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 300,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 300
       },
       {
         "id": 36,
-        "url": "https://www.eharmony.com/wplp/wp-content/uploads/sites/5/2026/06/success-stories-1.png",
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{n}/{n}",
         "domain": "www.eharmony.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 301,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 301
       },
       {
         "id": 37,
-        "url": "https://www.eharmony.com/static_app/eharmony/_staticversion_/js/iov_combined.js",
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.eharmony.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 361,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 361
       },
       {
         "id": 38,
-        "url": "https://challenges.cloudflare.com/turnstile/v0/api.js?render=",
+        "url": "https://challenges.cloudflare.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "challenges.cloudflare.com",
         "method": "GET",
         "resourceType": "script",
         "status": 302,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 362,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 362
       },
       {
         "id": 39,
-        "url": "https://eum.instana.io/eum.min.js",
+        "url": "https://eum.instana.io/{seg}",
         "domain": "eum.instana.io",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 395,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 395
       },
       {
         "id": 40,
-        "url": "https://www.eharmony.com/bd/collection",
+        "url": "https://www.eharmony.com/{seg}/{seg}",
         "domain": "www.eharmony.com",
         "method": "POST",
         "resourceType": "ping",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 396,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 396
       },
       {
         "id": 41,
-        "url": "https://www.eharmony.com/wplp/wp-content/themes/psg-homepage-theme/assets/img/icons/eharmony/icon-google.svg",
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.eharmony.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 396,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 396
       },
       {
         "id": 42,
-        "url": "https://www.eharmony.com/wplp/wp-content/themes/psg-homepage-theme/assets/img/icons/eharmony/icon-apple.svg",
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.eharmony.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 397,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 397
       },
       {
         "id": 43,
-        "url": "https://www.eharmony.com/wplp/wp-content/themes/psg-homepage-theme/assets/dist/fonts/SuisseIntl-Light-WebS.woff2",
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.eharmony.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 398,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 398
       },
       {
         "id": 44,
-        "url": "https://web.cmp.usercentrics.eu/tcf/stub.js",
+        "url": "https://web.cmp.usercentrics.eu/{seg}/{seg}",
         "domain": "web.cmp.usercentrics.eu",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 399,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 399
       },
       {
         "id": 45,
-        "url": "https://web.cmp.usercentrics.eu/ui/loader.js",
+        "url": "https://web.cmp.usercentrics.eu/{seg}/{seg}",
         "domain": "web.cmp.usercentrics.eu",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 399,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 399
       },
       {
         "id": 46,
-        "url": "https://www.eharmony.com/cdn-cgi/challenge-platform/scripts/jsd/main.js",
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.eharmony.com",
         "method": "GET",
         "resourceType": "script",
         "status": 302,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 399,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 399
       },
       {
         "id": 47,
-        "url": "https://challenges.cloudflare.com/turnstile/v0/b/25e6c66701a0/api.js",
+        "url": "https://challenges.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "challenges.cloudflare.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 409,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 409
       },
       {
         "id": 48,
-        "url": "https://www.eharmony.com/bd/collection",
+        "url": "https://www.eharmony.com/{seg}/{seg}",
         "domain": "www.eharmony.com",
         "method": "POST",
         "resourceType": "ping",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 412,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 412
       },
       {
         "id": 49,
-        "url": "https://www.eharmony.com/fd/general5/static_wdp.js",
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}",
         "domain": "www.eharmony.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 420,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 420
       },
       {
         "id": 50,
-        "url": "https://mpsnare.iesnare.com/general5/wdp.js?loaderVer=&compat=&tp=&tp_split=&fp_static=&fp_dyn=",
+        "url": "https://mpsnare.iesnare.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "mpsnare.iesnare.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 421,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 421
       },
       {
         "id": 51,
-        "url": "https://www.eharmony.com/cdn-cgi/challenge-platform/h/b/scripts/jsd/25e6c66701a0/main.js",
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.eharmony.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 452,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 452
       },
       {
         "id": 52,
-        "url": "https://challenges.cloudflare.com/cdn-cgi/challenge-platform/h/b/turnstile/f/ov2/av0/rch/ztrpx/0x4AAAAAABDhwrz4YrXNLHOI/light/fbE/new/flexible?lang=",
+        "url": "https://challenges.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?lang=",
         "domain": "challenges.cloudflare.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 463,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 463
       },
       {
         "id": 53,
-        "url": "https://web.cmp.usercentrics.eu/ui/v/4.2.0/WebSdk.lib.44b003b5.js",
+        "url": "https://web.cmp.usercentrics.eu/{seg}/{seg}/{seg}/{seg}",
         "domain": "web.cmp.usercentrics.eu",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 474,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 474
       },
       {
         "id": 54,
-        "url": "https://challenges.cloudflare.com/cdn-cgi/challenge-platform/h/b/cmg/1",
+        "url": "https://challenges.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}/{n}",
         "domain": "challenges.cloudflare.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 551,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 551
       },
       {
         "id": 55,
-        "url": "https://www.eharmony.com/cdn-cgi/challenge-platform/h/b/jsd/oneshot/25e6c66701a0/0.06455242600968059:1782417632:s7K9p_I1LqBzZ8LkW1dunB-zAVLr-l1GMCn2GQq8K0E/a116a9789ff149fc",
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.eharmony.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 558,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 558
       },
       {
         "id": 56,
-        "url": "https://v1.api.service.cmp.usercentrics.eu/latest/core/tjaNqZ8sYHXhkc",
+        "url": "https://v1.api.service.cmp.usercentrics.eu/{seg}/{seg}/{seg}",
         "domain": "v1.api.service.cmp.usercentrics.eu",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 574,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 574
       },
       {
         "id": 57,
-        "url": "https://www.eharmony.com/fd/5.12.0/dyn_wdp.js",
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}",
         "domain": "www.eharmony.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 614,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 614
       },
       {
         "id": 58,
-        "url": "https://mpsnare.iesnare.com/5.12.0/logo.js",
+        "url": "https://mpsnare.iesnare.com/{seg}/{seg}",
         "domain": "mpsnare.iesnare.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 729,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 729
       },
       {
         "id": 59,
-        "url": "https://challenges.cloudflare.com/cdn-cgi/challenge-platform/h/b/flow/ov1/2419159424:1782417629:mKPBtMxwpajbJ_7rYRvdadkPUT3ThqQ8Ua-pUafTGiM/a116a97b48436bb4/4NJevIszK4vJVITymNTT7HDjEaLHu8ubcYHO9QcwiHk-1782418712-1.2.1.1-czV4cp4ts9e0In3y_6QtLCGKjnjX7gdAkH_UpUIjotXjMqFizIUYnbtfk56Vj_6X",
+        "url": "https://challenges.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "challenges.cloudflare.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 736,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 736
       },
       {
         "id": 60,
-        "url": "https://web.cmp.usercentrics.eu/cdcs/v/1.0.0/index.html",
+        "url": "https://web.cmp.usercentrics.eu/{seg}/{seg}/{seg}/{seg}",
         "domain": "web.cmp.usercentrics.eu",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 747,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 747
       },
       {
         "id": 61,
-        "url": "https://www.eharmony.com/fd/5.12.0/logo.js",
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}",
         "domain": "www.eharmony.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 787,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 787
       },
       {
         "id": 62,
-        "url": "https://v1.api.service.cmp.usercentrics.eu/latest/1/cmp/en/US/tjaNqZ8sYHXhkc/16.22.29/16.22.29?isOutsideEu=&isBot=",
+        "url": "https://v1.api.service.cmp.usercentrics.eu/{seg}/{n}/{seg}/en/us/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "v1.api.service.cmp.usercentrics.eu",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 802,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 802
       },
       {
         "id": 63,
-        "url": "https://www.eharmony.com/cdn-cgi/rum",
+        "url": "https://www.eharmony.com/{seg}/{seg}",
         "domain": "www.eharmony.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 204,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 913,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 913
       },
       {
         "id": 64,
-        "url": "https://web.cmp.usercentrics.eu/ui/v/4.2.0/UsCmpController.38b525a3.js",
+        "url": "https://web.cmp.usercentrics.eu/{seg}/{seg}/{seg}/{seg}",
         "domain": "web.cmp.usercentrics.eu",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 981,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 981
       },
       {
         "id": 65,
-        "url": "https://challenges.cloudflare.com/cdn-cgi/challenge-platform/h/b/pat/a116a97b48436bb4/1782418713119/f5279b8667713cf8a4dfc1ee9f5ad0f20c3cf91eb5dbfca241296800c70970c7/XfB-_UCRzWrW0VG",
+        "url": "https://challenges.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "challenges.cloudflare.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 401,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1000,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1000
       },
       {
         "id": 66,
-        "url": "https://consent-api.service.consent.usercentrics.eu/consent/uw/3",
+        "url": "https://consent-api.service.consent.usercentrics.eu/{seg}/{seg}/{n}",
         "domain": "consent-api.service.consent.usercentrics.eu",
         "method": "POST",
         "resourceType": "fetch",
         "status": 201,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1007,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1007
       },
       {
         "id": 67,
-        "url": "https://web.cmp.usercentrics.eu/ui/TvGdprCmpView.bac89a6c.js",
+        "url": "https://web.cmp.usercentrics.eu/{seg}/{seg}",
         "domain": "web.cmp.usercentrics.eu",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1008,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1008
       },
       {
         "id": 68,
-        "url": "https://web.cmp.usercentrics.eu/ui/v/4.2.0/UcUsCmpView.e8ca4162.js",
+        "url": "https://web.cmp.usercentrics.eu/{seg}/{seg}/{seg}/{seg}",
         "domain": "web.cmp.usercentrics.eu",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1008,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1008
       },
       {
         "id": 69,
-        "url": "https://web.cmp.usercentrics.eu/ui/v/4.2.0/getToastifyStyle.4f0a73d7.js",
+        "url": "https://web.cmp.usercentrics.eu/{seg}/{seg}/{seg}/{seg}",
         "domain": "web.cmp.usercentrics.eu",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1043,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1043
       },
       {
         "id": 70,
-        "url": "https://www.eharmony.com/nocache/nvi",
+        "url": "https://www.eharmony.com/{seg}/{seg}",
         "domain": "www.eharmony.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1069,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1069
       },
       {
         "id": 71,
-        "url": "https://tms.eharmony.com/tms",
+        "url": "https://tms.eharmony.com/{seg}",
         "domain": "tms.eharmony.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1157,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1157
       },
       {
         "id": 72,
-        "url": "https://tms.eharmony.com/tms",
+        "url": "https://tms.eharmony.com/{seg}",
         "domain": "tms.eharmony.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1159,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1159
       },
       {
         "id": 73,
-        "url": "https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447",
+        "url": "https://static.cloudflareinsights.com/{seg}/{seg}",
         "domain": "static.cloudflareinsights.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1314,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1314
       },
       {
         "id": 74,
-        "url": "https://www.googletagmanager.com/gtag/js?id=",
+        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=",
         "domain": "www.googletagmanager.com",
         "method": "GET",
         "resourceType": "script",
@@ -957,24 +957,24 @@
           "category": "analytics / tag management",
           "confidence": "curated"
         },
-        "startedAtMs": 1314,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1314
       },
       {
         "id": 75,
-        "url": "https://tms.eharmony.com/et",
+        "url": "https://tms.eharmony.com/{seg}",
         "domain": "tms.eharmony.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1318,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1318
       },
       {
         "id": 76,
-        "url": "https://bat.bing.com/bat.js",
+        "url": "https://bat.bing.com/{seg}",
         "domain": "bat.bing.com",
         "method": "GET",
         "resourceType": "script",
@@ -986,12 +986,12 @@
           "category": "advertising / analytics",
           "confidence": "curated"
         },
-        "startedAtMs": 1320,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1320
       },
       {
         "id": 77,
-        "url": "https://connect.facebook.net/en_US/fbevents.js",
+        "url": "https://connect.facebook.net/{seg}/{seg}",
         "domain": "connect.facebook.net",
         "method": "GET",
         "resourceType": "script",
@@ -1003,12 +1003,12 @@
           "category": "social / advertising pixel",
           "confidence": "curated"
         },
-        "startedAtMs": 1320,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1320
       },
       {
         "id": 78,
-        "url": "https://bat.bing.com/p/action/14002647.js",
+        "url": "https://bat.bing.com/{seg}/{seg}/{seg}",
         "domain": "bat.bing.com",
         "method": "GET",
         "resourceType": "script",
@@ -1020,12 +1020,12 @@
           "category": "advertising / analytics",
           "confidence": "curated"
         },
-        "startedAtMs": 1373,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1373
       },
       {
         "id": 79,
-        "url": "https://bat.bing.com/p/insights/t/14002647",
+        "url": "https://bat.bing.com/{seg}/{seg}/{seg}/{n}",
         "domain": "bat.bing.com",
         "method": "GET",
         "resourceType": "script",
@@ -1037,12 +1037,12 @@
           "category": "advertising / analytics",
           "confidence": "curated"
         },
-        "startedAtMs": 1410,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1410
       },
       {
         "id": 80,
-        "url": "https://bat.bing.com/action/0?ti=&Ver=&mid=&bo=&sid=&vid=&vids=&msclkid=&pi=&lg=&sw=&sh=&sc=&nwd=&p=&r=&lt=&evt=&ifm=&sv=&cdb=&rn=",
+        "url": "https://bat.bing.com/{seg}/{n}?%5Bredacted%5D=&Ver=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&msclkid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "bat.bing.com",
         "method": "GET",
         "resourceType": "image",
@@ -1054,24 +1054,24 @@
           "category": "advertising / analytics",
           "confidence": "curated"
         },
-        "startedAtMs": 1411,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1411
       },
       {
         "id": 81,
-        "url": "https://b-code.liadm.com/b-00fg.min.js",
+        "url": "https://b-code.liadm.com/{seg}",
         "domain": "b-code.liadm.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1489,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1489
       },
       {
         "id": 82,
-        "url": "https://www.googletagmanager.com/gtag/js?id=",
+        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=",
         "domain": "www.googletagmanager.com",
         "method": "GET",
         "resourceType": "script",
@@ -1083,48 +1083,48 @@
           "category": "analytics / tag management",
           "confidence": "curated"
         },
-        "startedAtMs": 1539,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1539
       },
       {
         "id": 83,
-        "url": "https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447",
+        "url": "https://static.cloudflareinsights.com/{seg}/{seg}",
         "domain": "static.cloudflareinsights.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1602,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1602
       },
       {
         "id": 84,
-        "url": "https://data.adxcel-ec2.com/pixel/?ad_log=&action=&pixid=",
+        "url": "https://data.adxcel-ec2.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "data.adxcel-ec2.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1603,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1603
       },
       {
         "id": 85,
-        "url": "https://l.hrzn-nxt.com/pxl?aid=&e=&country=",
+        "url": "https://l.hrzn-nxt.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "l.hrzn-nxt.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1603,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1603
       },
       {
         "id": 86,
-        "url": "https://pagead2.googlesyndication.com/ccm/collect?rcb=&frm=&en=&dl=&scrsrc=&rnd=&navt=&npa=&us_privacy=&did=&gdid=&_tu=&gtm=&gcs=&gcd=&dma_cps=&dma=&tcfd=&tag_exp=&apve=&apvf=&apvc=&tids=&tid=&tft=&tfd=&fmt=",
+        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "pagead2.googlesyndication.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -1136,12 +1136,12 @@
           "category": "advertising",
           "confidence": "curated"
         },
-        "startedAtMs": 1704,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1704
       },
       {
         "id": 87,
-        "url": "https://pagead2.googlesyndication.com/ccm/collect?rcb=&frm=&en=&dl=&scrsrc=&rnd=&navt=&npa=&us_privacy=&ep.data_st=&ep.data_ut=&did=&gdid=&_tu=&gtm=&gcs=&gcd=&dma_cps=&dma=&tcfd=&tag_exp=&apve=&apvf=&apvc=&tids=&tid=&tft=&tfd=&fmt=",
+        "url": "https://pagead2.googlesyndication.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "pagead2.googlesyndication.com",
         "method": "POST",
         "resourceType": "fetch",
@@ -1153,24 +1153,24 @@
           "category": "advertising",
           "confidence": "curated"
         },
-        "startedAtMs": 1704,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1704
       },
       {
         "id": 88,
-        "url": "https://challenges.cloudflare.com/cdn-cgi/challenge-platform/h/b/d/a116a97b48436bb4/1782418713120/cPRgP0zjQUWWmQ-",
+        "url": "https://challenges.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "challenges.cloudflare.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1774,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1774
       },
       {
         "id": 89,
-        "url": "https://connect.facebook.net/signals/config/839668816111334?v=&r=&domain=&hme=&ex_m=",
+        "url": "https://connect.facebook.net/{seg}/{seg}/{n}?v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "connect.facebook.net",
         "method": "GET",
         "resourceType": "script",
@@ -1182,36 +1182,36 @@
           "category": "social / advertising pixel",
           "confidence": "curated"
         },
-        "startedAtMs": 1792,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1792
       },
       {
         "id": 90,
-        "url": "https://rp.liadm.com/j?dtstmp=&aid=&se=&duid=&tv=&pu=&us_privacy=&wpn=&wpv=&cd=&pv=",
+        "url": "https://rp.liadm.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "rp.liadm.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 302,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1837,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1837
       },
       {
         "id": 91,
-        "url": "https://challenges.cloudflare.com/cdn-cgi/challenge-platform/h/b/flow/ov1/2419159424:1782417629:mKPBtMxwpajbJ_7rYRvdadkPUT3ThqQ8Ua-pUafTGiM/a116a97b48436bb4/4NJevIszK4vJVITymNTT7HDjEaLHu8ubcYHO9QcwiHk-1782418712-1.2.1.1-czV4cp4ts9e0In3y_6QtLCGKjnjX7gdAkH_UpUIjotXjMqFizIUYnbtfk56Vj_6X",
+        "url": "https://challenges.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "challenges.cloudflare.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1873,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1873
       },
       {
         "id": 92,
-        "url": "https://ad.doubleclick.net/ccm/s/collect?auid=&gtm=",
+        "url": "https://ad.doubleclick.net/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "ad.doubleclick.net",
         "method": "POST",
         "resourceType": "fetch",
@@ -1223,12 +1223,12 @@
           "category": "advertising",
           "confidence": "curated"
         },
-        "startedAtMs": 1985,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1985
       },
       {
         "id": 93,
-        "url": "https://googleads.g.doubleclick.net/pagead/viewthroughconversion/765290997/?random=&cv=&fst=&bg=&guid=&async=&en=&gtm=&gcd=&dma=&tcfd=&tag_exp=&u_w=&u_h=&url=&ref=&top=&rcb=&frm=&hn=&npa=&pscdl=&auid=&uaa=&uab=&uafvl=&uamb=&uam=&uap=&uapv=&uaw=&data=&ept=&rfmt=&fmt=",
+        "url": "https://googleads.g.doubleclick.net/{seg}/{seg}/{n}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&ref=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "googleads.g.doubleclick.net",
         "method": "GET",
         "resourceType": "script",
@@ -1240,144 +1240,144 @@
           "category": "advertising",
           "confidence": "curated"
         },
-        "startedAtMs": 1987,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1987
       },
       {
         "id": 94,
-        "url": "https://www.google.com/rmkt/collect/765290997/?random=&cv=&fst=&fmt=&bg=&guid=&async=&en=&gtm=&gcd=&dma=&tcfd=&tag_exp=&u_w=&u_h=&url=&ref=&top=&rcb=&frm=&hn=&npa=&pscdl=&auid=&uaa=&uab=&uafvl=&uamb=&uam=&uap=&uapv=&uaw=&data=&ept=&gcp=",
+        "url": "https://www.google.com/{seg}/{seg}/{n}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&ref=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1987,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1987
       },
       {
         "id": 95,
-        "url": "https://www.google.com/ccm/collect?rcb=&frm=&auid=&en=&dl=&dr=&top=&scrsrc=&rnd=&navt=&npa=&gtm=&gcd=&dma=&tcfd=&tag_exp=&apve=&apvf=&apvc=&tids=&tid=&tft=&tfd=&fmt=",
+        "url": "https://www.google.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1987,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1987
       },
       {
         "id": 96,
-        "url": "https://i.liadm.com/sync-container?duid=&appId=&euns=&s=&us_privacy=&version=&cd=&pv=",
+        "url": "https://i.liadm.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&version=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "i.liadm.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1992,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1992
       },
       {
         "id": 97,
-        "url": "https://tms.eharmony.com/cdn-cgi/rum",
+        "url": "https://tms.eharmony.com/{seg}/{seg}",
         "domain": "tms.eharmony.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 204,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1992,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1992
       },
       {
         "id": 98,
-        "url": "https://www.google.com/pagead/1p-user-list/765290997/?random=&cv=&fst=&bg=&guid=&async=&en=&gtm=&gcd=&dma=&tcfd=&tag_exp=&u_w=&u_h=&url=&ref=&top=&rcb=&frm=&hn=&npa=&pscdl=&auid=&uaa=&uab=&uafvl=&uamb=&uam=&uap=&uapv=&uaw=&data=&ept=&rfmt=&fmt=&is_vtc=&cid=&random=&rmt_tld=&ipr=",
+        "url": "https://www.google.com/{seg}/{seg}/{n}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&ref=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "www.google.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 2075,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2075
       },
       {
         "id": 99,
-        "url": "https://tms.eharmony.com/cdn-cgi/rum",
+        "url": "https://tms.eharmony.com/{seg}/{seg}",
         "domain": "tms.eharmony.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 204,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2107,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2107
       },
       {
         "id": 100,
-        "url": "https://rp.liadm.com/j?dtstmp=&aid=&se=&duid=&tv=&pu=&us_privacy=&wpn=&wpv=&cd=&pv=&n3pc=",
+        "url": "https://rp.liadm.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "rp.liadm.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 2133,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2133
       },
       {
         "id": 101,
-        "url": "https://sli.eharmony.com/baker",
+        "url": "https://sli.eharmony.com/{seg}",
         "domain": "sli.eharmony.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2310,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2310
       },
       {
         "id": 102,
-        "url": "https://eum-eu-west-1.instana.io/",
-        "domain": "eum-eu-west-1.instana.io",
+        "url": "https://{label}.instana.io/",
+        "domain": "{label}.instana.io",
         "method": "POST",
         "resourceType": "ping",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 2924,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2924
       },
       {
         "id": 103,
-        "url": "https://eum-eu-west-1.instana.io/",
-        "domain": "eum-eu-west-1.instana.io",
+        "url": "https://{label}.instana.io/",
+        "domain": "{label}.instana.io",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 6809,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 6809
       },
       {
         "id": 104,
-        "url": "https://www.eharmony.com/cdn-cgi/rum",
+        "url": "https://www.eharmony.com/{seg}/{seg}",
         "domain": "www.eharmony.com",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 6820,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 6820
       },
       {
         "id": 105,
-        "url": "https://bat.bing.com/actionp/0?ti=&Ver=&mid=&bo=&sid=&vid=&vids=&msclkid=&evt=",
+        "url": "https://bat.bing.com/{seg}/{n}?%5Bredacted%5D=&Ver=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&msclkid=&%5Bredacted%5D=",
         "domain": "bat.bing.com",
         "method": "POST",
         "resourceType": "ping",
@@ -1389,32 +1389,32 @@
           "category": "advertising / analytics",
           "confidence": "curated"
         },
-        "startedAtMs": 6820,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 6820
       },
       {
         "id": 106,
-        "url": "https://tms.eharmony.com/cdn-cgi/rum",
+        "url": "https://tms.eharmony.com/{seg}/{seg}",
         "domain": "tms.eharmony.com",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 6820,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 6820
       },
       {
         "id": 107,
-        "url": "https://tms.eharmony.com/cdn-cgi/rum",
+        "url": "https://tms.eharmony.com/{seg}/{seg}",
         "domain": "tms.eharmony.com",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 6821,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 6821
       }
     ],
     "domains": [
@@ -1630,7 +1630,7 @@
         ]
       },
       {
-        "domain": "eum-eu-west-1.instana.io",
+        "domain": "{label}.instana.io",
         "requests": 2,
         "thirdParty": true,
         "tracker": null,
@@ -1774,7 +1774,7 @@
     ],
     "cookies": [
       {
-        "name": "MR",
+        "name": "[redacted]",
         "domain": ".bat.bing.com",
         "path": "/",
         "sameSite": "None",
@@ -1804,7 +1804,7 @@
         "thirdParty": true
       },
       {
-        "name": "lidid",
+        "name": "[redacted]",
         "domain": ".liadm.com",
         "path": "/",
         "sameSite": "None",
@@ -1814,7 +1814,7 @@
         "thirdParty": true
       },
       {
-        "name": "io_token_7c6a6574-f011-4c9a-abdd-9894a102ccef",
+        "name": "[redacted:long-token]",
         "domain": "mpsnare.iesnare.com",
         "path": "/",
         "sameSite": "None",
@@ -1824,7 +1824,7 @@
         "thirdParty": true
       },
       {
-        "name": "_cfuvid",
+        "name": "[redacted]",
         "domain": ".eharmony.com",
         "path": "/",
         "sameSite": "None",
@@ -1844,7 +1844,7 @@
         "thirdParty": false
       },
       {
-        "name": "psg_optin",
+        "name": "[redacted]",
         "domain": ".eharmony.com",
         "path": "/",
         "sameSite": "Lax",
@@ -1854,7 +1854,7 @@
         "thirdParty": false
       },
       {
-        "name": "NVI_LC2",
+        "name": "[redacted]",
         "domain": ".eharmony.com",
         "path": "/",
         "sameSite": "None",
@@ -1864,7 +1864,7 @@
         "thirdParty": false
       },
       {
-        "name": "NVI_FC",
+        "name": "[redacted]",
         "domain": ".eharmony.com",
         "path": "/",
         "sameSite": "None",
@@ -1894,7 +1894,7 @@
         "thirdParty": false
       },
       {
-        "name": "cjcookie",
+        "name": "[redacted]",
         "domain": ".eharmony.com",
         "path": "/",
         "sameSite": "None",
@@ -1904,7 +1904,7 @@
         "thirdParty": false
       },
       {
-        "name": "_li_dcdm_c",
+        "name": "[redacted]",
         "domain": ".eharmony.com",
         "path": "/",
         "sameSite": "Lax",
@@ -1914,7 +1914,7 @@
         "thirdParty": false
       },
       {
-        "name": "_lc2_fpi",
+        "name": "[redacted]",
         "domain": ".eharmony.com",
         "path": "/",
         "sameSite": "Lax",
@@ -1924,7 +1924,7 @@
         "thirdParty": false
       },
       {
-        "name": "_lc2_fpi_js",
+        "name": "[redacted]",
         "domain": ".eharmony.com",
         "path": "/",
         "sameSite": "Lax",
@@ -1954,7 +1954,7 @@
         "thirdParty": false
       },
       {
-        "name": "tms_pu",
+        "name": "[redacted]",
         "domain": "tms.eharmony.com",
         "path": "/",
         "sameSite": "None",
@@ -1964,7 +1964,7 @@
         "thirdParty": false
       },
       {
-        "name": "tms_ps",
+        "name": "[redacted]",
         "domain": "tms.eharmony.com",
         "path": "/",
         "sameSite": "None",
@@ -1974,7 +1974,7 @@
         "thirdParty": false
       },
       {
-        "name": "lcookie",
+        "name": "[redacted]",
         "domain": "tms.eharmony.com",
         "path": "/",
         "sameSite": "None",
@@ -1984,7 +1984,7 @@
         "thirdParty": false
       },
       {
-        "name": "ads_si",
+        "name": "[redacted]",
         "domain": "tms.eharmony.com",
         "path": "/",
         "sameSite": "None",
@@ -1994,7 +1994,7 @@
         "thirdParty": false
       },
       {
-        "name": "mcookie",
+        "name": "[redacted]",
         "domain": "tms.eharmony.com",
         "path": "/",
         "sameSite": "None",
@@ -2004,7 +2004,7 @@
         "thirdParty": false
       },
       {
-        "name": "ads_pu",
+        "name": "[redacted]",
         "domain": "tms.eharmony.com",
         "path": "/",
         "sameSite": "None",
@@ -2014,7 +2014,7 @@
         "thirdParty": false
       },
       {
-        "name": "ads_ps",
+        "name": "[redacted]",
         "domain": "tms.eharmony.com",
         "path": "/",
         "sameSite": "None",
@@ -2024,7 +2024,7 @@
         "thirdParty": false
       },
       {
-        "name": "SESSION",
+        "name": "[redacted]",
         "domain": "www.eharmony.com",
         "path": "/",
         "sameSite": "Lax",
@@ -2034,7 +2034,7 @@
         "thirdParty": false
       },
       {
-        "name": "peg_session",
+        "name": "[redacted]",
         "domain": "www.eharmony.com",
         "path": "/",
         "sameSite": "Lax",
@@ -2044,7 +2044,7 @@
         "thirdParty": false
       },
       {
-        "name": "fp_token_7c6a6574-f011-4c9a-abdd-9894a102ccef",
+        "name": "[redacted:long-token]",
         "domain": "www.eharmony.com",
         "path": "/",
         "sameSite": "None",
@@ -2057,130 +2057,33 @@
     "storage": [
       {
         "area": "localStorage",
-        "key": "io_f604be51-ccf5-4d26-9cc2-3c44e1fdceb9",
+        "key": "[redacted:long-token]",
         "valueBytes": 44
       },
       {
         "area": "localStorage",
-        "key": "fp_f604be51-ccf5-4d26-9cc2-3c44e1fdceb9",
+        "key": "[redacted:long-token]",
         "valueBytes": 44
       },
       {
         "area": "localStorage",
-        "key": "_li_duid",
+        "key": "[redacted]",
         "valueBytes": 40
       },
       {
         "area": "localStorage",
-        "key": "ucData",
+        "key": "[redacted]",
         "valueBytes": 423
       },
       {
         "area": "localStorage",
-        "key": "ucString",
+        "key": "[redacted]",
         "valueBytes": 572
       },
       {
         "area": "sessionStorage",
-        "key": "crm-lp-uuid",
+        "key": "[redacted]",
         "valueBytes": 36
-      }
-    ],
-    "fingerprintDetections": [
-      {
-        "kind": "canvas-font-fingerprinting",
-        "heuristic": "canvas-font-probing-v1",
-        "count": 2,
-        "evidence": {
-          "measureTextCalls": 516,
-          "maxDistinctFonts": 6,
-          "maxDistinctTextSamples": 43,
-          "maxTextLength": 2
-        }
-      },
-      {
-        "kind": "webgl-fingerprinting",
-        "heuristic": "webgl-entropy-read-v1",
-        "count": 2,
-        "evidence": {
-          "readApis": [
-            "webgl.readPixels"
-          ],
-          "parameters": [
-            "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
-            "webgl.getParameter.UNMASKED_VENDOR_WEBGL"
-          ],
-          "getParameterCalls": 81,
-          "readPixelsCalls": 2
-        }
-      },
-      {
-        "kind": "input-monitoring",
-        "heuristic": "input-listener-coverage-v1",
-        "count": 1,
-        "evidence": {
-          "eventTypes": [
-            "change",
-            "keydown",
-            "keyup"
-          ],
-          "listenerTargets": [
-            "document",
-            "window"
-          ],
-          "thirdPartyOrigins": [
-            "https://eum.instana.io",
-            "https://mpsnare.iesnare.com",
-            "https://static.cloudflareinsights.com",
-            "https://www.googletagmanager.com"
-          ],
-          "totalListenerCalls": 5
-        }
-      },
-      {
-        "kind": "session-recording",
-        "heuristic": "interaction-listener-coverage-v1",
-        "count": 1,
-        "evidence": {
-          "eventTypes": [
-            "click",
-            "keydown",
-            "keyup",
-            "mousedown",
-            "mousemove",
-            "mouseup",
-            "pointerdown",
-            "pointermove",
-            "scroll",
-            "touchstart",
-            "visibilitychange",
-            "wheel"
-          ],
-          "listenerTargets": [
-            "document",
-            "other",
-            "window"
-          ],
-          "thirdPartyOrigins": [
-            "https://eum.instana.io",
-            "https://mpsnare.iesnare.com",
-            "https://static.cloudflareinsights.com",
-            "https://web.cmp.usercentrics.eu",
-            "https://www.googletagmanager.com"
-          ],
-          "totalListenerCalls": 40
-        }
-      },
-      {
-        "kind": "webrtc-fingerprinting",
-        "heuristic": "webrtc-peerconnection-v1",
-        "count": 1,
-        "evidence": {
-          "constructorCalls": 1,
-          "createDataChannelCalls": 2,
-          "createOfferCalls": 2,
-          "setLocalDescriptionCalls": 2
-        }
       }
     ],
     "fingerprintEvents": [
@@ -2229,6 +2132,103 @@
         "count": 1
       }
     ],
+    "fingerprintDetections": [
+      {
+        "kind": "canvas-font-fingerprinting",
+        "heuristic": "canvas-font-probing-v1",
+        "count": 2,
+        "evidence": {
+          "measureTextCalls": 516,
+          "maxDistinctFonts": 6,
+          "maxDistinctTextSamples": 43,
+          "maxTextLength": 2
+        }
+      },
+      {
+        "kind": "webgl-fingerprinting",
+        "heuristic": "webgl-entropy-read-v1",
+        "count": 2,
+        "evidence": {
+          "readApis": [
+            "webgl.readPixels"
+          ],
+          "parameters": [
+            "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
+            "webgl.getParameter.UNMASKED_VENDOR_WEBGL"
+          ],
+          "getParameterCalls": 81,
+          "readPixelsCalls": 2
+        }
+      },
+      {
+        "kind": "input-monitoring",
+        "heuristic": "input-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "change",
+            "keydown",
+            "keyup"
+          ],
+          "listenerTargets": [
+            "document",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://eum.instana.io/",
+            "https://mpsnare.iesnare.com/",
+            "https://static.cloudflareinsights.com/",
+            "https://www.googletagmanager.com/"
+          ],
+          "totalListenerCalls": 5
+        }
+      },
+      {
+        "kind": "session-recording",
+        "heuristic": "interaction-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "click",
+            "keydown",
+            "keyup",
+            "mousedown",
+            "mousemove",
+            "mouseup",
+            "pointerdown",
+            "pointermove",
+            "scroll",
+            "touchstart",
+            "visibilitychange",
+            "wheel"
+          ],
+          "listenerTargets": [
+            "document",
+            "other",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://eum.instana.io/",
+            "https://mpsnare.iesnare.com/",
+            "https://static.cloudflareinsights.com/",
+            "https://web.cmp.usercentrics.eu/",
+            "https://www.googletagmanager.com/"
+          ],
+          "totalListenerCalls": 40
+        }
+      },
+      {
+        "kind": "webrtc-fingerprinting",
+        "heuristic": "webrtc-peerconnection-v1",
+        "count": 1,
+        "evidence": {
+          "constructorCalls": 1,
+          "createDataChannelCalls": 2,
+          "createOfferCalls": 2,
+          "setLocalDescriptionCalls": 2
+        }
+      }
+    ],
     "screenshot": null,
     "warnings": [
       "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
@@ -2274,6 +2274,13 @@
       "automation": "playwright-chromium",
       "headless": true,
       "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "block-simulation",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-06-19T17:24:24.927Z"
+      },
       "trackerCatalog": {
         "source": "Hand-curated service catalog",
         "version": "hand-curated-2026.06",
@@ -2282,14 +2289,7 @@
         "curatedOverrides": 133,
         "license": "AGPL-3.0-or-later"
       },
-      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
-      "adblock": {
-        "active": true,
-        "source": "Brave default ad-block lists",
-        "lists": 31,
-        "fetchedAt": "2026-06-19T17:24:24.927Z"
-      },
-      "shieldsMode": "block-simulation"
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
     },
     "requests": [
       {
@@ -2301,656 +2301,656 @@
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 35,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 35
       },
       {
         "id": 2,
-        "url": "https://www.eharmony.com/wplp/wp-content/plugins/psg-registration-form/assets/dist/css/registration-form-eharmony.css",
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.eharmony.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 89,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 89
       },
       {
         "id": 3,
-        "url": "https://www.eharmony.com/wplp/wp-content/themes/psg-homepage-theme/assets/dist/css/theme-eharmony.css",
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.eharmony.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 90,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 90
       },
       {
         "id": 4,
-        "url": "https://www.eharmony.com/wplp/wp-content/themes/psg-homepage-theme/assets/dist/fonts/SuisseIntl-Regular-WebS.woff2",
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.eharmony.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 91,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 91
       },
       {
         "id": 5,
-        "url": "https://www.eharmony.com/wplp/wp-content/themes/psg-homepage-theme/assets/dist/fonts/SuisseIntl-Bold-WebS.woff2",
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.eharmony.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 92,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 92
       },
       {
         "id": 6,
-        "url": "https://www.eharmony.com/wplp/wp-content/themes/psg-homepage-theme/assets/dist/fonts/national-2-compressed-bold.woff2",
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.eharmony.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 92,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 92
       },
       {
         "id": 7,
-        "url": "https://www.eharmony.com/wplp/wp-content/themes/psg-homepage-theme/assets/dist/fonts/parshicons.woff2",
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.eharmony.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 92,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 92
       },
       {
         "id": 8,
-        "url": "https://www.eharmony.com/common/dynamicconf",
+        "url": "https://www.eharmony.com/{seg}/{seg}",
         "domain": "www.eharmony.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 93,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 93
       },
       {
         "id": 9,
-        "url": "https://www.eharmony.com/homepage/wplp/wp-content/uploads/sites/5/2025/11/dating-site_-scaled.jpg",
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{n}",
         "domain": "www.eharmony.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 94,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 94
       },
       {
         "id": 10,
-        "url": "https://www.eharmony.com/wplp/wp-content/uploads/sites/5/2023/11/GWGY-1.svg",
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{n}/{n}",
         "domain": "www.eharmony.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 95,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 95
       },
       {
         "id": 11,
-        "url": "https://www.eharmony.com/wplp/wp-content/plugins/psg-landing-pages/assets/dist/images/trusted-eh-vertical.png",
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.eharmony.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 95,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 95
       },
       {
         "id": 12,
-        "url": "https://www.eharmony.com/wplp/wp-content/uploads/sites/5/2023/11/Double-Heart.svg",
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{n}/{n}",
         "domain": "www.eharmony.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 122,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 122
       },
       {
         "id": 13,
-        "url": "https://www.eharmony.com/static_cms/eharmony/static/peg_utils/peg_logger/peg_logger.js",
+        "url": "https://www.eharmony.com/{seg}/{seg}/static/{seg}/{seg}/{seg}",
         "domain": "www.eharmony.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 123,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 123
       },
       {
         "id": 14,
-        "url": "https://www.eharmony.com/wplp/wp-content/plugins/parship-tracking/assets/dist/js/frontend/page-view-duration.js",
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.eharmony.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 137,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 137
       },
       {
         "id": 15,
-        "url": "https://www.eharmony.com/wplp/wp-content/plugins/parship-tracking/assets/dist/js/frontend/global-ui-tracking.js",
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.eharmony.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 138,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 138
       },
       {
         "id": 16,
-        "url": "https://www.eharmony.com/wplp/wp-content/themes/psg-homepage-theme/assets/dist/js/theme.js",
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.eharmony.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 150,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 150
       },
       {
         "id": 17,
-        "url": "https://www.eharmony.com/wplp/wp-content/plugins/parship-tracking/assets/dist/js/frontend/ui-tracking.js",
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.eharmony.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 159,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 159
       },
       {
         "id": 18,
-        "url": "https://www.eharmony.com/static_cms/eharmony/static/peg_utils/tracking/pegtracking_combined.js",
+        "url": "https://www.eharmony.com/{seg}/{seg}/static/{seg}/{seg}/{seg}",
         "domain": "www.eharmony.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 168,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 168
       },
       {
         "id": 19,
-        "url": "https://www.eharmony.com/wplp/wp-content/uploads/sites/5/2026/05/dating-app-icon.png",
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{n}/{n}",
         "domain": "www.eharmony.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 187,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 187
       },
       {
         "id": 20,
-        "url": "https://www.eharmony.com/wplp/wp-content/plugins/psg-registration-form/assets/dist/js/registration-form.js",
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.eharmony.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 189,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 189
       },
       {
         "id": 22,
-        "url": "https://www.eharmony.com/wplp/wp-content/plugins/psg-registration-form/assets/dist/js/intent-questions.js",
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.eharmony.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 191,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 191
       },
       {
         "id": 23,
-        "url": "https://www.eharmony.com/wplp/wp-content/plugins/psg-landing-pages/blocks/build/lp-header/view.js",
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.eharmony.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 192,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 192
       },
       {
         "id": 24,
-        "url": "https://www.eharmony.com/wplp/wp-content/plugins/psg-landing-pages/blocks/build/slider/view.js",
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.eharmony.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 192,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 192
       },
       {
         "id": 25,
-        "url": "https://www.eharmony.com/wplp/wp-content/themes/psg-homepage-theme/assets/img/icons/eharmony/icon-check.svg",
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.eharmony.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 224,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 224
       },
       {
         "id": 26,
-        "url": "https://www.eharmony.com/wplp/wp-content/plugins/psg-registration-form/assets/dist/img/icons/eharmony/icon-check.svg",
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.eharmony.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 228,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 228
       },
       {
         "id": 27,
-        "url": "https://www.eharmony.com/wplp/wp-content/plugins/psg-registration-form/assets/dist/img/icons/eharmony/icon-mail.svg",
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.eharmony.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 228,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 228
       },
       {
         "id": 28,
-        "url": "https://www.eharmony.com/wplp/wp-content/plugins/psg-registration-form/assets/dist/img/icons/eharmony/icon-keys.svg",
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.eharmony.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 229,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 229
       },
       {
         "id": 29,
-        "url": "https://www.eharmony.com/wplp/wp-content/themes/psg-homepage-theme/assets/img/icons/eharmony/icon-arrow-forward.svg",
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.eharmony.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 229,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 229
       },
       {
         "id": 30,
-        "url": "https://www.eharmony.com/wplp/wp-content/themes/psg-homepage-theme/assets/img/icons/eharmony/Dropdown-Left.svg",
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.eharmony.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 229,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 229
       },
       {
         "id": 31,
-        "url": "https://www.eharmony.com/wplp/wp-content/themes/psg-homepage-theme/assets/img/icons/eharmony/Dropdown-Right.svg",
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.eharmony.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 230,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 230
       },
       {
         "id": 32,
-        "url": "https://www.eharmony.com/wplp/wp-content/themes/psg-homepage-theme/assets/dist/fonts/national-2-compressed-medium.woff2",
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.eharmony.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 230,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 230
       },
       {
         "id": 33,
-        "url": "https://www.eharmony.com/wplp/wp-content/uploads/sites/5/2026/06/dating-with-honest-intentions.png",
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{n}/{n}",
         "domain": "www.eharmony.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 236,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 236
       },
       {
         "id": 34,
-        "url": "https://www.eharmony.com/wplp/wp-content/uploads/sites/5/2026/06/compatible-singles.png",
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{n}/{n}",
         "domain": "www.eharmony.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 237,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 237
       },
       {
         "id": 35,
-        "url": "https://www.eharmony.com/wplp/wp-content/uploads/sites/5/2026/06/safety-1.png",
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{n}/{n}",
         "domain": "www.eharmony.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 241,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 241
       },
       {
         "id": 36,
-        "url": "https://www.eharmony.com/wplp/wp-content/uploads/sites/5/2026/06/success-stories-1.png",
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{n}/{n}",
         "domain": "www.eharmony.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 242,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 242
       },
       {
         "id": 37,
-        "url": "https://www.eharmony.com/static_app/eharmony/_staticversion_/js/iov_combined.js",
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.eharmony.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 302,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 302
       },
       {
         "id": 38,
-        "url": "https://challenges.cloudflare.com/turnstile/v0/api.js?render=",
+        "url": "https://challenges.cloudflare.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "challenges.cloudflare.com",
         "method": "GET",
         "resourceType": "script",
         "status": 302,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 303,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 303
       },
       {
         "id": 40,
-        "url": "https://www.eharmony.com/bd/collection",
+        "url": "https://www.eharmony.com/{seg}/{seg}",
         "domain": "www.eharmony.com",
         "method": "POST",
         "resourceType": "ping",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 340,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 340
       },
       {
         "id": 41,
-        "url": "https://www.eharmony.com/wplp/wp-content/themes/psg-homepage-theme/assets/img/icons/eharmony/icon-google.svg",
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.eharmony.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 340,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 340
       },
       {
         "id": 42,
-        "url": "https://www.eharmony.com/wplp/wp-content/themes/psg-homepage-theme/assets/img/icons/eharmony/icon-apple.svg",
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.eharmony.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 341,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 341
       },
       {
         "id": 43,
-        "url": "https://www.eharmony.com/wplp/wp-content/themes/psg-homepage-theme/assets/dist/fonts/SuisseIntl-Light-WebS.woff2",
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.eharmony.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 341,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 341
       },
       {
         "id": 46,
-        "url": "https://www.eharmony.com/cdn-cgi/challenge-platform/scripts/jsd/main.js",
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.eharmony.com",
         "method": "GET",
         "resourceType": "script",
         "status": 302,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 343,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 343
       },
       {
         "id": 47,
-        "url": "https://challenges.cloudflare.com/turnstile/v0/b/25e6c66701a0/api.js",
+        "url": "https://challenges.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "challenges.cloudflare.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 352,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 352
       },
       {
         "id": 48,
-        "url": "https://www.eharmony.com/fd/general5/static_wdp.js",
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}",
         "domain": "www.eharmony.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 357,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 357
       },
       {
         "id": 50,
-        "url": "https://www.eharmony.com/bd/collection",
+        "url": "https://www.eharmony.com/{seg}/{seg}",
         "domain": "www.eharmony.com",
         "method": "POST",
         "resourceType": "ping",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 358,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 358
       },
       {
         "id": 51,
-        "url": "https://www.eharmony.com/cdn-cgi/challenge-platform/h/b/scripts/jsd/25e6c66701a0/main.js",
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.eharmony.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 403,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 403
       },
       {
         "id": 52,
-        "url": "https://challenges.cloudflare.com/cdn-cgi/challenge-platform/h/b/turnstile/f/ov2/av0/rch/aqfew/0x4AAAAAABDhwrz4YrXNLHOI/light/fbE/new/flexible?lang=",
+        "url": "https://challenges.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?lang=",
         "domain": "challenges.cloudflare.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 418,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 418
       },
       {
         "id": 53,
-        "url": "https://www.eharmony.com/cdn-cgi/challenge-platform/h/b/jsd/oneshot/25e6c66701a0/0.06455242600968059:1782417632:s7K9p_I1LqBzZ8LkW1dunB-zAVLr-l1GMCn2GQq8K0E/a116a9a7ff116af7",
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.eharmony.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 477,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 477
       },
       {
         "id": 54,
-        "url": "https://challenges.cloudflare.com/cdn-cgi/challenge-platform/h/b/cmg/1",
+        "url": "https://challenges.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}/{n}",
         "domain": "challenges.cloudflare.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 493,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 493
       },
       {
         "id": 55,
-        "url": "https://www.eharmony.com/fd/5.12.0/dyn_wdp.js",
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}",
         "domain": "www.eharmony.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 514,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 514
       },
       {
         "id": 56,
-        "url": "https://challenges.cloudflare.com/cdn-cgi/challenge-platform/h/b/flow/ov1/2419159424:1782417629:mKPBtMxwpajbJ_7rYRvdadkPUT3ThqQ8Ua-pUafTGiM/a116a9aa4cea6d29/8BMIUDR8_Okz_56VxFdQfA6arSODcATXJf1y2hII8ug-1782418720-1.2.1.1-F8aEBRjsEDU0Lfd7uA7ZMO5N3P0CJtKGAQdmbDaIB7KVSHSO6DH6o0ry91eaZPf1",
+        "url": "https://challenges.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "challenges.cloudflare.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 710,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 710
       },
       {
         "id": 57,
-        "url": "https://www.eharmony.com/fd/5.12.0/logo.js",
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}",
         "domain": "www.eharmony.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 717,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 717
       },
       {
         "id": 58,
-        "url": "https://challenges.cloudflare.com/cdn-cgi/challenge-platform/h/b/pat/a116a9aa4cea6d29/1782418720664/be78bdb33234e7e30169493a8597b43d5fc59505ae1ec8518600cd8802012fed/oOx32gvJ1cSWvfB",
+        "url": "https://challenges.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "challenges.cloudflare.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 401,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 924,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 924
       },
       {
         "id": 59,
-        "url": "https://challenges.cloudflare.com/cdn-cgi/challenge-platform/h/b/d/a116a9aa4cea6d29/1782418720664/h9WNny0nwmZDZ7V",
+        "url": "https://challenges.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "challenges.cloudflare.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1130,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1130
       },
       {
         "id": 60,
-        "url": "https://challenges.cloudflare.com/cdn-cgi/challenge-platform/h/b/flow/ov1/2419159424:1782417629:mKPBtMxwpajbJ_7rYRvdadkPUT3ThqQ8Ua-pUafTGiM/a116a9aa4cea6d29/8BMIUDR8_Okz_56VxFdQfA6arSODcATXJf1y2hII8ug-1782418720-1.2.1.1-F8aEBRjsEDU0Lfd7uA7ZMO5N3P0CJtKGAQdmbDaIB7KVSHSO6DH6o0ry91eaZPf1",
+        "url": "https://challenges.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "challenges.cloudflare.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1790,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1790
       }
     ],
     "domains": [
@@ -2996,7 +2996,7 @@
     ],
     "cookies": [
       {
-        "name": "_cfuvid",
+        "name": "[redacted]",
         "domain": ".eharmony.com",
         "path": "/",
         "sameSite": "None",
@@ -3016,7 +3016,7 @@
         "thirdParty": false
       },
       {
-        "name": "SESSION",
+        "name": "[redacted]",
         "domain": "www.eharmony.com",
         "path": "/",
         "sameSite": "Lax",
@@ -3026,7 +3026,7 @@
         "thirdParty": false
       },
       {
-        "name": "peg_session",
+        "name": "[redacted]",
         "domain": "www.eharmony.com",
         "path": "/",
         "sameSite": "Lax",
@@ -3036,7 +3036,7 @@
         "thirdParty": false
       },
       {
-        "name": "fp_token_7c6a6574-f011-4c9a-abdd-9894a102ccef",
+        "name": "[redacted:long-token]",
         "domain": "www.eharmony.com",
         "path": "/",
         "sameSite": "None",
@@ -3049,53 +3049,13 @@
     "storage": [
       {
         "area": "localStorage",
-        "key": "fp_f604be51-ccf5-4d26-9cc2-3c44e1fdceb9",
+        "key": "[redacted:long-token]",
         "valueBytes": 44
       },
       {
         "area": "sessionStorage",
-        "key": "crm-lp-uuid",
+        "key": "[redacted]",
         "valueBytes": 36
-      }
-    ],
-    "fingerprintDetections": [
-      {
-        "kind": "webgl-fingerprinting",
-        "heuristic": "webgl-entropy-read-v1",
-        "count": 2,
-        "evidence": {
-          "readApis": [
-            "webgl.readPixels"
-          ],
-          "parameters": [
-            "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
-            "webgl.getParameter.UNMASKED_VENDOR_WEBGL"
-          ],
-          "getParameterCalls": 72,
-          "readPixelsCalls": 2
-        }
-      },
-      {
-        "kind": "canvas-font-fingerprinting",
-        "heuristic": "canvas-font-probing-v1",
-        "count": 1,
-        "evidence": {
-          "measureTextCalls": 258,
-          "maxDistinctFonts": 6,
-          "maxDistinctTextSamples": 43,
-          "maxTextLength": 2
-        }
-      },
-      {
-        "kind": "webrtc-fingerprinting",
-        "heuristic": "webrtc-peerconnection-v1",
-        "count": 1,
-        "evidence": {
-          "constructorCalls": 1,
-          "createDataChannelCalls": 2,
-          "createOfferCalls": 2,
-          "setLocalDescriptionCalls": 2
-        }
       }
     ],
     "fingerprintEvents": [
@@ -3142,6 +3102,46 @@
       {
         "api": "webrtc.RTCPeerConnection",
         "count": 1
+      }
+    ],
+    "fingerprintDetections": [
+      {
+        "kind": "webgl-fingerprinting",
+        "heuristic": "webgl-entropy-read-v1",
+        "count": 2,
+        "evidence": {
+          "readApis": [
+            "webgl.readPixels"
+          ],
+          "parameters": [
+            "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
+            "webgl.getParameter.UNMASKED_VENDOR_WEBGL"
+          ],
+          "getParameterCalls": 72,
+          "readPixelsCalls": 2
+        }
+      },
+      {
+        "kind": "canvas-font-fingerprinting",
+        "heuristic": "canvas-font-probing-v1",
+        "count": 1,
+        "evidence": {
+          "measureTextCalls": 258,
+          "maxDistinctFonts": 6,
+          "maxDistinctTextSamples": 43,
+          "maxTextLength": 2
+        }
+      },
+      {
+        "kind": "webrtc-fingerprinting",
+        "heuristic": "webrtc-peerconnection-v1",
+        "count": 1,
+        "evidence": {
+          "constructorCalls": 1,
+          "createDataChannelCalls": 2,
+          "createOfferCalls": 2,
+          "setLocalDescriptionCalls": 2
+        }
       }
     ],
     "screenshot": null,
@@ -3226,6 +3226,11 @@
         "tracker": null
       },
       {
+        "domain": "{label}.instana.io",
+        "requests": 2,
+        "tracker": null
+      },
+      {
         "domain": "connect.facebook.net",
         "requests": 2,
         "tracker": {
@@ -3234,11 +3239,6 @@
           "category": "social / advertising pixel",
           "confidence": "curated"
         }
-      },
-      {
-        "domain": "eum-eu-west-1.instana.io",
-        "requests": 2,
-        "tracker": null
       },
       {
         "domain": "mpsnare.iesnare.com",
@@ -3352,7 +3352,7 @@
     "addedCookies": [],
     "removedCookies": [
       {
-        "name": "MR",
+        "name": "[redacted]",
         "domain": ".bat.bing.com",
         "thirdParty": true
       },
@@ -3367,12 +3367,12 @@
         "thirdParty": true
       },
       {
-        "name": "lidid",
+        "name": "[redacted]",
         "domain": ".liadm.com",
         "thirdParty": true
       },
       {
-        "name": "io_token_7c6a6574-f011-4c9a-abdd-9894a102ccef",
+        "name": "[redacted:long-token]",
         "domain": "mpsnare.iesnare.com",
         "thirdParty": true
       },
@@ -3387,21 +3387,6 @@
         "thirdParty": false
       },
       {
-        "name": "_lc2_fpi",
-        "domain": ".eharmony.com",
-        "thirdParty": false
-      },
-      {
-        "name": "_lc2_fpi_js",
-        "domain": ".eharmony.com",
-        "thirdParty": false
-      },
-      {
-        "name": "_li_dcdm_c",
-        "domain": ".eharmony.com",
-        "thirdParty": false
-      },
-      {
         "name": "_uetsid",
         "domain": ".eharmony.com",
         "thirdParty": false
@@ -3412,57 +3397,7 @@
         "thirdParty": false
       },
       {
-        "name": "cjcookie",
-        "domain": ".eharmony.com",
-        "thirdParty": false
-      },
-      {
-        "name": "NVI_FC",
-        "domain": ".eharmony.com",
-        "thirdParty": false
-      },
-      {
-        "name": "NVI_LC2",
-        "domain": ".eharmony.com",
-        "thirdParty": false
-      },
-      {
-        "name": "psg_optin",
-        "domain": ".eharmony.com",
-        "thirdParty": false
-      },
-      {
-        "name": "ads_ps",
-        "domain": "tms.eharmony.com",
-        "thirdParty": false
-      },
-      {
-        "name": "ads_pu",
-        "domain": "tms.eharmony.com",
-        "thirdParty": false
-      },
-      {
-        "name": "ads_si",
-        "domain": "tms.eharmony.com",
-        "thirdParty": false
-      },
-      {
-        "name": "lcookie",
-        "domain": "tms.eharmony.com",
-        "thirdParty": false
-      },
-      {
-        "name": "mcookie",
-        "domain": "tms.eharmony.com",
-        "thirdParty": false
-      },
-      {
-        "name": "tms_ps",
-        "domain": "tms.eharmony.com",
-        "thirdParty": false
-      },
-      {
-        "name": "tms_pu",
+        "name": "[redacted]",
         "domain": "tms.eharmony.com",
         "thirdParty": false
       }
@@ -3471,19 +3406,7 @@
     "removedStorageKeys": [
       {
         "area": "localStorage",
-        "key": "_li_duid"
-      },
-      {
-        "area": "localStorage",
-        "key": "io_f604be51-ccf5-4d26-9cc2-3c44e1fdceb9"
-      },
-      {
-        "area": "localStorage",
-        "key": "ucData"
-      },
-      {
-        "area": "localStorage",
-        "key": "ucString"
+        "key": "[redacted]"
       }
     ],
     "addedFingerprinting": [],

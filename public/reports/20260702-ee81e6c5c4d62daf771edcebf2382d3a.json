@@ -49,6 +49,13 @@
       "automation": "playwright-chromium",
       "headless": true,
       "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "classification",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-02T01:00:58.178Z"
+      },
       "trackerCatalog": {
         "source": "Hand-curated service catalog",
         "version": "hand-curated-2026.06",
@@ -57,14 +64,7 @@
         "curatedOverrides": 133,
         "license": "AGPL-3.0-or-later"
       },
-      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
-      "adblock": {
-        "active": true,
-        "source": "Brave default ad-block lists",
-        "lists": 31,
-        "fetchedAt": "2026-07-02T01:00:58.178Z"
-      },
-      "shieldsMode": "classification"
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
     },
     "requests": [
       {
@@ -76,188 +76,188 @@
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 40,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 40
       },
       {
         "id": 2,
-        "url": "https://arxiv.org/static/browse/0.3.4/css/arXiv.css",
+        "url": "https://arxiv.org/static/{seg}/{seg}/{seg}/{seg}",
         "domain": "arxiv.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 109,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 109
       },
       {
         "id": 3,
-        "url": "https://arxiv.org/static/browse/0.3.4/css/browse_search.css",
+        "url": "https://arxiv.org/static/{seg}/{seg}/{seg}/{seg}",
         "domain": "arxiv.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 110,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 110
       },
       {
         "id": 4,
-        "url": "https://arxiv.org/static/base/1.0.1/css/arxiv-header-footer.css",
+        "url": "https://arxiv.org/static/{seg}/{seg}/{seg}/{seg}",
         "domain": "arxiv.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 110,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 110
       },
       {
         "id": 5,
-        "url": "https://arxiv.org/static/browse/0.3.4/js/accordion.js",
+        "url": "https://arxiv.org/static/{seg}/{seg}/{seg}/{seg}",
         "domain": "arxiv.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 112,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 112
       },
       {
         "id": 6,
-        "url": "https://arxiv.org/static/browse/0.3.4/js/optin-modal.js",
+        "url": "https://arxiv.org/static/{seg}/{seg}/{seg}/{seg}",
         "domain": "arxiv.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 112,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 112
       },
       {
         "id": 7,
-        "url": "https://arxiv.org/static/base/1.0.1/images/icons/smileybones-small.svg",
+        "url": "https://arxiv.org/static/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "arxiv.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 112,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 112
       },
       {
         "id": 8,
-        "url": "https://arxiv.org/static/base/1.0.1/images/arxiv-logo-primary-light.svg",
+        "url": "https://arxiv.org/static/{seg}/{seg}/{seg}/{seg}",
         "domain": "arxiv.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 113,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 113
       },
       {
         "id": 9,
-        "url": "https://arxiv.org/static/base/1.0.1/images/funders/simons-foundation.png",
+        "url": "https://arxiv.org/static/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "arxiv.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 131,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 131
       },
       {
         "id": 10,
-        "url": "https://arxiv.org/static/base/1.0.1/images/funders/schmidt-sciences.png",
+        "url": "https://arxiv.org/static/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "arxiv.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 133,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 133
       },
       {
         "id": 11,
-        "url": "https://arxiv.org/static/base/1.0.1/js/arxiv-header.js",
+        "url": "https://arxiv.org/static/{seg}/{seg}/{seg}/{seg}",
         "domain": "arxiv.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 138,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 138
       },
       {
         "id": 12,
-        "url": "https://arxiv.org/static/browse/0.3.4/css/arXiv-print.css",
+        "url": "https://arxiv.org/static/{seg}/{seg}/{seg}/{seg}",
         "domain": "arxiv.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 138,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 138
       },
       {
         "id": 13,
-        "url": "https://arxiv.org/static/base/1.0.1/fonts/IBMPlexSans-Regular.woff2",
+        "url": "https://arxiv.org/static/{seg}/{seg}/{seg}/{seg}",
         "domain": "arxiv.org",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 165,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 165
       },
       {
         "id": 14,
-        "url": "https://arxiv.org/static/base/1.0.1/fonts/IBMPlexSans-Medium.woff2",
+        "url": "https://arxiv.org/static/{seg}/{seg}/{seg}/{seg}",
         "domain": "arxiv.org",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 166,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 166
       },
       {
         "id": 15,
-        "url": "https://arxiv.org/static/base/1.0.1/fonts/IBMPlexSans-SemiBold.woff2",
+        "url": "https://arxiv.org/static/{seg}/{seg}/{seg}/{seg}",
         "domain": "arxiv.org",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 166,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 166
       },
       {
         "id": 16,
-        "url": "https://arxiv.org/institutional_banner",
+        "url": "https://arxiv.org/{seg}",
         "domain": "arxiv.org",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 172,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 172
       }
     ],
     "domains": [
@@ -284,25 +284,25 @@
     "storage": [
       {
         "area": "localStorage",
-        "key": "member_expires",
+        "key": "[redacted]",
         "valueBytes": 24
       }
     ],
-    "fingerprintDetections": [],
     "fingerprintEvents": [],
-    "screenshot": null,
-    "warnings": [
-      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
-      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
-      "Read the site's privacy policy (https://info.arxiv.org/help/policies/privacy_policy.html) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
-    ],
+    "fingerprintDetections": [],
     "privacyPolicy": {
-      "url": "https://info.arxiv.org/help/policies/privacy_policy.html",
+      "url": "https://info.arxiv.org/help/policies/{seg}",
       "claims": [],
       "mentionedEntities": [],
       "unmentionedEntities": [],
       "policyTextLength": 24610
-    }
+    },
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+      "Read the site's privacy policy (https://info.arxiv.org/help/policies/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ]
   },
   "variant": {
     "ok": true,
@@ -342,6 +342,13 @@
       "automation": "playwright-chromium",
       "headless": true,
       "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "block-simulation",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-02T01:00:58.178Z"
+      },
       "trackerCatalog": {
         "source": "Hand-curated service catalog",
         "version": "hand-curated-2026.06",
@@ -350,14 +357,7 @@
         "curatedOverrides": 133,
         "license": "AGPL-3.0-or-later"
       },
-      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
-      "adblock": {
-        "active": true,
-        "source": "Brave default ad-block lists",
-        "lists": 31,
-        "fetchedAt": "2026-07-02T01:00:58.178Z"
-      },
-      "shieldsMode": "block-simulation"
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
     },
     "requests": [
       {
@@ -369,188 +369,188 @@
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 48,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 48
       },
       {
         "id": 2,
-        "url": "https://arxiv.org/static/browse/0.3.4/css/arXiv.css",
+        "url": "https://arxiv.org/static/{seg}/{seg}/{seg}/{seg}",
         "domain": "arxiv.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 200,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 200
       },
       {
         "id": 3,
-        "url": "https://arxiv.org/static/browse/0.3.4/css/browse_search.css",
+        "url": "https://arxiv.org/static/{seg}/{seg}/{seg}/{seg}",
         "domain": "arxiv.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 201,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 201
       },
       {
         "id": 4,
-        "url": "https://arxiv.org/static/base/1.0.1/css/arxiv-header-footer.css",
+        "url": "https://arxiv.org/static/{seg}/{seg}/{seg}/{seg}",
         "domain": "arxiv.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 202,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 202
       },
       {
         "id": 5,
-        "url": "https://arxiv.org/static/browse/0.3.4/js/accordion.js",
+        "url": "https://arxiv.org/static/{seg}/{seg}/{seg}/{seg}",
         "domain": "arxiv.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 202,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 202
       },
       {
         "id": 6,
-        "url": "https://arxiv.org/static/browse/0.3.4/js/optin-modal.js",
+        "url": "https://arxiv.org/static/{seg}/{seg}/{seg}/{seg}",
         "domain": "arxiv.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 203,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 203
       },
       {
         "id": 7,
-        "url": "https://arxiv.org/static/base/1.0.1/images/icons/smileybones-small.svg",
+        "url": "https://arxiv.org/static/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "arxiv.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 203,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 203
       },
       {
         "id": 8,
-        "url": "https://arxiv.org/static/base/1.0.1/images/arxiv-logo-primary-light.svg",
+        "url": "https://arxiv.org/static/{seg}/{seg}/{seg}/{seg}",
         "domain": "arxiv.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 203,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 203
       },
       {
         "id": 9,
-        "url": "https://arxiv.org/static/base/1.0.1/images/funders/simons-foundation.png",
+        "url": "https://arxiv.org/static/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "arxiv.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 221,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 221
       },
       {
         "id": 10,
-        "url": "https://arxiv.org/static/base/1.0.1/images/funders/schmidt-sciences.png",
+        "url": "https://arxiv.org/static/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "arxiv.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 222,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 222
       },
       {
         "id": 11,
-        "url": "https://arxiv.org/static/base/1.0.1/js/arxiv-header.js",
+        "url": "https://arxiv.org/static/{seg}/{seg}/{seg}/{seg}",
         "domain": "arxiv.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 226,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 226
       },
       {
         "id": 12,
-        "url": "https://arxiv.org/static/browse/0.3.4/css/arXiv-print.css",
+        "url": "https://arxiv.org/static/{seg}/{seg}/{seg}/{seg}",
         "domain": "arxiv.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 226,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 226
       },
       {
         "id": 13,
-        "url": "https://arxiv.org/static/base/1.0.1/fonts/IBMPlexSans-Regular.woff2",
+        "url": "https://arxiv.org/static/{seg}/{seg}/{seg}/{seg}",
         "domain": "arxiv.org",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 253,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 253
       },
       {
         "id": 14,
-        "url": "https://arxiv.org/static/base/1.0.1/fonts/IBMPlexSans-Medium.woff2",
+        "url": "https://arxiv.org/static/{seg}/{seg}/{seg}/{seg}",
         "domain": "arxiv.org",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 254,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 254
       },
       {
         "id": 15,
-        "url": "https://arxiv.org/static/base/1.0.1/fonts/IBMPlexSans-SemiBold.woff2",
+        "url": "https://arxiv.org/static/{seg}/{seg}/{seg}/{seg}",
         "domain": "arxiv.org",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 255,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 255
       },
       {
         "id": 16,
-        "url": "https://arxiv.org/institutional_banner",
+        "url": "https://arxiv.org/{seg}",
         "domain": "arxiv.org",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 260,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 260
       }
     ],
     "domains": [
@@ -577,26 +577,26 @@
     "storage": [
       {
         "area": "localStorage",
-        "key": "member_expires",
+        "key": "[redacted]",
         "valueBytes": 24
       }
     ],
-    "fingerprintDetections": [],
     "fingerprintEvents": [],
+    "fingerprintDetections": [],
+    "privacyPolicy": {
+      "url": "https://info.arxiv.org/help/policies/{seg}",
+      "claims": [],
+      "mentionedEntities": [],
+      "unmentionedEntities": [],
+      "policyTextLength": 24610
+    },
     "screenshot": null,
     "warnings": [
       "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
       "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
       "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
-      "Read the site's privacy policy (https://info.arxiv.org/help/policies/privacy_policy.html) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
-    ],
-    "privacyPolicy": {
-      "url": "https://info.arxiv.org/help/policies/privacy_policy.html",
-      "claims": [],
-      "mentionedEntities": [],
-      "unmentionedEntities": [],
-      "policyTextLength": 24610
-    }
+      "Read the site's privacy policy (https://info.arxiv.org/help/policies/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ]
   },
   "diff": {
     "totalRequests": {
@@ -661,11 +661,11 @@
     "Brave-list blocking comparison runs should be collected under matched crawl conditions, and the blocking run is a simulation with Brave's engine and default lists in this scanner's browser, not a live Brave visit. Differences can still reflect timing, experiments, cache state, consent state, or bot detection.",
     "No blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
     "No blocking: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
-    "No blocking: Read the site's privacy policy (https://info.arxiv.org/help/policies/privacy_policy.html) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
+    "No blocking: Read the site's privacy policy (https://info.arxiv.org/help/policies/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
     "Brave-list blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
     "Brave-list blocking: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
     "Brave-list blocking: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
-    "Brave-list blocking: Read the site's privacy policy (https://info.arxiv.org/help/policies/privacy_policy.html) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    "Brave-list blocking: Read the site's privacy policy (https://info.arxiv.org/help/policies/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
   ],
   "share": {
     "id": "20260702-ee81e6c5c4d62daf771edcebf2382d3a",

@@ -32,7 +32,7 @@
     },
     "conditions": {
       "requestedUrl": "https://robinhood.com/",
-      "finalUrl": "https://robinhood.com/us/en/",
+      "finalUrl": "https://robinhood.com/us/en",
       "scannedAt": "2026-07-06T09:17:36.536Z",
       "chromiumVersion": "149.0.7827.55",
       "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
@@ -49,6 +49,13 @@
       "automation": "playwright-chromium",
       "headless": true,
       "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "classification",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-02T01:00:58.178Z"
+      },
       "trackerCatalog": {
         "source": "Hand-curated service catalog",
         "version": "hand-curated-2026.06",
@@ -57,14 +64,7 @@
         "curatedOverrides": 133,
         "license": "AGPL-3.0-or-later"
       },
-      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
-      "adblock": {
-        "active": true,
-        "source": "Brave default ad-block lists",
-        "lists": 31,
-        "fetchedAt": "2026-07-02T01:00:58.178Z"
-      },
-      "shieldsMode": "classification"
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
     },
     "requests": [
       {
@@ -76,420 +76,420 @@
         "status": 302,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 45,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 45
       },
       {
         "id": 2,
-        "url": "https://robinhood.com/us/en/",
+        "url": "https://robinhood.com/us/en",
         "domain": "robinhood.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 86,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 86
       },
       {
         "id": 3,
-        "url": "https://cdn.robinhood.com/assets/generated_assets/brand/_next/static/fonts/CapsuleSansText-Bold__0ef7c688bd1385a7df6941a13f3b4e980cd2f90f01b9268c9bb3e95394eec486.woff2",
+        "url": "https://cdn.robinhood.com/{seg}/{seg}/{seg}/{seg}/static/{seg}",
         "domain": "cdn.robinhood.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 122,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 122
       },
       {
         "id": 4,
-        "url": "https://cdn.robinhood.com/assets/generated_assets/brand/_next/static/fonts/CapsuleSansText-Book__6573ba5ca76b29d5ffe83d94b27a4a8a09c8d5c8d5f2ca0719aaeef6856042d8.woff2",
+        "url": "https://cdn.robinhood.com/{seg}/{seg}/{seg}/{seg}/static/{seg}",
         "domain": "cdn.robinhood.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 123,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 123
       },
       {
         "id": 5,
-        "url": "https://cdn.robinhood.com/assets/generated_assets/brand/_next/static/fonts/CapsuleSansText-Medium__d6e0f9a85b076741a771ec8574c1278fb65fe34160e73bd8beffa2f927831302.woff2",
+        "url": "https://cdn.robinhood.com/{seg}/{seg}/{seg}/{seg}/static/{seg}",
         "domain": "cdn.robinhood.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 124,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 124
       },
       {
         "id": 6,
-        "url": "https://cdn.robinhood.com/assets/generated_assets/brand/_next/static/fonts/MartinaPlantijn-Regular__e02ea76d18e952604fbe5636471d4c7e48f8db1c01fa15ee0e0170347f966405.woff2",
+        "url": "https://cdn.robinhood.com/{seg}/{seg}/{seg}/{seg}/static/{seg}",
         "domain": "cdn.robinhood.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 124,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 124
       },
       {
         "id": 7,
-        "url": "https://cdn.robinhood.com/assets/generated_assets/brand/_next/static/chunks/webpack-dd35c92a214231f5848a.js",
+        "url": "https://cdn.robinhood.com/{seg}/{seg}/{seg}/{seg}/static/{seg}",
         "domain": "cdn.robinhood.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 124,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 124
       },
       {
         "id": 8,
-        "url": "https://cdn.robinhood.com/assets/generated_assets/brand/_next/static/chunks/main-503baea32b5c92429e9a.js",
+        "url": "https://cdn.robinhood.com/{seg}/{seg}/{seg}/{seg}/static/{seg}",
         "domain": "cdn.robinhood.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 124,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 124
       },
       {
         "id": 9,
-        "url": "https://cdn.robinhood.com/assets/generated_assets/brand/_next/static/chunks/pages/_app-f798860a77ef95f0286c.js",
+        "url": "https://cdn.robinhood.com/{seg}/{seg}/{seg}/{seg}/static/{seg}",
         "domain": "cdn.robinhood.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 124,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 124
       },
       {
         "id": 10,
-        "url": "https://cdn.robinhood.com/assets/generated_assets/brand/_next/static/chunks/99726-90407a2475e513d37f33.js",
+        "url": "https://cdn.robinhood.com/{seg}/{seg}/{seg}/{seg}/static/{seg}",
         "domain": "cdn.robinhood.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 125,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 125
       },
       {
         "id": 11,
-        "url": "https://cdn.robinhood.com/assets/generated_assets/brand/_next/static/chunks/17694-4e57fe209cb49aea9f7c.js",
+        "url": "https://cdn.robinhood.com/{seg}/{seg}/{seg}/{seg}/static/{seg}",
         "domain": "cdn.robinhood.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 125,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 125
       },
       {
         "id": 12,
-        "url": "https://cdn.robinhood.com/assets/generated_assets/brand/_next/static/chunks/96691-3b1134f97b6296f8a98e.js",
+        "url": "https://cdn.robinhood.com/{seg}/{seg}/{seg}/{seg}/static/{seg}",
         "domain": "cdn.robinhood.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 125,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 125
       },
       {
         "id": 13,
-        "url": "https://cdn.robinhood.com/assets/generated_assets/brand/_next/static/chunks/76306-0467d96628f9ab5dcfaa.js",
+        "url": "https://cdn.robinhood.com/{seg}/{seg}/{seg}/{seg}/static/{seg}",
         "domain": "cdn.robinhood.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 125,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 125
       },
       {
         "id": 14,
-        "url": "https://cdn.robinhood.com/assets/generated_assets/brand/_next/static/chunks/18513-9e0899f8da428d770987.js",
+        "url": "https://cdn.robinhood.com/{seg}/{seg}/{seg}/{seg}/static/{seg}",
         "domain": "cdn.robinhood.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 125,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 125
       },
       {
         "id": 15,
-        "url": "https://cdn.robinhood.com/assets/generated_assets/brand/_next/static/chunks/pages/us/en-c3cc3ce02ddc695b3164.js",
+        "url": "https://cdn.robinhood.com/{seg}/{seg}/{seg}/{seg}/static/{seg}",
         "domain": "cdn.robinhood.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 125,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 125
       },
       {
         "id": 16,
-        "url": "https://images.ctfassets.net/ilblxxee70tt/G41lWDVjjkTs1Eg0Br1G6/59be1c349208bc558711f1ea9225fef1/RH26_Events_Crypto_HPTO_Desktop_1920x1350_v02_compressed.jpg",
+        "url": "https://images.ctfassets.net/{seg}/{seg}/{seg}/{seg}",
         "domain": "images.ctfassets.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 125,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 125
       },
       {
         "id": 17,
-        "url": "https://images.ctfassets.net/ilblxxee70tt/2oqBfvrTb3ETdD5fVvXoUt/17a282dfeb7c34500d8a6b8f692c8cb0/Agentic_Trading_module_Desktop.png",
+        "url": "https://images.ctfassets.net/{seg}/{seg}/{seg}/{seg}",
         "domain": "images.ctfassets.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 125,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 125
       },
       {
         "id": 18,
-        "url": "https://images.ctfassets.net/ilblxxee70tt/CHELX2PRar2IE9vYK1fFD/96a2105cf51f02fc4981a282abd68087/Agentic_Card_module_desktop.png",
+        "url": "https://images.ctfassets.net/{seg}/{seg}/{seg}/{seg}",
         "domain": "images.ctfassets.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 128,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 128
       },
       {
         "id": 19,
-        "url": "https://images.ctfassets.net/ilblxxee70tt/4AMLNM2FP37FHghha7757l/c29e98a9b5a31535a7333855183dca7b/wide_homepage_investing_4k_3.jpeg",
+        "url": "https://images.ctfassets.net/{seg}/{seg}/{seg}/{seg}",
         "domain": "images.ctfassets.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 129,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 129
       },
       {
         "id": 20,
-        "url": "https://images.ctfassets.net/ilblxxee70tt/2zqFBs1Dk1ZFLa68vgaCUM/06b9013b2eb0ec31bcd3c4bd97f30997/RH26_CryptoEarn_Hero_Header_WideDesktop__1_.jpeg",
+        "url": "https://images.ctfassets.net/{seg}/{seg}/{seg}/{seg}",
         "domain": "images.ctfassets.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 129,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 129
       },
       {
         "id": 21,
-        "url": "https://cdn.robinhood.com/assets/generated_assets/webapp/vendor/user_centrics/3.90.0/bundle.js",
+        "url": "https://cdn.robinhood.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "cdn.robinhood.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 129,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 129
       },
       {
         "id": 22,
-        "url": "https://images.ctfassets.net/ilblxxee70tt/54Guv4y5evT0ZpKTaC09c1/391b135f648b2582deff63a48ef63c10/RH25_Strategiespromo_wide_homepage_hero_4k.jpeg",
+        "url": "https://images.ctfassets.net/{seg}/{seg}/{seg}/{seg}",
         "domain": "images.ctfassets.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 129,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 129
       },
       {
         "id": 23,
-        "url": "https://images.ctfassets.net/ilblxxee70tt/4eSlnvgaWAu2jaCVAyRcrY/602aa63fb17d4448ef651bd2944e963a/illo_secure.svg",
+        "url": "https://images.ctfassets.net/{seg}/{seg}/{seg}/{seg}",
         "domain": "images.ctfassets.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 130,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 130
       },
       {
         "id": 24,
-        "url": "https://images.ctfassets.net/ilblxxee70tt/DwoUYJLid0EWhDOJPjFYN/673186170fb52deebdfaeb3691a28cac/illo_protect.svg",
+        "url": "https://images.ctfassets.net/{seg}/{seg}/{seg}/{seg}",
         "domain": "images.ctfassets.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 130,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 130
       },
       {
         "id": 25,
-        "url": "https://images.ctfassets.net/ilblxxee70tt/2KMkk3plAKjRG2fPBI69a1/18a5f48bbf278bc91008f6904096b559/illo_multi-factor.svg",
+        "url": "https://images.ctfassets.net/{seg}/{seg}/{seg}/{seg}",
         "domain": "images.ctfassets.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 130,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 130
       },
       {
         "id": 26,
-        "url": "https://images.ctfassets.net/ilblxxee70tt/4u2J3HEANe8rXfdytWGpAC/72bd780bca181f59b40dcf8c51f0e996/illo_247.svg",
+        "url": "https://images.ctfassets.net/{seg}/{seg}/{seg}/{seg}",
         "domain": "images.ctfassets.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 130,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 130
       },
       {
         "id": 27,
-        "url": "https://images.ctfassets.net/ilblxxee70tt/PKdx5QPF2hxl9vcbxm55W/b1942354f732fbb69a019c53c73bf46b/homepage_learn_phone_2x.png",
+        "url": "https://images.ctfassets.net/{seg}/{seg}/{seg}/{seg}",
         "domain": "images.ctfassets.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 131,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 131
       },
       {
         "id": 28,
-        "url": "https://images.ctfassets.net/ilblxxee70tt/6WBms0BL77uZhazKdaye91/981a21240eef31028f4e760ae6fa9886/Investors_Hero.jpg",
+        "url": "https://images.ctfassets.net/{seg}/{seg}/{seg}/{seg}",
         "domain": "images.ctfassets.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 131,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 131
       },
       {
         "id": 29,
-        "url": "https://cdn.robinhood.com/assets/generated_assets/brand/_next/static/images/privacyoptions__86f2eb97cc1f3909c12e4512de9e267215d94ac5aaee9393d0f007f18c34e8ba.svg",
+        "url": "https://cdn.robinhood.com/{seg}/{seg}/{seg}/{seg}/static/{seg}",
         "domain": "cdn.robinhood.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 131,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 131
       },
       {
         "id": 30,
-        "url": "https://cdn.robinhood.com/assets/generated_assets/brand/_next/static/b3cd7301a85be61019cebba2c3707d88e117148a/_buildManifest.js",
+        "url": "https://cdn.robinhood.com/{seg}/{seg}/{seg}/{seg}/static/{seg}",
         "domain": "cdn.robinhood.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 131,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 131
       },
       {
         "id": 31,
-        "url": "https://cdn.robinhood.com/assets/generated_assets/brand/_next/static/b3cd7301a85be61019cebba2c3707d88e117148a/_ssgManifest.js",
+        "url": "https://cdn.robinhood.com/{seg}/{seg}/{seg}/{seg}/static/{seg}",
         "domain": "cdn.robinhood.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 131,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 131
       },
       {
         "id": 32,
-        "url": "https://videos.ctfassets.net/ilblxxee70tt/25vWAcUdoykwWYKSTcuc4t/5f3260376bf9e2f69f4e0bdfe2d68086/RH26_Events_Crypto_HPTO_Wide_2560x1080_v03.mp4",
+        "url": "https://videos.ctfassets.net/{seg}/{seg}/{seg}/{seg}",
         "domain": "videos.ctfassets.net",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 136,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 136
       },
       {
         "id": 33,
-        "url": "https://videos.ctfassets.net/ilblxxee70tt/3r1UZhjsj4AexVmCH9hrfH/1e7b93b16249b7ef73025a31d4cfae38/Dotcom_NewGeneration_Animation_WEB.webm",
+        "url": "https://videos.ctfassets.net/{seg}/{seg}/{seg}/{seg}",
         "domain": "videos.ctfassets.net",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 136,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 136
       },
       {
         "id": 34,
-        "url": "https://cdn.robinhood.com/assets/generated_assets/brand/_next/static/fonts/RHPhonic-Regular__66da8fcfda05a8b53afe5c8697bdb1b2fd883e748a29f65a628d7a98aad40982.woff2",
+        "url": "https://cdn.robinhood.com/{seg}/{seg}/{seg}/{seg}/static/{seg}",
         "domain": "cdn.robinhood.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 143,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 143
       },
       {
         "id": 35,
-        "url": "https://cdn.robinhood.com/assets/generated_assets/brand/_next/static/fonts/RHPhonic-Bold__7f2cc2d831ae8cb196f347fee306ddd1ce4eb72b3dd76a05e28720a23f5a4ee3.woff2",
+        "url": "https://cdn.robinhood.com/{seg}/{seg}/{seg}/{seg}/static/{seg}",
         "domain": "cdn.robinhood.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 143,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 143
       },
       {
         "id": 36,
-        "url": "https://o62437.ingest.sentry.io/api/1336410/security/?sentry_key=",
+        "url": "https://o62437.ingest.sentry.io/api/{n}/{seg}?%5Bredacted%5D=",
         "domain": "o62437.ingest.sentry.io",
         "method": "POST",
         "resourceType": "other",
@@ -501,72 +501,72 @@
           "category": "error monitoring",
           "confidence": "curated"
         },
-        "startedAtMs": 600,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 600
       },
       {
         "id": 37,
-        "url": "https://api.usercentrics.eu/ruleSet/M6Jkl5BTgFMHMJ.json",
+        "url": "https://api.usercentrics.eu/{seg}/{seg}",
         "domain": "api.usercentrics.eu",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 600,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 600
       },
       {
         "id": 38,
-        "url": "https://api.usercentrics.eu/settings/XpXabaxP5dY-KV/latest/languages.json",
+        "url": "https://api.usercentrics.eu/settings/{seg}/{seg}/{seg}",
         "domain": "api.usercentrics.eu",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 631,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 631
       },
       {
         "id": 39,
-        "url": "https://cdn.robinhood.com/assets/generated_assets/brand/_next/static/chunks/78726.2c12e9df03d9c3c9d8e2.js",
+        "url": "https://cdn.robinhood.com/{seg}/{seg}/{seg}/{seg}/static/{seg}",
         "domain": "cdn.robinhood.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 894,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 894
       },
       {
         "id": 40,
-        "url": "https://cdn.robinhood.com/assets/generated_assets/brand/_next/static/chunks/46006.0affedf2dae556e957d7.js",
+        "url": "https://cdn.robinhood.com/{seg}/{seg}/{seg}/{seg}/static/{seg}",
         "domain": "cdn.robinhood.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 894,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 894
       },
       {
         "id": 41,
-        "url": "https://cdn.robinhood.com/assets/generated_assets/brand/_next/static/chunks/5597.1e9f70bc42768b024355.js",
+        "url": "https://cdn.robinhood.com/{seg}/{seg}/{seg}/{seg}/static/{seg}",
         "domain": "cdn.robinhood.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 895,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 895
       },
       {
         "id": 42,
-        "url": "https://o62437.ingest.sentry.io/api/1336410/security/?sentry_key=",
+        "url": "https://o62437.ingest.sentry.io/api/{n}/{seg}?%5Bredacted%5D=",
         "domain": "o62437.ingest.sentry.io",
         "method": "POST",
         "resourceType": "other",
@@ -578,84 +578,84 @@
           "category": "error monitoring",
           "confidence": "curated"
         },
-        "startedAtMs": 895,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 895
       },
       {
         "id": 43,
-        "url": "https://bonfire.robinhood.com/region",
+        "url": "https://bonfire.robinhood.com/{seg}",
         "domain": "bonfire.robinhood.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 897,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 897
       },
       {
         "id": 44,
-        "url": "https://experience.ninetailed.co/v2/organizations/4338303b-9c15-405b-9b37-070126d0e61d/environments/main/profiles?locale=",
+        "url": "https://experience.ninetailed.co/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?locale=",
         "domain": "experience.ninetailed.co",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1096,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1096
       },
       {
         "id": 45,
-        "url": "https://robinhood.com/_next/data/b3cd7301a85be61019cebba2c3707d88e117148a/us/en/gold.json",
+        "url": "https://robinhood.com/{seg}/{seg}/{seg}/us/en/{seg}",
         "domain": "robinhood.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1110,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1110
       },
       {
         "id": 46,
-        "url": "https://cdn.robinhood.com/assets/generated_assets/brand/_next/static/chunks/pages/us/en/gold-be8790f358cc38ffc1b7.js",
+        "url": "https://cdn.robinhood.com/{seg}/{seg}/{seg}/{seg}/static/{seg}",
         "domain": "cdn.robinhood.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1112,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1112
       },
       {
         "id": 47,
-        "url": "https://robinhood.com/_next/data/b3cd7301a85be61019cebba2c3707d88e117148a/us/en/legend.json",
+        "url": "https://robinhood.com/{seg}/{seg}/{seg}/us/en/{seg}",
         "domain": "robinhood.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1112,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1112
       },
       {
         "id": 48,
-        "url": "https://cdn.robinhood.com/assets/generated_assets/brand/_next/static/chunks/pages/us/en/legend-26be5b6d50fdd8a9b31f.js",
+        "url": "https://cdn.robinhood.com/{seg}/{seg}/{seg}/{seg}/static/{seg}",
         "domain": "cdn.robinhood.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1113,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1113
       },
       {
         "id": 49,
-        "url": "https://sentry.io/api/1336410/envelope/?sentry_key=&sentry_version=",
+        "url": "https://sentry.io/api/{n}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "sentry.io",
         "method": "POST",
         "resourceType": "fetch",
@@ -667,80 +667,80 @@
           "category": "error monitoring",
           "confidence": "curated"
         },
-        "startedAtMs": 1122,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1122
       },
       {
         "id": 50,
-        "url": "https://api.usercentrics.eu/settings/XpXabaxP5dY-KV/latest/en.json",
+        "url": "https://api.usercentrics.eu/settings/{seg}/{seg}/{seg}",
         "domain": "api.usercentrics.eu",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1136,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1136
       },
       {
         "id": 51,
-        "url": "https://app.usercentrics.eu/browser-sdk/4.59.0/cross-domain-bridge.html",
+        "url": "https://app.usercentrics.eu/{seg}/{seg}/{seg}",
         "domain": "app.usercentrics.eu",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1149,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1149
       },
       {
         "id": 52,
-        "url": "https://app.usercentrics.eu/session/1px.png?settingsId=",
+        "url": "https://app.usercentrics.eu/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "app.usercentrics.eu",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1188,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1188
       },
       {
         "id": 53,
-        "url": "https://api.usercentrics.eu/translations/translations-en.json",
+        "url": "https://api.usercentrics.eu/{seg}/{seg}",
         "domain": "api.usercentrics.eu",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1190,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1190
       },
       {
         "id": 54,
-        "url": "https://aggregator.service.usercentrics.eu/aggregate/en?templates=",
+        "url": "https://aggregator.service.usercentrics.eu/{seg}/en?%5Bredacted%5D=",
         "domain": "aggregator.service.usercentrics.eu",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1201,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1201
       },
       {
         "id": 55,
-        "url": "https://consent-api.service.consent.usercentrics.eu/consent/uw/3",
+        "url": "https://consent-api.service.consent.usercentrics.eu/{seg}/{seg}/{n}",
         "domain": "consent-api.service.consent.usercentrics.eu",
         "method": "POST",
         "resourceType": "fetch",
         "status": 201,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1250,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1250
       }
     ],
     "domains": [
@@ -918,7 +918,7 @@
     ],
     "cookies": [
       {
-        "name": "device_id",
+        "name": "[redacted]",
         "domain": ".robinhood.com",
         "path": "/",
         "sameSite": "Lax",
@@ -928,7 +928,7 @@
         "thirdParty": false
       },
       {
-        "name": "session_id",
+        "name": "[redacted]",
         "domain": ".robinhood.com",
         "path": "/",
         "sameSite": "Lax",
@@ -941,45 +941,45 @@
     "storage": [
       {
         "area": "localStorage",
-        "key": "uc_user_interaction",
+        "key": "[redacted]",
         "valueBytes": 4
       },
       {
         "area": "localStorage",
-        "key": "uc_gcm",
+        "key": "[redacted]",
         "valueBytes": 125
       },
       {
         "area": "localStorage",
-        "key": "uc_settings",
+        "key": "[redacted]",
         "valueBytes": 9260
       },
       {
         "area": "localStorage",
-        "key": "uc_interaction_type",
+        "key": "[redacted]",
         "valueBytes": 3
       },
       {
         "area": "sessionStorage",
-        "key": "uc_user_country",
+        "key": "[redacted]",
         "valueBytes": 64
       }
     ],
-    "fingerprintDetections": [],
     "fingerprintEvents": [],
-    "screenshot": null,
-    "warnings": [
-      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
-      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
-      "Read the site's privacy policy (https://robinhood.com/us/en/support/articles/privacy-policy/) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
-    ],
+    "fingerprintDetections": [],
     "privacyPolicy": {
-      "url": "https://robinhood.com/us/en/support/articles/privacy-policy/",
+      "url": "https://robinhood.com/us/en/support/articles/privacy-policy",
       "claims": [],
       "mentionedEntities": [],
       "unmentionedEntities": [],
       "policyTextLength": 41804
-    }
+    },
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+      "Read the site's privacy policy (https://robinhood.com/us/en/support/articles/privacy-policy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ]
   },
   "variant": {
     "ok": true,
@@ -1002,7 +1002,7 @@
     },
     "conditions": {
       "requestedUrl": "https://robinhood.com/",
-      "finalUrl": "https://robinhood.com/us/en/",
+      "finalUrl": "https://robinhood.com/us/en",
       "scannedAt": "2026-07-06T09:17:39.770Z",
       "chromiumVersion": "149.0.7827.55",
       "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
@@ -1019,6 +1019,13 @@
       "automation": "playwright-chromium",
       "headless": true,
       "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "block-simulation",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-02T01:00:58.178Z"
+      },
       "trackerCatalog": {
         "source": "Hand-curated service catalog",
         "version": "hand-curated-2026.06",
@@ -1027,14 +1034,7 @@
         "curatedOverrides": 133,
         "license": "AGPL-3.0-or-later"
       },
-      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
-      "adblock": {
-        "active": true,
-        "source": "Brave default ad-block lists",
-        "lists": 31,
-        "fetchedAt": "2026-07-02T01:00:58.178Z"
-      },
-      "shieldsMode": "block-simulation"
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
     },
     "requests": [
       {
@@ -1046,524 +1046,524 @@
         "status": 302,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 62,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 62
       },
       {
         "id": 2,
-        "url": "https://robinhood.com/us/en/",
+        "url": "https://robinhood.com/us/en",
         "domain": "robinhood.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 224,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 224
       },
       {
         "id": 3,
-        "url": "https://cdn.robinhood.com/assets/generated_assets/brand/_next/static/fonts/CapsuleSansText-Bold__0ef7c688bd1385a7df6941a13f3b4e980cd2f90f01b9268c9bb3e95394eec486.woff2",
+        "url": "https://cdn.robinhood.com/{seg}/{seg}/{seg}/{seg}/static/{seg}",
         "domain": "cdn.robinhood.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 250,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 250
       },
       {
         "id": 4,
-        "url": "https://cdn.robinhood.com/assets/generated_assets/brand/_next/static/fonts/CapsuleSansText-Book__6573ba5ca76b29d5ffe83d94b27a4a8a09c8d5c8d5f2ca0719aaeef6856042d8.woff2",
+        "url": "https://cdn.robinhood.com/{seg}/{seg}/{seg}/{seg}/static/{seg}",
         "domain": "cdn.robinhood.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 250,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 250
       },
       {
         "id": 5,
-        "url": "https://cdn.robinhood.com/assets/generated_assets/brand/_next/static/fonts/CapsuleSansText-Medium__d6e0f9a85b076741a771ec8574c1278fb65fe34160e73bd8beffa2f927831302.woff2",
+        "url": "https://cdn.robinhood.com/{seg}/{seg}/{seg}/{seg}/static/{seg}",
         "domain": "cdn.robinhood.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 250,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 250
       },
       {
         "id": 6,
-        "url": "https://cdn.robinhood.com/assets/generated_assets/brand/_next/static/fonts/MartinaPlantijn-Regular__e02ea76d18e952604fbe5636471d4c7e48f8db1c01fa15ee0e0170347f966405.woff2",
+        "url": "https://cdn.robinhood.com/{seg}/{seg}/{seg}/{seg}/static/{seg}",
         "domain": "cdn.robinhood.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 251,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 251
       },
       {
         "id": 7,
-        "url": "https://cdn.robinhood.com/assets/generated_assets/brand/_next/static/chunks/webpack-dd35c92a214231f5848a.js",
+        "url": "https://cdn.robinhood.com/{seg}/{seg}/{seg}/{seg}/static/{seg}",
         "domain": "cdn.robinhood.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 252,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 252
       },
       {
         "id": 8,
-        "url": "https://cdn.robinhood.com/assets/generated_assets/brand/_next/static/chunks/main-503baea32b5c92429e9a.js",
+        "url": "https://cdn.robinhood.com/{seg}/{seg}/{seg}/{seg}/static/{seg}",
         "domain": "cdn.robinhood.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 252,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 252
       },
       {
         "id": 9,
-        "url": "https://cdn.robinhood.com/assets/generated_assets/brand/_next/static/chunks/pages/_app-f798860a77ef95f0286c.js",
+        "url": "https://cdn.robinhood.com/{seg}/{seg}/{seg}/{seg}/static/{seg}",
         "domain": "cdn.robinhood.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 252,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 252
       },
       {
         "id": 10,
-        "url": "https://cdn.robinhood.com/assets/generated_assets/brand/_next/static/chunks/99726-90407a2475e513d37f33.js",
+        "url": "https://cdn.robinhood.com/{seg}/{seg}/{seg}/{seg}/static/{seg}",
         "domain": "cdn.robinhood.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 252,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 252
       },
       {
         "id": 11,
-        "url": "https://cdn.robinhood.com/assets/generated_assets/brand/_next/static/chunks/17694-4e57fe209cb49aea9f7c.js",
+        "url": "https://cdn.robinhood.com/{seg}/{seg}/{seg}/{seg}/static/{seg}",
         "domain": "cdn.robinhood.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 252,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 252
       },
       {
         "id": 12,
-        "url": "https://cdn.robinhood.com/assets/generated_assets/brand/_next/static/chunks/96691-3b1134f97b6296f8a98e.js",
+        "url": "https://cdn.robinhood.com/{seg}/{seg}/{seg}/{seg}/static/{seg}",
         "domain": "cdn.robinhood.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 253,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 253
       },
       {
         "id": 13,
-        "url": "https://cdn.robinhood.com/assets/generated_assets/brand/_next/static/chunks/76306-0467d96628f9ab5dcfaa.js",
+        "url": "https://cdn.robinhood.com/{seg}/{seg}/{seg}/{seg}/static/{seg}",
         "domain": "cdn.robinhood.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 253,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 253
       },
       {
         "id": 14,
-        "url": "https://cdn.robinhood.com/assets/generated_assets/brand/_next/static/chunks/18513-9e0899f8da428d770987.js",
+        "url": "https://cdn.robinhood.com/{seg}/{seg}/{seg}/{seg}/static/{seg}",
         "domain": "cdn.robinhood.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 253,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 253
       },
       {
         "id": 15,
-        "url": "https://cdn.robinhood.com/assets/generated_assets/brand/_next/static/chunks/pages/us/en-c3cc3ce02ddc695b3164.js",
+        "url": "https://cdn.robinhood.com/{seg}/{seg}/{seg}/{seg}/static/{seg}",
         "domain": "cdn.robinhood.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 253,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 253
       },
       {
         "id": 16,
-        "url": "https://images.ctfassets.net/ilblxxee70tt/G41lWDVjjkTs1Eg0Br1G6/59be1c349208bc558711f1ea9225fef1/RH26_Events_Crypto_HPTO_Desktop_1920x1350_v02_compressed.jpg",
+        "url": "https://images.ctfassets.net/{seg}/{seg}/{seg}/{seg}",
         "domain": "images.ctfassets.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 253,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 253
       },
       {
         "id": 17,
-        "url": "https://images.ctfassets.net/ilblxxee70tt/2oqBfvrTb3ETdD5fVvXoUt/17a282dfeb7c34500d8a6b8f692c8cb0/Agentic_Trading_module_Desktop.png",
+        "url": "https://images.ctfassets.net/{seg}/{seg}/{seg}/{seg}",
         "domain": "images.ctfassets.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 253,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 253
       },
       {
         "id": 18,
-        "url": "https://images.ctfassets.net/ilblxxee70tt/CHELX2PRar2IE9vYK1fFD/96a2105cf51f02fc4981a282abd68087/Agentic_Card_module_desktop.png",
+        "url": "https://images.ctfassets.net/{seg}/{seg}/{seg}/{seg}",
         "domain": "images.ctfassets.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 257,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 257
       },
       {
         "id": 19,
-        "url": "https://images.ctfassets.net/ilblxxee70tt/4AMLNM2FP37FHghha7757l/c29e98a9b5a31535a7333855183dca7b/wide_homepage_investing_4k_3.jpeg",
+        "url": "https://images.ctfassets.net/{seg}/{seg}/{seg}/{seg}",
         "domain": "images.ctfassets.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 258,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 258
       },
       {
         "id": 20,
-        "url": "https://images.ctfassets.net/ilblxxee70tt/2zqFBs1Dk1ZFLa68vgaCUM/06b9013b2eb0ec31bcd3c4bd97f30997/RH26_CryptoEarn_Hero_Header_WideDesktop__1_.jpeg",
+        "url": "https://images.ctfassets.net/{seg}/{seg}/{seg}/{seg}",
         "domain": "images.ctfassets.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 259,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 259
       },
       {
         "id": 21,
-        "url": "https://cdn.robinhood.com/assets/generated_assets/webapp/vendor/user_centrics/3.90.0/bundle.js",
+        "url": "https://cdn.robinhood.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "cdn.robinhood.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 260,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 260
       },
       {
         "id": 22,
-        "url": "https://images.ctfassets.net/ilblxxee70tt/54Guv4y5evT0ZpKTaC09c1/391b135f648b2582deff63a48ef63c10/RH25_Strategiespromo_wide_homepage_hero_4k.jpeg",
+        "url": "https://images.ctfassets.net/{seg}/{seg}/{seg}/{seg}",
         "domain": "images.ctfassets.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 260,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 260
       },
       {
         "id": 23,
-        "url": "https://images.ctfassets.net/ilblxxee70tt/4eSlnvgaWAu2jaCVAyRcrY/602aa63fb17d4448ef651bd2944e963a/illo_secure.svg",
+        "url": "https://images.ctfassets.net/{seg}/{seg}/{seg}/{seg}",
         "domain": "images.ctfassets.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 261,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 261
       },
       {
         "id": 24,
-        "url": "https://images.ctfassets.net/ilblxxee70tt/DwoUYJLid0EWhDOJPjFYN/673186170fb52deebdfaeb3691a28cac/illo_protect.svg",
+        "url": "https://images.ctfassets.net/{seg}/{seg}/{seg}/{seg}",
         "domain": "images.ctfassets.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 261,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 261
       },
       {
         "id": 25,
-        "url": "https://images.ctfassets.net/ilblxxee70tt/2KMkk3plAKjRG2fPBI69a1/18a5f48bbf278bc91008f6904096b559/illo_multi-factor.svg",
+        "url": "https://images.ctfassets.net/{seg}/{seg}/{seg}/{seg}",
         "domain": "images.ctfassets.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 262,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 262
       },
       {
         "id": 26,
-        "url": "https://images.ctfassets.net/ilblxxee70tt/4u2J3HEANe8rXfdytWGpAC/72bd780bca181f59b40dcf8c51f0e996/illo_247.svg",
+        "url": "https://images.ctfassets.net/{seg}/{seg}/{seg}/{seg}",
         "domain": "images.ctfassets.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 262,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 262
       },
       {
         "id": 27,
-        "url": "https://images.ctfassets.net/ilblxxee70tt/PKdx5QPF2hxl9vcbxm55W/b1942354f732fbb69a019c53c73bf46b/homepage_learn_phone_2x.png",
+        "url": "https://images.ctfassets.net/{seg}/{seg}/{seg}/{seg}",
         "domain": "images.ctfassets.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 262,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 262
       },
       {
         "id": 28,
-        "url": "https://images.ctfassets.net/ilblxxee70tt/6WBms0BL77uZhazKdaye91/981a21240eef31028f4e760ae6fa9886/Investors_Hero.jpg",
+        "url": "https://images.ctfassets.net/{seg}/{seg}/{seg}/{seg}",
         "domain": "images.ctfassets.net",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 265,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 265
       },
       {
         "id": 29,
-        "url": "https://cdn.robinhood.com/assets/generated_assets/brand/_next/static/images/privacyoptions__86f2eb97cc1f3909c12e4512de9e267215d94ac5aaee9393d0f007f18c34e8ba.svg",
+        "url": "https://cdn.robinhood.com/{seg}/{seg}/{seg}/{seg}/static/{seg}",
         "domain": "cdn.robinhood.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 265,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 265
       },
       {
         "id": 30,
-        "url": "https://cdn.robinhood.com/assets/generated_assets/brand/_next/static/b3cd7301a85be61019cebba2c3707d88e117148a/_buildManifest.js",
+        "url": "https://cdn.robinhood.com/{seg}/{seg}/{seg}/{seg}/static/{seg}",
         "domain": "cdn.robinhood.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 265,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 265
       },
       {
         "id": 31,
-        "url": "https://cdn.robinhood.com/assets/generated_assets/brand/_next/static/b3cd7301a85be61019cebba2c3707d88e117148a/_ssgManifest.js",
+        "url": "https://cdn.robinhood.com/{seg}/{seg}/{seg}/{seg}/static/{seg}",
         "domain": "cdn.robinhood.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 265,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 265
       },
       {
         "id": 32,
-        "url": "https://videos.ctfassets.net/ilblxxee70tt/25vWAcUdoykwWYKSTcuc4t/5f3260376bf9e2f69f4e0bdfe2d68086/RH26_Events_Crypto_HPTO_Wide_2560x1080_v03.mp4",
+        "url": "https://videos.ctfassets.net/{seg}/{seg}/{seg}/{seg}",
         "domain": "videos.ctfassets.net",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 267,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 267
       },
       {
         "id": 33,
-        "url": "https://videos.ctfassets.net/ilblxxee70tt/3r1UZhjsj4AexVmCH9hrfH/1e7b93b16249b7ef73025a31d4cfae38/Dotcom_NewGeneration_Animation_WEB.webm",
+        "url": "https://videos.ctfassets.net/{seg}/{seg}/{seg}/{seg}",
         "domain": "videos.ctfassets.net",
         "method": "GET",
         "resourceType": "media",
         "status": 206,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 267,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 267
       },
       {
         "id": 34,
-        "url": "https://cdn.robinhood.com/assets/generated_assets/brand/_next/static/fonts/RHPhonic-Regular__66da8fcfda05a8b53afe5c8697bdb1b2fd883e748a29f65a628d7a98aad40982.woff2",
+        "url": "https://cdn.robinhood.com/{seg}/{seg}/{seg}/{seg}/static/{seg}",
         "domain": "cdn.robinhood.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 278,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 278
       },
       {
         "id": 35,
-        "url": "https://cdn.robinhood.com/assets/generated_assets/brand/_next/static/fonts/RHPhonic-Bold__7f2cc2d831ae8cb196f347fee306ddd1ce4eb72b3dd76a05e28720a23f5a4ee3.woff2",
+        "url": "https://cdn.robinhood.com/{seg}/{seg}/{seg}/{seg}/static/{seg}",
         "domain": "cdn.robinhood.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 279,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 279
       },
       {
         "id": 38,
-        "url": "https://cdn.robinhood.com/assets/generated_assets/brand/_next/static/chunks/78726.2c12e9df03d9c3c9d8e2.js",
+        "url": "https://cdn.robinhood.com/{seg}/{seg}/{seg}/{seg}/static/{seg}",
         "domain": "cdn.robinhood.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 916,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 916
       },
       {
         "id": 39,
-        "url": "https://cdn.robinhood.com/assets/generated_assets/brand/_next/static/chunks/46006.0affedf2dae556e957d7.js",
+        "url": "https://cdn.robinhood.com/{seg}/{seg}/{seg}/{seg}/static/{seg}",
         "domain": "cdn.robinhood.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 917,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 917
       },
       {
         "id": 40,
-        "url": "https://cdn.robinhood.com/assets/generated_assets/brand/_next/static/chunks/5597.1e9f70bc42768b024355.js",
+        "url": "https://cdn.robinhood.com/{seg}/{seg}/{seg}/{seg}/static/{seg}",
         "domain": "cdn.robinhood.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 917,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 917
       },
       {
         "id": 42,
-        "url": "https://bonfire.robinhood.com/region",
+        "url": "https://bonfire.robinhood.com/{seg}",
         "domain": "bonfire.robinhood.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 919,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 919
       },
       {
         "id": 43,
-        "url": "https://experience.ninetailed.co/v2/organizations/4338303b-9c15-405b-9b37-070126d0e61d/environments/main/profiles?locale=",
+        "url": "https://experience.ninetailed.co/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?locale=",
         "domain": "experience.ninetailed.co",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1108,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1108
       },
       {
         "id": 44,
-        "url": "https://robinhood.com/_next/data/b3cd7301a85be61019cebba2c3707d88e117148a/us/en/gold.json",
+        "url": "https://robinhood.com/{seg}/{seg}/{seg}/us/en/{seg}",
         "domain": "robinhood.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1123,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1123
       },
       {
         "id": 45,
-        "url": "https://cdn.robinhood.com/assets/generated_assets/brand/_next/static/chunks/pages/us/en/gold-be8790f358cc38ffc1b7.js",
+        "url": "https://cdn.robinhood.com/{seg}/{seg}/{seg}/{seg}/static/{seg}",
         "domain": "cdn.robinhood.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1124,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1124
       },
       {
         "id": 46,
-        "url": "https://robinhood.com/_next/data/b3cd7301a85be61019cebba2c3707d88e117148a/us/en/legend.json",
+        "url": "https://robinhood.com/{seg}/{seg}/{seg}/us/en/{seg}",
         "domain": "robinhood.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1125,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1125
       },
       {
         "id": 47,
-        "url": "https://cdn.robinhood.com/assets/generated_assets/brand/_next/static/chunks/pages/us/en/legend-26be5b6d50fdd8a9b31f.js",
+        "url": "https://cdn.robinhood.com/{seg}/{seg}/{seg}/{seg}/static/{seg}",
         "domain": "cdn.robinhood.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1125,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1125
       }
     ],
     "domains": [
@@ -1652,7 +1652,7 @@
     ],
     "cookies": [
       {
-        "name": "device_id",
+        "name": "[redacted]",
         "domain": ".robinhood.com",
         "path": "/",
         "sameSite": "Lax",
@@ -1662,7 +1662,7 @@
         "thirdParty": false
       },
       {
-        "name": "session_id",
+        "name": "[redacted]",
         "domain": ".robinhood.com",
         "path": "/",
         "sameSite": "Lax",
@@ -1675,36 +1675,36 @@
     "storage": [
       {
         "area": "localStorage",
-        "key": "__nt_profile__",
+        "key": "[redacted]",
         "valueBytes": 518
       },
       {
         "area": "localStorage",
-        "key": "__nt_anonymous_id__",
+        "key": "[redacted]",
         "valueBytes": 66
       },
       {
         "area": "localStorage",
-        "key": "__nt_experiences__",
+        "key": "[redacted]",
         "valueBytes": 2079
       }
     ],
-    "fingerprintDetections": [],
     "fingerprintEvents": [],
+    "fingerprintDetections": [],
+    "privacyPolicy": {
+      "url": "https://robinhood.com/us/en/support/articles/privacy-policy",
+      "claims": [],
+      "mentionedEntities": [],
+      "unmentionedEntities": [],
+      "policyTextLength": 41804
+    },
     "screenshot": null,
     "warnings": [
       "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
       "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
       "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
-      "Read the site's privacy policy (https://robinhood.com/us/en/support/articles/privacy-policy/) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
-    ],
-    "privacyPolicy": {
-      "url": "https://robinhood.com/us/en/support/articles/privacy-policy/",
-      "claims": [],
-      "mentionedEntities": [],
-      "unmentionedEntities": [],
-      "policyTextLength": 41804
-    }
+      "Read the site's privacy policy (https://robinhood.com/us/en/support/articles/privacy-policy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ]
   },
   "diff": {
     "totalRequests": {
@@ -1800,40 +1800,11 @@
     ],
     "addedCookies": [],
     "removedCookies": [],
-    "addedStorageKeys": [
-      {
-        "area": "localStorage",
-        "key": "__nt_anonymous_id__"
-      },
-      {
-        "area": "localStorage",
-        "key": "__nt_experiences__"
-      },
-      {
-        "area": "localStorage",
-        "key": "__nt_profile__"
-      }
-    ],
+    "addedStorageKeys": [],
     "removedStorageKeys": [
       {
-        "area": "localStorage",
-        "key": "uc_gcm"
-      },
-      {
-        "area": "localStorage",
-        "key": "uc_interaction_type"
-      },
-      {
-        "area": "localStorage",
-        "key": "uc_settings"
-      },
-      {
-        "area": "localStorage",
-        "key": "uc_user_interaction"
-      },
-      {
         "area": "sessionStorage",
-        "key": "uc_user_country"
+        "key": "[redacted]"
       }
     ],
     "addedFingerprinting": [],
@@ -1850,11 +1821,11 @@
     "Brave-list blocking comparison runs should be collected under matched crawl conditions, and the blocking run is a simulation with Brave's engine and default lists in this scanner's browser, not a live Brave visit. Differences can still reflect timing, experiments, cache state, consent state, or bot detection.",
     "No blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
     "No blocking: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
-    "No blocking: Read the site's privacy policy (https://robinhood.com/us/en/support/articles/privacy-policy/) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
+    "No blocking: Read the site's privacy policy (https://robinhood.com/us/en/support/articles/privacy-policy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
     "Brave-list blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
     "Brave-list blocking: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
     "Brave-list blocking: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
-    "Brave-list blocking: Read the site's privacy policy (https://robinhood.com/us/en/support/articles/privacy-policy/) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    "Brave-list blocking: Read the site's privacy policy (https://robinhood.com/us/en/support/articles/privacy-policy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
   ],
   "share": {
     "id": "20260706-e903ea33b7ce79ed42928a0a82af95de",

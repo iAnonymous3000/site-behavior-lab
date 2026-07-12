@@ -49,6 +49,13 @@
       "automation": "playwright-chromium",
       "headless": true,
       "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "classification",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-02T01:00:58.178Z"
+      },
       "trackerCatalog": {
         "source": "Hand-curated service catalog",
         "version": "hand-curated-2026.06",
@@ -57,14 +64,7 @@
         "curatedOverrides": 133,
         "license": "AGPL-3.0-or-later"
       },
-      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
-      "adblock": {
-        "active": true,
-        "source": "Brave default ad-block lists",
-        "lists": 31,
-        "fetchedAt": "2026-07-02T01:00:58.178Z"
-      },
-      "shieldsMode": "classification"
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
     },
     "requests": [
       {
@@ -76,224 +76,224 @@
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 39,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 39
       },
       {
         "id": 2,
-        "url": "https://static.ietf.org/fonts/inter/import.css",
+        "url": "https://static.ietf.org/{seg}/{seg}/{seg}",
         "domain": "static.ietf.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 131,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 131
       },
       {
         "id": 3,
-        "url": "https://www.ietf.org/static/dist/main.afb7723a637c.js",
+        "url": "https://www.ietf.org/static/{seg}/{seg}",
         "domain": "www.ietf.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 132,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 132
       },
       {
         "id": 4,
-        "url": "https://www.ietf.org/static/dist/main.433f4b9c3ff4.css",
+        "url": "https://www.ietf.org/static/{seg}/{seg}",
         "domain": "www.ietf.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 133,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 133
       },
       {
         "id": 5,
-        "url": "https://static.ietf.org/logos/ietf.svg",
+        "url": "https://static.ietf.org/{seg}/{seg}",
         "domain": "static.ietf.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 133,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 133
       },
       {
         "id": 6,
-        "url": "https://www.ietf.org/media/images/ietf-logo.width-600.jpg",
+        "url": "https://www.ietf.org/{seg}/{seg}/{seg}",
         "domain": "www.ietf.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 134,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 134
       },
       {
         "id": 7,
-        "url": "https://www.ietf.org/media/images/things.width-600.jpg",
+        "url": "https://www.ietf.org/{seg}/{seg}/{seg}",
         "domain": "www.ietf.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 137,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 137
       },
       {
         "id": 8,
-        "url": "https://www.ietf.org/media/images/_MG_4832.width-600.jpg",
+        "url": "https://www.ietf.org/{seg}/{seg}/{seg}",
         "domain": "www.ietf.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 138,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 138
       },
       {
         "id": 9,
-        "url": "https://www.ietf.org/media/images/IMG_15.width-600.jpg",
+        "url": "https://www.ietf.org/{seg}/{seg}/{seg}",
         "domain": "www.ietf.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 138,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 138
       },
       {
         "id": 10,
-        "url": "https://www.ietf.org/media/images/vienna.height-245.jpg",
+        "url": "https://www.ietf.org/{seg}/{seg}/{seg}",
         "domain": "www.ietf.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 139,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 139
       },
       {
         "id": 11,
-        "url": "https://www.ietf.org/media/images/111-SanFrancisco.height-245.jpg",
+        "url": "https://www.ietf.org/{seg}/{seg}/{seg}",
         "domain": "www.ietf.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 139,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 139
       },
       {
         "id": 12,
-        "url": "https://www.ietf.org/media/images/Screenshot_2026-04-27_at_14.06.52.max-4000x4000.png",
+        "url": "https://www.ietf.org/{seg}/{seg}/{seg}",
         "domain": "www.ietf.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 166,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 166
       },
       {
         "id": 13,
-        "url": "https://static.ietf.org/fonts/inter/inter-latin.woff2",
+        "url": "https://static.ietf.org/{seg}/{seg}/{seg}",
         "domain": "static.ietf.org",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 246,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 246
       },
       {
         "id": 14,
-        "url": "https://www.ietf.org/static/dist/92ea18a81d737146ff044ddb52010366.84a4d15b9e44.woff2",
+        "url": "https://www.ietf.org/static/{seg}/{seg}",
         "domain": "www.ietf.org",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 247,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 247
       },
       {
         "id": 15,
-        "url": "https://analytics.ietf.org/matomo.js",
+        "url": "https://analytics.ietf.org/{seg}",
         "domain": "analytics.ietf.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 251,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 251
       },
       {
         "id": 16,
-        "url": "https://www.ietf.org/cdn-cgi/challenge-platform/scripts/jsd/main.js",
+        "url": "https://www.ietf.org/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.ietf.org",
         "method": "GET",
         "resourceType": "script",
         "status": 302,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 355,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 355
       },
       {
         "id": 17,
-        "url": "https://analytics.ietf.org/matomo.php",
+        "url": "https://analytics.ietf.org/{seg}",
         "domain": "analytics.ietf.org",
         "method": "POST",
         "resourceType": "ping",
         "status": 204,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 366,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 366
       },
       {
         "id": 18,
-        "url": "https://www.ietf.org/cdn-cgi/challenge-platform/h/b/scripts/jsd/80a697ecdece/main.js",
+        "url": "https://www.ietf.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.ietf.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 368,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 368
       },
       {
         "id": 19,
-        "url": "https://www.ietf.org/cdn-cgi/challenge-platform/h/b/jsd/oneshot/80a697ecdece/0.1514809691345671:1783004434:1KMJihysMAcCQM5Ju6qxW1y9onjoEWbHnOtKv3UG89A/a14ea8bb2b007112",
+        "url": "https://www.ietf.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.ietf.org",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 438,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 438
       }
     ],
     "domains": [
@@ -370,17 +370,10 @@
       }
     ],
     "storage": [],
-    "fingerprintDetections": [],
     "fingerprintEvents": [],
-    "screenshot": null,
-    "warnings": [
-      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
-      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
-      "This scan typed a synthetic test value into 2 form fields (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
-      "Read the site's privacy policy (https://www.ietf.org/privacy-statement/) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
-    ],
+    "fingerprintDetections": [],
     "privacyPolicy": {
-      "url": "https://www.ietf.org/privacy-statement/",
+      "url": "https://www.ietf.org/{seg}",
       "claims": [
         {
           "kind": "no-selling-or-sharing",
@@ -390,7 +383,14 @@
       "mentionedEntities": [],
       "unmentionedEntities": [],
       "policyTextLength": 12565
-    }
+    },
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+      "This scan typed a synthetic test value into 2 form fields (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
+      "Read the site's privacy policy (https://www.ietf.org/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ]
   },
   "variant": {
     "ok": true,
@@ -430,6 +430,13 @@
       "automation": "playwright-chromium",
       "headless": true,
       "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "block-simulation",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-02T01:00:58.178Z"
+      },
       "trackerCatalog": {
         "source": "Hand-curated service catalog",
         "version": "hand-curated-2026.06",
@@ -438,14 +445,7 @@
         "curatedOverrides": 133,
         "license": "AGPL-3.0-or-later"
       },
-      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
-      "adblock": {
-        "active": true,
-        "source": "Brave default ad-block lists",
-        "lists": 31,
-        "fetchedAt": "2026-07-02T01:00:58.178Z"
-      },
-      "shieldsMode": "block-simulation"
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
     },
     "requests": [
       {
@@ -457,200 +457,200 @@
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 44,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 44
       },
       {
         "id": 2,
-        "url": "https://static.ietf.org/fonts/inter/import.css",
+        "url": "https://static.ietf.org/{seg}/{seg}/{seg}",
         "domain": "static.ietf.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 128,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 128
       },
       {
         "id": 3,
-        "url": "https://www.ietf.org/static/dist/main.afb7723a637c.js",
+        "url": "https://www.ietf.org/static/{seg}/{seg}",
         "domain": "www.ietf.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 131,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 131
       },
       {
         "id": 4,
-        "url": "https://www.ietf.org/static/dist/main.433f4b9c3ff4.css",
+        "url": "https://www.ietf.org/static/{seg}/{seg}",
         "domain": "www.ietf.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 132,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 132
       },
       {
         "id": 5,
-        "url": "https://static.ietf.org/logos/ietf.svg",
+        "url": "https://static.ietf.org/{seg}/{seg}",
         "domain": "static.ietf.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 132,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 132
       },
       {
         "id": 6,
-        "url": "https://www.ietf.org/media/images/ietf-logo.width-600.jpg",
+        "url": "https://www.ietf.org/{seg}/{seg}/{seg}",
         "domain": "www.ietf.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 132,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 132
       },
       {
         "id": 7,
-        "url": "https://www.ietf.org/media/images/things.width-600.jpg",
+        "url": "https://www.ietf.org/{seg}/{seg}/{seg}",
         "domain": "www.ietf.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 134,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 134
       },
       {
         "id": 8,
-        "url": "https://www.ietf.org/media/images/_MG_4832.width-600.jpg",
+        "url": "https://www.ietf.org/{seg}/{seg}/{seg}",
         "domain": "www.ietf.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 134,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 134
       },
       {
         "id": 9,
-        "url": "https://www.ietf.org/media/images/IMG_15.width-600.jpg",
+        "url": "https://www.ietf.org/{seg}/{seg}/{seg}",
         "domain": "www.ietf.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 135,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 135
       },
       {
         "id": 10,
-        "url": "https://www.ietf.org/media/images/vienna.height-245.jpg",
+        "url": "https://www.ietf.org/{seg}/{seg}/{seg}",
         "domain": "www.ietf.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 135,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 135
       },
       {
         "id": 11,
-        "url": "https://www.ietf.org/media/images/111-SanFrancisco.height-245.jpg",
+        "url": "https://www.ietf.org/{seg}/{seg}/{seg}",
         "domain": "www.ietf.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 136,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 136
       },
       {
         "id": 12,
-        "url": "https://www.ietf.org/media/images/Screenshot_2026-04-27_at_14.06.52.max-4000x4000.png",
+        "url": "https://www.ietf.org/{seg}/{seg}/{seg}",
         "domain": "www.ietf.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 150,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 150
       },
       {
         "id": 13,
-        "url": "https://static.ietf.org/fonts/inter/inter-latin.woff2",
+        "url": "https://static.ietf.org/{seg}/{seg}/{seg}",
         "domain": "static.ietf.org",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 219,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 219
       },
       {
         "id": 14,
-        "url": "https://www.ietf.org/static/dist/92ea18a81d737146ff044ddb52010366.84a4d15b9e44.woff2",
+        "url": "https://www.ietf.org/static/{seg}/{seg}",
         "domain": "www.ietf.org",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 220,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 220
       },
       {
         "id": 16,
-        "url": "https://www.ietf.org/cdn-cgi/challenge-platform/scripts/jsd/main.js",
+        "url": "https://www.ietf.org/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.ietf.org",
         "method": "GET",
         "resourceType": "script",
         "status": 302,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 315,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 315
       },
       {
         "id": 17,
-        "url": "https://www.ietf.org/cdn-cgi/challenge-platform/h/b/scripts/jsd/80a697ecdece/main.js",
+        "url": "https://www.ietf.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.ietf.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 330,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 330
       },
       {
         "id": 18,
-        "url": "https://www.ietf.org/cdn-cgi/challenge-platform/h/b/jsd/oneshot/80a697ecdece/0.9159906743460045:1783000825:BUE_RXVH5X1cebnmjLsMcqPAFBNtdhZ9sK-JiDb8odc/a14ea8debb3c7c97",
+        "url": "https://www.ietf.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.ietf.org",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 412,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 412
       }
     ],
     "domains": [
@@ -712,18 +712,10 @@
       }
     ],
     "storage": [],
-    "fingerprintDetections": [],
     "fingerprintEvents": [],
-    "screenshot": null,
-    "warnings": [
-      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
-      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
-      "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
-      "This scan typed a synthetic test value into 2 form fields (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
-      "Read the site's privacy policy (https://www.ietf.org/privacy-statement/) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
-    ],
+    "fingerprintDetections": [],
     "privacyPolicy": {
-      "url": "https://www.ietf.org/privacy-statement/",
+      "url": "https://www.ietf.org/{seg}",
       "claims": [
         {
           "kind": "no-selling-or-sharing",
@@ -733,7 +725,15 @@
       "mentionedEntities": [],
       "unmentionedEntities": [],
       "policyTextLength": 12565
-    }
+    },
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+      "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+      "This scan typed a synthetic test value into 2 form fields (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
+      "Read the site's privacy policy (https://www.ietf.org/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ]
   },
   "diff": {
     "totalRequests": {
@@ -805,12 +805,12 @@
     "No blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
     "No blocking: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
     "No blocking: This scan typed a synthetic test value into 2 form fields (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
-    "No blocking: Read the site's privacy policy (https://www.ietf.org/privacy-statement/) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
+    "No blocking: Read the site's privacy policy (https://www.ietf.org/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
     "Brave-list blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
     "Brave-list blocking: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
     "Brave-list blocking: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
     "Brave-list blocking: This scan typed a synthetic test value into 2 form fields (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
-    "Brave-list blocking: Read the site's privacy policy (https://www.ietf.org/privacy-statement/) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    "Brave-list blocking: Read the site's privacy policy (https://www.ietf.org/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
   ],
   "share": {
     "id": "20260702-0ee9c1e1415e5669efead14e13b48567",

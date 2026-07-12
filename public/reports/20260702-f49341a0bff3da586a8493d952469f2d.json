@@ -49,6 +49,13 @@
       "automation": "playwright-chromium",
       "headless": true,
       "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "classification",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-02T01:00:58.178Z"
+      },
       "trackerCatalog": {
         "source": "Hand-curated service catalog",
         "version": "hand-curated-2026.06",
@@ -57,14 +64,7 @@
         "curatedOverrides": 133,
         "license": "AGPL-3.0-or-later"
       },
-      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
-      "adblock": {
-        "active": true,
-        "source": "Brave default ad-block lists",
-        "lists": 31,
-        "fetchedAt": "2026-07-02T01:00:58.178Z"
-      },
-      "shieldsMode": "classification"
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
     },
     "requests": [
       {
@@ -76,8 +76,8 @@
         "status": 307,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 42,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 42
       },
       {
         "id": 2,
@@ -88,416 +88,416 @@
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 143,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 143
       },
       {
         "id": 3,
-        "url": "https://nodejs.org/_next/static/media/ibm_plex_mono-s.p.163y4qzopcfg-.woff2",
+        "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
         "domain": "nodejs.org",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 200,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 200
       },
       {
         "id": 4,
-        "url": "https://nodejs.org/_next/static/media/open_sans-s.p.0d.csf44g2q1w.woff2",
+        "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
         "domain": "nodejs.org",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 201,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 201
       },
       {
         "id": 5,
-        "url": "https://nodejs.org/_next/static/chunks/0qabg-vtchmph.css",
+        "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
         "domain": "nodejs.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 201,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 201
       },
       {
         "id": 6,
-        "url": "https://nodejs.org/_next/static/chunks/031hm8e8if483.css",
+        "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
         "domain": "nodejs.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 203,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 203
       },
       {
         "id": 7,
-        "url": "https://nodejs.org/_next/static/chunks/14bes7-rezi_r.css",
+        "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
         "domain": "nodejs.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 203,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 203
       },
       {
         "id": 8,
-        "url": "https://nodejs.org/_next/static/chunks/0.~uxl6-m3_qg.css",
+        "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
         "domain": "nodejs.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 203,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 203
       },
       {
         "id": 9,
-        "url": "https://nodejs.org/_next/static/chunks/0ici8etfnf.5x.js",
+        "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
         "domain": "nodejs.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 205,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 205
       },
       {
         "id": 10,
-        "url": "https://nodejs.org/_next/static/chunks/0n360y2wg7xw_.js",
+        "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
         "domain": "nodejs.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 208,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 208
       },
       {
         "id": 11,
-        "url": "https://nodejs.org/_next/static/chunks/083yao9xxwj6e.js",
+        "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
         "domain": "nodejs.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 209,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 209
       },
       {
         "id": 12,
-        "url": "https://nodejs.org/_next/static/chunks/02rzh8ga7nd8v.js",
+        "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
         "domain": "nodejs.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 209,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 209
       },
       {
         "id": 13,
-        "url": "https://nodejs.org/_next/static/chunks/turbopack-0exgur4flx~t2.js",
+        "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
         "domain": "nodejs.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 209,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 209
       },
       {
         "id": 14,
-        "url": "https://nodejs.org/_next/static/chunks/0h7a4ru74-4c8.js",
+        "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
         "domain": "nodejs.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 209,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 209
       },
       {
         "id": 15,
-        "url": "https://nodejs.org/_next/static/chunks/0ee0qa7jfxso..js",
+        "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
         "domain": "nodejs.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 209,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 209
       },
       {
         "id": 16,
-        "url": "https://nodejs.org/_next/static/chunks/0-k5cy-f55p3s.js",
+        "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
         "domain": "nodejs.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 210,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 210
       },
       {
         "id": 17,
-        "url": "https://nodejs.org/_next/static/chunks/09lvr3p3dbtlf.js",
+        "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
         "domain": "nodejs.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 210,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 210
       },
       {
         "id": 18,
-        "url": "https://nodejs.org/_next/static/chunks/09217p1sa9zh6.js",
+        "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
         "domain": "nodejs.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 210,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 210
       },
       {
         "id": 19,
-        "url": "https://nodejs.org/_next/static/chunks/0gu6jmu~9gc_g.js",
+        "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
         "domain": "nodejs.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 210,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 210
       },
       {
         "id": 20,
-        "url": "https://nodejs.org/_next/static/chunks/0.rheda74~f3r.js",
+        "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
         "domain": "nodejs.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 210,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 210
       },
       {
         "id": 21,
-        "url": "https://nodejs.org/_next/static/chunks/07-a620uei9jl.js",
+        "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
         "domain": "nodejs.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 211,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 211
       },
       {
         "id": 22,
-        "url": "https://nodejs.org/_next/static/chunks/0yeqtc1w_t0t_.js",
+        "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
         "domain": "nodejs.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 211,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 211
       },
       {
         "id": 23,
-        "url": "https://nodejs.org/_next/static/chunks/16ltbmpbk4zwr.js",
+        "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
         "domain": "nodejs.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 211,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 211
       },
       {
         "id": 24,
-        "url": "https://nodejs.org/_next/static/chunks/0o8bqm-94r.nz.js",
+        "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
         "domain": "nodejs.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 213,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 213
       },
       {
         "id": 25,
-        "url": "https://nodejs.org/_next/static/chunks/0yjr_w931cprg.js",
+        "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
         "domain": "nodejs.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 214,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 214
       },
       {
         "id": 26,
-        "url": "https://nodejs.org/_next/static/chunks/0-aoh6z41e.io.js",
+        "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
         "domain": "nodejs.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 214,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 214
       },
       {
         "id": 27,
-        "url": "https://nodejs.org/_next/static/chunks/06zql36704oxf.js",
+        "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
         "domain": "nodejs.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 214,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 214
       },
       {
         "id": 28,
-        "url": "https://nodejs.org/_next/static/chunks/10gf9hy3v3d_n.js",
+        "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
         "domain": "nodejs.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 215,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 215
       },
       {
         "id": 29,
-        "url": "https://nodejs.org/_next/static/chunks/0gq_p.kvm.hui.js",
+        "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
         "domain": "nodejs.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 215,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 215
       },
       {
         "id": 30,
-        "url": "https://nodejs.org/_next/static/chunks/0~plgqidc_x.u.js",
+        "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
         "domain": "nodejs.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 215,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 215
       },
       {
         "id": 31,
-        "url": "https://nodejs.org/_vercel/insights/script.js",
+        "url": "https://nodejs.org/{seg}/{seg}/{seg}",
         "domain": "nodejs.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 524,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 524
       },
       {
         "id": 32,
-        "url": "https://nodejs.org/_next/static/chunks/13tl7as_m7a7r.css",
+        "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
         "domain": "nodejs.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 525,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 525
       },
       {
         "id": 33,
-        "url": "https://nodejs.org/_next/static/chunks/0b~7x6ia9fe_y.js",
+        "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
         "domain": "nodejs.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 526,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 526
       },
       {
         "id": 34,
-        "url": "https://nodejs.org/en/learn",
+        "url": "https://nodejs.org/en/{seg}",
         "domain": "nodejs.org",
         "method": "GET",
         "resourceType": "fetch",
         "status": 307,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 530,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 530
       },
       {
         "id": 35,
-        "url": "https://nodejs.org/en/about/partners",
+        "url": "https://nodejs.org/en/about/{seg}",
         "domain": "nodejs.org",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 531,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 531
       },
       {
         "id": 36,
-        "url": "https://nodejs.org/en/about/eol",
+        "url": "https://nodejs.org/en/about/{seg}",
         "domain": "nodejs.org",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 532,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 532
       },
       {
         "id": 37,
@@ -508,68 +508,68 @@
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 533,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 533
       },
       {
         "id": 38,
-        "url": "https://nodejs.org/22f2e60f618e1006/script.js",
+        "url": "https://nodejs.org/{seg}/{seg}",
         "domain": "nodejs.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 537,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 537
       },
       {
         "id": 39,
-        "url": "https://nodejs.org/_next/static/chunks/04rq8t8znsdqy.js",
+        "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
         "domain": "nodejs.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 617,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 617
       },
       {
         "id": 40,
-        "url": "https://nodejs.org/_next/static/chunks/0zj~ac0wd_bw2.js",
+        "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
         "domain": "nodejs.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 618,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 618
       },
       {
         "id": 41,
-        "url": "https://nodejs.org/_next/static/chunks/0p9-4_-gtpjog.js",
+        "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
         "domain": "nodejs.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 619,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 619
       },
       {
         "id": 42,
-        "url": "https://nodejs.org/_next/static/chunks/0novryuhedg8z.js",
+        "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
         "domain": "nodejs.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 620,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 620
       },
       {
         "id": 43,
@@ -580,20 +580,20 @@
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 623,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 623
       },
       {
         "id": 44,
-        "url": "https://nodejs.org/learn/",
+        "url": "https://nodejs.org/{seg}",
         "domain": "nodejs.org",
         "method": "GET",
         "resourceType": "fetch",
         "status": 308,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 623,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 623
       },
       {
         "id": 45,
@@ -604,8 +604,8 @@
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 640,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 640
       },
       {
         "id": 46,
@@ -616,8 +616,8 @@
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 644,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 644
       },
       {
         "id": 47,
@@ -628,20 +628,20 @@
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 698,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 698
       },
       {
         "id": 48,
-        "url": "https://nodejs.org/learn",
+        "url": "https://nodejs.org/{seg}",
         "domain": "nodejs.org",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 700,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 700
       }
     ],
     "domains": [
@@ -667,8 +667,8 @@
     ],
     "cookies": [],
     "storage": [],
-    "fingerprintDetections": [],
     "fingerprintEvents": [],
+    "fingerprintDetections": [],
     "screenshot": null,
     "warnings": [
       "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
@@ -713,6 +713,13 @@
       "automation": "playwright-chromium",
       "headless": true,
       "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "block-simulation",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-02T01:00:58.178Z"
+      },
       "trackerCatalog": {
         "source": "Hand-curated service catalog",
         "version": "hand-curated-2026.06",
@@ -721,14 +728,7 @@
         "curatedOverrides": 133,
         "license": "AGPL-3.0-or-later"
       },
-      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
-      "adblock": {
-        "active": true,
-        "source": "Brave default ad-block lists",
-        "lists": 31,
-        "fetchedAt": "2026-07-02T01:00:58.178Z"
-      },
-      "shieldsMode": "block-simulation"
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
     },
     "requests": [
       {
@@ -740,8 +740,8 @@
         "status": 307,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 43,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 43
       },
       {
         "id": 2,
@@ -752,404 +752,404 @@
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 122,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 122
       },
       {
         "id": 3,
-        "url": "https://nodejs.org/_next/static/media/ibm_plex_mono-s.p.163y4qzopcfg-.woff2",
+        "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
         "domain": "nodejs.org",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 172,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 172
       },
       {
         "id": 4,
-        "url": "https://nodejs.org/_next/static/media/open_sans-s.p.0d.csf44g2q1w.woff2",
+        "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
         "domain": "nodejs.org",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 174,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 174
       },
       {
         "id": 5,
-        "url": "https://nodejs.org/_next/static/chunks/0qabg-vtchmph.css",
+        "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
         "domain": "nodejs.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 175,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 175
       },
       {
         "id": 6,
-        "url": "https://nodejs.org/_next/static/chunks/031hm8e8if483.css",
+        "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
         "domain": "nodejs.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 175,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 175
       },
       {
         "id": 7,
-        "url": "https://nodejs.org/_next/static/chunks/14bes7-rezi_r.css",
+        "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
         "domain": "nodejs.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 176,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 176
       },
       {
         "id": 8,
-        "url": "https://nodejs.org/_next/static/chunks/0.~uxl6-m3_qg.css",
+        "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
         "domain": "nodejs.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 176,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 176
       },
       {
         "id": 9,
-        "url": "https://nodejs.org/_next/static/chunks/0ici8etfnf.5x.js",
+        "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
         "domain": "nodejs.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 180,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 180
       },
       {
         "id": 10,
-        "url": "https://nodejs.org/_next/static/chunks/0n360y2wg7xw_.js",
+        "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
         "domain": "nodejs.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 180,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 180
       },
       {
         "id": 11,
-        "url": "https://nodejs.org/_next/static/chunks/083yao9xxwj6e.js",
+        "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
         "domain": "nodejs.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 181,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 181
       },
       {
         "id": 12,
-        "url": "https://nodejs.org/_next/static/chunks/02rzh8ga7nd8v.js",
+        "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
         "domain": "nodejs.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 182,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 182
       },
       {
         "id": 13,
-        "url": "https://nodejs.org/_next/static/chunks/turbopack-0exgur4flx~t2.js",
+        "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
         "domain": "nodejs.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 182,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 182
       },
       {
         "id": 14,
-        "url": "https://nodejs.org/_next/static/chunks/0h7a4ru74-4c8.js",
+        "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
         "domain": "nodejs.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 182,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 182
       },
       {
         "id": 15,
-        "url": "https://nodejs.org/_next/static/chunks/0ee0qa7jfxso..js",
+        "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
         "domain": "nodejs.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 183,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 183
       },
       {
         "id": 16,
-        "url": "https://nodejs.org/_next/static/chunks/0-k5cy-f55p3s.js",
+        "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
         "domain": "nodejs.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 183,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 183
       },
       {
         "id": 17,
-        "url": "https://nodejs.org/_next/static/chunks/09lvr3p3dbtlf.js",
+        "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
         "domain": "nodejs.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 184,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 184
       },
       {
         "id": 18,
-        "url": "https://nodejs.org/_next/static/chunks/09217p1sa9zh6.js",
+        "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
         "domain": "nodejs.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 184,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 184
       },
       {
         "id": 19,
-        "url": "https://nodejs.org/_next/static/chunks/0gu6jmu~9gc_g.js",
+        "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
         "domain": "nodejs.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 184,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 184
       },
       {
         "id": 20,
-        "url": "https://nodejs.org/_next/static/chunks/0.rheda74~f3r.js",
+        "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
         "domain": "nodejs.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 185,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 185
       },
       {
         "id": 21,
-        "url": "https://nodejs.org/_next/static/chunks/07-a620uei9jl.js",
+        "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
         "domain": "nodejs.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 189,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 189
       },
       {
         "id": 22,
-        "url": "https://nodejs.org/_next/static/chunks/0yeqtc1w_t0t_.js",
+        "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
         "domain": "nodejs.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 189,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 189
       },
       {
         "id": 23,
-        "url": "https://nodejs.org/_next/static/chunks/16ltbmpbk4zwr.js",
+        "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
         "domain": "nodejs.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 190,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 190
       },
       {
         "id": 24,
-        "url": "https://nodejs.org/_next/static/chunks/0o8bqm-94r.nz.js",
+        "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
         "domain": "nodejs.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 190,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 190
       },
       {
         "id": 25,
-        "url": "https://nodejs.org/_next/static/chunks/0yjr_w931cprg.js",
+        "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
         "domain": "nodejs.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 191,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 191
       },
       {
         "id": 26,
-        "url": "https://nodejs.org/_next/static/chunks/0-aoh6z41e.io.js",
+        "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
         "domain": "nodejs.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 191,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 191
       },
       {
         "id": 27,
-        "url": "https://nodejs.org/_next/static/chunks/06zql36704oxf.js",
+        "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
         "domain": "nodejs.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 191,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 191
       },
       {
         "id": 28,
-        "url": "https://nodejs.org/_next/static/chunks/10gf9hy3v3d_n.js",
+        "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
         "domain": "nodejs.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 192,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 192
       },
       {
         "id": 29,
-        "url": "https://nodejs.org/_next/static/chunks/0gq_p.kvm.hui.js",
+        "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
         "domain": "nodejs.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 192,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 192
       },
       {
         "id": 30,
-        "url": "https://nodejs.org/_next/static/chunks/0~plgqidc_x.u.js",
+        "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
         "domain": "nodejs.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 194,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 194
       },
       {
         "id": 32,
-        "url": "https://nodejs.org/_next/static/chunks/13tl7as_m7a7r.css",
+        "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
         "domain": "nodejs.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 488,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 488
       },
       {
         "id": 33,
-        "url": "https://nodejs.org/_next/static/chunks/0b~7x6ia9fe_y.js",
+        "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
         "domain": "nodejs.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 489,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 489
       },
       {
         "id": 34,
-        "url": "https://nodejs.org/en/learn",
+        "url": "https://nodejs.org/en/{seg}",
         "domain": "nodejs.org",
         "method": "GET",
         "resourceType": "fetch",
         "status": 307,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 493,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 493
       },
       {
         "id": 35,
-        "url": "https://nodejs.org/en/about/partners",
+        "url": "https://nodejs.org/en/about/{seg}",
         "domain": "nodejs.org",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 494,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 494
       },
       {
         "id": 36,
-        "url": "https://nodejs.org/en/about/eol",
+        "url": "https://nodejs.org/en/about/{seg}",
         "domain": "nodejs.org",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 495,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 495
       },
       {
         "id": 37,
@@ -1160,80 +1160,80 @@
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 495,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 495
       },
       {
         "id": 38,
-        "url": "https://nodejs.org/22f2e60f618e1006/script.js",
+        "url": "https://nodejs.org/{seg}/{seg}",
         "domain": "nodejs.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 498,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 498
       },
       {
         "id": 39,
-        "url": "https://nodejs.org/learn/",
+        "url": "https://nodejs.org/{seg}",
         "domain": "nodejs.org",
         "method": "GET",
         "resourceType": "fetch",
         "status": 308,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 551,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 551
       },
       {
         "id": 40,
-        "url": "https://nodejs.org/_next/static/chunks/04rq8t8znsdqy.js",
+        "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
         "domain": "nodejs.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 594,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 594
       },
       {
         "id": 41,
-        "url": "https://nodejs.org/_next/static/chunks/0zj~ac0wd_bw2.js",
+        "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
         "domain": "nodejs.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 595,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 595
       },
       {
         "id": 42,
-        "url": "https://nodejs.org/_next/static/chunks/0p9-4_-gtpjog.js",
+        "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
         "domain": "nodejs.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 595,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 595
       },
       {
         "id": 43,
-        "url": "https://nodejs.org/_next/static/chunks/0novryuhedg8z.js",
+        "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
         "domain": "nodejs.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 597,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 597
       },
       {
         "id": 44,
@@ -1244,8 +1244,8 @@
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 597,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 597
       },
       {
         "id": 45,
@@ -1256,8 +1256,8 @@
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 599,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 599
       },
       {
         "id": 46,
@@ -1268,20 +1268,20 @@
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 603,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 603
       },
       {
         "id": 47,
-        "url": "https://nodejs.org/learn",
+        "url": "https://nodejs.org/{seg}",
         "domain": "nodejs.org",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 604,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 604
       },
       {
         "id": 48,
@@ -1292,8 +1292,8 @@
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 688,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 688
       }
     ],
     "domains": [
@@ -1319,8 +1319,8 @@
     ],
     "cookies": [],
     "storage": [],
-    "fingerprintDetections": [],
     "fingerprintEvents": [],
+    "fingerprintDetections": [],
     "screenshot": null,
     "warnings": [
       "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",

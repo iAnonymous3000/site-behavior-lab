@@ -32,7 +32,7 @@
     },
     "conditions": {
       "requestedUrl": "https://www.starfall.com/",
-      "finalUrl": "https://www.starfall.com/h/",
+      "finalUrl": "https://www.starfall.com/{seg}",
       "scannedAt": "2026-07-06T09:23:51.130Z",
       "chromiumVersion": "149.0.7827.55",
       "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
@@ -49,6 +49,13 @@
       "automation": "playwright-chromium",
       "headless": true,
       "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "classification",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-02T01:00:58.178Z"
+      },
       "trackerCatalog": {
         "source": "Hand-curated service catalog",
         "version": "hand-curated-2026.06",
@@ -57,14 +64,7 @@
         "curatedOverrides": 133,
         "license": "AGPL-3.0-or-later"
       },
-      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
-      "adblock": {
-        "active": true,
-        "source": "Brave default ad-block lists",
-        "lists": 31,
-        "fetchedAt": "2026-07-02T01:00:58.178Z"
-      },
-      "shieldsMode": "classification"
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
     },
     "requests": [
       {
@@ -76,248 +76,248 @@
         "status": 302,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 47,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 47
       },
       {
         "id": 2,
-        "url": "https://www.starfall.com/h/",
+        "url": "https://www.starfall.com/{seg}",
         "domain": "www.starfall.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 616,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 616
       },
       {
         "id": 3,
-        "url": "https://www.starfall.com/gi/_font/liberationsans/stylesheet.css",
+        "url": "https://www.starfall.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.starfall.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 793,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 793
       },
       {
         "id": 4,
-        "url": "https://www.starfall.com/gi/_font/liberationsansbold/stylesheet.css",
+        "url": "https://www.starfall.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.starfall.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 794,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 794
       },
       {
         "id": 5,
-        "url": "https://www.starfall.com/gi/_font/StarfallvBP/StarfallvBP.css",
+        "url": "https://www.starfall.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.starfall.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 795,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 795
       },
       {
         "id": 6,
-        "url": "https://www.starfall.com/h/_js/starfall/global/Cookies.js",
+        "url": "https://www.starfall.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.starfall.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 795,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 795
       },
       {
         "id": 7,
-        "url": "https://www.starfall.com/h/_js/jquery/jquery-3.2.1.min.js",
+        "url": "https://www.starfall.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.starfall.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 795,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 795
       },
       {
         "id": 8,
-        "url": "https://www.starfall.com/h/_js/starfall/utils/CanvasResizer.js",
+        "url": "https://www.starfall.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.starfall.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 795,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 795
       },
       {
         "id": 9,
-        "url": "https://www.starfall.com/h/_js/starfall/utils/indices.js",
+        "url": "https://www.starfall.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.starfall.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 796,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 796
       },
       {
         "id": 10,
-        "url": "https://www.starfall.com/h/_css/indices.css",
+        "url": "https://www.starfall.com/{seg}/{seg}/{seg}",
         "domain": "www.starfall.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 796,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 796
       },
       {
         "id": 11,
-        "url": "https://www.starfall.com/h/_css/indices-topnav.css",
+        "url": "https://www.starfall.com/{seg}/{seg}/{seg}",
         "domain": "www.starfall.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 796,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 796
       },
       {
         "id": 12,
-        "url": "https://www.starfall.com/h/_images/green-back-circle.png",
+        "url": "https://www.starfall.com/{seg}/{seg}/{seg}",
         "domain": "www.starfall.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 847,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 847
       },
       {
         "id": 13,
-        "url": "https://www.starfall.com/h/_images/starfall-logo-main-index.png",
+        "url": "https://www.starfall.com/{seg}/{seg}/{seg}",
         "domain": "www.starfall.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 847,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 847
       },
       {
         "id": 14,
-        "url": "https://www.starfall.com/h/_images/index-css/kindergarten.png",
+        "url": "https://www.starfall.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.starfall.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 972,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 972
       },
       {
         "id": 15,
-        "url": "https://www.starfall.com/h/_images/index-css/grades123.png",
+        "url": "https://www.starfall.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.starfall.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 973,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 973
       },
       {
         "id": 16,
-        "url": "https://www.starfall.com/h/_images/index-css/grades45.png",
+        "url": "https://www.starfall.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.starfall.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1096,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1096
       },
       {
         "id": 17,
-        "url": "https://www.starfall.com/h/_images/index/scriptt-all-main-demo.gif",
+        "url": "https://www.starfall.com/{seg}/{seg}/index/{seg}",
         "domain": "www.starfall.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1097,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1097
       },
       {
         "id": 18,
-        "url": "https://www.starfall.com/h/_images/banner-BG-final.png",
+        "url": "https://www.starfall.com/{seg}/{seg}/{seg}",
         "domain": "www.starfall.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1109,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1109
       },
       {
         "id": 19,
-        "url": "https://www.starfall.com/gi/_font/StarfallvBP/vrzb___starbold-webfont.woff",
+        "url": "https://www.starfall.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.starfall.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1110,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1110
       },
       {
         "id": 20,
-        "url": "https://www.starfall.com/gi/_font/liberationsansbold/liberationsans-bold-webfont-webfont.woff2",
+        "url": "https://www.starfall.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.starfall.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1111,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1111
       },
       {
         "id": 21,
-        "url": "https://www.starfall.com/gi/_font/liberationsans/liberationsans-regular-webfont-webfont.woff2",
+        "url": "https://www.starfall.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.starfall.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1111,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1111
       }
     ],
     "domains": [
@@ -342,7 +342,7 @@
     ],
     "cookies": [
       {
-        "name": "support",
+        "name": "[redacted]",
         "domain": ".starfall.com",
         "path": "/",
         "sameSite": "Lax",
@@ -352,7 +352,7 @@
         "thirdParty": false
       },
       {
-        "name": "grade",
+        "name": "[redacted]",
         "domain": ".starfall.com",
         "path": "/",
         "sameSite": "Lax",
@@ -363,14 +363,8 @@
       }
     ],
     "storage": [],
-    "fingerprintDetections": [],
     "fingerprintEvents": [],
-    "screenshot": null,
-    "warnings": [
-      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
-      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
-      "Read the site's privacy policy (https://teach.starfall.com/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
-    ],
+    "fingerprintDetections": [],
     "privacyPolicy": {
       "url": "https://teach.starfall.com/privacy",
       "claims": [
@@ -382,7 +376,13 @@
       "mentionedEntities": [],
       "unmentionedEntities": [],
       "policyTextLength": 9657
-    }
+    },
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+      "Read the site's privacy policy (https://teach.starfall.com/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ]
   },
   "variant": {
     "ok": true,
@@ -405,7 +405,7 @@
     },
     "conditions": {
       "requestedUrl": "https://www.starfall.com/",
-      "finalUrl": "https://www.starfall.com/h/",
+      "finalUrl": "https://www.starfall.com/{seg}",
       "scannedAt": "2026-07-06T09:23:55.173Z",
       "chromiumVersion": "149.0.7827.55",
       "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
@@ -422,6 +422,13 @@
       "automation": "playwright-chromium",
       "headless": true,
       "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "block-simulation",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-02T01:00:58.178Z"
+      },
       "trackerCatalog": {
         "source": "Hand-curated service catalog",
         "version": "hand-curated-2026.06",
@@ -430,14 +437,7 @@
         "curatedOverrides": 133,
         "license": "AGPL-3.0-or-later"
       },
-      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
-      "adblock": {
-        "active": true,
-        "source": "Brave default ad-block lists",
-        "lists": 31,
-        "fetchedAt": "2026-07-02T01:00:58.178Z"
-      },
-      "shieldsMode": "block-simulation"
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
     },
     "requests": [
       {
@@ -449,248 +449,248 @@
         "status": 302,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 48,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 48
       },
       {
         "id": 2,
-        "url": "https://www.starfall.com/h/",
+        "url": "https://www.starfall.com/{seg}",
         "domain": "www.starfall.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 396,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 396
       },
       {
         "id": 3,
-        "url": "https://www.starfall.com/gi/_font/liberationsans/stylesheet.css",
+        "url": "https://www.starfall.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.starfall.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 636,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 636
       },
       {
         "id": 4,
-        "url": "https://www.starfall.com/gi/_font/liberationsansbold/stylesheet.css",
+        "url": "https://www.starfall.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.starfall.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 637,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 637
       },
       {
         "id": 5,
-        "url": "https://www.starfall.com/gi/_font/StarfallvBP/StarfallvBP.css",
+        "url": "https://www.starfall.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.starfall.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 638,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 638
       },
       {
         "id": 6,
-        "url": "https://www.starfall.com/h/_js/starfall/global/Cookies.js",
+        "url": "https://www.starfall.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.starfall.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 638,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 638
       },
       {
         "id": 7,
-        "url": "https://www.starfall.com/h/_js/jquery/jquery-3.2.1.min.js",
+        "url": "https://www.starfall.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.starfall.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 638,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 638
       },
       {
         "id": 8,
-        "url": "https://www.starfall.com/h/_js/starfall/utils/CanvasResizer.js",
+        "url": "https://www.starfall.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.starfall.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 639,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 639
       },
       {
         "id": 9,
-        "url": "https://www.starfall.com/h/_js/starfall/utils/indices.js",
+        "url": "https://www.starfall.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.starfall.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 639,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 639
       },
       {
         "id": 10,
-        "url": "https://www.starfall.com/h/_css/indices.css",
+        "url": "https://www.starfall.com/{seg}/{seg}/{seg}",
         "domain": "www.starfall.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 639,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 639
       },
       {
         "id": 11,
-        "url": "https://www.starfall.com/h/_css/indices-topnav.css",
+        "url": "https://www.starfall.com/{seg}/{seg}/{seg}",
         "domain": "www.starfall.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 639,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 639
       },
       {
         "id": 12,
-        "url": "https://www.starfall.com/h/_images/green-back-circle.png",
+        "url": "https://www.starfall.com/{seg}/{seg}/{seg}",
         "domain": "www.starfall.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 641,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 641
       },
       {
         "id": 13,
-        "url": "https://www.starfall.com/h/_images/starfall-logo-main-index.png",
+        "url": "https://www.starfall.com/{seg}/{seg}/{seg}",
         "domain": "www.starfall.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 642,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 642
       },
       {
         "id": 14,
-        "url": "https://www.starfall.com/h/_images/index-css/kindergarten.png",
+        "url": "https://www.starfall.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.starfall.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 778,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 778
       },
       {
         "id": 15,
-        "url": "https://www.starfall.com/h/_images/index-css/grades123.png",
+        "url": "https://www.starfall.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.starfall.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 840,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 840
       },
       {
         "id": 16,
-        "url": "https://www.starfall.com/h/_images/index-css/grades45.png",
+        "url": "https://www.starfall.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.starfall.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 903,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 903
       },
       {
         "id": 17,
-        "url": "https://www.starfall.com/h/_images/index/scriptt-all-main-demo.gif",
+        "url": "https://www.starfall.com/{seg}/{seg}/index/{seg}",
         "domain": "www.starfall.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 916,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 916
       },
       {
         "id": 18,
-        "url": "https://www.starfall.com/h/_images/banner-BG-final.png",
+        "url": "https://www.starfall.com/{seg}/{seg}/{seg}",
         "domain": "www.starfall.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 928,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 928
       },
       {
         "id": 19,
-        "url": "https://www.starfall.com/gi/_font/StarfallvBP/vrzb___starbold-webfont.woff",
+        "url": "https://www.starfall.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.starfall.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 930,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 930
       },
       {
         "id": 20,
-        "url": "https://www.starfall.com/gi/_font/liberationsansbold/liberationsans-bold-webfont-webfont.woff2",
+        "url": "https://www.starfall.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.starfall.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 931,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 931
       },
       {
         "id": 21,
-        "url": "https://www.starfall.com/gi/_font/liberationsans/liberationsans-regular-webfont-webfont.woff2",
+        "url": "https://www.starfall.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.starfall.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 931,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 931
       }
     ],
     "domains": [
@@ -715,7 +715,7 @@
     ],
     "cookies": [
       {
-        "name": "support",
+        "name": "[redacted]",
         "domain": ".starfall.com",
         "path": "/",
         "sameSite": "Lax",
@@ -725,7 +725,7 @@
         "thirdParty": false
       },
       {
-        "name": "grade",
+        "name": "[redacted]",
         "domain": ".starfall.com",
         "path": "/",
         "sameSite": "Lax",
@@ -736,15 +736,8 @@
       }
     ],
     "storage": [],
-    "fingerprintDetections": [],
     "fingerprintEvents": [],
-    "screenshot": null,
-    "warnings": [
-      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
-      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
-      "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
-      "Read the site's privacy policy (https://teach.starfall.com/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
-    ],
+    "fingerprintDetections": [],
     "privacyPolicy": {
       "url": "https://teach.starfall.com/privacy",
       "claims": [
@@ -756,7 +749,14 @@
       "mentionedEntities": [],
       "unmentionedEntities": [],
       "policyTextLength": 9657
-    }
+    },
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+      "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+      "Read the site's privacy policy (https://teach.starfall.com/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ]
   },
   "diff": {
     "totalRequests": {

@@ -1,8 +1,11 @@
-import { readdir, readFile } from "node:fs/promises";
-import path from "node:path";
 import { isReservedReportDomain } from "./reserved-report-domains";
-import { readStoredScanReport } from "./scan-report-reader";
 import { familyCensoredOnRun, toReportView, type ReportView } from "./scan-report-views";
+import {
+  listDanglingStaticSidecarIds,
+  listStaticReportCandidateIds,
+  readStaticReportBundle,
+  StaticReportBundleError
+} from "./static-report-files";
 import type { StaticReportManifest, StaticReportManifestEntry } from "./types";
 
 /**
@@ -10,15 +13,13 @@ import type { StaticReportManifest, StaticReportManifestEntry } from "./types";
  * committed report corpus. Recognition goes through the canonical
  * version-aware deep reader (RFC 14.8) and the entry derives from the
  * version-independent VIEW, so every readable generation joins the gallery: a
- * malformed report is SKIPPED WITH A WARNING, and its metrics are the
- * validated summary numbers verbatim, never a silently zero-coerced guess
- * (the deep guard already proves every count is a finite number).
+ * malformed or unmanaged report fails the managed-corpus build instead of
+ * silently disappearing. Metrics are the validated summary numbers verbatim,
+ * never a silently zero-coerced guess.
  *
  * Node-only module (filesystem); used by the CLI wrapper the build scripts and
  * workflows invoke. Never imported by app, worker, or browser code.
  */
-
-const REPORT_FILE_PATTERN = /^([0-9]{8}-[0-9a-f]{32})\.json$/;
 
 export type ManifestBuildResult = {
   manifest: StaticReportManifest;
@@ -30,33 +31,13 @@ export async function buildStaticReportManifest(reportsDir: string, now = new Da
   const warnings: string[] = [];
   const entries: StaticReportManifestEntry[] = [];
 
-  let files: string[];
-  try {
-    files = await readdir(reportsDir);
-  } catch (error) {
-    if (isMissingDirectory(error)) {
-      return { manifest: { generatedAt: now.toISOString(), reports: [] }, warnings };
-    }
-    throw error;
-  }
+  const dangling = await listDanglingStaticSidecarIds(reportsDir);
+  if (dangling.length > 0) throw new StaticReportBundleError(dangling[0], "dangling-sidecar");
 
-  for (const file of files.sort()) {
-    const match = REPORT_FILE_PATTERN.exec(file);
-    if (!match) continue;
-    const id = match[1];
-
-    let parsed: unknown;
-    try {
-      parsed = JSON.parse(await readFile(path.join(reportsDir, file), "utf8")) as unknown;
-    } catch (error) {
-      warnings.push(`Skipping unparseable static report ${file}: ${error instanceof Error ? error.message : String(error)}`);
-      continue;
-    }
-
-    const read = readStoredScanReport(parsed);
-    if (!read.ok) {
-      warnings.push(`Skipping static report ${file}: ${read.error}${read.violations ? ` (${read.violations[0]})` : ""}`);
-      continue;
+  for (const id of await listStaticReportCandidateIds(reportsDir)) {
+    const read = await readStaticReportBundle(reportsDir, id);
+    if (read.outcome !== "found") {
+      throw new StaticReportBundleError(id, read.outcome === "not-found" ? "missing-report" : read.reason);
     }
 
     const entry = toManifestEntry(id, toReportView(read.stored));
@@ -110,8 +91,4 @@ function toManifestEntry(id: string, view: ReportView): StaticReportManifestEntr
       ...(lead.counts.shieldsBlockedRequests !== null ? { shieldsBlockedRequests: lead.counts.shieldsBlockedRequests } : {})
     }
   };
-}
-
-function isMissingDirectory(error: unknown): boolean {
-  return Boolean(error && typeof error === "object" && "code" in error && (error as { code?: string }).code === "ENOENT");
 }

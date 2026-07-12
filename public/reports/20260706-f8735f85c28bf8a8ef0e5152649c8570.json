@@ -49,6 +49,13 @@
       "automation": "playwright-chromium",
       "headless": true,
       "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "classification",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-02T01:00:58.178Z"
+      },
       "trackerCatalog": {
         "source": "Hand-curated service catalog",
         "version": "hand-curated-2026.06",
@@ -57,14 +64,7 @@
         "curatedOverrides": 133,
         "license": "AGPL-3.0-or-later"
       },
-      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
-      "adblock": {
-        "active": true,
-        "source": "Brave default ad-block lists",
-        "lists": 31,
-        "fetchedAt": "2026-07-02T01:00:58.178Z"
-      },
-      "shieldsMode": "classification"
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
     },
     "requests": [
       {
@@ -76,708 +76,708 @@
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 41,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 41
       },
       {
         "id": 2,
-        "url": "https://www.pof.com/5dda2f3201f50bf3d7cfecb358bd9ceb7b16c667-06879bb02cfb478e5f6e.js",
+        "url": "https://www.pof.com/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 382,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 382
       },
       {
         "id": 3,
-        "url": "https://www.pof.com/841b2d675b1422ea2e8253fde069000a39bb5f60-7c0d4cce12f66ecdad4e.js",
+        "url": "https://www.pof.com/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 382,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 382
       },
       {
         "id": 4,
-        "url": "https://www.pof.com/Menu-bdc18ff3c27c779d5032.js",
+        "url": "https://www.pof.com/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 383,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 383
       },
       {
         "id": 5,
-        "url": "https://www.pof.com/ProfileImages-4df547c862489b1a877a.js",
+        "url": "https://www.pof.com/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 383,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 383
       },
       {
         "id": 6,
-        "url": "https://www.pof.com/DatingOnPof-80406f686849116fe697.js",
+        "url": "https://www.pof.com/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 383,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 383
       },
       {
         "id": 7,
-        "url": "https://www.pof.com/ba58f7f904ee31fc0d89b275fc7a98a4ca32ed8c-58080028ba3e03c8e00a.js",
+        "url": "https://www.pof.com/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 384,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 384
       },
       {
         "id": 8,
-        "url": "https://www.pof.com/PofSuccess-de3aa95eacf06c0f07d5.js",
+        "url": "https://www.pof.com/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 384,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 384
       },
       {
         "id": 9,
-        "url": "https://www.pof.com/PlentyOfCarousel-3d15624fa0eebfff1c11.js",
+        "url": "https://www.pof.com/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 384,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 384
       },
       {
         "id": 10,
-        "url": "https://www.pof.com/d896d0610027b8fd3f1cf8ca98763df0ba0b9993-e00b9fb8dbf23220c78a.js",
+        "url": "https://www.pof.com/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 385,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 385
       },
       {
         "id": 11,
-        "url": "https://www.pof.com/src-components-getAppSection-getAppSection-8f12948dbc02f3c795b2.js",
+        "url": "https://www.pof.com/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 385,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 385
       },
       {
         "id": 12,
-        "url": "https://www.pof.com/91513eafee1fbac88fdf4d43136997d8c5eb6825-2122d1182d6079bb83de.js",
+        "url": "https://www.pof.com/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 388,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 388
       },
       {
         "id": 13,
-        "url": "https://www.pof.com/f199d2ce442dde99a78d313a929a5e8b0b406871-e18c71e6287aa9a4ce03.js",
+        "url": "https://www.pof.com/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 389,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 389
       },
       {
         "id": 14,
-        "url": "https://www.pof.com/9b3f65d4957c4ae1777dd1ea502cf4af50a6362f-1d48cde4a757adacbadd.js",
+        "url": "https://www.pof.com/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 389,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 389
       },
       {
         "id": 15,
-        "url": "https://www.pof.com/d4095ce253ff602bf15be52af1e4718aa285806e-6d1aa7a08e6d4060e77c.js",
+        "url": "https://www.pof.com/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 390,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 390
       },
       {
         "id": 16,
-        "url": "https://www.pof.com/d51deb8c339fc116dd3a0ab84dcca51ade165d7e-237d46e551fc11e3d14b.js",
+        "url": "https://www.pof.com/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 390,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 390
       },
       {
         "id": 17,
-        "url": "https://www.pof.com/8e9096d6849793b732096fe77376d24c35530226-550f681d8be3afce5c85.js",
+        "url": "https://www.pof.com/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 391,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 391
       },
       {
         "id": 18,
-        "url": "https://www.pof.com/c5443d607269aa40d2f10736b68d60f2d0fab5ef-12579096350f9d251c0d.js",
+        "url": "https://www.pof.com/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 391,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 391
       },
       {
         "id": 19,
-        "url": "https://www.pof.com/src-components-footer-7c26039d59c875c3a7df.js",
+        "url": "https://www.pof.com/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 391,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 391
       },
       {
         "id": 20,
-        "url": "https://www.pof.com/static/Nib-Light-Pro-cb55ecc5efd7e857d79edadc546ca2be.woff2",
+        "url": "https://www.pof.com/static/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 392,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 392
       },
       {
         "id": 21,
-        "url": "https://www.pof.com/static/Nib-SemiBold-Pro-95165da470c2c7c56a9c4b91a8a6fa49.woff2",
+        "url": "https://www.pof.com/static/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 392,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 392
       },
       {
         "id": 22,
-        "url": "https://www.pof.com/static/Moderat-Bold-90b11152da00cb0add7ae58bd49e9f18.woff2",
+        "url": "https://www.pof.com/static/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 392,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 392
       },
       {
         "id": 23,
-        "url": "https://www.pof.com/static/Moderat-Light-bc3f314be8fcbb4f9cbfb2ff43b6f15e.woff2",
+        "url": "https://www.pof.com/static/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 393,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 393
       },
       {
         "id": 24,
-        "url": "https://www.pof.com/static/Moderat-Regular-edb6d7dff8a33379b895629d54632a71.woff2",
+        "url": "https://www.pof.com/static/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 393,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 393
       },
       {
         "id": 25,
-        "url": "https://www.pof.com/static/fish_hanging_dot1_ani-910edbd283d302647a44ae22b09a8afb.gif",
+        "url": "https://www.pof.com/static/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 393,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 393
       },
       {
         "id": 26,
-        "url": "https://www.pof.com/static/fish_hanging_dot2_ani-233070f4348becd15319375edb40aae2.gif",
+        "url": "https://www.pof.com/static/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 394,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 394
       },
       {
         "id": 27,
-        "url": "https://www.pof.com/static/fish_hanging_dot3_ani-172f10359e8c91dcb39d957922334cee.gif",
+        "url": "https://www.pof.com/static/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 394,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 394
       },
       {
         "id": 28,
-        "url": "https://www.pof.com/static/fish_hanging_dot4_ani-12bdaccfa0900076c753394978853b1f.gif",
+        "url": "https://www.pof.com/static/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 394,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 394
       },
       {
         "id": 29,
-        "url": "https://www.pof.com/static/fish_hanging_dot5_ani-53db19a42c673feb10c0af3bee0f2b19.gif",
+        "url": "https://www.pof.com/static/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 394,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 394
       },
       {
         "id": 30,
-        "url": "https://www.pof.com/webpack-runtime-189187511ee9c2fd6aad.js",
+        "url": "https://www.pof.com/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 395,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 395
       },
       {
         "id": 31,
-        "url": "https://www.pof.com/framework-506446854efd134e951d.js",
+        "url": "https://www.pof.com/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 395,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 395
       },
       {
         "id": 32,
-        "url": "https://www.pof.com/app-f08f19071812b3a120ad.js",
+        "url": "https://www.pof.com/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 395,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 395
       },
       {
         "id": 33,
-        "url": "https://www.pof.com/static/cropped_pof_illustration_animation-5b93ed565fe6545de478812440f5f0a4.gif",
+        "url": "https://www.pof.com/static/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 417,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 417
       },
       {
         "id": 34,
-        "url": "https://www.pof.com/static/5e19d61da06250ebf318afe545c1c210/7e5c8/fish_hanging_fish1.webp",
+        "url": "https://www.pof.com/static/{seg}/{seg}/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 483,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 483
       },
       {
         "id": 35,
-        "url": "https://www.pof.com/static/fa7d548094014933294f0ac617f00219/dbb29/fish_hanging_fish2.webp",
+        "url": "https://www.pof.com/static/{seg}/{seg}/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 483,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 483
       },
       {
         "id": 36,
-        "url": "https://www.pof.com/static/9d3c8d5536bb367f1a78ad863a9a53bf/ec9c0/flying-fish1.webp",
+        "url": "https://www.pof.com/static/{seg}/{seg}/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 484,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 484
       },
       {
         "id": 37,
-        "url": "https://www.pof.com/static/b2b1fbe95c40f58493bb80e1c6211b91/86fda/flying-fish2.webp",
+        "url": "https://www.pof.com/static/{seg}/{seg}/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 484,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 484
       },
       {
         "id": 38,
-        "url": "https://www.pof.com/static/b0762aa4853962fff425a67ed050652e/5843f/flying-fish3.webp",
+        "url": "https://www.pof.com/static/{seg}/{seg}/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 488,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 488
       },
       {
         "id": 39,
-        "url": "https://www.pof.com/static/ed9489cc578e4bd70b393645cf736d29/af207/profile-pic-1.webp",
+        "url": "https://www.pof.com/static/{seg}/{seg}/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 488,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 488
       },
       {
         "id": 40,
-        "url": "https://www.pof.com/static/ef59f0426de1f02d96002a3177c9db51/af207/profile-pic-2.webp",
+        "url": "https://www.pof.com/static/{seg}/{seg}/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 492,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 492
       },
       {
         "id": 41,
-        "url": "https://www.pof.com/static/6410c85c5d7443f00ac7fb60601950cc/af207/profile-pic-3.webp",
+        "url": "https://www.pof.com/static/{seg}/{seg}/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 496,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 496
       },
       {
         "id": 42,
-        "url": "https://www.pof.com/static/a0c1f0cf2e845fa8eb4080a56912aa6c/af207/profile-pic-4.webp",
+        "url": "https://www.pof.com/static/{seg}/{seg}/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 497,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 497
       },
       {
         "id": 43,
-        "url": "https://www.pof.com/static/f238263ced328fbf337095c417b6475e/98071/pof_illustration_fish_sign.webp",
+        "url": "https://www.pof.com/static/{seg}/{n}/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 498,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 498
       },
       {
         "id": 44,
-        "url": "https://www.pof.com/static/05e15d288628a6a7349df2423028d33e/6c307/pof_illustration_heart_hi.webp",
+        "url": "https://www.pof.com/static/{seg}/{seg}/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 498,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 498
       },
       {
         "id": 45,
-        "url": "https://www.pof.com/static/019f16c7de571255ec6e27a404b5a9f3/510d0/pof_illustration_hearts_skaterhearts.webp",
+        "url": "https://www.pof.com/static/{seg}/{seg}/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 502,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 502
       },
       {
         "id": 46,
-        "url": "https://www.pof.com/static/422b271e24d80843c4d60a85f3cf6236/8e1f7/pof_illustration_hearts_dance.webp",
+        "url": "https://www.pof.com/static/{seg}/{seg}/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 503,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 503
       },
       {
         "id": 47,
-        "url": "https://www.pof.com/static/ec1be4d226d5d8f357a6a994fb028d74/778b7/apple-app-store.webp",
+        "url": "https://www.pof.com/static/{seg}/{seg}/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 503,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 503
       },
       {
         "id": 48,
-        "url": "https://www.pof.com/static/4b0670f10ae5bf6eae4dee64bd2dc5a0/778b7/google-play.webp",
+        "url": "https://www.pof.com/static/{seg}/{seg}/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 504,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 504
       },
       {
         "id": 49,
-        "url": "https://www.pof.com/static/16f9677d500c2b5e29138443bf46396a/0befc/get-the-app.webp",
+        "url": "https://www.pof.com/static/{seg}/{seg}/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 504,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 504
       },
       {
         "id": 50,
-        "url": "https://www.pof.com/page-data/app-data.json",
+        "url": "https://www.pof.com/{seg}/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 553,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 553
       },
       {
         "id": 51,
-        "url": "https://www.pof.com/page-data/index/page-data.json",
+        "url": "https://www.pof.com/{seg}/index/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 555,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 555
       },
       {
         "id": 52,
-        "url": "https://www.pof.com/3b1baa31-47035a32785660c693e6.js",
+        "url": "https://www.pof.com/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 719,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 719
       },
       {
         "id": 53,
-        "url": "https://www.pof.com/ce0ecb77673b3e25b8d009ba2412ca05d42a325f-b85808d8470755604c52.js",
+        "url": "https://www.pof.com/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 719,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 719
       },
       {
         "id": 54,
-        "url": "https://www.pof.com/fcaaf7ccc71c333ba269243ce13e5fb97e63133d-1539d755cd65d6d62d52.js",
+        "url": "https://www.pof.com/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 719,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 719
       },
       {
         "id": 55,
-        "url": "https://www.pof.com/559ed4096b91789f3b4903825956f27404667da5-065f7dbec05c6b88764b.js",
+        "url": "https://www.pof.com/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 720,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 720
       },
       {
         "id": 56,
-        "url": "https://www.pof.com/component---src-templates-index-index-tsx-f416f80568bb1adcabf1.js",
+        "url": "https://www.pof.com/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 720,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 720
       },
       {
         "id": 57,
-        "url": "https://www.pof.com/page-data/sq/d/2573113702.json",
+        "url": "https://www.pof.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 721,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 721
       },
       {
         "id": 58,
-        "url": "https://www.pof.com/page-data/sq/d/693438743.json",
+        "url": "https://www.pof.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 721,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 721
       },
       {
         "id": 59,
-        "url": "https://2.api.pof.com/analytic/recordappevents",
+        "url": "https://2.api.pof.com/{seg}/{seg}",
         "domain": "2.api.pof.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 981,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 981
       },
       {
         "id": 60,
-        "url": "https://www.googletagmanager.com/gtm.js?id=",
+        "url": "https://www.googletagmanager.com/{seg}?id=",
         "domain": "www.googletagmanager.com",
         "method": "GET",
         "resourceType": "script",
@@ -789,176 +789,176 @@
           "category": "analytics / tag management",
           "confidence": "curated"
         },
-        "startedAtMs": 1002,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1002
       },
       {
         "id": 61,
-        "url": "https://www.pof.com/1164-461dc96a39355c7fd31a.js",
+        "url": "https://www.pof.com/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1002,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1002
       },
       {
         "id": 62,
-        "url": "https://2.api.pof.com/analytic/recordappevents",
+        "url": "https://2.api.pof.com/{seg}/{seg}",
         "domain": "2.api.pof.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1004,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1004
       },
       {
         "id": 63,
-        "url": "https://cdn.cookielaw.org/scripttemplates/otSDKStub.js",
+        "url": "https://cdn.cookielaw.org/{seg}/{seg}",
         "domain": "cdn.cookielaw.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1167,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1167
       },
       {
         "id": 64,
-        "url": "https://cdn.cookielaw.org/consent/e1e62a68-8a46-4077-b824-0532bf8d73b7/e1e62a68-8a46-4077-b824-0532bf8d73b7.json",
+        "url": "https://cdn.cookielaw.org/{seg}/{seg}/{seg}",
         "domain": "cdn.cookielaw.org",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1196,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1196
       },
       {
         "id": 65,
-        "url": "https://geolocation.onetrust.com/cookieconsentpub/v1/geo/location",
+        "url": "https://geolocation.onetrust.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "geolocation.onetrust.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1236,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1236
       },
       {
         "id": 66,
-        "url": "https://cdn.cookielaw.org/scripttemplates/202605.1.0/otBannerSdk.js",
+        "url": "https://cdn.cookielaw.org/{seg}/{seg}/{seg}",
         "domain": "cdn.cookielaw.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1276,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1276
       },
       {
         "id": 67,
-        "url": "https://cdn.cookielaw.org/consent/e1e62a68-8a46-4077-b824-0532bf8d73b7/01976056-7647-7d18-97fd-f1a9f5e743b3/en.json",
+        "url": "https://cdn.cookielaw.org/{seg}/{seg}/{seg}/{seg}",
         "domain": "cdn.cookielaw.org",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1330,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1330
       },
       {
         "id": 68,
-        "url": "https://cdn.cookielaw.org/scripttemplates/202605.1.0/assets/otFlat.json",
+        "url": "https://cdn.cookielaw.org/{seg}/{seg}/{seg}/{seg}",
         "domain": "cdn.cookielaw.org",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1390,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1390
       },
       {
         "id": 69,
-        "url": "https://cdn.cookielaw.org/scripttemplates/202605.1.0/assets/v2/otPcCenter.json",
+        "url": "https://cdn.cookielaw.org/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "cdn.cookielaw.org",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1391,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1391
       },
       {
         "id": 70,
-        "url": "https://cdn.cookielaw.org/scripttemplates/202605.1.0/assets/otCommonStyles.css",
+        "url": "https://cdn.cookielaw.org/{seg}/{seg}/{seg}/{seg}",
         "domain": "cdn.cookielaw.org",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1391,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1391
       },
       {
         "id": 71,
-        "url": "https://cdn.cookielaw.org/logos/static/ot_close.svg",
+        "url": "https://cdn.cookielaw.org/{seg}/static/{seg}",
         "domain": "cdn.cookielaw.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1447,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1447
       },
       {
         "id": 72,
-        "url": "https://cdn.cookielaw.org/logos/static/ot_guard_logo.svg",
+        "url": "https://cdn.cookielaw.org/{seg}/static/{seg}",
         "domain": "cdn.cookielaw.org",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1448,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1448
       },
       {
         "id": 73,
-        "url": "https://cdn.cookielaw.org/logos/abdd0205-22cc-4fe3-9905-15c572527293/018dcc35-1a82-7272-9661-83ba7c5ecca4/6209f73e-1803-40ee-9943-10f640c029d0/Plenty_of_Fish_2022_logo.svg.png",
+        "url": "https://cdn.cookielaw.org/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "cdn.cookielaw.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1469,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1469
       },
       {
         "id": 74,
-        "url": "https://cdn.cookielaw.org/logos/static/powered_by_logo.svg",
+        "url": "https://cdn.cookielaw.org/{seg}/static/{seg}",
         "domain": "cdn.cookielaw.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1470,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1470
       }
     ],
     "domains": [
@@ -1042,7 +1042,7 @@
     ],
     "cookies": [
       {
-        "name": "installid",
+        "name": "[redacted]",
         "domain": ".pof.com",
         "path": "/",
         "sameSite": "Lax",
@@ -1062,7 +1062,7 @@
         "thirdParty": false
       },
       {
-        "name": "_cfuvid",
+        "name": "[redacted]",
         "domain": ".pof.com",
         "path": "/",
         "sameSite": "None",
@@ -1092,7 +1092,7 @@
         "thirdParty": false
       },
       {
-        "name": "CF-IPCountry",
+        "name": "[redacted]",
         "domain": "www.pof.com",
         "path": "/",
         "sameSite": "Lax",
@@ -1102,7 +1102,7 @@
         "thirdParty": false
       },
       {
-        "name": "CF-Region-Code",
+        "name": "[redacted]",
         "domain": "www.pof.com",
         "path": "/",
         "sameSite": "Lax",
@@ -1112,7 +1112,7 @@
         "thirdParty": false
       },
       {
-        "name": "CPA",
+        "name": "[redacted]",
         "domain": "www.pof.com",
         "path": "/",
         "sameSite": "Lax",
@@ -1122,7 +1122,7 @@
         "thirdParty": false
       },
       {
-        "name": "v2CookieBannerSeen",
+        "name": "[redacted:long-token]",
         "domain": "www.pof.com",
         "path": "/",
         "sameSite": "Lax",
@@ -1135,10 +1135,11 @@
     "storage": [
       {
         "area": "localStorage",
-        "key": "0",
+        "key": "[redacted:numeric]",
         "valueBytes": 41
       }
     ],
+    "fingerprintEvents": [],
     "fingerprintDetections": [
       {
         "kind": "input-monitoring",
@@ -1155,29 +1156,28 @@
             "other"
           ],
           "thirdPartyOrigins": [
-            "https://cdn.cookielaw.org"
+            "https://cdn.cookielaw.org/"
           ],
           "totalListenerCalls": 6
         }
       }
     ],
-    "fingerprintEvents": [],
-    "screenshot": null,
-    "warnings": [
-      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
-      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
-      "This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
-      "Read the site's privacy policy (https://policies.pof.com/privacypolicy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
-    ],
     "privacyPolicy": {
-      "url": "https://policies.pof.com/privacypolicy",
+      "url": "https://policies.pof.com/{seg}",
       "claims": [],
       "mentionedEntities": [
         "Google"
       ],
       "unmentionedEntities": [],
       "policyTextLength": 32192
-    }
+    },
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
+      "This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
+      "Read the site's privacy policy (https://policies.pof.com/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ]
   },
   "variant": {
     "ok": true,
@@ -1217,6 +1217,13 @@
       "automation": "playwright-chromium",
       "headless": true,
       "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "block-simulation",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-02T01:00:58.178Z"
+      },
       "trackerCatalog": {
         "source": "Hand-curated service catalog",
         "version": "hand-curated-2026.06",
@@ -1225,14 +1232,7 @@
         "curatedOverrides": 133,
         "license": "AGPL-3.0-or-later"
       },
-      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
-      "adblock": {
-        "active": true,
-        "source": "Brave default ad-block lists",
-        "lists": 31,
-        "fetchedAt": "2026-07-02T01:00:58.178Z"
-      },
-      "shieldsMode": "block-simulation"
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
     },
     "requests": [
       {
@@ -1244,728 +1244,728 @@
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 49,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 49
       },
       {
         "id": 2,
-        "url": "https://www.pof.com/5dda2f3201f50bf3d7cfecb358bd9ceb7b16c667-06879bb02cfb478e5f6e.js",
+        "url": "https://www.pof.com/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 226,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 226
       },
       {
         "id": 3,
-        "url": "https://www.pof.com/841b2d675b1422ea2e8253fde069000a39bb5f60-7c0d4cce12f66ecdad4e.js",
+        "url": "https://www.pof.com/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 227,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 227
       },
       {
         "id": 4,
-        "url": "https://www.pof.com/Menu-bdc18ff3c27c779d5032.js",
+        "url": "https://www.pof.com/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 228,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 228
       },
       {
         "id": 5,
-        "url": "https://www.pof.com/ProfileImages-4df547c862489b1a877a.js",
+        "url": "https://www.pof.com/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 228,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 228
       },
       {
         "id": 6,
-        "url": "https://www.pof.com/DatingOnPof-80406f686849116fe697.js",
+        "url": "https://www.pof.com/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 229,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 229
       },
       {
         "id": 7,
-        "url": "https://www.pof.com/ba58f7f904ee31fc0d89b275fc7a98a4ca32ed8c-58080028ba3e03c8e00a.js",
+        "url": "https://www.pof.com/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 231,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 231
       },
       {
         "id": 8,
-        "url": "https://www.pof.com/PofSuccess-de3aa95eacf06c0f07d5.js",
+        "url": "https://www.pof.com/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 232,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 232
       },
       {
         "id": 9,
-        "url": "https://www.pof.com/PlentyOfCarousel-3d15624fa0eebfff1c11.js",
+        "url": "https://www.pof.com/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 232,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 232
       },
       {
         "id": 10,
-        "url": "https://www.pof.com/d896d0610027b8fd3f1cf8ca98763df0ba0b9993-e00b9fb8dbf23220c78a.js",
+        "url": "https://www.pof.com/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 233,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 233
       },
       {
         "id": 11,
-        "url": "https://www.pof.com/src-components-getAppSection-getAppSection-8f12948dbc02f3c795b2.js",
+        "url": "https://www.pof.com/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 233,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 233
       },
       {
         "id": 12,
-        "url": "https://www.pof.com/91513eafee1fbac88fdf4d43136997d8c5eb6825-2122d1182d6079bb83de.js",
+        "url": "https://www.pof.com/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 234,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 234
       },
       {
         "id": 13,
-        "url": "https://www.pof.com/f199d2ce442dde99a78d313a929a5e8b0b406871-e18c71e6287aa9a4ce03.js",
+        "url": "https://www.pof.com/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 234,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 234
       },
       {
         "id": 14,
-        "url": "https://www.pof.com/9b3f65d4957c4ae1777dd1ea502cf4af50a6362f-1d48cde4a757adacbadd.js",
+        "url": "https://www.pof.com/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 235,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 235
       },
       {
         "id": 15,
-        "url": "https://www.pof.com/d4095ce253ff602bf15be52af1e4718aa285806e-6d1aa7a08e6d4060e77c.js",
+        "url": "https://www.pof.com/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 235,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 235
       },
       {
         "id": 16,
-        "url": "https://www.pof.com/d51deb8c339fc116dd3a0ab84dcca51ade165d7e-237d46e551fc11e3d14b.js",
+        "url": "https://www.pof.com/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 236,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 236
       },
       {
         "id": 17,
-        "url": "https://www.pof.com/8e9096d6849793b732096fe77376d24c35530226-550f681d8be3afce5c85.js",
+        "url": "https://www.pof.com/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 236,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 236
       },
       {
         "id": 18,
-        "url": "https://www.pof.com/c5443d607269aa40d2f10736b68d60f2d0fab5ef-12579096350f9d251c0d.js",
+        "url": "https://www.pof.com/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 236,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 236
       },
       {
         "id": 19,
-        "url": "https://www.pof.com/src-components-footer-7c26039d59c875c3a7df.js",
+        "url": "https://www.pof.com/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 237,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 237
       },
       {
         "id": 20,
-        "url": "https://www.pof.com/static/Nib-Light-Pro-cb55ecc5efd7e857d79edadc546ca2be.woff2",
+        "url": "https://www.pof.com/static/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 237,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 237
       },
       {
         "id": 21,
-        "url": "https://www.pof.com/static/Nib-SemiBold-Pro-95165da470c2c7c56a9c4b91a8a6fa49.woff2",
+        "url": "https://www.pof.com/static/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 238,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 238
       },
       {
         "id": 22,
-        "url": "https://www.pof.com/static/Moderat-Bold-90b11152da00cb0add7ae58bd49e9f18.woff2",
+        "url": "https://www.pof.com/static/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 242,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 242
       },
       {
         "id": 23,
-        "url": "https://www.pof.com/static/Moderat-Light-bc3f314be8fcbb4f9cbfb2ff43b6f15e.woff2",
+        "url": "https://www.pof.com/static/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 243,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 243
       },
       {
         "id": 24,
-        "url": "https://www.pof.com/static/Moderat-Regular-edb6d7dff8a33379b895629d54632a71.woff2",
+        "url": "https://www.pof.com/static/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 243,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 243
       },
       {
         "id": 25,
-        "url": "https://www.pof.com/static/fish_hanging_dot1_ani-910edbd283d302647a44ae22b09a8afb.gif",
+        "url": "https://www.pof.com/static/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 244,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 244
       },
       {
         "id": 26,
-        "url": "https://www.pof.com/static/fish_hanging_dot2_ani-233070f4348becd15319375edb40aae2.gif",
+        "url": "https://www.pof.com/static/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 244,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 244
       },
       {
         "id": 27,
-        "url": "https://www.pof.com/static/fish_hanging_dot3_ani-172f10359e8c91dcb39d957922334cee.gif",
+        "url": "https://www.pof.com/static/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 245,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 245
       },
       {
         "id": 28,
-        "url": "https://www.pof.com/static/fish_hanging_dot4_ani-12bdaccfa0900076c753394978853b1f.gif",
+        "url": "https://www.pof.com/static/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 245,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 245
       },
       {
         "id": 29,
-        "url": "https://www.pof.com/static/fish_hanging_dot5_ani-53db19a42c673feb10c0af3bee0f2b19.gif",
+        "url": "https://www.pof.com/static/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 246,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 246
       },
       {
         "id": 30,
-        "url": "https://www.pof.com/webpack-runtime-189187511ee9c2fd6aad.js",
+        "url": "https://www.pof.com/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 246,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 246
       },
       {
         "id": 31,
-        "url": "https://www.pof.com/framework-506446854efd134e951d.js",
+        "url": "https://www.pof.com/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 247,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 247
       },
       {
         "id": 32,
-        "url": "https://www.pof.com/app-f08f19071812b3a120ad.js",
+        "url": "https://www.pof.com/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 247,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 247
       },
       {
         "id": 33,
-        "url": "https://www.pof.com/static/cropped_pof_illustration_animation-5b93ed565fe6545de478812440f5f0a4.gif",
+        "url": "https://www.pof.com/static/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 271,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 271
       },
       {
         "id": 34,
-        "url": "https://www.pof.com/static/5e19d61da06250ebf318afe545c1c210/7e5c8/fish_hanging_fish1.webp",
+        "url": "https://www.pof.com/static/{seg}/{seg}/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 313,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 313
       },
       {
         "id": 35,
-        "url": "https://www.pof.com/static/fa7d548094014933294f0ac617f00219/dbb29/fish_hanging_fish2.webp",
+        "url": "https://www.pof.com/static/{seg}/{seg}/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 319,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 319
       },
       {
         "id": 36,
-        "url": "https://www.pof.com/static/9d3c8d5536bb367f1a78ad863a9a53bf/ec9c0/flying-fish1.webp",
+        "url": "https://www.pof.com/static/{seg}/{seg}/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 320,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 320
       },
       {
         "id": 37,
-        "url": "https://www.pof.com/static/b2b1fbe95c40f58493bb80e1c6211b91/86fda/flying-fish2.webp",
+        "url": "https://www.pof.com/static/{seg}/{seg}/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 320,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 320
       },
       {
         "id": 38,
-        "url": "https://www.pof.com/static/b0762aa4853962fff425a67ed050652e/5843f/flying-fish3.webp",
+        "url": "https://www.pof.com/static/{seg}/{seg}/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 321,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 321
       },
       {
         "id": 39,
-        "url": "https://www.pof.com/static/ed9489cc578e4bd70b393645cf736d29/af207/profile-pic-1.webp",
+        "url": "https://www.pof.com/static/{seg}/{seg}/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 321,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 321
       },
       {
         "id": 40,
-        "url": "https://www.pof.com/static/ef59f0426de1f02d96002a3177c9db51/af207/profile-pic-2.webp",
+        "url": "https://www.pof.com/static/{seg}/{seg}/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 321,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 321
       },
       {
         "id": 41,
-        "url": "https://www.pof.com/static/6410c85c5d7443f00ac7fb60601950cc/af207/profile-pic-3.webp",
+        "url": "https://www.pof.com/static/{seg}/{seg}/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 322,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 322
       },
       {
         "id": 42,
-        "url": "https://www.pof.com/static/a0c1f0cf2e845fa8eb4080a56912aa6c/af207/profile-pic-4.webp",
+        "url": "https://www.pof.com/static/{seg}/{seg}/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 322,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 322
       },
       {
         "id": 43,
-        "url": "https://www.pof.com/static/f238263ced328fbf337095c417b6475e/98071/pof_illustration_fish_sign.webp",
+        "url": "https://www.pof.com/static/{seg}/{n}/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 323,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 323
       },
       {
         "id": 44,
-        "url": "https://www.pof.com/static/05e15d288628a6a7349df2423028d33e/6c307/pof_illustration_heart_hi.webp",
+        "url": "https://www.pof.com/static/{seg}/{seg}/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 323,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 323
       },
       {
         "id": 45,
-        "url": "https://www.pof.com/static/019f16c7de571255ec6e27a404b5a9f3/510d0/pof_illustration_hearts_skaterhearts.webp",
+        "url": "https://www.pof.com/static/{seg}/{seg}/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 324,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 324
       },
       {
         "id": 46,
-        "url": "https://www.pof.com/static/422b271e24d80843c4d60a85f3cf6236/8e1f7/pof_illustration_hearts_dance.webp",
+        "url": "https://www.pof.com/static/{seg}/{seg}/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 324,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 324
       },
       {
         "id": 47,
-        "url": "https://www.pof.com/static/ec1be4d226d5d8f357a6a994fb028d74/778b7/apple-app-store.webp",
+        "url": "https://www.pof.com/static/{seg}/{seg}/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 325,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 325
       },
       {
         "id": 48,
-        "url": "https://www.pof.com/static/4b0670f10ae5bf6eae4dee64bd2dc5a0/778b7/google-play.webp",
+        "url": "https://www.pof.com/static/{seg}/{seg}/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 325,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 325
       },
       {
         "id": 49,
-        "url": "https://www.pof.com/static/16f9677d500c2b5e29138443bf46396a/0befc/get-the-app.webp",
+        "url": "https://www.pof.com/static/{seg}/{seg}/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 325,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 325
       },
       {
         "id": 50,
-        "url": "https://www.pof.com/page-data/app-data.json",
+        "url": "https://www.pof.com/{seg}/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 362,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 362
       },
       {
         "id": 51,
-        "url": "https://www.pof.com/page-data/index/page-data.json",
+        "url": "https://www.pof.com/{seg}/index/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 364,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 364
       },
       {
         "id": 52,
-        "url": "https://www.pof.com/3b1baa31-47035a32785660c693e6.js",
+        "url": "https://www.pof.com/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 521,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 521
       },
       {
         "id": 53,
-        "url": "https://www.pof.com/ce0ecb77673b3e25b8d009ba2412ca05d42a325f-b85808d8470755604c52.js",
+        "url": "https://www.pof.com/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 521,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 521
       },
       {
         "id": 54,
-        "url": "https://www.pof.com/fcaaf7ccc71c333ba269243ce13e5fb97e63133d-1539d755cd65d6d62d52.js",
+        "url": "https://www.pof.com/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 522,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 522
       },
       {
         "id": 55,
-        "url": "https://www.pof.com/559ed4096b91789f3b4903825956f27404667da5-065f7dbec05c6b88764b.js",
+        "url": "https://www.pof.com/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 522,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 522
       },
       {
         "id": 56,
-        "url": "https://www.pof.com/component---src-templates-index-index-tsx-f416f80568bb1adcabf1.js",
+        "url": "https://www.pof.com/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 523,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 523
       },
       {
         "id": 57,
-        "url": "https://www.pof.com/page-data/sq/d/2573113702.json",
+        "url": "https://www.pof.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 523,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 523
       },
       {
         "id": 58,
-        "url": "https://www.pof.com/page-data/sq/d/693438743.json",
+        "url": "https://www.pof.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 524,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 524
       },
       {
         "id": 59,
-        "url": "https://2.api.pof.com/analytic/recordappevents",
+        "url": "https://2.api.pof.com/{seg}/{seg}",
         "domain": "2.api.pof.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 796,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 796
       },
       {
         "id": 61,
-        "url": "https://www.pof.com/1164-461dc96a39355c7fd31a.js",
+        "url": "https://www.pof.com/{seg}",
         "domain": "www.pof.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 819,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 819
       },
       {
         "id": 62,
-        "url": "https://2.api.pof.com/analytic/recordappevents",
+        "url": "https://2.api.pof.com/{seg}/{seg}",
         "domain": "2.api.pof.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 821,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 821
       }
     ],
     "domains": [
@@ -2002,7 +2002,7 @@
     ],
     "cookies": [
       {
-        "name": "installid",
+        "name": "[redacted]",
         "domain": ".pof.com",
         "path": "/",
         "sameSite": "Lax",
@@ -2022,7 +2022,7 @@
         "thirdParty": false
       },
       {
-        "name": "_cfuvid",
+        "name": "[redacted]",
         "domain": ".pof.com",
         "path": "/",
         "sameSite": "None",
@@ -2042,7 +2042,7 @@
         "thirdParty": false
       },
       {
-        "name": "CF-IPCountry",
+        "name": "[redacted]",
         "domain": "www.pof.com",
         "path": "/",
         "sameSite": "Lax",
@@ -2052,7 +2052,7 @@
         "thirdParty": false
       },
       {
-        "name": "CF-Region-Code",
+        "name": "[redacted]",
         "domain": "www.pof.com",
         "path": "/",
         "sameSite": "Lax",
@@ -2062,7 +2062,7 @@
         "thirdParty": false
       },
       {
-        "name": "CPA",
+        "name": "[redacted]",
         "domain": "www.pof.com",
         "path": "/",
         "sameSite": "Lax",
@@ -2075,27 +2075,27 @@
     "storage": [
       {
         "area": "localStorage",
-        "key": "0",
+        "key": "[redacted:numeric]",
         "valueBytes": 41
       }
     ],
-    "fingerprintDetections": [],
     "fingerprintEvents": [],
+    "fingerprintDetections": [],
+    "privacyPolicy": {
+      "url": "https://policies.pof.com/{seg}",
+      "claims": [],
+      "mentionedEntities": [],
+      "unmentionedEntities": [],
+      "policyTextLength": 32192
+    },
     "screenshot": null,
     "warnings": [
       "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
       "Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
       "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
       "This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
-      "Read the site's privacy policy (https://policies.pof.com/privacypolicy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
-    ],
-    "privacyPolicy": {
-      "url": "https://policies.pof.com/privacypolicy",
-      "claims": [],
-      "mentionedEntities": [],
-      "unmentionedEntities": [],
-      "policyTextLength": 32192
-    }
+      "Read the site's privacy policy (https://policies.pof.com/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ]
   },
   "diff": {
     "totalRequests": {
@@ -2177,7 +2177,7 @@
         "thirdParty": false
       },
       {
-        "name": "v2CookieBannerSeen",
+        "name": "[redacted:long-token]",
         "domain": "www.pof.com",
         "thirdParty": false
       }
@@ -2205,12 +2205,12 @@
     "No blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
     "No blocking: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
     "No blocking: This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
-    "No blocking: Read the site's privacy policy (https://policies.pof.com/privacypolicy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
+    "No blocking: Read the site's privacy policy (https://policies.pof.com/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
     "Brave-list blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
     "Brave-list blocking: Counts are a lower bound: trackers that load only after interaction or consent, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
     "Brave-list blocking: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
     "Brave-list blocking: This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored.",
-    "Brave-list blocking: Read the site's privacy policy (https://policies.pof.com/privacypolicy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    "Brave-list blocking: Read the site's privacy policy (https://policies.pof.com/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
   ],
   "share": {
     "id": "20260706-f8735f85c28bf8a8ef0e5152649c8570",

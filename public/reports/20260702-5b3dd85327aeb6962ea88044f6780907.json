@@ -49,6 +49,13 @@
       "automation": "playwright-chromium",
       "headless": true,
       "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "classification",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-02T01:00:58.178Z"
+      },
       "trackerCatalog": {
         "source": "Hand-curated service catalog",
         "version": "hand-curated-2026.06",
@@ -57,14 +64,7 @@
         "curatedOverrides": 133,
         "license": "AGPL-3.0-or-later"
       },
-      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
-      "adblock": {
-        "active": true,
-        "source": "Brave default ad-block lists",
-        "lists": 31,
-        "fetchedAt": "2026-07-02T01:00:58.178Z"
-      },
-      "shieldsMode": "classification"
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
     },
     "requests": [
       {
@@ -76,1452 +76,1452 @@
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 39,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 39
       },
       {
         "id": 2,
-        "url": "https://ir.ebaystatic.com/pictures/aw/pics/s_1x2.gif",
+        "url": "https://ir.ebaystatic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "ir.ebaystatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 876,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 876
       },
       {
         "id": 3,
-        "url": "https://ir.ebaystatic.com/rs/c/globalheaderweb/index_lcNW.e3059672.css",
+        "url": "https://ir.ebaystatic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "ir.ebaystatic.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 878,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 878
       },
       {
         "id": 4,
-        "url": "https://ir.ebaystatic.com/rs/c/discoveryplatformweb/d.homepage-Fw2AECXL.js",
+        "url": "https://ir.ebaystatic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "ir.ebaystatic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 878,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 878
       },
       {
         "id": 5,
-        "url": "https://ir.ebaystatic.com/rs/c/discoveryplatformweb/_fEBD3XmE.js",
+        "url": "https://ir.ebaystatic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "ir.ebaystatic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 878,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 878
       },
       {
         "id": 6,
-        "url": "https://ir.ebaystatic.com/rs/c/discoveryplatformweb/_Drt1ptQx.js",
+        "url": "https://ir.ebaystatic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "ir.ebaystatic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 880,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 880
       },
       {
         "id": 7,
-        "url": "https://ir.ebaystatic.com/rs/c/discoveryplatformweb/_CKh7sKda.js",
+        "url": "https://ir.ebaystatic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "ir.ebaystatic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 880,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 880
       },
       {
         "id": 8,
-        "url": "https://ir.ebaystatic.com/rs/c/discoveryplatformweb/_DHmcaP3Y.js",
+        "url": "https://ir.ebaystatic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "ir.ebaystatic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 880,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 880
       },
       {
         "id": 9,
-        "url": "https://ir.ebaystatic.com/rs/c/discoveryplatformweb/_D7Ct-6yo.js",
+        "url": "https://ir.ebaystatic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "ir.ebaystatic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 880,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 880
       },
       {
         "id": 10,
-        "url": "https://ir.ebaystatic.com/rs/c/discoveryplatformweb/_CtxBCBs9.js",
+        "url": "https://ir.ebaystatic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "ir.ebaystatic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 880,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 880
       },
       {
         "id": 11,
-        "url": "https://ir.ebaystatic.com/rs/c/discoveryplatformweb/_CW_0_JqR.js",
+        "url": "https://ir.ebaystatic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "ir.ebaystatic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 881,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 881
       },
       {
         "id": 12,
-        "url": "https://ir.ebaystatic.com/rs/c/discoveryplatformweb/_O-0E2Jta.js",
+        "url": "https://ir.ebaystatic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "ir.ebaystatic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 881,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 881
       },
       {
         "id": 13,
-        "url": "https://ir.ebaystatic.com/rs/c/discoveryplatformweb/_CDh__tsN.js",
+        "url": "https://ir.ebaystatic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "ir.ebaystatic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 881,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 881
       },
       {
         "id": 14,
-        "url": "https://ir.ebaystatic.com/rs/c/discoveryplatformweb/style-ByyATyQB.css",
+        "url": "https://ir.ebaystatic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "ir.ebaystatic.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 881,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 881
       },
       {
         "id": 15,
-        "url": "https://ir.ebaystatic.com/cr/ebay-rum/cdn-assets/logs.ed70fadb94ca65e9d402.bundle.js",
+        "url": "https://ir.ebaystatic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "ir.ebaystatic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 881,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 881
       },
       {
         "id": 16,
-        "url": "https://ir.ebaystatic.com/cr/ebay-rum/cdn-assets/metrics.ed70fadb94ca65e9d402.bundle.js",
+        "url": "https://ir.ebaystatic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "ir.ebaystatic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 882,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 882
       },
       {
         "id": 17,
-        "url": "https://i.ebayimg.com/images/g/rEMAAeSwsv9qNbHY/s-l500.webp",
+        "url": "https://i.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "i.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 887,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 887
       },
       {
         "id": 18,
-        "url": "https://i.ebayimg.com/images/g/Wt8AAeSwJg5qNbHa/s-l500.webp",
+        "url": "https://i.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "i.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 888,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 888
       },
       {
         "id": 19,
-        "url": "https://ir.ebaystatic.com/rs/c/globalheaderweb/runtime.582565b4.js",
+        "url": "https://ir.ebaystatic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "ir.ebaystatic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 949,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 949
       },
       {
         "id": 20,
-        "url": "https://ir.ebaystatic.com/rs/c/globalheaderweb/index_lcNW.54b536df.js",
+        "url": "https://ir.ebaystatic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "ir.ebaystatic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 950,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 950
       },
       {
         "id": 21,
-        "url": "https://ir.ebaystatic.com/cr/v/c1/ebay-cookies/6.js",
+        "url": "https://ir.ebaystatic.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "ir.ebaystatic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 950,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 950
       },
       {
         "id": 22,
-        "url": "https://ir.ebaystatic.com/cr/v/c01/251201KCSGM4WMR5VP59.js",
+        "url": "https://ir.ebaystatic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "ir.ebaystatic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 951,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 951
       },
       {
         "id": 23,
-        "url": "https://ir.ebaystatic.com/cr/v/c01/250701JZ48C6XWVCKCN2.js",
+        "url": "https://ir.ebaystatic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "ir.ebaystatic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 951,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 951
       },
       {
         "id": 24,
-        "url": "https://i.ebayimg.com/images/g/PlwAAeSwf-hqNbHd/s-l500.webp",
+        "url": "https://i.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "i.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 953,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 953
       },
       {
         "id": 25,
-        "url": "https://i.ebayimg.com/images/g/iNIAAOSwYeBmfBl6/s-l1600.webp",
+        "url": "https://i.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "i.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 953,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 953
       },
       {
         "id": 26,
-        "url": "https://i.ebayimg.com/images/g/e7oAAOSwk3RoUW-B/s-l500.webp",
+        "url": "https://i.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "i.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 953,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 953
       },
       {
         "id": 27,
-        "url": "https://ir.ebaystatic.com/cr/v/c01/code.jquery.com_jquery-3.7.1.min.js",
+        "url": "https://ir.ebaystatic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "ir.ebaystatic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 954,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 954
       },
       {
         "id": 28,
-        "url": "https://i.ebayimg.com/images/g/QI4AAOSwB29oUW-E/s-l500.webp",
+        "url": "https://i.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "i.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 954,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 954
       },
       {
         "id": 29,
-        "url": "https://i.ebayimg.com/images/g/AVYAAOSwZ-hoUW-L/s-l500.webp",
+        "url": "https://i.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "i.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 954,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 954
       },
       {
         "id": 30,
-        "url": "https://i.ebayimg.com/images/g/8g8AAeSwXR5qQ~fp/s-l500.webp",
+        "url": "https://i.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "i.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 959,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 959
       },
       {
         "id": 31,
-        "url": "https://i.ebayimg.com/images/g/MeUAAeSwHt1qQ~fp/s-l500.webp",
+        "url": "https://i.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "i.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 959,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 959
       },
       {
         "id": 32,
-        "url": "https://i.ebayimg.com/images/g/ycgAAeSw211qQ~fp/s-l500.webp",
+        "url": "https://i.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "i.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 960,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 960
       },
       {
         "id": 33,
-        "url": "https://i.ebayimg.com/images/g/5vAAAeSwa4hqQ~fp/s-l500.webp",
+        "url": "https://i.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "i.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 960,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 960
       },
       {
         "id": 34,
-        "url": "https://i.ebayimg.com/images/g/9VwAAeSwBCFqQ~fp/s-l500.webp",
+        "url": "https://i.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "i.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 960,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 960
       },
       {
         "id": 35,
-        "url": "https://i.ebayimg.com/images/g/~RYAAeSwrHNqQ~fq/s-l500.webp",
+        "url": "https://i.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "i.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 967,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 967
       },
       {
         "id": 36,
-        "url": "https://i.ebayimg.com/images/g/zoMAAeSwT21qQ~fq/s-l500.webp",
+        "url": "https://i.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "i.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 967,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 967
       },
       {
         "id": 37,
-        "url": "https://i.ebayimg.com/images/g/TgkAAeSwVERpQZVI/s-l500.webp",
+        "url": "https://i.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "i.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 967,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 967
       },
       {
         "id": 38,
-        "url": "https://i.ebayimg.com/images/g/pjcAAeSwnhhp0I8k/s-l500.webp",
+        "url": "https://i.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "i.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 967,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 967
       },
       {
         "id": 39,
-        "url": "https://i.ebayimg.com/images/g/EWkAAOSwfztnDzdq/s-l500.webp",
+        "url": "https://i.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "i.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 967,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 967
       },
       {
         "id": 40,
-        "url": "https://i.ebayimg.com/images/g/6Q8AAeSw1fdqQbUH/s-l500.webp",
+        "url": "https://i.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "i.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 967,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 967
       },
       {
         "id": 41,
-        "url": "https://i.ebayimg.com/images/g/sY0AAeSwNlxqQuCU/s-l500.webp",
+        "url": "https://i.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "i.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 967,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 967
       },
       {
         "id": 42,
-        "url": "https://i.ebayimg.com/images/g/PDUAAOSwVB1iq3Wt/s-l500.webp",
+        "url": "https://i.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "i.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 968,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 968
       },
       {
         "id": 43,
-        "url": "https://i.ebayimg.com/images/g/kSsAAOSwPt5ngI8Y/s-l500.webp",
+        "url": "https://i.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "i.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 968,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 968
       },
       {
         "id": 44,
-        "url": "https://i.ebayimg.com/images/g/~wAAAeSwVshoPGVL/s-l500.webp",
+        "url": "https://i.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "i.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 968,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 968
       },
       {
         "id": 45,
-        "url": "https://i.ebayimg.com/images/g/e~AAAeSw6wJqDKpd/s-l500.webp",
+        "url": "https://i.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "i.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 969,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 969
       },
       {
         "id": 46,
-        "url": "https://i.ebayimg.com/images/g/UowAAeSwsEhpmN3c/s-l500.webp",
+        "url": "https://i.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "i.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 970,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 970
       },
       {
         "id": 47,
-        "url": "https://i.ebayimg.com/images/g/KmEAAeSwLuFp88Ko/s-l500.webp",
+        "url": "https://i.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "i.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 970,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 970
       },
       {
         "id": 48,
-        "url": "https://i.ebayimg.com/images/g/swQAAeSwupxqRRhd/s-l500.webp",
+        "url": "https://i.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "i.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 970,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 970
       },
       {
         "id": 49,
-        "url": "https://i.ebayimg.com/images/g/BdYAAOSw~uxkSwZt/s-l500.webp",
+        "url": "https://i.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "i.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 970,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 970
       },
       {
         "id": 50,
-        "url": "https://i.ebayimg.com/images/g/vWEAAeSwrA1prj7a/s-l500.webp",
+        "url": "https://i.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "i.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 970,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 970
       },
       {
         "id": 51,
-        "url": "https://i.ebayimg.com/images/g/-KQAAOSwhPxnUMzJ/s-l500.webp",
+        "url": "https://i.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "i.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 970,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 970
       },
       {
         "id": 52,
-        "url": "https://www.ebay.com/HO5YMS/PwD/S9T/ry92TQ/Dmp9tzOzYbJ1/TARAAQE/ACxuRQs/1ZVBV",
+        "url": "https://www.ebay.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.ebay.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 971,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 971
       },
       {
         "id": 53,
-        "url": "https://ir.ebaystatic.com/cr/v/c01/radware_stormcaster_v24.js",
+        "url": "https://ir.ebaystatic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "ir.ebaystatic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 972,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 972
       },
       {
         "id": 54,
-        "url": "https://ir.ebaystatic.com/cr/v/c1/market-sans/v2.0/MarketSans-Bold-WebS.woff2",
+        "url": "https://ir.ebaystatic.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "ir.ebaystatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1042,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1042
       },
       {
         "id": 55,
-        "url": "https://ir.ebaystatic.com/cr/v/c1/market-sans/v2.0/MarketSans-Regular-WebS.woff2",
+        "url": "https://ir.ebaystatic.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "ir.ebaystatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1043,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1043
       },
       {
         "id": 56,
-        "url": "https://i.ebayimg.com/images/g/RIYAAeSwhWVqKxby/s-l960.webp",
+        "url": "https://i.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "i.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1047,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1047
       },
       {
         "id": 57,
-        "url": "https://i.ebayimg.com/images/g/vtwAAOSw6pNmfBl7/s-l200.webp",
+        "url": "https://i.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "i.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1047,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1047
       },
       {
         "id": 58,
-        "url": "https://i.ebayimg.com/images/g/lDYAAeSwQIBqRKtW/s-l960.webp",
+        "url": "https://i.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "i.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1048,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1048
       },
       {
         "id": 59,
-        "url": "https://i.ebayimg.com/00/s/MzAwWDMwMA==/z/UIMAAeSwglpo8yxH/$_7.PNG",
+        "url": "https://i.ebayimg.com/{n}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "i.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1051,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1051
       },
       {
         "id": 60,
-        "url": "https://i.ebayimg.com/images/g/-4QAAeSwb~BqRgFa/s-l960.webp",
+        "url": "https://i.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "i.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1052,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1052
       },
       {
         "id": 61,
-        "url": "https://i.ebayimg.com/images/g/1CwAAOSwHzZkSqkK/s-l140.webp",
+        "url": "https://i.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "i.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1052,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1052
       },
       {
         "id": 62,
-        "url": "https://i.ebayimg.com/images/g/rhsAAeSw7~BqL2tp/s-l960.webp",
+        "url": "https://i.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "i.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1053,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1053
       },
       {
         "id": 63,
-        "url": "https://i.ebayimg.com/00/s/MTQwWDE0MA==/z/omAAAeSwfPhokrQw/$_7.JPG",
+        "url": "https://i.ebayimg.com/{n}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "i.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1053,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1053
       },
       {
         "id": 64,
-        "url": "https://i.ebayimg.com/images/g/gC8AAeSw3bRqRPbo/s-l960.webp",
+        "url": "https://i.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "i.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1053,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1053
       },
       {
         "id": 65,
-        "url": "https://i.ebayimg.com/00/s/MzAwWDMwMA==/z/518AAOSwRr1mgC8Y/$_7.PNG",
+        "url": "https://i.ebayimg.com/{n}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "i.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1054,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1054
       },
       {
         "id": 66,
-        "url": "https://i.ebayimg.com/images/g/dTwAAeSwubhqQaYk/s-l960.webp",
+        "url": "https://i.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "i.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1054,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1054
       },
       {
         "id": 67,
-        "url": "https://i.ebayimg.com/00/s/MzAwWDMwMA==/z/ySkAAeSwI3ppmraQ/$_7.JPG",
+        "url": "https://i.ebayimg.com/{n}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "i.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1055,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1055
       },
       {
         "id": 68,
-        "url": "https://i.ebayimg.com/images/g/svUAAeSw7sJqRkB3/s-l960.webp",
+        "url": "https://i.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "i.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1055,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1055
       },
       {
         "id": 69,
-        "url": "https://i.ebayimg.com/00/s/MjM4WDMwMA==/z/OUoAAeSwxnRo8WVA/$_7.JPG",
+        "url": "https://i.ebayimg.com/{n}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "i.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1056,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1056
       },
       {
         "id": 70,
-        "url": "https://i.ebayimg.com/images/g/huUAAeSwlnZqPGKt/s-l960.webp",
+        "url": "https://i.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "i.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1057,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1057
       },
       {
         "id": 71,
-        "url": "https://i.ebayimg.com/00/s/MzAwWDMwMA==/z/uxkAAeSwdLppC-rB/$_7.PNG",
+        "url": "https://i.ebayimg.com/{n}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "i.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1058,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1058
       },
       {
         "id": 72,
-        "url": "https://i.ebayimg.com/images/g/mN4AAeSw8n5qMyh8/s-l960.webp",
+        "url": "https://i.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "i.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1058,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1058
       },
       {
         "id": 73,
-        "url": "https://i.ebayimg.com/images/g/KqMAAeSw6tJqPGIU/s-l960.webp",
+        "url": "https://i.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "i.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1059,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1059
       },
       {
         "id": 74,
-        "url": "https://i.ebayimg.com/images/g/SrkAAeSw9XlqQaip/s-l960.webp",
+        "url": "https://i.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "i.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1063,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1063
       },
       {
         "id": 75,
-        "url": "https://i.ebayimg.com/00/s/MzAwWDMwMA==/z/HUwAAeSwIpVpmrYn/$_7.JPG",
+        "url": "https://i.ebayimg.com/{n}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "i.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1068,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1068
       },
       {
         "id": 76,
-        "url": "https://i.ebayimg.com/images/g/BMMAAeSwSGtqRkVT/s-l960.webp",
+        "url": "https://i.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "i.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1068,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1068
       },
       {
         "id": 77,
-        "url": "https://sherlock-events-sampler.ebay.com/eventsPerServiceStrategy",
+        "url": "https://sherlock-events-sampler.ebay.com/{seg}",
         "domain": "sherlock-events-sampler.ebay.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1071,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1071
       },
       {
         "id": 78,
-        "url": "https://i.ebayimg.com/00/s/MzAwWDMwMA==/z/oNAAAeSwgAxp4nd2/$_7.JPG",
+        "url": "https://i.ebayimg.com/{n}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "i.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1119,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1119
       },
       {
         "id": 79,
-        "url": "https://i.ebayimg.com/images/g/VaoAAeSwyxBqPwQc/s-l960.webp",
+        "url": "https://i.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "i.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1128,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1128
       },
       {
         "id": 80,
-        "url": "https://i.ebayimg.com/images/g/5RIAAeSwcnFp2Tpy/s-l200.webp",
+        "url": "https://i.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "i.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1134,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1134
       },
       {
         "id": 81,
-        "url": "https://i.ebayimg.com/images/g/Us4AAeSwO~1p2Tpx/s-l960.webp",
+        "url": "https://i.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "i.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1135,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1135
       },
       {
         "id": 82,
-        "url": "https://i.ebayimg.com/images/g/L1wAAeSw-7pqBewc/s-l960.webp",
+        "url": "https://i.ebayimg.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "i.ebayimg.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1135,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1135
       },
       {
         "id": 83,
-        "url": "https://www.ebay.com/sch/ajax/autocomplete",
+        "url": "https://www.ebay.com/{seg}/{seg}/{seg}",
         "domain": "www.ebay.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1367,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1367
       },
       {
         "id": 84,
-        "url": "https://www.ebay.com/gh/user_profile",
+        "url": "https://www.ebay.com/{seg}/{seg}",
         "domain": "www.ebay.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1623,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1623
       },
       {
         "id": 85,
-        "url": "https://ir.ebaystatic.com/cr/v/c01/ac-062526182350.dweb.min.js?callback=",
+        "url": "https://ir.ebaystatic.com/{seg}/{seg}/{seg}/{seg}?callback=",
         "domain": "ir.ebaystatic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1635,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1635
       },
       {
         "id": 86,
-        "url": "https://cas.avalon.perfdrive.com/jsdata",
+        "url": "https://cas.avalon.perfdrive.com/{seg}",
         "domain": "cas.avalon.perfdrive.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1670,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1670
       },
       {
         "id": 87,
-        "url": "https://cas.avalon.perfdrive.com/jsdata",
+        "url": "https://cas.avalon.perfdrive.com/{seg}",
         "domain": "cas.avalon.perfdrive.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1670,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1670
       },
       {
         "id": 88,
-        "url": "https://cas.avalon.perfdrive.com/jsdata",
+        "url": "https://cas.avalon.perfdrive.com/{seg}",
         "domain": "cas.avalon.perfdrive.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1686,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1686
       },
       {
         "id": 89,
-        "url": "https://cas.avalon.perfdrive.com/jsdata",
+        "url": "https://cas.avalon.perfdrive.com/{seg}",
         "domain": "cas.avalon.perfdrive.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1686,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1686
       },
       {
         "id": 90,
-        "url": "https://ir.ebaystatic.com/cr/v/c1/playbook-20230717-a4498c7/icons/chevron-down_12.svg",
+        "url": "https://ir.ebaystatic.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "ir.ebaystatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1707,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1707
       },
       {
         "id": 91,
-        "url": "https://ir.ebaystatic.com/cr/v/c01/sprds3_22-1_update.png",
+        "url": "https://ir.ebaystatic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "ir.ebaystatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1708,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1708
       },
       {
         "id": 92,
-        "url": "https://ir.ebaystatic.com/rs/c/globalheaderweb/261.a8400a71.js",
+        "url": "https://ir.ebaystatic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "ir.ebaystatic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1708,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1708
       },
       {
         "id": 93,
-        "url": "https://rover.ebay.com/roverimp/0/0/9",
+        "url": "https://rover.ebay.com/{seg}/{n}/{n}/{n}",
         "domain": "rover.ebay.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1709,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1709
       },
       {
         "id": 94,
-        "url": "https://www.ebay.com/rtm",
+        "url": "https://www.ebay.com/{seg}",
         "domain": "www.ebay.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1711,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1711
       },
       {
         "id": 95,
-        "url": "https://ir.ebaystatic.com/cr/v/c1/globalheader_widget_platform__v2-b70676194b.js",
+        "url": "https://ir.ebaystatic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "ir.ebaystatic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1715,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1715
       },
       {
         "id": 96,
-        "url": "https://ir.ebaystatic.com/cr/v/c01/db898496-a4d6-483b-888c-52c4152a05b8.min.js",
+        "url": "https://ir.ebaystatic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "ir.ebaystatic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1716,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1716
       },
       {
         "id": 97,
-        "url": "https://www.ebay.com/gh/useracquisition",
+        "url": "https://www.ebay.com/{seg}/{seg}",
         "domain": "www.ebay.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1729,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1729
       },
       {
         "id": 98,
-        "url": "https://ir.ebaystatic.com/rs/c/9527tracking/configuration.js?ts=",
+        "url": "https://ir.ebaystatic.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "ir.ebaystatic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1733,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1733
       },
       {
         "id": 99,
-        "url": "https://backstory.ebay.com/customer/v1/bs_img_service",
+        "url": "https://backstory.ebay.com/{seg}/{seg}/{seg}",
         "domain": "backstory.ebay.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1781,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 1781
       },
       {
         "id": 100,
-        "url": "https://ir.ebaystatic.com/cr/v/c01/ad.min.js",
+        "url": "https://ir.ebaystatic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "ir.ebaystatic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 1822,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1822
       },
       {
         "id": 101,
-        "url": "https://devicebind.ebay.com/signin/sub/tt.html",
+        "url": "https://devicebind.ebay.com/signin/{seg}/{seg}",
         "domain": "devicebind.ebay.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 1976,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 1976
       },
       {
         "id": 102,
-        "url": "https://www.ebay.com/ifh/inflowcomponent",
+        "url": "https://www.ebay.com/{seg}/{seg}",
         "domain": "www.ebay.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2015,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2015
       },
       {
         "id": 103,
-        "url": "https://www.ebay.com/ifh/ifh-vendor49980ab242b99f0d1f90.js",
+        "url": "https://www.ebay.com/{seg}/{seg}",
         "domain": "www.ebay.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2051,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2051
       },
       {
         "id": 104,
-        "url": "https://www.ebay.com/ifh/ifh6b8b24d8648b0416d952.js",
+        "url": "https://www.ebay.com/{seg}/{seg}",
         "domain": "www.ebay.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2052,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2052
       },
       {
         "id": 105,
-        "url": "https://www.ebayadservices.com/marketingtracking/v1/sync?guid=&uid=",
+        "url": "https://www.ebayadservices.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "www.ebayadservices.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 2290,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2290
       },
       {
         "id": 106,
-        "url": "https://ir.ebaystatic.com/cr/v/c1/1x1.gif",
+        "url": "https://ir.ebaystatic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "ir.ebaystatic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 2290,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2290
       },
       {
         "id": 107,
-        "url": "https://mkttag.ebay.com/tag-manager/v1/tag/madrona_loadscripts.js",
+        "url": "https://mkttag.ebay.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "mkttag.ebay.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2305,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2305
       },
       {
         "id": 108,
-        "url": "https://mkttag.ebay.com/tag-manager/v1/tag/utag.js",
+        "url": "https://mkttag.ebay.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "mkttag.ebay.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2446,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2446
       },
       {
         "id": 109,
-        "url": "https://ir.ebaystatic.com/cr/ebay-rum/cdn-assets/logs.ed70fadb94ca65e9d402.bundle.js",
+        "url": "https://ir.ebaystatic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "ir.ebaystatic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 2456,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2456
       },
       {
         "id": 110,
-        "url": "https://ir.ebaystatic.com/rs/c/deviceassurancewebapp/obfuscated-BaUEpl0d.js",
+        "url": "https://ir.ebaystatic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "ir.ebaystatic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 2457,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2457
       },
       {
         "id": 111,
-        "url": "https://ir.ebaystatic.com/rs/c/deviceassurancewebapp/_BECRCYKf.js",
+        "url": "https://ir.ebaystatic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "ir.ebaystatic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 2458,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2458
       },
       {
         "id": 112,
-        "url": "https://sherlock-events-sampler.ebay.com/eventsPerServiceStrategy",
+        "url": "https://sherlock-events-sampler.ebay.com/{seg}",
         "domain": "sherlock-events-sampler.ebay.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2469,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2469
       },
       {
         "id": 113,
-        "url": "https://mkttag.ebay.com/tag-manager/v1/tag/utag.3.js",
+        "url": "https://mkttag.ebay.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "mkttag.ebay.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2532,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2532
       },
       {
         "id": 114,
-        "url": "https://mkttag.ebay.com/tag-manager/v1/tag/utag.7.js",
+        "url": "https://mkttag.ebay.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "mkttag.ebay.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2533,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2533
       },
       {
         "id": 115,
-        "url": "https://mkttag.ebay.com/tag-manager/v1/tag/utag.9.js",
+        "url": "https://mkttag.ebay.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "mkttag.ebay.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2534,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2534
       },
       {
         "id": 116,
-        "url": "https://mkttag.ebay.com/tag-manager/v1/tag/utag.10.js",
+        "url": "https://mkttag.ebay.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "mkttag.ebay.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2535,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2535
       },
       {
         "id": 117,
-        "url": "https://mkttag.ebay.com/tag-manager/v1/tag/utag.11.js",
+        "url": "https://mkttag.ebay.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "mkttag.ebay.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2536,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2536
       },
       {
         "id": 118,
-        "url": "https://mkttag.ebay.com/tag-manager/v1/tag/utag.37.js",
+        "url": "https://mkttag.ebay.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "mkttag.ebay.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2536,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2536
       },
       {
         "id": 119,
-        "url": "https://mkttag.ebay.com/tag-manager/v1/tag/utag.48.js",
+        "url": "https://mkttag.ebay.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "mkttag.ebay.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2537,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2537
       },
       {
         "id": 120,
-        "url": "https://mkttag.ebay.com/tag-manager/v1/tag/utag.50.js",
+        "url": "https://mkttag.ebay.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "mkttag.ebay.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2537,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2537
       },
       {
         "id": 121,
-        "url": "https://sp.analytics.yahoo.com/spp.pl?a=&ea=&.yp=&js=&fmseg=&guid=&product_id=&bn=&opid=&gv=&catid=&purchase_order=",
+        "url": "https://sp.analytics.yahoo.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "sp.analytics.yahoo.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 2568,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2568
       },
       {
         "id": 122,
-        "url": "https://dynamic.criteo.com/js/ld/ld.js?a=",
+        "url": "https://dynamic.criteo.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "dynamic.criteo.com",
         "method": "GET",
         "resourceType": "script",
@@ -1533,12 +1533,12 @@
           "category": "advertising",
           "confidence": "curated"
         },
-        "startedAtMs": 2571,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2571
       },
       {
         "id": 123,
-        "url": "https://connect.facebook.net/en_US/fbevents.js",
+        "url": "https://connect.facebook.net/{seg}/{seg}",
         "domain": "connect.facebook.net",
         "method": "GET",
         "resourceType": "script",
@@ -1550,12 +1550,12 @@
           "category": "social / advertising pixel",
           "confidence": "curated"
         },
-        "startedAtMs": 2629,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2629
       },
       {
         "id": 124,
-        "url": "https://www.googletagmanager.com/gtag/js?id=",
+        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=",
         "domain": "www.googletagmanager.com",
         "method": "GET",
         "resourceType": "script",
@@ -1567,120 +1567,120 @@
           "category": "analytics / tag management",
           "confidence": "curated"
         },
-        "startedAtMs": 2631,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2631
       },
       {
         "id": 125,
-        "url": "https://sc-static.net/scevent.min.js",
+        "url": "https://sc-static.net/{seg}",
         "domain": "sc-static.net",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 2635,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2635
       },
       {
         "id": 126,
-        "url": "https://s.pinimg.com/ct/core.js",
+        "url": "https://s.pinimg.com/{seg}/{seg}",
         "domain": "s.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 2640,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2640
       },
       {
         "id": 127,
-        "url": "https://www.redditstatic.com/ads/pixel.js",
+        "url": "https://www.redditstatic.com/{seg}/{seg}",
         "domain": "www.redditstatic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 2643,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2643
       },
       {
         "id": 128,
-        "url": "https://tags.tiqcdn.com/utag/tiqapp/utag.v.js?a=&cb=",
+        "url": "https://tags.tiqcdn.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&cb=",
         "domain": "tags.tiqcdn.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 2643,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2643
       },
       {
         "id": 129,
-        "url": "https://s.pinimg.com/ct/lib/main.3c5b736e.js",
+        "url": "https://s.pinimg.com/{seg}/{seg}/{seg}",
         "domain": "s.pinimg.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 2689,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2689
       },
       {
         "id": 130,
-        "url": "https://pixel-config.reddit.com/pixels/t2_2wd4vm6f/config",
+        "url": "https://pixel-config.reddit.com/{seg}/{seg}/{seg}",
         "domain": "pixel-config.reddit.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 2704,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2704
       },
       {
         "id": 131,
-        "url": "https://alb.reddit.com/rp.gif?ts=&id=&event=&m.itemCount=&m.value=&m.valueDecimal=&m.currency=&m.transactionId=&m.customEventName=&m.products=&m.conversionId=&uuid=&aaid=&external_id=&idfa=&integration=&partner=&partner_version=&opt_out=&sh=&sw=&v=&dpm=&dpcc=&dprc=&esurl=&db=",
+        "url": "https://alb.reddit.com/{seg}?%5Bredacted%5D=&id=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "alb.reddit.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 2706,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2706
       },
       {
         "id": 132,
-        "url": "https://tr.snapchat.com/config/com/192d9db6-f3e3-45a3-81fb-65af3d16cc9a.js?v=",
+        "url": "https://tr.snapchat.com/{seg}/{seg}/{seg}?v=",
         "domain": "tr.snapchat.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 2729,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2729
       },
       {
         "id": 133,
-        "url": "https://tr.snapchat.com/cm/i?pid=&u_scsid=&u_sclid=",
+        "url": "https://tr.snapchat.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "tr.snapchat.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 2733,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2733
       },
       {
         "id": 134,
-        "url": "https://gum.criteo.com/syncframe?topUrl=&origin=",
+        "url": "https://gum.criteo.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "gum.criteo.com",
         "method": "GET",
         "resourceType": "document",
@@ -1692,12 +1692,12 @@
           "category": "advertising",
           "confidence": "curated"
         },
-        "startedAtMs": 2764,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2764
       },
       {
         "id": 135,
-        "url": "https://ct.pinterest.com/user/?tid=&ov=&pd=&cb=&dep=",
+        "url": "https://ct.pinterest.com/{seg}?tid=&%5Bredacted%5D=&%5Bredacted%5D=&cb=&%5Bredacted%5D=",
         "domain": "ct.pinterest.com",
         "method": "GET",
         "resourceType": "xhr",
@@ -1709,12 +1709,12 @@
           "category": "social / advertising pixel",
           "confidence": "curated"
         },
-        "startedAtMs": 2781,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2781
       },
       {
         "id": 136,
-        "url": "https://ct.pinterest.com/user/?event=&ed=&tid=&cb=&dep=",
+        "url": "https://ct.pinterest.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&tid=&cb=&%5Bredacted%5D=",
         "domain": "ct.pinterest.com",
         "method": "GET",
         "resourceType": "xhr",
@@ -1726,12 +1726,12 @@
           "category": "social / advertising pixel",
           "confidence": "curated"
         },
-        "startedAtMs": 2782,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2782
       },
       {
         "id": 137,
-        "url": "https://ct.pinterest.com/v3/?tid=&ov=&pd=&event=&ad=&cb=",
+        "url": "https://ct.pinterest.com/{seg}?tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cb=",
         "domain": "ct.pinterest.com",
         "method": "GET",
         "resourceType": "fetch",
@@ -1743,12 +1743,12 @@
           "category": "social / advertising pixel",
           "confidence": "curated"
         },
-        "startedAtMs": 2785,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2785
       },
       {
         "id": 138,
-        "url": "https://connect.facebook.net/signals/config/775033202546050?v=&r=&domain=&hme=&ex_m=",
+        "url": "https://connect.facebook.net/{seg}/{seg}/{n}?v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "connect.facebook.net",
         "method": "GET",
         "resourceType": "script",
@@ -1760,12 +1760,12 @@
           "category": "social / advertising pixel",
           "confidence": "curated"
         },
-        "startedAtMs": 2840,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2840
       },
       {
         "id": 139,
-        "url": "https://ct.pinterest.com/ct.html",
+        "url": "https://ct.pinterest.com/{seg}",
         "domain": "ct.pinterest.com",
         "method": "GET",
         "resourceType": "document",
@@ -1777,12 +1777,12 @@
           "category": "social / advertising pixel",
           "confidence": "curated"
         },
-        "startedAtMs": 2853,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2853
       },
       {
         "id": 140,
-        "url": "https://ct.pinterest.com/v3/?event=&ed=&tid=&cb=&dep=&pd=&ad=",
+        "url": "https://ct.pinterest.com/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&tid=&cb=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "ct.pinterest.com",
         "method": "GET",
         "resourceType": "fetch",
@@ -1794,12 +1794,12 @@
           "category": "social / advertising pixel",
           "confidence": "curated"
         },
-        "startedAtMs": 2872,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2872
       },
       {
         "id": 141,
-        "url": "https://sslwidget.criteo.com/event?a=&v=&p0=&p1=&p2=&tld=&dy=&fu=&ceid=",
+        "url": "https://sslwidget.criteo.com/{seg}?%5Bredacted%5D=&v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "sslwidget.criteo.com",
         "method": "GET",
         "resourceType": "script",
@@ -1811,12 +1811,12 @@
           "category": "advertising",
           "confidence": "curated"
         },
-        "startedAtMs": 2887,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2887
       },
       {
         "id": 142,
-        "url": "https://ad.doubleclick.net/ccm/s/collect?auid=&gtm=",
+        "url": "https://ad.doubleclick.net/{seg}/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "ad.doubleclick.net",
         "method": "POST",
         "resourceType": "fetch",
@@ -1828,12 +1828,12 @@
           "category": "advertising",
           "confidence": "curated"
         },
-        "startedAtMs": 2998,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2998
       },
       {
         "id": 143,
-        "url": "https://googleads.g.doubleclick.net/pagead/viewthroughconversion/1070599711/?random=&cv=&fst=&bg=&guid=&async=&en=&gtm=&gcd=&dma=&tag_exp=&u_w=&u_h=&url=&rcb=&frm=&tiba=&did=&gdid=&hn=&npa=&pscdl=&auid=&uaa=&uab=&uafvl=&uamb=&uam=&uap=&uapv=&uaw=&_tu=&data=&ept=&rfmt=&fmt=",
+        "url": "https://googleads.g.doubleclick.net/{seg}/{seg}/{n}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "googleads.g.doubleclick.net",
         "method": "GET",
         "resourceType": "script",
@@ -1845,24 +1845,24 @@
           "category": "advertising",
           "confidence": "curated"
         },
-        "startedAtMs": 2999,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2999
       },
       {
         "id": 144,
-        "url": "https://www.google.com/rmkt/collect/1070599711/?random=&cv=&fst=&fmt=&bg=&guid=&async=&en=&gtm=&gcd=&dma=&tag_exp=&u_w=&u_h=&url=&rcb=&frm=&tiba=&did=&gdid=&hn=&npa=&pscdl=&auid=&uaa=&uab=&uafvl=&uamb=&uam=&uap=&uapv=&uaw=&_tu=&data=&ept=&gcp=",
+        "url": "https://www.google.com/{seg}/{seg}/{n}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 2999,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2999
       },
       {
         "id": 145,
-        "url": "https://googleads.g.doubleclick.net/pagead/viewthroughconversion/16653549404/?random=&cv=&fst=&bg=&guid=&async=&en=&gtm=&gcd=&dma=&tag_exp=&u_w=&u_h=&url=&rcb=&frm=&tiba=&did=&gdid=&hn=&npa=&pscdl=&auid=&uaa=&uab=&uafvl=&uamb=&uam=&uap=&uapv=&uaw=&_tu=&data=&ept=&rfmt=&fmt=",
+        "url": "https://googleads.g.doubleclick.net/{seg}/{seg}/{n}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "googleads.g.doubleclick.net",
         "method": "GET",
         "resourceType": "script",
@@ -1874,24 +1874,24 @@
           "category": "advertising",
           "confidence": "curated"
         },
-        "startedAtMs": 2999,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 2999
       },
       {
         "id": 146,
-        "url": "https://www.google.com/rmkt/collect/16653549404/?random=&cv=&fst=&fmt=&bg=&guid=&async=&en=&gtm=&gcd=&dma=&tag_exp=&u_w=&u_h=&url=&rcb=&frm=&tiba=&did=&gdid=&hn=&npa=&pscdl=&auid=&uaa=&uab=&uafvl=&uamb=&uam=&uap=&uapv=&uaw=&_tu=&data=&ept=&gcp=",
+        "url": "https://www.google.com/{seg}/{seg}/{n}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 3001,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 3001
       },
       {
         "id": 147,
-        "url": "https://www.googletagmanager.com/gtag/js?id=&cx=&gtm=",
+        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "www.googletagmanager.com",
         "method": "GET",
         "resourceType": "script",
@@ -1903,12 +1903,12 @@
           "category": "analytics / tag management",
           "confidence": "curated"
         },
-        "startedAtMs": 3001,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 3001
       },
       {
         "id": 148,
-        "url": "https://googleads.g.doubleclick.net/pagead/viewthroughconversion/1070599711/?random=&cv=&fst=&bg=&guid=&async=&en=&gtm=&gcd=&dma=&tag_exp=&u_w=&u_h=&url=&rcb=&frm=&tiba=&did=&gdid=&hn=&npa=&pscdl=&auid=&uaa=&uab=&uafvl=&uamb=&uam=&uap=&uapv=&uaw=&_tu=&data=&ept=&rfmt=&fmt=",
+        "url": "https://googleads.g.doubleclick.net/{seg}/{seg}/{n}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "googleads.g.doubleclick.net",
         "method": "GET",
         "resourceType": "script",
@@ -1920,24 +1920,24 @@
           "category": "advertising",
           "confidence": "curated"
         },
-        "startedAtMs": 3002,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 3002
       },
       {
         "id": 149,
-        "url": "https://www.google.com/rmkt/collect/1070599711/?random=&cv=&fst=&fmt=&bg=&guid=&async=&en=&gtm=&gcd=&dma=&tag_exp=&u_w=&u_h=&url=&rcb=&frm=&tiba=&did=&gdid=&hn=&npa=&pscdl=&auid=&uaa=&uab=&uafvl=&uamb=&uam=&uap=&uapv=&uaw=&_tu=&data=&ept=&gcp=",
+        "url": "https://www.google.com/{seg}/{seg}/{n}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 3002,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 3002
       },
       {
         "id": 150,
-        "url": "https://www.googletagmanager.com/gtag/js?id=&cx=&gtm=",
+        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "www.googletagmanager.com",
         "method": "GET",
         "resourceType": "script",
@@ -1949,84 +1949,84 @@
           "category": "analytics / tag management",
           "confidence": "curated"
         },
-        "startedAtMs": 3002,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 3002
       },
       {
         "id": 151,
-        "url": "https://www.google.com/ccm/collect?rcb=&frm=&auid=&dt=&en=&dl=&scrsrc=&rnd=&navt=&npa=&ep.enable_event_matching_conversions=&did=&gdid=&_tu=&gtm=&gcs=&gcd=&dma=&tag_exp=&apve=&apvf=&apvc=&tids=&tid=&tft=&tfd=&fmt=",
+        "url": "https://www.google.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 3003,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 3003
       },
       {
         "id": 152,
-        "url": "https://www.google.com/ccm/collect?rcb=&frm=&auid=&dt=&en=&dl=&scrsrc=&rnd=&navt=&npa=&ep.fm_segment=&ep.guid=&ep.ecomm_pagetype=&did=&gdid=&_tu=&gtm=&gcs=&gcd=&dma=&tag_exp=&apve=&apvf=&apvc=&tids=&tid=&tft=&tfd=&fmt=",
+        "url": "https://www.google.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 3003,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 3003
       },
       {
         "id": 153,
-        "url": "https://tr.snapchat.com/p",
+        "url": "https://tr.snapchat.com/{seg}",
         "domain": "tr.snapchat.com",
         "method": "POST",
         "resourceType": "ping",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 3007,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 3007
       },
       {
         "id": 154,
-        "url": "https://www.google.com/pagead/1p-user-list/1070599711/?random=&cv=&fst=&bg=&guid=&async=&en=&gtm=&gcd=&dma=&tag_exp=&u_w=&u_h=&url=&rcb=&frm=&tiba=&did=&gdid=&hn=&npa=&pscdl=&auid=&uaa=&uab=&uafvl=&uamb=&uam=&uap=&uapv=&uaw=&_tu=&data=&ept=&rfmt=&fmt=&is_vtc=&cid=&random=&rmt_tld=&ipr=",
+        "url": "https://www.google.com/{seg}/{seg}/{n}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "www.google.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 3062,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 3062
       },
       {
         "id": 155,
-        "url": "https://www.google.com/pagead/1p-user-list/16653549404/?random=&cv=&fst=&bg=&guid=&async=&en=&gtm=&gcd=&dma=&tag_exp=&u_w=&u_h=&url=&rcb=&frm=&tiba=&did=&gdid=&hn=&npa=&pscdl=&auid=&uaa=&uab=&uafvl=&uamb=&uam=&uap=&uapv=&uaw=&_tu=&data=&ept=&rfmt=&fmt=&is_vtc=&cid=&random=&rmt_tld=&ipr=",
+        "url": "https://www.google.com/{seg}/{seg}/{n}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "www.google.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 3064,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 3064
       },
       {
         "id": 156,
-        "url": "https://www.google.com/pagead/1p-user-list/1070599711/?random=&cv=&fst=&bg=&guid=&async=&en=&gtm=&gcd=&dma=&tag_exp=&u_w=&u_h=&url=&rcb=&frm=&tiba=&did=&gdid=&hn=&npa=&pscdl=&auid=&uaa=&uab=&uafvl=&uamb=&uam=&uap=&uapv=&uaw=&_tu=&data=&ept=&rfmt=&fmt=&is_vtc=&cid=&random=&rmt_tld=&ipr=",
+        "url": "https://www.google.com/{seg}/{seg}/{n}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "www.google.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 3065,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 3065
       },
       {
         "id": 157,
-        "url": "https://googleads.g.doubleclick.net/pagead/viewthroughconversion/1005566788/?random=&cv=&fst=&bg=&guid=&async=&en=&gtm=&gcd=&dma=&tag_exp=&u_w=&u_h=&url=&rcb=&frm=&tiba=&did=&gdid=&hn=&npa=&pscdl=&auid=&uaa=&uab=&uafvl=&uamb=&uam=&uap=&uapv=&uaw=&_tu=&data=&ept=&rfmt=&fmt=",
+        "url": "https://googleads.g.doubleclick.net/{seg}/{seg}/{n}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "googleads.g.doubleclick.net",
         "method": "GET",
         "resourceType": "script",
@@ -2038,24 +2038,24 @@
           "category": "advertising",
           "confidence": "curated"
         },
-        "startedAtMs": 3172,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 3172
       },
       {
         "id": 158,
-        "url": "https://www.google.com/rmkt/collect/1005566788/?random=&cv=&fst=&fmt=&bg=&guid=&async=&en=&gtm=&gcd=&dma=&tag_exp=&u_w=&u_h=&url=&rcb=&frm=&tiba=&did=&gdid=&hn=&npa=&pscdl=&auid=&uaa=&uab=&uafvl=&uamb=&uam=&uap=&uapv=&uaw=&_tu=&data=&ept=&gcp=",
+        "url": "https://www.google.com/{seg}/{seg}/{n}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 3174,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 3174
       },
       {
         "id": 159,
-        "url": "https://googleads.g.doubleclick.net/pagead/viewthroughconversion/1005566788/?random=&cv=&fst=&bg=&guid=&async=&en=&gtm=&gcd=&dma=&tag_exp=&u_w=&u_h=&url=&rcb=&frm=&tiba=&did=&gdid=&hn=&npa=&pscdl=&auid=&uaa=&uab=&uafvl=&uamb=&uam=&uap=&uapv=&uaw=&_tu=&data=&ept=&rfmt=&fmt=",
+        "url": "https://googleads.g.doubleclick.net/{seg}/{seg}/{n}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "googleads.g.doubleclick.net",
         "method": "GET",
         "resourceType": "script",
@@ -2067,60 +2067,60 @@
           "category": "advertising",
           "confidence": "curated"
         },
-        "startedAtMs": 3175,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 3175
       },
       {
         "id": 160,
-        "url": "https://www.google.com/rmkt/collect/1005566788/?random=&cv=&fst=&fmt=&bg=&guid=&async=&en=&gtm=&gcd=&dma=&tag_exp=&u_w=&u_h=&url=&rcb=&frm=&tiba=&did=&gdid=&hn=&npa=&pscdl=&auid=&uaa=&uab=&uafvl=&uamb=&uam=&uap=&uapv=&uaw=&_tu=&data=&ept=&gcp=",
+        "url": "https://www.google.com/{seg}/{seg}/{n}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 3175,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 3175
       },
       {
         "id": 161,
-        "url": "https://www.google.com/ccm/collect?rcb=&frm=&auid=&dt=&en=&dl=&scrsrc=&rnd=&navt=&npa=&ep.enable_event_matching_conversions=&did=&gdid=&_tu=&gtm=&gcs=&gcd=&dma=&tag_exp=&apve=&apvf=&apvc=&tids=&tid=&tft=&tfd=&fmt=",
+        "url": "https://www.google.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 3176,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 3176
       },
       {
         "id": 162,
-        "url": "https://www.google.com/ccm/collect?rcb=&frm=&auid=&dt=&en=&dl=&scrsrc=&rnd=&navt=&npa=&ep.fm_segment=&ep.guid=&ep.ecomm_pagetype=&did=&gdid=&_tu=&gtm=&gcs=&gcd=&dma=&tag_exp=&apve=&apvf=&apvc=&tids=&tid=&tft=&tfd=&fmt=",
+        "url": "https://www.google.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 3177,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 3177
       },
       {
         "id": 163,
-        "url": "https://tr6.snapchat.com/p",
+        "url": "https://tr6.snapchat.com/{seg}",
         "domain": "tr6.snapchat.com",
         "method": "POST",
         "resourceType": "ping",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 3179,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 3179
       },
       {
         "id": 164,
-        "url": "https://ad.doubleclick.net/activity;src=13341218;type=us_ho0;cat=us_ho0;rcb=6;ord=5492343920490;npa=0;auiddc=2013928149.1783003134;u9=homepage;u5=2344ae3b19f0a6b996e0ecaeffbd6834;u1=-1;gdid=dYmQxMT;uaa=x86;uab=64;uafvl=HeadlessChrome%3B149.0.7827.55%7CChromium%3B149.0.7827.55%7CNot)A%253BBrand%3B24.0.0.0;uamb=0;uam=;uap=Linux;uapv=;uaw=0;pscdl=noapi;frm=0;_tu=KFA;gtm=45fe66u1v9173467195za200zb892503511zd892503511xec;gcs=G111;gcd=13t3t3t3t5l1;dma=0;dc_fmt=3;tag_exp=115616986~115938466~115938469~118131809~119027224~119576881~119576885~119576891~119576895;epver=2;dc_random=1783003134_PlP-PZdq5XAAaIoWfAKOzv-QasJJUjWQkA;~oref=https%3A%2F%2Fwww.ebay.com%2F",
+        "url": "https://ad.doubleclick.net/{seg}",
         "domain": "ad.doubleclick.net",
         "method": "POST",
         "resourceType": "fetch",
@@ -2132,13 +2132,13 @@
           "category": "advertising",
           "confidence": "curated"
         },
-        "startedAtMs": 3238,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 3238
       },
       {
         "id": 165,
-        "url": "https://13341218.fls.doubleclick.net/activityi;src=13341218;type=us_ho0;cat=us_ho0;rcb=6;ord=5492343920490;npa=0;auiddc=2013928149.1783003134;u9=homepage;u5=2344ae3b19f0a6b996e0ecaeffbd6834;u1=-1;gdid=dYmQxMT;uaa=x86;uab=64;uafvl=HeadlessChrome%3B149.0.7827.55%7CChromium%3B149.0.7827.55%7CNot)A%253BBrand%3B24.0.0.0;uamb=0;uam=;uap=Linux;uapv=;uaw=0;pscdl=noapi;frm=0;_tu=KFA;gtm=45fe66u1v9173467195za200zb892503511zd892503511xec;gcs=G111;gcd=13t3t3t3t5l1;dma=0;dc_fmt=2;tag_exp=115616986~115938466~115938469~118131809~119027224~119576881~119576885~119576891~119576895;epver=2;dc_random=1783003134_PlP-PZdq5XAAaIoWfAKOzv-QasJJUjWQkA;_dc_test=1;~oref=https%3A%2F%2Fwww.ebay.com%2F",
-        "domain": "13341218.fls.doubleclick.net",
+        "url": "https://{label}.fls.doubleclick.net/{seg}",
+        "domain": "{label}.fls.doubleclick.net",
         "method": "GET",
         "resourceType": "document",
         "status": 302,
@@ -2149,49 +2149,49 @@
           "category": "advertising",
           "confidence": "curated"
         },
-        "startedAtMs": 3240,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 3240
       },
       {
         "id": 166,
-        "url": "https://www.google.com/ccm/collect?rcb=&frm=&auid=&dt=&en=&dl=&scrsrc=&rnd=&navt=&npa=&gdid=&_tu=&gtm=&gcs=&gcd=&dma=&tag_exp=&apve=&apvf=&apvc=&tids=&tid=&tft=&tfd=&fmt=",
+        "url": "https://www.google.com/{seg}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&tid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 3241,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 3241
       },
       {
         "id": 167,
-        "url": "https://www.google.com/pagead/1p-user-list/1005566788/?random=&cv=&fst=&bg=&guid=&async=&en=&gtm=&gcd=&dma=&tag_exp=&u_w=&u_h=&url=&rcb=&frm=&tiba=&did=&gdid=&hn=&npa=&pscdl=&auid=&uaa=&uab=&uafvl=&uamb=&uam=&uap=&uapv=&uaw=&_tu=&data=&ept=&rfmt=&fmt=&is_vtc=&cid=&random=&rmt_tld=&ipr=",
+        "url": "https://www.google.com/{seg}/{seg}/{n}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "www.google.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 3249,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 3249
       },
       {
         "id": 168,
-        "url": "https://www.google.com/pagead/1p-user-list/1005566788/?random=&cv=&fst=&bg=&guid=&async=&en=&gtm=&gcd=&dma=&tag_exp=&u_w=&u_h=&url=&rcb=&frm=&tiba=&did=&gdid=&hn=&npa=&pscdl=&auid=&uaa=&uab=&uafvl=&uamb=&uam=&uap=&uapv=&uaw=&_tu=&data=&ept=&rfmt=&fmt=&is_vtc=&cid=&random=&rmt_tld=&ipr=",
+        "url": "https://www.google.com/{seg}/{seg}/{n}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "www.google.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 3250,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 3250
       },
       {
         "id": 169,
-        "url": "https://13341218.fls.doubleclick.net/activityi;dc_pre=CImx4qOctJUDFTtNRwEdDVwScQ;src=13341218;type=us_ho0;cat=us_ho0;rcb=6;ord=5492343920490;npa=0;auiddc=2013928149.1783003134;u9=homepage;u5=2344ae3b19f0a6b996e0ecaeffbd6834;u1=-1;gdid=dYmQxMT;uaa=x86;uab=64;uafvl=HeadlessChrome%3B149.0.7827.55%7CChromium%3B149.0.7827.55%7CNot)A%253BBrand%3B24.0.0.0;uamb=0;uam=;uap=Linux;uapv=;uaw=0;pscdl=noapi;frm=0;_tu=KFA;gtm=45fe66u1v9173467195za200zb892503511zd892503511xec;gcs=G111;gcd=13t3t3t3t5l1;dma=0;dc_fmt=2;tag_exp=115616986~115938466~115938469~118131809~119027224~119576881~119576885~119576891~119576895;epver=2;dc_random=1783003134_PlP-PZdq5XAAaIoWfAKOzv-QasJJUjWQkA;_dc_test=1;~oref=https%3A%2F%2Fwww.ebay.com%2F",
-        "domain": "13341218.fls.doubleclick.net",
+        "url": "https://{label}.fls.doubleclick.net/{seg}",
+        "domain": "{label}.fls.doubleclick.net",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
@@ -2202,24 +2202,24 @@
           "category": "advertising",
           "confidence": "curated"
         },
-        "startedAtMs": 3305,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 3305
       },
       {
         "id": 170,
-        "url": "https://tr.snapchat.com/p",
+        "url": "https://tr.snapchat.com/{seg}",
         "domain": "tr.snapchat.com",
         "method": "POST",
         "resourceType": "ping",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 3329,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 3329
       },
       {
         "id": 171,
-        "url": "https://adservice.google.com/ddm/fls/z/dc_pre=CImx4qOctJUDFTtNRwEdDVwScQ;src=13341218;type=us_ho0;cat=us_ho0;rcb=6;ord=5492343920490;npa=0;auiddc=*;u9=homepage;u5=2344ae3b19f0a6b996e0ecaeffbd6834;u1=-1;gdid=dYmQxMT;uaa=x86;uab=64;uafvl=HeadlessChrome%3B149.0.7827.55%7CChromium%3B149.0.7827.55%7CNot)A%253BBrand%3B24.0.0.0;uamb=0;uam=;uap=Linux;uapv=;uaw=0;pscdl=noapi;frm=0;_tu=KFA;gtm=45fe66u1v9173467195za200zb892503511zd892503511xec;gcs=G111;gcd=13t3t3t3t5l1;dma=0;dc_fmt=2;tag_exp=115616986~115938466~115938469~118131809~119027224~119576881~119576885~119576891~119576895;epver=2;dc_random=1783003134_PlP-PZdq5XAAaIoWfAKOzv-QasJJUjWQkA;_dc_test=1;~oref=https%3A%2F%2Fwww.ebay.com%2F",
+        "url": "https://adservice.google.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "adservice.google.com",
         "method": "GET",
         "resourceType": "image",
@@ -2231,72 +2231,72 @@
           "category": "advertising",
           "confidence": "curated"
         },
-        "startedAtMs": 3344,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 3344
       },
       {
         "id": 172,
-        "url": "https://www.ebay.com/HO5YMS/PwD/S9T/ry92TQ/Dmp9tzOzYbJ1/TARAAQE/ACxuRQs/1ZVBV",
+        "url": "https://www.ebay.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.ebay.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 4055,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 4055
       },
       {
         "id": 173,
-        "url": "https://svcs.ebay.com/ufeservice/v1/metrics",
+        "url": "https://svcs.ebay.com/{seg}/{seg}/{seg}",
         "domain": "svcs.ebay.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 202,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 6076,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 6076
       },
       {
         "id": 174,
-        "url": "https://www.ebay.com/autosug",
+        "url": "https://www.ebay.com/{seg}",
         "domain": "www.ebay.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 11399,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 11399
       },
       {
         "id": 175,
-        "url": "https://www.google.com/pagead/form-data/16653549404?gtm=&gcs=&gcd=&dma=&tag_exp=&rcb=&did=&gdid=&npa=&frm=&pscdl=&ae=&auid=&uaa=&uab=&uafvl=&uamb=&uam=&uap=&uapv=&uaw=&_tu=&gap.fsrc=",
+        "url": "https://www.google.com/{seg}/{seg}/{n}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 11496,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 11496
       },
       {
         "id": 176,
-        "url": "https://www.google.com/ccm/form-data/16653549404?gtm=&gcs=&gcd=&dma=&tag_exp=&rcb=&did=&gdid=&npa=&frm=&ae=&pscdl=&auid=&uaa=&uab=&uafvl=&uamb=&uam=&uap=&uapv=&uaw=&ec_mode=&_tu=&gap.fsrc=&em=&emd=",
+        "url": "https://www.google.com/{seg}/{seg}/{n}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 204,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 11498,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 11498
       },
       {
         "id": 177,
-        "url": "https://googleads.g.doubleclick.net/pagead/viewthroughconversion/16653549404/?random=&cv=&fst=&bg=&guid=&async=&en=&gtm=&gcd=&dma=&tag_exp=&u_w=&u_h=&url=&rcb=&frm=&tiba=&did=&gdid=&ae=&hn=&npa=&pscdl=&auid=&uaa=&uab=&uafvl=&uamb=&uam=&uap=&uapv=&uaw=&_tu=&data=&gap.fsrc=&ept=&rfmt=&fmt=",
+        "url": "https://googleads.g.doubleclick.net/{seg}/{seg}/{n}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "googleads.g.doubleclick.net",
         "method": "GET",
         "resourceType": "script",
@@ -2308,132 +2308,132 @@
           "category": "advertising",
           "confidence": "curated"
         },
-        "startedAtMs": 11498,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 11498
       },
       {
         "id": 178,
-        "url": "https://www.google.com/rmkt/collect/16653549404/?random=&cv=&fst=&fmt=&bg=&guid=&async=&en=&gtm=&gcd=&dma=&tag_exp=&u_w=&u_h=&url=&rcb=&frm=&tiba=&did=&gdid=&ae=&hn=&npa=&pscdl=&auid=&uaa=&uab=&uafvl=&uamb=&uam=&uap=&uapv=&uaw=&_tu=&data=&gap.fsrc=&ept=&gcp=",
+        "url": "https://www.google.com/{seg}/{seg}/{n}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "www.google.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 11498,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 11498
       },
       {
         "id": 179,
-        "url": "https://www.google.com/pagead/1p-user-list/16653549404/?random=&cv=&fst=&bg=&guid=&async=&en=&gtm=&gcd=&dma=&tag_exp=&u_w=&u_h=&url=&rcb=&frm=&tiba=&did=&gdid=&ae=&hn=&npa=&pscdl=&auid=&uaa=&uab=&uafvl=&uamb=&uam=&uap=&uapv=&uaw=&_tu=&data=&gap.fsrc=&ept=&rfmt=&fmt=&is_vtc=&cid=&random=&rmt_tld=&ipr=",
+        "url": "https://www.google.com/{seg}/{seg}/{n}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&cid=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "www.google.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 11543,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 11543
       },
       {
         "id": 180,
-        "url": "https://www.ebay.com/autosug",
+        "url": "https://www.ebay.com/{seg}",
         "domain": "www.ebay.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 11569,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 11569
       },
       {
         "id": 181,
-        "url": "https://www.ebay.com/HO5YMS/PwD/S9T/ry92TQ/Dmp9tzOzYbJ1/TARAAQE/ACxuRQs/1ZVBV",
+        "url": "https://www.ebay.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.ebay.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 11625,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 11625
       },
       {
         "id": 182,
-        "url": "https://pulsar.ebay.com/plsr/mpe/0/DFLT/9",
+        "url": "https://pulsar.ebay.com/{seg}/{seg}/{n}/{seg}/{n}",
         "domain": "pulsar.ebay.com",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 14036,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 14036
       },
       {
         "id": 183,
-        "url": "https://edgetrksvc.ebay.com/base/service/v1/viewport_events",
+        "url": "https://edgetrksvc.ebay.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "edgetrksvc.ebay.com",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 14036,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 14036
       },
       {
         "id": 184,
-        "url": "https://backstory.ebay.com/customer/v1/customer_service",
+        "url": "https://backstory.ebay.com/{seg}/{seg}/{seg}",
         "domain": "backstory.ebay.com",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 14038,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 14038
       },
       {
         "id": 185,
-        "url": "https://tr.snapchat.com/p",
+        "url": "https://tr.snapchat.com/{seg}",
         "domain": "tr.snapchat.com",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 14039,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 14039
       },
       {
         "id": 186,
-        "url": "https://svcs.ebay.com/ufeservice/v1/metrics",
+        "url": "https://svcs.ebay.com/{seg}/{seg}/{seg}",
         "domain": "svcs.ebay.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": null,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 14050,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 14050
       },
       {
         "id": 187,
-        "url": "https://sofe.ebay.com/ws/web/SojPagePerf",
+        "url": "https://sofe.ebay.com/{seg}/{seg}/{seg}",
         "domain": "sofe.ebay.com",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 14050,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 14050
       },
       {
         "id": 188,
-        "url": "https://ad.doubleclick.net/activity;src=13341218;type=us_ho0;cat=us_ho0;rcb=6;ord=5492343920490;npa=0;auiddc=2013928149.1783003134;u9=homepage;u5=2344ae3b19f0a6b996e0ecaeffbd6834;u1=-1;gdid=dYmQxMT;uaa=x86;uab=64;uafvl=HeadlessChrome%3B149.0.7827.55%7CChromium%3B149.0.7827.55%7CNot)A%253BBrand%3B24.0.0.0;uamb=0;uam=;uap=Linux;uapv=;uaw=0;pscdl=noapi;frm=0;_tu=KFA;gtm=45fe66u1v9173467195za200zb892503511zd892503511xec;gcs=G111;gcd=13t3t3t3t5l1;dma=0;dc_fmt=11;tag_exp=115616986~115938466~115938469~118131809~119027224~119576881~119576885~119576891~119576895;epver=2;dc_random=1783003134_PlP-PZdq5XAAaIoWfAKOzv-QasJJUjWQkA;~oref=https%3A%2F%2Fwww.ebay.com%2F",
+        "url": "https://ad.doubleclick.net/{seg}",
         "domain": "ad.doubleclick.net",
         "method": "GET",
         "resourceType": "image",
@@ -2445,8 +2445,8 @@
           "category": "advertising",
           "confidence": "curated"
         },
-        "startedAtMs": 14051,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 14051
       }
     ],
     "domains": [
@@ -2544,7 +2544,7 @@
         ]
       },
       {
-        "domain": "13341218.fls.doubleclick.net",
+        "domain": "{label}.fls.doubleclick.net",
         "requests": 2,
         "thirdParty": true,
         "tracker": {
@@ -2954,7 +2954,7 @@
     ],
     "cookies": [
       {
-        "name": "uid",
+        "name": "[redacted]",
         "domain": ".criteo.com",
         "path": "/",
         "sameSite": "None",
@@ -2984,7 +2984,7 @@
         "thirdParty": true
       },
       {
-        "name": "A3",
+        "name": "[redacted]",
         "domain": ".yahoo.com",
         "path": "/",
         "sameSite": "None",
@@ -2994,9 +2994,9 @@
         "thirdParty": true
       },
       {
-        "name": "X-AB",
+        "name": "[redacted]",
         "domain": "sc-static.net",
-        "path": "/scevent.min.js",
+        "path": "/{seg}",
         "sameSite": "None",
         "secure": true,
         "httpOnly": false,
@@ -3004,7 +3004,7 @@
         "thirdParty": true
       },
       {
-        "name": "adguid",
+        "name": "[redacted]",
         "domain": "www.ebayadservices.com",
         "path": "/",
         "sameSite": "None",
@@ -3014,7 +3014,7 @@
         "thirdParty": true
       },
       {
-        "name": "s",
+        "name": "[redacted]",
         "domain": ".ebay.com",
         "path": "/",
         "sameSite": "Lax",
@@ -3024,7 +3024,7 @@
         "thirdParty": false
       },
       {
-        "name": "ds2",
+        "name": "[redacted]",
         "domain": ".ebay.com",
         "path": "/",
         "sameSite": "None",
@@ -3034,7 +3034,7 @@
         "thirdParty": false
       },
       {
-        "name": "__uzmb",
+        "name": "[redacted]",
         "domain": ".ebay.com",
         "path": "/",
         "sameSite": "Lax",
@@ -3044,7 +3044,7 @@
         "thirdParty": false
       },
       {
-        "name": "__uzma",
+        "name": "[redacted]",
         "domain": ".ebay.com",
         "path": "/",
         "sameSite": "Lax",
@@ -3054,7 +3054,7 @@
         "thirdParty": false
       },
       {
-        "name": "__uzme",
+        "name": "[redacted]",
         "domain": ".ebay.com",
         "path": "/",
         "sameSite": "Lax",
@@ -3064,7 +3064,7 @@
         "thirdParty": false
       },
       {
-        "name": "bm_ss",
+        "name": "[redacted]",
         "domain": ".ebay.com",
         "path": "/",
         "sameSite": "None",
@@ -3074,7 +3074,7 @@
         "thirdParty": false
       },
       {
-        "name": "bm_so",
+        "name": "[redacted]",
         "domain": ".ebay.com",
         "path": "/",
         "sameSite": "Lax",
@@ -3084,7 +3084,7 @@
         "thirdParty": false
       },
       {
-        "name": "__ssds",
+        "name": "[redacted]",
         "domain": ".ebay.com",
         "path": "/",
         "sameSite": "Lax",
@@ -3094,7 +3094,7 @@
         "thirdParty": false
       },
       {
-        "name": "dp1",
+        "name": "[redacted]",
         "domain": ".ebay.com",
         "path": "/",
         "sameSite": "Lax",
@@ -3104,7 +3104,7 @@
         "thirdParty": false
       },
       {
-        "name": "__ssuzjsr2",
+        "name": "[redacted]",
         "domain": ".ebay.com",
         "path": "/",
         "sameSite": "Lax",
@@ -3114,7 +3114,7 @@
         "thirdParty": false
       },
       {
-        "name": "__uzmbj2",
+        "name": "[redacted]",
         "domain": ".ebay.com",
         "path": "/",
         "sameSite": "Lax",
@@ -3124,7 +3124,7 @@
         "thirdParty": false
       },
       {
-        "name": "__uzmdj2",
+        "name": "[redacted]",
         "domain": ".ebay.com",
         "path": "/",
         "sameSite": "Lax",
@@ -3134,7 +3134,7 @@
         "thirdParty": false
       },
       {
-        "name": "__uzmlj2",
+        "name": "[redacted]",
         "domain": ".ebay.com",
         "path": "/",
         "sameSite": "Lax",
@@ -3144,7 +3144,7 @@
         "thirdParty": false
       },
       {
-        "name": "__uzmaj2",
+        "name": "[redacted]",
         "domain": ".ebay.com",
         "path": "/",
         "sameSite": "Lax",
@@ -3154,7 +3154,7 @@
         "thirdParty": false
       },
       {
-        "name": "__uzmcj2",
+        "name": "[redacted]",
         "domain": ".ebay.com",
         "path": "/",
         "sameSite": "Lax",
@@ -3164,7 +3164,7 @@
         "thirdParty": false
       },
       {
-        "name": "__uzmfj2",
+        "name": "[redacted]",
         "domain": ".ebay.com",
         "path": "/",
         "sameSite": "Lax",
@@ -3174,7 +3174,7 @@
         "thirdParty": false
       },
       {
-        "name": "nonsession",
+        "name": "[redacted]",
         "domain": ".ebay.com",
         "path": "/",
         "sameSite": "Lax",
@@ -3184,7 +3184,7 @@
         "thirdParty": false
       },
       {
-        "name": "__uzmc",
+        "name": "[redacted]",
         "domain": ".ebay.com",
         "path": "/",
         "sameSite": "Lax",
@@ -3194,7 +3194,7 @@
         "thirdParty": false
       },
       {
-        "name": "__uzmd",
+        "name": "[redacted]",
         "domain": ".ebay.com",
         "path": "/",
         "sameSite": "Lax",
@@ -3204,7 +3204,7 @@
         "thirdParty": false
       },
       {
-        "name": "__uzmf",
+        "name": "[redacted]",
         "domain": ".ebay.com",
         "path": "/",
         "sameSite": "Lax",
@@ -3214,7 +3214,7 @@
         "thirdParty": false
       },
       {
-        "name": "ebay",
+        "name": "[redacted]",
         "domain": ".ebay.com",
         "path": "/",
         "sameSite": "Lax",
@@ -3224,7 +3224,7 @@
         "thirdParty": false
       },
       {
-        "name": "utag_main__sn",
+        "name": "[redacted]",
         "domain": ".ebay.com",
         "path": "/",
         "sameSite": "Lax",
@@ -3234,7 +3234,7 @@
         "thirdParty": false
       },
       {
-        "name": "utag_main_ses_id",
+        "name": "[redacted]",
         "domain": ".ebay.com",
         "path": "/",
         "sameSite": "Lax",
@@ -3244,7 +3244,7 @@
         "thirdParty": false
       },
       {
-        "name": "utag_main__pn",
+        "name": "[redacted]",
         "domain": ".ebay.com",
         "path": "/",
         "sameSite": "Lax",
@@ -3254,7 +3254,7 @@
         "thirdParty": false
       },
       {
-        "name": "_rdt_uuid",
+        "name": "[redacted]",
         "domain": ".ebay.com",
         "path": "/",
         "sameSite": "Strict",
@@ -3274,7 +3274,7 @@
         "thirdParty": false
       },
       {
-        "name": "_scid_r",
+        "name": "[redacted]",
         "domain": ".ebay.com",
         "path": "/",
         "sameSite": "Lax",
@@ -3284,7 +3284,7 @@
         "thirdParty": false
       },
       {
-        "name": "_pin_unauth",
+        "name": "[redacted]",
         "domain": ".ebay.com",
         "path": "/",
         "sameSite": "Lax",
@@ -3314,7 +3314,7 @@
         "thirdParty": false
       },
       {
-        "name": "bm_s",
+        "name": "[redacted]",
         "domain": ".ebay.com",
         "path": "/",
         "sameSite": "Lax",
@@ -3324,7 +3324,7 @@
         "thirdParty": false
       },
       {
-        "name": "utag_main__se",
+        "name": "[redacted]",
         "domain": ".ebay.com",
         "path": "/",
         "sameSite": "Lax",
@@ -3334,7 +3334,7 @@
         "thirdParty": false
       },
       {
-        "name": "utag_main__ss",
+        "name": "[redacted]",
         "domain": ".ebay.com",
         "path": "/",
         "sameSite": "Lax",
@@ -3344,7 +3344,7 @@
         "thirdParty": false
       },
       {
-        "name": "utag_main__st",
+        "name": "[redacted]",
         "domain": ".ebay.com",
         "path": "/",
         "sameSite": "Lax",
@@ -3354,7 +3354,7 @@
         "thirdParty": false
       },
       {
-        "name": "bm_lso",
+        "name": "[redacted]",
         "domain": ".www.ebay.com",
         "path": "/",
         "sameSite": "Lax",
@@ -3367,88 +3367,114 @@
     "storage": [
       {
         "area": "localStorage",
-        "key": "autotrack_parent_impression_id",
+        "key": "[redacted]",
         "valueBytes": 36
       },
       {
         "area": "localStorage",
-        "key": "u_sclid_r",
+        "key": "[redacted]",
         "valueBytes": 64
       },
       {
         "area": "localStorage",
-        "key": "u_sclid",
+        "key": "[redacted]",
         "valueBytes": 64
       },
       {
         "area": "localStorage",
-        "key": "lastExternalReferrerTime",
+        "key": "[redacted]",
         "valueBytes": 13
       },
       {
         "area": "localStorage",
-        "key": "radRandom",
+        "key": "[redacted]",
         "valueBytes": 64
       },
       {
         "area": "localStorage",
-        "key": "autocomplete_active_factors",
+        "key": "[redacted]",
         "valueBytes": 2
       },
       {
         "area": "localStorage",
-        "key": "lastExternalReferrer",
+        "key": "[redacted]",
         "valueBytes": 5
       },
       {
         "area": "localStorage",
-        "key": "autotrack_branching_impressions",
+        "key": "[redacted]",
         "valueBytes": 98
       },
       {
         "area": "localStorage",
-        "key": "_gcl_ls",
+        "key": "[redacted]",
         "valueBytes": 277
       },
       {
         "area": "localStorage",
-        "key": "autocomplete_dweb_last_updated",
+        "key": "[redacted]",
         "valueBytes": 13
       },
       {
         "area": "localStorage",
-        "key": "autocomplete_dweb_url",
+        "key": "[redacted]",
         "valueBytes": 62
       },
       {
         "area": "sessionStorage",
-        "key": "ak_bm_tab_id",
+        "key": "[redacted]",
         "valueBytes": 19
       },
       {
         "area": "sessionStorage",
-        "key": "u_scsid",
+        "key": "[redacted]",
         "valueBytes": 96
       },
       {
         "area": "sessionStorage",
-        "key": "autotrack_tab_id",
+        "key": "[redacted]",
         "valueBytes": 36
       },
       {
         "area": "sessionStorage",
-        "key": "u_scsid_r",
+        "key": "[redacted]",
         "valueBytes": 96
       },
       {
         "area": "sessionStorage",
-        "key": "is_eu",
+        "key": "[redacted]",
         "valueBytes": 5
       },
       {
         "area": "sessionStorage",
-        "key": "ebay-rum-session-id",
+        "key": "[redacted]",
         "valueBytes": 36
+      }
+    ],
+    "fingerprintEvents": [
+      {
+        "api": "audio.OfflineAudioContext.startRendering",
+        "count": 1
+      },
+      {
+        "api": "canvas.toDataURL",
+        "count": 1
+      },
+      {
+        "api": "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
+        "count": 1
+      },
+      {
+        "api": "webgl.getParameter.UNMASKED_VENDOR_WEBGL",
+        "count": 1
+      },
+      {
+        "api": "webgl2.getParameter.UNMASKED_RENDERER_WEBGL",
+        "count": 1
+      },
+      {
+        "api": "webgl2.getParameter.UNMASKED_VENDOR_WEBGL",
+        "count": 1
       }
     ],
     "fingerprintDetections": [
@@ -3485,10 +3511,10 @@
             "window"
           ],
           "thirdPartyOrigins": [
-            "https://ir.ebaystatic.com",
-            "https://s.pinimg.com",
-            "https://sc-static.net",
-            "https://www.googletagmanager.com"
+            "https://ir.ebaystatic.com/",
+            "https://s.pinimg.com/",
+            "https://sc-static.net/",
+            "https://www.googletagmanager.com/"
           ],
           "totalListenerCalls": 30
         }
@@ -3518,10 +3544,10 @@
             "window"
           ],
           "thirdPartyOrigins": [
-            "https://connect.facebook.net",
-            "https://ir.ebaystatic.com",
-            "https://sc-static.net",
-            "https://www.googletagmanager.com"
+            "https://connect.facebook.net/",
+            "https://ir.ebaystatic.com/",
+            "https://sc-static.net/",
+            "https://www.googletagmanager.com/"
           ],
           "totalListenerCalls": 129
         }
@@ -3543,32 +3569,10 @@
         }
       }
     ],
-    "fingerprintEvents": [
-      {
-        "api": "audio.OfflineAudioContext.startRendering",
-        "count": 1
-      },
-      {
-        "api": "canvas.toDataURL",
-        "count": 1
-      },
-      {
-        "api": "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
-        "count": 1
-      },
-      {
-        "api": "webgl.getParameter.UNMASKED_VENDOR_WEBGL",
-        "count": 1
-      },
-      {
-        "api": "webgl2.getParameter.UNMASKED_RENDERER_WEBGL",
-        "count": 1
-      },
-      {
-        "api": "webgl2.getParameter.UNMASKED_VENDOR_WEBGL",
-        "count": 1
-      }
-    ],
+    "consentInteraction": {
+      "mode": "accept-all",
+      "clicked": false
+    },
     "screenshot": null,
     "warnings": [
       "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling or clicking except one scripted choice on the cookie/consent banner (disclosed below). Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
@@ -3576,11 +3580,7 @@
       "The page did not reach network idle before the scan window ended.",
       "This visit was asked to choose \"Accept all\" on a cookie/consent banner, but no recognizable control was found (the banner may not be shown to this scanner's location, the choice may sit behind a settings layer, or the control is not in the catalog). Results reflect the pre-consent state.",
       "This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored."
-    ],
-    "consentInteraction": {
-      "mode": "accept-all",
-      "clicked": false
-    }
+    ]
   },
   "variant": {
     "ok": true,
@@ -3620,6 +3620,13 @@
       "automation": "playwright-chromium",
       "headless": true,
       "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "classification",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-02T01:00:58.178Z"
+      },
       "trackerCatalog": {
         "source": "Hand-curated service catalog",
         "version": "hand-curated-2026.06",
@@ -3628,14 +3635,7 @@
         "curatedOverrides": 133,
         "license": "AGPL-3.0-or-later"
       },
-      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
-      "adblock": {
-        "active": true,
-        "source": "Brave default ad-block lists",
-        "lists": 31,
-        "fetchedAt": "2026-07-02T01:00:58.178Z"
-      },
-      "shieldsMode": "classification"
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
     },
     "requests": [
       {
@@ -3647,212 +3647,212 @@
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 45,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 45
       },
       {
         "id": 2,
-        "url": "https://ir.ebaystatic.com/rs/c/inception-HS_FIY1s.css",
+        "url": "https://ir.ebaystatic.com/{seg}/{seg}/{seg}",
         "domain": "ir.ebaystatic.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 191,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 191
       },
       {
         "id": 3,
-        "url": "https://ir.ebaystatic.com/rs/c/highlnfe-static-qTMHAjIs.css",
+        "url": "https://ir.ebaystatic.com/{seg}/{seg}/{seg}",
         "domain": "ir.ebaystatic.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 191,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 191
       },
       {
         "id": 4,
-        "url": "https://ir.ebaystatic.com/rs/c/inception-IiBdqzdq.js",
+        "url": "https://ir.ebaystatic.com/{seg}/{seg}/{seg}",
         "domain": "ir.ebaystatic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 192,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 192
       },
       {
         "id": 5,
-        "url": "https://ir.ebaystatic.com/rs/c/highlnfe-static-MLkUoBIk.js",
+        "url": "https://ir.ebaystatic.com/{seg}/{seg}/{seg}",
         "domain": "ir.ebaystatic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 192,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 192
       },
       {
         "id": 6,
-        "url": "https://ir.ebaystatic.com/cr/v/c1/ebay-cookies/1.js",
+        "url": "https://ir.ebaystatic.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "ir.ebaystatic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 192,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 192
       },
       {
         "id": 7,
-        "url": "https://ir.ebaystatic.com/rs/v/10341xh50yz21mhhydueu4m5wad.js",
+        "url": "https://ir.ebaystatic.com/{seg}/{seg}/{seg}",
         "domain": "ir.ebaystatic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 192,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 192
       },
       {
         "id": 8,
-        "url": "https://ir.ebaystatic.com/rs/v/s0hteylevy4bpkd12dvkd4yi5ms.js",
+        "url": "https://ir.ebaystatic.com/{seg}/{seg}/{seg}",
         "domain": "ir.ebaystatic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 192,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 192
       },
       {
         "id": 9,
-        "url": "https://www.ebay.com/HO5YMS/PwD/S9T/ry92TQ/Dmp9tzOzYbJ1/TARAAQE/ACxuRQs/1ZVBV",
+        "url": "https://www.ebay.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.ebay.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 219,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 219
       },
       {
         "id": 10,
-        "url": "https://ir.ebaystatic.com/rs/v/dxtuvtkk2q3hpkc1xveeo13iaek.js",
+        "url": "https://ir.ebaystatic.com/{seg}/{seg}/{seg}",
         "domain": "ir.ebaystatic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 220,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 220
       },
       {
         "id": 11,
-        "url": "https://ir.ebaystatic.com/cr/v/c1/market-sans/v1.0/MarketSans-Regular-WebS.woff2",
+        "url": "https://ir.ebaystatic.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "ir.ebaystatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 231,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 231
       },
       {
         "id": 12,
-        "url": "https://ir.ebaystatic.com/cr/v/c1/market-sans/v1.0/MarketSans-SemiBold-WebS.woff2",
+        "url": "https://ir.ebaystatic.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "ir.ebaystatic.com",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 232,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 232
       },
       {
         "id": 13,
-        "url": "https://cas.avalon.perfdrive.com/jsdata",
+        "url": "https://cas.avalon.perfdrive.com/{seg}",
         "domain": "cas.avalon.perfdrive.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 274,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 274
       },
       {
         "id": 14,
-        "url": "https://cas.avalon.perfdrive.com/jsdata",
+        "url": "https://cas.avalon.perfdrive.com/{seg}",
         "domain": "cas.avalon.perfdrive.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 275,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 275
       },
       {
         "id": 15,
-        "url": "https://cas.avalon.perfdrive.com/jsdata",
+        "url": "https://cas.avalon.perfdrive.com/{seg}",
         "domain": "cas.avalon.perfdrive.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 275,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 275
       },
       {
         "id": 16,
-        "url": "https://www.ebay.com/HO5YMS/PwD/S9T/ry92TQ/Dmp9tzOzYbJ1/TARAAQE/ACxuRQs/1ZVBV",
+        "url": "https://www.ebay.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.ebay.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2726,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2726
       },
       {
         "id": 17,
-        "url": "https://www.ebay.com/HO5YMS/PwD/S9T/ry92TQ/Dmp9tzOzYbJ1/TARAAQE/ACxuRQs/1ZVBV",
+        "url": "https://www.ebay.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.ebay.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 4384,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 4384
       },
       {
         "id": 18,
-        "url": "https://pulsar.ebay.com/plsr/mpe/0/DFLT/9",
+        "url": "https://pulsar.ebay.com/{seg}/{seg}/{n}/{seg}/{n}",
         "domain": "pulsar.ebay.com",
         "method": "POST",
         "resourceType": "ping",
         "status": null,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 5179,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 5179
       }
     ],
     "domains": [
@@ -3913,7 +3913,7 @@
     ],
     "cookies": [
       {
-        "name": "bm_ss",
+        "name": "[redacted]",
         "domain": ".ebay.com",
         "path": "/",
         "sameSite": "None",
@@ -3923,7 +3923,7 @@
         "thirdParty": false
       },
       {
-        "name": "bm_s",
+        "name": "[redacted]",
         "domain": ".ebay.com",
         "path": "/",
         "sameSite": "Lax",
@@ -3933,7 +3933,7 @@
         "thirdParty": false
       },
       {
-        "name": "bm_so",
+        "name": "[redacted]",
         "domain": ".ebay.com",
         "path": "/",
         "sameSite": "Lax",
@@ -3943,7 +3943,7 @@
         "thirdParty": false
       },
       {
-        "name": "__ssds",
+        "name": "[redacted]",
         "domain": ".ebay.com",
         "path": "/",
         "sameSite": "Lax",
@@ -3953,7 +3953,7 @@
         "thirdParty": false
       },
       {
-        "name": "__ssuzjsr2",
+        "name": "[redacted]",
         "domain": ".ebay.com",
         "path": "/",
         "sameSite": "Lax",
@@ -3963,7 +3963,7 @@
         "thirdParty": false
       },
       {
-        "name": "__uzmaj2",
+        "name": "[redacted]",
         "domain": ".ebay.com",
         "path": "/",
         "sameSite": "Lax",
@@ -3973,7 +3973,7 @@
         "thirdParty": false
       },
       {
-        "name": "__uzmbj2",
+        "name": "[redacted]",
         "domain": ".ebay.com",
         "path": "/",
         "sameSite": "Lax",
@@ -3983,7 +3983,7 @@
         "thirdParty": false
       },
       {
-        "name": "__uzmcj2",
+        "name": "[redacted]",
         "domain": ".ebay.com",
         "path": "/",
         "sameSite": "Lax",
@@ -3993,7 +3993,7 @@
         "thirdParty": false
       },
       {
-        "name": "__uzmdj2",
+        "name": "[redacted]",
         "domain": ".ebay.com",
         "path": "/",
         "sameSite": "Lax",
@@ -4003,7 +4003,7 @@
         "thirdParty": false
       },
       {
-        "name": "bm_lso",
+        "name": "[redacted]",
         "domain": ".www.ebay.com",
         "path": "/",
         "sameSite": "Lax",
@@ -4014,6 +4014,32 @@
       }
     ],
     "storage": [],
+    "fingerprintEvents": [
+      {
+        "api": "audio.OfflineAudioContext.startRendering",
+        "count": 1
+      },
+      {
+        "api": "canvas.toDataURL",
+        "count": 1
+      },
+      {
+        "api": "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
+        "count": 1
+      },
+      {
+        "api": "webgl.getParameter.UNMASKED_VENDOR_WEBGL",
+        "count": 1
+      },
+      {
+        "api": "webgl2.getParameter.UNMASKED_RENDERER_WEBGL",
+        "count": 1
+      },
+      {
+        "api": "webgl2.getParameter.UNMASKED_VENDOR_WEBGL",
+        "count": 1
+      }
+    ],
     "fingerprintDetections": [
       {
         "kind": "canvas-fingerprinting",
@@ -4047,7 +4073,7 @@
             "window"
           ],
           "thirdPartyOrigins": [
-            "https://ir.ebaystatic.com"
+            "https://ir.ebaystatic.com/"
           ],
           "totalListenerCalls": 9
         }
@@ -4075,7 +4101,7 @@
             "window"
           ],
           "thirdPartyOrigins": [
-            "https://ir.ebaystatic.com"
+            "https://ir.ebaystatic.com/"
           ],
           "totalListenerCalls": 22
         }
@@ -4097,43 +4123,17 @@
         }
       }
     ],
-    "fingerprintEvents": [
-      {
-        "api": "audio.OfflineAudioContext.startRendering",
-        "count": 1
-      },
-      {
-        "api": "canvas.toDataURL",
-        "count": 1
-      },
-      {
-        "api": "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
-        "count": 1
-      },
-      {
-        "api": "webgl.getParameter.UNMASKED_VENDOR_WEBGL",
-        "count": 1
-      },
-      {
-        "api": "webgl2.getParameter.UNMASKED_RENDERER_WEBGL",
-        "count": 1
-      },
-      {
-        "api": "webgl2.getParameter.UNMASKED_VENDOR_WEBGL",
-        "count": 1
-      }
-    ],
+    "consentInteraction": {
+      "mode": "reject-all",
+      "clicked": false
+    },
     "screenshot": null,
     "warnings": [
       "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling or clicking except one scripted choice on the cookie/consent banner (disclosed below). Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
       "Counts are a lower bound: trackers that load only after further interaction, and any activity inside Web or Service Workers, are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot.",
       "This visit was asked to choose \"Reject all\" on a cookie/consent banner, but no recognizable control was found (the banner may not be shown to this scanner's location, the choice may sit behind a settings layer, or the control is not in the catalog). Results reflect the pre-consent state.",
       "This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored."
-    ],
-    "consentInteraction": {
-      "mode": "reject-all",
-      "clicked": false
-    }
+    ]
   },
   "diff": {
     "totalRequests": {
@@ -4239,7 +4239,7 @@
         }
       },
       {
-        "domain": "13341218.fls.doubleclick.net",
+        "domain": "{label}.fls.doubleclick.net",
         "requests": 2,
         "tracker": {
           "domain": "doubleclick.net",
@@ -4405,7 +4405,7 @@
     "addedCookies": [],
     "removedCookies": [
       {
-        "name": "uid",
+        "name": "[redacted]",
         "domain": ".criteo.com",
         "thirdParty": true
       },
@@ -4420,59 +4420,19 @@
         "thirdParty": true
       },
       {
-        "name": "A3",
+        "name": "[redacted]",
         "domain": ".yahoo.com",
         "thirdParty": true
       },
       {
-        "name": "X-AB",
+        "name": "[redacted]",
         "domain": "sc-static.net",
         "thirdParty": true
       },
       {
-        "name": "adguid",
+        "name": "[redacted]",
         "domain": "www.ebayadservices.com",
         "thirdParty": true
-      },
-      {
-        "name": "__uzma",
-        "domain": ".ebay.com",
-        "thirdParty": false
-      },
-      {
-        "name": "__uzmb",
-        "domain": ".ebay.com",
-        "thirdParty": false
-      },
-      {
-        "name": "__uzmc",
-        "domain": ".ebay.com",
-        "thirdParty": false
-      },
-      {
-        "name": "__uzmd",
-        "domain": ".ebay.com",
-        "thirdParty": false
-      },
-      {
-        "name": "__uzme",
-        "domain": ".ebay.com",
-        "thirdParty": false
-      },
-      {
-        "name": "__uzmf",
-        "domain": ".ebay.com",
-        "thirdParty": false
-      },
-      {
-        "name": "__uzmfj2",
-        "domain": ".ebay.com",
-        "thirdParty": false
-      },
-      {
-        "name": "__uzmlj2",
-        "domain": ".ebay.com",
-        "thirdParty": false
       },
       {
         "name": "_fbp",
@@ -4485,77 +4445,7 @@
         "thirdParty": false
       },
       {
-        "name": "_pin_unauth",
-        "domain": ".ebay.com",
-        "thirdParty": false
-      },
-      {
-        "name": "_rdt_uuid",
-        "domain": ".ebay.com",
-        "thirdParty": false
-      },
-      {
         "name": "_scid",
-        "domain": ".ebay.com",
-        "thirdParty": false
-      },
-      {
-        "name": "_scid_r",
-        "domain": ".ebay.com",
-        "thirdParty": false
-      },
-      {
-        "name": "dp1",
-        "domain": ".ebay.com",
-        "thirdParty": false
-      },
-      {
-        "name": "ds2",
-        "domain": ".ebay.com",
-        "thirdParty": false
-      },
-      {
-        "name": "ebay",
-        "domain": ".ebay.com",
-        "thirdParty": false
-      },
-      {
-        "name": "nonsession",
-        "domain": ".ebay.com",
-        "thirdParty": false
-      },
-      {
-        "name": "s",
-        "domain": ".ebay.com",
-        "thirdParty": false
-      },
-      {
-        "name": "utag_main__pn",
-        "domain": ".ebay.com",
-        "thirdParty": false
-      },
-      {
-        "name": "utag_main__se",
-        "domain": ".ebay.com",
-        "thirdParty": false
-      },
-      {
-        "name": "utag_main__sn",
-        "domain": ".ebay.com",
-        "thirdParty": false
-      },
-      {
-        "name": "utag_main__ss",
-        "domain": ".ebay.com",
-        "thirdParty": false
-      },
-      {
-        "name": "utag_main__st",
-        "domain": ".ebay.com",
-        "thirdParty": false
-      },
-      {
-        "name": "utag_main_ses_id",
         "domain": ".ebay.com",
         "thirdParty": false
       }
@@ -4564,71 +4454,11 @@
     "removedStorageKeys": [
       {
         "area": "localStorage",
-        "key": "_gcl_ls"
-      },
-      {
-        "area": "localStorage",
-        "key": "autocomplete_active_factors"
-      },
-      {
-        "area": "localStorage",
-        "key": "autocomplete_dweb_last_updated"
-      },
-      {
-        "area": "localStorage",
-        "key": "autocomplete_dweb_url"
-      },
-      {
-        "area": "localStorage",
-        "key": "autotrack_branching_impressions"
-      },
-      {
-        "area": "localStorage",
-        "key": "autotrack_parent_impression_id"
-      },
-      {
-        "area": "localStorage",
-        "key": "lastExternalReferrer"
-      },
-      {
-        "area": "localStorage",
-        "key": "lastExternalReferrerTime"
-      },
-      {
-        "area": "localStorage",
-        "key": "radRandom"
-      },
-      {
-        "area": "localStorage",
-        "key": "u_sclid"
-      },
-      {
-        "area": "localStorage",
-        "key": "u_sclid_r"
+        "key": "[redacted]"
       },
       {
         "area": "sessionStorage",
-        "key": "ak_bm_tab_id"
-      },
-      {
-        "area": "sessionStorage",
-        "key": "autotrack_tab_id"
-      },
-      {
-        "area": "sessionStorage",
-        "key": "ebay-rum-session-id"
-      },
-      {
-        "area": "sessionStorage",
-        "key": "is_eu"
-      },
-      {
-        "area": "sessionStorage",
-        "key": "u_scsid"
-      },
-      {
-        "area": "sessionStorage",
-        "key": "u_scsid_r"
+        "key": "[redacted]"
       }
     ],
     "addedFingerprinting": [],

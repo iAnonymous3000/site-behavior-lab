@@ -49,6 +49,13 @@
       "automation": "playwright-chromium",
       "headless": true,
       "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "classification",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-02T01:00:58.178Z"
+      },
       "trackerCatalog": {
         "source": "Hand-curated service catalog",
         "version": "hand-curated-2026.06",
@@ -57,14 +64,7 @@
         "curatedOverrides": 133,
         "license": "AGPL-3.0-or-later"
       },
-      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
-      "adblock": {
-        "active": true,
-        "source": "Brave default ad-block lists",
-        "lists": 31,
-        "fetchedAt": "2026-07-02T01:00:58.178Z"
-      },
-      "shieldsMode": "classification"
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
     },
     "requests": [
       {
@@ -76,164 +76,164 @@
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 46,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 46
       },
       {
         "id": 2,
-        "url": "https://www.kernel.org/theme/css/main.css",
+        "url": "https://www.kernel.org/{seg}/{seg}/{seg}",
         "domain": "www.kernel.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 108,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 108
       },
       {
         "id": 3,
-        "url": "https://www.kernel.org/theme/images/icons/downloadarrow_small.png",
+        "url": "https://www.kernel.org/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.kernel.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 108,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 108
       },
       {
         "id": 4,
-        "url": "https://www.kernel.org/theme/images/logos/akamai.png",
+        "url": "https://www.kernel.org/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.kernel.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 112,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 112
       },
       {
         "id": 5,
-        "url": "https://www.kernel.org/theme/images/logos/constellix-green-logo.png",
+        "url": "https://www.kernel.org/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.kernel.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 113,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 113
       },
       {
         "id": 6,
-        "url": "https://www.kernel.org/theme/images/logos/fastly-logo.png",
+        "url": "https://www.kernel.org/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.kernel.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 113,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 113
       },
       {
         "id": 7,
-        "url": "https://www.kernel.org/theme/images/logos/serverscom.svg",
+        "url": "https://www.kernel.org/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.kernel.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 114,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 114
       },
       {
         "id": 8,
-        "url": "https://www.kernel.org/theme/images/logos/google.png",
+        "url": "https://www.kernel.org/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.kernel.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 114,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 114
       },
       {
         "id": 9,
-        "url": "https://www.kernel.org/theme/images/logos/redhat-community.png",
+        "url": "https://www.kernel.org/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.kernel.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 115,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 115
       },
       {
         "id": 10,
-        "url": "https://www.kernel.org/theme/images/logos/thelinuxfoundation.png",
+        "url": "https://www.kernel.org/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.kernel.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 117,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 117
       },
       {
         "id": 11,
-        "url": "https://www.kernel.org/theme/css/normalize.css",
+        "url": "https://www.kernel.org/{seg}/{seg}/{seg}",
         "domain": "www.kernel.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 132,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 132
       },
       {
         "id": 12,
-        "url": "https://www.kernel.org/theme/images/logos/tux.png",
+        "url": "https://www.kernel.org/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.kernel.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 179,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 179
       },
       {
         "id": 13,
-        "url": "https://www.kernel.org/theme/fonts/oswald-regular-webfont.woff2",
+        "url": "https://www.kernel.org/{seg}/{seg}/{seg}",
         "domain": "www.kernel.org",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 180,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 180
       },
       {
         "id": 14,
-        "url": "https://www.kernel.org/theme/fonts/oxygen-regular-webfont.woff2",
+        "url": "https://www.kernel.org/{seg}/{seg}/{seg}",
         "domain": "www.kernel.org",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 181,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 181
       }
     ],
     "domains": [
@@ -256,8 +256,8 @@
     ],
     "cookies": [],
     "storage": [],
-    "fingerprintDetections": [],
     "fingerprintEvents": [],
+    "fingerprintDetections": [],
     "screenshot": null,
     "warnings": [
       "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
@@ -302,6 +302,13 @@
       "automation": "playwright-chromium",
       "headless": true,
       "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "block-simulation",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-02T01:00:58.178Z"
+      },
       "trackerCatalog": {
         "source": "Hand-curated service catalog",
         "version": "hand-curated-2026.06",
@@ -310,14 +317,7 @@
         "curatedOverrides": 133,
         "license": "AGPL-3.0-or-later"
       },
-      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
-      "adblock": {
-        "active": true,
-        "source": "Brave default ad-block lists",
-        "lists": 31,
-        "fetchedAt": "2026-07-02T01:00:58.178Z"
-      },
-      "shieldsMode": "block-simulation"
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
     },
     "requests": [
       {
@@ -329,164 +329,164 @@
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 55,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 55
       },
       {
         "id": 2,
-        "url": "https://www.kernel.org/theme/css/main.css",
+        "url": "https://www.kernel.org/{seg}/{seg}/{seg}",
         "domain": "www.kernel.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 105,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 105
       },
       {
         "id": 3,
-        "url": "https://www.kernel.org/theme/images/icons/downloadarrow_small.png",
+        "url": "https://www.kernel.org/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.kernel.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 105,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 105
       },
       {
         "id": 4,
-        "url": "https://www.kernel.org/theme/images/logos/akamai.png",
+        "url": "https://www.kernel.org/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.kernel.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 108,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 108
       },
       {
         "id": 5,
-        "url": "https://www.kernel.org/theme/images/logos/constellix-green-logo.png",
+        "url": "https://www.kernel.org/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.kernel.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 109,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 109
       },
       {
         "id": 6,
-        "url": "https://www.kernel.org/theme/images/logos/fastly-logo.png",
+        "url": "https://www.kernel.org/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.kernel.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 109,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 109
       },
       {
         "id": 7,
-        "url": "https://www.kernel.org/theme/images/logos/serverscom.svg",
+        "url": "https://www.kernel.org/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.kernel.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 110,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 110
       },
       {
         "id": 8,
-        "url": "https://www.kernel.org/theme/images/logos/google.png",
+        "url": "https://www.kernel.org/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.kernel.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 110,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 110
       },
       {
         "id": 9,
-        "url": "https://www.kernel.org/theme/images/logos/redhat-community.png",
+        "url": "https://www.kernel.org/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.kernel.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 110,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 110
       },
       {
         "id": 10,
-        "url": "https://www.kernel.org/theme/images/logos/thelinuxfoundation.png",
+        "url": "https://www.kernel.org/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.kernel.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 111,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 111
       },
       {
         "id": 11,
-        "url": "https://www.kernel.org/theme/css/normalize.css",
+        "url": "https://www.kernel.org/{seg}/{seg}/{seg}",
         "domain": "www.kernel.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 120,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 120
       },
       {
         "id": 12,
-        "url": "https://www.kernel.org/theme/images/logos/tux.png",
+        "url": "https://www.kernel.org/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.kernel.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 147,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 147
       },
       {
         "id": 13,
-        "url": "https://www.kernel.org/theme/fonts/oswald-regular-webfont.woff2",
+        "url": "https://www.kernel.org/{seg}/{seg}/{seg}",
         "domain": "www.kernel.org",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 147,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 147
       },
       {
         "id": 14,
-        "url": "https://www.kernel.org/theme/fonts/oxygen-regular-webfont.woff2",
+        "url": "https://www.kernel.org/{seg}/{seg}/{seg}",
         "domain": "www.kernel.org",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 148,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 148
       }
     ],
     "domains": [
@@ -509,8 +509,8 @@
     ],
     "cookies": [],
     "storage": [],
-    "fingerprintDetections": [],
     "fingerprintEvents": [],
+    "fingerprintDetections": [],
     "screenshot": null,
     "warnings": [
       "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",

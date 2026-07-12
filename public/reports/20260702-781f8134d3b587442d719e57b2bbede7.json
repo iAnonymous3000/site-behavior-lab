@@ -23,7 +23,7 @@
       "totalRequests": 57,
       "thirdPartyRequests": 7,
       "knownTrackerRequests": 0,
-      "thirdPartyDomains": 5,
+      "thirdPartyDomains": 4,
       "cookies": 1,
       "thirdPartyCookies": 1,
       "storageEntries": 0,
@@ -49,6 +49,13 @@
       "automation": "playwright-chromium",
       "headless": true,
       "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "classification",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-02T01:00:58.178Z"
+      },
       "trackerCatalog": {
         "source": "Hand-curated service catalog",
         "version": "hand-curated-2026.06",
@@ -57,14 +64,7 @@
         "curatedOverrides": 133,
         "license": "AGPL-3.0-or-later"
       },
-      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
-      "adblock": {
-        "active": true,
-        "source": "Brave default ad-block lists",
-        "lists": 31,
-        "fetchedAt": "2026-07-02T01:00:58.178Z"
-      },
-      "shieldsMode": "classification"
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
     },
     "requests": [
       {
@@ -76,680 +76,680 @@
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 39,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 39
       },
       {
         "id": 2,
-        "url": "https://neocities.org/css/neo.css",
+        "url": "https://neocities.org/{seg}/{seg}",
         "domain": "neocities.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 184,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 184
       },
       {
         "id": 3,
-        "url": "https://neocities.org/js/jquery-1.11.0.min.js",
+        "url": "https://neocities.org/{seg}/{seg}",
         "domain": "neocities.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 185,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 185
       },
       {
         "id": 4,
-        "url": "https://neocities.org/img/nav-Icon.png",
+        "url": "https://neocities.org/{seg}/{seg}",
         "domain": "neocities.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 185,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 185
       },
       {
         "id": 5,
-        "url": "https://neocities.org/img/cat.png",
+        "url": "https://neocities.org/{seg}/{seg}",
         "domain": "neocities.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 186,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 186
       },
       {
         "id": 6,
-        "url": "https://neocities.org/fonts/fonts.css",
+        "url": "https://neocities.org/{seg}/{seg}",
         "domain": "neocities.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 250,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 250
       },
       {
         "id": 7,
-        "url": "https://neocities.org/css/bootstrap.min.css",
+        "url": "https://neocities.org/{seg}/{seg}",
         "domain": "neocities.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 251,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 251
       },
       {
         "id": 8,
-        "url": "https://neocities.org/css/bootstrap-responsive.min.css",
+        "url": "https://neocities.org/{seg}/{seg}",
         "domain": "neocities.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 252,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 252
       },
       {
         "id": 9,
-        "url": "https://neocities.org/css/font-awesome.css",
+        "url": "https://neocities.org/{seg}/{seg}",
         "domain": "neocities.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 252,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 252
       },
       {
         "id": 10,
-        "url": "https://neocities.org/img/neocities-Logo.png",
+        "url": "https://neocities.org/{seg}/{seg}",
         "domain": "neocities.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 252,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 252
       },
       {
         "id": 11,
-        "url": "https://neocities.org/site_screenshots/24/09/thatoddhaystack/index.html.540x405.webp",
+        "url": "https://neocities.org/{seg}/{n}/{n}/{seg}/{seg}",
         "domain": "neocities.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 256,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 256
       },
       {
         "id": 12,
-        "url": "https://neocities.org/site_screenshots/19/00/honey-cream/index.html.540x405.webp",
+        "url": "https://neocities.org/{seg}/{n}/{n}/{seg}/{seg}",
         "domain": "neocities.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 306,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 306
       },
       {
         "id": 13,
-        "url": "https://neocities.org/js/app.min.js",
+        "url": "https://neocities.org/{seg}/{seg}",
         "domain": "neocities.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 307,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 307
       },
       {
         "id": 14,
-        "url": "https://neocities.org/js/bootstrap.min.js",
+        "url": "https://neocities.org/{seg}/{seg}",
         "domain": "neocities.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 307,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 307
       },
       {
         "id": 15,
-        "url": "https://hcaptcha.com/1/api.js",
+        "url": "https://hcaptcha.com/{n}/{seg}",
         "domain": "hcaptcha.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 309,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 309
       },
       {
         "id": 16,
-        "url": "https://neocities.org/site_screenshots/76/31/murumart/index.html.540x405.webp",
+        "url": "https://neocities.org/{seg}/{n}/{n}/{seg}/{seg}",
         "domain": "neocities.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 309,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 309
       },
       {
         "id": 17,
-        "url": "https://neocities.org/site_screenshots/38/92/lmbdfn/index.html.540x405.webp",
+        "url": "https://neocities.org/{seg}/{n}/{n}/{seg}/{seg}",
         "domain": "neocities.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 309,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 309
       },
       {
         "id": 18,
-        "url": "https://neocities.org/site_screenshots/31/37/mukkysworld/index.html.540x405.webp",
+        "url": "https://neocities.org/{seg}/{n}/{n}/{seg}/{seg}",
         "domain": "neocities.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 310,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 310
       },
       {
         "id": 19,
-        "url": "https://neocities.org/site_screenshots/27/24/bunglepaws/index.html.540x405.webp",
+        "url": "https://neocities.org/{seg}/{n}/{n}/{seg}/{seg}",
         "domain": "neocities.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 310,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 310
       },
       {
         "id": 20,
-        "url": "https://neocities.org/site_screenshots/32/67/harpercrane/index.html.540x405.webp",
+        "url": "https://neocities.org/{seg}/{n}/{n}/{seg}/{seg}",
         "domain": "neocities.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 310,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 310
       },
       {
         "id": 21,
-        "url": "https://neocities.org/site_screenshots/13/74/nanacore/index.html.540x405.webp",
+        "url": "https://neocities.org/{seg}/{n}/{n}/{seg}/{seg}",
         "domain": "neocities.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 310,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 310
       },
       {
         "id": 22,
-        "url": "https://neocities.org/site_screenshots/27/32/bisha/index.html.540x405.webp",
+        "url": "https://neocities.org/{seg}/{n}/{n}/{seg}/{seg}",
         "domain": "neocities.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 311,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 311
       },
       {
         "id": 23,
-        "url": "https://neocities.org/site_screenshots/19/35/doqmeat/index.html.540x405.webp",
+        "url": "https://neocities.org/{seg}/{n}/{n}/{seg}/{seg}",
         "domain": "neocities.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 311,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 311
       },
       {
         "id": 24,
-        "url": "https://neocities.org/site_screenshots/21/51/miserabledolly/index.html.540x405.webp",
+        "url": "https://neocities.org/{seg}/{n}/{n}/{seg}/{seg}",
         "domain": "neocities.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 311,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 311
       },
       {
         "id": 25,
-        "url": "https://neocities.org/site_screenshots/74/80/misterdizzy/index.html.540x405.webp",
+        "url": "https://neocities.org/{seg}/{n}/{n}/{seg}/{seg}",
         "domain": "neocities.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 312,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 312
       },
       {
         "id": 26,
-        "url": "https://neocities.org/img/neocity.png",
+        "url": "https://neocities.org/{seg}/{seg}",
         "domain": "neocities.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 348,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 348
       },
       {
         "id": 27,
-        "url": "https://neocities.org/img/icons.png",
+        "url": "https://neocities.org/{seg}/{seg}",
         "domain": "neocities.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 352,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 352
       },
       {
         "id": 28,
-        "url": "https://neocities.org/img/sign-up-bg.png",
+        "url": "https://neocities.org/{seg}/{seg}",
         "domain": "neocities.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 353,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 353
       },
       {
         "id": 29,
-        "url": "https://neocities.org/img/front-editor-screenshot.png",
+        "url": "https://neocities.org/{seg}/{seg}",
         "domain": "neocities.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 353,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 353
       },
       {
         "id": 30,
-        "url": "https://neocities.org/img/front-browse-screenshot.jpg",
+        "url": "https://neocities.org/{seg}/{seg}",
         "domain": "neocities.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 354,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 354
       },
       {
         "id": 31,
-        "url": "https://neocities.org/img/front-follow-screenshot.jpg",
+        "url": "https://neocities.org/{seg}/{seg}",
         "domain": "neocities.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 354,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 354
       },
       {
         "id": 32,
-        "url": "https://neocities.org/img/front-comment-screenshot.png",
+        "url": "https://neocities.org/{seg}/{seg}",
         "domain": "neocities.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 354,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 354
       },
       {
         "id": 33,
-        "url": "https://neocities.org/img/catbus-index.png",
+        "url": "https://neocities.org/{seg}/{seg}",
         "domain": "neocities.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 355,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 355
       },
       {
         "id": 34,
-        "url": "https://neocities.org/img/border.png",
+        "url": "https://neocities.org/{seg}/{seg}",
         "domain": "neocities.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 355,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 355
       },
       {
         "id": 35,
-        "url": "https://neocities.org/img/about-neocities.png",
+        "url": "https://neocities.org/{seg}/{seg}",
         "domain": "neocities.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 356,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 356
       },
       {
         "id": 36,
-        "url": "https://neocities.org/img/latest-news.png",
+        "url": "https://neocities.org/{seg}/{seg}",
         "domain": "neocities.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 356,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 356
       },
       {
         "id": 37,
-        "url": "https://neocities.org/fonts/fontawesome-webfont.woff2",
+        "url": "https://neocities.org/{seg}/{seg}",
         "domain": "neocities.org",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 356,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 356
       },
       {
         "id": 38,
-        "url": "https://neocities.org/fonts/Droid_Serif_400.woff",
+        "url": "https://neocities.org/{seg}/{seg}",
         "domain": "neocities.org",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 357,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 357
       },
       {
         "id": 39,
-        "url": "https://neocities.org/fonts/Droid_Serif_700.woff",
+        "url": "https://neocities.org/{seg}/{seg}",
         "domain": "neocities.org",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 357,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 357
       },
       {
         "id": 40,
-        "url": "https://78c89d91ff87.w.hcaptcha.com/logo.png",
-        "domain": "78c89d91ff87.w.hcaptcha.com",
+        "url": "https://{label}.w.hcaptcha.com/{seg}",
+        "domain": "{label}.w.hcaptcha.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 479,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 479
       },
       {
         "id": 41,
-        "url": "https://newassets.hcaptcha.com/captcha/v1/9dc608f7523036dcba6d237b5b05fba7d02ec2ea/static/hcaptcha.html",
+        "url": "https://newassets.hcaptcha.com/{seg}/{seg}/{seg}/static/{seg}",
         "domain": "newassets.hcaptcha.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 484,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 484
       },
       {
         "id": 42,
-        "url": "https://newassets.hcaptcha.com/captcha/v1/9dc608f7523036dcba6d237b5b05fba7d02ec2ea/static/hcaptcha.html",
+        "url": "https://newassets.hcaptcha.com/{seg}/{seg}/{seg}/static/{seg}",
         "domain": "newassets.hcaptcha.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 485,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 485
       },
       {
         "id": 43,
-        "url": "https://4abd0f4a9b9b.w.hcaptcha.com/logo.png",
-        "domain": "4abd0f4a9b9b.w.hcaptcha.com",
+        "url": "https://{label}.w.hcaptcha.com/{seg}",
+        "domain": "{label}.w.hcaptcha.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 702,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 702
       },
       {
         "id": 44,
-        "url": "https://api.hcaptcha.com/checksiteconfig?v=&host=&sitekey=&sc=&swa=&spst=",
+        "url": "https://api.hcaptcha.com/{seg}?v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "api.hcaptcha.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 707,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 707
       },
       {
         "id": 45,
-        "url": "https://newassets.hcaptcha.com/c/912faf5f88e83d8af5be9eba4dad880f701aa822b18657d64e992deb75336af9/hsw.js",
+        "url": "https://newassets.hcaptcha.com/{seg}/{seg}/{seg}",
         "domain": "newassets.hcaptcha.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 790,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 790
       },
       {
         "id": 46,
-        "url": "https://neocities.org/create_validate",
+        "url": "https://neocities.org/{seg}",
         "domain": "neocities.org",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2344,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2344
       },
       {
         "id": 47,
-        "url": "https://neocities.org/create_validate",
+        "url": "https://neocities.org/{seg}",
         "domain": "neocities.org",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2345,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2345
       },
       {
         "id": 48,
-        "url": "https://neocities.org/create_validate",
+        "url": "https://neocities.org/{seg}",
         "domain": "neocities.org",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2410,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2410
       },
       {
         "id": 49,
-        "url": "https://neocities.org/create_validate",
+        "url": "https://neocities.org/{seg}",
         "domain": "neocities.org",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2411,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2411
       },
       {
         "id": 50,
-        "url": "https://neocities.org/create_validate",
+        "url": "https://neocities.org/{seg}",
         "domain": "neocities.org",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2481,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2481
       },
       {
         "id": 51,
-        "url": "https://neocities.org/create_validate",
+        "url": "https://neocities.org/{seg}",
         "domain": "neocities.org",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2482,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2482
       },
       {
         "id": 52,
-        "url": "https://neocities.org/create_validate",
+        "url": "https://neocities.org/{seg}",
         "domain": "neocities.org",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2564,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2564
       },
       {
         "id": 53,
-        "url": "https://neocities.org/create_validate",
+        "url": "https://neocities.org/{seg}",
         "domain": "neocities.org",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2565,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2565
       },
       {
         "id": 54,
-        "url": "https://neocities.org/create_validate",
+        "url": "https://neocities.org/{seg}",
         "domain": "neocities.org",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2640,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2640
       },
       {
         "id": 55,
-        "url": "https://neocities.org/create_validate",
+        "url": "https://neocities.org/{seg}",
         "domain": "neocities.org",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2641,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2641
       },
       {
         "id": 56,
-        "url": "https://neocities.org/create_validate",
+        "url": "https://neocities.org/{seg}",
         "domain": "neocities.org",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2710,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2710
       },
       {
         "id": 57,
-        "url": "https://neocities.org/create_validate",
+        "url": "https://neocities.org/{seg}",
         "domain": "neocities.org",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2710,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2710
       }
     ],
     "domains": [
@@ -768,6 +768,19 @@
         ]
       },
       {
+        "domain": "{label}.w.hcaptcha.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
         "domain": "hcaptcha.com",
         "requests": 1,
         "thirdParty": true,
@@ -778,32 +791,6 @@
         ],
         "resourceTypes": [
           "script"
-        ]
-      },
-      {
-        "domain": "78c89d91ff87.w.hcaptcha.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "fetch"
-        ]
-      },
-      {
-        "domain": "4abd0f4a9b9b.w.hcaptcha.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "fetch"
         ]
       },
       {
@@ -851,6 +838,32 @@
       }
     ],
     "storage": [],
+    "fingerprintEvents": [
+      {
+        "api": "canvas.measureText",
+        "count": 104
+      },
+      {
+        "api": "canvas.toDataURL",
+        "count": 5
+      },
+      {
+        "api": "canvas.getImageData",
+        "count": 3
+      },
+      {
+        "api": "audio.OfflineAudioContext.startRendering",
+        "count": 1
+      },
+      {
+        "api": "webgl2.getParameter.UNMASKED_RENDERER_WEBGL",
+        "count": 1
+      },
+      {
+        "api": "webgl2.getParameter.UNMASKED_VENDOR_WEBGL",
+        "count": 1
+      }
+    ],
     "fingerprintDetections": [
       {
         "kind": "canvas-font-fingerprinting",
@@ -878,7 +891,7 @@
             "body"
           ],
           "thirdPartyOrigins": [
-            "https://hcaptcha.com"
+            "https://hcaptcha.com/"
           ],
           "totalListenerCalls": 6
         }
@@ -907,7 +920,7 @@
             "window"
           ],
           "thirdPartyOrigins": [
-            "https://hcaptcha.com"
+            "https://hcaptcha.com/"
           ],
           "totalListenerCalls": 19
         }
@@ -925,32 +938,6 @@
           "getParameterCalls": 99,
           "readPixelsCalls": 0
         }
-      }
-    ],
-    "fingerprintEvents": [
-      {
-        "api": "canvas.measureText",
-        "count": 104
-      },
-      {
-        "api": "canvas.toDataURL",
-        "count": 5
-      },
-      {
-        "api": "canvas.getImageData",
-        "count": 3
-      },
-      {
-        "api": "audio.OfflineAudioContext.startRendering",
-        "count": 1
-      },
-      {
-        "api": "webgl2.getParameter.UNMASKED_RENDERER_WEBGL",
-        "count": 1
-      },
-      {
-        "api": "webgl2.getParameter.UNMASKED_VENDOR_WEBGL",
-        "count": 1
       }
     ],
     "screenshot": null,
@@ -972,7 +959,7 @@
       "totalRequests": 57,
       "thirdPartyRequests": 7,
       "knownTrackerRequests": 0,
-      "thirdPartyDomains": 5,
+      "thirdPartyDomains": 4,
       "cookies": 1,
       "thirdPartyCookies": 1,
       "storageEntries": 0,
@@ -998,6 +985,13 @@
       "automation": "playwright-chromium",
       "headless": true,
       "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "block-simulation",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-02T01:00:58.178Z"
+      },
       "trackerCatalog": {
         "source": "Hand-curated service catalog",
         "version": "hand-curated-2026.06",
@@ -1006,14 +1000,7 @@
         "curatedOverrides": 133,
         "license": "AGPL-3.0-or-later"
       },
-      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
-      "adblock": {
-        "active": true,
-        "source": "Brave default ad-block lists",
-        "lists": 31,
-        "fetchedAt": "2026-07-02T01:00:58.178Z"
-      },
-      "shieldsMode": "block-simulation"
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
     },
     "requests": [
       {
@@ -1025,680 +1012,680 @@
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 44,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 44
       },
       {
         "id": 2,
-        "url": "https://neocities.org/css/neo.css",
+        "url": "https://neocities.org/{seg}/{seg}",
         "domain": "neocities.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 177,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 177
       },
       {
         "id": 3,
-        "url": "https://neocities.org/js/jquery-1.11.0.min.js",
+        "url": "https://neocities.org/{seg}/{seg}",
         "domain": "neocities.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 178,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 178
       },
       {
         "id": 4,
-        "url": "https://neocities.org/img/nav-Icon.png",
+        "url": "https://neocities.org/{seg}/{seg}",
         "domain": "neocities.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 178,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 178
       },
       {
         "id": 5,
-        "url": "https://neocities.org/img/cat.png",
+        "url": "https://neocities.org/{seg}/{seg}",
         "domain": "neocities.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 179,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 179
       },
       {
         "id": 6,
-        "url": "https://neocities.org/fonts/fonts.css",
+        "url": "https://neocities.org/{seg}/{seg}",
         "domain": "neocities.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 245,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 245
       },
       {
         "id": 7,
-        "url": "https://neocities.org/css/bootstrap.min.css",
+        "url": "https://neocities.org/{seg}/{seg}",
         "domain": "neocities.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 246,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 246
       },
       {
         "id": 8,
-        "url": "https://neocities.org/css/bootstrap-responsive.min.css",
+        "url": "https://neocities.org/{seg}/{seg}",
         "domain": "neocities.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 247,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 247
       },
       {
         "id": 9,
-        "url": "https://neocities.org/css/font-awesome.css",
+        "url": "https://neocities.org/{seg}/{seg}",
         "domain": "neocities.org",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 247,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 247
       },
       {
         "id": 10,
-        "url": "https://neocities.org/img/neocities-Logo.png",
+        "url": "https://neocities.org/{seg}/{seg}",
         "domain": "neocities.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 248,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 248
       },
       {
         "id": 11,
-        "url": "https://neocities.org/site_screenshots/24/09/thatoddhaystack/index.html.540x405.webp",
+        "url": "https://neocities.org/{seg}/{n}/{n}/{seg}/{seg}",
         "domain": "neocities.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 251,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 251
       },
       {
         "id": 12,
-        "url": "https://neocities.org/site_screenshots/19/00/honey-cream/index.html.540x405.webp",
+        "url": "https://neocities.org/{seg}/{n}/{n}/{seg}/{seg}",
         "domain": "neocities.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 304,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 304
       },
       {
         "id": 13,
-        "url": "https://neocities.org/js/app.min.js",
+        "url": "https://neocities.org/{seg}/{seg}",
         "domain": "neocities.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 307,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 307
       },
       {
         "id": 14,
-        "url": "https://neocities.org/js/bootstrap.min.js",
+        "url": "https://neocities.org/{seg}/{seg}",
         "domain": "neocities.org",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 308,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 308
       },
       {
         "id": 15,
-        "url": "https://hcaptcha.com/1/api.js",
+        "url": "https://hcaptcha.com/{n}/{seg}",
         "domain": "hcaptcha.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 308,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 308
       },
       {
         "id": 16,
-        "url": "https://neocities.org/site_screenshots/76/31/murumart/index.html.540x405.webp",
+        "url": "https://neocities.org/{seg}/{n}/{n}/{seg}/{seg}",
         "domain": "neocities.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 310,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 310
       },
       {
         "id": 17,
-        "url": "https://neocities.org/site_screenshots/38/92/lmbdfn/index.html.540x405.webp",
+        "url": "https://neocities.org/{seg}/{n}/{n}/{seg}/{seg}",
         "domain": "neocities.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 310,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 310
       },
       {
         "id": 18,
-        "url": "https://neocities.org/site_screenshots/31/37/mukkysworld/index.html.540x405.webp",
+        "url": "https://neocities.org/{seg}/{n}/{n}/{seg}/{seg}",
         "domain": "neocities.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 311,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 311
       },
       {
         "id": 19,
-        "url": "https://neocities.org/site_screenshots/27/24/bunglepaws/index.html.540x405.webp",
+        "url": "https://neocities.org/{seg}/{n}/{n}/{seg}/{seg}",
         "domain": "neocities.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 311,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 311
       },
       {
         "id": 20,
-        "url": "https://neocities.org/site_screenshots/32/67/harpercrane/index.html.540x405.webp",
+        "url": "https://neocities.org/{seg}/{n}/{n}/{seg}/{seg}",
         "domain": "neocities.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 312,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 312
       },
       {
         "id": 21,
-        "url": "https://neocities.org/site_screenshots/13/74/nanacore/index.html.540x405.webp",
+        "url": "https://neocities.org/{seg}/{n}/{n}/{seg}/{seg}",
         "domain": "neocities.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 313,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 313
       },
       {
         "id": 22,
-        "url": "https://neocities.org/site_screenshots/27/32/bisha/index.html.540x405.webp",
+        "url": "https://neocities.org/{seg}/{n}/{n}/{seg}/{seg}",
         "domain": "neocities.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 313,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 313
       },
       {
         "id": 23,
-        "url": "https://neocities.org/site_screenshots/19/35/doqmeat/index.html.540x405.webp",
+        "url": "https://neocities.org/{seg}/{n}/{n}/{seg}/{seg}",
         "domain": "neocities.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 314,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 314
       },
       {
         "id": 24,
-        "url": "https://neocities.org/site_screenshots/21/51/miserabledolly/index.html.540x405.webp",
+        "url": "https://neocities.org/{seg}/{n}/{n}/{seg}/{seg}",
         "domain": "neocities.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 314,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 314
       },
       {
         "id": 25,
-        "url": "https://neocities.org/site_screenshots/74/80/misterdizzy/index.html.540x405.webp",
+        "url": "https://neocities.org/{seg}/{n}/{n}/{seg}/{seg}",
         "domain": "neocities.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 314,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 314
       },
       {
         "id": 26,
-        "url": "https://neocities.org/img/neocity.png",
+        "url": "https://neocities.org/{seg}/{seg}",
         "domain": "neocities.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 348,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 348
       },
       {
         "id": 27,
-        "url": "https://neocities.org/img/icons.png",
+        "url": "https://neocities.org/{seg}/{seg}",
         "domain": "neocities.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 350,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 350
       },
       {
         "id": 28,
-        "url": "https://neocities.org/img/sign-up-bg.png",
+        "url": "https://neocities.org/{seg}/{seg}",
         "domain": "neocities.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 351,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 351
       },
       {
         "id": 29,
-        "url": "https://neocities.org/img/front-editor-screenshot.png",
+        "url": "https://neocities.org/{seg}/{seg}",
         "domain": "neocities.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 351,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 351
       },
       {
         "id": 30,
-        "url": "https://neocities.org/img/front-browse-screenshot.jpg",
+        "url": "https://neocities.org/{seg}/{seg}",
         "domain": "neocities.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 352,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 352
       },
       {
         "id": 31,
-        "url": "https://neocities.org/img/front-follow-screenshot.jpg",
+        "url": "https://neocities.org/{seg}/{seg}",
         "domain": "neocities.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 352,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 352
       },
       {
         "id": 32,
-        "url": "https://neocities.org/img/front-comment-screenshot.png",
+        "url": "https://neocities.org/{seg}/{seg}",
         "domain": "neocities.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 353,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 353
       },
       {
         "id": 33,
-        "url": "https://neocities.org/img/catbus-index.png",
+        "url": "https://neocities.org/{seg}/{seg}",
         "domain": "neocities.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 353,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 353
       },
       {
         "id": 34,
-        "url": "https://neocities.org/img/border.png",
+        "url": "https://neocities.org/{seg}/{seg}",
         "domain": "neocities.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 357,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 357
       },
       {
         "id": 35,
-        "url": "https://neocities.org/img/about-neocities.png",
+        "url": "https://neocities.org/{seg}/{seg}",
         "domain": "neocities.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 358,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 358
       },
       {
         "id": 36,
-        "url": "https://neocities.org/img/latest-news.png",
+        "url": "https://neocities.org/{seg}/{seg}",
         "domain": "neocities.org",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 358,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 358
       },
       {
         "id": 37,
-        "url": "https://neocities.org/fonts/fontawesome-webfont.woff2",
+        "url": "https://neocities.org/{seg}/{seg}",
         "domain": "neocities.org",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 360,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 360
       },
       {
         "id": 38,
-        "url": "https://neocities.org/fonts/Droid_Serif_400.woff",
+        "url": "https://neocities.org/{seg}/{seg}",
         "domain": "neocities.org",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 360,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 360
       },
       {
         "id": 39,
-        "url": "https://neocities.org/fonts/Droid_Serif_700.woff",
+        "url": "https://neocities.org/{seg}/{seg}",
         "domain": "neocities.org",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 361,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 361
       },
       {
         "id": 40,
-        "url": "https://7b10212d4e86.w.hcaptcha.com/logo.png",
-        "domain": "7b10212d4e86.w.hcaptcha.com",
+        "url": "https://{label}.w.hcaptcha.com/{seg}",
+        "domain": "{label}.w.hcaptcha.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 550,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 550
       },
       {
         "id": 41,
-        "url": "https://newassets.hcaptcha.com/captcha/v1/9dc608f7523036dcba6d237b5b05fba7d02ec2ea/static/hcaptcha.html",
+        "url": "https://newassets.hcaptcha.com/{seg}/{seg}/{seg}/static/{seg}",
         "domain": "newassets.hcaptcha.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 553,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 553
       },
       {
         "id": 42,
-        "url": "https://newassets.hcaptcha.com/captcha/v1/9dc608f7523036dcba6d237b5b05fba7d02ec2ea/static/hcaptcha.html",
+        "url": "https://newassets.hcaptcha.com/{seg}/{seg}/{seg}/static/{seg}",
         "domain": "newassets.hcaptcha.com",
         "method": "GET",
         "resourceType": "document",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 554,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 554
       },
       {
         "id": 43,
-        "url": "https://1101faaf561c.w.hcaptcha.com/logo.png",
-        "domain": "1101faaf561c.w.hcaptcha.com",
+        "url": "https://{label}.w.hcaptcha.com/{seg}",
+        "domain": "{label}.w.hcaptcha.com",
         "method": "GET",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 774,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 774
       },
       {
         "id": 44,
-        "url": "https://api.hcaptcha.com/checksiteconfig?v=&host=&sitekey=&sc=&swa=&spst=",
+        "url": "https://api.hcaptcha.com/{seg}?v=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "api.hcaptcha.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 782,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 782
       },
       {
         "id": 45,
-        "url": "https://newassets.hcaptcha.com/c/912faf5f88e83d8af5be9eba4dad880f701aa822b18657d64e992deb75336af9/hsw.js",
+        "url": "https://newassets.hcaptcha.com/{seg}/{seg}/{seg}",
         "domain": "newassets.hcaptcha.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 864,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 864
       },
       {
         "id": 46,
-        "url": "https://neocities.org/create_validate",
+        "url": "https://neocities.org/{seg}",
         "domain": "neocities.org",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2408,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2408
       },
       {
         "id": 47,
-        "url": "https://neocities.org/create_validate",
+        "url": "https://neocities.org/{seg}",
         "domain": "neocities.org",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2409,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2409
       },
       {
         "id": 48,
-        "url": "https://neocities.org/create_validate",
+        "url": "https://neocities.org/{seg}",
         "domain": "neocities.org",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2478,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2478
       },
       {
         "id": 49,
-        "url": "https://neocities.org/create_validate",
+        "url": "https://neocities.org/{seg}",
         "domain": "neocities.org",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2479,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2479
       },
       {
         "id": 50,
-        "url": "https://neocities.org/create_validate",
+        "url": "https://neocities.org/{seg}",
         "domain": "neocities.org",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2564,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2564
       },
       {
         "id": 51,
-        "url": "https://neocities.org/create_validate",
+        "url": "https://neocities.org/{seg}",
         "domain": "neocities.org",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2565,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2565
       },
       {
         "id": 52,
-        "url": "https://neocities.org/create_validate",
+        "url": "https://neocities.org/{seg}",
         "domain": "neocities.org",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2642,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2642
       },
       {
         "id": 53,
-        "url": "https://neocities.org/create_validate",
+        "url": "https://neocities.org/{seg}",
         "domain": "neocities.org",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2643,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2643
       },
       {
         "id": 54,
-        "url": "https://neocities.org/create_validate",
+        "url": "https://neocities.org/{seg}",
         "domain": "neocities.org",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2720,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2720
       },
       {
         "id": 55,
-        "url": "https://neocities.org/create_validate",
+        "url": "https://neocities.org/{seg}",
         "domain": "neocities.org",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2721,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2721
       },
       {
         "id": 56,
-        "url": "https://neocities.org/create_validate",
+        "url": "https://neocities.org/{seg}",
         "domain": "neocities.org",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2801,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2801
       },
       {
         "id": 57,
-        "url": "https://neocities.org/create_validate",
+        "url": "https://neocities.org/{seg}",
         "domain": "neocities.org",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 2802,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 2802
       }
     ],
     "domains": [
@@ -1717,6 +1704,19 @@
         ]
       },
       {
+        "domain": "{label}.w.hcaptcha.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
         "domain": "hcaptcha.com",
         "requests": 1,
         "thirdParty": true,
@@ -1727,32 +1727,6 @@
         ],
         "resourceTypes": [
           "script"
-        ]
-      },
-      {
-        "domain": "7b10212d4e86.w.hcaptcha.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "fetch"
-        ]
-      },
-      {
-        "domain": "1101faaf561c.w.hcaptcha.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "fetch"
         ]
       },
       {
@@ -1800,6 +1774,32 @@
       }
     ],
     "storage": [],
+    "fingerprintEvents": [
+      {
+        "api": "canvas.measureText",
+        "count": 104
+      },
+      {
+        "api": "canvas.toDataURL",
+        "count": 5
+      },
+      {
+        "api": "canvas.getImageData",
+        "count": 3
+      },
+      {
+        "api": "audio.OfflineAudioContext.startRendering",
+        "count": 1
+      },
+      {
+        "api": "webgl2.getParameter.UNMASKED_RENDERER_WEBGL",
+        "count": 1
+      },
+      {
+        "api": "webgl2.getParameter.UNMASKED_VENDOR_WEBGL",
+        "count": 1
+      }
+    ],
     "fingerprintDetections": [
       {
         "kind": "canvas-font-fingerprinting",
@@ -1827,7 +1827,7 @@
             "body"
           ],
           "thirdPartyOrigins": [
-            "https://hcaptcha.com"
+            "https://hcaptcha.com/"
           ],
           "totalListenerCalls": 6
         }
@@ -1856,7 +1856,7 @@
             "window"
           ],
           "thirdPartyOrigins": [
-            "https://hcaptcha.com"
+            "https://hcaptcha.com/"
           ],
           "totalListenerCalls": 19
         }
@@ -1874,32 +1874,6 @@
           "getParameterCalls": 99,
           "readPixelsCalls": 0
         }
-      }
-    ],
-    "fingerprintEvents": [
-      {
-        "api": "canvas.measureText",
-        "count": 104
-      },
-      {
-        "api": "canvas.toDataURL",
-        "count": 5
-      },
-      {
-        "api": "canvas.getImageData",
-        "count": 3
-      },
-      {
-        "api": "audio.OfflineAudioContext.startRendering",
-        "count": 1
-      },
-      {
-        "api": "webgl2.getParameter.UNMASKED_RENDERER_WEBGL",
-        "count": 1
-      },
-      {
-        "api": "webgl2.getParameter.UNMASKED_VENDOR_WEBGL",
-        "count": 1
       }
     ],
     "screenshot": null,
@@ -1927,8 +1901,8 @@
       "delta": 0
     },
     "thirdPartyDomains": {
-      "before": 5,
-      "after": 5,
+      "before": 4,
+      "after": 4,
       "delta": 0
     },
     "cookies": {
@@ -1951,30 +1925,8 @@
       "after": 115,
       "delta": 0
     },
-    "addedDomains": [
-      {
-        "domain": "1101faaf561c.w.hcaptcha.com",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "7b10212d4e86.w.hcaptcha.com",
-        "requests": 1,
-        "tracker": null
-      }
-    ],
-    "removedDomains": [
-      {
-        "domain": "4abd0f4a9b9b.w.hcaptcha.com",
-        "requests": 1,
-        "tracker": null
-      },
-      {
-        "domain": "78c89d91ff87.w.hcaptcha.com",
-        "requests": 1,
-        "tracker": null
-      }
-    ],
+    "addedDomains": [],
+    "removedDomains": [],
     "addedEntities": [],
     "removedEntities": [],
     "addedCookies": [],

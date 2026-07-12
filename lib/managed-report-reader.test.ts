@@ -3,7 +3,7 @@ import { test } from "node:test";
 import { readManagedReport } from "./managed-report-reader";
 import { buildProvenanceEntry } from "./redaction-provenance";
 import { REDACTION_VERSION } from "./redaction-v2";
-import { buildReportShare } from "./report-locator";
+import { buildReportShare, buildStaticReportShare } from "./report-locator";
 import { makePublicSingleReportV2, makeScanReportV1 } from "./scan-report-v2-fixtures";
 
 const REPORT_ID = "20260712-" + "a".repeat(32);
@@ -42,6 +42,7 @@ test("a managed report requires a matching current sidecar and immutable retenti
 
 test("the managed reader supports committed-report sidecars with no expiry", () => {
   const report = makePublicSingleReportV2();
+  report.share = buildStaticReportShare(REPORT_ID);
   const clock = { createdAt: RETENTION.createdAt, expiresAt: null };
   const sidecar = buildProvenanceEntry({
     reportId: REPORT_ID,

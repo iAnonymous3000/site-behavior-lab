@@ -49,6 +49,13 @@
       "automation": "playwright-chromium",
       "headless": true,
       "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "classification",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-06-19T17:24:24.927Z"
+      },
       "trackerCatalog": {
         "source": "Hand-curated service catalog",
         "version": "hand-curated-2026.06",
@@ -57,14 +64,7 @@
         "curatedOverrides": 133,
         "license": "AGPL-3.0-or-later"
       },
-      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
-      "adblock": {
-        "active": true,
-        "source": "Brave default ad-block lists",
-        "lists": 31,
-        "fetchedAt": "2026-06-19T17:24:24.927Z"
-      },
-      "shieldsMode": "classification"
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
     },
     "requests": [
       {
@@ -76,8 +76,8 @@
         "status": 301,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 30,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 30
       },
       {
         "id": 2,
@@ -88,984 +88,984 @@
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 66,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 66
       },
       {
         "id": 3,
-        "url": "https://www.scholastic.com/etc.clientlibs/enterprise/clientlibs/clientlib-dependencies.js",
+        "url": "https://www.scholastic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 103,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 103
       },
       {
         "id": 4,
-        "url": "https://www.scholastic.com/etc.clientlibs/corp-home/clientlibs/clientlib-dependencies.min.js",
+        "url": "https://www.scholastic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 104,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 104
       },
       {
         "id": 5,
-        "url": "https://www.scholastic.com/etc.clientlibs/corp-home/clientlibs/clientlib-base.min.css",
+        "url": "https://www.scholastic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 104,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 104
       },
       {
         "id": 6,
-        "url": "https://www.scholastic.com/etc/cloudsettings/default/contexthub.kernel.js",
+        "url": "https://www.scholastic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 104,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 104
       },
       {
         "id": 7,
-        "url": "https://www.scholastic.com/etc.clientlibs/enterprise/clientlibs/clientlib-base.css",
+        "url": "https://www.scholastic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 105,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 105
       },
       {
         "id": 8,
-        "url": "https://www.scholastic.com/etc.clientlibs/corp-home/clientlibs/clientlib-homepage-template.min.js",
+        "url": "https://www.scholastic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 106,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 106
       },
       {
         "id": 9,
-        "url": "https://www.scholastic.com/content/dam/corp-home/asset.jpg/icons/x-close.svg",
+        "url": "https://www.scholastic.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 107,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 107
       },
       {
         "id": 10,
-        "url": "https://www.scholastic.com/content/dam/corp-home/asset.jpg/unsupportedModal/chrome.png",
+        "url": "https://www.scholastic.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 107,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 107
       },
       {
         "id": 11,
-        "url": "https://www.scholastic.com/libs/granite/csrf/token.json",
+        "url": "https://www.scholastic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 166,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 166
       },
       {
         "id": 12,
-        "url": "https://www.scholastic.com/content/dam/corp-home/asset.jpg/unsupportedModal/safari.png",
+        "url": "https://www.scholastic.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 167,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 167
       },
       {
         "id": 13,
-        "url": "https://use.typekit.net/qvo7ray.css",
+        "url": "https://use.typekit.net/{seg}",
         "domain": "use.typekit.net",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 206,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 206
       },
       {
         "id": 14,
-        "url": "https://www.scholastic.com/content/dam/corp-home/asset.jpg/unsupportedModal/firefox.png",
+        "url": "https://www.scholastic.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 207,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 207
       },
       {
         "id": 15,
-        "url": "https://www.scholastic.com/content/dam/corp-home/asset.jpg/icons/hamburger.svg",
+        "url": "https://www.scholastic.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 226,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 226
       },
       {
         "id": 16,
-        "url": "https://www.scholastic.com/etc.clientlibs/corp-home/clientlibs/clientlib-base.min.js",
+        "url": "https://www.scholastic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 246,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 246
       },
       {
         "id": 17,
-        "url": "https://www.scholastic.com/etc.clientlibs/enterprise/clientlibs/clientlib-base.js",
+        "url": "https://www.scholastic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 258,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 258
       },
       {
         "id": 18,
-        "url": "https://ltm.scholastic.com/ltm/resources/tag/footer.js",
+        "url": "https://ltm.scholastic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "ltm.scholastic.com",
         "method": "GET",
         "resourceType": "script",
         "status": null,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 265,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 265
       },
       {
         "id": 19,
-        "url": "https://www.scholastic.com/content/dam/enterprise/asset.jpg/scholastic-logo-red-bar-white-outline.svg",
+        "url": "https://www.scholastic.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 355,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 355
       },
       {
         "id": 20,
-        "url": "https://p.typekit.net/p.css?s=&k=&ht=&f=&a=&app=&e=",
+        "url": "https://p.typekit.net/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=&%5Bredacted%5D=",
         "domain": "p.typekit.net",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 356,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 356
       },
       {
         "id": 21,
-        "url": "https://www.scholastic.com/content/dam/corp-home/asset.jpg/icons/arrow-down.svg",
+        "url": "https://www.scholastic.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 390,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 390
       },
       {
         "id": 22,
-        "url": "https://www.scholastic.com/content/dam/corp-home/asset.jpg/icons/arrow-up.svg",
+        "url": "https://www.scholastic.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 429,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 429
       },
       {
         "id": 23,
-        "url": "https://www.scholastic.com/content/dam/corp-home/asset.jpg/book-clubs-image.png",
+        "url": "https://www.scholastic.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 464,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 464
       },
       {
         "id": 24,
-        "url": "https://www.scholastic.com/content/dam/corp-home/asset.jpg/tso-image.png",
+        "url": "https://www.scholastic.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 504,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 504
       },
       {
         "id": 25,
-        "url": "https://www.scholastic.com/content/dam/corp-home/asset.jpg/sso-image.png",
+        "url": "https://www.scholastic.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 509,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 509
       },
       {
         "id": 26,
-        "url": "https://ltm.scholastic.com/ltm/headtag/www.scholastic.com/default",
+        "url": "https://ltm.scholastic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "ltm.scholastic.com",
         "method": "GET",
         "resourceType": "script",
         "status": null,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 515,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 515
       },
       {
         "id": 27,
-        "url": "https://www.scholastic.com/content/dam/corp-home/asset.jpg/egift-image.png",
+        "url": "https://www.scholastic.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 523,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 523
       },
       {
         "id": 28,
-        "url": "https://www.scholastic.com/content/dam/corp-home/asset.jpg/icons/profile.svg",
+        "url": "https://www.scholastic.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 523,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 523
       },
       {
         "id": 29,
-        "url": "https://www.scholastic.com/content/dam/corp-home/asset.jpg/icons/arrow-down-dark.svg",
+        "url": "https://www.scholastic.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 523,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 523
       },
       {
         "id": 30,
-        "url": "https://www.scholastic.com/content/corp-home/home/_jcr_content/root/compoundheader/image.coreimg.png/1779400096232/gxd-7218-books-img.png",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 524,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 524
       },
       {
         "id": 31,
-        "url": "https://www.scholastic.com/content/corp-home/home/_jcr_content/root/compoundheader/clubsImage.coreimg.png/1775069939779/bts25-ads-scholastic-april.png",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 524,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 524
       },
       {
         "id": 32,
-        "url": "https://www.scholastic.com/content/dam/corp-home/asset.jpg/sbc-logo.png",
+        "url": "https://www.scholastic.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 525,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 525
       },
       {
         "id": 33,
-        "url": "https://www.scholastic.com/content/corp-home/home/_jcr_content/root/merchandisingcarouse/carousel/item_1555355512806/image.coreimg.jpeg/1780059843459/gxd-7403-1.jpeg",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 525,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 525
       },
       {
         "id": 34,
-        "url": "https://www.scholastic.com/content/corp-home/home/_jcr_content/root/merchandisingcarouse/carousel/item_1555355494685/image.coreimg.jpeg/1780060024869/gxd-7403-2.jpeg",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 526,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 526
       },
       {
         "id": 35,
-        "url": "https://www.scholastic.com/content/corp-home/home/_jcr_content/root/merchandisingcarouse/carousel/item_1555355523958/image.coreimg.jpeg/1780060088633/gxd-7403-3.jpeg",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 531,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 531
       },
       {
         "id": 36,
-        "url": "https://www.scholastic.com/content/corp-home/home/_jcr_content/root/merchandisingcarouse/carousel/merchandisingteaser/image.coreimg.jpeg/1780060164030/gxd-7403-4.jpeg",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 532,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 532
       },
       {
         "id": 37,
-        "url": "https://www.scholastic.com/content/corp-home/home/_jcr_content/root/merchandisingcarouse/carousel/item_1635278728315/image.coreimg.jpeg/1780060223128/gxd-7403-5.jpeg",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 532,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 532
       },
       {
         "id": 38,
-        "url": "https://www.scholastic.com/content/corp-home/home/_jcr_content/root/merchandisingcarouse/carousel/item_1555361167942/image.coreimg.jpeg/1780060289256/gxd-7403-6.jpeg",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 536,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 536
       },
       {
         "id": 39,
-        "url": "https://www.scholastic.com/content/corp-home/home/_jcr_content/root/merchandisingcarouse/carousel/item_1598647987133/image.coreimg.jpeg/1780060353894/gxd-7403-7.jpeg",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 536,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 536
       },
       {
         "id": 40,
-        "url": "https://www.scholastic.com/content/corp-home/home/_jcr_content/root/merchandisingcarouse/carousel/item_1654006060910/image.coreimg.jpeg/1780060413355/gxd-7403-8.jpeg",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 537,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 537
       },
       {
         "id": 41,
-        "url": "https://www.scholastic.com/content/corp-home/home/_jcr_content/root/merchandisingcarouse/carousel/item_1654006064037/image.coreimg.jpeg/1780060487431/gxd-7403-9.jpeg",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 537,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 537
       },
       {
         "id": 42,
-        "url": "https://www.scholastic.com/content/corp-home/home/_jcr_content/root/merchandisingcarouse/carousel/item_1780059973611/image.coreimg.jpeg/1780060539518/gxd-7403-10.jpeg",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 537,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 537
       },
       {
         "id": 43,
-        "url": "https://www.scholastic.com/content/corp-home/home/_jcr_content/root/merchandisingcarouse/carousel/item_1780059980494/image.coreimg.jpeg/1780060612486/gxd-7403-11.jpeg",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 538,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 538
       },
       {
         "id": 44,
-        "url": "https://www.scholastic.com/content/corp-home/home/_jcr_content/root/merchandisingcarouse/carousel/item_1780059989133/image.coreimg.jpeg/1780060662475/gxd-7403-12.jpeg",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 538,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 538
       },
       {
         "id": 45,
-        "url": "https://www.scholastic.com/content/corp-home/home/_jcr_content/root/bookcarousel/carousel/item_1586290747692/image.coreimg.jpeg/1756240590106/gxd-6648-mistershivers.jpeg",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 538,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 538
       },
       {
         "id": 46,
-        "url": "https://www.scholastic.com/content/corp-home/home/_jcr_content/root/bookcarousel/carousel/item_1572381513685/image.coreimg.jpeg/1756240743186/gxd-6648-continuetheseries.jpeg",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 539,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 539
       },
       {
         "id": 47,
-        "url": "https://www.scholastic.com/content/corp-home/home/_jcr_content/root/bookcarousel/carousel/item_1635445535283/image.coreimg.jpeg/1756240826715/gxd-6648-catontherun.jpeg",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 539,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 539
       },
       {
         "id": 48,
-        "url": "https://www.scholastic.com/content/corp-home/home/_jcr_content/root/bookcarousel/carousel/item_1635445558579/image.coreimg.jpeg/1756240910305/gxd-6648-rarmagicalreads.jpeg",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 539,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 539
       },
       {
         "id": 49,
-        "url": "https://www.scholastic.com/content/corp-home/home/_jcr_content/root/bookcarousel/carousel/item_1654738219587/image.coreimg.jpeg/1756240996377/gxd-6648-diastersquad.jpeg",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 539,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 539
       },
       {
         "id": 50,
-        "url": "https://www.scholastic.com/content/corp-home/home/_jcr_content/root/bookcarousel/carousel/item_1575584944472/image.coreimg.jpeg/1756241065482/gxd-6648-graphixthrills.jpeg",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 539,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 539
       },
       {
         "id": 51,
-        "url": "https://www.scholastic.com/content/corp-home/home/_jcr_content/root/bookcarousel/carousel/item_1654738203001/image.coreimg.jpeg/1756241144682/gxd-6648-singboardbooks.jpeg",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 540,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 540
       },
       {
         "id": 52,
-        "url": "https://www.scholastic.com/content/corp-home/home/_jcr_content/root/bookcarousel/carousel/item_1711043999853/image.coreimg.jpeg/1756241217688/gxd-6648-kwamesmagicquest.jpeg",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 540,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 540
       },
       {
         "id": 53,
-        "url": "https://www.scholastic.com/content/corp-home/home/_jcr_content/root/bookcarousel/carousel/item_1572471512146/image.coreimg.jpeg/1756241291074/gxd-6648-prekreads.jpeg",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 540,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 540
       },
       {
         "id": 54,
-        "url": "https://www.scholastic.com/content/corp-home/home/_jcr_content/root/bookcarousel/carousel/item_1572380401143/image.coreimg.jpeg/1756241360730/gxd-6648-heartwarmingboardbooks.jpeg",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 540,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 540
       },
       {
         "id": 55,
-        "url": "https://www.scholastic.com/content/corp-home/home/_jcr_content/root/threecardmerchandisi/card-one/image.coreimg.png/1684959024478/sso-aug22dmo.png",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 541,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 541
       },
       {
         "id": 56,
-        "url": "https://www.scholastic.com/content/corp-home/home/_jcr_content/root/threecardmerchandisi/card-two/image.coreimg.png/1759263763526/gxd-6759-newprogram-dmo.png",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 541,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 541
       },
       {
         "id": 57,
-        "url": "https://www.scholastic.com/content/corp-home/home/_jcr_content/root/threecardmerchandisi/card-three/image.coreimg.png/1780060813923/gxd-4443-june-dmo-%281%29.png",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 541,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 541
       },
       {
         "id": 58,
-        "url": "https://www.scholastic.com/content/corp-home/home/_jcr_content/root/lobcarousel/item_1648689483569/logo.coreimg.png/1727813903420/scholasticbookfair-lock-up.png",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 541,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 541
       },
       {
         "id": 59,
-        "url": "https://www.scholastic.com/content/corp-home/home/_jcr_content/root/lobcarousel/item_1648689483569/lobCard1/image.coreimg.png/1699910618584/link-find-your-fair.png",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 542,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 542
       },
       {
         "id": 60,
-        "url": "https://www.scholastic.com/content/corp-home/home/_jcr_content/root/lobcarousel/item_1648689483569/lobCard2/image.coreimg.png/1723219037918/link-ewallet-newlogo.png",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 542,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 542
       },
       {
         "id": 61,
-        "url": "https://www.scholastic.com/content/corp-home/home/_jcr_content/root/lobcarousel/item_1648689483569/file",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 542,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 542
       },
       {
         "id": 62,
-        "url": "https://www.scholastic.com/content/corp-home/home/_jcr_content/root/lobcarousel/item_1560435808311/logo.coreimg.png/1664388129073/magazines-logo.png",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 542,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 542
       },
       {
         "id": 63,
-        "url": "https://www.scholastic.com/content/corp-home/home/_jcr_content/root/lobcarousel/item_1560435808311/lobCard1/image.coreimg.png/1684959170305/601-wb-earlylearn.png",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 543,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 543
       },
       {
         "id": 64,
-        "url": "https://www.scholastic.com/content/corp-home/home/_jcr_content/root/lobcarousel/item_1560435808311/lobCard2/image.coreimg.png/1684959176538/601-wb-socst.png",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 543,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 543
       },
       {
         "id": 65,
-        "url": "https://www.scholastic.com/content/corp-home/home/_jcr_content/root/lobcarousel/item_1560435808311/lobCard3/image.coreimg.png/1684959183081/601-wb-langarts.png",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 543,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 543
       },
       {
         "id": 66,
-        "url": "https://www.scholastic.com/content/corp-home/home/_jcr_content/root/lobcarousel/item_1560435808311/lobCard4/image.coreimg.png/1684959189095/601-wb-steam.png",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 543,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 543
       },
       {
         "id": 67,
-        "url": "https://www.scholastic.com/content/corp-home/home/_jcr_content/root/lobcarousel/item_1560435808311/file",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 543,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 543
       },
       {
         "id": 68,
-        "url": "https://www.scholastic.com/content/corp-home/home/_jcr_content/root/lobcarousel/item_1560452086882/logo.coreimg.png/1718224462329/stacked-logo-135x500.png",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 544,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 544
       },
       {
         "id": 69,
-        "url": "https://www.scholastic.com/content/corp-home/home/_jcr_content/root/lobcarousel/item_1560452086882/lobCard1/image.coreimg.jpeg/1684959205653/corp-lob-literacy-pro-content-card.jpeg",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 544,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 544
       },
       {
         "id": 70,
-        "url": "https://www.scholastic.com/content/corp-home/home/_jcr_content/root/lobcarousel/item_1560452086882/lobCard2/image.coreimg.png/1718224511825/grff3-litrintr-v2-%281%29.png",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 548,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 548
       },
       {
         "id": 71,
-        "url": "https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447",
+        "url": "https://static.cloudflareinsights.com/{seg}/{seg}",
         "domain": "static.cloudflareinsights.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 548,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 548
       },
       {
         "id": 72,
-        "url": "https://www.scholastic.com/content/corp-home/home/_jcr_content/root/lobcarousel/item_1560452086882/lobCard3/image.coreimg.png/1684959218269/teacher-solutions.png",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 549,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 549
       },
       {
         "id": 73,
-        "url": "https://www.scholastic.com/content/corp-home/home/_jcr_content/root/lobcarousel/item_1560452086882/lobCard4/image.coreimg.png/1684959224875/lit-init.png",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 549,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 549
       },
       {
         "id": 74,
-        "url": "https://www.scholastic.com/content/corp-home/home/_jcr_content/root/lobcarousel/item_1560452086882/file",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 550,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 550
       },
       {
         "id": 75,
-        "url": "https://www.scholastic.com/content/dam/enterprise/asset.jpg/footer/socialIcons/facebook.svg",
+        "url": "https://www.scholastic.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 550,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 550
       },
       {
         "id": 76,
-        "url": "https://www.scholastic.com/content/dam/enterprise/asset.jpg/footer/socialIcons/instagram.svg",
+        "url": "https://www.scholastic.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 551,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 551
       },
       {
         "id": 77,
-        "url": "https://www.scholastic.com/content/dam/enterprise/asset.jpg/footer/socialIcons/twitter.svg",
+        "url": "https://www.scholastic.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 551,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 551
       },
       {
         "id": 78,
-        "url": "https://www.scholastic.com/content/dam/enterprise/asset.jpg/footer/socialIcons/pinterest.svg",
+        "url": "https://www.scholastic.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 551,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 551
       },
       {
         "id": 79,
-        "url": "https://www.scholastic.com/content/dam/enterprise/asset.jpg/footer/socialIcons/linked-in.svg",
+        "url": "https://www.scholastic.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 552,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 552
       },
       {
         "id": 80,
-        "url": "https://www.scholastic.com/content/dam/enterprise/asset.jpg/footer/arrow-down.svg",
+        "url": "https://www.scholastic.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 552,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 552
       },
       {
         "id": 81,
-        "url": "https://www.scholastic.com/content/dam/fairs/asset.jpg/footer/Expand.svg",
+        "url": "https://www.scholastic.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 553,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 553
       },
       {
         "id": 82,
-        "url": "https://www.scholastic.com/content/dam/fairs/asset.jpg/footer/Collapse.svg",
+        "url": "https://www.scholastic.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 553,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 553
       },
       {
         "id": 83,
-        "url": "https://www.scholastic.com/content/dam/corp-home/asset.jpg/scholastic-logo-white-outline.png",
+        "url": "https://www.scholastic.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 553,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 553
       },
       {
         "id": 84,
-        "url": "https://cdn.mouseflow.com/projects/f3b466a5-cbaa-4ee9-919f-17b9c36ffd11.js",
+        "url": "https://cdn.mouseflow.com/{seg}/{seg}",
         "domain": "cdn.mouseflow.com",
         "method": "GET",
         "resourceType": "script",
@@ -1077,272 +1077,272 @@
           "category": "session replay / behavior analytics",
           "confidence": "curated"
         },
-        "startedAtMs": 553,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 553
       },
       {
         "id": 85,
-        "url": "https://www.scholastic.com/content/corp-home/home/jcr:content/root/compoundheader/file",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 565,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 565
       },
       {
         "id": 86,
-        "url": "https://www.scholastic.com/content/corp-home/home/jcr:content/root/responsivegrid/responsivegrid/responsivegrid_copy_/file",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 566,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 566
       },
       {
         "id": 87,
-        "url": "https://www.scholastic.com/content/corp-home/home/jcr:content/root/responsivegrid/responsivegrid/responsivegrid_copy_123/file",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 566,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 566
       },
       {
         "id": 88,
-        "url": "https://www.scholastic.com/content/dam/corp-home/asset.jpg/backgroundImages/violet-smoke.jpg",
+        "url": "https://www.scholastic.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 566,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 566
       },
       {
         "id": 89,
-        "url": "https://www.scholastic.com/content/dam/corp-home/asset.jpg/backgroundImages/peach-cloud.jpg",
+        "url": "https://www.scholastic.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 567,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 567
       },
       {
         "id": 90,
-        "url": "https://use.typekit.net/af/e3ca36/00000000000000000000e805/27/l?primer=&fvd=&v=",
+        "url": "https://use.typekit.net/{seg}/{seg}/{seg}/{n}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&v=",
         "domain": "use.typekit.net",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 567,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 567
       },
       {
         "id": 91,
-        "url": "https://use.typekit.net/af/635674/00000000000000000000e800/27/l?primer=&fvd=&v=",
+        "url": "https://use.typekit.net/{seg}/{n}/{seg}/{n}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&v=",
         "domain": "use.typekit.net",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 568,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 568
       },
       {
         "id": 92,
-        "url": "https://use.typekit.net/af/620bf8/00000000000000000000e7fe/27/l?primer=&fvd=&v=",
+        "url": "https://use.typekit.net/{seg}/{seg}/{seg}/{n}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&v=",
         "domain": "use.typekit.net",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 568,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 568
       },
       {
         "id": 93,
-        "url": "https://use.typekit.net/af/a28b50/00000000000000000000e803/27/l?primer=&fvd=&v=",
+        "url": "https://use.typekit.net/{seg}/{seg}/{seg}/{n}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&v=",
         "domain": "use.typekit.net",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 568,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 568
       },
       {
         "id": 94,
-        "url": "https://www.scholastic.com/content/dam/corp-home/asset.jpg/backgroundImages/rain-drops.jpg",
+        "url": "https://www.scholastic.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 585,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 585
       },
       {
         "id": 95,
-        "url": "https://www.scholastic.com/bin/sch/jwtvalidate/login",
+        "url": "https://www.scholastic.com/{seg}/{seg}/{seg}/login",
         "domain": "www.scholastic.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 748,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 748
       },
       {
         "id": 96,
-        "url": "https://www.scholastic.com/etc.clientlibs/corp-home/clientlibs/clientlib-base/slickjs/ajax-loader.gif",
+        "url": "https://www.scholastic.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 404,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 749,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 749
       },
       {
         "id": 97,
-        "url": "https://www.scholastic.com/etc/designs/scholastic/enterprise/clientlibs/reader/bundle.reader.js",
+        "url": "https://www.scholastic.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 403,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 749,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 749
       },
       {
         "id": 98,
-        "url": "https://www.scholastic.com/content/dam/corp-home/asset.jpg/corp-carousel-prev-arrow.svg",
+        "url": "https://www.scholastic.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 749,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 749
       },
       {
         "id": 99,
-        "url": "https://www.scholastic.com/content/dam/corp-home/asset.jpg/corp-carousel-next-arrow.svg",
+        "url": "https://www.scholastic.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 750,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 750
       },
       {
         "id": 100,
-        "url": "https://www.scholastic.com/content/corp-home/home/_jcr_content/root/responsivegrid_2021037237/responsivegrid_copy__1400113259/responsivegrid/image.coreimg.100.1285.jpeg/1632250282101/dick-portrait-hero.jpeg",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 767,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 767
       },
       {
         "id": 101,
-        "url": "https://www.scholastic.com/content/corp-home/home/_jcr_content/root/responsivegrid/responsivegrid/responsivegrid_copy_/responsivegrid/image.coreimg.100.512.png/1778265918256/jan-corp-homepage-foreground-image%402x.png",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 768,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 768
       },
       {
         "id": 102,
-        "url": "https://www.scholastic.com/content/corp-home/home/_jcr_content/root/responsivegrid/responsivegrid/responsivegrid_copy_123/responsivegrid/image.coreimg.100.512.png/1758126511794/9s-s-banner-foreground-1577x525.png",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 768,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 768
       },
       {
         "id": 103,
-        "url": "https://www.scholastic.com/cdn-cgi/challenge-platform/scripts/jsd/main.js",
+        "url": "https://www.scholastic.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 302,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 769,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 769
       },
       {
         "id": 104,
-        "url": "https://www.scholastic.com/cdn-cgi/challenge-platform/h/b/scripts/jsd/25e6c66701a0/main.js",
+        "url": "https://www.scholastic.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 815,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 815
       },
       {
         "id": 105,
-        "url": "https://www.scholastic.com/cdn-cgi/challenge-platform/h/b/jsd/oneshot/25e6c66701a0/0.06455242600968059:1782417632:s7K9p_I1LqBzZ8LkW1dunB-zAVLr-l1GMCn2GQq8K0E/a116ab563dc4cc90",
+        "url": "https://www.scholastic.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 891,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 891
       },
       {
         "id": 106,
-        "url": "https://www.scholastic.com/cdn-cgi/rum",
+        "url": "https://www.scholastic.com/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 204,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 915,
-        "blockedByShields": true
+        "blockedByShields": true,
+        "startedAtMs": 915
       }
     ],
     "domains": [
@@ -1441,7 +1441,7 @@
     ],
     "cookies": [
       {
-        "name": "MYSCHL_referrerUrl",
+        "name": "[redacted]",
         "domain": ".scholastic.com",
         "path": "/",
         "sameSite": "Lax",
@@ -1472,6 +1472,7 @@
       }
     ],
     "storage": [],
+    "fingerprintEvents": [],
     "fingerprintDetections": [
       {
         "kind": "session-recording",
@@ -1491,14 +1492,13 @@
             "window"
           ],
           "thirdPartyOrigins": [
-            "https://cdn.mouseflow.com",
-            "https://static.cloudflareinsights.com"
+            "https://cdn.mouseflow.com/",
+            "https://static.cloudflareinsights.com/"
           ],
           "totalListenerCalls": 11
         }
       }
     ],
-    "fingerprintEvents": [],
     "screenshot": null,
     "warnings": [
       "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
@@ -1543,6 +1543,13 @@
       "automation": "playwright-chromium",
       "headless": true,
       "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "block-simulation",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-06-19T17:24:24.927Z"
+      },
       "trackerCatalog": {
         "source": "Hand-curated service catalog",
         "version": "hand-curated-2026.06",
@@ -1551,14 +1558,7 @@
         "curatedOverrides": 133,
         "license": "AGPL-3.0-or-later"
       },
-      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.",
-      "adblock": {
-        "active": true,
-        "source": "Brave default ad-block lists",
-        "lists": 31,
-        "fetchedAt": "2026-06-19T17:24:24.927Z"
-      },
-      "shieldsMode": "block-simulation"
+      "scannerDisclosure": "Automated Chromium scan from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
     },
     "requests": [
       {
@@ -1570,8 +1570,8 @@
         "status": 301,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 34,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 34
       },
       {
         "id": 2,
@@ -1582,1208 +1582,1208 @@
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 53,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 53
       },
       {
         "id": 3,
-        "url": "https://www.scholastic.com/etc.clientlibs/enterprise/clientlibs/clientlib-dependencies.js",
+        "url": "https://www.scholastic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 90,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 90
       },
       {
         "id": 4,
-        "url": "https://www.scholastic.com/etc.clientlibs/corp-home/clientlibs/clientlib-dependencies.min.js",
+        "url": "https://www.scholastic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 91,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 91
       },
       {
         "id": 5,
-        "url": "https://www.scholastic.com/etc.clientlibs/corp-home/clientlibs/clientlib-base.min.css",
+        "url": "https://www.scholastic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 93,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 93
       },
       {
         "id": 6,
-        "url": "https://www.scholastic.com/etc/cloudsettings/default/contexthub.kernel.js",
+        "url": "https://www.scholastic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 93,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 93
       },
       {
         "id": 7,
-        "url": "https://www.scholastic.com/etc.clientlibs/enterprise/clientlibs/clientlib-base.css",
+        "url": "https://www.scholastic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 93,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 93
       },
       {
         "id": 8,
-        "url": "https://www.scholastic.com/etc.clientlibs/corp-home/clientlibs/clientlib-homepage-template.min.js",
+        "url": "https://www.scholastic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 94,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 94
       },
       {
         "id": 9,
-        "url": "https://www.scholastic.com/content/dam/corp-home/asset.jpg/icons/x-close.svg",
+        "url": "https://www.scholastic.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 94,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 94
       },
       {
         "id": 10,
-        "url": "https://www.scholastic.com/content/dam/corp-home/asset.jpg/unsupportedModal/chrome.png",
+        "url": "https://www.scholastic.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 94,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 94
       },
       {
         "id": 11,
-        "url": "https://www.scholastic.com/libs/granite/csrf/token.json",
+        "url": "https://www.scholastic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 154,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 154
       },
       {
         "id": 12,
-        "url": "https://use.typekit.net/qvo7ray.css",
+        "url": "https://use.typekit.net/{seg}",
         "domain": "use.typekit.net",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 194,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 194
       },
       {
         "id": 13,
-        "url": "https://www.scholastic.com/content/dam/corp-home/asset.jpg/unsupportedModal/safari.png",
+        "url": "https://www.scholastic.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 195,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 195
       },
       {
         "id": 14,
-        "url": "https://www.scholastic.com/content/dam/corp-home/asset.jpg/unsupportedModal/firefox.png",
+        "url": "https://www.scholastic.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 198,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 198
       },
       {
         "id": 17,
-        "url": "https://ltm.scholastic.com/ltm/headtag/www.scholastic.com/default",
+        "url": "https://ltm.scholastic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "ltm.scholastic.com",
         "method": "GET",
         "resourceType": "script",
         "status": null,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 225,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 225
       },
       {
         "id": 18,
-        "url": "https://www.scholastic.com/content/dam/corp-home/asset.jpg/icons/hamburger.svg",
+        "url": "https://www.scholastic.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 234,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 234
       },
       {
         "id": 19,
-        "url": "https://www.scholastic.com/etc.clientlibs/corp-home/clientlibs/clientlib-base.min.js",
+        "url": "https://www.scholastic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 240,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 240
       },
       {
         "id": 20,
-        "url": "https://www.scholastic.com/etc.clientlibs/enterprise/clientlibs/clientlib-base.js",
+        "url": "https://www.scholastic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 240,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 240
       },
       {
         "id": 21,
-        "url": "https://ltm.scholastic.com/ltm/resources/tag/footer.js",
+        "url": "https://ltm.scholastic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "ltm.scholastic.com",
         "method": "GET",
         "resourceType": "script",
         "status": null,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 241,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 241
       },
       {
         "id": 22,
-        "url": "https://www.scholastic.com/content/dam/enterprise/asset.jpg/scholastic-logo-red-bar-white-outline.svg",
+        "url": "https://www.scholastic.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 247,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 247
       },
       {
         "id": 23,
-        "url": "https://www.scholastic.com/content/dam/corp-home/asset.jpg/icons/arrow-down.svg",
+        "url": "https://www.scholastic.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 251,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 251
       },
       {
         "id": 24,
-        "url": "https://www.scholastic.com/content/dam/corp-home/asset.jpg/icons/arrow-up.svg",
+        "url": "https://www.scholastic.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 251,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 251
       },
       {
         "id": 25,
-        "url": "https://www.scholastic.com/content/dam/corp-home/asset.jpg/book-clubs-image.png",
+        "url": "https://www.scholastic.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 252,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 252
       },
       {
         "id": 26,
-        "url": "https://www.scholastic.com/content/dam/corp-home/asset.jpg/tso-image.png",
+        "url": "https://www.scholastic.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 252,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 252
       },
       {
         "id": 27,
-        "url": "https://www.scholastic.com/content/dam/corp-home/asset.jpg/sso-image.png",
+        "url": "https://www.scholastic.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 253,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 253
       },
       {
         "id": 28,
-        "url": "https://www.scholastic.com/content/dam/corp-home/asset.jpg/egift-image.png",
+        "url": "https://www.scholastic.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 253,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 253
       },
       {
         "id": 29,
-        "url": "https://www.scholastic.com/content/dam/corp-home/asset.jpg/icons/profile.svg",
+        "url": "https://www.scholastic.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 253,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 253
       },
       {
         "id": 30,
-        "url": "https://www.scholastic.com/content/dam/corp-home/asset.jpg/icons/arrow-down-dark.svg",
+        "url": "https://www.scholastic.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 253,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 253
       },
       {
         "id": 31,
-        "url": "https://www.scholastic.com/content/corp-home/home/_jcr_content/root/compoundheader/image.coreimg.png/1779400096232/gxd-7218-books-img.png",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 254,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 254
       },
       {
         "id": 32,
-        "url": "https://www.scholastic.com/content/corp-home/home/_jcr_content/root/compoundheader/clubsImage.coreimg.png/1775069939779/bts25-ads-scholastic-april.png",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 254,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 254
       },
       {
         "id": 33,
-        "url": "https://www.scholastic.com/content/dam/corp-home/asset.jpg/sbc-logo.png",
+        "url": "https://www.scholastic.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 254,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 254
       },
       {
         "id": 34,
-        "url": "https://www.scholastic.com/content/corp-home/home/_jcr_content/root/merchandisingcarouse/carousel/item_1555355512806/image.coreimg.jpeg/1780059843459/gxd-7403-1.jpeg",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 255,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 255
       },
       {
         "id": 35,
-        "url": "https://www.scholastic.com/content/corp-home/home/_jcr_content/root/merchandisingcarouse/carousel/item_1555355494685/image.coreimg.jpeg/1780060024869/gxd-7403-2.jpeg",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 255,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 255
       },
       {
         "id": 36,
-        "url": "https://www.scholastic.com/content/corp-home/home/_jcr_content/root/merchandisingcarouse/carousel/item_1555355523958/image.coreimg.jpeg/1780060088633/gxd-7403-3.jpeg",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 255,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 255
       },
       {
         "id": 37,
-        "url": "https://www.scholastic.com/content/corp-home/home/_jcr_content/root/merchandisingcarouse/carousel/merchandisingteaser/image.coreimg.jpeg/1780060164030/gxd-7403-4.jpeg",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 256,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 256
       },
       {
         "id": 38,
-        "url": "https://www.scholastic.com/content/corp-home/home/_jcr_content/root/merchandisingcarouse/carousel/item_1635278728315/image.coreimg.jpeg/1780060223128/gxd-7403-5.jpeg",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 256,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 256
       },
       {
         "id": 39,
-        "url": "https://www.scholastic.com/content/corp-home/home/_jcr_content/root/merchandisingcarouse/carousel/item_1555361167942/image.coreimg.jpeg/1780060289256/gxd-7403-6.jpeg",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 256,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 256
       },
       {
         "id": 40,
-        "url": "https://www.scholastic.com/content/corp-home/home/_jcr_content/root/merchandisingcarouse/carousel/item_1598647987133/image.coreimg.jpeg/1780060353894/gxd-7403-7.jpeg",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 257,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 257
       },
       {
         "id": 41,
-        "url": "https://www.scholastic.com/content/corp-home/home/_jcr_content/root/merchandisingcarouse/carousel/item_1654006060910/image.coreimg.jpeg/1780060413355/gxd-7403-8.jpeg",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 257,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 257
       },
       {
         "id": 42,
-        "url": "https://www.scholastic.com/content/corp-home/home/_jcr_content/root/merchandisingcarouse/carousel/item_1654006064037/image.coreimg.jpeg/1780060487431/gxd-7403-9.jpeg",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 257,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 257
       },
       {
         "id": 43,
-        "url": "https://www.scholastic.com/content/corp-home/home/_jcr_content/root/merchandisingcarouse/carousel/item_1780059973611/image.coreimg.jpeg/1780060539518/gxd-7403-10.jpeg",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 264,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 264
       },
       {
         "id": 44,
-        "url": "https://www.scholastic.com/content/corp-home/home/_jcr_content/root/merchandisingcarouse/carousel/item_1780059980494/image.coreimg.jpeg/1780060612486/gxd-7403-11.jpeg",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 264,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 264
       },
       {
         "id": 45,
-        "url": "https://www.scholastic.com/content/corp-home/home/_jcr_content/root/merchandisingcarouse/carousel/item_1780059989133/image.coreimg.jpeg/1780060662475/gxd-7403-12.jpeg",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 264,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 264
       },
       {
         "id": 46,
-        "url": "https://www.scholastic.com/content/corp-home/home/_jcr_content/root/bookcarousel/carousel/item_1586290747692/image.coreimg.jpeg/1756240590106/gxd-6648-mistershivers.jpeg",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 265,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 265
       },
       {
         "id": 47,
-        "url": "https://www.scholastic.com/content/corp-home/home/_jcr_content/root/bookcarousel/carousel/item_1572381513685/image.coreimg.jpeg/1756240743186/gxd-6648-continuetheseries.jpeg",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 265,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 265
       },
       {
         "id": 48,
-        "url": "https://www.scholastic.com/content/corp-home/home/_jcr_content/root/bookcarousel/carousel/item_1635445535283/image.coreimg.jpeg/1756240826715/gxd-6648-catontherun.jpeg",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 266,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 266
       },
       {
         "id": 49,
-        "url": "https://www.scholastic.com/content/corp-home/home/_jcr_content/root/bookcarousel/carousel/item_1635445558579/image.coreimg.jpeg/1756240910305/gxd-6648-rarmagicalreads.jpeg",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 266,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 266
       },
       {
         "id": 50,
-        "url": "https://www.scholastic.com/content/corp-home/home/_jcr_content/root/bookcarousel/carousel/item_1654738219587/image.coreimg.jpeg/1756240996377/gxd-6648-diastersquad.jpeg",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 266,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 266
       },
       {
         "id": 51,
-        "url": "https://www.scholastic.com/content/corp-home/home/_jcr_content/root/bookcarousel/carousel/item_1575584944472/image.coreimg.jpeg/1756241065482/gxd-6648-graphixthrills.jpeg",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 267,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 267
       },
       {
         "id": 52,
-        "url": "https://www.scholastic.com/content/corp-home/home/_jcr_content/root/bookcarousel/carousel/item_1654738203001/image.coreimg.jpeg/1756241144682/gxd-6648-singboardbooks.jpeg",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 267,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 267
       },
       {
         "id": 53,
-        "url": "https://www.scholastic.com/content/corp-home/home/_jcr_content/root/bookcarousel/carousel/item_1711043999853/image.coreimg.jpeg/1756241217688/gxd-6648-kwamesmagicquest.jpeg",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 268,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 268
       },
       {
         "id": 54,
-        "url": "https://www.scholastic.com/content/corp-home/home/_jcr_content/root/bookcarousel/carousel/item_1572471512146/image.coreimg.jpeg/1756241291074/gxd-6648-prekreads.jpeg",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 268,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 268
       },
       {
         "id": 55,
-        "url": "https://www.scholastic.com/content/corp-home/home/_jcr_content/root/bookcarousel/carousel/item_1572380401143/image.coreimg.jpeg/1756241360730/gxd-6648-heartwarmingboardbooks.jpeg",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 269,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 269
       },
       {
         "id": 56,
-        "url": "https://www.scholastic.com/content/corp-home/home/_jcr_content/root/threecardmerchandisi/card-one/image.coreimg.png/1684959024478/sso-aug22dmo.png",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 269,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 269
       },
       {
         "id": 57,
-        "url": "https://www.scholastic.com/content/corp-home/home/_jcr_content/root/threecardmerchandisi/card-two/image.coreimg.png/1759263763526/gxd-6759-newprogram-dmo.png",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 269,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 269
       },
       {
         "id": 58,
-        "url": "https://www.scholastic.com/content/corp-home/home/_jcr_content/root/threecardmerchandisi/card-three/image.coreimg.png/1780060813923/gxd-4443-june-dmo-%281%29.png",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 270,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 270
       },
       {
         "id": 59,
-        "url": "https://www.scholastic.com/content/corp-home/home/_jcr_content/root/lobcarousel/item_1648689483569/logo.coreimg.png/1727813903420/scholasticbookfair-lock-up.png",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 270,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 270
       },
       {
         "id": 60,
-        "url": "https://www.scholastic.com/content/corp-home/home/_jcr_content/root/lobcarousel/item_1648689483569/lobCard1/image.coreimg.png/1699910618584/link-find-your-fair.png",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 271,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 271
       },
       {
         "id": 61,
-        "url": "https://www.scholastic.com/content/corp-home/home/_jcr_content/root/lobcarousel/item_1648689483569/lobCard2/image.coreimg.png/1723219037918/link-ewallet-newlogo.png",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 271,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 271
       },
       {
         "id": 62,
-        "url": "https://www.scholastic.com/content/corp-home/home/_jcr_content/root/lobcarousel/item_1648689483569/file",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 271,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 271
       },
       {
         "id": 63,
-        "url": "https://www.scholastic.com/content/corp-home/home/_jcr_content/root/lobcarousel/item_1560435808311/logo.coreimg.png/1664388129073/magazines-logo.png",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 271,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 271
       },
       {
         "id": 64,
-        "url": "https://www.scholastic.com/content/corp-home/home/_jcr_content/root/lobcarousel/item_1560435808311/lobCard1/image.coreimg.png/1684959170305/601-wb-earlylearn.png",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 272,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 272
       },
       {
         "id": 65,
-        "url": "https://www.scholastic.com/content/corp-home/home/_jcr_content/root/lobcarousel/item_1560435808311/lobCard2/image.coreimg.png/1684959176538/601-wb-socst.png",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 272,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 272
       },
       {
         "id": 66,
-        "url": "https://www.scholastic.com/content/corp-home/home/_jcr_content/root/lobcarousel/item_1560435808311/lobCard3/image.coreimg.png/1684959183081/601-wb-langarts.png",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 272,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 272
       },
       {
         "id": 67,
-        "url": "https://www.scholastic.com/content/corp-home/home/_jcr_content/root/lobcarousel/item_1560435808311/lobCard4/image.coreimg.png/1684959189095/601-wb-steam.png",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 272,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 272
       },
       {
         "id": 68,
-        "url": "https://www.scholastic.com/content/corp-home/home/_jcr_content/root/lobcarousel/item_1560435808311/file",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 273,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 273
       },
       {
         "id": 69,
-        "url": "https://www.scholastic.com/content/corp-home/home/_jcr_content/root/lobcarousel/item_1560452086882/logo.coreimg.png/1718224462329/stacked-logo-135x500.png",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 273,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 273
       },
       {
         "id": 70,
-        "url": "https://www.scholastic.com/content/corp-home/home/_jcr_content/root/lobcarousel/item_1560452086882/lobCard1/image.coreimg.jpeg/1684959205653/corp-lob-literacy-pro-content-card.jpeg",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 273,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 273
       },
       {
         "id": 71,
-        "url": "https://www.scholastic.com/content/corp-home/home/_jcr_content/root/lobcarousel/item_1560452086882/lobCard2/image.coreimg.png/1718224511825/grff3-litrintr-v2-%281%29.png",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 273,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 273
       },
       {
         "id": 72,
-        "url": "https://www.scholastic.com/content/corp-home/home/_jcr_content/root/lobcarousel/item_1560452086882/lobCard3/image.coreimg.png/1684959218269/teacher-solutions.png",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 278,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 278
       },
       {
         "id": 73,
-        "url": "https://www.scholastic.com/content/corp-home/home/_jcr_content/root/lobcarousel/item_1560452086882/lobCard4/image.coreimg.png/1684959224875/lit-init.png",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 278,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 278
       },
       {
         "id": 74,
-        "url": "https://www.scholastic.com/content/corp-home/home/_jcr_content/root/lobcarousel/item_1560452086882/file",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 279,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 279
       },
       {
         "id": 76,
-        "url": "https://www.scholastic.com/content/dam/enterprise/asset.jpg/footer/socialIcons/facebook.svg",
+        "url": "https://www.scholastic.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 279,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 279
       },
       {
         "id": 77,
-        "url": "https://www.scholastic.com/content/dam/enterprise/asset.jpg/footer/socialIcons/instagram.svg",
+        "url": "https://www.scholastic.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 280,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 280
       },
       {
         "id": 78,
-        "url": "https://www.scholastic.com/content/dam/enterprise/asset.jpg/footer/socialIcons/twitter.svg",
+        "url": "https://www.scholastic.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 280,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 280
       },
       {
         "id": 79,
-        "url": "https://www.scholastic.com/content/dam/enterprise/asset.jpg/footer/socialIcons/pinterest.svg",
+        "url": "https://www.scholastic.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 281,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 281
       },
       {
         "id": 80,
-        "url": "https://www.scholastic.com/content/dam/enterprise/asset.jpg/footer/socialIcons/linked-in.svg",
+        "url": "https://www.scholastic.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 281,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 281
       },
       {
         "id": 81,
-        "url": "https://www.scholastic.com/content/dam/enterprise/asset.jpg/footer/arrow-down.svg",
+        "url": "https://www.scholastic.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 282,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 282
       },
       {
         "id": 82,
-        "url": "https://www.scholastic.com/content/dam/fairs/asset.jpg/footer/Expand.svg",
+        "url": "https://www.scholastic.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 282,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 282
       },
       {
         "id": 83,
-        "url": "https://www.scholastic.com/content/dam/fairs/asset.jpg/footer/Collapse.svg",
+        "url": "https://www.scholastic.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 283,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 283
       },
       {
         "id": 84,
-        "url": "https://www.scholastic.com/content/dam/corp-home/asset.jpg/scholastic-logo-white-outline.png",
+        "url": "https://www.scholastic.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 283,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 283
       },
       {
         "id": 86,
-        "url": "https://use.typekit.net/af/e3ca36/00000000000000000000e805/27/l?primer=&fvd=&v=",
+        "url": "https://use.typekit.net/{seg}/{seg}/{seg}/{n}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&v=",
         "domain": "use.typekit.net",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 284,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 284
       },
       {
         "id": 87,
-        "url": "https://use.typekit.net/af/a28b50/00000000000000000000e803/27/l?primer=&fvd=&v=",
+        "url": "https://use.typekit.net/{seg}/{seg}/{seg}/{n}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&v=",
         "domain": "use.typekit.net",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 284,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 284
       },
       {
         "id": 88,
-        "url": "https://www.scholastic.com/content/corp-home/home/jcr:content/root/compoundheader/file",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 292,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 292
       },
       {
         "id": 89,
-        "url": "https://www.scholastic.com/content/corp-home/home/jcr:content/root/responsivegrid/responsivegrid/responsivegrid_copy_/file",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 293,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 293
       },
       {
         "id": 90,
-        "url": "https://www.scholastic.com/content/corp-home/home/jcr:content/root/responsivegrid/responsivegrid/responsivegrid_copy_123/file",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 293,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 293
       },
       {
         "id": 91,
-        "url": "https://www.scholastic.com/content/dam/corp-home/asset.jpg/backgroundImages/violet-smoke.jpg",
+        "url": "https://www.scholastic.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 293,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 293
       },
       {
         "id": 92,
-        "url": "https://www.scholastic.com/content/dam/corp-home/asset.jpg/backgroundImages/peach-cloud.jpg",
+        "url": "https://www.scholastic.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 294,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 294
       },
       {
         "id": 93,
-        "url": "https://www.scholastic.com/content/dam/corp-home/asset.jpg/backgroundImages/rain-drops.jpg",
+        "url": "https://www.scholastic.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 296,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 296
       },
       {
         "id": 94,
-        "url": "https://use.typekit.net/af/620bf8/00000000000000000000e7fe/27/l?primer=&fvd=&v=",
+        "url": "https://use.typekit.net/{seg}/{seg}/{seg}/{n}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&v=",
         "domain": "use.typekit.net",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 297,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 297
       },
       {
         "id": 95,
-        "url": "https://use.typekit.net/af/635674/00000000000000000000e800/27/l?primer=&fvd=&v=",
+        "url": "https://use.typekit.net/{seg}/{n}/{seg}/{n}/{seg}?%5Bredacted%5D=&%5Bredacted%5D=&v=",
         "domain": "use.typekit.net",
         "method": "GET",
         "resourceType": "font",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
-        "startedAtMs": 297,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 297
       },
       {
         "id": 96,
-        "url": "https://www.scholastic.com/bin/sch/jwtvalidate/login",
+        "url": "https://www.scholastic.com/{seg}/{seg}/{seg}/login",
         "domain": "www.scholastic.com",
         "method": "POST",
         "resourceType": "fetch",
         "status": null,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 427,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 427
       },
       {
         "id": 97,
-        "url": "https://www.scholastic.com/etc.clientlibs/corp-home/clientlibs/clientlib-base/slickjs/ajax-loader.gif",
+        "url": "https://www.scholastic.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 404,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 428,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 428
       },
       {
         "id": 98,
-        "url": "https://www.scholastic.com/etc/designs/scholastic/enterprise/clientlibs/reader/bundle.reader.js",
+        "url": "https://www.scholastic.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "xhr",
         "status": 403,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 429,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 429
       },
       {
         "id": 99,
-        "url": "https://www.scholastic.com/content/dam/corp-home/asset.jpg/corp-carousel-prev-arrow.svg",
+        "url": "https://www.scholastic.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 429,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 429
       },
       {
         "id": 100,
-        "url": "https://www.scholastic.com/content/dam/corp-home/asset.jpg/corp-carousel-next-arrow.svg",
+        "url": "https://www.scholastic.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 430,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 430
       },
       {
         "id": 101,
-        "url": "https://www.scholastic.com/content/corp-home/home/_jcr_content/root/responsivegrid_2021037237/responsivegrid_copy__1400113259/responsivegrid/image.coreimg.100.1285.jpeg/1632250282101/dick-portrait-hero.jpeg",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 436,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 436
       },
       {
         "id": 102,
-        "url": "https://www.scholastic.com/content/corp-home/home/_jcr_content/root/responsivegrid/responsivegrid/responsivegrid_copy_/responsivegrid/image.coreimg.100.512.png/1778265918256/jan-corp-homepage-foreground-image%402x.png",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 437,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 437
       },
       {
         "id": 103,
-        "url": "https://www.scholastic.com/content/corp-home/home/_jcr_content/root/responsivegrid/responsivegrid/responsivegrid_copy_123/responsivegrid/image.coreimg.100.512.png/1758126511794/9s-s-banner-foreground-1577x525.png",
+        "url": "https://www.scholastic.com/{seg}/{seg}/home/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 437,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 437
       },
       {
         "id": 104,
-        "url": "https://www.scholastic.com/cdn-cgi/challenge-platform/scripts/jsd/main.js",
+        "url": "https://www.scholastic.com/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 302,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 442,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 442
       },
       {
         "id": 105,
-        "url": "https://www.scholastic.com/cdn-cgi/challenge-platform/h/b/scripts/jsd/25e6c66701a0/main.js",
+        "url": "https://www.scholastic.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 517,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 517
       },
       {
         "id": 106,
-        "url": "https://www.scholastic.com/cdn-cgi/challenge-platform/h/b/jsd/oneshot/25e6c66701a0/0.06455242600968059:1782417632:s7K9p_I1LqBzZ8LkW1dunB-zAVLr-l1GMCn2GQq8K0E/a116ab5ffd1fbe62",
+        "url": "https://www.scholastic.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
         "domain": "www.scholastic.com",
         "method": "POST",
         "resourceType": "xhr",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 595,
-        "blockedByShields": false
+        "blockedByShields": false,
+        "startedAtMs": 595
       }
     ],
     "domains": [
@@ -2837,7 +2837,7 @@
     ],
     "cookies": [
       {
-        "name": "MYSCHL_referrerUrl",
+        "name": "[redacted]",
         "domain": ".scholastic.com",
         "path": "/",
         "sameSite": "Lax",
@@ -2868,8 +2868,8 @@
       }
     ],
     "storage": [],
-    "fingerprintDetections": [],
     "fingerprintEvents": [],
+    "fingerprintDetections": [],
     "screenshot": null,
     "warnings": [
       "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
