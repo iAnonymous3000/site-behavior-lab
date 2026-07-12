@@ -1,5 +1,6 @@
 import { isThirdParty } from "./domain-utils";
-import { redactUrlForReport, safeParseUrl } from "./report-url";
+import { safeParseUrl } from "./report-url";
+import { redactUrlV2 } from "./redaction-v2";
 import type { NetworkRequestRecord, StorageRecord, TrackerMatch } from "./types";
 
 export const MAX_RECORDED_REQUESTS = 1_000;
@@ -47,7 +48,7 @@ export class ScanWarningCollector {
   // can fail the guard for dozens of distinct hosts, and one warning line each
   // would drown the report. Show the first few distinct URLs, then one summary.
   private addBlockedUrlExample(group: string, url: string, example: (redacted: string) => string, summary: string): void {
-    const redacted = redactUrlForReport(url);
+    const redacted = redactUrlV2(url).value;
     let urls = this.blockedUrlGroups.get(group);
     if (!urls) {
       urls = new Set<string>();
@@ -250,7 +251,10 @@ function buildRecordedRequestRecord({
 
   return {
     id,
-    url: redactUrlForReport(request.url(), { preserveQueryKeys: thirdParty }),
+    // Keep the raw URL only inside the bounded in-memory recorder. The domain
+    // and tracker match above must see raw evidence; buildScanResult is the one
+    // public seam that redacts the completed record and accounts for removals.
+    url: request.url(),
     domain,
     method: request.method(),
     resourceType: request.resourceType(),

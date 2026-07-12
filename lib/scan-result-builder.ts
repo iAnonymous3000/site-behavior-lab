@@ -2,6 +2,7 @@ import { summarizeDomains } from "./domain-utils";
 import { NODE_SHIELDS_REQUEST_CONTEXT_VERSION } from "./legacy-methodology";
 import { trackerCatalogMetadata } from "./tracker-catalog";
 import { SCAN_REPORT_SCHEMA_VERSION } from "./types";
+import { redactScanResultV1 } from "./redact-scan-report-v1";
 import type {
   CnameCloak,
   ConsentInteractionSummary,
@@ -261,5 +262,9 @@ export function buildScanResult(input: BuildScanResultInput): ScanResult {
     result.consentInteraction = input.consentInteraction;
   }
 
-  return result;
+  // Every current ScanReport producer (Node Playwright, Browser Run, and
+  // PageGraph) converges here. Match/classify first, then apply the immutable
+  // default-deny public transform once the evidence is complete; comparisons
+  // are subsequently built from these already-sanitized arms.
+  return redactScanResultV1(result).report;
 }

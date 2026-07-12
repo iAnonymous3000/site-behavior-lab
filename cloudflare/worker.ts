@@ -18,7 +18,7 @@ import { REPORT_ID_PATTERN } from "../lib/report-validation";
 import { scanTokenFromHeaders } from "../lib/scan-token";
 import { asScanRuntimeHealth } from "../lib/scan-runtime-health";
 import { collectFingerprintObservationsFromFrames, fingerprintObserverInitScript } from "../lib/fingerprint-observer";
-import { redactUrlForReport, safeParseUrl } from "../lib/report-url";
+import { safeParseUrl } from "../lib/report-url";
 import {
   collectStorageEntries,
   MAX_RECORDED_REQUESTS,
@@ -451,11 +451,10 @@ async function scanWithBrowserSession(
     const publicRequests = networkRecorder.publicRecords(finalParsed.hostname);
     const conditions = buildScanConditions({
       profile: "cloudflare-browser-run",
-      // Strip query strings/credentials before persistence so shared reports and the
-      // static corpus never retain sensitive values, matching the Node scanner
-      // (lib/scanner.ts). `finalUrl` (raw) is still used above for hostname matching.
-      requestedUrl: redactUrlForReport(targetUrl.toString()),
-      finalUrl: redactUrlForReport(finalUrl),
+      // These remain ephemeral until buildScanResult applies the shared public
+      // transform. Keeping them raw here makes the sanitizer's counters exact.
+      requestedUrl: targetUrl.toString(),
+      finalUrl,
       scannedAt: new Date(scanStarted).toISOString(),
       chromiumVersion: browser.version(),
       userAgent: await withWorkerScanTimeout(page.evaluate(() => navigator.userAgent), deadlineStarted, maxDurationMs).catch(() => ""),

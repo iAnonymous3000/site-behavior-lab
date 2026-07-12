@@ -2,9 +2,12 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
   INVALID_URL_MARKER,
+  INVALID_HOST_MARKER,
   emptyRedactionCounters,
   queryKeyAllowed,
   redactCookieName,
+  redactHostnameV2,
+  redactPathV2,
   redactStorageKey,
   redactUrlV2,
   tokenShapeMarker
@@ -104,4 +107,44 @@ test("shape markers classify, never authorize survival", () => {
 test("IDN hosts canonicalize to punycode and default ports strip", () => {
   const redacted = redactUrlV2("https://münchen.example.com:443/privacy");
   assert.equal(redacted.value, "https://xn--mnchen-3ya.example.com/privacy");
+});
+
+test("hostname and path field sanitizers apply the same policy without a containing URL", () => {
+  const host = redactHostnameV2(".a8f3c9d2e1b4f6a7.Telemetry.Example.com");
+  assert.equal(host.value, ".{label}.telemetry.example.com");
+  assert.equal(host.counters.subdomainLabelsGeneralized, 1);
+
+  const malformed = redactHostnameV2("anna@example.com/path");
+  assert.equal(malformed.value, INVALID_HOST_MARKER);
+  assert.equal(malformed.counters.malformedUrlsDropped, 1);
+
+  const path = redactPathV2("/products/12345/anna;session=secret?ignored=yes");
+  assert.equal(path.value, "/products/{n}/{seg}");
+  assert.equal(path.counters.pathSegmentsGeneralized, 2);
+  assert.equal(path.counters.matrixParamsStripped, 1);
+});
+
+test("all public markers are byte-idempotent across repeated boundaries", () => {
+  const once = redactUrlV2(
+    "https://a8f3c9d2e1b4f6a7.example.com/private/12345?secret=x&utm_source=y",
+    { preserveQueryKeys: true }
+  ).value;
+  assert.equal(redactUrlV2(once, { preserveQueryKeys: true }).value, once);
+  assert.equal(redactPathV2(redactPathV2("/private/12345").value).value, "/{seg}/{n}");
+  assert.equal(redactHostnameV2(redactHostnameV2("a8f3c9d2e1b4f6a7.example.com").value).value, "{label}.example.com");
+
+  const counters = emptyRedactionCounters();
+  for (const marker of [
+    "[redacted]",
+    "[redacted:uuid-like]",
+    "[redacted:numeric]",
+    "[redacted:hex-like]",
+    "[redacted:long-token]"
+  ]) {
+    assert.equal(tokenShapeMarker(marker), marker);
+    assert.equal(redactCookieName(marker, counters).value, marker);
+    assert.equal(redactStorageKey(marker, counters).value, marker);
+  }
+  assert.equal(redactUrlV2(INVALID_URL_MARKER).value, INVALID_URL_MARKER);
+  assert.equal(redactHostnameV2(INVALID_HOST_MARKER).value, INVALID_HOST_MARKER);
 });

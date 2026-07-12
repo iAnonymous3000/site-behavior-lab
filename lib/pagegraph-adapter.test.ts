@@ -83,9 +83,12 @@ test("pageGraphToScanResult adapts PageGraph observations into a ScanResult", ()
   assert.equal(result.summary.thirdPartyCookies, 1);
   assert.equal(result.summary.storageEntries, 1);
   assert.equal(result.summary.fingerprintEvents, 2);
-  assert.equal(result.requests[1].url, "https://www.google-analytics.com/g/collect?id=&email=");
+  assert.equal(
+    result.requests[1].url,
+    "https://www.google-analytics.com/{seg}/{seg}?id=&%5Bredacted%5D="
+  );
   assert.equal(result.requests[1].provenance?.scriptDomain, "example.com");
-  assert.equal(result.requests[1].provenance?.scriptUrl, "https://example.com/app.js?version=&session=");
+  assert.equal(result.requests[1].provenance?.scriptUrl, "https://example.com/{seg}");
   assert.equal(result.requests[1].provenance?.injectedByDomain, "cdn.example.net");
   assert.equal(result.domains.some((domain) => domain.domain === "www.google-analytics.com" && domain.tracker?.entity === "Google"), true);
   assert.equal(result.warnings.some((warning) => warning.includes("Skipped PageGraph request 3")), true);

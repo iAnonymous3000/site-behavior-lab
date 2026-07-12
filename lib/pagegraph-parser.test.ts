@@ -109,8 +109,8 @@ test("pageGraphGraphmlToScanResult produces a PageGraph-backed ScanResult", () =
   assert.equal(result.summary.totalRequests, 2);
   assert.equal(result.summary.thirdPartyRequests, 1);
   assert.equal(result.summary.knownTrackerRequests, 1);
-  assert.equal(result.requests[1].url, "https://analytics.brave.test/collect?id=&email=");
-  assert.equal(result.requests[1].provenance?.scriptUrl, "https://example.com/main.js?cache=");
+  assert.equal(result.requests[1].url, "https://analytics.brave.test/{seg}?id=&%5Bredacted%5D=");
+  assert.equal(result.requests[1].provenance?.scriptUrl, "https://example.com/{seg}");
   assert.equal(result.requests[1].tracker?.entity, "Brave Test Analytics");
 });
 
@@ -186,7 +186,7 @@ test("pageGraphGraphmlToScanResult preserves real-schema provenance through the 
   assert.equal(result.summary.totalRequests, 2);
   assert.equal(result.summary.knownTrackerRequests, 1);
   assert.equal(result.requests[1].method, "UNKNOWN");
-  assert.equal(result.requests[1].url, "https://tracker.example/collect?cid=&email=");
+  assert.equal(result.requests[1].url, "https://tracker.example/{seg}?cid=&%5Bredacted%5D=");
   assert.equal(result.requests[1].provenance?.scriptDomain, "tags.example.net");
   assert.equal(result.requests[1].provenance?.injectedByDomain, "loader.example");
   assert.equal(result.warnings.some((warning) => warning.includes("not script-to-request causality")), false);

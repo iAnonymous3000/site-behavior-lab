@@ -420,6 +420,18 @@ function makeScanRequest(
 }
 
 function makeScanResult(payload: ScanRequestPayload, totalRequests = 0): ScanResult {
+  const firstPartyDomain = new URL(payload.url).hostname;
+  const requests: ScanResult["requests"] = Array.from({ length: totalRequests }, (_, index) => ({
+    id: index + 1,
+    url: `https://${firstPartyDomain}/fixture-${index + 1}.js`,
+    domain: firstPartyDomain,
+    method: "GET",
+    resourceType: "script",
+    status: 200,
+    thirdParty: false,
+    tracker: null,
+    startedAtMs: index
+  }));
   return {
     ok: true,
     schemaVersion: SCAN_REPORT_SCHEMA_VERSION,
@@ -428,7 +440,7 @@ function makeScanResult(payload: ScanRequestPayload, totalRequests = 0): ScanRes
       pageTitle: "",
       status: 200,
       durationMs: 1,
-      firstPartyDomain: new URL(payload.url).hostname,
+      firstPartyDomain,
       totalRequests,
       thirdPartyRequests: 0,
       knownTrackerRequests: 0,
@@ -467,7 +479,7 @@ function makeScanResult(payload: ScanRequestPayload, totalRequests = 0): ScanRes
       },
       scannerDisclosure: "test"
     },
-    requests: [],
+    requests,
     domains: [],
     cookies: [],
     storage: [],

@@ -1,5 +1,5 @@
 import { isThirdParty } from "./domain-utils";
-import { safeParseUrl, redactUrlForReport } from "./report-url";
+import { safeParseUrl } from "./report-url";
 import { buildScanConditions, buildScanResult } from "./scan-result-builder";
 import { findTrackerMatch } from "./tracker-catalog";
 import type {
@@ -100,8 +100,8 @@ export function pageGraphToScanResult(input: PageGraphAdapterInput): ScanResult 
   const chromiumVersion = input.chromiumVersion ?? "unknown";
   const conditions = buildScanConditions({
     profile: "brave-pagegraph",
-    requestedUrl: redactUrlForReport(requestedUrl.toString()),
-    finalUrl: redactUrlForReport(finalUrl.toString()),
+    requestedUrl: requestedUrl.toString(),
+    finalUrl: finalUrl.toString(),
     scannedAt: input.scannedAt ?? new Date().toISOString(),
     chromiumVersion,
     userAgent: input.userAgent ?? "unknown",
@@ -149,7 +149,9 @@ function normalizeRequests(
     const thirdParty = isThirdParty(firstPartyDomain, domain);
     requests.push({
       id: requests.length + 1,
-      url: redactUrlForReport(parsed.toString(), { preserveQueryKeys: thirdParty }),
+      // Classification consumes the raw URL/domain first. buildScanResult is
+      // the sole public redaction boundary and owns the removal counters.
+      url: parsed.toString(),
       domain,
       method: observation.method ?? "UNKNOWN",
       resourceType: observation.resourceType ?? "other",
@@ -202,7 +204,7 @@ function hasHumanReadableProvenance(provenance: NetworkRequestProvenance | undef
 function normalizeProvenanceUrl(value: string | undefined): string | undefined {
   const parsed = value ? safeParseUrl(value) : null;
   if (!parsed || (parsed.protocol !== "http:" && parsed.protocol !== "https:")) return undefined;
-  return redactUrlForReport(parsed.toString(), { preserveQueryKeys: true });
+  return parsed.toString();
 }
 
 function domainFromUrl(value: string | undefined): string | undefined {

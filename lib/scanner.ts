@@ -42,6 +42,7 @@ import { promises as dnsPromises } from "node:dns";
 import { PublicScanError } from "./public-errors";
 import { assertPublicHttpUrl, normalizeUrl } from "./url-safety";
 import { redactUrlForReport, safeParseUrl } from "./report-url";
+import { redactUrlV2 } from "./redaction-v2";
 import { buildScanConditions, buildScanResult } from "./scan-result-builder";
 import { collectFingerprintObservationsFromFrames, fingerprintObserverInitScript } from "./fingerprint-observer";
 import { startPublicScanProxy, type ResolvePublicHost } from "./public-scan-proxy";
@@ -281,7 +282,7 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
         // plus the failure reason only -- the raw Playwright message embeds the
         // full URL (query string included), which must never reach the logs.
         console.error("Scan navigation failed", {
-          target: redactUrlForReport(targetUrl.toString()),
+          target: redactUrlV2(targetUrl.toString()).value,
           reason: navigationFailureReason(error)
         });
         throw new PublicScanError(
@@ -431,8 +432,8 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
     const adblockMeta = adblockEngine ? adblockListMeta() : null;
     const conditions = buildScanConditions({
       profile: "node-playwright",
-      requestedUrl: redactUrlForReport(targetUrl.toString()),
-      finalUrl: redactUrlForReport(finalUrl),
+      requestedUrl: targetUrl.toString(),
+      finalUrl,
       scannedAt: new Date(started).toISOString(),
       chromiumVersion,
       userAgent: await withScanTimeout(page.evaluate(() => navigator.userAgent), started),
@@ -782,7 +783,7 @@ async function applyConsentChoice(page: Page, choice: ConsentChoice, started: nu
       if (outcome.cmp) summary.cmp = outcome.cmp;
       if (outcome.selector) summary.selector = outcome.selector;
       if (outcome.matchedText) summary.matchedText = outcome.matchedText;
-      if (frame !== page.mainFrame()) summary.frameUrl = redactUrlForReport(frame.url());
+      if (frame !== page.mainFrame()) summary.frameUrl = frame.url();
       break;
     }
     // Banners often render after network idle; retry briefly while budget allows.
@@ -990,7 +991,7 @@ async function probePrivacyPolicy(input: {
       .map((entity) => entity.entity);
 
     const summary = buildPrivacyPolicySummary({
-      url: redactUrlForReport(policyUrl),
+      url: policyUrl,
       policyText,
       trackingEntities
     });

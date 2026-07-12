@@ -29,10 +29,18 @@ export const REDACTION_VERSION = 2;
 export const REDACTION_ALLOWLISTS_VERSION: string = allowlists.version;
 
 export const INVALID_URL_MARKER = "{invalid-url}";
+export const INVALID_HOST_MARKER = "{invalid-host}";
 const GENERALIZED_LABEL = "{label}";
 const GENERALIZED_SEGMENT = "{seg}";
 const GENERALIZED_NUMERIC_SEGMENT = "{n}";
 const REDACTED_KEY = "[redacted]";
+const TERMINAL_NAME_MARKERS = new Set([
+  REDACTED_KEY,
+  "[redacted:uuid-like]",
+  "[redacted:numeric]",
+  "[redacted:hex-like]",
+  "[redacted:long-token]"
+]);
 
 /** RFC 9.1 path cap ("proposal: 6"). */
 const MAX_PATH_SEGMENTS = 6;
@@ -76,6 +84,10 @@ const NUMERIC_SHAPE = /^[0-9]+$/;
 const BASE64ISH_SHAPE = /^[A-Za-z0-9+/_=-]{16,}$/;
 
 export function tokenShapeMarker(value: string): string {
+  // A report can cross multiple public boundaries (producer, store, export,
+  // remediation). Markers are terminal public values: a later pass must not
+  // collapse a classed marker back to the generic marker.
+  if (TERMINAL_NAME_MARKERS.has(value)) return value;
   if (UUID_SHAPE.test(value)) return "[redacted:uuid-like]";
   // Numeric before hex: a digit-only string is valid hex too, and "numeric"
   // is the more truthful class for it.
@@ -131,6 +143,7 @@ export type RedactUrlV2Options = {
  */
 export function redactUrlV2(url: string, options: RedactUrlV2Options = {}): RedactedUrl {
   const counters = emptyRedactionCounters();
+  if (url === INVALID_URL_MARKER) return { value: INVALID_URL_MARKER, counters };
   let parsed: URL;
   try {
     parsed = new URL(url);
@@ -145,7 +158,7 @@ export function redactUrlV2(url: string, options: RedactUrlV2Options = {}): Reda
 
   // Host: WHATWG parsing already lowercases and punycodes; the registrable
   // domain always survives, labels left of it are screened.
-  const hostname = redactHostname(parsed.hostname, counters);
+  const hostname = redactCanonicalHostname(parsed.hostname, counters);
 
   const path = redactPath(parsed.pathname, counters);
   const query = options.preserveQueryKeys ? redactQuery(parsed.searchParams, counters) : "";
@@ -154,7 +167,7 @@ export function redactUrlV2(url: string, options: RedactUrlV2Options = {}): Reda
   return { value: `${parsed.protocol}//${hostname}${port}${path}${query}`, counters };
 }
 
-function redactHostname(hostname: string, counters: RedactionCounters): string {
+function redactCanonicalHostname(hostname: string, counters: RedactionCounters): string {
   // IP literals have no labels to screen.
   if (/^\[.*\]$/.test(hostname) || /^[0-9.]+$/.test(hostname)) return hostname;
   const registrable = getDomain(hostname, { allowPrivateDomains: true });
@@ -169,6 +182,35 @@ function redactHostname(hostname: string, counters: RedactionCounters): string {
     return label;
   });
   return `${labels.join(".")}.${registrable}`;
+}
+
+/**
+ * Apply the URL host policy to a hostname-valued report field (request/domain
+ * summaries, cookie domains, CNAMEs, provenance domains). Leading-dot cookie
+ * domain notation is preserved, but malformed or non-host input never passes
+ * through verbatim.
+ */
+export function redactHostnameV2(hostname: string): RedactedUrl {
+  const counters = emptyRedactionCounters();
+  if (hostname === INVALID_HOST_MARKER) return { value: INVALID_HOST_MARKER, counters };
+
+  const trimmed = hostname.trim();
+  const leadingDot = trimmed.startsWith(".");
+  const raw = (leadingDot ? trimmed.slice(1) : trimmed).replace(/\.$/, "");
+  if (!raw || /[\s/@?#]/.test(raw)) {
+    counters.malformedUrlsDropped += 1;
+    return { value: INVALID_HOST_MARKER, counters };
+  }
+
+  let canonical: string;
+  try {
+    canonical = new URL(`https://${raw}/`).hostname;
+  } catch {
+    counters.malformedUrlsDropped += 1;
+    return { value: INVALID_HOST_MARKER, counters };
+  }
+  const value = redactCanonicalHostname(canonical, counters);
+  return { value: `${leadingDot ? "." : ""}${value}`, counters };
 }
 
 function redactPath(pathname: string, counters: RedactionCounters): string {
@@ -192,6 +234,10 @@ function redactPath(pathname: string, counters: RedactionCounters): string {
     if (semicolon >= 0) counters.matrixParamsStripped += 1;
 
     const decoded = safeDecode(segment);
+    if (decoded === GENERALIZED_SEGMENT || decoded === GENERALIZED_NUMERIC_SEGMENT) {
+      kept.push(decoded);
+      continue;
+    }
     if (routeLiterals.has(decoded.toLowerCase())) {
       kept.push(decoded.toLowerCase());
       continue;
@@ -203,9 +249,26 @@ function redactPath(pathname: string, counters: RedactionCounters): string {
   return kept.length === 0 ? "/" : `/${kept.join("/")}`;
 }
 
+/** Apply the URL path policy to a path-only field such as a cookie path. */
+export function redactPathV2(pathname: string): RedactedUrl {
+  const counters = emptyRedactionCounters();
+  const trimmed = pathname.trim();
+  if (!trimmed) return { value: "/", counters };
+
+  // Cookie paths should be absolute. A non-absolute value is still treated as
+  // page-controlled path material, never passed through; prefixing a slash
+  // lets the ordinary default-deny segment policy generalize it.
+  const absolute = trimmed.startsWith("/") ? trimmed : `/${trimmed}`;
+  return { value: redactPath(absolute.split(/[?#]/, 1)[0], counters), counters };
+}
+
 function redactQuery(params: URLSearchParams, counters: RedactionCounters): string {
   const redacted = new URLSearchParams();
   params.forEach((_value, key) => {
+    if (key === REDACTED_KEY) {
+      redacted.append(REDACTED_KEY, "");
+      return;
+    }
     if (queryKeyAllowed(key)) {
       redacted.append(key, "");
       return;
@@ -237,17 +300,19 @@ function safeDecode(segment: string): string {
 
 export type RedactedName = {
   value: string;
-  /** Whether the literal survived the allowlist. */
+  /** Whether this pass left the value unchanged (allowlisted or already marked). */
   preserved: boolean;
 };
 
 export function redactCookieName(name: string, counters: RedactionCounters): RedactedName {
+  if (TERMINAL_NAME_MARKERS.has(name)) return { value: name, preserved: true };
   if (cookieNameLiterals.has(name)) return { value: name, preserved: true };
   counters.cookieNamesRedacted += 1;
   return { value: tokenShapeMarker(name), preserved: false };
 }
 
 export function redactStorageKey(key: string, counters: RedactionCounters): RedactedName {
+  if (TERMINAL_NAME_MARKERS.has(key)) return { value: key, preserved: true };
   if (storageKeyLiterals.has(key)) return { value: key, preserved: true };
   counters.storageKeysRedacted += 1;
   return { value: tokenShapeMarker(key), preserved: false };

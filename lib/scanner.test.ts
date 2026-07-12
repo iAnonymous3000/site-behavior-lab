@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { PublicScanError } from "./public-errors";
+import { ScanNetworkRecorder } from "./scan-runtime";
 import {
   closeSharedBrowserForTests,
   decideRoutedRequest,
@@ -157,6 +158,38 @@ test("ScanRequestBudget can release skipped recorded requests", () => {
   assert.deepEqual(warnings.list, []);
 });
 
+test("ScanNetworkRecorder keeps raw evidence ephemeral until the post-classification build seam", () => {
+  const matchedDomains: string[] = [];
+  const recorder = new ScanNetworkRecorder({
+    firstPartyHostname: "example.com",
+    warnings: new ScanWarningCollector(),
+    trackerMatcher: (domain) => {
+      matchedDomains.push(domain);
+      return {
+        domain,
+        entity: "Example Tracker",
+        category: "analytics",
+        confidence: "curated"
+      };
+    }
+  });
+  const request = {
+    url: () => "https://a8f3c9d2e1b4f6a7.tracker.example.net/patients/anna?token=secret",
+    method: () => "GET",
+    resourceType: () => "script"
+  };
+
+  recorder.recordRequest(request, 1);
+  const records = recorder.publicRecords("example.com");
+
+  assert.equal(records[0].url.includes("anna?token=secret"), true);
+  assert.equal(records[0].tracker?.entity, "Example Tracker");
+  assert.deepEqual(matchedDomains, [
+    "a8f3c9d2e1b4f6a7.tracker.example.net",
+    "a8f3c9d2e1b4f6a7.tracker.example.net"
+  ]);
+});
+
 test("ScanWarningCollector limits noisy non-HTTP request examples", () => {
   const warnings = new ScanWarningCollector();
   const attempts = NON_HTTP_WARNING_EXAMPLE_LIMIT + 3;
@@ -165,12 +198,9 @@ test("ScanWarningCollector limits noisy non-HTTP request examples", () => {
     warnings.addNonHttpRequest(`blob:https://example.com/${index}?token=secret`);
   }
 
-  assert.equal(warnings.list.length, NON_HTTP_WARNING_EXAMPLE_LIMIT + 1);
-  assert.match(warnings.list[0], /^Blocked a non-HTTP\(S\) request: blob:https:\/\/example.com\/0$/);
-  assert.equal(
-    warnings.list.at(-1),
-    `Blocked additional non-HTTP(S) requests. Only the first ${NON_HTTP_WARNING_EXAMPLE_LIMIT} examples are shown.`
-  );
+  // Non-HTTP input has no public URL shape under redaction-v2. Every example
+  // collapses to one fixed marker instead of retaining blob paths.
+  assert.deepEqual(warnings.list, ["Blocked a non-HTTP(S) request: {invalid-url}"]);
   assert.equal(warnings.list.some((warning) => warning.includes("secret")), false);
 });
 
@@ -190,7 +220,7 @@ test("ScanWarningCollector dedupes and caps unverified-request examples", () => 
   // Retries of the same URL (different query strings) collapse after redaction.
   warnings.addUnverifiedRequest("https://blocked.example/pixel?attempt=1");
   warnings.addUnverifiedRequest("https://blocked.example/pixel?attempt=2");
-  assert.deepEqual(warnings.list, ["Blocked a request that could not be verified as public: https://blocked.example/pixel"]);
+  assert.deepEqual(warnings.list, ["Blocked a request that could not be verified as public: https://blocked.example/{seg}"]);
 
   for (let index = 0; index < NON_HTTP_WARNING_EXAMPLE_LIMIT + 3; index += 1) {
     warnings.addUnverifiedRequest(`https://blocked-${index}.example/asset?token=secret`);
@@ -223,7 +253,7 @@ test("decideRoutedRequest aborts non-HTTP requests before public host verificati
 
   assert.deepEqual(decision, { action: "abort", blockedByShields: false });
   assert.equal(verifierCalls, 0);
-  assert.deepEqual(warnings.list, ["Blocked a non-HTTP(S) request: blob:https://example.com/asset"]);
+  assert.deepEqual(warnings.list, ["Blocked a non-HTTP(S) request: {invalid-url}"]);
 });
 
 test("decideRoutedRequest aborts after the routed request cap", async () => {
@@ -265,7 +295,7 @@ test("decideRoutedRequest aborts requests that fail public host verification", a
   });
 
   assert.deepEqual(decision, { action: "abort", blockedByShields: false });
-  assert.deepEqual(warnings.list, ["Blocked a request that could not be verified as public: https://metadata.example/latest"]);
+  assert.deepEqual(warnings.list, ["Blocked a request that could not be verified as public: https://metadata.example/{seg}"]);
 });
 
 test("decideRoutedRequest memoizes public host checks by scheme, host, and port", async () => {

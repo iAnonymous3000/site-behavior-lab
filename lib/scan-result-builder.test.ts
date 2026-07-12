@@ -164,7 +164,7 @@ test("buildScanResult owns single-report shape and summary math", () => {
       }
     ],
     screenshot: null,
-    warnings: ["test warning"],
+    warnings: ["The page did not reach network idle before the scan window ended."],
     shieldsBlockedRequests: 7
   });
 
@@ -186,7 +186,69 @@ test("buildScanResult owns single-report shape and summary math", () => {
   });
   assert.equal(result.domains.length, 3);
   assert.equal(result.domains.find((domain) => domain.domain === "analytics.example.net")?.blockedByShields, true);
-  assert.deepEqual(result.warnings, ["test warning"]);
+  assert.deepEqual(result.warnings, ["The page did not reach network idle before the scan window ended."]);
+});
+
+test("buildScanResult is the default-deny public seam after matching and classification", () => {
+  const conditions = makeConditions();
+  conditions.requestedUrl = "https://example.com/patients/anna?token=secret";
+  conditions.finalUrl = "https://example.com/account/12345";
+
+  const result = buildScanResult({
+    pageTitle: "Anna\u0000 private page",
+    status: 200,
+    durationMs: 1,
+    firstPartyDomain: "example.com",
+    conditions,
+    requests: [
+      {
+        id: 1,
+        url: "https://a8f3c9d2e1b4f6a7.tracker.example.net/users/anna?email=x&utm_source=y",
+        domain: "a8f3c9d2e1b4f6a7.tracker.example.net",
+        method: "GET",
+        resourceType: "script",
+        status: 200,
+        thirdParty: true,
+        // The match happened against the raw hostname before this seam. The
+        // classified label survives while page-controlled host/path data does not.
+        tracker: {
+          domain: "tracker.example.net",
+          entity: "Example Tracker",
+          category: "analytics",
+          confidence: "curated"
+        },
+        startedAtMs: 1
+      }
+    ],
+    cookies: [
+      {
+        name: "anna_session",
+        domain: ".example.com",
+        path: "/users/anna",
+        sameSite: "Lax",
+        secure: true,
+        httpOnly: true,
+        session: true,
+        thirdParty: false
+      }
+    ],
+    storage: [{ area: "localStorage", key: "anna_private", valueBytes: 4 }],
+    fingerprintEvents: [],
+    screenshot: null,
+    warnings: []
+  });
+
+  assert.equal(result.summary.pageTitle, "Anna private page");
+  assert.equal(result.conditions.requestedUrl, "https://example.com/{seg}/{seg}");
+  assert.equal(result.conditions.finalUrl, "https://example.com/account/{n}");
+  assert.equal(
+    result.requests[0].url,
+    "https://{label}.tracker.example.net/{seg}/{seg}?%5Bredacted%5D=&utm_source="
+  );
+  assert.equal(result.requests[0].tracker?.entity, "Example Tracker");
+  assert.equal(result.cookies[0].name, "[redacted]");
+  assert.equal(result.cookies[0].path, "/{seg}/{seg}");
+  assert.equal(result.storage[0].key, "[redacted]");
 });
 
 function requestRecord({
