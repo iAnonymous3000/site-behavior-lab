@@ -532,3 +532,66 @@ rewrite is NOT indicated (accept and document the residual); the in-place
 corpus re-redaction plus sidecar backfill remains the pending remediation
 decision, weighed against how much evidence granularity (paths, cookie
 names) the public corpus should keep.
+
+## Codex round 11 (2026-07-12): the production-readiness review
+
+An external full-stack review (browser isolation, egress, methodology, UX,
+ops). Every finding was verified against the code before acting; four slices
+landed same-day (faf7fe6 container hardening, 3a52d3e PageGraph fidelity,
+2945ac4 honesty/accuracy, 25acde5 Pages front-door headers). Verified but
+deliberately NOT landed, with reasons:
+
+- **Shields initiator context (the remaining round-11 High).** Confirmed: the
+  live block gate passes the originally submitted target as the adblock
+  engine's source_url (lib/scanner.ts decideRoutedRequest) and post-scan
+  classification uses the final top-level URL (publicRecords callback), so
+  iframe-initiated requests and post-redirect documents get wrong
+  first/third-party and $domain context, and live blocking can disagree with
+  post-scan classification. The fix is per-request initiator capture: use the
+  requesting frame's URL (request.frame().url(), parent frame for subframe
+  navigations, guarded for service-worker requests where frame() throws) at
+  route-decision time, and record it on the request record so post-scan
+  classification replays the same context. It changes what future comparison
+  scans DO (blocking decisions), so it needs its own slice with a
+  methodology-version note and a corpus-neutrality check, not a ride-along.
+- **Durable jobs / atomic rate limiting / cancellation.** Known and
+  user-sequenced (durability phase, DO SQLite). The KV read-then-write
+  overshoot is documented in-code and backstopped by the WAF ceiling.
+- **Redaction v2 wiring + corpus remediation.** Foundation landed 499ccc0;
+  the wiring order is RFC 14.10 and the remediation/granularity trade is an
+  explicit operator decision (see the redaction section above).
+- **Proxy aggregate byte budget.** Real gap (per-request-count and duration
+  budgets exist, no byte cap). Queued with the durability slice, where
+  resource metering lands anyway.
+- **v2 detector-findings dependency registry.** Confirmed incomplete:
+  METRIC_EVIDENCE maps detector-findings to [detector-output] only, so
+  censored request/fingerprint evidence leaves detector metrics eligible.
+  Fix belongs to the v2 emission slice (no producer emits v2 yet; the
+  registry can be corrected before first emission without a version bump).
+- **Product/UX restructure** (permalink buries evidence below the scanner,
+  235-card unpaginated gallery, featured cards fetching 12 full reports,
+  archive compare accepting only the corpus's zero singles, directory as
+  report dump, 27,800px mobile reports, no scan cancellation): all real, all
+  deferred to the product-loop work (the reviewer's "/sites/<domain>
+  longitudinal loop" framing matches the deferred multi-browser/monitoring
+  direction). The headline-focus default arm residual was already recorded.
+
+Operator-side items surfaced to the user (not repo-fixable):
+R2 lifecycle rule for the 7-day promise (prune is opportunistic:
+save-triggered or read-of-expired only), Cloudflare Insights beacon on the
+Pages project vs the privacy page's disclosure, container observability,
+WAF ceiling verification, re-run of the failed scheduled Brave-list refresh,
+and the two standing dashboard flips (production branch for both builds,
+non-production builds off). Chromium sandbox is now opt-in via
+SITE_BEHAVIOR_LAB_CHROMIUM_SANDBOX=1 after a verified deployed scan.
+
+Review overclaims rejected after verification: the percentile copy said
+"about 90%" (hedged, not the claimed "more than 90%"; replaced anyway with
+tie-safe mark-anchored wording), the "consent copy still says attribution is
+always unverifiable" finding matched no current string, and the health
+CONTRACT always had consentComparison (only the human status line omitted
+it). pagegraph-rust models the OLD start-edge schema ("request type"), so
+the round's resource-type fix keeps that name as a legacy fallback; a
+validation pass against a fresh real capture (Brave nightly +
+pagegraph-crawl) is still owed because the repo pins the schema from source
+reading, not from a live capture.
