@@ -15,10 +15,10 @@ name: Promote Production
 # - A tested SHA that is no longer reachable from main (rewritten history) is
 #   a hard failure: something abnormal happened and a human should look.
 #
-# The three data workflows (scan, scan-featured, update-brave-lists) push
-# corpus commits with GITHUB_TOKEN, which does not trigger `on: push` CI, so
-# each dispatches CI explicitly after its push; that dispatched run lands here
-# like any other and promotes the data commit.
+# CI now also performs this exact fast-forward itself after both test jobs pass.
+# That direct path is required for data workflows: their GITHUB_TOKEN-dispatched
+# CI runs do not reliably cascade into this third workflow. This workflow stays
+# as an idempotent fallback for ordinary push/user-dispatched CI runs.
 
 on:
   workflow_run:

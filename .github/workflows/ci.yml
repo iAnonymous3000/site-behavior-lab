@@ -9,8 +9,9 @@ on:
       - main
   # Dispatched by the data workflows (scan, scan-featured, update-brave-lists)
   # after their GITHUB_TOKEN pushes, which never fire `on: push`: the corpus
-  # commit gets a real CI run, and Promote Production advances the
-  # CI-gated `production` branch from its success.
+  # commit gets a real CI run. This workflow promotes its own tested SHA because
+  # a token-dispatched run does not reliably cascade into a third workflow via
+  # `workflow_run`; Promote Production remains an idempotent fallback.
   workflow_dispatch:
 
 permissions:
@@ -99,3 +100,54 @@ jobs:
 
       - name: Smoke test
         run: BASE_URL=http://127.0.0.1:3100 npm run test:smoke
+
+  promote:
+    name: Advance production to the tested SHA
+    needs:
+      - app
+      - smoke
+    # PR code never receives a write token. Pushes and explicit dispatches must
+    # both target this repository's main ref before they can promote.
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    # Shared with promote-production.yml so direct and workflow_run fallbacks
+    # cannot race one another.
+    concurrency:
+      group: promote-production
+      cancel-in-progress: false
+    steps:
+      - name: Checkout main history
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Fast-forward production to the tested SHA
+        env:
+          CANDIDATE: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          git fetch origin main
+          git fetch origin production || echo "No production branch yet; this promotion creates it."
+
+          if ! git cat-file -e "${CANDIDATE}^{commit}" 2>/dev/null || ! git merge-base --is-ancestor "$CANDIDATE" origin/main; then
+            echo "::error::Tested SHA ${CANDIDATE} is not reachable from main; refusing to promote rewritten or stale history."
+            exit 1
+          fi
+
+          if git rev-parse --verify --quiet origin/production >/dev/null; then
+            CURRENT="$(git rev-parse origin/production)"
+            if [ "$CURRENT" = "$CANDIDATE" ]; then
+              echo "production already points at ${CANDIDATE}; nothing to promote."
+              exit 0
+            fi
+            if ! git merge-base --is-ancestor "$CURRENT" "$CANDIDATE"; then
+              echo "production (${CURRENT}) is ahead of or divergent from tested SHA ${CANDIDATE}; skipping out-of-order promotion."
+              exit 0
+            fi
+          fi
+
+          git push origin "${CANDIDATE}:refs/heads/production"
+          echo "production advanced to ${CANDIDATE}."
