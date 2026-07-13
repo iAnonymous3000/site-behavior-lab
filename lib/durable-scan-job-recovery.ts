@@ -7,6 +7,8 @@ type RecoveryDependencies = {
   onReportError?: (error: unknown) => void;
 };
 
+type CancellationRecoveryDependencies = Pick<RecoveryDependencies, "findRegistration" | "onRegistryError">;
+
 /**
  * Turn an in-memory 404 into an evidence-backed terminal answer when the edge
  * registry still knows the job. Only a genuine saved-report 404 can produce
@@ -78,6 +80,34 @@ export async function recoverDurableScanJobResponse(
       report
     },
     missingJobResponse
+  );
+}
+
+/**
+ * A lost in-memory job has no worker or AbortController left to cancel. Keep
+ * DELETE a control-only response: never attach the report recovered for GET.
+ */
+export async function recoverDurableScanJobCancellationResponse(
+  jobId: string,
+  missingJobResponse: Response,
+  dependencies: CancellationRecoveryDependencies
+): Promise<Response> {
+  let registration: DurableScanJobRegistration | null;
+  try {
+    registration = await dependencies.findRegistration(jobId);
+  } catch (error) {
+    dependencies.onRegistryError?.(error);
+    return missingJobResponse;
+  }
+  if (!registration) return missingJobResponse;
+
+  return recoveryJson(
+    {
+      ok: false,
+      error: "This scan job can no longer be cancelled because its in-memory status was lost."
+    },
+    missingJobResponse,
+    409
   );
 }
 

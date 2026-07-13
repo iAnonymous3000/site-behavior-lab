@@ -1,6 +1,9 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { recoverDurableScanJobResponse } from "./durable-scan-job-recovery";
+import {
+  recoverDurableScanJobCancellationResponse,
+  recoverDurableScanJobResponse
+} from "./durable-scan-job-recovery";
 import type { DurableScanJobRegistration } from "./durable-scan-job-registry";
 
 const JOB_ID = `20260713-${"a".repeat(32)}`;
@@ -90,6 +93,26 @@ test("malformed successful report responses become named gateway errors", async 
     ok: false,
     error: "The saved scan report was invalid during restart recovery."
   });
+});
+
+test("DELETE recovery is control-only and never returns a saved report", async () => {
+  const response = await recoverDurableScanJobCancellationResponse(JOB_ID, missingResponse(), {
+    findRegistration: async () => REGISTRATION
+  });
+
+  assert.equal(response.status, 409);
+  assert.deepEqual(await response.json(), {
+    ok: false,
+    error: "This scan job can no longer be cancelled because its in-memory status was lost."
+  });
+});
+
+test("DELETE for an unknown job preserves the original 404", async () => {
+  const original = missingResponse();
+  const response = await recoverDurableScanJobCancellationResponse(JOB_ID, original, {
+    findRegistration: async () => null
+  });
+  assert.equal(response, original);
 });
 
 function missingResponse(): Response {

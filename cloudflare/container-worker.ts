@@ -36,7 +36,10 @@ import {
   scanJobIdFromPath,
   type DurableScanJobRegistration
 } from "../lib/durable-scan-job-registry";
-import { recoverDurableScanJobResponse } from "../lib/durable-scan-job-recovery";
+import {
+  recoverDurableScanJobCancellationResponse,
+  recoverDurableScanJobResponse
+} from "../lib/durable-scan-job-recovery";
 
 type Env = {
   SCANNER: DurableObjectNamespace<ScannerContainer>;
@@ -223,7 +226,7 @@ function atomicRateLimitWindow(
 }
 
 export default {
-  async fetch(request: Request, env: Env): Promise<Response> {
+  async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const url = new URL(request.url);
 
     // This origin is the scan API + report-page backend, not a front door. Send
@@ -278,11 +281,13 @@ export default {
 
     const forwarded = new Request(request.url, { method: "POST", headers: request.headers, body });
     const response = await forwardToContainer(forwarded, env);
-    await recordAcceptedScanJob(
-      response,
-      body,
-      (registration) => getContainer(env.SCANNER).registerScanJob(registration),
-      (error) => console.error("Could not register an accepted scan job in Durable Object storage.", error)
+    ctx.waitUntil(
+      recordAcceptedScanJob(
+        response,
+        body,
+        (registration) => getContainer(env.SCANNER).registerScanJob(registration),
+        (error) => console.error("Could not register an accepted scan job in Durable Object storage.", error)
+      )
     );
     return response;
   }
@@ -294,8 +299,18 @@ async function recoverRegisteredScanJob(
   jobId: string,
   missingJobResponse: Response
 ): Promise<Response> {
+  const findRegistration = (id: string) => getContainer(env.SCANNER).findRegisteredScanJob(id, Date.now());
+  const onRegistryError = (error: unknown) => console.error("Could not read the durable scan-job registry.", error);
+
+  if (request.method === "DELETE") {
+    return recoverDurableScanJobCancellationResponse(jobId, missingJobResponse, {
+      findRegistration,
+      onRegistryError
+    });
+  }
+
   return recoverDurableScanJobResponse(jobId, missingJobResponse, {
-    findRegistration: (id) => getContainer(env.SCANNER).findRegisteredScanJob(id, Date.now()),
+    findRegistration,
     fetchReport: (reportId) => {
       const reportUrl = new URL(request.url);
       reportUrl.pathname = `/api/reports/${reportId}`;
@@ -305,7 +320,7 @@ async function recoverRegisteredScanJob(
       headers.delete("content-type");
       return forwardToContainer(new Request(reportUrl, { method: "GET", headers }), env);
     },
-    onRegistryError: (error) => console.error("Could not read the durable scan-job registry.", error),
+    onRegistryError,
     onReportError: (error) => console.error("Could not probe a saved report during scan-job recovery.", error)
   });
 }

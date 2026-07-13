@@ -242,7 +242,7 @@ Recommended single-node progression:
 
 - Async mode is currently opt-in with `SITE_BEHAVIOR_LAB_ASYNC_SCANS=1`.
 - Completed job status currently includes the completed report, preserving the existing UI render path.
-- In-process records and the edge recovery registry retain a job capability for at most 75 minutes from admission.
+- Terminal in-process records and the edge recovery registry retain a job capability for at most 75 minutes from admission; running work remains until its bounded scan finishes.
 - Should client disconnect cancellation exist, or should queued/running jobs be detached from clients once accepted?
 - Should GPC comparison expose two sub-run progress events?
 
@@ -262,9 +262,10 @@ store (no D1/KV) is introduced. Two phases, both bounded and privacy-explicit:
 
 At admission (the front Worker sees the container's `202 { jobId, reportId }`),
 the Worker records `(job_id, report_id, total_runs, created_at)` in DO SQLite.
-On a later `GET`/`DELETE /api/scans/:id` where the container answers 404 (a
-restart dropped the in-memory record), the Worker consults the registry and,
-for a known job, first probes `GET /api/reports/:reportId` on the container:
+On a later `GET /api/scans/:id` where the container answers 404 (a restart or
+retention pressure dropped the in-memory record), the Worker consults the
+registry and, for a known job, first probes `GET /api/reports/:reportId` on the
+container:
 
 - Report exists: the job finished and persisted before the restart. Answer
   with a `succeeded` status that embeds the saved, screenshot-stripped report,
@@ -272,10 +273,14 @@ for a known job, first probes `GET /api/reports/:reportId` on the container:
 - Report absent: answer an honest terminal `expired` status whose error names
   the lost in-memory record, instead of an indistinguishable "unknown job" 404.
 
-Rows carry NO target URL, NO client identifier: ids and timestamps only, so
-the registry adds zero privacy surface at the edge. TTL 75 minutes (job max
-age + expired retention), pruned on write, hard row cap with oldest-first
-eviction. Registry write failures are logged and never block admission.
+For `DELETE`, a known registry row returns a control-only `409`: there is no
+in-memory worker left to cancel, and the response never includes report data.
+
+Rows carry no target URL and no client identifier: only TTL-bounded capability
+linkage and scheduling metadata. TTL 75 minutes (job max age + expired
+retention), pruned on write, hard row cap with oldest-first eviction. The
+best-effort write runs in `waitUntil`; failures are logged and never replace
+the container's already-accepted `202` response.
 
 ### Phase 2: durable execution (leases and replay; protocol pending)
 
