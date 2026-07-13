@@ -275,6 +275,24 @@ test("phase-aware single-visit facts attach out of band while the v1 wire stays 
       fingerprintDetections: [],
       cnameCloaks: [],
       pixelEvents: []
+    },
+    verificationFacts: {
+      gpc: {
+        method: "gpc-header-readback@1",
+        header: "confirmed-present",
+        jsSignal: "confirmed-true",
+        observedOn: "first-party-navigation",
+        phaseId: passivePhaseId
+      },
+      shields: {
+        method: "shields-engine-status@1",
+        engineLoaded: false,
+        applied: false,
+        requestsEvaluated: 0,
+        requestsMatched: 0,
+        requestsActuallyBlocked: 0,
+        phaseId: passivePhaseId
+      }
     }
   });
 
@@ -283,6 +301,7 @@ test("phase-aware single-visit facts attach out of band while the v1 wire stays 
   assert.equal(result.schemaVersion, 1);
   assert.equal(Object.prototype.hasOwnProperty.call(result, "measurement"), false);
   assert.equal(Object.prototype.hasOwnProperty.call(result, "phases"), false);
+  assert.equal(Object.prototype.hasOwnProperty.call(result, "verificationFacts"), false);
 
   const staged = stagedSingleVisitMeasurement(result);
   assert.deepEqual(staged?.measurement.phases, [
@@ -294,9 +313,18 @@ test("phase-aware single-visit facts attach out of band while the v1 wire stays 
     { family: "requests", phaseId: null, kind: "cap", count: 2, detail: "request-upload" }
   ]);
   assert.equal(staged?.measurement.detectors["consent-banner"].status, "skipped");
+  assert.deepEqual(staged?.verificationFacts.gpc, {
+    method: "gpc-header-readback@1",
+    header: "confirmed-present",
+    jsSignal: "confirmed-true",
+    observedOn: "first-party-navigation",
+    phaseId: 0
+  });
 
   staged!.measurement.phases[0].endedAtMs = 999;
+  staged!.verificationFacts.gpc.jsSignal = "read-failed";
   assert.equal(stagedSingleVisitMeasurement(result)?.measurement.phases[0].endedAtMs, 100);
+  assert.equal(stagedSingleVisitMeasurement(result)?.verificationFacts.gpc.jsSignal, "confirmed-true");
 });
 
 test("ScanNetworkRecorder keeps raw evidence ephemeral until the post-classification build seam", () => {
@@ -682,16 +710,36 @@ test("decideRoutedRequest handles Service Worker and frame-less navigation reque
   );
 });
 
-test("scanSite stages phase-aware facts on a real single visit while returning only v1", { timeout: 20_000 }, async () => {
+test("scanSite stages live phase-aware readbacks while returning only v1", { timeout: 20_000 }, async () => {
+  const receivedFinalGpcHeaders: Array<string | undefined> = [];
   const upstream = createServer((request, response) => {
-    if (request.headers.host?.startsWith("sub.")) {
+    const host = request.headers.host?.split(":")[0];
+    if (host === "ads.example" || host?.startsWith("sub.")) {
       response.writeHead(200, { "content-type": "application/javascript" });
       response.end("void 0;");
       return;
     }
+    if (host === "phase-collection.test") {
+      const tamper = request.url?.includes("tamper=1") === true;
+      response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+      response.end(
+        `<!doctype html><title>Redirecting fixture</title><script>setTimeout(()=>location.replace("http://final-phase.test/${
+          tamper ? "?tamper=1" : ""
+        }"),0)</script>`
+      );
+      return;
+    }
+    if (request.url === "/" || request.url === "/?tamper=1") {
+      receivedFinalGpcHeaders.push(request.headers["sec-gpc"] as string | undefined);
+    }
+    const tamper = request.url?.includes("tamper=1") === true;
     response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
     response.end(
-      '<!doctype html><title>Phase fixture</title><script src="http://sub.phase-collection.test/tracker.js"></script><p>ok</p>'
+      `<!doctype html><title>Phase fixture</title>${
+        tamper
+          ? '<script>Object.defineProperty(navigator,"globalPrivacyControl",{configurable:true,get:()=>false});</script>'
+          : ""
+      }<script src="http://sub.final-phase.test/app.js"></script><script src="http://ads.example/pixel.js"></script><p>ok</p>`
     );
   });
   await new Promise<void>((resolve, reject) => {
@@ -702,14 +750,10 @@ test("scanSite stages phase-aware facts on a real single visit while returning o
   assert.ok(address && typeof address === "object");
 
   try {
-    const result = await scanSite(
-      {
-        url: "http://phase-collection.test/",
-        device: "desktop",
-        gpcEnabled: true,
-        consentMode: "observe"
-      },
-      {
+    const runFixture = (url: string) =>
+      scanSite(
+        { url, device: "desktop", gpcEnabled: true, consentMode: "observe" },
+        {
         publicUrlAlreadyVerified: true,
         verifyPublicUrl: async () => undefined,
         resolvePublicHost: async () => [{ address: "93.184.216.34", family: 4 }],
@@ -717,12 +761,15 @@ test("scanSite stages phase-aware facts on a real single visit while returning o
         resolveCnameChain: async () => {
           throw new Error("synthetic CNAME resolver failure");
         }
-      }
-    );
+        }
+      );
+    const result = await runFixture("http://phase-collection.test/");
 
     assert.equal(result.schemaVersion, 1);
     assert.equal(Object.prototype.hasOwnProperty.call(result, "measurement"), false);
     assert.equal(Object.prototype.hasOwnProperty.call(result, "phases"), false);
+    assert.equal(Object.prototype.hasOwnProperty.call(result, "verificationFacts"), false);
+    assert.deepEqual(receivedFinalGpcHeaders, ["1"]);
     const staged = stagedSingleVisitMeasurement(result);
     assert.notEqual(staged, null);
     assert.deepEqual(staged!.measurement.phases.map((phase) => phase.kind), ["passive-load", "active-probe"]);
@@ -742,6 +789,33 @@ test("scanSite stages phase-aware facts on a real single visit while returning o
     assert.ok(staged!.evidence.requests.length > 0);
     assert.equal(staged!.evidence.requests.every((request) => Number.isInteger(request.phaseId)), true);
     assert.equal(staged!.evidence.requests[0].phaseId, 0);
+    assert.deepEqual(staged!.verificationFacts.gpc, {
+      method: "gpc-header-readback@1",
+      header: "confirmed-present",
+      jsSignal: "confirmed-true",
+      observedOn: "first-party-navigation",
+      phaseId: 0
+    });
+    assert.equal(staged!.verificationFacts.shields.engineLoaded, true);
+    assert.equal(staged!.verificationFacts.shields.applied, false);
+    assert.ok(staged!.verificationFacts.shields.requestsEvaluated > 0);
+    assert.ok(staged!.verificationFacts.shields.requestsMatched > 0);
+    assert.equal(staged!.verificationFacts.shields.requestsActuallyBlocked, 0);
+    assert.equal(
+      staged!.verificationFacts.shields.requestsMatched,
+      staged!.evidence.requests.filter((request) => request.blockedByShields === true).length
+    );
+
+    const tampered = stagedSingleVisitMeasurement(await runFixture("http://phase-collection.test/?tamper=1"));
+    assert.notEqual(tampered, null);
+    assert.deepEqual(tampered!.verificationFacts.gpc, {
+      method: "gpc-header-readback@1",
+      header: "confirmed-present",
+      jsSignal: "confirmed-false",
+      observedOn: "first-party-navigation",
+      phaseId: 0
+    });
+    assert.deepEqual(receivedFinalGpcHeaders, ["1", "1"]);
   } finally {
     await closeSharedBrowserForTests();
     await new Promise<void>((resolve) => upstream.close(() => resolve()));
@@ -749,7 +823,14 @@ test("scanSite stages phase-aware facts on a real single visit while returning o
 });
 
 test("failed passive storage collection cannot manufacture consent-phase mutations", { timeout: 20_000 }, async () => {
-  const upstream = createServer((_request, response) => {
+  let receivedGpcHeader: string | string[] | undefined;
+  const upstream = createServer((request, response) => {
+    if (request.headers.host?.startsWith("ads.")) {
+      response.writeHead(200, { "content-type": "application/javascript" });
+      response.end("void 0;");
+      return;
+    }
+    receivedGpcHeader = request.headers["sec-gpc"];
     response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
     response.end(`<!doctype html>
       <title>Consent boundary fixture</title>
@@ -765,6 +846,7 @@ test("failed passive storage collection cannot manufacture consent-phase mutatio
           }
         });
       </script>
+      <script src="http://ads.example/pixel.js"></script>
       <button onclick="localStorage.setItem('consent-state', 'accepted')">Accept all</button>`);
   });
   await new Promise<void>((resolve, reject) => {
@@ -779,7 +861,7 @@ test("failed passive storage collection cannot manufacture consent-phase mutatio
       {
         url: "http://consent-boundary.test/",
         device: "desktop",
-        gpcEnabled: true,
+        gpcEnabled: false,
         consentMode: "accept-all"
       },
       {
@@ -787,11 +869,13 @@ test("failed passive storage collection cannot manufacture consent-phase mutatio
         verifyPublicUrl: async () => undefined,
         resolvePublicHost: async () => [{ address: "93.184.216.34", family: 4 }],
         connectProxyUpstreamForTests: () => connect(address.port, "127.0.0.1"),
-        resolveCnameChain: async () => []
+        resolveCnameChain: async () => [],
+        shieldsBlockingEnabled: true
       }
     );
 
     assert.equal(result.schemaVersion, 1);
+    assert.equal(receivedGpcHeader, undefined);
     const staged = stagedSingleVisitMeasurement(result);
     assert.notEqual(staged, null);
     assert.equal(staged!.evidence.storageFinal.some((entry) => entry.key === "consent-state"), true);
@@ -801,6 +885,20 @@ test("failed passive storage collection cannot manufacture consent-phase mutatio
       [{ family: "storage", phaseId: 0, kind: "dropped", count: 1, detail: "passive-boundary" }]
     );
     assert.equal(staged!.measurement.detectors["consent-banner"].status, "complete");
+    assert.equal(staged!.verificationFacts.gpc.header, "confirmed-absent");
+    assert.ok(
+      staged!.verificationFacts.gpc.jsSignal === "confirmed-absent" ||
+        staged!.verificationFacts.gpc.jsSignal === "confirmed-false"
+    );
+    const shields = staged!.verificationFacts.shields;
+    assert.equal(shields.engineLoaded, true);
+    assert.equal(shields.applied, true);
+    assert.ok(shields.requestsEvaluated > 0);
+    assert.ok(shields.requestsMatched > 0);
+    assert.ok(shields.requestsActuallyBlocked > 0);
+    assert.ok(shields.requestsActuallyBlocked <= shields.requestsMatched);
+    assert.ok(shields.requestsMatched <= shields.requestsEvaluated);
+    assert.equal(staged!.evidence.requests.some((request) => request.blockedByShields === true), false);
   } finally {
     await closeSharedBrowserForTests();
     await new Promise<void>((resolve) => upstream.close(() => resolve()));

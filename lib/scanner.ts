@@ -65,7 +65,11 @@ import {
   withScanDeadline
 } from "./scan-runtime";
 import type { MeasurementKernelResultR2 } from "./scan-result-v2-r2-builder";
-import type { RunEvidenceR2 } from "./scan-report-v2-r2";
+import type {
+  GpcVerificationFactsR2,
+  RunEvidenceR2,
+  ShieldsVerificationFactsR2
+} from "./scan-report-v2-r2";
 
 export { redactUrlForReport } from "./report-url";
 export { MAX_RECORDED_REQUESTS, NON_HTTP_WARNING_EXAMPLE_LIMIT, ScanRequestBudget, ScanWarningCollector } from "./scan-runtime";
@@ -182,6 +186,16 @@ export type ScanSiteOptions = {
 export type StagedSingleVisitMeasurement = {
   measurement: MeasurementKernelResultR2;
   evidence: Omit<RunEvidenceR2, "consent">;
+  verificationFacts: {
+    gpc: GpcVerificationFactsR2;
+    shields: ShieldsVerificationFactsR2;
+  };
+};
+
+type PendingGpcReadback = {
+  request: Request | null;
+  header: GpcVerificationFactsR2["header"];
+  jsSignal: GpcVerificationFactsR2["jsSignal"];
 };
 
 type PassiveBoundaryState = {
@@ -300,6 +314,20 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
     // raw frame/worker URLs remain transient and never enter the public wire.
     const shieldsMatches = new WeakMap<Request, boolean>();
     let shieldsBlockedRequestCount = 0;
+    let shieldsRequestsEvaluated = 0;
+    let shieldsRequestsMatched = 0;
+    // Meter only the classifier call used by the page route. Later CNAME
+    // checks use the original engine and therefore cannot inflate these facts.
+    const routedAdblockEngine: RouteAdblockEngine | null = adblockEngine
+      ? {
+          checkWithMethod: (url, sourceUrl, requestType, method) => {
+            shieldsRequestsEvaluated += 1;
+            const matched = adblockEngine.checkWithMethod(url, sourceUrl, requestType, method);
+            if (matched) shieldsRequestsMatched += 1;
+            return matched;
+          }
+        }
+      : null;
     const networkRecorder = new ScanNetworkRecorder<Request>({
       firstPartyHostname: targetUrl.hostname,
       warnings,
@@ -314,43 +342,61 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
       fingerprinting: false
     };
     const publicHostChecks = new Map<string, Promise<void>>();
+    const inFlightRouteHandlers = new Set<Promise<void>>();
 
-    await page.route("**/*", async (route) => {
-      const request = route.request();
-      const decision = await decideRoutedRequest({
-        request,
-        page,
-        targetUrl,
-        warnings,
-        requestBudget: networkRecorder.requestBudget,
-        publicHostChecks,
-        shieldsBlockingEnabled: options.shieldsBlockingEnabled,
-        adblockEngine,
-        verifyPublicUrl
-      });
-      if (decision.shieldsMatched !== undefined) {
-        shieldsMatches.set(request, decision.shieldsMatched);
-      }
+    await page.route("**/*", (route) => {
+      const operation = (async () => {
+        const request = route.request();
+        const decision = await decideRoutedRequest({
+          request,
+          page,
+          targetUrl,
+          warnings,
+          requestBudget: networkRecorder.requestBudget,
+          publicHostChecks,
+          shieldsBlockingEnabled: options.shieldsBlockingEnabled,
+          adblockEngine: routedAdblockEngine,
+          verifyPublicUrl
+        });
+        if (decision.shieldsMatched !== undefined) {
+          shieldsMatches.set(request, decision.shieldsMatched);
+        }
 
-      if (decision.action === "continue") {
-        await route.continue();
-        return;
-      }
+        if (decision.action === "continue") {
+          await route.continue();
+          return;
+        }
 
-      if (decision.blockedByShields) {
-        shieldsBlockedRequestCount += 1;
-        requestsBlockedByShields.add(request);
-        networkRecorder.removeRequest(request);
-      } else {
-        // Requests aborted by the SSRF/public-address guard (or non-HTTP and
-        // over-budget aborts) never loaded, so keep them out of the recorded
-        // log and request totals, mirroring how Shields-blocked requests are
-        // handled. They remain surfaced through scan warnings.
-        requestsBlockedByGuard.add(request);
-        networkRecorder.removeRequest(request);
-      }
-
-      await route.abort();
+        try {
+          await route.abort();
+        } catch (error) {
+          // A classifier match is not a retained blocked flag in simulation
+          // unless the abort succeeds. Keep failed-abort evidence semantically
+          // retained while preserving the route match in the raw facts count.
+          if (decision.blockedByShields) shieldsMatches.delete(request);
+          throw error;
+        }
+        if (decision.blockedByShields) {
+          // Remove and count only once Playwright confirms the abort. A failed
+          // abort is not an actual block and must not erase retained evidence.
+          requestsBlockedByShields.add(request);
+          networkRecorder.removeRequest(request);
+          shieldsBlockedRequestCount += 1;
+        } else {
+          // Requests successfully aborted by the SSRF/public-address guard (or
+          // non-HTTP and over-budget aborts) never loaded, so keep them out of
+          // the recorded log and request totals. They remain surfaced through
+          // scan warnings.
+          requestsBlockedByGuard.add(request);
+          networkRecorder.removeRequest(request);
+        }
+      })();
+      inFlightRouteHandlers.add(operation);
+      operation.then(
+        () => inFlightRouteHandlers.delete(operation),
+        () => inFlightRouteHandlers.delete(operation)
+      );
+      return operation;
     });
 
     const recordRequest = (request: Request) => {
@@ -359,7 +405,19 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
       networkRecorder.recordRequest(request, Date.now() - started);
     };
     page.on("request", recordRequest);
-    page.on("response", (response) => networkRecorder.recordResponse(response));
+    const passiveNavigation = { latestResponseRequest: null as Request | null };
+    page.on("response", (response) => {
+      networkRecorder.recordResponse(response);
+      const request = response.request();
+      if (
+        measurementKernel.phaseForRequest(request) === passivePhaseId &&
+        request.isNavigationRequest() &&
+        request.resourceType() === "document" &&
+        safeRequestFrame(request) === safeMainFrame(page)
+      ) {
+        passiveNavigation.latestResponseRequest = request;
+      }
+    });
 
     const response = await page
       .goto(targetUrl.toString(), {
@@ -402,6 +460,21 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
         warnings.add("The page did not reach network idle before the scan window ended.");
       }
     );
+
+    await settleRoutedRequests(inFlightRouteHandlers, started, options.signal);
+    const navigationRequest = passiveNavigation.latestResponseRequest;
+    const eligibleGpcRequest =
+      navigationRequest?.isNavigationRequest() === true &&
+      navigationRequest.resourceType() === "document" &&
+      measurementKernel.phaseForRequest(navigationRequest) === passivePhaseId
+        ? navigationRequest
+        : null;
+    const pendingGpcReadback = await captureGpcReadback({
+      page,
+      request: eligibleGpcRequest,
+      started,
+      signal: options.signal
+    });
 
     // A non-2xx top-level response does not reject goto, so the scan otherwise
     // completes and an error/block page reads as a low-tracker (falsely "private")
@@ -621,8 +694,18 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
     const pixelEventInputs: PixelEventInput[] = [];
     const pixelEventInputsByPhase = new Map<number, PixelEventInput[]>();
     const phaseAwareRequests: Array<NetworkRequestRecord & { phaseId: number }> = [];
+    let gpcNavigationRetained = false;
+    await settleRoutedRequests(inFlightRouteHandlers, started, options.signal);
     const publicRequests = networkRecorder.publicRecords(finalParsed.hostname, (record, request) => {
       const phaseId = measurementKernel.phaseForRequest(request) ?? passivePhaseId;
+      if (
+        request === pendingGpcReadback.request &&
+        phaseId === passivePhaseId &&
+        record.resourceType === "document" &&
+        !record.thirdParty
+      ) {
+        gpcNavigationRetained = true;
+      }
       if (record.thirdParty) {
         const input = { url: request.url(), method: record.method, postData: safeRequestPostData(request) };
         pixelEventInputs.push(input);
@@ -640,6 +723,15 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
       phaseAwareRequests.push({ ...decorated, phaseId });
       return decorated;
     });
+    // Freeze route facts at the same boundary as retained request evidence.
+    // Classification matches derive from those retained flags, while block
+    // simulation uses the route count because matched requests were removed.
+    const retainedShieldsMatches = publicRequests.filter((request) => request.blockedByShields === true).length;
+    const frozenShieldsFacts = {
+      requestsEvaluated: shieldsRequestsEvaluated,
+      requestsMatched: options.shieldsBlockingEnabled ? shieldsRequestsMatched : retainedShieldsMatches,
+      requestsActuallyBlocked: shieldsBlockedRequestCount
+    };
     // This is the existing v1 request-log snapshot boundary. Requests from the
     // later policy visit are intentionally excluded, and no late main-page
     // event should stretch the active phase after its evidence was frozen.
@@ -840,6 +932,22 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
         cnameCloaks,
         pixelEvents: phaseAwarePixelEvents,
         ...(privacyPolicy ? { privacyPolicy } : {})
+      },
+      verificationFacts: {
+        gpc: {
+          method: "gpc-header-readback@1",
+          header: gpcNavigationRetained ? pendingGpcReadback.header : "unobservable",
+          jsSignal: gpcNavigationRetained ? pendingGpcReadback.jsSignal : "unobservable",
+          observedOn: "first-party-navigation",
+          phaseId: passivePhaseId
+        },
+        shields: {
+          method: "shields-engine-status@1",
+          engineLoaded: adblockEngine !== null,
+          applied: adblockEngine !== null && options.shieldsBlockingEnabled === true,
+          ...frozenShieldsFacts,
+          phaseId: passivePhaseId
+        }
       }
     };
 
@@ -915,6 +1023,61 @@ function phaseAwareDetections(
 function throwIfScanAborted(signal?: AbortSignal): void {
   if (!signal?.aborted) return;
   throw signal.reason instanceof Error ? signal.reason : new DOMException("The scan was cancelled.", "AbortError");
+}
+
+async function settleRoutedRequests(
+  inFlight: ReadonlySet<Promise<void>>,
+  started: number,
+  signal?: AbortSignal
+): Promise<void> {
+  while (inFlight.size > 0) {
+    throwIfScanAborted(signal);
+    await withScanTimeout(Promise.allSettled([...inFlight]), started);
+  }
+  throwIfScanAborted(signal);
+}
+
+async function captureGpcReadback(input: {
+  page: Page;
+  request: Request | null;
+  started: number;
+  signal?: AbortSignal;
+}): Promise<PendingGpcReadback> {
+  if (!input.request) {
+    return { request: null, header: "unobservable", jsSignal: "unobservable" };
+  }
+
+  const header = await withScanTimeout(input.request.headerValue("sec-gpc"), input.started)
+    .then<GpcVerificationFactsR2["header"]>((value) =>
+      value === null ? "confirmed-absent" : value === "1" ? "confirmed-present" : "unobservable"
+    )
+    .catch(() => {
+      throwIfScanAborted(input.signal);
+      return "unobservable" as const;
+    });
+  const jsSignal = await withScanTimeout(
+    input.page.evaluate(() => {
+      try {
+        if (!("globalPrivacyControl" in navigator)) return "confirmed-absent" as const;
+        const value = (navigator as Navigator & { globalPrivacyControl?: unknown }).globalPrivacyControl;
+        return value === true
+          ? "confirmed-true" as const
+          : value === false
+            ? "confirmed-false" as const
+            : value === undefined
+              ? "confirmed-absent" as const
+              : "read-failed" as const;
+      } catch {
+        return "read-failed" as const;
+      }
+    }),
+    input.started
+  ).catch(() => {
+    throwIfScanAborted(input.signal);
+    return "read-failed" as const;
+  });
+
+  return { request: input.request, header, jsSignal };
 }
 
 export async function decideRoutedRequest({
