@@ -1,5 +1,5 @@
 {
-  "fetchedAt": "2026-07-12T16:37:07.373Z",
+  "fetchedAt": "2026-07-13T09:47:59.645Z",
   "catalog": "https://raw.githubusercontent.com/brave/adblock-resources/master/filter_lists/list_catalog.json",
   "sourceCount": 31,
   "sources": [
@@ -45,8 +45,8 @@
     },
     {
       "url": "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/filters-general.txt",
-      "bytes": 640238,
-      "sha256": "782b644f697253da80ccbbf3ef7ef29bcf7ae4faa666e1a17e3252498afb1691"
+      "bytes": 640483,
+      "sha256": "878cc7ede0cb4e7a3337bbe588c5283e60dfd6c1e1fab620da4b4cf1a9ab9006"
     },
     {
       "url": "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/badware.txt",
@@ -60,8 +60,8 @@
     },
     {
       "url": "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/unbreak.txt",
-      "bytes": 276329,
-      "sha256": "f93a3b2156ca73d31b35a41669c8c5011cf4519e91d0eb645d59c116683b0d31"
+      "bytes": 276468,
+      "sha256": "641b5177ee6583087f38a21a7a41e2ede1fa584656a9c851ee1d608e3d3d072e"
     },
     {
       "url": "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/quick-fixes.txt",
@@ -75,13 +75,13 @@
     },
     {
       "url": "https://easylist.to/easylist/easylist.txt",
-      "bytes": 2099941,
-      "sha256": "24e15200bb3e5362c8b9158743c3c2ce8e8c01d4a5d63950906876984bbbc14f"
+      "bytes": 2104651,
+      "sha256": "d258f2ded460c3af7af33d736a5e65907924b07a5ada9027ebdfbdc230898809"
     },
     {
       "url": "https://malware-filter.gitlab.io/malware-filter/urlhaus-filter-agh-online.txt",
-      "bytes": 33390,
-      "sha256": "6f528de34f0a92c82f569307e1ca7fc70b23a8f3db53a264eec9ead312ec7bd8"
+      "bytes": 32795,
+      "sha256": "261de628f5ac697bc127d076f4206b893774445e088fc909a50ec1791f96adba"
     },
     {
       "url": "https://raw.githubusercontent.com/brave/adblock-lists/master/brave-unbreak.txt",
@@ -115,8 +115,8 @@
     },
     {
       "url": "https://easylist.to/easylist/easyprivacy.txt",
-      "bytes": 1488553,
-      "sha256": "f6a6a1f6ccff2447d626827c0f931a83d77f56d6ccdd02fead590123ca1058cd"
+      "bytes": 1488723,
+      "sha256": "1ca624ae2fbdebe8b1d1f73de30c0cfc3ea3209d4ac57f9f21f055adec42ce16"
     },
     {
       "url": "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/privacy.txt",
@@ -140,8 +140,8 @@
     },
     {
       "url": "https://secure.fanboy.co.nz/fanboy-cookiemonster_ubo.txt",
-      "bytes": 1180854,
-      "sha256": "1b2b88aedb5b464f8690e82a203179a5e2dbf6a7ceaf910e1aa0aff81edd4f44"
+      "bytes": 1180885,
+      "sha256": "78be7f92991f9e542840b08b79d090ff5f064bf98cec917f8fa13242b22427ae"
     },
     {
       "url": "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/annoyances-cookies.txt",
@@ -159,8 +159,8 @@
       "sha256": "1c2b5d1ac6a14bb6aa64e32bcd3b96e570b4082fd7d5d26544c4df4d18a00df4"
     }
   ],
-  "manifestDigest": "db9450d318ab8b7eea2ac5cac540659290f75967dae688ae8ea23346057cedca",
-  "rulesDigest": "bcb2a2bcd4525a39dffa60a3c3903f389cd9511109733c9366f3d8ddf8ca5fa1",
-  "rawBytes": 8879416,
-  "gzipBytes": 2677833
+  "manifestDigest": "17d246aca749766d24266f98061bb05f9d88182529285a3472e57045663261a9",
+  "rulesDigest": "2c805a340a3f1d2a7341567420f77459a3518ffcb5f85b8db549bf0dd3274785",
+  "rawBytes": 8884116,
+  "gzipBytes": 2680148
 }
