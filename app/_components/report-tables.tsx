@@ -375,8 +375,10 @@ function CookieList({ cookies }: { cookies: CookieRecord[] }) {
   const shown = Math.min(cookies.length, 12);
   return (
     <div className="compact-list">
-      {cookies.slice(0, 12).map((cookie) => (
-        <div key={`${cookie.domain}:${cookie.name}:${cookie.path}`}>
+      {/* Redaction can generalize many names to the same marker, so content
+          alone is not a unique identity for these static rows. */}
+      {cookies.slice(0, 12).map((cookie, index) => (
+        <div key={`${index}:${cookie.domain}:${cookie.name}:${cookie.path}`}>
           {cookie.thirdParty ? (
             <AlertTriangle className="ico-third" size={14} aria-hidden="true" />
           ) : (
@@ -401,8 +403,8 @@ function StorageList({ storage }: { storage: StorageRecord[] }) {
   const shown = Math.min(storage.length, 12);
   return (
     <div className="compact-list">
-      {storage.slice(0, 12).map((item) => (
-        <div key={`${item.area}:${item.key}`}>
+      {storage.slice(0, 12).map((item, index) => (
+        <div key={`${index}:${item.area}:${item.key}`}>
           <Database className="ico-neutral" size={14} aria-hidden="true" />
           <span>
             {item.key}

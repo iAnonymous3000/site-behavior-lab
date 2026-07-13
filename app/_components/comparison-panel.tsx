@@ -407,10 +407,10 @@ function ProvenanceChangeList({ title, changes, tone }: { title: string; changes
       emptyText="No causal path changes observed."
       className="provenance-change-list"
       items={changes}
-      renderItem={(change) => (
+      renderItem={(change, index) => (
         <div
           className={`change-row change-${tone}`}
-          key={`${change.domain}:${change.initiator ?? ""}:${change.script ?? ""}:${change.injectedBy ?? ""}`}
+          key={`${index}:${change.domain}:${change.initiator ?? ""}:${change.script ?? ""}:${change.injectedBy ?? ""}`}
         >
           <span>
             <strong>{change.domain}</strong>

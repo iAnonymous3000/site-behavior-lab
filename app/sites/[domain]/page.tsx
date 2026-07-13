@@ -66,7 +66,10 @@ export default async function SiteProfilePage({ params }: { params: Promise<{ do
         <div>
           <p className="eyebrow">Latest controlled visit</p>
           <h2 id="current-title">{latest.headline}</h2>
-          <p>{formatReportKind(latest)} · {formatDate(latest.scannedAt)} · {latest.device}</p>
+          <p>
+            {formatReportKind(latest)} · {formatDate(latest.scannedAt)} · {latest.device}
+            {latest.capped && <> · <CappedChip /></>}
+          </p>
         </div>
         <dl className="site-profile-metrics">
           <div><dt>Third-party requests</dt><dd>{latest.thirdPartyRequests.toLocaleString()}</dd></div>
@@ -107,6 +110,7 @@ export default async function SiteProfilePage({ params }: { params: Promise<{ do
                 <span>{entry.headline}</span>
                 <small>
                   {entry.thirdPartyRequests.toLocaleString()} third-party · {entry.trackerRequests.toLocaleString()} catalogued tracking · schema {entry.schemaVersion}{entry.schemaRevision ? `.r${entry.schemaRevision}` : ""}
+                  {entry.capped && <> · <CappedChip /></>}
                 </small>
               </Link>
             </li>
@@ -125,6 +129,17 @@ async function loadProfile(rawDomain: string): Promise<{ domain: string; entries
     .filter((entry) => siteProfileKey(entry.domain) === key)
     .sort((left, right) => Date.parse(right.scannedAt) - Date.parse(left.scannedAt));
   return matches.length > 0 ? { domain: key, entries: matches } : null;
+}
+
+function CappedChip() {
+  return (
+    <span
+      className="capped-chip"
+      title="This visit hit the 1,000-request recording cap: its counts are truncated, and it is excluded from the medians, leaderboard, and since-last-scan deltas."
+    >
+      recording capped
+    </span>
+  );
 }
 
 function formatDate(value: string): string {

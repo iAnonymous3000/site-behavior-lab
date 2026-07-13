@@ -98,18 +98,6 @@ export async function readStoredScanReportById(id: string): Promise<StoredReport
   return { outcome: "found", stored: managed.stored, wire: managed.wire };
 }
 
-/**
- * v1-narrowing wrapper for the render surfaces that still consume the legacy
- * wire type directly (report page metadata, OG images, corpus loader). They
- * treat every non-v1 outcome as absent; the typed accessor above is the
- * primary path and the one API routes use to report unreadable/unsupported
- * outcomes honestly.
- */
-export async function readScanReport(id: string): Promise<ScanReport | null> {
-  const result = await readStoredScanReportById(id);
-  return result.outcome === "found" && result.stored.schemaVersion === 1 ? result.stored.report : null;
-}
-
 export async function pruneStoredReports(now = Date.now(), preserveId?: string): Promise<void> {
   const backend = resolveReportStoreBackend();
   const entries = await backend.list();

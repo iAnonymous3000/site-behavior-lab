@@ -6,8 +6,16 @@ import { afterEach, beforeEach, test } from "node:test";
 import { PublicScanError } from "./public-errors";
 import { RATE_LIMIT_MAX, resetScanLimitStateForTests, scanLimitStateForTests } from "./scan-limits";
 import { executePreparedScan, prepareScanRequest, runScanRequest, type PreparedScanRequest, type ScanRunner } from "./scan-api";
-import { readScanReport } from "./report-store";
+import { readStoredScanReportById } from "./report-store";
 import { SCAN_REPORT_SCHEMA_VERSION, type ScanReport, type ScanRequestPayload, type ScanResult } from "./types";
+
+// Reads through the typed accessor, narrowing to v1 exactly as production
+// render surfaces do (the old readScanReport wrapper had no production callers).
+async function readV1Report(id: string) {
+  const result = await readStoredScanReportById(id);
+  return result.outcome === "found" && result.stored.schemaVersion === 1 ? result.stored.report : null;
+}
+
 
 const SCAN_ACCESS_TOKEN_ENV = "SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN";
 const REPORT_STORE_DIR_ENV = "SITE_BEHAVIOR_LAB_REPORT_STORE_DIR";
@@ -206,7 +214,7 @@ test("runScanRequest does not charge rate limit quota for blocked target URLs", 
 
   assert.equal(result.ok, true);
   assert.equal(result.share?.path.startsWith("/reports/"), true);
-  assert.deepEqual(await readScanReport(result.share?.id || ""), result);
+  assert.deepEqual(await readV1Report(result.share?.id || ""), result);
   assert.equal(scannedPayloads.length, 1);
   assert.equal(scannedPayloads[0].url, "https://1.1.1.1/?token=still-scanned");
   assert.deepEqual(scanLimitStateForTests(), {
@@ -253,7 +261,7 @@ test("runScanRequest can run and persist a GPC off/on comparison", async () => {
   assert.equal(result.diff.totalRequests.after, 3);
   assert.equal(result.diff.totalRequests.delta, -2);
   assert.equal(result.share?.path.startsWith("/reports/"), true);
-  assert.deepEqual(await readScanReport(result.share?.id || ""), result);
+  assert.deepEqual(await readV1Report(result.share?.id || ""), result);
 });
 
 test("runScanRequest can run and persist a Shields off/on comparison", async () => {
@@ -279,7 +287,7 @@ test("runScanRequest can run and persist a Shields off/on comparison", async () 
   assert.equal(result.diff.totalRequests.after, 3);
   assert.equal(result.diff.totalRequests.delta, -5);
   assert.equal(result.share?.path.startsWith("/reports/"), true);
-  assert.deepEqual(await readScanReport(result.share?.id || ""), result);
+  assert.deepEqual(await readV1Report(result.share?.id || ""), result);
 });
 
 test("prepareScanRequest rejects conflicting comparison modes", async () => {
@@ -316,7 +324,7 @@ test("runScanRequest can run and persist a consent accept/reject comparison", as
   assert.equal(result.diff.totalRequests.after, 2);
   assert.equal(result.diff.totalRequests.delta, -7);
   assert.equal(result.share?.path.startsWith("/reports/"), true);
-  assert.deepEqual(await readScanReport(result.share?.id || ""), result);
+  assert.deepEqual(await readV1Report(result.share?.id || ""), result);
 });
 
 test("runScanRequest charges comparisons as two rate-limit tokens", async () => {

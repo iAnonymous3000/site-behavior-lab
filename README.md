@@ -33,6 +33,7 @@ The project is open source under the [AGPL-3.0-or-later](LICENSE) so anyone can 
 - Accessibility: the signal-colour ramp is tuned to WCAG AA contrast (>=4.5:1 as text, including on its tinted chip backgrounds), and severity is always paired with text and icons so it never relies on colour alone.
 - Corpus-relative severity: once enough real sites have been scanned, the findings rank a report against measured percentiles from `public/corpus-stats.json` ("more third-party domains than ~90% of sites scanned so far"); below a minimum sample size they fall back to fixed reference thresholds, so population claims never appear without data to back them.
 - Server-rendered, indexable `/directory/` page that lists every committed report with its plain-language headline and key metrics, linked from the gallery and included in `sitemap.xml` for crawlable internal linking.
+- Per-site history pages under `/sites/<registrable-domain>/` for every corpus site: the latest controlled visit, observed differences across comparable visits (only within the same versioned measurement/condition cohort; capped or failed visits never pair), and the full evidence timeline, linked from the directory rows.
 - Transparency-index hero that leads the static homepage with measured corpus highlights (how many real sites have been scanned and the median catalogued tracker-request count per site for the top categories), linking straight into `/directory/` and the report library, so the landing view is evidence rather than a pitch.
 - Collection-agnostic `ScanResult` contract with a normalized [PageGraph adapter](docs/pagegraph-adapter.md), tolerant GraphML parser, and PageGraph-derived fixture reports for Brave/internal evidence ingestion.
 - PageGraph corpus Phase 0 (`npm run corpus:pagegraph`): GraphML in, DuckDB-queryable fact tables out, with a filter-rule impact simulator that computes downstream removal as a transitive closure over the causal graph. See the [proposal](docs/pagegraph-corpus-db-proposal.md) and the [Phase 0 spike](docs/pagegraph-corpus-phase0.md).
@@ -95,7 +96,7 @@ Open `http://127.0.0.1:3000`.
 | `SITE_BEHAVIOR_LAB_ALLOWED_ORIGIN` | `*` | Browser CORS allow-list for the `/api` routes (also honored by the Cloudflare Worker). Default `*` lets any site invoke the scanner from a browser, fine for a single-origin (B1) deployment or an intentionally open scanner. Set it to one origin (for example `https://sitebehavior.org`) to allow only that site's cross-origin browser requests; others are denied. The scan API uses no cookies, so `*` is safe by default. |
 | `SITE_BEHAVIOR_LAB_SCANNER_EGRESS` | `this scanner instance` | Describes the scanner's egress location in report disclosures and JSON exports, for example a region, datacenter, or lab network label. |
 | `SITE_BEHAVIOR_LAB_CHROMIUM_SANDBOX` | unset | Set to `1` to launch scan Chromium with its sandbox enabled. Opt-in because the sandbox needs kernel features (unprivileged user namespaces or a setuid helper) that a container platform may not provide, and a failed launch breaks every scan; verify one deployed scan succeeds before leaving it on. The container process runs as a non-root user either way, and WebRTC egress is disabled at launch (`disable_non_proxied_udp`) so no scan traffic can bypass the connect-time public-address guard. |
-| `SITE_BEHAVIOR_LAB_ASYNC_SCANS` | unset | Set to `1` to make `/api/scan` return `202 { jobId, statusPath, reportId }` and run scans through the single-process in-memory job queue. Clients poll `/api/scans/:jobId` until the report is ready. Completed async reports are saved under the separate `reportId` from the submission response (never the job ID, so a shared report link cannot reach the status channel); the submitter can use it to recover from a lost status record, but queued/running job state is still in-memory. |
+| `SITE_BEHAVIOR_LAB_ASYNC_SCANS` | unset | Set to `1` to make `/api/scan` return `202 { jobId, statusPath, reportId }` and run scans through the single-process in-memory job queue. Clients poll `/api/scans/:jobId` until the report is ready, and `DELETE /api/scans/:jobId` cancels a queued or running job cooperatively (a job whose report save has started can no longer be cancelled). Completed async reports are saved under the separate `reportId` from the submission response (never the job ID, so a shared report link cannot reach the status channel); the submitter can use it to recover from a lost status record, but queued/running job state is still in-memory. |
 | `SITE_BEHAVIOR_LAB_REPORT_STORE_BACKEND` | `filesystem` | Backend for persisted share reports: `filesystem` (default) or `r2`. The `filesystem` backend needs a persistent volume to survive restarts; `r2` stores reports in Cloudflare R2 (S3-compatible) so share links survive container redeploys and host replacement, and is what multi-node hosting needs. The report-store policy (share IDs, screenshot stripping, validation, expiry, prune counts) is identical across backends. |
 | `SITE_BEHAVIOR_LAB_REPORT_STORE_DIR` | `.site-behavior-lab/reports` | Filesystem backend only. Directory for persisted share reports. Use a persistent volume in production. |
 | `SITE_BEHAVIOR_LAB_REPORT_MAX_AGE_DAYS` | `7` | Maximum age for persisted share reports before they are ignored and pruned. |
@@ -130,7 +131,7 @@ For a single-node deployment:
 2. Set `SITE_BEHAVIOR_LAB_REPORT_STORE_DIR` to a persistent volume, and tune report age/count retention.
 3. Set `SITE_BEHAVIOR_LAB_SCANNER_EGRESS` to the region/network label users should see in report methodology.
 4. Put the app behind a trusted HTTPS reverse proxy. Set `SITE_BEHAVIOR_LAB_TRUST_PROXY_HEADERS=1` only when direct origin access is blocked.
-5. Run `/api/health` from your load balancer or monitor and alert when `status` is `degraded`; the Node health response includes Brave ad-block engine load status under `checks.adblock`.
+5. Run `/api/health` from your load balancer or monitor and alert when `status` is `degraded`; the Node health response includes Brave ad-block engine load status under `checks.adblock`. For the reference deployment, `.github/workflows/production-health.yml` polls the live scanner's `/api/health` every 15 minutes and fails on availability or security-posture regressions (Turnstile off, sandbox off, wrong report store, missing rate limits).
 6. Enforce egress firewall rules at the host/container/VPC layer so Chromium cannot reach localhost, private, link-local, metadata, or other internal networks even if an application bug is found. The Node scanner routes Chromium through a per-scan local proxy that resolves, validates, pins, and connects to public IP addresses at connection time; the external firewall remains the required defense-in-depth boundary for public deployments.
 
 Docker:
@@ -311,9 +312,12 @@ npm run cf:typecheck
 npm run test:unit
 npm run build
 npm run build:pages
+npm run test:smoke:static
 npm run reports:manifest
 npm run test:smoke:docker
 ```
+
+`npm run test:smoke:static` drives the freshly built `out/` export end to end (gallery, permalinks, uploads, compare tools); run it right after `npm run build:pages` so it never checks a stale artifact.
 
 The smoke test needs a built app running:
 

@@ -5,7 +5,7 @@ import path from "node:path";
 import { afterEach, beforeEach, test } from "node:test";
 import { createComparisonReport, createGpcComparisonReport } from "./compare-reports";
 import { buildProvenanceEntry, matchProvenance } from "./redaction-provenance";
-import { pruneStoredReports, readScanReport, readStoredScanReportById, reportStoreStatus, saveScanReport } from "./report-store";
+import { pruneStoredReports, readStoredScanReportById, reportStoreStatus, saveScanReport } from "./report-store";
 import { SCAN_REPORT_SCHEMA_VERSION, type ScanRequestPayload, type ScanResult } from "./types";
 
 const REPORT_MAX_COUNT_ENV = "SITE_BEHAVIOR_LAB_REPORT_MAX_COUNT";
@@ -28,16 +28,23 @@ afterEach(async () => {
   await rm(reportDir, { recursive: true, force: true });
 });
 
-test("readScanReport rejects invalid report IDs", async () => {
+// The old v1-narrowing readScanReport wrapper is gone (no production callers);
+// these tests read through the typed accessor and narrow the same way.
+async function readV1Report(id: string) {
+  const result = await readStoredScanReportById(id);
+  return result.outcome === "found" && result.stored.schemaVersion === 1 ? result.stored.report : null;
+}
+
+test("the stored-report read rejects invalid report IDs", async () => {
   await mkdir(reportDir, { recursive: true });
   await writeFile(path.join(reportDir, "20260618-12345678.json"), "{}\n");
 
-  assert.equal(await readScanReport("../escape"), null);
-  assert.equal(await readScanReport("20260618-not-hex"), null);
-  assert.equal(await readScanReport("20260618-12345678"), null);
+  assert.equal(await readV1Report("../escape"), null);
+  assert.equal(await readV1Report("20260618-not-hex"), null);
+  assert.equal(await readV1Report("20260618-12345678"), null);
 });
 
-test("readScanReport rejects malformed persisted reports", async () => {
+test("the stored-report read rejects malformed persisted reports", async () => {
   await mkdir(reportDir, { recursive: true });
 
   const malformedShapeId = "20260618-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
@@ -45,11 +52,11 @@ test("readScanReport rejects malformed persisted reports", async () => {
   await writeFile(path.join(reportDir, `${malformedShapeId}.json`), "{}\n");
   await writeFile(path.join(reportDir, `${malformedJsonId}.json`), "{\n");
 
-  assert.equal(await readScanReport(malformedShapeId), null);
-  assert.equal(await readScanReport(malformedJsonId), null);
+  assert.equal(await readV1Report(malformedShapeId), null);
+  assert.equal(await readV1Report(malformedJsonId), null);
 });
 
-test("readScanReport rejects malformed comparison reports", async () => {
+test("the stored-report read rejects malformed comparison reports", async () => {
   await mkdir(reportDir, { recursive: true });
 
   const malformedComparisonId = "20260618-cccccccccccccccccccccccccccccccc";
@@ -66,7 +73,7 @@ test("readScanReport rejects malformed comparison reports", async () => {
     })}\n`
   );
 
-  assert.equal(await readScanReport(malformedComparisonId), null);
+  assert.equal(await readV1Report(malformedComparisonId), null);
 });
 
 test("readStoredScanReportById answers typed outcomes instead of silent null", async () => {
@@ -152,13 +159,13 @@ test("saveScanReport can persist under a caller-supplied strong share ID", async
 
   assert.equal(saved.share?.id, shareId);
   assert.equal(saved.share?.path, `/reports/${shareId}`);
-  assert.deepEqual(await readScanReport(shareId), saved);
+  assert.deepEqual(await readV1Report(shareId), saved);
   await assert.rejects(() => saveScanReport(makeScanResult(), { shareId: "20260619-12345678" }), /Invalid report share id/);
 });
 
 test("saveScanReport keeps returned screenshots but strips persisted screenshots", async () => {
   const savedSingle = await saveScanReport(makeScanResult({ screenshot: "data:image/jpeg;base64,single" }));
-  const persistedSingle = await readScanReport(savedSingle.share?.id || "");
+  const persistedSingle = await readV1Report(savedSingle.share?.id || "");
 
   assert.equal(savedSingle.screenshot, "data:image/jpeg;base64,single");
   assert.ok(persistedSingle && persistedSingle.reportType !== "comparison");
@@ -169,7 +176,7 @@ test("saveScanReport keeps returned screenshots but strips persisted screenshots
     makeScanResult({ gpcEnabled: true, screenshot: "data:image/jpeg;base64,on" })
   );
   const savedComparison = await saveScanReport(comparison);
-  const persistedComparison = await readScanReport(savedComparison.share?.id || "");
+  const persistedComparison = await readV1Report(savedComparison.share?.id || "");
 
   assert.equal(savedComparison.baseline.screenshot, "data:image/jpeg;base64,off");
   assert.equal(savedComparison.variant.screenshot, "data:image/jpeg;base64,on");
@@ -179,7 +186,7 @@ test("saveScanReport keeps returned screenshots but strips persisted screenshots
   assert.equal(persistedComparison.variant.screenshot, null);
 });
 
-test("readScanReport accepts non-GPC comparison reports", async () => {
+test("the stored-report read accepts non-GPC comparison reports", async () => {
   const comparison = createComparisonReport({
     comparisonType: "shields",
     title: "Shields off/on comparison",
@@ -193,7 +200,7 @@ test("readScanReport accepts non-GPC comparison reports", async () => {
   });
 
   const saved = await saveScanReport(comparison);
-  const persisted = await readScanReport(saved.share?.id || "");
+  const persisted = await readV1Report(saved.share?.id || "");
 
   assert.equal(persisted?.reportType, "comparison");
   if (persisted?.reportType !== "comparison") throw new Error("expected comparison report");
@@ -271,7 +278,7 @@ test("saveScanReport reports the configured report store directory in its status
   const files = (await readdir(reportDir)).filter(isReportFile);
 
   assert.equal(files.length, 1);
-  assert.deepEqual(await readScanReport(saved.share?.id || ""), saved);
+  assert.deepEqual(await readV1Report(saved.share?.id || ""), saved);
   assert.deepEqual(reportStoreStatus(), {
     kind: "filesystem",
     path: reportDir,

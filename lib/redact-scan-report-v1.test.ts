@@ -1,7 +1,9 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { compareScanResults, createGpcComparisonReport } from "./compare-reports";
+import { runHitResponseByteCap, runHitUploadByteCap } from "./comparison-eligibility";
 import { redactScanReportV1, redactScanResultV1 } from "./redact-scan-report-v1";
+import { aggregateByteBudgetWarning } from "./scan-runtime";
 import { readStoredScanReport } from "./scan-report-reader";
 import { makeScanReportV1 } from "./scan-report-v2-fixtures";
 import { findTrackerMatch } from "./tracker-catalog";
@@ -137,8 +139,8 @@ function sensitiveSingle(): ScanResult {
   report.screenshot = "data:image/jpeg;base64,submitter-only";
   report.warnings = [
     "  The page did not reach network idle before the scan window ended.\u0000  ",
-    "The scan stopped loading additional response bytes after reaching 64 MiB aggregate response-byte budget.",
-    "The scan stopped forwarding additional request bytes after reaching 16 MiB aggregate upload-byte budget.",
+    "The scan stopped loading additional response bytes after reaching the 64 MiB aggregate response-byte budget.",
+    "The scan stopped forwarding additional request bytes after reaching the 16 MiB aggregate upload-byte budget.",
     `Blocked a request that could not be verified as public: https://${TOKEN_HOST}/users/anna?token=secret`,
     "Patient Anna's private warning"
   ];
@@ -194,8 +196,8 @@ test("the v1 transform sanitizes every page-controlled field without mutating it
   assert.equal(report.screenshot, "data:image/jpeg;base64,submitter-only");
   assert.deepEqual(report.warnings, [
     "The page did not reach network idle before the scan window ended.",
-    "The scan stopped loading additional response bytes after reaching 64 MiB aggregate response-byte budget.",
-    "The scan stopped forwarding additional request bytes after reaching 16 MiB aggregate upload-byte budget.",
+    "The scan stopped loading additional response bytes after reaching the 64 MiB aggregate response-byte budget.",
+    "The scan stopped forwarding additional request bytes after reaching the 16 MiB aggregate upload-byte budget.",
     "Blocked a request that could not be verified as public: https://{label}.google-analytics.com/{seg}/{seg}",
     "[redacted warning]"
   ]);
@@ -204,6 +206,19 @@ test("the v1 transform sanitizes every page-controlled field without mutating it
   assert.equal(counters.cookieNamesRedacted, 1);
   assert.equal(counters.storageKeysRedacted, 1);
   assert.equal(readStoredScanReport(report).ok, true);
+});
+
+test("the scanner's emitted byte-budget warnings survive redaction and still trip the cap-censoring gates", () => {
+  const input = sensitiveSingle();
+  input.warnings = [
+    aggregateByteBudgetWarning("response", 64 * 1024 * 1024),
+    aggregateByteBudgetWarning("upload", 16 * 1024 * 1024)
+  ];
+
+  const { report } = redactScanResultV1(input);
+  assert.deepEqual(report.warnings, input.warnings);
+  assert.equal(runHitResponseByteCap(report), true);
+  assert.equal(runHitUploadByteCap(report), true);
 });
 
 test("valid generated consent and share literals survive exactly while invalid capability paths do not", () => {

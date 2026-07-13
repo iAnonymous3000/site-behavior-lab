@@ -5,7 +5,7 @@ import path from "node:path";
 import { afterEach, beforeEach, test } from "node:test";
 import { PublicScanError } from "./public-errors";
 import { MAX_QUEUED_JOBS, RATE_LIMIT_MAX, resetScanLimitStateForTests } from "./scan-limits";
-import { readScanReport } from "./report-store";
+import { readStoredScanReportById } from "./report-store";
 import {
   advanceScanJobClockForTests,
   asyncScanModeEnabled,
@@ -19,6 +19,14 @@ import {
 } from "./scan-jobs";
 import type { PreparedScanRequest, ScanRunner } from "./scan-api";
 import { SCAN_REPORT_SCHEMA_VERSION, type ScanRequestPayload, type ScanResult } from "./types";
+
+// Reads through the typed accessor, narrowing to v1 exactly as production
+// render surfaces do (the old readScanReport wrapper had no production callers).
+async function readV1Report(id: string) {
+  const result = await readStoredScanReportById(id);
+  return result.outcome === "found" && result.stored.schemaVersion === 1 ? result.stored.report : null;
+}
+
 
 const ASYNC_SCANS_ENV = "SITE_BEHAVIOR_LAB_ASYNC_SCANS";
 const REPORT_STORE_DIR_ENV = "SITE_BEHAVIOR_LAB_REPORT_STORE_DIR";
@@ -112,10 +120,10 @@ test("enqueuePreparedScanJob persists default saved reports under the submission
   const status = getScanJobStatus(submission.jobId);
   assert.equal(status?.status, "succeeded");
   assert.equal(status?.report?.share?.id, submission.reportId);
-  assert.deepEqual(await readScanReport(submission.reportId), status?.report);
+  assert.deepEqual(await readV1Report(submission.reportId), status?.report);
   // Nothing may be stored under the job ID: the report store is public by ID,
   // and the job ID must stay a submitter-only capability.
-  assert.equal(await readScanReport(submission.jobId), null);
+  assert.equal(await readV1Report(submission.jobId), null);
 });
 
 test("enqueuePreparedScanJob reports sanitized job failures", async () => {

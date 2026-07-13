@@ -209,11 +209,6 @@ export function fingerprintDetection<K extends FingerprintDetectionSummary["kind
     | undefined;
 }
 
-/** Total instrumented detection occurrences (summed across kinds). */
-export function fingerprintDetectionCount(result: Pick<ScanResult, "fingerprintDetections">): number {
-  return fingerprintDetections(result).reduce((total, detection) => total + detection.count, 0);
-}
-
 /** Short human label for a behavioral fingerprinting detection. */
 export function detectionLabel(detection: FingerprintDetectionSummary): string {
   if (detection.kind === "canvas-fingerprinting") return "Canvas fingerprinting heuristic";

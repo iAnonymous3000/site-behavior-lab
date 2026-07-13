@@ -996,14 +996,14 @@ function isScannerWarning(warning: string): boolean {
     return true;
   }
   if (
-    /^The scan stopped loading additional response bytes after reaching [0-9]+ MiB aggregate response-byte budget\.$/.test(
+    /^The scan stopped loading additional response bytes after reaching the [0-9]+ MiB aggregate response-byte budget\.$/.test(
       warning
     )
   ) {
     return true;
   }
   if (
-    /^The scan stopped forwarding additional request bytes after reaching [0-9]+ MiB aggregate upload-byte budget\.$/.test(
+    /^The scan stopped forwarding additional request bytes after reaching the [0-9]+ MiB aggregate upload-byte budget\.$/.test(
       warning
     )
   ) {

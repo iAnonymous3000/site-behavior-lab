@@ -56,6 +56,7 @@ import {
 import { startPublicScanProxy, type ResolvePublicHost } from "./public-scan-proxy";
 import { chromiumSandboxEnabled } from "./chromium-sandbox";
 import {
+  aggregateByteBudgetWarning,
   collectStorageEntries,
   ScanNetworkRecorder,
   ScanRequestBudget,
@@ -828,19 +829,11 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
     const proxyDiagnostics = scanProxy.getDiagnostics();
     const responseByteBudget = proxyDiagnostics.responseByteBudget;
     if (responseByteBudget.captureLoss) {
-      warnings.add(
-        `The scan stopped loading additional response bytes after reaching the ${Math.round(
-          responseByteBudget.limitBytes / 1024 / 1024
-        )} MiB aggregate response-byte budget.`
-      );
+      warnings.add(aggregateByteBudgetWarning("response", responseByteBudget.limitBytes));
     }
     const uploadByteBudget = proxyDiagnostics.uploadByteBudget;
     if (uploadByteBudget.captureLoss) {
-      warnings.add(
-        `The scan stopped forwarding additional request bytes after reaching the ${Math.round(
-          uploadByteBudget.limitBytes / 1024 / 1024
-        )} MiB aggregate upload-byte budget.`
-      );
+      warnings.add(aggregateByteBudgetWarning("upload", uploadByteBudget.limitBytes));
     }
 
     const requestCapture = networkRecorder.requestBudget.getDiagnostics();
@@ -1362,10 +1355,6 @@ async function collectCookies(context: BrowserContext, firstPartyDomain: string)
       thirdParty: isThirdParty(firstPartyDomain, cookie.domain.replace(/^\./, ""))
     }))
     .sort((a, b) => Number(b.thirdParty) - Number(a.thirdParty) || a.domain.localeCompare(b.domain));
-}
-
-async function collectStorage(page: Page): Promise<StorageRecord[]> {
-  return collectStorageEntries(page).catch(() => []);
 }
 
 async function capturePassiveBoundary<T>(operation: Promise<T>): Promise<PassiveBoundaryOutcome<T>> {

@@ -121,6 +121,20 @@ export class ScanRequestBudget {
   }
 }
 
+/**
+ * Shared aggregate byte-budget warning vocabulary. The scanner emits these
+ * exact strings and the public redaction boundary admits them by shape
+ * (lib/redact-scan-report-v1.ts), so both sides must build from this one
+ * template; hand-written copies drift and get replaced by the redacted
+ * placeholder, which silently defeats the downstream cap-censoring gates.
+ */
+export function aggregateByteBudgetWarning(kind: "response" | "upload", limitBytes: number): string {
+  const limitMib = Math.round(limitBytes / 1024 / 1024);
+  return kind === "response"
+    ? `The scan stopped loading additional response bytes after reaching the ${limitMib} MiB aggregate response-byte budget.`
+    : `The scan stopped forwarding additional request bytes after reaching the ${limitMib} MiB aggregate upload-byte budget.`;
+}
+
 export type ScanTimeoutErrorFactory = () => Error;
 
 export function scanTimeoutMs(

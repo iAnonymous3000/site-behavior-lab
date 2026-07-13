@@ -183,11 +183,11 @@ test("trailing-dot subjects canonicalize to the correct registrable party", () =
 test("warnings cross the shared scanner-vocabulary boundary", () => {
   const input = baseInput();
   input.warnings = [
-    "The scan stopped loading additional response bytes after reaching 64 MiB aggregate response-byte budget.",
+    "The scan stopped loading additional response bytes after reaching the 64 MiB aggregate response-byte budget.",
     "The page says Alice's account is private"
   ];
   assert.deepEqual(buildNodeScanReportV2R2(input).run.warnings, [
-    "The scan stopped loading additional response bytes after reaching 64 MiB aggregate response-byte budget.",
+    "The scan stopped loading additional response bytes after reaching the 64 MiB aggregate response-byte budget.",
     "[redacted warning]"
   ]);
 });
