@@ -33,12 +33,19 @@ test("scan artifacts and commits include provenance sidecars", () => {
   assert.match(featured, /git add public\/reports/);
 });
 
-test("official actions use their Node-24-compatible runtime releases", () => {
+test("official actions are pinned to reviewed Node-24-compatible releases", () => {
+  const approvedPins = new Map([
+    ["actions/checkout", "93cb6efe18208431cddfb8368fd83d5badbf9bfd"],
+    ["actions/setup-node", "a0853c24544627f65ddf259abe73b1d18a591444"],
+    ["actions/upload-artifact", "043fb46d1a93c77aae656e7c1c64a875d1fc6a0a"]
+  ]);
   const workflowsDir = path.join(root, ".github", "workflows");
   for (const name of readdirSync(workflowsDir).filter((entry) => entry.endsWith(".yml"))) {
     const contents = readFileSync(path.join(workflowsDir, name), "utf8");
-    assert.equal(/actions\/(?:checkout|setup-node)@v4/.test(contents), false, name);
-    assert.equal(/actions\/upload-artifact@(?!v7\b)/.test(contents), false, name);
+    for (const match of contents.matchAll(/uses:\s*(actions\/(?:checkout|setup-node|upload-artifact))@([^\s#]+)/g)) {
+      const [, action, ref] = match;
+      assert.equal(ref, approvedPins.get(action), `${name}: ${action}`);
+    }
   }
 });
 

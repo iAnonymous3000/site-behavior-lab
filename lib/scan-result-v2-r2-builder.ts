@@ -89,7 +89,8 @@ import type { FingerprintDetectionSummary, PrivacyPolicySummary, TrackerMatch } 
 /**
  * Node-only ScanReport v2/r2 single-run builder.
  *
- * This is deliberately not wired to scanner.ts yet. Its input starts after the
+ * The live Node scanner now collects and stages this input shape out of band
+ * while its public producer remains frozen on v1. Its input starts after the
  * raw/classification seam: evidence and mutation records are phase-tagged but
  * may still contain page-controlled strings. This builder owns the one public
  * sanitizer and computes its counters from the exact emitted evidence.

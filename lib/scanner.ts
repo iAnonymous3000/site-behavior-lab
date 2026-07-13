@@ -12,6 +12,8 @@ import { findTrackerMatch } from "./tracker-catalog";
 import { adblockListMeta, getAdblockEngine, mapRequestType } from "./adblock-engine";
 import type {
   CookieRecord,
+  FingerprintDetectionSummary,
+  FingerprintEventSummary,
   KeystrokeExfiltrationDetectionSummary,
   PrivacyPolicySummary,
   ScanRequestPayload,
@@ -29,6 +31,7 @@ import {
   consentClickArgs,
   consentInteractionWarning,
   findAndClickConsentControl,
+  type ConsentClickOutcome,
   type ConsentChoice,
   type ConsentInteractionSummary
 } from "./consent-interaction";
@@ -44,7 +47,12 @@ import { assertPublicHttpUrl, normalizeUrl } from "./url-safety";
 import { redactUrlForReport, safeParseUrl } from "./report-url";
 import { redactUrlV2 } from "./redaction-v2";
 import { buildScanConditions, buildScanResult } from "./scan-result-builder";
-import { collectFingerprintObservationsFromFrames, fingerprintObserverInitScript } from "./fingerprint-observer";
+import { MeasurementKernel, deriveCookieMutations, deriveStorageMutations } from "./measurement-kernel";
+import {
+  collectFingerprintObservationsWithCoverage,
+  fingerprintObserverInitScript,
+  type FingerprintObservations
+} from "./fingerprint-observer";
 import { startPublicScanProxy, type ResolvePublicHost } from "./public-scan-proxy";
 import { chromiumSandboxEnabled } from "./chromium-sandbox";
 import {
@@ -56,6 +64,8 @@ import {
   verifyRoutedHttpRequest,
   withScanDeadline
 } from "./scan-runtime";
+import type { MeasurementKernelResultR2 } from "./scan-result-v2-r2-builder";
+import type { RunEvidenceR2 } from "./scan-report-v2-r2";
 
 export { redactUrlForReport } from "./report-url";
 export { MAX_RECORDED_REQUESTS, NON_HTTP_WARNING_EXAMPLE_LIMIT, ScanRequestBudget, ScanWarningCollector } from "./scan-runtime";
@@ -132,6 +142,8 @@ const PRIVACY_POLICY_RENDER_WAIT_MS = 1_000;
 const MAX_POLICY_LINK_CANDIDATES = 12;
 const MAX_POLICY_PAGE_REQUESTS = 150;
 const MAX_POLICY_TEXT_CHARS = 400_000;
+const BOT_WALL_TITLE_PATTERN =
+  /access denied|attention required|just a moment|pardon our interruption|are you (a )?(human|robot)|verify (you are|you'?re|your) (a )?human|checking your browser|unusual traffic|security check|request unsuccessful|captcha|enable javascript/i;
 
 let sharedBrowser: Browser | null = null;
 let browserLaunchPromise: Promise<Browser> | null = null;
@@ -156,11 +168,68 @@ export type ScanSiteOptions = {
   verifyPublicUrl?: (url: URL) => Promise<void>;
   /** Override CNAME-chain resolution (defaults to node:dns); injected in tests. */
   resolveCnameChain?: CnameChainResolver;
+  /** Deterministic socket injection for scanner integration tests only. */
+  connectProxyUpstreamForTests?: NonNullable<
+    NonNullable<Parameters<typeof startPublicScanProxy>[0]>["connectUpstreamForTests"]
+  >;
 };
+
+/**
+ * Phase-1 collection artifact for a live Node single visit. It has the exact
+ * measurement/evidence shape consumed by the staged r2 builder, but remains
+ * process-local while public producers intentionally keep emitting v1.
+ */
+export type StagedSingleVisitMeasurement = {
+  measurement: MeasurementKernelResultR2;
+  evidence: Omit<RunEvidenceR2, "consent">;
+};
+
+type PassiveBoundaryState = {
+  cookies: boolean;
+  storage: boolean;
+  fingerprinting: boolean;
+};
+
+type KeystrokeProbeOutcome =
+  | { status: "complete"; detection: KeystrokeExfiltrationDetectionSummary | null }
+  | { status: "partial"; reason: "budget-unavailable"; detection: null }
+  | { status: "failed"; reason: "scan-failed"; detection: null };
+
+type PassiveBoundaryOutcome<T> =
+  | { ok: true; value: T }
+  | { ok: false; kind: "timeout" | "dropped" };
+
+type ConsentChoiceProbeOutcome = {
+  summary: ConsentInteractionSummary;
+  readableFrames: number;
+};
+
+const stagedSingleVisitMeasurements = new WeakMap<ScanResult, StagedSingleVisitMeasurement>();
+
+/**
+ * Read the process-local phase-aware facts attached to a live v1 result.
+ * Returning a clone prevents a future consumer from mutating the recorded
+ * facts. The attachment is a WeakMap entry, never a public wire property.
+ */
+export function stagedSingleVisitMeasurement(result: ScanResult): StagedSingleVisitMeasurement | null {
+  const measurement = stagedSingleVisitMeasurements.get(result);
+  return measurement ? structuredClone(measurement) : null;
+}
+
+/** Exported for parity tests; production calls this only at the final v1 seam. */
+export function attachStagedSingleVisitMeasurement(
+  result: ScanResult,
+  measurement: StagedSingleVisitMeasurement
+): ScanResult {
+  stagedSingleVisitMeasurements.set(result, structuredClone(measurement));
+  return result;
+}
 
 export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOptions = {}): Promise<ScanResult> {
   throwIfScanAborted(options.signal);
   const started = Date.now();
+  const measurementKernel = new MeasurementKernel<Request>(started);
+  const passivePhaseId = measurementKernel.beginPhase("passive-load");
   const targetUrl = normalizeUrl(payload.url);
   const verifyPublicUrl = options.verifyPublicUrl ?? assertPublicHttpUrl;
   if (!options.publicUrlAlreadyVerified) {
@@ -191,7 +260,10 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
     warnings.add("Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.");
   }
   let context: BrowserContext | null = null;
-  const scanProxy = await startPublicScanProxy({ resolveHost: options.resolvePublicHost });
+  const scanProxy = await startPublicScanProxy({
+    resolveHost: options.resolvePublicHost,
+    connectUpstreamForTests: options.connectProxyUpstreamForTests
+  });
   const closeOnAbort = () => {
     // Abort handlers cannot await, but closing both resources immediately
     // rejects in-flight Playwright work and tears down pending proxy connects.
@@ -233,6 +305,14 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
       warnings,
       trackerMatcher: findTrackerMatch
     });
+    const cookieSnapshots: Array<{ phaseId: number; records: CookieRecord[] }> = [];
+    const storageSnapshots: Array<{ phaseId: number; records: StorageRecord[] }> = [];
+    let passiveFingerprintObservations: FingerprintObservations | null = null;
+    const passiveBoundary: PassiveBoundaryState = {
+      cookies: false,
+      storage: false,
+      fingerprinting: false
+    };
     const publicHostChecks = new Map<string, Promise<void>>();
 
     await page.route("**/*", async (route) => {
@@ -273,10 +353,12 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
       await route.abort();
     });
 
-    page.on("request", (request) => {
+    const recordRequest = (request: Request) => {
       if (requestsBlockedByShields.has(request) || requestsBlockedByGuard.has(request)) return;
+      measurementKernel.tagRequest(request);
       networkRecorder.recordRequest(request, Date.now() - started);
-    });
+    };
+    page.on("request", recordRequest);
     page.on("response", (response) => networkRecorder.recordResponse(response));
 
     const response = await page
@@ -311,11 +393,15 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
         );
       });
 
-    await withScanTimeout(page.waitForLoadState("networkidle", { timeout: scanTimeout(started, NETWORK_IDLE_TIMEOUT_MS) }), started).catch((error) => {
-      throwIfScanAborted(options.signal);
-      if (isScanBudgetError(error)) throw error;
-      warnings.add("The page did not reach network idle before the scan window ended.");
-    });
+    let navigationSettled = true;
+    await withScanTimeout(page.waitForLoadState("networkidle", { timeout: scanTimeout(started, NETWORK_IDLE_TIMEOUT_MS) }), started).catch(
+      (error) => {
+        throwIfScanAborted(options.signal);
+        if (isScanBudgetError(error)) throw error;
+        navigationSettled = false;
+        warnings.add("The page did not reach network idle before the scan window ended.");
+      }
+    );
 
     // A non-2xx top-level response does not reject goto, so the scan otherwise
     // completes and an error/block page reads as a low-tracker (falsely "private")
@@ -332,12 +418,108 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
     // never verified; the report copy must say so. Skipped on failed loads: an
     // interstitial's banner (a challenge page's cookie notice) is not the
     // site's consent banner.
-    const consentInteraction =
+    let consentPhaseId: number | null = null;
+    if (payload.consentMode !== "observe" && !pageLoadFailed) {
+      // Snapshot the passive-load boundary before any scripted interaction.
+      // These reads are internal only; the legacy final snapshot and wire stay
+      // exactly where they were.
+      const passiveHostname = safeParseUrl(page.url())?.hostname ?? targetUrl.hostname;
+      const [passiveCookies, passiveStorage, passiveFingerprint] = await Promise.all([
+        capturePassiveBoundary(withScanTimeout(collectCookies(context, passiveHostname), started)),
+        capturePassiveBoundary(withScanTimeout(collectStorageEntries(page), started)),
+        capturePassiveBoundary(withScanTimeout(collectFingerprintObservationsWithCoverage(page.frames()), started))
+      ]);
+      if (passiveCookies.ok) {
+        passiveBoundary.cookies = true;
+        cookieSnapshots.push({ phaseId: passivePhaseId, records: passiveCookies.value });
+      } else {
+        measurementKernel.recordCaptureLoss({
+          family: "cookies",
+          phaseId: passivePhaseId,
+          kind: passiveCookies.kind,
+          count: 1,
+          detail: "passive-boundary"
+        });
+      }
+      if (passiveStorage.ok) {
+        passiveBoundary.storage = true;
+        storageSnapshots.push({ phaseId: passivePhaseId, records: passiveStorage.value });
+      } else {
+        measurementKernel.recordCaptureLoss({
+          family: "storage",
+          phaseId: passivePhaseId,
+          kind: passiveStorage.kind,
+          count: 1,
+          detail: "passive-boundary"
+        });
+      }
+      if (passiveFingerprint.ok && passiveFingerprint.value.readableFrames > 0) {
+        passiveBoundary.fingerprinting = true;
+        passiveFingerprintObservations = passiveFingerprint.value.observations;
+      } else {
+        measurementKernel.recordCaptureLoss({
+          family: "fingerprinting",
+          phaseId: passivePhaseId,
+          kind: passiveFingerprint.ok ? "dropped" : passiveFingerprint.kind,
+          count: 1,
+          detail: "passive-boundary"
+        });
+      }
+      if (MAX_SCAN_DURATION_MS - (Date.now() - started) >= CONSENT_CLICK_MIN_BUDGET_MS) {
+        consentPhaseId = measurementKernel.beginPhase("consent-interaction");
+      }
+    }
+
+    const consentProbeState: {
+      failure: "budget-unavailable" | "scan-failed" | "engine-unavailable" | null;
+    } = { failure: null };
+    const consentProbe =
       payload.consentMode === "observe" || pageLoadFailed
         ? undefined
-        : await withScanTimeout(applyConsentChoice(page, payload.consentMode, started), started).catch(
-            (): ConsentInteractionSummary => ({ mode: payload.consentMode as ConsentChoice, clicked: false })
-          );
+        : consentPhaseId === null
+          ? {
+              summary: { mode: payload.consentMode as ConsentChoice, clicked: false },
+              readableFrames: 0
+            }
+          : await withScanTimeout(applyConsentChoice(page, payload.consentMode, started), started).catch(
+              (error): ConsentChoiceProbeOutcome => {
+                consentProbeState.failure = isScanBudgetError(error) ? "budget-unavailable" : "scan-failed";
+                return {
+                  summary: { mode: payload.consentMode as ConsentChoice, clicked: false },
+                  readableFrames: 0
+                };
+              }
+            );
+    const consentInteraction = consentProbe?.summary;
+    if (consentPhaseId !== null && consentProbeState.failure === null && consentProbe?.readableFrames === 0) {
+      consentProbeState.failure = "engine-unavailable";
+    }
+    if (consentPhaseId !== null) {
+      if (consentProbeState.failure === "budget-unavailable") {
+        measurementKernel.setDetector("consent-banner", "partial", {
+          reason: "budget-unavailable",
+          phaseId: consentPhaseId
+        });
+      } else if (consentProbeState.failure === "scan-failed") {
+        measurementKernel.setDetector("consent-banner", "failed", { reason: "scan-failed", phaseId: consentPhaseId });
+      } else if (consentProbeState.failure === "engine-unavailable") {
+        measurementKernel.setDetector("consent-banner", "failed", {
+          reason: "engine-unavailable",
+          phaseId: consentPhaseId
+        });
+      } else {
+        measurementKernel.setDetector("consent-banner", "complete", { phaseId: consentPhaseId });
+      }
+    } else if (pageLoadFailed && payload.consentMode !== "observe") {
+      measurementKernel.setDetector("consent-banner", "skipped", { reason: "load-failed" });
+    } else if (payload.consentMode !== "observe") {
+      measurementKernel.setDetector("consent-banner", "skipped", { reason: "budget-unavailable" });
+    } else {
+      // Observe mode intentionally performs no banner interaction/detection in
+      // v1. Record that honestly; step 3 will add the non-mutating visibility
+      // reads and registered-state interpreters.
+      measurementKernel.setDetector("consent-banner", "skipped", { reason: "probe-disabled" });
+    }
     throwIfScanAborted(options.signal);
     if (consentInteraction) {
       warnings.add(consentInteractionWarning(consentInteraction));
@@ -350,8 +532,30 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
     const finalUrl = page.url();
     const finalParsed = safeParseUrl(finalUrl) ?? targetUrl;
     const cookies = await withScanTimeout(collectCookies(context, finalParsed.hostname), started);
-    const storage = await withScanTimeout(collectStorage(page), started);
-    const fingerprintObservations = await withScanTimeout(collectFingerprintObservations(page), started);
+    const finalStorage = await capturePassiveBoundary(withScanTimeout(collectStorageEntries(page), started));
+    const storage = finalStorage.ok ? finalStorage.value : [];
+    const fingerprintCollection = await withScanTimeout(collectFingerprintObservationsWithCoverage(page.frames()), started);
+    const fingerprintObservations = fingerprintCollection.observations;
+    const stateSnapshotPhaseId = consentPhaseId ?? passivePhaseId;
+    cookieSnapshots.push({ phaseId: stateSnapshotPhaseId, records: cookies });
+    if (finalStorage.ok) {
+      storageSnapshots.push({ phaseId: stateSnapshotPhaseId, records: storage });
+    } else {
+      measurementKernel.recordCaptureLoss({
+        family: "storage",
+        phaseId: stateSnapshotPhaseId,
+        kind: finalStorage.kind,
+        count: 1,
+        detail: "final-boundary"
+      });
+    }
+    measurementKernel.setDetector(
+      "fingerprint-heuristics",
+      fingerprintCollection.readableFrames > 0 ? "complete" : "failed",
+      fingerprintCollection.readableFrames > 0
+        ? { phaseId: stateSnapshotPhaseId }
+        : { reason: "engine-unavailable", phaseId: stateSnapshotPhaseId }
+    );
     const screenshot = await withScanTimeout(
       page
         .screenshot({ type: "jpeg", quality: 62, fullPage: false })
@@ -377,10 +581,36 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
     // Active input-capture probe: type a synthetic sentinel into form fields and
     // watch for it leaving to a third party. Best-effort and fully bounded, it
     // never throws into the scan and is skipped when the time budget is tight.
-    const keystrokeDetection = await withScanTimeout(
-      probeKeystrokeExfiltration(page, finalParsed.hostname, started, warnings),
-      started
-    ).catch(() => null);
+    const keystrokeBudgetAvailable = MAX_SCAN_DURATION_MS - (Date.now() - started) >= KEYSTROKE_PROBE_MIN_BUDGET_MS;
+    const keystrokePhaseId = keystrokeBudgetAvailable ? measurementKernel.beginPhase("active-probe") : null;
+    let keystrokeProbe: KeystrokeProbeOutcome | null = null;
+    if (keystrokePhaseId !== null) {
+      keystrokeProbe = await withScanTimeout(
+        probeKeystrokeExfiltration(page, finalParsed.hostname, started, warnings),
+        started
+      ).catch(
+        (error): KeystrokeProbeOutcome =>
+          isScanBudgetError(error)
+            ? { status: "partial", reason: "budget-unavailable", detection: null }
+            : { status: "failed", reason: "scan-failed", detection: null }
+      );
+    }
+    const keystrokeDetection = keystrokeProbe?.detection ?? null;
+    if (keystrokePhaseId === null) {
+      measurementKernel.setDetector("keystroke-exfiltration", "skipped", { reason: "budget-unavailable" });
+    } else if (keystrokeProbe?.status === "partial") {
+      measurementKernel.setDetector("keystroke-exfiltration", "partial", {
+        reason: keystrokeProbe.reason,
+        phaseId: keystrokePhaseId
+      });
+    } else if (keystrokeProbe?.status === "failed") {
+      measurementKernel.setDetector("keystroke-exfiltration", "failed", {
+        reason: keystrokeProbe.reason,
+        phaseId: keystrokePhaseId
+      });
+    } else {
+      measurementKernel.setDetector("keystroke-exfiltration", "complete", { phaseId: keystrokePhaseId });
+    }
     const fingerprintDetections = keystrokeDetection
       ? [...fingerprintObservations.detections, keystrokeDetection]
       : fingerprintObservations.detections;
@@ -389,19 +619,37 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
     // body while it is still available here; the public record's URL is scrubbed.
     // Event names are kept; identifier values are detected by key presence only.
     const pixelEventInputs: PixelEventInput[] = [];
+    const pixelEventInputsByPhase = new Map<number, PixelEventInput[]>();
+    const phaseAwareRequests: Array<NetworkRequestRecord & { phaseId: number }> = [];
     const publicRequests = networkRecorder.publicRecords(finalParsed.hostname, (record, request) => {
+      const phaseId = measurementKernel.phaseForRequest(request) ?? passivePhaseId;
       if (record.thirdParty) {
-        pixelEventInputs.push({ url: request.url(), method: record.method, postData: safeRequestPostData(request) });
+        const input = { url: request.url(), method: record.method, postData: safeRequestPostData(request) };
+        pixelEventInputs.push(input);
+        const phaseInputs = pixelEventInputsByPhase.get(phaseId) ?? [];
+        phaseInputs.push(input);
+        pixelEventInputsByPhase.set(phaseId, phaseInputs);
       }
-      return {
+      const decorated = {
         ...record,
         // Reuse the exact route-time decision. Re-evaluating here against the
         // final top-level URL misclassifies iframe and redirected-document
         // requests and can disagree with what the blocking arm actually did.
         blockedByShields: adblockEngine ? shieldsMatches.get(request) : undefined
       };
+      phaseAwareRequests.push({ ...decorated, phaseId });
+      return decorated;
     });
+    // This is the existing v1 request-log snapshot boundary. Requests from the
+    // later policy visit are intentionally excluded, and no late main-page
+    // event should stretch the active phase after its evidence was frozen.
+    page.off("request", recordRequest);
+    measurementKernel.endPhase();
     const pixelEvents = summarizePixelEvents(pixelEventInputs);
+    const phaseAwarePixelEvents = [...pixelEventInputsByPhase.entries()].flatMap(([phaseId, inputs]) =>
+      summarizePixelEvents(inputs).map((event) => ({ ...event, phaseId }))
+    );
+    measurementKernel.setDetector("pixel-events", "complete", { phaseId: stateSnapshotPhaseId });
 
     // Un-hide CNAME-cloaked trackers: first-party subdomains that are DNS aliases
     // for a known tracker. The oracle is the curated catalog (named) first, then
@@ -416,13 +664,33 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
       }
       return null;
     };
-    const cnameCloaks = await resolveCnameCloaksForScan(
-      publicRequests,
-      finalParsed.hostname,
-      started,
-      options,
-      matchCnameTracker
-    );
+    const cnameBudgetAvailable = MAX_SCAN_DURATION_MS - (Date.now() - started) >= CNAME_PROBE_MIN_BUDGET_MS;
+    let cnameProbeFailed = false;
+    const cnameCloaks = cnameBudgetAvailable
+      ? await resolveCnameCloaksForScan(
+          publicRequests,
+          finalParsed.hostname,
+          started,
+          options,
+          matchCnameTracker,
+          () => {
+            cnameProbeFailed = true;
+          }
+        ).catch(() => {
+          cnameProbeFailed = true;
+          return [];
+        })
+      : [];
+    if (!cnameBudgetAvailable) {
+      measurementKernel.setDetector("cname-uncloaking", "skipped", { reason: "budget-unavailable" });
+    } else if (cnameProbeFailed) {
+      measurementKernel.setDetector("cname-uncloaking", "failed", {
+        reason: "scan-failed",
+        phaseId: stateSnapshotPhaseId
+      });
+    } else {
+      measurementKernel.setDetector("cname-uncloaking", "complete", { phaseId: stateSnapshotPhaseId });
+    }
     if (cnameCloaks.length > 0) {
       warnings.add(
         `Resolved ${
@@ -439,9 +707,13 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
     // is not the site, and its only policy link is typically the interstitial
     // vendor's own policy (e.g. Cloudflare's), which must not be attributed to
     // the scanned site.
-    const privacyPolicy = pageLoadFailed
-      ? null
-      : await probePrivacyPolicy({
+    const policyCandidate = pageLoadFailed ? null : pickPrivacyPolicyLink(policyLinks, finalParsed.hostname);
+    const policyBudgetAvailable = MAX_SCAN_DURATION_MS - (Date.now() - started) >= PRIVACY_POLICY_MIN_BUDGET_MS;
+    const policyPhaseId = policyCandidate && policyBudgetAvailable ? measurementKernel.beginPhase("policy-analysis") : null;
+    let privacyPolicy: PrivacyPolicySummary | null = null;
+    if (policyPhaseId !== null) {
+      try {
+        privacyPolicy = await probePrivacyPolicy({
           context,
           links: policyLinks,
           firstPartyHostname: finalParsed.hostname,
@@ -449,7 +721,16 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
           started,
           verifyPublicUrl,
           warnings
-        }).catch(() => null);
+        });
+        measurementKernel.setDetector("privacy-policy", "complete", { phaseId: policyPhaseId });
+      } catch {
+        measurementKernel.setDetector("privacy-policy", "failed", { reason: "load-failed", phaseId: policyPhaseId });
+      }
+    } else {
+      measurementKernel.setDetector("privacy-policy", "skipped", {
+        reason: policyCandidate && !policyBudgetAvailable ? "budget-unavailable" : "probe-disabled"
+      });
+    }
     throwIfScanAborted(options.signal);
 
     const proxyDiagnostics = scanProxy.getDiagnostics();
@@ -468,6 +749,23 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
           uploadByteBudget.limitBytes / 1024 / 1024
         )} MiB aggregate upload-byte budget.`
       );
+    }
+
+    const requestCapture = networkRecorder.requestBudget.getDiagnostics();
+    const captureLossByBudget = new Map<string, { family: "requests"; count: number }>();
+    const addBudgetLoss = (name: string, family: "requests", count: number) => {
+      const existing = captureLossByBudget.get(name);
+      captureLossByBudget.set(name, { family, count: (existing?.count ?? 0) + count });
+    };
+    if (requestCapture.captureLoss) addBudgetLoss(requestCapture.name, requestCapture.family, 1);
+    if (responseByteBudget.captureLoss) {
+      addBudgetLoss(responseByteBudget.name, responseByteBudget.family, responseByteBudget.captureLoss.count);
+    }
+    if (uploadByteBudget.captureLoss) {
+      addBudgetLoss(uploadByteBudget.name, uploadByteBudget.family, uploadByteBudget.captureLoss.count);
+    }
+    for (const [name, loss] of captureLossByBudget) {
+      measurementKernel.exhaustBudget({ name, family: loss.family, phaseId: null, count: loss.count });
     }
 
     const scannerEgress = scannerEgressDescription();
@@ -498,7 +796,54 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
     });
 
     throwIfScanAborted(options.signal);
-    return buildScanResult({
+    const qualityFacts = measurementKernel.qualityFacts({
+      status: responseStatus,
+      botWallTitleMatched: BOT_WALL_TITLE_PATTERN.test(pageTitle),
+      navigationSettled
+    });
+    const finishedMeasurement = measurementKernel.finish();
+    const fingerprintCollectionPhaseId = consentPhaseId ?? passivePhaseId;
+    const canAttributeConsentFingerprinting = consentPhaseId === null || passiveBoundary.fingerprinting;
+    const phaseAwareFingerprintDetections = canAttributeConsentFingerprinting
+      ? phaseAwareDetections(
+          fingerprintObservations.detections,
+          passiveFingerprintObservations?.detections ?? null,
+          passivePhaseId,
+          fingerprintCollectionPhaseId
+        )
+      : [];
+    if (keystrokeDetection && keystrokePhaseId !== null) {
+      phaseAwareFingerprintDetections.push({ ...keystrokeDetection, phaseId: keystrokePhaseId });
+    }
+    const stagedMeasurement: StagedSingleVisitMeasurement = {
+      measurement: {
+        phases: finishedMeasurement.phases,
+        detectors: finishedMeasurement.detectors,
+        qualityFacts
+      },
+      evidence: {
+        requests: phaseAwareRequests,
+        cookieMutations: consentPhaseId === null || passiveBoundary.cookies ? deriveCookieMutations(cookieSnapshots) : [],
+        cookiesFinal: cookies,
+        storageMutations:
+          finalStorage.ok && (consentPhaseId === null || passiveBoundary.storage) ? deriveStorageMutations(storageSnapshots) : [],
+        storageFinal: storage,
+        fingerprintEvents: canAttributeConsentFingerprinting
+          ? phaseAwareFingerprintEvents(
+              fingerprintObservations.events,
+              passiveFingerprintObservations?.events ?? null,
+              passivePhaseId,
+              fingerprintCollectionPhaseId
+            )
+          : [],
+        fingerprintDetections: phaseAwareFingerprintDetections,
+        cnameCloaks,
+        pixelEvents: phaseAwarePixelEvents,
+        ...(privacyPolicy ? { privacyPolicy } : {})
+      }
+    };
+
+    const v1Result = buildScanResult({
       pageTitle,
       status: responseStatus,
       durationMs: Date.now() - started,
@@ -521,11 +866,50 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
           : publicRequests.filter((item) => item.blockedByShields).length
         : undefined
     });
+    return attachStagedSingleVisitMeasurement(v1Result, stagedMeasurement);
   } finally {
     options.signal?.removeEventListener("abort", closeOnAbort);
     await context?.close().catch(() => undefined);
     await scanProxy.close().catch(() => undefined);
   }
+}
+
+function phaseAwareFingerprintEvents(
+  finalEvents: FingerprintEventSummary[],
+  passiveEvents: FingerprintEventSummary[] | null,
+  passivePhaseId: number,
+  finalPhaseId: number
+): Array<FingerprintEventSummary & { phaseId: number }> {
+  if (!passiveEvents || passivePhaseId === finalPhaseId) {
+    return finalEvents.map((event) => ({ ...event, phaseId: finalPhaseId }));
+  }
+
+  const passiveCounts = new Map(passiveEvents.map((event) => [event.api, event.count]));
+  return finalEvents.flatMap((event) => {
+    const passiveCount = Math.min(event.count, passiveCounts.get(event.api) ?? 0);
+    const laterCount = event.count - passiveCount;
+    return [
+      ...(passiveCount > 0 ? [{ ...event, count: passiveCount, phaseId: passivePhaseId }] : []),
+      ...(laterCount > 0 ? [{ ...event, count: laterCount, phaseId: finalPhaseId }] : [])
+    ];
+  });
+}
+
+function phaseAwareDetections(
+  finalDetections: FingerprintDetectionSummary[],
+  passiveDetections: FingerprintDetectionSummary[] | null,
+  passivePhaseId: number,
+  finalPhaseId: number
+): Array<FingerprintDetectionSummary & { phaseId: number }> {
+  if (!passiveDetections || passivePhaseId === finalPhaseId) {
+    return finalDetections.map((detection) => ({ ...detection, phaseId: finalPhaseId }));
+  }
+
+  const passiveKeys = new Set(passiveDetections.map((detection) => `${detection.kind}\u0000${detection.heuristic}`));
+  return finalDetections.map((detection) => ({
+    ...detection,
+    phaseId: passiveKeys.has(`${detection.kind}\u0000${detection.heuristic}`) ? passivePhaseId : finalPhaseId
+  }));
 }
 
 function throwIfScanAborted(signal?: AbortSignal): void {
@@ -821,8 +1205,12 @@ async function collectStorage(page: Page): Promise<StorageRecord[]> {
   return collectStorageEntries(page).catch(() => []);
 }
 
-async function collectFingerprintObservations(page: Page) {
-  return collectFingerprintObservationsFromFrames(page.frames());
+async function capturePassiveBoundary<T>(operation: Promise<T>): Promise<PassiveBoundaryOutcome<T>> {
+  try {
+    return { ok: true, value: await operation };
+  } catch (error) {
+    return { ok: false, kind: isScanBudgetError(error) ? "timeout" : "dropped" };
+  }
 }
 
 /**
@@ -834,15 +1222,24 @@ async function collectFingerprintObservations(page: Page) {
  * only, and honest on failure: `clicked: false` means the visit stays
  * pre-consent, and the caller discloses exactly that.
  */
-async function applyConsentChoice(page: Page, choice: ConsentChoice, started: number): Promise<ConsentInteractionSummary> {
+async function applyConsentChoice(page: Page, choice: ConsentChoice, started: number): Promise<ConsentChoiceProbeOutcome> {
   const summary: ConsentInteractionSummary = { mode: choice, clicked: false };
-  if (MAX_SCAN_DURATION_MS - (Date.now() - started) < CONSENT_CLICK_MIN_BUDGET_MS) return summary;
+  let readableFrames = 0;
+  if (MAX_SCAN_DURATION_MS - (Date.now() - started) < CONSENT_CLICK_MIN_BUDGET_MS) {
+    return { summary, readableFrames };
+  }
 
   const args = consentClickArgs(choice);
   for (let attempt = 0; attempt < CONSENT_BANNER_RETRIES && !summary.clicked; attempt += 1) {
     // Main frame first; consent iframes (Sourcepoint and similar) after it.
     for (const frame of page.frames()) {
-      const outcome = await frame.evaluate(findAndClickConsentControl, args).catch(() => null);
+      let outcome: ConsentClickOutcome | null;
+      try {
+        outcome = await frame.evaluate(findAndClickConsentControl, args);
+        readableFrames += 1;
+      } catch {
+        outcome = null;
+      }
       if (!outcome?.clicked) continue;
       summary.clicked = true;
       if (outcome.cmp) summary.cmp = outcome.cmp;
@@ -872,7 +1269,7 @@ async function applyConsentChoice(page: Page, choice: ConsentChoice, started: nu
     }
   }
 
-  return summary;
+  return { summary, readableFrames };
 }
 
 /**
@@ -888,8 +1285,10 @@ async function probeKeystrokeExfiltration(
   firstPartyHostname: string,
   started: number,
   warnings: ScanWarningCollector
-): Promise<KeystrokeExfiltrationDetectionSummary | null> {
-  if (MAX_SCAN_DURATION_MS - (Date.now() - started) < KEYSTROKE_PROBE_MIN_BUDGET_MS) return null;
+): Promise<KeystrokeProbeOutcome> {
+  if (MAX_SCAN_DURATION_MS - (Date.now() - started) < KEYSTROKE_PROBE_MIN_BUDGET_MS) {
+    return { status: "partial", reason: "budget-unavailable", detection: null };
+  }
 
   const sentinel = createSentinel(randomBytes(6).toString("hex"));
   const captured: CapturedRequest[] = [];
@@ -913,7 +1312,7 @@ async function probeKeystrokeExfiltration(
   let typed: { count: number; types: string[] };
   try {
     typed = await typeSentinelIntoFields(page, sentinel);
-    if (typed.count === 0) return null;
+    if (typed.count === 0) return { status: "complete", detection: null };
     const waitMs = Math.min(KEYSTROKE_EXFIL_WAIT_MS, MAX_SCAN_DURATION_MS - (Date.now() - started) - 250);
     if (waitMs > 0) await page.waitForTimeout(waitMs);
     // Flush batch-on-unload senders: many recorders buffer keystrokes and only
@@ -921,7 +1320,7 @@ async function probeKeystrokeExfiltration(
     // here never discards the real-time captures above.
     await flushUnloadBeacons(page, started).catch(() => undefined);
   } catch {
-    return null;
+    return { status: "failed", reason: "scan-failed", detection: null };
   } finally {
     page.off("request", onRequest);
   }
@@ -932,10 +1331,13 @@ async function probeKeystrokeExfiltration(
     } (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored. Requests the page sent during and after this typing, including any unload beacons, are part of the recorded request log and counts.`
   );
 
-  return buildKeystrokeExfiltrationDetection(findSentinelLeaks(sentinelEncodings(sentinel), captured), {
-    fieldsTyped: typed.count,
-    fieldTypes: typed.types
-  });
+  return {
+    status: "complete",
+    detection: buildKeystrokeExfiltrationDetection(findSentinelLeaks(sentinelEncodings(sentinel), captured), {
+      fieldsTyped: typed.count,
+      fieldTypes: typed.types
+    })
+  };
 }
 
 /**
@@ -1128,19 +1530,17 @@ async function resolveCnameCloaksForScan(
   firstPartyHostname: string,
   started: number,
   options: ScanSiteOptions,
-  matchTracker: (host: string) => TrackerMatch | null
+  matchTracker: (host: string) => TrackerMatch | null,
+  onResolutionFailure?: (host: string) => void
 ): Promise<CnameCloak[]> {
   if (MAX_SCAN_DURATION_MS - (Date.now() - started) < CNAME_PROBE_MIN_BUDGET_MS) return [];
-  try {
-    return await resolveCnameCloaks(requests, firstPartyHostname, {
-      registrableDomain: partyKey,
-      matchTracker,
-      resolveCnameChain: options.resolveCnameChain ?? resolveCnameChainViaDns,
-      maxHosts: MAX_CNAME_LOOKUPS
-    });
-  } catch {
-    return [];
-  }
+  return resolveCnameCloaks(requests, firstPartyHostname, {
+    registrableDomain: partyKey,
+    matchTracker,
+    resolveCnameChain: options.resolveCnameChain ?? resolveCnameChainViaDns,
+    onResolutionFailure,
+    maxHosts: MAX_CNAME_LOOKUPS
+  });
 }
 
 /** Follow a hostname's CNAME chain via DNS, bounded by hops and a per-lookup timeout. */

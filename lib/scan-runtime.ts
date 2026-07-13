@@ -101,6 +101,19 @@ export class ScanRequestBudget {
     this.recordedRequestCount = Math.max(this.recordedRequestCount - 1, 0);
   }
 
+  /**
+   * Target-free aggregate state for the phase-aware measurement seam. The
+   * warning is the legacy v1 disclosure; this boolean is the corresponding
+   * structured fact and deliberately does not expose request URLs.
+   */
+  getDiagnostics(): { name: "request-capture"; family: "requests"; captureLoss: boolean } {
+    return {
+      name: "request-capture",
+      family: "requests",
+      captureLoss: this.capWarningAdded
+    };
+  }
+
   private addRequestCapWarning(): void {
     if (this.capWarningAdded) return;
     this.capWarningAdded = true;

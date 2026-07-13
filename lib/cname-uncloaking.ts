@@ -26,6 +26,8 @@ export type CnameCloakDeps = {
   registrableDomain: (host: string) => string;
   /** Tracker lookup for a resolved CNAME target (catalog and/or ad-block engine). */
   matchTracker: (host: string) => TrackerMatch | null;
+  /** Optional measurement hook; resolution failure is otherwise a best-effort skip. */
+  onResolutionFailure?: (host: string) => void;
 };
 
 /**
@@ -99,6 +101,7 @@ export async function resolveCnameCloaks(
     try {
       chain = await deps.resolveCnameChain(host);
     } catch {
+      deps.onResolutionFailure?.(host);
       continue;
     }
     const cloak = classifyCnameCloak(host, chain, firstPartyDomain, deps);

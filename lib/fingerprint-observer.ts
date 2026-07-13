@@ -11,6 +11,12 @@ export type FingerprintObservations = {
   detections: FingerprintDetectionSummary[];
 };
 
+export type FingerprintObservationCollection = {
+  observations: FingerprintObservations;
+  attemptedFrames: number;
+  readableFrames: number;
+};
+
 /**
  * Injected into every page before navigation (Playwright serializes the
  * function; `firstPartySiteKey` travels as the init-script argument).
@@ -739,13 +745,17 @@ export function fingerprintObserverInitScript(firstPartySiteKey?: string): void 
   patchPeerConnection("webkitRTCPeerConnection");
 }
 
-export async function collectFingerprintObservationsFromFrames(frames: FingerprintFrameLike[]): Promise<FingerprintObservations> {
+export async function collectFingerprintObservationsWithCoverage(
+  frames: FingerprintFrameLike[]
+): Promise<FingerprintObservationCollection> {
   const merged = new Map<string, number>();
   const detections = new Map<FingerprintDetectionSummary["kind"], FingerprintDetectionSummary>();
+  let readableFrames = 0;
 
   for (const frame of frames) {
-    const snapshot = await frame
-      .evaluate(() => {
+    let snapshot: unknown;
+    try {
+      snapshot = await frame.evaluate(() => {
         type FingerprintWindow = Window & {
           __siteBehaviorLabFingerprintEvents?: Record<string, number>;
           __siteBehaviorLabFingerprintSnapshot?: () => {
@@ -755,8 +765,11 @@ export async function collectFingerprintObservationsFromFrames(frames: Fingerpri
         };
         const fingerprintWindow = window as FingerprintWindow;
         return fingerprintWindow.__siteBehaviorLabFingerprintSnapshot?.() ?? fingerprintWindow.__siteBehaviorLabFingerprintEvents ?? {};
-      })
-      .catch(() => ({}));
+      });
+      readableFrames += 1;
+    } catch {
+      continue;
+    }
 
     const { events, detections: frameDetections } = normalizeFingerprintSnapshot(snapshot);
     for (const [api, count] of Object.entries(events)) {
@@ -768,11 +781,19 @@ export async function collectFingerprintObservationsFromFrames(frames: Fingerpri
   }
 
   return {
-    events: Array.from(merged.entries())
-      .map(([api, count]) => ({ api, count }))
-      .sort((a, b) => b.count - a.count || a.api.localeCompare(b.api)),
-    detections: Array.from(detections.values()).sort((a, b) => b.count - a.count || a.kind.localeCompare(b.kind))
+    observations: {
+      events: Array.from(merged.entries())
+        .map(([api, count]) => ({ api, count }))
+        .sort((a, b) => b.count - a.count || a.api.localeCompare(b.api)),
+      detections: Array.from(detections.values()).sort((a, b) => b.count - a.count || a.kind.localeCompare(b.kind))
+    },
+    attemptedFrames: frames.length,
+    readableFrames
   };
+}
+
+export async function collectFingerprintObservationsFromFrames(frames: FingerprintFrameLike[]): Promise<FingerprintObservations> {
+  return (await collectFingerprintObservationsWithCoverage(frames)).observations;
 }
 
 function normalizeFingerprintSnapshot(snapshot: unknown): {

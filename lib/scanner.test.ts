@@ -1,8 +1,13 @@
 import assert from "node:assert/strict";
+import { createServer } from "node:http";
+import { connect } from "node:net";
 import { test } from "node:test";
 import { PublicScanError } from "./public-errors";
+import { MeasurementKernel } from "./measurement-kernel";
+import { buildScanConditions, buildScanResult } from "./scan-result-builder";
 import { ScanNetworkRecorder } from "./scan-runtime";
 import {
+  attachStagedSingleVisitMeasurement,
   closeSharedBrowserForTests,
   decideRoutedRequest,
   MAX_RECORDED_REQUESTS,
@@ -12,7 +17,8 @@ import {
   ScanRequestBudget,
   scanSite,
   scanTimeout,
-  ScanWarningCollector
+  ScanWarningCollector,
+  stagedSingleVisitMeasurement
 } from "./scanner";
 
 test("scan browser launch args contain WebRTC egress containment", () => {
@@ -178,6 +184,119 @@ test("ScanRequestBudget can release skipped recorded requests", () => {
   budget.releaseRecordedRequest();
   assert.equal(budget.allowRecordedRequest(), true);
   assert.deepEqual(warnings.list, []);
+});
+
+test("ScanRequestBudget exposes its request-capture loss without target data", () => {
+  const budget = new ScanRequestBudget(new ScanWarningCollector(), 1);
+  assert.deepEqual(budget.getDiagnostics(), {
+    name: "request-capture",
+    family: "requests",
+    captureLoss: false
+  });
+  assert.equal(budget.allowRoutedHttpRequest(), true);
+  assert.equal(budget.allowRoutedHttpRequest(), false);
+  assert.deepEqual(budget.getDiagnostics(), {
+    name: "request-capture",
+    family: "requests",
+    captureLoss: true
+  });
+});
+
+test("phase-aware single-visit facts attach out of band while the v1 wire stays byte-identical", () => {
+  let now = 1_000;
+  const kernel = new MeasurementKernel<object>(1_000, () => now);
+  const passiveRequest = {};
+  const probeRequest = {};
+  const passivePhaseId = kernel.beginPhase("passive-load");
+  kernel.tagRequest(passiveRequest);
+  now = 1_100;
+  const probePhaseId = kernel.beginPhase("active-probe");
+  kernel.tagRequest(probeRequest);
+  kernel.setDetector("fingerprint-heuristics", "complete", { phaseId: passivePhaseId });
+  kernel.setDetector("keystroke-exfiltration", "complete", { phaseId: probePhaseId });
+  kernel.setDetector("cname-uncloaking", "complete", { phaseId: passivePhaseId });
+  kernel.setDetector("pixel-events", "complete", { phaseId: passivePhaseId });
+  kernel.setDetector("consent-banner", "skipped", { reason: "probe-disabled" });
+  kernel.setDetector("privacy-policy", "skipped", { reason: "probe-disabled" });
+  kernel.exhaustBudget({ name: "request-upload", family: "requests", phaseId: null, count: 2 });
+  now = 1_200;
+  const qualityFacts = kernel.qualityFacts({ status: 200, botWallTitleMatched: false, navigationSettled: true });
+  const finished = kernel.finish();
+
+  const conditions = buildScanConditions({
+    profile: "node-playwright",
+    requestedUrl: "https://example.com/",
+    finalUrl: "https://example.com/",
+    scannedAt: new Date(0).toISOString(),
+    chromiumVersion: "Chromium/126",
+    userAgent: "test agent",
+    viewport: { width: 1440, height: 980, isMobile: false },
+    gpcEnabled: true,
+    consentMode: "observe"
+  });
+  const request = {
+    id: 1,
+    url: "https://example.com/",
+    domain: "example.com",
+    method: "GET",
+    resourceType: "document",
+    status: 200,
+    thirdParty: false,
+    tracker: null,
+    startedAtMs: 0
+  };
+  const result = buildScanResult({
+    pageTitle: "Example",
+    status: 200,
+    durationMs: 200,
+    firstPartyDomain: "example.com",
+    conditions,
+    requests: [request],
+    cookies: [],
+    storage: [],
+    fingerprintEvents: [],
+    screenshot: null,
+    warnings: []
+  });
+  const before = JSON.stringify(result);
+
+  const returned = attachStagedSingleVisitMeasurement(result, {
+    measurement: { phases: finished.phases, detectors: finished.detectors, qualityFacts },
+    evidence: {
+      requests: [
+        { ...request, phaseId: kernel.phaseForRequest(passiveRequest)! },
+        { ...request, id: 2, startedAtMs: 100, phaseId: kernel.phaseForRequest(probeRequest)! }
+      ],
+      cookieMutations: [],
+      cookiesFinal: [],
+      storageMutations: [],
+      storageFinal: [],
+      fingerprintEvents: [],
+      fingerprintDetections: [],
+      cnameCloaks: [],
+      pixelEvents: []
+    }
+  });
+
+  assert.equal(returned, result);
+  assert.equal(JSON.stringify(result), before);
+  assert.equal(result.schemaVersion, 1);
+  assert.equal(Object.prototype.hasOwnProperty.call(result, "measurement"), false);
+  assert.equal(Object.prototype.hasOwnProperty.call(result, "phases"), false);
+
+  const staged = stagedSingleVisitMeasurement(result);
+  assert.deepEqual(staged?.measurement.phases, [
+    { phaseId: 0, kind: "passive-load", startedAtMs: 0, endedAtMs: 100 },
+    { phaseId: 1, kind: "active-probe", startedAtMs: 100, endedAtMs: 200 }
+  ]);
+  assert.deepEqual(staged?.evidence.requests.map((item) => item.phaseId), [0, 1]);
+  assert.deepEqual(staged?.measurement.qualityFacts.captureLoss, [
+    { family: "requests", phaseId: null, kind: "cap", count: 2, detail: "request-upload" }
+  ]);
+  assert.equal(staged?.measurement.detectors["consent-banner"].status, "skipped");
+
+  staged!.measurement.phases[0].endedAtMs = 999;
+  assert.equal(stagedSingleVisitMeasurement(result)?.measurement.phases[0].endedAtMs, 100);
 });
 
 test("ScanNetworkRecorder keeps raw evidence ephemeral until the post-classification build seam", () => {
@@ -561,6 +680,131 @@ test("decideRoutedRequest handles Service Worker and frame-less navigation reque
     ["https://example.com/sw.js", "https://example.com/"],
     "a missing worker URL falls back to the main document; frame-less navigation makes no engine call"
   );
+});
+
+test("scanSite stages phase-aware facts on a real single visit while returning only v1", { timeout: 20_000 }, async () => {
+  const upstream = createServer((request, response) => {
+    if (request.headers.host?.startsWith("sub.")) {
+      response.writeHead(200, { "content-type": "application/javascript" });
+      response.end("void 0;");
+      return;
+    }
+    response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+    response.end(
+      '<!doctype html><title>Phase fixture</title><script src="http://sub.phase-collection.test/tracker.js"></script><p>ok</p>'
+    );
+  });
+  await new Promise<void>((resolve, reject) => {
+    upstream.once("error", reject);
+    upstream.listen(0, "127.0.0.1", resolve);
+  });
+  const address = upstream.address();
+  assert.ok(address && typeof address === "object");
+
+  try {
+    const result = await scanSite(
+      {
+        url: "http://phase-collection.test/",
+        device: "desktop",
+        gpcEnabled: true,
+        consentMode: "observe"
+      },
+      {
+        publicUrlAlreadyVerified: true,
+        verifyPublicUrl: async () => undefined,
+        resolvePublicHost: async () => [{ address: "93.184.216.34", family: 4 }],
+        connectProxyUpstreamForTests: () => connect(address.port, "127.0.0.1"),
+        resolveCnameChain: async () => {
+          throw new Error("synthetic CNAME resolver failure");
+        }
+      }
+    );
+
+    assert.equal(result.schemaVersion, 1);
+    assert.equal(Object.prototype.hasOwnProperty.call(result, "measurement"), false);
+    assert.equal(Object.prototype.hasOwnProperty.call(result, "phases"), false);
+    const staged = stagedSingleVisitMeasurement(result);
+    assert.notEqual(staged, null);
+    assert.deepEqual(staged!.measurement.phases.map((phase) => phase.kind), ["passive-load", "active-probe"]);
+    assert.equal(Object.keys(staged!.measurement.detectors).length, 6);
+    assert.equal(staged!.measurement.detectors["fingerprint-heuristics"].status, "complete");
+    assert.deepEqual(staged!.measurement.detectors["keystroke-exfiltration"], {
+      version: "synthetic-sentinel@1",
+      status: "complete",
+      phaseId: 1
+    });
+    assert.deepEqual(staged!.measurement.detectors["cname-uncloaking"], {
+      version: "dns-cname-chain@1",
+      status: "failed",
+      reason: "scan-failed",
+      phaseId: 0
+    });
+    assert.ok(staged!.evidence.requests.length > 0);
+    assert.equal(staged!.evidence.requests.every((request) => Number.isInteger(request.phaseId)), true);
+    assert.equal(staged!.evidence.requests[0].phaseId, 0);
+  } finally {
+    await closeSharedBrowserForTests();
+    await new Promise<void>((resolve) => upstream.close(() => resolve()));
+  }
+});
+
+test("failed passive storage collection cannot manufacture consent-phase mutations", { timeout: 20_000 }, async () => {
+  const upstream = createServer((_request, response) => {
+    response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+    response.end(`<!doctype html>
+      <title>Consent boundary fixture</title>
+      <script>
+        const realLocalStorage = window.localStorage;
+        let localStorageReads = 0;
+        Object.defineProperty(window, "localStorage", {
+          configurable: true,
+          get() {
+            localStorageReads += 1;
+            if (localStorageReads === 1) throw new Error("synthetic passive snapshot failure");
+            return realLocalStorage;
+          }
+        });
+      </script>
+      <button onclick="localStorage.setItem('consent-state', 'accepted')">Accept all</button>`);
+  });
+  await new Promise<void>((resolve, reject) => {
+    upstream.once("error", reject);
+    upstream.listen(0, "127.0.0.1", resolve);
+  });
+  const address = upstream.address();
+  assert.ok(address && typeof address === "object");
+
+  try {
+    const result = await scanSite(
+      {
+        url: "http://consent-boundary.test/",
+        device: "desktop",
+        gpcEnabled: true,
+        consentMode: "accept-all"
+      },
+      {
+        publicUrlAlreadyVerified: true,
+        verifyPublicUrl: async () => undefined,
+        resolvePublicHost: async () => [{ address: "93.184.216.34", family: 4 }],
+        connectProxyUpstreamForTests: () => connect(address.port, "127.0.0.1"),
+        resolveCnameChain: async () => []
+      }
+    );
+
+    assert.equal(result.schemaVersion, 1);
+    const staged = stagedSingleVisitMeasurement(result);
+    assert.notEqual(staged, null);
+    assert.equal(staged!.evidence.storageFinal.some((entry) => entry.key === "consent-state"), true);
+    assert.deepEqual(staged!.evidence.storageMutations, []);
+    assert.deepEqual(
+      staged!.measurement.qualityFacts.captureLoss.filter((loss) => loss.family === "storage"),
+      [{ family: "storage", phaseId: 0, kind: "dropped", count: 1, detail: "passive-boundary" }]
+    );
+    assert.equal(staged!.measurement.detectors["consent-banner"].status, "complete");
+  } finally {
+    await closeSharedBrowserForTests();
+    await new Promise<void>((resolve) => upstream.close(() => resolve()));
+  }
 });
 
 test("scanSite blocks a browser request when the connect-time resolver returns a private address", { timeout: 20_000 }, async () => {

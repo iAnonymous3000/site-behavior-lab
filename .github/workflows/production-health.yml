@@ -1,0 +1,108 @@
+name: Production Health
+
+on:
+  schedule:
+    # GitHub-hosted monitoring with no external uptime service. A 15-minute
+    # interval is frequent enough to surface outages without creating noise.
+    - cron: "7,22,37,52 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-health
+  cancel-in-progress: true
+
+jobs:
+  scanner:
+    name: Verify scanner health and posture
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Fetch live health
+        env:
+          HEALTH_URL: https://scan.sitebehavior.org/api/health
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error \
+            --connect-timeout 10 \
+            --max-time 20 \
+            --retry 3 \
+            --retry-all-errors \
+            --retry-delay 5 \
+            --retry-max-time 75 \
+            "$HEALTH_URL" > "$RUNNER_TEMP/production-health.json"
+
+      - name: Validate availability and production posture
+        env:
+          HEALTH_FILE: ${{ runner.temp }}/production-health.json
+        run: |
+          node <<'NODE'
+          const fs = require("node:fs");
+
+          function readJson(path, label) {
+            try {
+              return JSON.parse(fs.readFileSync(path, "utf8"));
+            } catch (error) {
+              console.error(`::error title=${label} is not valid JSON::${error.message}`);
+              process.exit(1);
+            }
+          }
+
+          const health = readJson(process.env.HEALTH_FILE, "Health response");
+          const failures = [];
+          const assertPosture = (condition, message) => {
+            if (!condition) failures.push(message);
+          };
+
+          assertPosture(health?.ok === true, "ok must be true");
+          assertPosture(health?.status === "ok", `status must be ok (received ${JSON.stringify(health?.status)})`);
+          assertPosture(health?.scansAvailable === true, "scansAvailable must be true");
+          assertPosture(Array.isArray(health?.warnings) && health.warnings.length === 0, "warnings must be an empty array");
+          assertPosture(health?.authenticated === false, "temporary access-token authentication must be disabled");
+          assertPosture(health?.openAccess === true, "public scan access must be enabled");
+          assertPosture(health?.turnstile === true, "Turnstile must be enabled");
+          assertPosture(health?.storage === "r2", "report storage must be R2");
+          assertPosture(health?.checks?.scanAccess === "open", "scan access check must report open");
+          assertPosture(health?.checks?.adblock?.active === true, "adblock engine must be active");
+          assertPosture(health?.checks?.adblock?.engine === "loaded", "adblock engine must report loaded");
+          assertPosture(health?.checks?.chromiumSandbox === "enabled", "Chromium sandbox must be enabled");
+          assertPosture(health?.checks?.reportStore?.kind === "r2", "report store check must report R2");
+          assertPosture(health?.checks?.reportStore?.configuredPath === true, "R2 report path must be configured");
+          assertPosture(health?.checks?.reportStore?.maxAgeDays === 7, "R2 report retention must be seven days");
+          assertPosture(health?.checks?.scannerEgress === "configured", "scanner egress proxy must be configured");
+          assertPosture(Number.isFinite(health?.limits?.publicScanRateLimitPerMinute) && health.limits.publicScanRateLimitPerMinute > 0,
+            "per-minute public scan rate limit must be active");
+          assertPosture(Number.isFinite(health?.limits?.publicScanRateLimitPerDay) && health.limits.publicScanRateLimitPerDay > 0,
+            "daily public scan rate limit must be active");
+          // Cloudflare may take several minutes to roll out a newly promoted
+          // revision. Verify provenance shape here without turning normal
+          // deployment lag into a false outage alert.
+          assertPosture(typeof health?.deployment === "string" && /^[0-9a-f]{40}$/.test(health.deployment),
+            "live deployment must report a full commit SHA");
+
+          const timestamp = Date.parse(health?.timestamp);
+          const ageMs = Date.now() - timestamp;
+          assertPosture(Number.isFinite(timestamp), "health timestamp must be a valid date");
+          assertPosture(ageMs >= -60_000, "health timestamp must not be more than one minute in the future");
+          assertPosture(ageMs <= 5 * 60_000, "health timestamp must be no more than five minutes old");
+
+          if (failures.length > 0) {
+            for (const failure of failures) console.error(`::error title=Production health regression::${failure}`);
+            console.error(JSON.stringify(health, null, 2));
+            process.exit(1);
+          }
+
+          const summary = [
+            "## Production scanner health",
+            "",
+            "- Status: **ok**",
+            "- Public scanning: **available** (Turnstile protected)",
+            "- Report storage: **R2**, seven-day retention",
+            `- Deployment: \`${health.deployment}\``,
+            "- Warnings: **none**"
+          ].join("\n");
+          fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, `${summary}\n`);
+          console.log(`Production scanner is healthy at ${health.timestamp}.`);
+          NODE
