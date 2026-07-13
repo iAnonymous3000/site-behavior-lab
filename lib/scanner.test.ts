@@ -293,6 +293,30 @@ test("phase-aware single-visit facts attach out of band while the v1 wire stays 
         requestsActuallyBlocked: 0,
         phaseId: passivePhaseId
       }
+    },
+    emissionInputs: {
+      startedAt: new Date(0).toISOString(),
+      requestedUrl: "https://example.com/",
+      observedUrl: "https://example.com/",
+      conditions: {
+        gpc: true,
+        shields: "classification",
+        consent: "observe",
+        device: { kind: "desktop", viewport: { width: 1440, height: 980, isMobile: false } },
+        probes: { keystroke: true, policyVisit: true },
+        locale: "en-US",
+        language: "en-US",
+        timezone: "UTC",
+        egress: { label: "test" },
+        browser: { name: "chromium", version: "126.0.0.0" },
+        headless: true,
+        automation: "playwright-chromium"
+      },
+      adblockEngineLoaded: false,
+      pageTitle: "Example",
+      durationMs: 200,
+      warnings: [],
+      screenshot: null
     }
   });
 

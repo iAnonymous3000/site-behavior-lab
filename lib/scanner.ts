@@ -90,6 +90,7 @@ import type {
   RunEvidenceR2,
   ShieldsVerificationFactsR2
 } from "./scan-report-v2-r2";
+import type { ConditionVector } from "./scan-report-v2";
 
 export { redactUrlForReport } from "./report-url";
 export { MAX_RECORDED_REQUESTS, NON_HTTP_WARNING_EXAMPLE_LIMIT, ScanRequestBudget, ScanWarningCollector } from "./scan-runtime";
@@ -217,6 +218,22 @@ export type StagedSingleVisitMeasurement = {
   verificationFacts: {
     gpc: GpcVerificationFactsR2;
     shields: ShieldsVerificationFactsR2;
+  };
+  /**
+   * Raw builder inputs for the flag-gated shadow emission (kernel step 4).
+   * Process-local only: the raw subject URLs here never serialize anywhere;
+   * the r2 builder applies its own redaction when a report is built from them.
+   */
+  emissionInputs: {
+    startedAt: string;
+    requestedUrl: string;
+    observedUrl: string;
+    conditions: ConditionVector;
+    adblockEngineLoaded: boolean;
+    pageTitle: string;
+    durationMs: number;
+    warnings: string[];
+    screenshot: string | null;
   };
 };
 
@@ -430,7 +447,8 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
     // Kernel step 3 state (flag-gated): registered consent-state readback.
     // Everything recorded here is staged r2 fact material; the frozen v1 wire
     // never carries it.
-    const verificationEnabled = payload.consentMode !== "observe" && consentVerificationEnabled();
+    const verificationFlagOn = consentVerificationEnabled();
+    const verificationEnabled = payload.consentMode !== "observe" && verificationFlagOn;
     const consentObservations: ConsentObservationFactsR2[] = [];
     const bannerObservations: BannerTransitionR2["observations"][number][] = [];
     const consentReadState = { sequence: 0, reloadPhaseId: null as number | null };
@@ -748,10 +766,33 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
       measurementKernel.setDetector("consent-banner", "skipped", { reason: "load-failed" });
     } else if (payload.consentMode !== "observe") {
       measurementKernel.setDetector("consent-banner", "skipped", { reason: "budget-unavailable" });
+    } else if (verificationFlagOn && !pageLoadFailed) {
+      // Observe mode with the verification flag on performs ONE non-mutating
+      // banner-visibility read so the always-on detector reflects a real
+      // detection (the r2 builder rejects a probe-disabled default). Only the
+      // detector outcome is recorded: observe-mode runs carry no consent
+      // evidence by schema rule.
+      try {
+        const visible = await probeConsentBannerVisibility();
+        if (visible === null) {
+          measurementKernel.setDetector("consent-banner", "failed", {
+            reason: "engine-unavailable",
+            phaseId: passivePhaseId
+          });
+        } else {
+          measurementKernel.setDetector("consent-banner", "complete", { phaseId: passivePhaseId });
+        }
+      } catch (error) {
+        throwIfScanAborted(options.signal);
+        if (!isScanBudgetError(error)) throw error;
+        measurementKernel.setDetector("consent-banner", "skipped", { reason: "budget-unavailable" });
+      }
+    } else if (pageLoadFailed) {
+      measurementKernel.setDetector("consent-banner", "skipped", { reason: "load-failed" });
     } else {
-      // Observe mode intentionally performs no banner interaction/detection in
-      // v1. Record that honestly; step 3 will add the non-mutating visibility
-      // reads and registered-state interpreters.
+      // Observe mode without the verification flag performs no banner
+      // interaction or detection in v1. Recorded honestly; such runs are not
+      // r2 emission candidates until the flag enables the visibility read.
       measurementKernel.setDetector("consent-banner", "skipped", { reason: "probe-disabled" });
     }
     throwIfScanAborted(options.signal);
@@ -1047,10 +1088,18 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
       } catch {
         measurementKernel.setDetector("privacy-policy", "failed", { reason: "load-failed", phaseId: policyPhaseId });
       }
+    } else if (policyCandidate && !policyBudgetAvailable) {
+      measurementKernel.setDetector("privacy-policy", "skipped", { reason: "budget-unavailable" });
+    } else if (pageLoadFailed) {
+      // A challenge/error page's policy link is the interstitial vendor's, not
+      // the site's; the probe is deliberately withheld on failed loads.
+      measurementKernel.setDetector("privacy-policy", "skipped", { reason: "load-failed" });
     } else {
-      measurementKernel.setDetector("privacy-policy", "skipped", {
-        reason: policyCandidate && !policyBudgetAvailable ? "budget-unavailable" : "probe-disabled"
-      });
+      // The probe is configured on, but the page offers no discoverable policy
+      // link: the subject does not support this probe. "unsupported" (not
+      // "probe-disabled") keeps the outcome accountable under the r2 builder's
+      // declared-probe rule.
+      measurementKernel.setDetector("privacy-policy", "unsupported", { reason: "unsupported" });
     }
     throwIfScanAborted(options.signal);
 
@@ -1185,6 +1234,39 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
           ...frozenShieldsFacts,
           phaseId: passivePhaseId
         }
+      },
+      emissionInputs: {
+        startedAt: new Date(started).toISOString(),
+        requestedUrl: targetUrl.toString(),
+        observedUrl: finalUrl,
+        conditions: {
+          gpc: payload.gpcEnabled,
+          shields: options.shieldsBlockingEnabled ? "block-simulation" : "classification",
+          consent: payload.consentMode,
+          device: {
+            kind: payload.device === "mobile" ? "mobile" : "desktop",
+            viewport: {
+              width: page.viewportSize()?.width ?? DESKTOP_VIEWPORT.width,
+              height: page.viewportSize()?.height ?? DESKTOP_VIEWPORT.height,
+              isMobile: payload.device === "mobile"
+            }
+          },
+          // The Node scanner's probes are configuration-always-on; skipped
+          // outcomes stay accountable through the detector ledger.
+          probes: { keystroke: true, policyVisit: true },
+          locale: SCAN_LOCALE,
+          language: SCAN_LOCALE,
+          timezone: SCAN_TIMEZONE,
+          egress: { label: scannerEgress },
+          browser: { name: "chromium", version: chromiumVersion },
+          headless: true,
+          automation: "playwright-chromium"
+        },
+        adblockEngineLoaded: adblockEngine !== null,
+        pageTitle,
+        durationMs: Date.now() - started,
+        warnings: warnings.list,
+        screenshot
       }
     };
 

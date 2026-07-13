@@ -11,6 +11,7 @@ import {
   type ComparisonExecutedFirst
 } from "./compare-reports";
 import { saveScanReport } from "./report-store";
+import { emitShadowScanReportV2R2, v2ShadowEmissionEnabled } from "./scan-report-v2-emission";
 import { scanSite, type ScanSiteOptions } from "./scanner";
 import type { ConsentMode, ScanDevice, ScanReport, ScanRequestPayload, ScanResult } from "./types";
 import { prepareScanRequest, type PreparedScanRequest } from "./scan-gate";
@@ -60,18 +61,29 @@ export async function executePreparedScan(
       assertRateLimit(prepared.clientKey, Date.now(), prepared.rateLimitCost);
     }
 
+    // Kernel step 4 (flag-gated): each completed visit additionally emits a
+    // shadow v2/r2 report operator-side; v1 remains the only public wire and
+    // an emission failure is a logged diagnostic, never a failed scan.
+    const runVisit: ScanRunner = !v2ShadowEmissionEnabled()
+      ? scan
+      : async (visitPayload, visitOptions) => {
+          const result = await scan(visitPayload, visitOptions);
+          await emitShadowScanReportV2R2(result, "public-api");
+          return result;
+        };
+
     if (prepared.compareGpc) {
       const executedFirst = (control.drawComparisonFirstArm ?? drawComparisonFirstArm)();
       const { baseline, variant } = await runComparisonArms(
         executedFirst,
         {
           baseline: () =>
-            scan(createScanPayload(prepared.url, prepared.device, false), {
+            runVisit(createScanPayload(prepared.url, prepared.device, false), {
               publicUrlAlreadyVerified: true,
               signal: control.signal
             }),
           variant: () =>
-            scan(createScanPayload(prepared.url, prepared.device, true), {
+            runVisit(createScanPayload(prepared.url, prepared.device, true), {
               publicUrlAlreadyVerified: true,
               signal: control.signal
             })
@@ -87,12 +99,12 @@ export async function executePreparedScan(
         executedFirst,
         {
           baseline: () =>
-            scan(createScanPayload(prepared.url, prepared.device, prepared.gpcEnabled), {
+            runVisit(createScanPayload(prepared.url, prepared.device, prepared.gpcEnabled), {
               publicUrlAlreadyVerified: true,
               signal: control.signal
             }),
           variant: () =>
-            scan(createScanPayload(prepared.url, prepared.device, prepared.gpcEnabled), {
+            runVisit(createScanPayload(prepared.url, prepared.device, prepared.gpcEnabled), {
               publicUrlAlreadyVerified: true,
               shieldsBlockingEnabled: true,
               signal: control.signal
@@ -109,12 +121,12 @@ export async function executePreparedScan(
         executedFirst,
         {
           baseline: () =>
-            scan(createScanPayload(prepared.url, prepared.device, prepared.gpcEnabled, "accept-all"), {
+            runVisit(createScanPayload(prepared.url, prepared.device, prepared.gpcEnabled, "accept-all"), {
               publicUrlAlreadyVerified: true,
               signal: control.signal
             }),
           variant: () =>
-            scan(createScanPayload(prepared.url, prepared.device, prepared.gpcEnabled, "reject-all"), {
+            runVisit(createScanPayload(prepared.url, prepared.device, prepared.gpcEnabled, "reject-all"), {
               publicUrlAlreadyVerified: true,
               signal: control.signal
             })
@@ -128,7 +140,7 @@ export async function executePreparedScan(
       );
     }
 
-    const result = await scan(createScanPayload(prepared.url, prepared.device, prepared.gpcEnabled), {
+    const result = await runVisit(createScanPayload(prepared.url, prepared.device, prepared.gpcEnabled), {
       publicUrlAlreadyVerified: true,
       signal: control.signal
     });
