@@ -251,3 +251,66 @@ Recommended single-node progression:
 The first implementation keeps synchronous scans as the default behavior. When `SITE_BEHAVIOR_LAB_ASYNC_SCANS=1` is set, `POST /api/scan` prepares and validates the request, enqueues it in an in-memory single-process queue, and returns `202 { jobId, status, statusPath, reportId }`. Job status is ephemeral process memory: a Node restart drops queued, running, and recently completed job records. Completed async reports are saved under the submission's separate `reportId`, never the job ID: the status channel (`/api/scans/:jobId`) can carry the screenshot and is a capability held only by the submitter, so the job ID must never be derivable from a shared report link. (The reverse direction is not a secrecy boundary: the submitter intentionally receives both IDs in the `202` response.) The submitter can recover from a lost status record by reading `/api/reports/:reportId` when persistence succeeded. The worker path calls `executePreparedScan`, so slot acquisition, Playwright execution, comparison scans, and report persistence stay behind the same tested execution path.
 
 `GET /api/scans/:id` returns queued/running/succeeded/failed status, progress metadata, and the completed report when available. This is suitable for one Node instance where in-flight restart loss is acceptable. Multi-node hosting or fully restart-resilient polling still needs shared queue/storage before async mode can be treated as durable infrastructure.
+
+## Durable Job State Design (accepted 2026-07-13, implementation pending)
+
+Restart-safe jobs live in the scanner's existing singleton Durable Object
+(`ScannerContainer`), which already owns an atomic SQLite quota ledger. No new
+store (no D1/KV) is introduced. Two phases, both bounded and privacy-explicit:
+
+### Phase 1: durable job registry (ids only, no payload)
+
+At admission (the front Worker sees the container's `202 { jobId, reportId }`),
+the Worker records `(job_id, report_id, total_runs, created_at)` in DO SQLite.
+On a later `GET`/`DELETE /api/scans/:id` where the container answers 404 (a
+restart dropped the in-memory record), the Worker consults the registry and,
+for a known job, first probes `GET /api/reports/:reportId` on the container:
+
+- Report exists: the job finished and persisted before the restart. Answer
+  `succeeded`-shaped status pointing the client at its recovery path (the
+  client already recovers by reportId today).
+- Report absent: answer an honest terminal `expired` status whose error names
+  the scanner restart, instead of an indistinguishable "unknown job" 404.
+
+Rows carry NO target URL, NO client identifier: ids and timestamps only, so
+the registry adds zero privacy surface at the edge. TTL 75 minutes (job max
+age + expired retention), pruned on write, hard row cap with oldest-first
+eviction. Registry write failures are logged and never block admission.
+
+### Phase 2: durable execution (leases and replay)
+
+Queued jobs additionally persist their PREPARED payload so a restarted
+container can resume work it accepted. Design constraints, in force:
+
+- **Privacy.** The payload row stores the normalized target (scheme + host +
+  path, exactly what the scanner receives today), device, mode flags, and the
+  admission-time rate-limit charge record. It is deleted on terminal state and
+  expires with the job TTL either way. This is the first time a target URL
+  rests at the edge, so the row is encrypted with a Worker secret
+  (AES-GCM via WebCrypto) and the privacy page discloses transient queue
+  storage alongside the existing IP/rate-limit disclosure BEFORE the phase
+  ships.
+- **Leases.** The container claims work through the Worker
+  (`claimNextScanJob(leaseSeconds)`): the DO marks the row leased with an
+  expiry; completion/failure reports back through the Worker
+  (`resolveScanJob`); an expired lease returns the job to the queue with a
+  bounded attempt counter (2 attempts, then terminal `failed` with a restart
+  note). Turnstile is NOT re-verified on replay: admission consumed the
+  human check and the charge; replay is the same admitted work.
+- **Ordering and bounds.** The DO enforces the same aggregate admission cap
+  the process queue enforces today (`MAX_QUEUED_JOBS`); claims are
+  oldest-first; the poll loop rides the container's existing request cycle
+  (the Worker pings a claim endpoint when the container reports idle
+  capacity on health), never a busy timer in the DO.
+- **Idempotent persistence.** Replayed jobs save under the SAME reportId
+  minted at admission (create-only R2 writes make a duplicate save a no-op
+  conflict), so a lease that expired mid-save cannot publish twice.
+- **Deadlines.** A job unclaimed or unresolved past the job max age is marked
+  terminal `expired` by the next registry write (no alarms needed); the
+  client's existing recovery path covers the completed-but-unresolved case.
+
+Phase 1 is implementable without touching the container image. Phase 2
+changes the container's queue seam (`scan-jobs.ts` gains a DO-backed intake
+alongside the in-process queue behind `SITE_BEHAVIOR_LAB_DURABLE_JOBS=1`) and
+MUST land with the privacy-page disclosure and a live lease-expiry test
+before the flag is enabled in production.
