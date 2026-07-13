@@ -5,10 +5,21 @@ import { connect } from "node:net";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { test } from "node:test";
-import { emitShadowScanReportV2R2, v2ShadowEmissionEnabled } from "./scan-report-v2-emission";
+import { executePreparedScan, type PreparedScanRequest } from "./scan-api";
+import {
+  emitShadowComparisonScanReportV2R2,
+  emitShadowScanReportV2R2,
+  v2ShadowEmissionEnabled
+} from "./scan-report-v2-emission";
 import { scanReportV2R2SemanticViolations } from "./scan-report-v2-r2-evaluators";
 import { isPublicScanReportV2R2 } from "./scan-report-v2-r2-validation";
-import { closeSharedBrowserForTests, scanSite } from "./scanner";
+import {
+  attachStagedSingleVisitMeasurement,
+  closeSharedBrowserForTests,
+  scanSite,
+  stagedSingleVisitMeasurement
+} from "./scanner";
+import type { ScanReport } from "./types";
 
 test("v2ShadowEmissionEnabled reads only the exact opt-in value", () => {
   assert.equal(v2ShadowEmissionEnabled({}), false);
@@ -93,6 +104,118 @@ test("a real visit shadow-emits a validator-clean public r2 wire", { timeout: 30
     const run = wire.run as { subject: { requested: { registrableDomain: string } }; provenance: { acquisition: string } };
     assert.equal(run.subject.requested.registrableDomain, "example.com");
     assert.equal(run.provenance.acquisition, "public-api");
+
+    // A comparison emits one complete pair artifact, not one single artifact
+    // per visit. Clone the real staged visit into canonical GPC off/on arms so
+    // the pair path exercises the same scanner-to-builder seam without a
+    // second browser launch.
+    const realStaged = stagedSingleVisitMeasurement(result);
+    assert.notEqual(realStaged, null);
+    if (realStaged === null) throw new Error("expected staged measurement");
+    const baselineStaged = structuredClone(realStaged);
+    const variantStaged = structuredClone(realStaged);
+    baselineStaged.emissionInputs.startedAt = "2026-07-13T20:00:00.000Z";
+    variantStaged.emissionInputs.startedAt = "2026-07-13T20:01:00.000Z";
+    baselineStaged.emissionInputs.conditions.gpc = false;
+    variantStaged.emissionInputs.conditions.gpc = true;
+    baselineStaged.verificationFacts.gpc = {
+      method: "gpc-header-readback@1",
+      header: "confirmed-absent",
+      jsSignal: "confirmed-absent",
+      observedOn: "first-party-navigation",
+      phaseId: 0
+    };
+    variantStaged.verificationFacts.gpc = {
+      method: "gpc-header-readback@1",
+      header: "confirmed-present",
+      jsSignal: "confirmed-true",
+      observedOn: "first-party-navigation",
+      phaseId: 0
+    };
+    const baselineResult = attachStagedSingleVisitMeasurement({ ...result }, baselineStaged);
+    const variantResult = attachStagedSingleVisitMeasurement({ ...result }, variantStaged);
+    const pairDir = path.join(shadowDir, "pairs");
+    process.env.SITE_BEHAVIOR_LAB_V2_SHADOW_DIR = pairDir;
+    const pairOutcome = await emitShadowComparisonScanReportV2R2(
+      baselineResult,
+      variantResult,
+      "baseline",
+      "public-api"
+    );
+    assert.equal(pairOutcome.status, "written");
+    if (pairOutcome.status !== "written") throw new Error("expected a written shadow comparison");
+    assert.deepEqual(await readdir(pairDir), [`${pairOutcome.pairId}.json`]);
+    const pairWire = JSON.parse(await readFile(pairOutcome.filePath, "utf8")) as Record<string, unknown>;
+    assert.equal(pairWire.reportType, "comparison");
+    assert.equal(isPublicScanReportV2R2(pairWire), true);
+    assert.deepEqual(scanReportV2R2SemanticViolations(pairWire as never), []);
+    assert.equal(JSON.stringify(pairWire).includes("screenshot"), false);
+    assert.deepEqual(
+      await emitShadowComparisonScanReportV2R2({ ...baselineResult }, variantResult, "baseline", "public-api"),
+      { status: "skipped", reason: "no-staged-measurement" }
+    );
+    assert.deepEqual(await readdir(pairDir), [`${pairOutcome.pairId}.json`]);
+
+    // Prove the real API orchestration emits exactly one pair artifact in both
+    // scheduler orders. This would fail if executePreparedScan regressed to
+    // per-visit single emission or omitted the pair emission call.
+    const prepared: PreparedScanRequest = {
+      clientKey: "shadow-pair-test",
+      url: "http://shadow.example.com/private-path-Alice/",
+      device: "desktop",
+      gpcEnabled: true,
+      compareGpc: true,
+      compareShields: false,
+      compareConsent: false,
+      rateLimitCost: 2
+    };
+    const keepReport = async <T extends ScanReport>(report: T): Promise<T> => report;
+    for (const executedFirst of ["baseline", "variant"] as const) {
+      const apiPairDir = path.join(shadowDir, `api-${executedFirst}`);
+      process.env.SITE_BEHAVIOR_LAB_V2_SHADOW_DIR = apiPairDir;
+      let visitIndex = 0;
+      const apiResult = await executePreparedScan(
+        prepared,
+        async (payload) => {
+          const staged = structuredClone(realStaged);
+          staged.emissionInputs.startedAt =
+            visitIndex++ === 0 ? "2026-07-13T21:00:00.000Z" : "2026-07-13T21:01:00.000Z";
+          staged.emissionInputs.conditions.gpc = payload.gpcEnabled;
+          staged.verificationFacts.gpc = payload.gpcEnabled
+            ? {
+                method: "gpc-header-readback@1",
+                header: "confirmed-present",
+                jsSignal: "confirmed-true",
+                observedOn: "first-party-navigation",
+                phaseId: 0
+              }
+            : {
+                method: "gpc-header-readback@1",
+                header: "confirmed-absent",
+                jsSignal: "confirmed-absent",
+                observedOn: "first-party-navigation",
+                phaseId: 0
+              };
+          return attachStagedSingleVisitMeasurement(
+            { ...result, conditions: { ...result.conditions, gpcEnabled: payload.gpcEnabled } },
+            staged
+          );
+        },
+        keepReport,
+        undefined,
+        false,
+        { drawComparisonFirstArm: () => executedFirst }
+      );
+      assert.equal(apiResult.reportType, "comparison");
+      const apiFiles = await readdir(apiPairDir);
+      assert.equal(apiFiles.length, 1);
+      const apiWire = JSON.parse(await readFile(path.join(apiPairDir, apiFiles[0]), "utf8")) as {
+        reportType: string;
+        experiment: { order: string };
+      };
+      assert.equal(apiWire.reportType, "comparison");
+      assert.equal(apiWire.experiment.order, executedFirst === "baseline" ? "AB" : "BA");
+    }
 
     // The v1 result the caller returns is untouched by emission.
     assert.equal(result.schemaVersion, 1);

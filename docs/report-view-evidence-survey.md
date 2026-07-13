@@ -617,15 +617,15 @@ Steps 2 through 4 of the user-sequenced measurement kernel staging landed:
   one non-mutating visibility read so the always-on consent-banner detector
   leaves its default state.
 - **Step 4: controlled (shadow) emission landed; rollout remains.**
-  SITE_BEHAVIOR_LAB_V2_SHADOW_EMISSION=1 builds a ScanReport v2/r2 from every
-  completed visit's staged facts and writes the redacted public wire
-  operator-locally (create-only; build provenance required; failures are
-  diagnostics, never failed scans). Singles and comparison ARMS emit;
-  REMAINING before the alias flip and corpus regeneration: a pair-level r2
-  comparison builder (intervention design, recorded arm order, pairValidity
-  evaluated at build time), operator verification of shadow output on the
-  deployed scanner, then the r1->r2 alias move and corpus regen (step 4 ops)
-  and replication (step 5).
+  SITE_BEHAVIOR_LAB_V2_SHADOW_EMISSION=1 writes one redacted public r2 wire
+  operator-locally per completed scan (create-only; build provenance required;
+  failures are diagnostics, never failed scans). Singles emit one single wire;
+  comparisons emit one complete pair wire, with canonical semantic arms,
+  recorded AB/BA chronology, arm verification, pairValidity, per-family
+  comparability, and diff derived at build time. No partial per-arm artifact is
+  written. REMAINING before the alias flip and corpus regeneration: operator
+  verification of pair shadow output on the deployed scanner, then the r1->r2
+  alias move and corpus regen (step 4 ops) and replication (step 5).
 - The headline-focus residual is closed: ReportHeadline.focusArm declares the
   arm whose stats the lead finding quotes (consent reject-visit branches, GPC
   still-contacted alarm), and the shell's evidence switcher opens there.

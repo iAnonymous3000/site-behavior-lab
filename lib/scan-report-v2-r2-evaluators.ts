@@ -421,6 +421,59 @@ function factsViolationsR2(run: ScanRunV2R2, label: string): string[] {
 // Arms and experiments (RFC 15.3/15.4/15.6)
 // ---------------------------------------------------------------------------
 
+/**
+ * Canonical producer/read-side arm derivation. A null result means the
+ * structured facts required to verify a GPC or Shields arm are absent; callers
+ * must preserve that as a validation failure instead of inventing an
+ * inconclusive observation.
+ */
+export function deriveArmVerificationR2(
+  run: ScanRunV2R2,
+  axis: InterventionAxis
+): ArmVerification | null {
+  const expected = axisStateFor(axis, run.conditions);
+
+  if (axis === "consent") {
+    const consent = run.evidence.consent;
+    const choiceState = consent === undefined ? undefined : deriveChoiceStateR2(run, consent);
+    const compat = deriveConsentArmCompatR2(run);
+    return {
+      axis,
+      expected,
+      observed: choiceState === "verified" ? expected : null,
+      method: compat.method,
+      outcome: choiceState === undefined ? "inconclusive" : CONSENT_CHOICE_TO_ARM_OUTCOME[choiceState],
+      phaseId: compat.phaseId
+    };
+  }
+
+  if (axis === "gpc") {
+    const facts = run.verificationFacts?.gpc;
+    if (facts === undefined) return null;
+    const observed = gpcObservedFromFacts(facts);
+    return {
+      axis,
+      expected,
+      observed,
+      method: facts.method,
+      outcome: observed === null ? "inconclusive" : observed === expected ? "passed" : "failed",
+      phaseId: facts.phaseId
+    };
+  }
+
+  const facts = run.verificationFacts?.shields;
+  if (facts === undefined) return null;
+  const observed = shieldsObservedFromFacts(facts);
+  return {
+    axis,
+    expected,
+    observed,
+    method: facts.method,
+    outcome: observed === null ? "inconclusive" : observed === expected ? "passed" : "failed",
+    phaseId: facts.phaseId
+  };
+}
+
 function armViolationsR2(arm: ArmVerification, run: ScanRunV2R2, axis: InterventionAxis, label: string): string[] {
   const violations: string[] = [];
   if (arm.axis !== axis) violations.push(`${label}: arm axis ${arm.axis} differs from experiment axis ${axis}`);
@@ -428,42 +481,31 @@ function armViolationsR2(arm: ArmVerification, run: ScanRunV2R2, axis: Intervent
     violations.push(`${label}: arm expected state does not match the run's declared condition`);
   }
 
+  const derived = deriveArmVerificationR2(run, axis);
+  if (derived === null) {
+    violations.push(`${label}: missing verificationFacts.${axis} for the declared intervention axis`);
+    return violations;
+  }
+
   if (axis === "consent") {
-    const choiceState = run.evidence.consent === undefined ? undefined : deriveChoiceStateR2(run, run.evidence.consent);
-    const mappedOutcome = choiceState === undefined ? "inconclusive" : CONSENT_CHOICE_TO_ARM_OUTCOME[choiceState];
-    if (arm.outcome !== mappedOutcome) {
+    if (arm.outcome !== derived.outcome) {
       violations.push(`${label}: arm outcome ${arm.outcome} disagrees with the derived choiceState`);
     }
-    const expectedObserved = choiceState === "verified" ? arm.expected : null;
-    if (arm.observed !== expectedObserved) {
+    if (arm.observed !== derived.observed) {
       violations.push(`${label}: consent arm observed state does not derive from the choiceState`);
     }
-    const compat = deriveConsentArmCompatR2(run);
-    if (arm.method !== compat.method || arm.phaseId !== compat.phaseId) {
+    if (arm.method !== derived.method || arm.phaseId !== derived.phaseId) {
       violations.push(`${label}: consent arm method/phaseId do not match the establishing observation`);
     }
     return violations;
   }
 
-  // GPC/Shields: the structured facts are the source of truth (RFC 15.3);
-  // they are REQUIRED on both runs of the pair for the declared axis.
-  const facts = axis === "gpc" ? run.verificationFacts?.gpc : run.verificationFacts?.shields;
-  if (facts === undefined) {
-    violations.push(`${label}: missing verificationFacts.${axis} for the declared intervention axis`);
-    return violations;
-  }
-  if (arm.method !== facts.method) violations.push(`${label}: arm method does not match the facts'`);
-  if (arm.phaseId !== facts.phaseId) violations.push(`${label}: arm phaseId does not match the facts'`);
-  const derivedObserved =
-    axis === "gpc"
-      ? gpcObservedFromFacts(facts as GpcVerificationFactsR2)
-      : shieldsObservedFromFacts(facts as ShieldsVerificationFactsR2);
-  if (arm.observed !== derivedObserved) {
+  if (arm.method !== derived.method) violations.push(`${label}: arm method does not match the facts'`);
+  if (arm.phaseId !== derived.phaseId) violations.push(`${label}: arm phaseId does not match the facts'`);
+  if (arm.observed !== derived.observed) {
     violations.push(`${label}: arm observed state does not derive from the structured facts`);
   }
-  const consistentOutcome: ArmVerification["outcome"] =
-    derivedObserved === null ? "inconclusive" : derivedObserved === arm.expected ? "passed" : "failed";
-  if (arm.outcome !== consistentOutcome) {
+  if (arm.outcome !== derived.outcome) {
     violations.push(`${label}: arm outcome ${arm.outcome} disagrees with the facts-derived state`);
   }
   return violations;

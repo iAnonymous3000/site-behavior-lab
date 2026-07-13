@@ -17,7 +17,9 @@ import {
   NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION,
   NODE_SCAN_REPORT_V2_R2_MAX_PUBLIC_BYTES,
   assertKnownNodeToolchainIdentity,
+  buildNodeComparisonScanReportV2R2,
   buildNodeScanReportV2R2,
+  type NodeInterventionComparisonV2R2Input,
   type NodeScanReportV2R2Input
 } from "./scan-result-v2-r2-builder";
 import { trackerCatalogMetadata } from "./tracker-catalog";
@@ -109,6 +111,258 @@ function baseInput(): NodeScanReportV2R2Input {
     screenshot: "data:image/png;base64,PRIVATE_SCREENSHOT"
   };
 }
+
+function comparisonInput(
+  axis: "gpc" | "shields" | "consent",
+  executedFirst: "baseline" | "variant"
+): NodeInterventionComparisonV2R2Input {
+  const baseline = baseInput();
+  const variant = baseInput();
+  baseline.runId = `run-${axis}-baseline-${executedFirst}`;
+  variant.runId = `run-${axis}-variant-${executedFirst}`;
+  baseline.startedAt = executedFirst === "baseline" ? "2026-07-12T18:00:00.000Z" : "2026-07-12T18:01:00.000Z";
+  variant.startedAt = executedFirst === "baseline" ? "2026-07-12T18:01:00.000Z" : "2026-07-12T18:00:00.000Z";
+  baseline.screenshot = "data:image/png;base64,BASELINE_PRIVATE";
+  variant.screenshot = "data:image/png;base64,VARIANT_PRIVATE";
+
+  if (axis === "gpc") {
+    baseline.conditions.gpc = false;
+    variant.conditions.gpc = true;
+    baseline.verificationFacts = {
+      gpc: {
+        method: "gpc-header-readback@1",
+        header: "confirmed-absent",
+        jsSignal: "confirmed-absent",
+        observedOn: "first-party-navigation",
+        phaseId: 0
+      }
+    };
+    variant.verificationFacts = {
+      gpc: {
+        method: "gpc-header-readback@1",
+        header: "confirmed-present",
+        jsSignal: "confirmed-true",
+        observedOn: "first-party-navigation",
+        phaseId: 0
+      }
+    };
+  } else if (axis === "shields") {
+    baseline.conditions.shields = "classification";
+    variant.conditions.shields = "block-simulation";
+    baseline.verificationFacts = {
+      shields: {
+        method: "shields-engine-status@1",
+        engineLoaded: true,
+        applied: false,
+        requestsEvaluated: 1,
+        requestsMatched: 0,
+        requestsActuallyBlocked: 0,
+        phaseId: 0
+      }
+    };
+    variant.verificationFacts = {
+      shields: {
+        method: "shields-engine-status@1",
+        engineLoaded: true,
+        applied: true,
+        requestsEvaluated: 1,
+        requestsMatched: 0,
+        requestsActuallyBlocked: 0,
+        phaseId: 0
+      }
+    };
+  } else {
+    makeVerifiedConsentInput(baseline, "accept-all");
+    makeVerifiedConsentInput(variant, "reject-all");
+  }
+
+  return { pairId: `pair-${axis}-${executedFirst}`, executedFirst, baseline, variant };
+}
+
+function makeVerifiedConsentInput(input: NodeScanReportV2R2Input, mode: "accept-all" | "reject-all"): void {
+  input.conditions.consent = mode;
+  input.measurement.phases.push(
+    { phaseId: 1, kind: "consent-interaction", startedAtMs: 1000, endedAtMs: 1500 },
+    { phaseId: 2, kind: "post-choice-reload", startedAtMs: 1500, endedAtMs: 2000 }
+  );
+  input.summary.durationMs = 2000;
+  const observed = mode === "accept-all" ? "accepted-all" : "rejected-all";
+  input.consent = {
+    interactionAttempted: true,
+    controlActivated: true,
+    verificationObservations: [
+      { phaseId: 1, method: "tcf-api@1", observed, result: { outcome: "read", sequence: 0 } },
+      { phaseId: 2, method: "tcf-api@1", observed, result: { outcome: "read", sequence: 1 } }
+    ]
+  };
+}
+
+test("the Node comparison builder derives all three canonical interventions in both execution orders", () => {
+  for (const axis of ["gpc", "shields", "consent"] as const) {
+    for (const executedFirst of ["baseline", "variant"] as const) {
+      const report = buildNodeComparisonScanReportV2R2(comparisonInput(axis, executedFirst));
+      assert.equal(report.reportType, "comparison");
+      assert.equal(report.experiment.kind, "intervention");
+      if (report.experiment.kind !== "intervention") throw new Error("expected intervention");
+      assert.equal(report.experiment.axis, axis);
+      assert.equal(report.experiment.order, executedFirst === "baseline" ? "AB" : "BA");
+      assert.deepEqual(report.experiment.evidence, {
+        pairs: 1,
+        counterbalanced: false,
+        strength: "observed-difference"
+      });
+      assert.equal(report.experiment.verification.baseline.outcome, "passed");
+      assert.equal(report.experiment.verification.variant.outcome, "passed");
+      assert.equal(report.comparability.pairValidity.eligible, true);
+      assert.equal(report.comparability.interventionVerified, true);
+      assert.equal(isEphemeralScanReportR2(report), true);
+      assert.deepEqual(scanReportV2R2SemanticViolations(toPublicScanReportR2(report)), []);
+      assert.equal(report.ephemeral.baselineScreenshot, "data:image/png;base64,BASELINE_PRIVATE");
+      assert.equal(report.ephemeral.variantScreenshot, "data:image/png;base64,VARIANT_PRIVATE");
+      assert.equal(JSON.stringify(toPublicScanReportR2(report)).includes("PRIVATE"), false);
+    }
+  }
+});
+
+test("the comparison builder rejects identity, chronology, orientation, and missing-fact defects", () => {
+  const invalidOrder = comparisonInput("gpc", "baseline");
+  (invalidOrder as { executedFirst: string }).executedFirst = "first";
+  assert.throws(() => buildNodeComparisonScanReportV2R2(invalidOrder), /exactly baseline or variant/);
+
+  const duplicateRun = comparisonInput("gpc", "baseline");
+  duplicateRun.variant.runId = duplicateRun.baseline.runId;
+  assert.throws(() => buildNodeComparisonScanReportV2R2(duplicateRun), /distinct runId/);
+
+  const equalTime = comparisonInput("gpc", "baseline");
+  equalTime.variant.startedAt = equalTime.baseline.startedAt;
+  assert.throws(() => buildNodeComparisonScanReportV2R2(equalTime), /distinct startedAt/);
+
+  const schedulerMismatch = comparisonInput("gpc", "baseline");
+  schedulerMismatch.executedFirst = "variant";
+  assert.throws(() => buildNodeComparisonScanReportV2R2(schedulerMismatch), /scheduler order disagrees/);
+
+  const reversed = comparisonInput("gpc", "baseline");
+  reversed.baseline.conditions.gpc = true;
+  reversed.variant.conditions.gpc = false;
+  assert.throws(() => buildNodeComparisonScanReportV2R2(reversed), /canonical baseline\/variant orientation/);
+
+  const missingFacts = comparisonInput("gpc", "baseline");
+  delete missingFacts.variant.verificationFacts;
+  assert.throws(() => buildNodeComparisonScanReportV2R2(missingFacts), /structured verificationFacts\.gpc/);
+});
+
+test("a facts-proven arm failure remains an honest comparison result", () => {
+  const input = comparisonInput("gpc", "baseline");
+  const facts = input.baseline.verificationFacts?.gpc;
+  assert.notEqual(facts, undefined);
+  if (facts === undefined) throw new Error("expected GPC facts");
+  facts.header = "confirmed-present";
+  facts.jsSignal = "confirmed-true";
+  const report = buildNodeComparisonScanReportV2R2(input);
+  assert.equal(report.experiment.kind, "intervention");
+  if (report.experiment.kind !== "intervention") throw new Error("expected intervention");
+  assert.equal(report.experiment.verification.baseline.outcome, "failed");
+  assert.equal(report.comparability.interventionVerified, false);
+  assert.deepEqual(scanReportV2R2SemanticViolations(toPublicScanReportR2(report)), []);
+});
+
+test("an unavailable consent arm censors only the derived intervention claims", () => {
+  const input = comparisonInput("consent", "baseline");
+  input.variant.consent = {
+    interactionAttempted: true,
+    controlActivated: false,
+    verificationObservations: []
+  };
+  const report = buildNodeComparisonScanReportV2R2(input);
+  assert.equal(report.experiment.kind, "intervention");
+  if (report.experiment.kind !== "intervention") throw new Error("expected intervention");
+  assert.deepEqual(report.experiment.verification.variant, {
+    axis: "consent",
+    expected: "consent:reject-all",
+    observed: null,
+    method: "consent-verification-unavailable@1",
+    outcome: "inconclusive",
+    phaseId: 1
+  });
+  assert.equal(report.comparability.pairValidity.eligible, true);
+  assert.equal(report.comparability.perMetric["raw-counts"].eligible, true);
+  assert.equal(report.comparability.perMetric["consent-verification"].eligible, false);
+  assert.equal(
+    report.comparability.perMetric["consent-verification"].reasons.includes(
+      "arm-verification-inconclusive:variant"
+    ),
+    true
+  );
+  assert.equal(report.comparability.interventionVerified, false);
+  assert.deepEqual(scanReportV2R2SemanticViolations(toPublicScanReportR2(report)), []);
+});
+
+test("present but unobservable axis facts derive an inconclusive arm instead of a missing-facts error", () => {
+  const input = comparisonInput("gpc", "baseline");
+  const facts = input.variant.verificationFacts?.gpc;
+  assert.notEqual(facts, undefined);
+  if (facts === undefined) throw new Error("expected GPC facts");
+  facts.header = "unobservable";
+  facts.jsSignal = "unobservable";
+  const report = buildNodeComparisonScanReportV2R2(input);
+  assert.equal(report.experiment.kind, "intervention");
+  if (report.experiment.kind !== "intervention") throw new Error("expected intervention");
+  assert.equal(report.experiment.verification.variant.observed, null);
+  assert.equal(report.experiment.verification.variant.outcome, "inconclusive");
+  assert.equal(report.comparability.interventionVerified, false);
+  assert.deepEqual(scanReportV2R2SemanticViolations(toPublicScanReportR2(report)), []);
+});
+
+test("subject mismatch remains an honestly ineligible, diff-censored comparison", () => {
+  const input = comparisonInput("gpc", "baseline");
+  input.variant.requestedUrl = "https://different.example.net/";
+  input.variant.observedUrl = "https://different.example.net/";
+  input.variant.evidence.requests[0].url = "https://different.example.net/";
+  input.variant.evidence.requests[0].domain = "different.example.net";
+  const report = buildNodeComparisonScanReportV2R2(input);
+  assert.deepEqual(report.comparability.pairValidity, { eligible: false, reasons: ["subject-mismatch"] });
+  assert.equal(report.comparability.perMetric["raw-counts"].eligible, false);
+  assert.equal(report.diff.families["raw-counts"].eligible, false);
+  assert.deepEqual(scanReportV2R2SemanticViolations(toPublicScanReportR2(report)), []);
+});
+
+test("comparison screenshots remain ephemeral even when each exceeds the public byte cap", () => {
+  const input = comparisonInput("gpc", "baseline");
+  const hugeScreenshot = `data:image/png;base64,${"A".repeat(NODE_SCAN_REPORT_V2_R2_MAX_PUBLIC_BYTES + 1)}`;
+  input.baseline.screenshot = hugeScreenshot;
+  input.variant.screenshot = hugeScreenshot;
+  const report = buildNodeComparisonScanReportV2R2(input);
+  assert.equal(report.ephemeral.baselineScreenshot, hugeScreenshot);
+  assert.equal(report.ephemeral.variantScreenshot, hugeScreenshot);
+  assert.equal(JSON.stringify(toPublicScanReportR2(report)).includes("screenshot"), false);
+});
+
+test("the comparison byte cap covers the aggregate public pair", () => {
+  const input = comparisonInput("gpc", "baseline");
+  const origins = Array.from({ length: 150_000 }, () => "https://example.com/");
+  for (const arm of [input.baseline, input.variant]) {
+    arm.evidence.fingerprintDetections.push({
+      kind: "session-recording",
+      heuristic: "interaction-listener-coverage-v1",
+      count: 1,
+      evidence: {
+        eventTypes: ["input"],
+        listenerTargets: ["document"],
+        thirdPartyOrigins: origins,
+        totalListenerCalls: 1
+      },
+      phaseId: 0
+    });
+  }
+  const publicSize = (arm: NodeScanReportV2R2Input): number =>
+    Buffer.byteLength(`${JSON.stringify(toPublicScanReportR2(buildNodeScanReportV2R2(arm)), null, 2)}\n`, "utf8");
+  assert.ok(publicSize(input.baseline) < NODE_SCAN_REPORT_V2_R2_MAX_PUBLIC_BYTES);
+  assert.ok(publicSize(input.variant) < NODE_SCAN_REPORT_V2_R2_MAX_PUBLIC_BYTES);
+  assert.throws(
+    () => buildNodeComparisonScanReportV2R2(input),
+    new RegExp(`comparison larger than ${NODE_SCAN_REPORT_V2_R2_MAX_PUBLIC_BYTES}`)
+  );
+});
 
 test("the Node builder emits a validator-clean r2 shell with current provenance and derived blocks", () => {
   const report = buildNodeScanReportV2R2(baseInput());
@@ -648,6 +902,9 @@ test("build provenance comes only from the immutable environment and fails close
     const fromEnvironment = baseInput();
     delete process.env[BUILD_COMMIT_ENV];
     assert.throws(() => buildNodeScanReportV2R2(fromEnvironment), /full 40-character Git commit/);
+
+    const injected = buildNodeScanReportV2R2(fromEnvironment, { [BUILD_COMMIT_ENV]: "C".repeat(40) });
+    assert.equal(injected.run.provenance.buildCommit, "c".repeat(40));
 
     process.env[BUILD_COMMIT_ENV] = "B".repeat(40);
     const report = buildNodeScanReportV2R2(fromEnvironment);

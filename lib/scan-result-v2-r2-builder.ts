@@ -46,8 +46,10 @@ import {
 import { MIN_POLICY_TEXT_LENGTH } from "./privacy-policy";
 import { toPublicScanReportR2 } from "./scan-report-v2-r2-projection";
 import {
+  deriveArmVerificationR2,
   deriveChoiceStateR2,
   deriveReverifiedAfterReloadR2,
+  evaluateComparabilityR2,
   scanReportV2R2SemanticViolations
 } from "./scan-report-v2-r2-evaluators";
 import { isEphemeralScanReportR2 } from "./scan-report-v2-r2-validation";
@@ -56,13 +58,20 @@ import {
   type BannerTransitionR2,
   type ConsentEvidenceR2,
   type ConsentObservationResultR2,
+  type EphemeralComparisonReportR2,
   type EphemeralSingleReportR2,
   type GpcVerificationFactsR2,
+  type InterventionExperimentR2,
   type RunEvidenceR2,
   type ScanRunV2R2,
   type ShieldsVerificationFactsR2
 } from "./scan-report-v2-r2";
-import { evaluateQuality, deriveObservationConsistency } from "./scan-report-v2-evaluators";
+import {
+  buildComparisonDiffV2,
+  deriveObservationConsistency,
+  evaluateQuality,
+  interventionAxisDelta
+} from "./scan-report-v2-evaluators";
 import { BUDGET_FAMILIES } from "./scan-report-v2-evaluators";
 import { buildFingerprints, canonicalJson } from "./scan-report-v2-fingerprints";
 import {
@@ -169,7 +178,18 @@ export type NodeScanReportV2R2Input = {
   screenshot: string | null;
 };
 
-export function buildNodeScanReportV2R2(input: NodeScanReportV2R2Input): EphemeralSingleReportR2 {
+export type NodeInterventionComparisonV2R2Input = {
+  pairId: string;
+  /** Scheduler testimony used only to cross-check recorded chronology. */
+  executedFirst: "baseline" | "variant";
+  baseline: NodeScanReportV2R2Input;
+  variant: NodeScanReportV2R2Input;
+};
+
+export function buildNodeScanReportV2R2(
+  input: NodeScanReportV2R2Input,
+  env: NodeJS.ProcessEnv = process.env
+): EphemeralSingleReportR2 {
   assertProducerIdentity(input.runId, input.startedAt);
   assertNodeConditions(input.conditions);
   assertMeasurementRegistry(input.measurement.detectors);
@@ -189,7 +209,7 @@ export function buildNodeScanReportV2R2(input: NodeScanReportV2R2Input): Ephemer
     throw new Error("r2 consent failures derive from structured observation results, not a free-form failure reason.");
   }
 
-  const buildCommit = resolveBuildCommit();
+  const buildCommit = resolveBuildCommit(env);
   const toolchain = currentNodeToolchain(input.adblockEngineLoaded);
   assertKnownNodeToolchainIdentity(toolchain);
 
@@ -290,13 +310,120 @@ export function buildNodeScanReportV2R2(input: NodeScanReportV2R2Input): Ephemer
   return report;
 }
 
-function assertProducerIdentity(runId: string, startedAt: string): void {
-  if (!/^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/.test(runId)) {
-    throw new Error("runId must be a bounded producer-generated opaque token.");
+/**
+ * Build one complete intervention pair from two staged Node visits. The caller
+ * supplies only facts and scheduler order: axis, semantic arms, evidence
+ * strength, comparability, and diff are all derived here.
+ */
+export function buildNodeComparisonScanReportV2R2(
+  input: NodeInterventionComparisonV2R2Input,
+  env: NodeJS.ProcessEnv = process.env
+): EphemeralComparisonReportR2 {
+  assertOpaqueProducerToken(input.pairId, "pairId");
+  if (input.executedFirst !== "baseline" && input.executedFirst !== "variant") {
+    throw new Error("executedFirst must be exactly baseline or variant.");
   }
+  const baselineShell = buildNodeScanReportV2R2(input.baseline, env);
+  const variantShell = buildNodeScanReportV2R2(input.variant, env);
+  const baseline = baselineShell.run;
+  const variant = variantShell.run;
+
+  if (baseline.runId === variant.runId) {
+    throw new Error("Comparison arms require distinct runId values.");
+  }
+  const axis = interventionAxisDelta(baseline, variant);
+  if (axis === null) {
+    throw new Error("Comparison arms must differ on exactly one intervention axis.");
+  }
+  assertCanonicalNodeIntervention(axis, baseline, variant);
+
+  const baselineStartedAt = Date.parse(baseline.startedAt);
+  const variantStartedAt = Date.parse(variant.startedAt);
+  if (baselineStartedAt === variantStartedAt) {
+    throw new Error("Comparison arms require distinct startedAt timestamps.");
+  }
+  const chronologicalOrder = baselineStartedAt < variantStartedAt ? "AB" : "BA";
+  const schedulerOrder = input.executedFirst === "baseline" ? "AB" : "BA";
+  if (chronologicalOrder !== schedulerOrder) {
+    throw new Error("Comparison scheduler order disagrees with the arms' startedAt chronology.");
+  }
+
+  const baselineVerification = deriveArmVerificationR2(baseline, axis);
+  const variantVerification = deriveArmVerificationR2(variant, axis);
+  if (baselineVerification === null || variantVerification === null) {
+    throw new Error(`Comparison arms require structured verificationFacts.${axis}.`);
+  }
+
+  const experiment: InterventionExperimentR2 = {
+    kind: "intervention",
+    axis,
+    pairId: input.pairId,
+    order: chronologicalOrder,
+    verification: { baseline: baselineVerification, variant: variantVerification },
+    evidence: { pairs: 1, counterbalanced: false, strength: "observed-difference" }
+  };
+  const comparability = evaluateComparabilityR2(experiment, baseline, variant);
+  const report: EphemeralComparisonReportR2 = {
+    schemaVersion: SCAN_REPORT_V2_SCHEMA_VERSION,
+    schemaRevision: SCAN_REPORT_V2_SCHEMA_REVISION_2,
+    reportType: "comparison",
+    baseline,
+    variant,
+    experiment,
+    comparability,
+    diff: buildComparisonDiffV2(baseline, variant, comparability.perMetric),
+    ephemeral: {
+      baselineScreenshot: baselineShell.ephemeral.screenshot,
+      variantScreenshot: variantShell.ephemeral.screenshot
+    }
+  };
+
+  if (!isEphemeralScanReportR2(report)) {
+    throw new Error("Refusing to build an invalid ScanReport v2/r2 comparison shell.");
+  }
+  const publicReport = toPublicScanReportR2(report);
+  const storedWireBytes = Buffer.byteLength(`${JSON.stringify(publicReport, null, 2)}\n`, "utf8");
+  if (storedWireBytes > NODE_SCAN_REPORT_V2_R2_MAX_PUBLIC_BYTES) {
+    throw new Error(
+      `Refusing to build a ScanReport v2/r2 comparison larger than ${NODE_SCAN_REPORT_V2_R2_MAX_PUBLIC_BYTES} public bytes.`
+    );
+  }
+  const violations = scanReportV2R2SemanticViolations(publicReport);
+  if (violations.length > 0) {
+    throw new Error(`Refusing to build an inconsistent ScanReport v2/r2 comparison: ${violations.join("; ")}`);
+  }
+  return report;
+}
+
+function assertCanonicalNodeIntervention(
+  axis: "gpc" | "shields" | "consent",
+  baseline: ScanRunV2R2,
+  variant: ScanRunV2R2
+): void {
+  const canonical =
+    (axis === "gpc" && baseline.conditions.gpc === false && variant.conditions.gpc === true) ||
+    (axis === "shields" &&
+      baseline.conditions.shields === "classification" &&
+      variant.conditions.shields === "block-simulation") ||
+    (axis === "consent" &&
+      baseline.conditions.consent === "accept-all" &&
+      variant.conditions.consent === "reject-all");
+  if (!canonical) {
+    throw new Error(`Comparison ${axis} arms are not in the canonical baseline/variant orientation.`);
+  }
+}
+
+function assertProducerIdentity(runId: string, startedAt: string): void {
+  assertOpaqueProducerToken(runId, "runId");
   const parsed = Date.parse(startedAt);
   if (!Number.isFinite(parsed) || new Date(parsed).toISOString() !== startedAt) {
     throw new Error("startedAt must be a canonical ISO-8601 UTC timestamp.");
+  }
+}
+
+function assertOpaqueProducerToken(value: string, label: "runId" | "pairId"): void {
+  if (!/^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/.test(value)) {
+    throw new Error(`${label} must be a bounded producer-generated opaque token.`);
   }
 }
 
@@ -873,8 +1000,8 @@ function assertVocabCode(label: string, value: string): void {
   }
 }
 
-function resolveBuildCommit(): string {
-  const value = process.env[BUILD_COMMIT_ENV]?.trim().toLowerCase() ?? "";
+function resolveBuildCommit(env: NodeJS.ProcessEnv): string {
+  const value = env[BUILD_COMMIT_ENV]?.trim().toLowerCase() ?? "";
   if (!FULL_GIT_SHA.test(value)) {
     throw new Error(`${BUILD_COMMIT_ENV} must identify a full 40-character Git commit; unknown provenance is rejected.`);
   }
