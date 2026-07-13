@@ -53,6 +53,8 @@ type Env = {
   // Forwarded to the Node scanner. Only "1" enables Playwright's Chromium
   // sandbox; /api/health exposes the effective state for deployment checks.
   SITE_BEHAVIOR_LAB_CHROMIUM_SANDBOX?: string;
+  SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION?: string;
+  SITE_BEHAVIOR_LAB_V2_SHADOW_EMISSION?: string;
   // "1" waives the Turnstile requirement for open access (atomic rate limit only).
   // Without it, open access with no TURNSTILE_SECRET_KEY fails closed.
   SITE_BEHAVIOR_LAB_ACCEPT_NO_TURNSTILE_RISK?: string;
@@ -105,6 +107,12 @@ export class ScannerContainer extends Container<Env> {
     // Long Shields scans return 202 + jobId instead of holding the connection.
     SITE_BEHAVIOR_LAB_ASYNC_SCANS: "1",
     SITE_BEHAVIOR_LAB_CHROMIUM_SANDBOX: this.env.SITE_BEHAVIOR_LAB_CHROMIUM_SANDBOX ?? "",
+    // Shadow output is always the operator-only R2 prefix in Containers; the
+    // two rollout flags remain off unless explicitly set at the Worker boundary.
+    // Bucket-level public access is an operator preflight in the runbook.
+    SITE_BEHAVIOR_LAB_V2_SHADOW_BACKEND: "r2",
+    SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION: this.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION ?? "",
+    SITE_BEHAVIOR_LAB_V2_SHADOW_EMISSION: this.env.SITE_BEHAVIOR_LAB_V2_SHADOW_EMISSION ?? "",
     // The front Worker is the public gate, but the container also enforces the
     // token (defense in depth). Cloudflare's deny-by-default egress switch is
     // intentionally not enabled here: the app proxy opens raw TCP to a validated,

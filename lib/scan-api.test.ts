@@ -189,6 +189,41 @@ test("executePreparedScan charges rate limits only after acquiring a scan slot",
   });
 });
 
+test("post-publication shadow work cannot hold the v1 result or scan slot", { timeout: 1_000 }, async () => {
+  const prepared: PreparedScanRequest = {
+    clientKey: "shadow-background-client",
+    url: "https://1.1.1.1/",
+    device: "desktop",
+    gpcEnabled: false,
+    compareGpc: false,
+    compareShields: false,
+    compareConsent: false,
+    rateLimitCost: 1
+  };
+  let scheduled = 0;
+  process.env.SITE_BEHAVIOR_LAB_V2_SHADOW_EMISSION = "1";
+  try {
+    const result = await executePreparedScan(
+      prepared,
+      async (payload) => makeScanResult(payload),
+      async (report) => report,
+      undefined,
+      false,
+      {
+        schedulePostPublication: () => {
+          scheduled += 1;
+          return new Promise(() => {});
+        }
+      }
+    );
+    assert.equal(result.ok, true);
+    assert.equal(scheduled, 1);
+    assert.equal(scanLimitStateForTests().activeScans, 0);
+  } finally {
+    delete process.env.SITE_BEHAVIOR_LAB_V2_SHADOW_EMISSION;
+  }
+});
+
 test("runScanRequest does not charge rate limit quota for blocked target URLs", async () => {
   const scannedPayloads: ScanRequestPayload[] = [];
   const scan: ScanRunner = async (payload) => {

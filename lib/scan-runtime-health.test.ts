@@ -25,6 +25,19 @@ test("isScanRuntimeHealth accepts a full worker-shaped payload", () => {
   assert.equal(isScanRuntimeHealth(payload), true);
 });
 
+test("isScanRuntimeHealth accepts the private shadow readiness projection", () => {
+  assert.equal(
+    isScanRuntimeHealth({
+      ok: true,
+      checks: {
+        consentVerification: "enabled",
+        v2ShadowEmission: { status: "enabled", backend: "r2" }
+      }
+    }),
+    true
+  );
+});
+
 test("isScanRuntimeHealth rejects malformed payloads", () => {
   assert.equal(isScanRuntimeHealth(null), false);
   assert.equal(isScanRuntimeHealth("ok"), false);
@@ -35,6 +48,15 @@ test("isScanRuntimeHealth rejects malformed payloads", () => {
   assert.equal(isScanRuntimeHealth({ ok: true, scansAvailable: "yes" }), false);
   assert.equal(isScanRuntimeHealth({ ok: true, warnings: ["ok", 1] }), false);
   assert.equal(isScanRuntimeHealth({ ok: true, checks: { scanAccess: "broken" } }), false);
+  assert.equal(isScanRuntimeHealth({ ok: true, checks: { consentVerification: "sometimes" } }), false);
+  assert.equal(
+    isScanRuntimeHealth({ ok: true, checks: { v2ShadowEmission: { status: "enabled", backend: "public" } } }),
+    false
+  );
+  assert.equal(
+    isScanRuntimeHealth({ ok: true, checks: { v2ShadowEmission: { status: "sometimes", backend: "r2" } } }),
+    false
+  );
   assert.equal(isScanRuntimeHealth({ ok: true, capabilities: { gpcComparison: "maybe" } }), false);
 });
 

@@ -5,9 +5,15 @@ import { reportStoreStatus } from "./report-store";
 import type { ReportStoreKind } from "./report-store-backend";
 import { producerCapability } from "./report-producers";
 import { asScanRuntimeHealth, type ScanRuntimeCapabilities } from "./scan-runtime-health";
+import {
+  V2_SHADOW_DIR_ENV,
+  V2_SHADOW_EMISSION_ENV,
+  v2ShadowStoreStatus
+} from "./scan-report-v2-shadow-store";
 
 const SCANNER_EGRESS_ENV = "SITE_BEHAVIOR_LAB_SCANNER_EGRESS";
 const BUILD_COMMIT_ENV = "SITE_BEHAVIOR_LAB_BUILD_COMMIT";
+const CONSENT_VERIFICATION_ENV = "SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION";
 
 // Backend-agnostic public projection: never exposes a filesystem path or an R2
 // bucket/endpoint to /api/health, only the backend kind and shared policy.
@@ -37,6 +43,11 @@ export type RuntimeStatus = {
     dnsRebindingGuard: "connect-time-proxy";
     reportStore: PublicReportStoreStatus;
     scannerEgress: "configured" | "default";
+    consentVerification: "enabled" | "disabled" | "misconfigured";
+    v2ShadowEmission: {
+      status: "enabled" | "disabled" | "misconfigured";
+      backend: "filesystem" | "r2" | "none";
+    };
   };
   capabilities: ScanRuntimeCapabilities;
   warnings: string[];
@@ -53,6 +64,8 @@ export async function runtimeStatus(
   // operator checks when the configuration is broken.
   const store = safeReportStoreStatus();
   const warnings = productionWarnings(store.status);
+  const shadow = shadowRuntimeCheck();
+  warnings.push(...shadow.warnings);
   const reportStore = store.public;
   if (store.error !== null) {
     warnings.push(`The report store backend is misconfigured and unavailable: ${store.error}`);
@@ -83,7 +96,9 @@ export async function runtimeStatus(
       scanAccess: authenticated ? "configured" : "open",
       dnsRebindingGuard: "connect-time-proxy",
       reportStore,
-      scannerEgress: process.env[SCANNER_EGRESS_ENV]?.trim() ? "configured" : "default"
+      scannerEgress: process.env[SCANNER_EGRESS_ENV]?.trim() ? "configured" : "default",
+      consentVerification: shadow.consentVerification,
+      v2ShadowEmission: shadow.emission
     },
     capabilities: {
       singleScan: capability.singleScan,
@@ -102,6 +117,58 @@ export async function runtimeStatus(
     },
     warnings
   });
+}
+
+function shadowRuntimeCheck(): {
+  consentVerification: "enabled" | "disabled" | "misconfigured";
+  emission: RuntimeStatus["checks"]["v2ShadowEmission"];
+  warnings: string[];
+} {
+  const warnings: string[] = [];
+  const consentFlag = binaryFlagStatus(process.env[CONSENT_VERIFICATION_ENV]);
+  const emissionFlag = binaryFlagStatus(process.env[V2_SHADOW_EMISSION_ENV]);
+  const store = v2ShadowStoreStatus();
+  const consentVerification = consentFlag;
+  let emissionStatus: RuntimeStatus["checks"]["v2ShadowEmission"]["status"] = emissionFlag;
+
+  if (consentFlag === "misconfigured") {
+    warnings.push(`${CONSENT_VERIFICATION_ENV} must be 0, 1, or unset.`);
+  }
+  if (emissionFlag === "misconfigured") {
+    warnings.push(`${V2_SHADOW_EMISSION_ENV} must be 0, 1, or unset.`);
+  }
+  if (emissionFlag === "enabled" && store.error !== null) {
+    emissionStatus = "misconfigured";
+    warnings.push(`The v2 shadow store is misconfigured and unavailable: ${store.error}`);
+  }
+  if (emissionFlag === "enabled" && consentFlag === "disabled") {
+    warnings.push(
+      `${CONSENT_VERIFICATION_ENV} is disabled; observe-mode r2 shadows cannot record the always-on consent detector outcome.`
+    );
+  }
+  if (
+    emissionFlag === "enabled" &&
+    store.sink === "filesystem" &&
+    process.env.NODE_ENV === "production" &&
+    !process.env[V2_SHADOW_DIR_ENV]?.trim()
+  ) {
+    warnings.push("Production filesystem shadow emission requires an explicit writable shadow directory.");
+  }
+
+  return {
+    consentVerification,
+    emission: {
+      status: emissionStatus,
+      backend: store.sink === "unavailable" ? "none" : store.sink
+    },
+    warnings
+  };
+}
+
+function binaryFlagStatus(value: string | undefined): "enabled" | "disabled" | "misconfigured" {
+  if (value === undefined || value === "" || value === "0") return "disabled";
+  if (value === "1") return "enabled";
+  return "misconfigured";
 }
 
 type SafeReportStoreStatus = {

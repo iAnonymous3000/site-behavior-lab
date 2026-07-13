@@ -1,8 +1,12 @@
 import { randomBytes } from "node:crypto";
-import { mkdir, writeFile } from "node:fs/promises";
-import path from "node:path";
 import type { AcquisitionKind } from "./scan-report-v2";
-import { toPublicScanReportR2 } from "./scan-report-v2-r2-projection";
+import {
+  V2_SHADOW_DIR_ENV,
+  V2_SHADOW_EMISSION_ENV,
+  v2ShadowEmissionEnabled,
+  writeV2ShadowArtifact,
+  type V2ShadowWriteReceipt
+} from "./scan-report-v2-shadow-store";
 import {
   buildNodeComparisonScanReportV2R2,
   buildNodeScanReportV2R2,
@@ -20,25 +24,19 @@ import type { ScanResult } from "./types";
  * operator diagnostic, never a failed scan.
  */
 
-export const V2_SHADOW_EMISSION_ENV = "SITE_BEHAVIOR_LAB_V2_SHADOW_EMISSION";
-export const V2_SHADOW_DIR_ENV = "SITE_BEHAVIOR_LAB_V2_SHADOW_DIR";
-const DEFAULT_SHADOW_DIR = ".site-behavior-lab/v2-shadow";
+export { V2_SHADOW_DIR_ENV, V2_SHADOW_EMISSION_ENV, v2ShadowEmissionEnabled };
 const BUILD_COMMIT_ENV = "SITE_BEHAVIOR_LAB_BUILD_COMMIT";
-
-export function v2ShadowEmissionEnabled(env: NodeJS.ProcessEnv = process.env): boolean {
-  return env[V2_SHADOW_EMISSION_ENV] === "1";
-}
 
 export type ShadowEmissionOutcome =
   | { status: "disabled" }
   | { status: "skipped"; reason: "no-staged-measurement" | "build-provenance-missing" }
-  | { status: "written"; filePath: string; runId: string }
+  | ({ status: "written"; runId: string } & V2ShadowWriteReceipt)
   | { status: "failed"; message: string };
 
 export type ShadowComparisonEmissionOutcome =
   | { status: "disabled" }
   | { status: "skipped"; reason: "no-staged-measurement" | "build-provenance-missing" }
-  | { status: "written"; filePath: string; pairId: string; baselineRunId: string; variantRunId: string }
+  | ({ status: "written"; pairId: string; baselineRunId: string; variantRunId: string } & V2ShadowWriteReceipt)
   | { status: "failed"; message: string };
 
 /**
@@ -57,7 +55,8 @@ export async function emitShadowScanReportV2R2(
   try {
     const staged = stagedSingleVisitMeasurement(result);
     if (staged === null) return { status: "skipped", reason: "no-staged-measurement" };
-    if (!/^[0-9a-f]{40}$/.test(env[BUILD_COMMIT_ENV]?.trim().toLowerCase() ?? "")) {
+    const buildCommit = env[BUILD_COMMIT_ENV]?.trim().toLowerCase() ?? "";
+    if (!/^[0-9a-f]{40}$/.test(buildCommit)) {
       // The builder hard-requires build provenance; without it there is
       // nothing controlled about the emission.
       return { status: "skipped", reason: "build-provenance-missing" };
@@ -65,13 +64,15 @@ export async function emitShadowScanReportV2R2(
 
     runId = mintRunId(staged.emissionInputs.startedAt);
     const report = buildNodeScanReportV2R2(nodeBuilderInput(staged, acquisition, runId), env);
-    const publicReport = toPublicScanReportR2(report);
-    const directory = env[V2_SHADOW_DIR_ENV]?.trim() || DEFAULT_SHADOW_DIR;
-    await mkdir(directory, { recursive: true });
-    const filePath = path.join(directory, `${runId}.json`);
-    // Create-only write: a runId collision must surface, never overwrite.
-    await writeFile(filePath, `${JSON.stringify(publicReport, null, 2)}\n`, { flag: "wx" });
-    return { status: "written", filePath, runId };
+    const receipt = await writeV2ShadowArtifact(report, env);
+    console.info("Shadow v2/r2 emission written.", {
+      sink: receipt.sink,
+      key: receipt.key,
+      reportType: "single",
+      runId,
+      buildCommit
+    });
+    return { status: "written", runId, ...receipt };
   } catch (error) {
     // Builder errors use the closed scanner vocabulary and the write path;
     // neither embeds a raw subject URL.
@@ -101,7 +102,8 @@ export async function emitShadowComparisonScanReportV2R2(
     if (baselineStaged === null || variantStaged === null) {
       return { status: "skipped", reason: "no-staged-measurement" };
     }
-    if (!/^[0-9a-f]{40}$/.test(env[BUILD_COMMIT_ENV]?.trim().toLowerCase() ?? "")) {
+    const buildCommit = env[BUILD_COMMIT_ENV]?.trim().toLowerCase() ?? "";
+    if (!/^[0-9a-f]{40}$/.test(buildCommit)) {
       return { status: "skipped", reason: "build-provenance-missing" };
     }
 
@@ -117,12 +119,22 @@ export async function emitShadowComparisonScanReportV2R2(
       },
       env
     );
-    const publicReport = toPublicScanReportR2(report);
-    const directory = env[V2_SHADOW_DIR_ENV]?.trim() || DEFAULT_SHADOW_DIR;
-    await mkdir(directory, { recursive: true });
-    const filePath = path.join(directory, `${pairId}.json`);
-    await writeFile(filePath, `${JSON.stringify(publicReport, null, 2)}\n`, { flag: "wx" });
-    return { status: "written", filePath, pairId, baselineRunId, variantRunId };
+    if (report.experiment.kind !== "intervention") {
+      throw new Error("Node comparison shadow builder returned a non-intervention experiment.");
+    }
+    const receipt = await writeV2ShadowArtifact(report, env);
+    console.info("Shadow v2/r2 emission written.", {
+      sink: receipt.sink,
+      key: receipt.key,
+      reportType: "comparison",
+      pairId,
+      baselineRunId,
+      variantRunId,
+      axis: report.experiment.axis,
+      order: report.experiment.order,
+      buildCommit
+    });
+    return { status: "written", pairId, baselineRunId, variantRunId, ...receipt };
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     console.warn("Shadow v2/r2 comparison emission failed.", { pairId, message });

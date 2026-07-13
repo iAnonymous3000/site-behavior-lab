@@ -9,6 +9,15 @@ const ALLOW_UNAUTHENTICATED_SCANS_ENV = "SITE_BEHAVIOR_LAB_ALLOW_UNAUTHENTICATED
 const REPORT_STORE_BACKEND_ENV = "SITE_BEHAVIOR_LAB_REPORT_STORE_BACKEND";
 const CHROMIUM_SANDBOX_ENV = "SITE_BEHAVIOR_LAB_CHROMIUM_SANDBOX";
 const BUILD_COMMIT_ENV = "SITE_BEHAVIOR_LAB_BUILD_COMMIT";
+const CONSENT_VERIFICATION_ENV = "SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION";
+const V2_SHADOW_EMISSION_ENV = "SITE_BEHAVIOR_LAB_V2_SHADOW_EMISSION";
+const V2_SHADOW_BACKEND_ENV = "SITE_BEHAVIOR_LAB_V2_SHADOW_BACKEND";
+const R2_ENVS = [
+  "SITE_BEHAVIOR_LAB_R2_BUCKET",
+  "SITE_BEHAVIOR_LAB_R2_ENDPOINT",
+  "SITE_BEHAVIOR_LAB_R2_ACCESS_KEY_ID",
+  "SITE_BEHAVIOR_LAB_R2_SECRET_ACCESS_KEY"
+] as const;
 
 afterEach(() => {
   delete process.env[SCAN_ACCESS_TOKEN_ENV];
@@ -18,6 +27,10 @@ afterEach(() => {
   delete process.env[REPORT_STORE_BACKEND_ENV];
   delete process.env[CHROMIUM_SANDBOX_ENV];
   delete process.env[BUILD_COMMIT_ENV];
+  delete process.env[CONSENT_VERIFICATION_ENV];
+  delete process.env[V2_SHADOW_EMISSION_ENV];
+  delete process.env[V2_SHADOW_BACKEND_ENV];
+  for (const name of R2_ENVS) delete process.env[name];
 });
 
 test("runtimeStatus degrades instead of throwing when the store backend is misconfigured", async () => {
@@ -63,6 +76,8 @@ test("runtimeStatus reports degraded status for open local defaults", async () =
   assert.equal(status.checks.reportStore.configuredPath, false);
   assert.equal(status.checks.scannerEgress, "default");
   assert.equal(status.checks.chromiumSandbox, "disabled");
+  assert.equal(status.checks.consentVerification, "disabled");
+  assert.deepEqual(status.checks.v2ShadowEmission, { status: "disabled", backend: "filesystem" });
   assert.equal(status.warnings.length, 3);
 });
 
@@ -108,6 +123,73 @@ test("runtimeStatus exposes only a full validated build revision", async () => {
 
   process.env[BUILD_COMMIT_ENV] = "main";
   assert.equal((await runtimeStatus(loadedAdblock)).deployment, "unknown");
+});
+
+test("runtimeStatus exposes a configured private R2 shadow posture", async () => {
+  process.env[SCAN_ACCESS_TOKEN_ENV] = "secret-key";
+  process.env[REPORT_STORE_DIR_ENV] = "/var/lib/site-behavior-lab/reports";
+  process.env[SCANNER_EGRESS_ENV] = "iad-lab-egress";
+  process.env[BUILD_COMMIT_ENV] = "a".repeat(40);
+  process.env[CONSENT_VERIFICATION_ENV] = "1";
+  process.env[V2_SHADOW_EMISSION_ENV] = "1";
+  process.env[V2_SHADOW_BACKEND_ENV] = "r2";
+  process.env.SITE_BEHAVIOR_LAB_R2_BUCKET = "reports";
+  process.env.SITE_BEHAVIOR_LAB_R2_ENDPOINT = "https://acct.r2.cloudflarestorage.com";
+  process.env.SITE_BEHAVIOR_LAB_R2_ACCESS_KEY_ID = "ak";
+  process.env.SITE_BEHAVIOR_LAB_R2_SECRET_ACCESS_KEY = "sk";
+
+  const status = await runtimeStatus(loadedAdblock);
+  assert.equal(status.status, "ok");
+  assert.equal(status.checks.consentVerification, "enabled");
+  assert.deepEqual(status.checks.v2ShadowEmission, { status: "enabled", backend: "r2" });
+  assert.deepEqual(status.warnings, []);
+});
+
+test("runtimeStatus degrades explicit shadow flag and sink misconfiguration", async () => {
+  process.env[SCAN_ACCESS_TOKEN_ENV] = "secret-key";
+  process.env[REPORT_STORE_DIR_ENV] = "/var/lib/site-behavior-lab/reports";
+  process.env[SCANNER_EGRESS_ENV] = "iad-lab-egress";
+  process.env[BUILD_COMMIT_ENV] = "a".repeat(40);
+  process.env[CONSENT_VERIFICATION_ENV] = "1";
+  process.env[V2_SHADOW_EMISSION_ENV] = "1";
+  process.env[V2_SHADOW_BACKEND_ENV] = "r2";
+
+  const missingStore = await runtimeStatus(loadedAdblock);
+  assert.equal(missingStore.status, "degraded");
+  assert.deepEqual(missingStore.checks.v2ShadowEmission, { status: "misconfigured", backend: "none" });
+  assert.equal(missingStore.warnings.some((warning) => warning.includes("shadow store is misconfigured")), true);
+
+  process.env[V2_SHADOW_EMISSION_ENV] = "sometimes";
+  const badFlag = await runtimeStatus(loadedAdblock);
+  assert.equal(badFlag.status, "degraded");
+  assert.equal(badFlag.checks.v2ShadowEmission.status, "misconfigured");
+});
+
+test("runtimeStatus names consent verification required by observe-mode shadow emission", async () => {
+  process.env[SCAN_ACCESS_TOKEN_ENV] = "secret-key";
+  process.env[REPORT_STORE_DIR_ENV] = "/var/lib/site-behavior-lab/reports";
+  process.env[SCANNER_EGRESS_ENV] = "iad-lab-egress";
+  process.env[BUILD_COMMIT_ENV] = "a".repeat(40);
+  process.env[V2_SHADOW_EMISSION_ENV] = "1";
+
+  const status = await runtimeStatus(loadedAdblock);
+  assert.equal(status.status, "degraded");
+  assert.equal(status.checks.consentVerification, "disabled");
+  assert.deepEqual(status.checks.v2ShadowEmission, { status: "enabled", backend: "filesystem" });
+  assert.equal(status.warnings.some((warning) => warning.includes("observe-mode r2 shadows")), true);
+});
+
+test("runtimeStatus refuses filesystem shadow readiness without full build provenance", async () => {
+  process.env[SCAN_ACCESS_TOKEN_ENV] = "secret-key";
+  process.env[REPORT_STORE_DIR_ENV] = "/var/lib/site-behavior-lab/reports";
+  process.env[SCANNER_EGRESS_ENV] = "iad-lab-egress";
+  process.env[CONSENT_VERIFICATION_ENV] = "1";
+  process.env[V2_SHADOW_EMISSION_ENV] = "1";
+
+  const status = await runtimeStatus(loadedAdblock);
+  assert.equal(status.status, "degraded");
+  assert.deepEqual(status.checks.v2ShadowEmission, { status: "misconfigured", backend: "none" });
+  assert.equal(status.warnings.some((warning) => warning.includes("full 40-character Git commit")), true);
 });
 
 test("runtimeStatus treats explicit open access as intentional, not a degradation", async () => {

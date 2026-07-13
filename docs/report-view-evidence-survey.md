@@ -618,13 +618,18 @@ Steps 2 through 4 of the user-sequenced measurement kernel staging landed:
   leaves its default state.
 - **Step 4: controlled (shadow) emission landed; rollout remains.**
   SITE_BEHAVIOR_LAB_V2_SHADOW_EMISSION=1 writes one redacted public r2 wire
-  operator-locally per completed scan (create-only; build provenance required;
-  failures are diagnostics, never failed scans). Singles emit one single wire;
+  per completed scan (create-only; build provenance required; failures are
+  diagnostics, never failed scans). Local development retains the filesystem
+  sink; Containers use an operator-only, build-pinned `v2-shadow/` R2 prefix
+  that is disjoint from public shares, with a required bucket-public-access
+  preflight because a prefix is not an ACL. A local CLI deep-validates
+  retrieved objects and summarizes only closed comparison metadata. Singles
+  emit one single wire;
   comparisons emit one complete pair wire, with canonical semantic arms,
   recorded AB/BA chronology, arm verification, pairValidity, per-family
   comparability, and diff derived at build time. No partial per-arm artifact is
-  written. REMAINING before the alias flip and corpus regeneration: operator
-  verification of pair shadow output on the deployed scanner, then the r1->r2
+  written. REMAINING before the alias flip and corpus regeneration: deploy and
+  operator-verify GPC, Shields, and consent pair shadow output, then the r1->r2
   alias move and corpus regen (step 4 ops) and replication (step 5).
 - The headline-focus residual is closed: ReportHeadline.focusArm declares the
   arm whose stats the lead finding quotes (consent reject-visit branches, GPC

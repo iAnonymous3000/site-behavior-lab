@@ -225,13 +225,13 @@ export function createR2ReportStoreBackend(
   };
 }
 
-export function r2ReportStoreConfigFromEnv(): R2ReportStoreConfig {
+export function r2ReportStoreConfigFromEnv(env: NodeJS.ProcessEnv = process.env): R2ReportStoreConfig {
   return {
-    bucket: requireEnv(R2_BUCKET_ENV),
-    endpoint: requireEnv(R2_ENDPOINT_ENV).replace(/\/+$/, ""),
-    accessKeyId: requireEnv(R2_ACCESS_KEY_ID_ENV),
-    secretAccessKey: requireEnv(R2_SECRET_ACCESS_KEY_ENV),
-    prefix: normalizePrefix(process.env[R2_PREFIX_ENV])
+    bucket: requireEnv(R2_BUCKET_ENV, env),
+    endpoint: requireEnv(R2_ENDPOINT_ENV, env).replace(/\/+$/, ""),
+    accessKeyId: requireEnv(R2_ACCESS_KEY_ID_ENV, env),
+    secretAccessKey: requireEnv(R2_SECRET_ACCESS_KEY_ENV, env),
+    prefix: normalizePrefix(env[R2_PREFIX_ENV])
   };
 }
 
@@ -320,8 +320,8 @@ function normalizePrefix(raw: string | undefined): string {
   return `${trimmed.replace(/^\/+/, "").replace(/\/+$/, "")}/`;
 }
 
-function requireEnv(name: string): string {
-  const value = process.env[name]?.trim();
+function requireEnv(name: string, env: NodeJS.ProcessEnv): string {
+  const value = env[name]?.trim();
   if (!value) {
     throw new ReportStoreConfigError(`${name} is required when SITE_BEHAVIOR_LAB_REPORT_STORE_BACKEND=r2.`);
   }

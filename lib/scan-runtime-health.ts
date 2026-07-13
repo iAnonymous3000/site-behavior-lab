@@ -53,6 +53,11 @@ export type ScanRuntimeHealth = {
     };
     chromiumSandbox?: "enabled" | "disabled";
     scanAccess?: "configured" | "open" | "refused";
+    consentVerification?: "enabled" | "disabled" | "misconfigured";
+    v2ShadowEmission?: {
+      status: "enabled" | "disabled" | "misconfigured";
+      backend: "filesystem" | "r2" | "none";
+    };
   };
   capabilities?: ScanRuntimeCapabilities;
   limits?: {
@@ -109,6 +114,31 @@ function isChecks(value: unknown): value is NonNullable<ScanRuntimeHealth["check
     value.scanAccess !== "refused"
   ) {
     return false;
+  }
+  if (
+    value.consentVerification !== undefined &&
+    value.consentVerification !== "enabled" &&
+    value.consentVerification !== "disabled" &&
+    value.consentVerification !== "misconfigured"
+  ) {
+    return false;
+  }
+  if (value.v2ShadowEmission !== undefined) {
+    if (!isRecord(value.v2ShadowEmission)) return false;
+    if (
+      value.v2ShadowEmission.status !== "enabled" &&
+      value.v2ShadowEmission.status !== "disabled" &&
+      value.v2ShadowEmission.status !== "misconfigured"
+    ) {
+      return false;
+    }
+    if (
+      value.v2ShadowEmission.backend !== "filesystem" &&
+      value.v2ShadowEmission.backend !== "r2" &&
+      value.v2ShadowEmission.backend !== "none"
+    ) {
+      return false;
+    }
   }
   return true;
 }

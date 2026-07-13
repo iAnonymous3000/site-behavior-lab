@@ -35,7 +35,8 @@
     "test:smoke": "node scripts/smoke-test.mjs",
     "typecheck": "next typegen && tsc --noEmit",
     "reports:remediation-inventory": "node scripts/remediation-inventory.mjs",
-    "reports:remediate": "tsc -p tsconfig.schema.json && node dist/schema/lib/remediate-reports-cli.js"
+    "reports:remediate": "tsc -p tsconfig.schema.json && node dist/schema/lib/remediate-reports-cli.js",
+    "reports:verify-v2-shadow": "tsc -p tsconfig.schema.json && node dist/schema/lib/verify-v2-shadow-cli.js"
   },
   "dependencies": {
     "aws4fetch": "^1.0.20",

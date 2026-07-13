@@ -47,6 +47,11 @@ test("a real visit shadow-emits a validator-clean public r2 wire", { timeout: 30
   assert.ok(address && typeof address === "object");
 
   const shadowDir = await mkdtemp(path.join(tmpdir(), "sbl-v2-shadow-"));
+  const info = console.info;
+  const infoEntries: unknown[][] = [];
+  console.info = (...args: unknown[]) => {
+    infoEntries.push(args);
+  };
   // The observe-mode banner-visibility read keeps the always-on consent
   // detector out of its default state, which the r2 builder rejects.
   process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION = "1";
@@ -91,6 +96,8 @@ test("a real visit shadow-emits a validator-clean public r2 wire", { timeout: 30
     const outcome = await emitShadowScanReportV2R2(result, "public-api");
     assert.equal(outcome.status, "written");
     if (outcome.status !== "written") throw new Error("expected a written shadow report");
+    assert.equal(outcome.sink, "filesystem");
+    if (outcome.sink !== "filesystem") throw new Error("expected a filesystem shadow report");
     assert.deepEqual(await readdir(shadowDir), [`${outcome.runId}.json`]);
 
     const wire = JSON.parse(await readFile(outcome.filePath, "utf8")) as Record<string, unknown>;
@@ -144,12 +151,30 @@ test("a real visit shadow-emits a validator-clean public r2 wire", { timeout: 30
     );
     assert.equal(pairOutcome.status, "written");
     if (pairOutcome.status !== "written") throw new Error("expected a written shadow comparison");
+    assert.equal(pairOutcome.sink, "filesystem");
+    if (pairOutcome.sink !== "filesystem") throw new Error("expected a filesystem shadow comparison");
     assert.deepEqual(await readdir(pairDir), [`${pairOutcome.pairId}.json`]);
     const pairWire = JSON.parse(await readFile(pairOutcome.filePath, "utf8")) as Record<string, unknown>;
     assert.equal(pairWire.reportType, "comparison");
     assert.equal(isPublicScanReportV2R2(pairWire), true);
     assert.deepEqual(scanReportV2R2SemanticViolations(pairWire as never), []);
     assert.equal(JSON.stringify(pairWire).includes("screenshot"), false);
+    const pairLog = infoEntries.find(
+      (entry) => entry[0] === "Shadow v2/r2 emission written." &&
+        (entry[1] as { reportType?: string } | undefined)?.reportType === "comparison"
+    );
+    assert.deepEqual(pairLog?.[1], {
+      sink: "filesystem",
+      key: `${pairOutcome.pairId}.json`,
+      reportType: "comparison",
+      pairId: pairOutcome.pairId,
+      baselineRunId: pairOutcome.baselineRunId,
+      variantRunId: pairOutcome.variantRunId,
+      axis: "gpc",
+      order: "AB",
+      buildCommit: "b".repeat(40)
+    });
+    assert.equal(JSON.stringify(pairLog).includes("private-path-Alice"), false);
     assert.deepEqual(
       await emitShadowComparisonScanReportV2R2({ ...baselineResult }, variantResult, "baseline", "public-api"),
       { status: "skipped", reason: "no-staged-measurement" }
@@ -174,6 +199,7 @@ test("a real visit shadow-emits a validator-clean public r2 wire", { timeout: 30
       const apiPairDir = path.join(shadowDir, `api-${executedFirst}`);
       process.env.SITE_BEHAVIOR_LAB_V2_SHADOW_DIR = apiPairDir;
       let visitIndex = 0;
+      const shadowTasks: Promise<unknown>[] = [];
       const apiResult = await executePreparedScan(
         prepared,
         async (payload) => {
@@ -204,8 +230,14 @@ test("a real visit shadow-emits a validator-clean public r2 wire", { timeout: 30
         keepReport,
         undefined,
         false,
-        { drawComparisonFirstArm: () => executedFirst }
+        {
+          drawComparisonFirstArm: () => executedFirst,
+          schedulePostPublication: (task) => {
+            shadowTasks.push(task());
+          }
+        }
       );
+      await Promise.all(shadowTasks);
       assert.equal(apiResult.reportType, "comparison");
       const apiFiles = await readdir(apiPairDir);
       assert.equal(apiFiles.length, 1);
@@ -220,6 +252,7 @@ test("a real visit shadow-emits a validator-clean public r2 wire", { timeout: 30
     // The v1 result the caller returns is untouched by emission.
     assert.equal(result.schemaVersion, 1);
   } finally {
+    console.info = info;
     delete process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION;
     delete process.env.SITE_BEHAVIOR_LAB_V2_SHADOW_EMISSION;
     delete process.env.SITE_BEHAVIOR_LAB_V2_SHADOW_DIR;

@@ -11,7 +11,11 @@ import {
   type ComparisonExecutedFirst
 } from "./compare-reports";
 import { saveScanReport } from "./report-store";
-import { emitShadowComparisonScanReportV2R2, emitShadowScanReportV2R2 } from "./scan-report-v2-emission";
+import {
+  emitShadowComparisonScanReportV2R2,
+  emitShadowScanReportV2R2,
+  v2ShadowEmissionEnabled
+} from "./scan-report-v2-emission";
 import { scanSite, type ScanSiteOptions } from "./scanner";
 import type { ConsentMode, ScanDevice, ScanReport, ScanRequestPayload, ScanResult } from "./types";
 import { prepareScanRequest, type PreparedScanRequest } from "./scan-gate";
@@ -31,6 +35,11 @@ export type ScanExecutionControl = {
   beforeSave?: () => void;
   /** Deterministic counterbalancing draw for tests; production draws randomly. */
   drawComparisonFirstArm?: () => ComparisonExecutedFirst;
+  /**
+   * Schedule diagnostic work after the v1 publication attempt. The primary
+   * result and scan slot never await this work. Tests may inject a collector.
+   */
+  schedulePostPublication?: (task: () => Promise<unknown>) => void | Promise<unknown>;
 };
 
 const SHARE_SAVE_WARNING = "Shareable report could not be saved on this host; JSON export is still available.";
@@ -81,7 +90,9 @@ export async function executePreparedScan(
       );
       const report = createGpcComparisonReport(baseline, variant, { executedFirst });
       const saved = await saveScanReportBestEffort(report, saveReport, control);
-      await emitShadowComparisonScanReportV2R2(baseline, variant, executedFirst, "public-api");
+      scheduleShadowEmission(control, () =>
+        emitShadowComparisonScanReportV2R2(baseline, variant, executedFirst, "public-api")
+      );
       return saved;
     }
 
@@ -106,7 +117,9 @@ export async function executePreparedScan(
       );
       const report = createShieldsComparisonReport(baseline, variant, { executedFirst });
       const saved = await saveScanReportBestEffort(report, saveReport, control);
-      await emitShadowComparisonScanReportV2R2(baseline, variant, executedFirst, "public-api");
+      scheduleShadowEmission(control, () =>
+        emitShadowComparisonScanReportV2R2(baseline, variant, executedFirst, "public-api")
+      );
       return saved;
     }
 
@@ -130,7 +143,9 @@ export async function executePreparedScan(
       );
       const report = createConsentComparisonReport(acceptRun, rejectRun, { executedFirst });
       const saved = await saveScanReportBestEffort(report, saveReport, control);
-      await emitShadowComparisonScanReportV2R2(acceptRun, rejectRun, executedFirst, "public-api");
+      scheduleShadowEmission(control, () =>
+        emitShadowComparisonScanReportV2R2(acceptRun, rejectRun, executedFirst, "public-api")
+      );
       return saved;
     }
 
@@ -139,11 +154,42 @@ export async function executePreparedScan(
       signal: control.signal
     });
     const saved = await saveScanReportBestEffort(result, saveReport, control);
-    await emitShadowScanReportV2R2(result, "public-api");
+    scheduleShadowEmission(control, () => emitShadowScanReportV2R2(result, "public-api"));
     return saved;
   } finally {
     releaseScanSlot();
   }
+}
+
+/**
+ * Shadow evidence is deliberately outside the scan's completion contract. A
+ * stalled R2/S3 transport must not withhold a v1 response, leave an async job
+ * running, or consume a scarce Chromium slot. The task owns its own diagnostic
+ * logging; this outer guard covers only an unexpected scheduler failure.
+ */
+function scheduleShadowEmission(
+  control: ScanExecutionControl,
+  task: () => Promise<unknown>
+): void {
+  if (!v2ShadowEmissionEnabled()) return;
+  try {
+    const scheduled = (control.schedulePostPublication ?? scheduleAfterResponseTurn)(task);
+    if (scheduled && typeof (scheduled as PromiseLike<unknown>).then === "function") {
+      void Promise.resolve(scheduled).catch(() => {
+        console.warn("Unexpected v2 shadow scheduler failure.");
+      });
+    }
+  } catch {
+    console.warn("Unexpected v2 shadow scheduler failure.");
+  }
+}
+
+function scheduleAfterResponseTurn(task: () => Promise<unknown>): void {
+  setImmediate(() => {
+    void task().catch(() => {
+      console.warn("Unexpected v2 shadow task failure.");
+    });
+  });
 }
 
 /**

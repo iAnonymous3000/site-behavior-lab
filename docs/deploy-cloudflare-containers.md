@@ -286,6 +286,141 @@ curl -s https://scan.sitebehavior.org/api/health | jq '{capabilities, chromiumSa
 # expect chromiumSandbox: "enabled" plus singleScan/Shields/savedReports capabilities
 ```
 
+## 8. Verify private v2/r2 shadows before the schema alias flip
+
+The container writes flag-gated v2/r2 shadows to the existing reports bucket under
+`v2-shadow/<full-build-sha>/<single|comparison>/`. Objects are create-only and disjoint
+from public `reports/` shares. The scanner has no endpoint that reads or lists them.
+A prefix is not an access-control boundary, so the bucket itself must also pass the
+private-access preflight below. Do not move the public schema alias or regenerate the
+corpus until one deployed GPC, Shields, and consent comparison has passed the verifier.
+
+First inspect both independent R2 public-access mechanisms:
+
+```bash
+npx wrangler r2 bucket dev-url get site-behavior-lab-reports
+npx wrangler r2 bucket domain list site-behavior-lab-reports
+```
+
+Require the `r2.dev` Public Development URL to be disabled. Require no enabled custom
+domain, or independently prove that every connected domain is protected by Cloudflare
+Access and does not anonymously serve an exact object key. Stop before enabling shadow
+emission if either check is uncertain. Cloudflare documents that `r2.dev` and custom
+domains expose bucket objects independently; disabling one does not disable the other.
+See [Public buckets](https://developers.cloudflare.com/r2/buckets/public-buckets/) and
+the [`r2 bucket` Wrangler commands](https://developers.cloudflare.com/r2/reference/wrangler-commands/).
+
+Shadow objects have no public sidecar or scanner-side retention/listing mechanism. A
+prefix-scoped lifecycle rule is therefore a precondition even for this bounded test, not
+deferred cleanup. Inspect the existing rules and, if an equivalent `v2-shadow/` rule is
+absent, add a one-day expiry before enabling emission:
+
+```bash
+npx wrangler r2 bucket lifecycle list site-behavior-lab-reports
+npx wrangler r2 bucket lifecycle add site-behavior-lab-reports \
+  v2-shadow-expire-1d v2-shadow/ --expire-days 1
+npx wrangler r2 bucket lifecycle list site-behavior-lab-reports
+```
+
+After the exact candidate commit is live, record its build SHA. The production scanner
+is normally open, so first place it behind a temporary operator token and verify the gate
+before enabling either staging flag. That ordering prevents concurrent public scans from
+creating untracked shadows. Any jobs accepted before the gate ran with shadow emission
+off. Using Worker secrets keeps these rollout values out of committed configuration:
+
+```bash
+SCAN_BASE_URL=https://scan.sitebehavior.org
+DEPLOYMENT=$(curl --fail-with-body -s "$SCAN_BASE_URL/api/health" | jq -er '.deployment')
+SHADOW_SCAN_TOKEN=$(openssl rand -hex 32)
+
+printf '%s' "$SHADOW_SCAN_TOKEN" | npx wrangler secret put \
+  SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN -c wrangler.container.jsonc
+
+curl --fail-with-body -s "$SCAN_BASE_URL/api/health" | jq \
+  '{deployment, authenticated, openAccess}'
+# require the same full deployment SHA, authenticated == true, openAccess == false
+
+printf '1' | npx wrangler secret put SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION \
+  -c wrangler.container.jsonc
+printf '1' | npx wrangler secret put SITE_BEHAVIOR_LAB_V2_SHADOW_EMISSION \
+  -c wrangler.container.jsonc
+
+curl --fail-with-body -s "$SCAN_BASE_URL/api/health" | jq \
+  '{deployment, authenticated, openAccess, shadow: .checks.v2ShadowEmission, consent: .checks.consentVerification}'
+# require the same full deployment SHA, shadow.status == "enabled",
+# shadow.backend == "r2", consent == "enabled", authenticated == true,
+# and openAccess == false
+```
+
+Open the scanner Worker's **Containers → Observability** live logs in the Cloudflare
+dashboard; `observability.enabled` is already committed in `wrangler.container.jsonc`.
+Enter `SHADOW_SCAN_TOKEN` in the UI's access-key field and complete one GPC comparison,
+one Shields comparison, and one consent comparison. The operator-token path deliberately
+bypasses Turnstile while the public gate is closed. Wait for each scan to finish and
+record the exact object key from the container's `Shadow v2/r2 emission written.` log
+entry; its closed `axis` field maps each key deterministically and `order` records AB/BA.
+The success log contains only the private key, report type, opaque IDs, closed axis/order,
+and build SHA; it never contains the target or evidence. Because ingress is gated, exactly
+three comparison writes should appear. If any extra success entry appears, account for,
+retrieve, and delete its key too. `npx wrangler tail -c wrangler.container.jsonc` may also
+be useful for Worker logs, but do not depend on it for container stdout unless the
+deployed platform proves it is present. See Cloudflare's
+[container logging guidance](https://developers.cloudflare.com/containers/faq/#how-do-container-logs-work).
+
+Download only those exact keys. Do not grant the scanner a list/read route and do not
+copy the objects into `reports/`:
+
+```bash
+SHADOW_DIR=$(mktemp -d)
+npx wrangler r2 object get "site-behavior-lab-reports/$GPC_KEY" \
+  --remote --file "$SHADOW_DIR/$(basename "$GPC_KEY")"
+npx wrangler r2 object get "site-behavior-lab-reports/$SHIELDS_KEY" \
+  --remote --file "$SHADOW_DIR/$(basename "$SHIELDS_KEY")"
+npx wrangler r2 object get "site-behavior-lab-reports/$CONSENT_KEY" \
+  --remote --file "$SHADOW_DIR/$(basename "$CONSENT_KEY")"
+
+npm run reports:verify-v2-shadow -- \
+  --expected-build "$DEPLOYMENT" \
+  --dir "$SHADOW_DIR" \
+  --require-axes gpc,shields,consent
+```
+
+The verifier must report all three axes, the observed AB/BA order, eligibility,
+verification, and both arm outcomes without printing subjects or evidence. Any invalid
+object, filename/ID mismatch, non-r2 revision, or build mismatch fails the run.
+
+Keep the operator gate in place while disabling shadow emission, then delete every test
+object by exact key and remove the temporary directory. Restore the scan gate last so no
+public request can race the cleanup. These commands assume all three rollout secrets were
+previously absent and the scanner was public; if they were already managed, restore the
+intended managed values instead:
+
+```bash
+npx wrangler secret delete SITE_BEHAVIOR_LAB_V2_SHADOW_EMISSION \
+  -c wrangler.container.jsonc
+npx wrangler secret delete SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION \
+  -c wrangler.container.jsonc
+
+curl --fail-with-body -s "$SCAN_BASE_URL/api/health" | jq \
+  '{deployment, authenticated, openAccess, shadow: .checks.v2ShadowEmission, consent: .checks.consentVerification}'
+# require shadow.status == "disabled", consent == "disabled",
+# authenticated == true, and openAccess == false
+
+npx wrangler r2 object delete "site-behavior-lab-reports/$GPC_KEY" --remote
+npx wrangler r2 object delete "site-behavior-lab-reports/$SHIELDS_KEY" --remote
+npx wrangler r2 object delete "site-behavior-lab-reports/$CONSENT_KEY" --remote
+rm -rf "$SHADOW_DIR"
+
+npx wrangler secret delete SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN \
+  -c wrangler.container.jsonc
+unset SHADOW_SCAN_TOKEN
+
+curl --fail-with-body -s "$SCAN_BASE_URL/api/health" | jq \
+  '{deployment, authenticated, openAccess, shadow: .checks.v2ShadowEmission, consent: .checks.consentVerification}'
+# for the normal public posture require shadow.status == "disabled",
+# consent == "disabled", authenticated == false, and openAccess == true
+```
+
 ## Cost
 
 Workers Paid is $5/mo; container compute is metered while an instance is running
