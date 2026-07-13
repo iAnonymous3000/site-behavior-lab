@@ -119,6 +119,7 @@ export function createR2ReportStoreBackend(
       throw new Error("Invalid report retention metadata.");
     }
     const headers: Record<string, string> = {
+      "content-length": String(new TextEncoder().encode(contents).byteLength),
       "content-type": "application/json",
       "if-none-match": "*"
     };

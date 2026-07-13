@@ -75,6 +75,7 @@ test("R2 write issues a create-only PUT to the prefixed key", async () => {
   assert.equal(requests.length, 1);
   assert.equal(requests[0].method, "PUT");
   assert.equal(requests[0].url, `${CONFIG.endpoint}/reports-bucket/reports/${VALID_ID}.json`);
+  assert.equal(requests[0].headers["content-length"], "3");
   assert.equal(requests[0].headers["if-none-match"], "*");
   assert.equal(requests[0].headers["x-amz-meta-created-at"], RETENTION.createdAt);
   assert.equal(requests[0].headers["x-amz-meta-expires-at"], RETENTION.expiresAt);
@@ -82,15 +83,24 @@ test("R2 write issues a create-only PUT to the prefixed key", async () => {
 });
 
 test("R2 writes and reads the provenance sidecar beside the report key", async () => {
+  const sidecar = '{"reportId":"test"}\n';
   const { backend, requests } = backendWith([
     new Response(null, { status: 200 }),
-    new Response('{"reportId":"test"}\n', { status: 200 })
+    new Response(sidecar, { status: 200 })
   ]);
-  await backend.writeSidecar(VALID_ID, '{"reportId":"test"}\n');
-  assert.equal(await backend.readSidecar(VALID_ID), '{"reportId":"test"}\n');
+  await backend.writeSidecar(VALID_ID, sidecar);
+  assert.equal(await backend.readSidecar(VALID_ID), sidecar);
   assert.equal(requests[0].url, `${CONFIG.endpoint}/reports-bucket/reports/${VALID_ID}.json.provenance.json`);
   assert.equal(requests[0].method, "PUT");
+  assert.equal(requests[0].headers["content-length"], String(new TextEncoder().encode(sidecar).byteLength));
   assert.equal(requests[1].method, "GET");
+});
+
+test("R2 write declares the UTF-8 byte length rather than the JavaScript string length", async () => {
+  const { backend, requests } = backendWith([new Response(null, { status: 200 })]);
+  await backend.write(VALID_ID, '"snowman: ☃"\n');
+
+  assert.equal(requests[0].headers["content-length"], "15");
 });
 
 test("R2 sidecar write is create-only", async () => {
