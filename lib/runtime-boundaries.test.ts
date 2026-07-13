@@ -36,7 +36,7 @@ const WORKER_BLOCKED_PACKAGES = new Set(["next/server", "playwright"]);
 test("Cloudflare Worker imports stay out of Node-only modules", async () => {
   await assertBoundary({
     name: "cloudflare-worker",
-    entrypoints: ["cloudflare/worker.ts"],
+    entrypoints: ["cloudflare/worker.ts", "cloudflare/container-worker.ts"],
     blockedLocalModules: NODE_ONLY_MODULES,
     blockedPackages: WORKER_BLOCKED_PACKAGES
   });

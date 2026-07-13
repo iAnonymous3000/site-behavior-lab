@@ -29,6 +29,14 @@ import {
   scanTokenCost,
   withPublicScanAccessCheck
 } from "../lib/edge-scan-gate";
+import {
+  findDurableScanJob,
+  recordAcceptedScanJob,
+  registerDurableScanJob,
+  scanJobIdFromPath,
+  type DurableScanJobRegistration
+} from "../lib/durable-scan-job-registry";
+import { recoverDurableScanJobResponse } from "../lib/durable-scan-job-recovery";
 
 type Env = {
   SCANNER: DurableObjectNamespace<ScannerContainer>;
@@ -181,6 +189,21 @@ export class ScannerContainer extends Container<Env> {
       return { allowed: true };
     });
   }
+
+  /**
+   * Record only the submitter-held job capability and the separately minted
+   * report capability. This registry survives a container process restart but
+   * deliberately stores neither the scan target nor a client identifier.
+   */
+  registerScanJob(registration: DurableScanJobRegistration): void {
+    this.ctx.storage.transactionSync(() => {
+      registerDurableScanJob(this.ctx.storage.sql, registration);
+    });
+  }
+
+  findRegisteredScanJob(jobId: string, now: number): DurableScanJobRegistration | null {
+    return this.ctx.storage.transactionSync(() => findDurableScanJob(this.ctx.storage.sql, jobId, now));
+  }
 }
 
 function atomicRateLimitWindow(
@@ -224,6 +247,14 @@ export default {
     }
 
     const isScan = request.method === "POST" && url.pathname === "/api/scan";
+    const scanJobId =
+      request.method === "GET" || request.method === "DELETE" ? scanJobIdFromPath(url.pathname) : null;
+
+    if (scanJobId) {
+      const response = await forwardToContainer(request, env);
+      if (response.status !== 404) return response;
+      return recoverRegisteredScanJob(request, env, scanJobId, response);
+    }
 
     // Report reads and CORS preflight forward straight to the container.
     if (!isScan) {
@@ -246,9 +277,38 @@ export default {
     }
 
     const forwarded = new Request(request.url, { method: "POST", headers: request.headers, body });
-    return forwardToContainer(forwarded, env);
+    const response = await forwardToContainer(forwarded, env);
+    await recordAcceptedScanJob(
+      response,
+      body,
+      (registration) => getContainer(env.SCANNER).registerScanJob(registration),
+      (error) => console.error("Could not register an accepted scan job in Durable Object storage.", error)
+    );
+    return response;
   }
 } satisfies ExportedHandler<Env>;
+
+async function recoverRegisteredScanJob(
+  request: Request,
+  env: Env,
+  jobId: string,
+  missingJobResponse: Response
+): Promise<Response> {
+  return recoverDurableScanJobResponse(jobId, missingJobResponse, {
+    findRegistration: (id) => getContainer(env.SCANNER).findRegisteredScanJob(id, Date.now()),
+    fetchReport: (reportId) => {
+      const reportUrl = new URL(request.url);
+      reportUrl.pathname = `/api/reports/${reportId}`;
+      reportUrl.search = "";
+      const headers = new Headers(request.headers);
+      headers.delete("content-length");
+      headers.delete("content-type");
+      return forwardToContainer(new Request(reportUrl, { method: "GET", headers }), env);
+    },
+    onRegistryError: (error) => console.error("Could not read the durable scan-job registry.", error),
+    onReportError: (error) => console.error("Could not probe a saved report during scan-job recovery.", error)
+  });
+}
 
 function forwardToContainer(request: Request, env: Env): Promise<Response> {
   // The container trusts x-real-ip for per-client rate limiting

@@ -242,7 +242,7 @@ Recommended single-node progression:
 
 - Async mode is currently opt-in with `SITE_BEHAVIOR_LAB_ASYNC_SCANS=1`.
 - Completed job status currently includes the completed report, preserving the existing UI render path.
-- How long should job records live after completion?
+- In-process records and the edge recovery registry retain a job capability for at most 75 minutes from admission.
 - Should client disconnect cancellation exist, or should queued/running jobs be detached from clients once accepted?
 - Should GPC comparison expose two sub-run progress events?
 
@@ -250,15 +250,15 @@ Recommended single-node progression:
 
 The first implementation keeps synchronous scans as the default behavior. When `SITE_BEHAVIOR_LAB_ASYNC_SCANS=1` is set, `POST /api/scan` prepares and validates the request, enqueues it in an in-memory single-process queue, and returns `202 { jobId, status, statusPath, reportId }`. Job status is ephemeral process memory: a Node restart drops queued, running, and recently completed job records. Completed async reports are saved under the submission's separate `reportId`, never the job ID: the status channel (`/api/scans/:jobId`) can carry the screenshot and is a capability held only by the submitter, so the job ID must never be derivable from a shared report link. (The reverse direction is not a secrecy boundary: the submitter intentionally receives both IDs in the `202` response.) The submitter can recover from a lost status record by reading `/api/reports/:reportId` when persistence succeeded. The worker path calls `executePreparedScan`, so slot acquisition, Playwright execution, comparison scans, and report persistence stay behind the same tested execution path.
 
-`GET /api/scans/:id` returns queued/running/succeeded/failed status, progress metadata, and the completed report when available. This is suitable for one Node instance where in-flight restart loss is acceptable. Multi-node hosting or fully restart-resilient polling still needs shared queue/storage before async mode can be treated as durable infrastructure.
+`GET /api/scans/:id` returns queued/running/succeeded/failed status, progress metadata, and the completed report when available. The Cloudflare Containers front Worker additionally keeps the job ID, separate report ID, run count, and admission timestamp in its existing Durable Object SQLite for 75 minutes. If the Node process has restarted and now returns 404, the Worker either embeds the persisted R2 report in a recovered `succeeded` response or returns an explicit restart `expired` response when the report is genuinely absent. The registry contains no target URL or client identifier. Queued/running execution is still in-process and is not replayed, so multi-node hosting or fully restart-resilient execution still needs the phase-2 protocol below.
 
-## Durable Job State Design (accepted 2026-07-13, implementation pending)
+## Durable Job State Design (accepted 2026-07-13)
 
 Restart-safe jobs live in the scanner's existing singleton Durable Object
 (`ScannerContainer`), which already owns an atomic SQLite quota ledger. No new
 store (no D1/KV) is introduced. Two phases, both bounded and privacy-explicit:
 
-### Phase 1: durable job registry (ids only, no payload)
+### Phase 1: durable job registry (ids only, no payload; implemented)
 
 At admission (the front Worker sees the container's `202 { jobId, reportId }`),
 the Worker records `(job_id, report_id, total_runs, created_at)` in DO SQLite.
@@ -267,17 +267,17 @@ restart dropped the in-memory record), the Worker consults the registry and,
 for a known job, first probes `GET /api/reports/:reportId` on the container:
 
 - Report exists: the job finished and persisted before the restart. Answer
-  `succeeded`-shaped status pointing the client at its recovery path (the
-  client already recovers by reportId today).
+  with a `succeeded` status that embeds the saved, screenshot-stripped report,
+  preserving the existing client and automation response contract.
 - Report absent: answer an honest terminal `expired` status whose error names
-  the scanner restart, instead of an indistinguishable "unknown job" 404.
+  the lost in-memory record, instead of an indistinguishable "unknown job" 404.
 
 Rows carry NO target URL, NO client identifier: ids and timestamps only, so
 the registry adds zero privacy surface at the edge. TTL 75 minutes (job max
 age + expired retention), pruned on write, hard row cap with oldest-first
 eviction. Registry write failures are logged and never block admission.
 
-### Phase 2: durable execution (leases and replay)
+### Phase 2: durable execution (leases and replay; protocol pending)
 
 Queued jobs additionally persist their PREPARED payload so a restarted
 container can resume work it accepted. Design constraints, in force:
@@ -309,8 +309,10 @@ container can resume work it accepted. Design constraints, in force:
   terminal `expired` by the next registry write (no alarms needed); the
   client's existing recovery path covers the completed-but-unresolved case.
 
-Phase 1 is implementable without touching the container image. Phase 2
-changes the container's queue seam (`scan-jobs.ts` gains a DO-backed intake
-alongside the in-process queue behind `SITE_BEHAVIOR_LAB_DURABLE_JOBS=1`) and
-MUST land with the privacy-page disclosure and a live lease-expiry test
-before the flag is enabled in production.
+Phase 1 is implemented without changing the container image. Phase 2 changes
+the container's queue seam (`scan-jobs.ts` gains a DO-backed intake alongside
+the in-process queue behind `SITE_BEHAVIOR_LAB_DURABLE_JOBS=1`) and MUST land
+with a privacy-page disclosure and a live lease-expiry test before the flag is
+enabled in production. Before implementation, its protocol still needs a
+fenced lease token, explicit cancellation semantics, request-cycle-independent
+liveness, and readback/reconciliation rules for every R2 save crash window.

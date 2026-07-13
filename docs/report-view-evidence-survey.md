@@ -573,8 +573,9 @@ disposition after the review:
   reconstructed because v1 did not retain frame sources, so the 235 committed
   reports stay legacy/limited and are not retroactively rewritten.
 - **Durable jobs / cancellation.** Cooperative cancellation and atomic public
-  quota accounting are landed. Queued/running status remains process memory;
-  restart-safe jobs still require a privacy-safe bounded shared queue design.
+  quota accounting are landed. The Containers edge now retains an IDs-only,
+  TTL-bounded recovery registry, but queued/running execution remains process
+  memory; restart-safe replay still requires the privacy-safe leased protocol.
 - **Redaction v2 wiring + corpus remediation.** Public-boundary wiring,
   revision-3 exact-literal policy, provenance sidecars, and the corpus rewrite
   are complete (see the redaction section above). Controlled r2 producer
