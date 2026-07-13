@@ -28,7 +28,7 @@ import {
   Sun
 } from "lucide-react";
 import type { FormEvent, MouseEvent } from "react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { CausalityGraph } from "./_components/causality-graph";
 import { ComparisonPanel } from "./_components/comparison-panel";
 import { PageGraphUploadButton, ReportUploadButton } from "./_components/file-upload-button";
@@ -554,15 +554,21 @@ export function SiteBehaviorApp({
   // Two-arm evidence audit: on comparisons every per-run surface (tables,
   // sidebar, methodology, CSV) can show EITHER visit, so the protected or
   // rejected arm is inspectable without downloading the JSON. Defaults to the
+  // arm the headline's lead finding describes (headline.focusArm), else the
   // lead run; report-level surfaces (headline, findings, panel) stay pair-fed.
   const [selectedArm, setSelectedArm] = useState<"baseline" | "variant" | null>(null);
   // A new report must not inherit the previous report's arm selection.
   useEffect(() => {
     setSelectedArm(null);
   }, [loaded]);
-  const displayedRun = arms && selectedArm ? arms[selectedArm] : primaryRun;
-  const displayedArmLabel: "baseline" | "variant" =
-    selectedArm ?? (reportView?.comparison?.temporalPair ? "variant" : "baseline");
+  const headlineFocusArm = useMemo(
+    () => (reportView && arms ? buildReportHeadline(reportView).focusArm ?? null : null),
+    [reportView, arms]
+  );
+  const defaultArm: "baseline" | "variant" =
+    headlineFocusArm ?? (reportView?.comparison?.temporalPair ? "variant" : "baseline");
+  const displayedArmLabel: "baseline" | "variant" = selectedArm ?? defaultArm;
+  const displayedRun = arms ? arms[displayedArmLabel] : primaryRun;
 
   async function downloadReport() {
     if (!loaded || !primaryRun) return;

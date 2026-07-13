@@ -128,6 +128,9 @@ test("flags a GPC comparison that barely changed as an alarm", () => {
   assert.match(headline.headline, /amazon\.com still contacted 1 tracking company with a privacy signal on\./);
   assert.match(headline.subhead, /do not sell or share/);
   assert.match(headline.subhead, /versus 420 in the visit without the signal/);
+  // The lead finding quotes the GPC-on visit's numbers, so the evidence
+  // switcher must open on that arm.
+  assert.equal(headline.focusArm, "variant");
 });
 
 test("phrases a GPC comparison that loaded more as 'more', not a negative percent", () => {
@@ -244,6 +247,9 @@ test("frames a Shields comparison as the observed paired-visit difference", () =
   assert.equal(headline.tone, "warn");
   assert.match(headline.headline, /heavy\.example loaded 55 fewer third-party requests with Brave-list blocking on\./);
   assert.doesNotMatch(headline.headline, /would/);
+  // Pair-framed with lead-run stat chips: the switcher default stays on the
+  // lead (baseline) run, so no focus arm is declared.
+  assert.equal(headline.focusArm, undefined);
 });
 
 test("a Shields comparison names the direct engine blocks separately from the reduction", () => {
@@ -516,6 +522,7 @@ test("trackers surviving a real Reject all click lead the consent-comparison hea
   assert.match(headline.subhead, /before and after the click/);
   assert.match(headline.subhead, /never verified/);
   assert.doesNotMatch(headline.subhead, /After the scanner clicked/);
+  assert.equal(headline.focusArm, "variant");
 });
 
 test("a clean reject run headlines that the consent choice made a difference", () => {

@@ -62,6 +62,13 @@ export type ReportHeadline = {
   domain: string;
   /** Suggested post text (without the URL); the UI appends the report link. */
   shareText: string;
+  /**
+   * The comparison arm the lead finding DESCRIBES, when that differs from the
+   * report's lead run. The shell opens the evidence switcher on this arm so a
+   * variant-focused headline never sits above baseline evidence. Absent on
+   * singles and on branches that describe the lead run.
+   */
+  focusArm?: "baseline" | "variant";
 };
 
 const SINGLE_VISIT_CAVEAT = "Observed in one automated visit: evidence to check, not a verdict.";
@@ -117,7 +124,13 @@ export function buildReportHeadline(view: ReportView): ReportHeadline {
   }
   const extraNote = extras.length > 0 ? ` It also looks like ${joinNames(extras, 2)}.` : "";
 
-  const finish = (tone: HeadlineTone, headline: string, subhead: string, statsOverride?: ReportHeadlineStat[]): ReportHeadline => {
+  const finish = (
+    tone: HeadlineTone,
+    headline: string,
+    subhead: string,
+    statsOverride?: ReportHeadlineStat[],
+    focusArm?: "baseline" | "variant"
+  ): ReportHeadline => {
     const resolvedStats = statsOverride ?? stats;
     return {
       tone,
@@ -127,7 +140,8 @@ export function buildReportHeadline(view: ReportView): ReportHeadline {
       caveat: view.reportType === "comparison" ? COMPARISON_CAVEAT : SINGLE_VISIT_CAVEAT,
       stats: resolvedStats,
       domain,
-      shareText: buildShareText(headline, resolvedStats)
+      shareText: buildShareText(headline, resolvedStats),
+      ...(focusArm ? { focusArm } : {})
     };
   };
 
@@ -211,7 +225,8 @@ export function buildReportHeadline(view: ReportView): ReportHeadline {
         `In the visit where the scanner clicked Reject all, ${joinNames(
           rejectTracking.map((entity) => entity.entity)
         )} received requests. The recording covers traffic from before and after the click, the click's acceptance by the site is never verified, and some vendors may be claimed as strictly necessary; the diff lists the services that appeared only in the visit that clicked Accept all.`,
-        buildStats(arms.variant, rejectTracking.length)
+        buildStats(arms.variant, rejectTracking.length),
+        "variant"
       );
     }
     if (rawCountDeltasUsable && arms.baseline.consent?.controlActivated === true && trackingEntities.length > 0) {
@@ -223,7 +238,8 @@ export function buildReportHeadline(view: ReportView): ReportHeadline {
           "tracking company",
           "tracking companies"
         )}: ${plural(arms.baseline.counts.thirdPartyRequests, "third-party request")} became ${arms.variant.counts.thirdPartyRequests.toLocaleString("en-US")}.`,
-        buildStats(arms.variant, 0)
+        buildStats(arms.variant, 0),
+        "variant"
       );
     }
   }
@@ -250,10 +266,13 @@ export function buildReportHeadline(view: ReportView): ReportHeadline {
           "tracking company",
           "tracking companies"
         )}: ${plural(after, "third-party request")}, versus ${n(before)} in the visit without the signal. An observed difference for this pair of visits; request counts cannot show whether data sales stopped, only what loaded.`,
-        buildStats(arms.variant, gpcOnTracking.length)
+        buildStats(arms.variant, gpcOnTracking.length),
+        "variant"
       );
     }
     if (reductionPct >= 50) {
+      // Pair-framed: the stat chips stay on the lead (baseline) run, so the
+      // evidence switcher default stays there too (no focusArm).
       return finish(
         "calm",
         `Off-site requests to ${domain} dropped ${reductionPct}% with a privacy signal on.`,
@@ -280,6 +299,7 @@ export function buildReportHeadline(view: ReportView): ReportHeadline {
       // "Brave-list blocking", never "Brave Shields on": the blocking arm ran
       // Brave's ad-block engine and default Shields lists as a block
       // SIMULATION in this scanner's browser, not a live Brave-browser visit.
+      // Pair-framed with lead-run stats: no focusArm (see the GPC calm note).
       return finish(
         removed >= 30 ? "warn" : "info",
         `${domain} loaded ${plural(removed, "fewer third-party request")} with Brave-list blocking on.`,

@@ -596,6 +596,41 @@ disposition after the review:
   history, and registrable-domain `/sites/<domain>` profiles are now landed in
   the product-loop slice. The headline-focus default arm residual remains.
 
+## Kernel staging progress (2026-07-13)
+
+Steps 2 through 4 of the user-sequenced measurement kernel staging landed:
+
+- **Step 2 complete.** GPC/Shields readbacks (61b4726) plus randomized AB/BA
+  arm order: the Node producer and the Browser Run worker draw a fair
+  counterbalancing order per comparison, baseline/variant semantics stay
+  fixed, and the executed order is disclosed on the report ("The two visits
+  ran in randomized order; ..."), admitted at the warning boundary only with
+  a known run label.
+- **Step 3 complete (flag-gated).** SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION=1
+  records banner-visibility moments (before/after click, after reload) and
+  strong interpreter reads (tcf-api@1 in-page, onetrust-cookie@1) into the
+  staged r2 consent facts, with one disclosed post-choice reload in its own
+  measurement phase whose traffic never enters the v1 request log. Mappings
+  err toward "unknown" wherever CMP configuration could fabricate a
+  verification or contradiction. Observe-mode visits under the flag perform
+  one non-mutating visibility read so the always-on consent-banner detector
+  leaves its default state.
+- **Step 4: controlled (shadow) emission landed; rollout remains.**
+  SITE_BEHAVIOR_LAB_V2_SHADOW_EMISSION=1 builds a ScanReport v2/r2 from every
+  completed visit's staged facts and writes the redacted public wire
+  operator-locally (create-only; build provenance required; failures are
+  diagnostics, never failed scans). Singles and comparison ARMS emit;
+  REMAINING before the alias flip and corpus regeneration: a pair-level r2
+  comparison builder (intervention design, recorded arm order, pairValidity
+  evaluated at build time), operator verification of shadow output on the
+  deployed scanner, then the r1->r2 alias move and corpus regen (step 4 ops)
+  and replication (step 5).
+- The headline-focus residual is closed: ReportHeadline.focusArm declares the
+  arm whose stats the lead finding quotes (consent reject-visit branches, GPC
+  still-contacted alarm), and the shell's evidence switcher opens there.
+  Pair-framed branches with lead-run stat chips (Shields fewer-requests, GPC
+  calm drop) deliberately declare no focus arm.
+
 Operator-side items surfaced to the user (not repo-fixable):
 R2 lifecycle rule for the 7-day promise (prune is opportunistic:
 save-triggered or read-of-expired only), Cloudflare Insights beacon on the
