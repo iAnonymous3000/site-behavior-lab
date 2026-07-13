@@ -30,11 +30,25 @@ import {
 import {
   consentClickArgs,
   consentInteractionWarning,
+  consentVisibilityArgs,
   findAndClickConsentControl,
+  findVisibleConsentControl,
   type ConsentClickOutcome,
   type ConsentChoice,
   type ConsentInteractionSummary
 } from "./consent-interaction";
+import {
+  CONSENT_RELOAD_DISCLOSURE,
+  consentVerificationEnabled,
+  onetrustObservedState,
+  ONETRUST_CONSENT_COOKIE,
+  ONETRUST_COOKIE_METHOD,
+  readTcfApiState,
+  TCF_API_METHOD,
+  TCF_READ_TIMEOUT_MS,
+  tcfObservedState,
+  type TcfApiReadOutcome
+} from "./consent-verification";
 import { summarizePixelEvents, type PixelEventInput } from "./pixel-events";
 import { buildPrivacyPolicySummary, pickPrivacyPolicyLink, type PolicyLinkCandidate } from "./privacy-policy";
 import { isOperationalEntity, trackerEntitySummaries } from "./report-insights";
@@ -65,8 +79,13 @@ import {
   verifyRoutedHttpRequest,
   withScanDeadline
 } from "./scan-runtime";
-import type { MeasurementKernelResultR2 } from "./scan-result-v2-r2-builder";
 import type {
+  ConsentFactsR2,
+  ConsentObservationFactsR2,
+  MeasurementKernelResultR2
+} from "./scan-result-v2-r2-builder";
+import type {
+  BannerTransitionR2,
   GpcVerificationFactsR2,
   RunEvidenceR2,
   ShieldsVerificationFactsR2
@@ -138,6 +157,12 @@ const CONSENT_BANNER_RETRIES = 3;
 const CONSENT_BANNER_RETRY_WAIT_MS = 800;
 const CONSENT_SETTLE_WAIT_MS = 3_500;
 const CONSENT_SETTLE_IDLE_TIMEOUT_MS = 3_000;
+// Post-choice reload (kernel step 3, flag-gated): budget needed to bother, its
+// own navigation timeout, and a short settle before the registered consent
+// state is read back. Reload traffic never enters the v1 request log.
+const CONSENT_RELOAD_MIN_BUDGET_MS = 8_000;
+const CONSENT_RELOAD_NAV_TIMEOUT_MS = 10_000;
+const CONSENT_RELOAD_SETTLE_IDLE_TIMEOUT_MS = 1_500;
 // Privacy-policy cross-check: budget needed for the extra page visit, its own
 // navigation timeout, a short wait for JS-rendered policies (CMP-hosted pages),
 // and hard caps on links considered, subresources loaded, and text analyzed.
@@ -187,6 +212,8 @@ export type ScanSiteOptions = {
 export type StagedSingleVisitMeasurement = {
   measurement: MeasurementKernelResultR2;
   evidence: Omit<RunEvidenceR2, "consent">;
+  /** Recorded consent facts (RFC 15.4/15.5); present on every consent-mode run. */
+  consent?: ConsentFactsR2;
   verificationFacts: {
     gpc: GpcVerificationFactsR2;
     shields: ShieldsVerificationFactsR2;
@@ -400,9 +427,21 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
       return operation;
     });
 
+    // Kernel step 3 state (flag-gated): registered consent-state readback.
+    // Everything recorded here is staged r2 fact material; the frozen v1 wire
+    // never carries it.
+    const verificationEnabled = payload.consentMode !== "observe" && consentVerificationEnabled();
+    const consentObservations: ConsentObservationFactsR2[] = [];
+    const bannerObservations: BannerTransitionR2["observations"][number][] = [];
+    const consentReadState = { sequence: 0, reloadPhaseId: null as number | null };
+
     const recordRequest = (request: Request) => {
       if (requestsBlockedByShields.has(request) || requestsBlockedByGuard.has(request)) return;
-      measurementKernel.tagRequest(request);
+      const phaseId = measurementKernel.tagRequest(request);
+      // Post-choice reload traffic exists only to read the registered consent
+      // state back; it never enters the v1 request log or counts (the report
+      // warning discloses exactly that).
+      if (consentReadState.reloadPhaseId !== null && phaseId === consentReadState.reloadPhaseId) return;
       networkRecorder.recordRequest(request, Date.now() - started);
     };
     page.on("request", recordRequest);
@@ -477,6 +516,122 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
       signal: options.signal
     });
 
+    // Kernel step 3 helpers. Weak banner-visibility moments plus the strong
+    // CMP interpreters (TCF API in-page read, OneTrust consent cookie), each
+    // mapped to the closed observed-state vocabulary before anything is
+    // retained; raw CMP payloads never leave the read. Best-effort: a failed
+    // read records its structured failure outcome and the scan continues.
+    const probeConsentBannerVisibility = async (): Promise<boolean | null> => {
+      const args = consentVisibilityArgs();
+      let readableFrames = 0;
+      for (const frame of page.frames()) {
+        try {
+          const visible = await withScanTimeout(frame.evaluate(findVisibleConsentControl, args), started);
+          readableFrames += 1;
+          if (visible) return true;
+        } catch (error) {
+          if (isScanBudgetError(error)) throw error;
+        }
+      }
+      return readableFrames > 0 ? false : null;
+    };
+    const recordBannerMoment = async (
+      moment: BannerTransitionR2["observations"][number]["moment"],
+      phaseId: number
+    ): Promise<void> => {
+      try {
+        const visible = await probeConsentBannerVisibility();
+        if (visible === null) return;
+        // The validator requires strictly increasing moments; guard the
+        // degenerate same-millisecond probe pair.
+        const lastAtMs = bannerObservations[bannerObservations.length - 1]?.atMs ?? -1;
+        bannerObservations.push({ moment, phaseId, atMs: Math.max(measurementKernel.elapsed(), lastAtMs + 1), visible });
+      } catch (error) {
+        throwIfScanAborted(options.signal);
+        if (!isScanBudgetError(error)) throw error;
+      }
+    };
+    const recordConsentStateReadback = async (phaseId: number): Promise<void> => {
+      let tcf: TcfApiReadOutcome;
+      try {
+        tcf = await withScanTimeout(page.evaluate(readTcfApiState, TCF_READ_TIMEOUT_MS), started);
+      } catch (error) {
+        throwIfScanAborted(options.signal);
+        tcf = isScanBudgetError(error) ? { status: "timeout" } : { status: "error" };
+      }
+      consentReadState.sequence += 1;
+      consentObservations.push({
+        phaseId,
+        method: TCF_API_METHOD,
+        ...(tcf.status === "read"
+          ? { observed: tcfObservedState(tcf), result: { outcome: "read" as const, sequence: consentReadState.sequence } }
+          : tcf.status === "unavailable"
+            ? { observed: null, result: { outcome: "unreadable" as const, sequence: consentReadState.sequence } }
+            : tcf.status === "timeout"
+              ? {
+                  observed: null,
+                  result: { outcome: "timeout" as const, sequence: consentReadState.sequence, errorCode: "api-timeout" as const }
+                }
+              : {
+                  observed: null,
+                  result: {
+                    outcome: "error" as const,
+                    sequence: consentReadState.sequence,
+                    errorCode: "interpreter-threw" as const
+                  }
+                })
+      });
+
+      let onetrustCookie: string | null | undefined;
+      try {
+        const currentHostname = safeParseUrl(page.url())?.hostname ?? targetUrl.hostname;
+        const contextCookies = await withScanTimeout(context!.cookies(), started);
+        // Only the scanned site's own cookie may speak for its registration:
+        // an embedded vendor's OptanonConsent reflects the vendor, not the site.
+        const match = contextCookies.find(
+          (cookie) =>
+            cookie.name === ONETRUST_CONSENT_COOKIE && !isThirdParty(currentHostname, cookie.domain.replace(/^\./, ""))
+        );
+        onetrustCookie = match?.value ?? null;
+      } catch (error) {
+        throwIfScanAborted(options.signal);
+        onetrustCookie = undefined;
+      }
+      consentReadState.sequence += 1;
+      if (onetrustCookie === undefined) {
+        consentObservations.push({
+          phaseId,
+          method: ONETRUST_COOKIE_METHOD,
+          observed: null,
+          result: { outcome: "error", sequence: consentReadState.sequence, errorCode: "interpreter-threw" }
+        });
+      } else if (onetrustCookie === null) {
+        consentObservations.push({
+          phaseId,
+          method: ONETRUST_COOKIE_METHOD,
+          observed: null,
+          result: { outcome: "unreadable", sequence: consentReadState.sequence }
+        });
+      } else {
+        const parsed = onetrustObservedState(onetrustCookie);
+        consentObservations.push(
+          parsed.parsed
+            ? {
+                phaseId,
+                method: ONETRUST_COOKIE_METHOD,
+                observed: parsed.observed,
+                result: { outcome: "read", sequence: consentReadState.sequence }
+              }
+            : {
+                phaseId,
+                method: ONETRUST_COOKIE_METHOD,
+                observed: null,
+                result: { outcome: "error", sequence: consentReadState.sequence, errorCode: "state-format-unrecognized" }
+              }
+        );
+      }
+    };
+
     // A non-2xx top-level response does not reject goto, so the scan otherwise
     // completes and an error/block page reads as a low-tracker (falsely "private")
     // result. Surface it as a warning, and the headline/findings reframe it.
@@ -503,6 +658,8 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
         capturePassiveBoundary(withScanTimeout(collectStorageEntries(page), started)),
         capturePassiveBoundary(withScanTimeout(collectFingerprintObservationsWithCoverage(page.frames()), started))
       ]);
+      // Capture-loss details use the registered budget vocabulary
+      // (BUDGET_FAMILIES); the phaseId already records WHICH boundary was lost.
       if (passiveCookies.ok) {
         passiveBoundary.cookies = true;
         cookieSnapshots.push({ phaseId: passivePhaseId, records: passiveCookies.value });
@@ -512,7 +669,7 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
           phaseId: passivePhaseId,
           kind: passiveCookies.kind,
           count: 1,
-          detail: "passive-boundary"
+          detail: "cookie-snapshot"
         });
       }
       if (passiveStorage.ok) {
@@ -524,7 +681,7 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
           phaseId: passivePhaseId,
           kind: passiveStorage.kind,
           count: 1,
-          detail: "passive-boundary"
+          detail: "storage-snapshot"
         });
       }
       if (passiveFingerprint.ok && passiveFingerprint.value.readableFrames > 0) {
@@ -536,11 +693,14 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
           phaseId: passivePhaseId,
           kind: passiveFingerprint.ok ? "dropped" : passiveFingerprint.kind,
           count: 1,
-          detail: "passive-boundary"
+          detail: "fingerprint-observer"
         });
       }
       if (MAX_SCAN_DURATION_MS - (Date.now() - started) >= CONSENT_CLICK_MIN_BUDGET_MS) {
         consentPhaseId = measurementKernel.beginPhase("consent-interaction");
+        if (verificationEnabled) {
+          await recordBannerMoment("before-interaction", consentPhaseId);
+        }
       }
     }
 
@@ -598,6 +758,10 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
     if (consentInteraction) {
       warnings.add(consentInteractionWarning(consentInteraction));
     }
+    if (verificationEnabled && consentPhaseId !== null) {
+      await recordBannerMoment("after-interaction", consentPhaseId);
+      await recordConsentStateReadback(consentPhaseId);
+    }
 
     const pageTitle = await withScanTimeout(page.title(), started).catch((error) => {
       if (isScanBudgetError(error)) throw error;
@@ -620,7 +784,7 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
         phaseId: stateSnapshotPhaseId,
         kind: finalStorage.kind,
         count: 1,
-        detail: "final-boundary"
+        detail: "storage-snapshot"
       });
     }
     measurementKernel.setDetector(
@@ -651,6 +815,70 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
     // may navigate the page away to flush unload beacons. The policy page itself
     // is visited later, after the request log has been snapshotted.
     const policyLinks = await withScanTimeout(collectPrivacyPolicyLinks(page), started).catch(() => [] as PolicyLinkCandidate[]);
+
+    // Kernel step 3 (flag-gated): one post-choice reload to read the site's
+    // REGISTERED consent state from a fresh document. It runs in its own
+    // measurement phase whose traffic is excluded from the v1 request log
+    // (recordRequest skips the phase; the warning below discloses it), after
+    // the v1 evidence snapshots so the frozen wire is untouched, and before
+    // the active-probe phase per the r2 phase-plan ordering. Only a really
+    // clicked control has a registration to verify.
+    if (verificationEnabled && consentPhaseId !== null && consentInteraction?.clicked === true) {
+      const reloadBudgetAvailable = MAX_SCAN_DURATION_MS - (Date.now() - started) >= CONSENT_RELOAD_MIN_BUDGET_MS;
+      if (reloadBudgetAvailable) {
+        const reloadPhaseId = measurementKernel.beginPhase("post-choice-reload");
+        consentReadState.reloadPhaseId = reloadPhaseId;
+        warnings.add(CONSENT_RELOAD_DISCLOSURE);
+        try {
+          await page.goto(page.url(), {
+            waitUntil: "domcontentloaded",
+            timeout: scanTimeout(started, CONSENT_RELOAD_NAV_TIMEOUT_MS)
+          });
+          const idleBudgetMs = Math.min(
+            CONSENT_RELOAD_SETTLE_IDLE_TIMEOUT_MS,
+            MAX_SCAN_DURATION_MS - (Date.now() - started) - 500
+          );
+          if (idleBudgetMs > 250) {
+            await page.waitForLoadState("networkidle", { timeout: idleBudgetMs }).catch(() => undefined);
+          }
+          await recordBannerMoment("after-reload", reloadPhaseId);
+          await recordConsentStateReadback(reloadPhaseId);
+          // Post-reload state snapshots feed only the phase-aware mutation
+          // ledgers; the v1 wire's cookies/storage stayed frozen above.
+          const reloadCookies = await capturePassiveBoundary(
+            withScanTimeout(collectCookies(context, finalParsed.hostname), started)
+          );
+          if (reloadCookies.ok) {
+            cookieSnapshots.push({ phaseId: reloadPhaseId, records: reloadCookies.value });
+          } else {
+            measurementKernel.recordCaptureLoss({
+              family: "cookies",
+              phaseId: reloadPhaseId,
+              kind: reloadCookies.kind,
+              count: 1,
+              detail: "cookie-snapshot"
+            });
+          }
+          const reloadStorage = await capturePassiveBoundary(withScanTimeout(collectStorageEntries(page), started));
+          if (reloadStorage.ok) {
+            storageSnapshots.push({ phaseId: reloadPhaseId, records: reloadStorage.value });
+          } else {
+            measurementKernel.recordCaptureLoss({
+              family: "storage",
+              phaseId: reloadPhaseId,
+              kind: reloadStorage.kind,
+              count: 1,
+              detail: "storage-snapshot"
+            });
+          }
+        } catch {
+          throwIfScanAborted(options.signal);
+          // Best-effort verification: a failed reload leaves the round-one
+          // observations standing and the scan continues on the reloaded (or
+          // original) document.
+        }
+      }
+    }
 
     // Active input-capture probe: type a synthetic sentinel into form fields and
     // watch for it leaving to a third party. Best-effort and fully bounded, it
@@ -926,6 +1154,22 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
         pixelEvents: phaseAwarePixelEvents,
         ...(privacyPolicy ? { privacyPolicy } : {})
       },
+      ...(payload.consentMode !== "observe"
+        ? {
+            consent: {
+              interactionAttempted: consentPhaseId !== null,
+              controlActivated: consentInteraction?.clicked === true,
+              verificationObservations: consentObservations,
+              ...(bannerObservations.length > 0
+                ? { bannerTransition: { method: "banner-visibility@1" as const, observations: bannerObservations } }
+                : {}),
+              ...(consentInteraction?.cmp ? { cmp: consentInteraction.cmp } : {}),
+              ...(consentInteraction?.selector ? { selector: consentInteraction.selector } : {}),
+              ...(consentInteraction?.matchedText ? { matchedText: consentInteraction.matchedText } : {}),
+              ...(consentInteraction?.frameUrl ? { frameUrl: consentInteraction.frameUrl } : {})
+            }
+          }
+        : {}),
       verificationFacts: {
         gpc: {
           method: "gpc-header-readback@1",

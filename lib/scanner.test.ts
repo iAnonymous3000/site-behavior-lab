@@ -882,8 +882,17 @@ test("failed passive storage collection cannot manufacture consent-phase mutatio
     assert.deepEqual(staged!.evidence.storageMutations, []);
     assert.deepEqual(
       staged!.measurement.qualityFacts.captureLoss.filter((loss) => loss.family === "storage"),
-      [{ family: "storage", phaseId: 0, kind: "dropped", count: 1, detail: "passive-boundary" }]
+      [{ family: "storage", phaseId: 0, kind: "dropped", count: 1, detail: "storage-snapshot" }]
     );
+    // Flag off (the default): consent facts are still recorded for the staged
+    // r2 artifact, with zero verification observations and no banner block.
+    assert.deepEqual(staged!.consent, {
+      interactionAttempted: true,
+      controlActivated: true,
+      verificationObservations: [],
+      matchedText: "accept all"
+    });
+    assert.equal(staged!.measurement.phases.some((phase) => phase.kind === "post-choice-reload"), false);
     assert.equal(staged!.measurement.detectors["consent-banner"].status, "complete");
     assert.equal(staged!.verificationFacts.gpc.header, "confirmed-absent");
     assert.ok(
@@ -900,6 +909,145 @@ test("failed passive storage collection cannot manufacture consent-phase mutatio
     assert.ok(shields.requestsMatched <= shields.requestsEvaluated);
     assert.equal(staged!.evidence.requests.some((request) => request.blockedByShields === true), false);
   } finally {
+    await closeSharedBrowserForTests();
+    await new Promise<void>((resolve) => upstream.close(() => resolve()));
+  }
+});
+
+test("scanSite verifies a consent click end to end when the verification flag is on", { timeout: 30_000 }, async () => {
+  const assetHits: string[] = [];
+  const upstream = createServer((request, response) => {
+    if (request.url === "/asset.js") {
+      assetHits.push(request.headers.host ?? "");
+      response.writeHead(200, { "content-type": "application/javascript" });
+      response.end("void 0;");
+      return;
+    }
+    response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+    response.end(`<!doctype html>
+      <title>Consent verification fixture</title>
+      <script>
+        const rejected = localStorage.getItem("cmp-choice") === "rejected";
+        const tcData = {
+          gdprApplies: true,
+          eventStatus: rejected ? "tcloaded" : "cmpuishown",
+          purpose: { consents: rejected ? { "1": false, "2": false } : {} }
+        };
+        window.__tcfapi = (command, version, callback) => callback(tcData, true);
+        window.registerRejection = () => {
+          localStorage.setItem("cmp-choice", "rejected");
+          document.cookie = "OptanonConsent=groups%3DC0001%3A1%2CC0002%3A0; path=/";
+          tcData.eventStatus = "useractioncomplete";
+          tcData.purpose = { consents: { "1": false, "2": false } };
+          document.getElementById("banner").style.display = "none";
+        };
+      </script>
+      <script src="/asset.js"></script>
+      <div id="banner" style="display:none">
+        <button onclick="registerRejection()">Reject all</button>
+      </div>
+      <script>
+        if (!rejected) document.getElementById("banner").style.display = "block";
+      </script>
+      <p>fixture</p>`);
+  });
+  await new Promise<void>((resolve, reject) => {
+    upstream.once("error", reject);
+    upstream.listen(0, "127.0.0.1", resolve);
+  });
+  const address = upstream.address();
+  assert.ok(address && typeof address === "object");
+
+  process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION = "1";
+  try {
+    const result = await scanSite(
+      {
+        url: "http://consent-verify.test/",
+        device: "desktop",
+        gpcEnabled: false,
+        consentMode: "reject-all"
+      },
+      {
+        publicUrlAlreadyVerified: true,
+        verifyPublicUrl: async () => undefined,
+        resolvePublicHost: async () => [{ address: "93.184.216.34", family: 4 }],
+        connectProxyUpstreamForTests: () => connect(address.port, "127.0.0.1"),
+        resolveCnameChain: async () => []
+      }
+    );
+
+    // The reload really happened upstream, and its traffic stayed out of v1.
+    assert.equal(result.schemaVersion, 1);
+    assert.equal(assetHits.length, 2);
+    assert.equal(
+      result.warnings.some((warning) => warning.includes("attempted one page reload to read the site's registered consent state")),
+      true
+    );
+    assert.equal(result.consentInteraction?.clicked, true);
+
+    const staged = stagedSingleVisitMeasurement(result);
+    assert.notEqual(staged, null);
+    // Exactly one recorded asset load (the reload's copy is excluded), and the
+    // v1 wire counts agree with the staged phase-aware evidence.
+    assert.equal(staged!.evidence.requests.filter((request) => request.url.endsWith("/asset.js")).length, 1);
+    assert.equal(result.summary.totalRequests, staged!.evidence.requests.length);
+    assert.deepEqual(
+      staged!.measurement.phases.map((phase) => phase.kind),
+      ["passive-load", "consent-interaction", "post-choice-reload", "active-probe"]
+    );
+    const consentPhaseId = staged!.measurement.phases.find((phase) => phase.kind === "consent-interaction")!.phaseId;
+    const reloadPhaseId = staged!.measurement.phases.find((phase) => phase.kind === "post-choice-reload")!.phaseId;
+    assert.equal(staged!.evidence.requests.some((request) => request.phaseId === reloadPhaseId), false);
+
+    const consent = staged!.consent;
+    assert.notEqual(consent, undefined);
+    assert.equal(consent!.interactionAttempted, true);
+    assert.equal(consent!.controlActivated, true);
+    assert.equal(consent!.matchedText, "reject all");
+
+    // Banner-visibility moments: visible before the click, gone after it and
+    // after the reload, chronology strictly increasing.
+    const moments = consent!.bannerTransition?.observations ?? [];
+    assert.deepEqual(
+      moments.map((entry) => [entry.moment, entry.phaseId, entry.visible]),
+      [
+        ["before-interaction", consentPhaseId, true],
+        ["after-interaction", consentPhaseId, false],
+        ["after-reload", reloadPhaseId, false]
+      ]
+    );
+    assert.ok(moments[0].atMs < moments[1].atMs && moments[1].atMs < moments[2].atMs);
+
+    // Strong interpreter reads in BOTH consent phases: the TCF registration is
+    // readable and consistent with the reject click; the OneTrust cookie set
+    // by the banner parses to the same registered state.
+    assert.deepEqual(
+      consent!.verificationObservations.map((observation) => [
+        observation.phaseId,
+        observation.method,
+        observation.observed,
+        observation.result.outcome
+      ]),
+      [
+        [consentPhaseId, "tcf-api@1", "rejected-all", "read"],
+        [consentPhaseId, "onetrust-cookie@1", "rejected-all", "read"],
+        [reloadPhaseId, "tcf-api@1", "rejected-all", "read"],
+        [reloadPhaseId, "onetrust-cookie@1", "rejected-all", "read"]
+      ]
+    );
+    const sequences = consent!.verificationObservations.map((observation) => observation.result.sequence);
+    assert.deepEqual([...sequences].sort((a, b) => a - b), sequences);
+    assert.equal(new Set(sequences).size, sequences.length);
+
+    // The clicked cookie shows up as a consent-phase mutation in the ledger.
+    assert.equal(
+      staged!.evidence.cookieMutations.some(
+        (mutation) => mutation.op === "added" && mutation.cookie.name === "OptanonConsent" && mutation.phaseId === consentPhaseId
+      ),
+      true
+    );
+  } finally {
+    delete process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION;
     await closeSharedBrowserForTests();
     await new Promise<void>((resolve) => upstream.close(() => resolve()));
   }

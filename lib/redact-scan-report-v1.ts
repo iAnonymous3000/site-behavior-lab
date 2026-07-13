@@ -7,6 +7,7 @@ import {
   matchesConsentChoice,
   normalizeConsentLabel
 } from "./consent-interaction";
+import { CONSENT_RELOAD_DISCLOSURE } from "./consent-verification";
 import { summarizeDomains } from "./domain-summaries";
 import { isFingerprintDetectionSummary } from "./fingerprint-detection-guard";
 import {
@@ -236,6 +237,7 @@ const FIXED_SCANNER_WARNINGS = new Set([
   "The page did not reach network idle before the scan window ended.",
   "The page did not reach network idle before the Cloudflare scan window ended.",
   "Blocked one or more requests that resolved to local or private network addresses at connection time.",
+  CONSENT_RELOAD_DISCLOSURE,
   "Blocked additional non-HTTP(S) requests. Only the first 5 examples are shown.",
   "Blocked additional requests that could not be verified as public. Only the first 5 examples are shown.",
   "Shareable report could not be saved on this host; JSON export is still available.",

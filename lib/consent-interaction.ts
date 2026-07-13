@@ -225,6 +225,77 @@ export function findAndClickConsentControl(args: ConsentClickArgs): ConsentClick
   return { clicked: false };
 }
 
+export type ConsentVisibilityArgs = {
+  selectors: { cmp: string; selector: string }[];
+  shadowHosts: string[];
+  /** Sources of BOTH whole-label regexes; visibility is choice-agnostic. */
+  textPatternSources: string[];
+};
+
+/** Serializable arguments for {@link findVisibleConsentControl} in one frame. */
+export function consentVisibilityArgs(): ConsentVisibilityArgs {
+  return {
+    selectors: [...cmpSelectorsForChoice("accept-all"), ...cmpSelectorsForChoice("reject-all")],
+    shadowHosts: CONSENT_SHADOW_HOSTS,
+    textPatternSources: [CONSENT_TEXT_PATTERNS["accept-all"].source, CONSENT_TEXT_PATTERNS["reject-all"].source]
+  };
+}
+
+/**
+ * Runs INSIDE the page (via frame.evaluate): reports whether any first-layer
+ * consent control this scanner recognizes is currently visible. The weak
+ * banner-visibility signal (RFC 15.5) is exactly this boolean; nothing is
+ * clicked and no page text is returned. Self-contained for serialization.
+ */
+export function findVisibleConsentControl(args: ConsentVisibilityArgs): boolean {
+  const roots: (Document | ShadowRoot)[] = [document];
+  for (const hostSelector of args.shadowHosts) {
+    const host = document.querySelector(hostSelector);
+    if (host?.shadowRoot) roots.push(host.shadowRoot);
+  }
+
+  const isVisible = (element: Element): boolean => {
+    const rect = element.getBoundingClientRect();
+    if (rect.width < 2 || rect.height < 2) return false;
+    const style = window.getComputedStyle(element);
+    return style.visibility !== "hidden" && style.display !== "none" && Number(style.opacity || "1") > 0.05;
+  };
+
+  for (const { selector } of args.selectors) {
+    for (const root of roots) {
+      let element: Element | null = null;
+      try {
+        element = root.querySelector(selector);
+      } catch {
+        continue;
+      }
+      if (element instanceof HTMLElement && isVisible(element)) return true;
+    }
+  }
+
+  const patterns = args.textPatternSources.map((source) => new RegExp(source));
+  const normalize = (text: string): string =>
+    text
+      .replace(/\s+/g, " ")
+      .trim()
+      .replace(/[.!→»>]+$/, "")
+      .trim()
+      .toLowerCase();
+
+  for (const root of roots) {
+    const candidates = root.querySelectorAll("button, a, [role=button], input[type=button], input[type=submit]");
+    for (const candidate of Array.from(candidates).slice(0, 1_500)) {
+      if (!(candidate instanceof HTMLElement) || !isVisible(candidate)) continue;
+      const label = candidate instanceof HTMLInputElement ? candidate.value : candidate.textContent ?? "";
+      const normalized = normalize(label);
+      if (!normalized || normalized.length > 48) continue;
+      if (patterns.some((pattern) => pattern.test(normalized))) return true;
+    }
+  }
+
+  return false;
+}
+
 /** The human label for a consent choice, as report copy should print it. */
 export function consentChoiceLabel(choice: ConsentChoice): string {
   return choice === "accept-all" ? "Accept all" : "Reject all";
