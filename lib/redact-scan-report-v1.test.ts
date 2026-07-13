@@ -141,8 +141,11 @@ function sensitiveSingle(): ScanResult {
     "  The page did not reach network idle before the scan window ended.\u0000  ",
     "The scan stopped loading additional response bytes after reaching the 64 MiB aggregate response-byte budget.",
     "The scan stopped forwarding additional request bytes after reaching the 16 MiB aggregate upload-byte budget.",
+    'The two visits ran in randomized order; the "GPC on" visit ran first.',
     `Blocked a request that could not be verified as public: https://${TOKEN_HOST}/users/anna?token=secret`,
-    "Patient Anna's private warning"
+    "Patient Anna's private warning",
+    // A page-controlled label must never ride the counterbalancing sentence.
+    'The two visits ran in randomized order; the "Anna Schmidt" visit ran first.'
   ];
   return report;
 }
@@ -198,6 +201,7 @@ test("the v1 transform sanitizes every page-controlled field without mutating it
     "The page did not reach network idle before the scan window ended.",
     "The scan stopped loading additional response bytes after reaching the 64 MiB aggregate response-byte budget.",
     "The scan stopped forwarding additional request bytes after reaching the 16 MiB aggregate upload-byte budget.",
+    'The two visits ran in randomized order; the "GPC on" visit ran first.',
     "Blocked a request that could not be verified as public: https://{label}.google-analytics.com/{seg}/{seg}",
     "[redacted warning]"
   ]);

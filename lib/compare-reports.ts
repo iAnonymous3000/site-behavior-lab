@@ -26,7 +26,24 @@ import { SCAN_REPORT_SCHEMA_VERSION } from "./types";
 // the UI collapses long lists and offers a "show all" toggle up to this cap.
 const MAX_DIFF_LIST = 100;
 
-export function createGpcComparisonReport(baseline: ScanResult, variant: ScanResult): ComparisonScanResult {
+/** Which comparison arm the producer actually executed first (counterbalancing). */
+export type ComparisonExecutedFirst = "baseline" | "variant";
+
+/**
+ * Producer disclosure of the executed arm order. Frozen v1 has no structural
+ * order field, so this sentence is the record: the public warning boundary
+ * (lib/redact-scan-report-v1.ts) admits it by exact shape with a known run
+ * label, and readers recover the order from it or from the per-run timestamps.
+ */
+export function comparisonOrderDisclosure(runLabels: ComparisonRunLabels, executedFirst: ComparisonExecutedFirst): string {
+  return `The two visits ran in randomized order; the "${runLabels[executedFirst]}" visit ran first.`;
+}
+
+export function createGpcComparisonReport(
+  baseline: ScanResult,
+  variant: ScanResult,
+  options: { executedFirst?: ComparisonExecutedFirst } = {}
+): ComparisonScanResult {
   return createComparisonReport({
     comparisonType: "gpc",
     title: "GPC off/on comparison",
@@ -36,11 +53,16 @@ export function createGpcComparisonReport(baseline: ScanResult, variant: ScanRes
     },
     baseline,
     variant,
+    executedFirst: options.executedFirst,
     warningPrefix: "Comparison runs are sequential automated visits, not simultaneous observations. Differences can also come from timing, experiments, cache state, consent state, or bot detection."
   });
 }
 
-export function createShieldsComparisonReport(baseline: ScanResult, variant: ScanResult): ComparisonScanResult {
+export function createShieldsComparisonReport(
+  baseline: ScanResult,
+  variant: ScanResult,
+  options: { executedFirst?: ComparisonExecutedFirst } = {}
+): ComparisonScanResult {
   // "Brave-list blocking", never "Shields on": the blocking arm runs Brave's
   // ad-block engine and default Shields lists as a block SIMULATION in this
   // scanner's browser, not a live Brave-browser visit. (The view layer
@@ -54,6 +76,7 @@ export function createShieldsComparisonReport(baseline: ScanResult, variant: Sca
     },
     baseline,
     variant,
+    executedFirst: options.executedFirst,
     warningPrefix:
       "Brave-list blocking comparison runs should be collected under matched crawl conditions, and the blocking run is a simulation with Brave's engine and default lists in this scanner's browser, not a live Brave visit. Differences can still reflect timing, experiments, cache state, consent state, or bot detection."
   });
@@ -73,7 +96,11 @@ export function consentComparisonTitle(dispatch: { baseline: boolean; variant: b
     : "Consent comparison attempt (only Reject all clicked)";
 }
 
-export function createConsentComparisonReport(acceptRun: ScanResult, rejectRun: ScanResult): ComparisonScanResult {
+export function createConsentComparisonReport(
+  acceptRun: ScanResult,
+  rejectRun: ScanResult,
+  options: { executedFirst?: ComparisonExecutedFirst } = {}
+): ComparisonScanResult {
   // Baseline = the accept-all run (the maximal, "unprotected" behavior, matching
   // how GPC/Shields comparisons lead with the off run); variant = reject-all.
   // The title and arm labels come from what each run RECORDED: a visit whose
@@ -94,6 +121,7 @@ export function createConsentComparisonReport(acceptRun: ScanResult, rejectRun: 
     },
     baseline: acceptRun,
     variant: rejectRun,
+    executedFirst: options.executedFirst,
     warningPrefix:
       "Consent comparison runs are sequential automated visits: one asked to click the banner's accept-all choice, one asked to click reject-all (first layer only). A run where no control was clicked reflects the pre-consent state instead; see each run's consent note. Differences can also come from timing, experiments, cache state, or bot detection."
   });
@@ -134,7 +162,8 @@ export function createComparisonReport({
   runLabels,
   baseline,
   variant,
-  warningPrefix
+  warningPrefix,
+  executedFirst
 }: {
   comparisonType: ComparisonType;
   title: string;
@@ -142,10 +171,13 @@ export function createComparisonReport({
   baseline: ScanResult;
   variant: ScanResult;
   warningPrefix: string;
+  /** Recorded only when the producer really counterbalanced this pair. */
+  executedFirst?: ComparisonExecutedFirst;
 }): ComparisonScanResult {
   const diff = compareScanResults(baseline, variant);
   const warnings = [
     warningPrefix,
+    ...(executedFirst ? [comparisonOrderDisclosure(runLabels, executedFirst)] : []),
     ...prefixWarnings(runLabels.baseline, baseline.warnings),
     ...prefixWarnings(runLabels.variant, variant.warnings)
   ];

@@ -1,9 +1,15 @@
+import { randomBytes } from "node:crypto";
 import {
   acquireScanSlot,
   assertRateLimit,
   QUEUE_TIMEOUT_MS
 } from "./scan-limits";
-import { createConsentComparisonReport, createGpcComparisonReport, createShieldsComparisonReport } from "./compare-reports";
+import {
+  createConsentComparisonReport,
+  createGpcComparisonReport,
+  createShieldsComparisonReport,
+  type ComparisonExecutedFirst
+} from "./compare-reports";
 import { saveScanReport } from "./report-store";
 import { scanSite, type ScanSiteOptions } from "./scanner";
 import type { ConsentMode, ScanDevice, ScanReport, ScanRequestPayload, ScanResult } from "./types";
@@ -22,6 +28,8 @@ export type ScanExecutionControl = {
    * accepting cancellation before any public write starts.
    */
   beforeSave?: () => void;
+  /** Deterministic counterbalancing draw for tests; production draws randomly. */
+  drawComparisonFirstArm?: () => ComparisonExecutedFirst;
 };
 
 const SHARE_SAVE_WARNING = "Shareable report could not be saved on this host; JSON export is still available.";
@@ -53,43 +61,71 @@ export async function executePreparedScan(
     }
 
     if (prepared.compareGpc) {
-      const baseline = await scan(createScanPayload(prepared.url, prepared.device, false), {
-        publicUrlAlreadyVerified: true,
-        signal: control.signal
-      });
-      throwIfCancelled(control.signal);
-      const variant = await scan(createScanPayload(prepared.url, prepared.device, true), {
-        publicUrlAlreadyVerified: true,
-        signal: control.signal
-      });
-      return await saveScanReportBestEffort(createGpcComparisonReport(baseline, variant), saveReport, control);
+      const executedFirst = (control.drawComparisonFirstArm ?? drawComparisonFirstArm)();
+      const { baseline, variant } = await runComparisonArms(
+        executedFirst,
+        {
+          baseline: () =>
+            scan(createScanPayload(prepared.url, prepared.device, false), {
+              publicUrlAlreadyVerified: true,
+              signal: control.signal
+            }),
+          variant: () =>
+            scan(createScanPayload(prepared.url, prepared.device, true), {
+              publicUrlAlreadyVerified: true,
+              signal: control.signal
+            })
+        },
+        control.signal
+      );
+      return await saveScanReportBestEffort(createGpcComparisonReport(baseline, variant, { executedFirst }), saveReport, control);
     }
 
     if (prepared.compareShields) {
-      const baseline = await scan(createScanPayload(prepared.url, prepared.device, prepared.gpcEnabled), {
-        publicUrlAlreadyVerified: true,
-        signal: control.signal
-      });
-      throwIfCancelled(control.signal);
-      const variant = await scan(createScanPayload(prepared.url, prepared.device, prepared.gpcEnabled), {
-        publicUrlAlreadyVerified: true,
-        shieldsBlockingEnabled: true,
-        signal: control.signal
-      });
-      return await saveScanReportBestEffort(createShieldsComparisonReport(baseline, variant), saveReport, control);
+      const executedFirst = (control.drawComparisonFirstArm ?? drawComparisonFirstArm)();
+      const { baseline, variant } = await runComparisonArms(
+        executedFirst,
+        {
+          baseline: () =>
+            scan(createScanPayload(prepared.url, prepared.device, prepared.gpcEnabled), {
+              publicUrlAlreadyVerified: true,
+              signal: control.signal
+            }),
+          variant: () =>
+            scan(createScanPayload(prepared.url, prepared.device, prepared.gpcEnabled), {
+              publicUrlAlreadyVerified: true,
+              shieldsBlockingEnabled: true,
+              signal: control.signal
+            })
+        },
+        control.signal
+      );
+      return await saveScanReportBestEffort(createShieldsComparisonReport(baseline, variant, { executedFirst }), saveReport, control);
     }
 
     if (prepared.compareConsent) {
-      const acceptRun = await scan(createScanPayload(prepared.url, prepared.device, prepared.gpcEnabled, "accept-all"), {
-        publicUrlAlreadyVerified: true,
-        signal: control.signal
-      });
-      throwIfCancelled(control.signal);
-      const rejectRun = await scan(createScanPayload(prepared.url, prepared.device, prepared.gpcEnabled, "reject-all"), {
-        publicUrlAlreadyVerified: true,
-        signal: control.signal
-      });
-      return await saveScanReportBestEffort(createConsentComparisonReport(acceptRun, rejectRun), saveReport, control);
+      const executedFirst = (control.drawComparisonFirstArm ?? drawComparisonFirstArm)();
+      const { baseline: acceptRun, variant: rejectRun } = await runComparisonArms(
+        executedFirst,
+        {
+          baseline: () =>
+            scan(createScanPayload(prepared.url, prepared.device, prepared.gpcEnabled, "accept-all"), {
+              publicUrlAlreadyVerified: true,
+              signal: control.signal
+            }),
+          variant: () =>
+            scan(createScanPayload(prepared.url, prepared.device, prepared.gpcEnabled, "reject-all"), {
+              publicUrlAlreadyVerified: true,
+              signal: control.signal
+            })
+        },
+        control.signal
+      );
+      return await saveScanReportBestEffort(
+        createConsentComparisonReport(acceptRun, rejectRun, { executedFirst }),
+        saveReport,
+        control
+      );
     }
 
     const result = await scan(createScanPayload(prepared.url, prepared.device, prepared.gpcEnabled), {
@@ -100,6 +136,37 @@ export async function executePreparedScan(
   } finally {
     releaseScanSlot();
   }
+}
+
+/**
+ * Fair counterbalancing draw (RFC 4.3): which arm of a comparison visits the
+ * site first. A fixed baseline-then-variant order would let time-ordered
+ * site behavior (cache warming, ad rotation, bot-score escalation) load
+ * systematically onto one arm; randomizing the order turns that bias into
+ * noise across the corpus. The executed order is disclosed on the report.
+ */
+function drawComparisonFirstArm(): ComparisonExecutedFirst {
+  return randomBytes(1)[0] < 128 ? "baseline" : "variant";
+}
+
+/**
+ * Run the two comparison arms sequentially in the drawn order. The
+ * baseline/variant SEMANTICS (off/on, accept/reject) never change; only
+ * which visit happens first does.
+ */
+async function runComparisonArms(
+  executedFirst: ComparisonExecutedFirst,
+  arms: { baseline: () => Promise<ScanResult>; variant: () => Promise<ScanResult> },
+  signal?: AbortSignal
+): Promise<{ baseline: ScanResult; variant: ScanResult }> {
+  if (executedFirst === "baseline") {
+    const baseline = await arms.baseline();
+    throwIfCancelled(signal);
+    return { baseline, variant: await arms.variant() };
+  }
+  const variant = await arms.variant();
+  throwIfCancelled(signal);
+  return { baseline: await arms.baseline(), variant };
 }
 
 function createScanPayload(url: string, device: ScanDevice, gpcEnabled: boolean, consentMode: ConsentMode = "observe"): ScanRequestPayload {

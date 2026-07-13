@@ -288,7 +288,7 @@ export const PUBLIC_STRING_POLICY_DIGEST = sha256Hex(
     chromiumUserAgentPattern: CHROMIUM_USER_AGENT.source,
     fixedWarnings: [...FIXED_SCANNER_WARNINGS].sort(),
     warningLabels: [...COMPARISON_WARNING_LABELS].sort(),
-    dynamicWarningPatterns: "scanner-warning-patterns-v2",
+    dynamicWarningPatterns: "scanner-warning-patterns-v3",
     cmpSelectors: CONSENT_CMP_SELECTORS,
     consentShadowHosts: CONSENT_SHADOW_HOSTS,
     consentTextPatterns: Object.fromEntries(
@@ -1018,6 +1018,11 @@ function isScannerWarning(warning: string): boolean {
   if (/^This scan typed a synthetic test value into (?:1 form field|[0-9]+ form fields) \(never submitting the form\) to test whether typed input is captured and sent to third parties\. The value is synthetic and is not stored\.(?: Requests the page sent during and after this typing, including any unload beacons, are part of the recorded request log and counts\.)?$/.test(warning)) {
     return true;
   }
+
+  // Counterbalancing disclosure: the label must be a known run label, so a
+  // page-controlled string can never ride a look-alike sentence through.
+  const orderDisclosure = warning.match(/^The two visits ran in randomized order; the "([^"]+)" visit ran first\.$/);
+  if (orderDisclosure && COMPARISON_WARNING_LABELS.has(orderDisclosure[1])) return true;
 
   const blocked = warning.match(
     /^(?:Blocked a non-HTTP\(S\) request|Blocked a request that could not be verified as public|Blocked a request that could not be verified as a public HTTP\(S\) URL): (.+)$/

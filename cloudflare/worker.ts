@@ -292,29 +292,32 @@ async function runWorkerScan(request: NormalizedScanRequest, env: Env): Promise<
 
   const browser = await withWorkerScanTimeout(launch(env.BROWSER), started, MAX_COMPARISON_DURATION_MS);
   try {
-    const baseline = await scanWithBrowserSession(
-      {
-        ...request.payload,
-        gpcEnabled: false
-      },
-      env,
-      browser,
-      publicHostChecks,
-      MAX_COMPARISON_DURATION_MS,
-      started
-    );
-    const variant = await scanWithBrowserSession(
-      {
-        ...request.payload,
-        gpcEnabled: true
-      },
-      env,
-      browser,
-      publicHostChecks,
-      MAX_COMPARISON_DURATION_MS,
-      started
-    );
-    return createGpcComparisonReport(baseline, variant);
+    // Counterbalanced arm order, matching the Node producer: a fixed
+    // baseline-then-variant order would load time-ordered site behavior onto
+    // one arm systematically. The executed order is disclosed on the report.
+    const executedFirst = crypto.getRandomValues(new Uint8Array(1))[0] < 128 ? ("baseline" as const) : ("variant" as const);
+    const runArm = (gpcEnabled: boolean) =>
+      scanWithBrowserSession(
+        {
+          ...request.payload,
+          gpcEnabled
+        },
+        env,
+        browser,
+        publicHostChecks,
+        MAX_COMPARISON_DURATION_MS,
+        started
+      );
+    let baseline: ScanResult;
+    let variant: ScanResult;
+    if (executedFirst === "baseline") {
+      baseline = await runArm(false);
+      variant = await runArm(true);
+    } else {
+      variant = await runArm(true);
+      baseline = await runArm(false);
+    }
+    return createGpcComparisonReport(baseline, variant, { executedFirst });
   } finally {
     await browser.close().catch(() => undefined);
   }

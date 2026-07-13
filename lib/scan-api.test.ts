@@ -254,14 +254,59 @@ test("runScanRequest can run and persist a GPC off/on comparison", async () => {
   const result = await runScanRequest(makeScanRequest("https://1.1.1.1/", { compareGpc: true }), scan);
 
   assert.equal(result.reportType, "comparison");
-  assert.deepEqual(scannedPayloads.map((payload) => payload.gpcEnabled), [false, true]);
+  // Execution order is a randomized counterbalancing draw; both arms always run.
+  assert.deepEqual([...scannedPayloads.map((payload) => payload.gpcEnabled)].sort(), [false, true]);
   assert.deepEqual(scannedPayloads.map((payload) => payload.url.endsWith("#verified=true")), [true, true]);
   if (result.reportType !== "comparison") throw new Error("expected comparison report");
+  // The report's baseline/variant semantics never depend on the executed order.
   assert.equal(result.diff.totalRequests.before, 5);
   assert.equal(result.diff.totalRequests.after, 3);
   assert.equal(result.diff.totalRequests.delta, -2);
+  // The disclosure names the arm that really ran first.
+  const firstLabel = scannedPayloads[0].gpcEnabled ? "GPC on" : "GPC off";
+  assert.equal(
+    result.warnings.includes(`The two visits ran in randomized order; the "${firstLabel}" visit ran first.`),
+    true
+  );
   assert.equal(result.share?.path.startsWith("/reports/"), true);
   assert.deepEqual(await readV1Report(result.share?.id || ""), result);
+});
+
+test("executePreparedScan honors the drawn arm order in both directions", async () => {
+  for (const executedFirst of ["baseline", "variant"] as const) {
+    const scannedPayloads: ScanRequestPayload[] = [];
+    const scan: ScanRunner = async (payload) => {
+      scannedPayloads.push(payload);
+      return makeScanResult(payload, payload.gpcEnabled ? 3 : 5);
+    };
+    const prepared: PreparedScanRequest = {
+      clientKey: `order-${executedFirst}`,
+      url: "https://1.1.1.1/",
+      device: "desktop",
+      gpcEnabled: true,
+      compareGpc: true,
+      compareShields: false,
+      compareConsent: false,
+      rateLimitCost: 2
+    };
+
+    const result = await executePreparedScan(prepared, scan, async (report) => report, undefined, true, {
+      drawComparisonFirstArm: () => executedFirst
+    });
+
+    if (result.reportType !== "comparison") throw new Error("expected comparison report");
+    assert.deepEqual(
+      scannedPayloads.map((payload) => payload.gpcEnabled),
+      executedFirst === "baseline" ? [false, true] : [true, false]
+    );
+    // Semantics stay fixed regardless of order: baseline is the GPC-off run.
+    assert.equal(result.baseline.conditions.gpcEnabled, false);
+    assert.equal(result.variant.conditions.gpcEnabled, true);
+    assert.equal(result.diff.totalRequests.before, 5);
+    assert.equal(result.diff.totalRequests.after, 3);
+    const expectedLabel = executedFirst === "baseline" ? "GPC off" : "GPC on";
+    assert.equal(result.warnings[1], `The two visits ran in randomized order; the "${expectedLabel}" visit ran first.`);
+  }
 });
 
 test("runScanRequest can run and persist a Shields off/on comparison", async () => {
@@ -279,13 +324,19 @@ test("runScanRequest can run and persist a Shields off/on comparison", async () 
   if (result.reportType !== "comparison") throw new Error("expected comparison report");
   assert.equal(result.comparisonType, "shields");
   assert.deepEqual(scannedPayloads.map((payload) => payload.gpcEnabled), [true, true]);
-  assert.deepEqual(scanOptions.map((options) => Boolean((options as { shieldsBlockingEnabled?: boolean }).shieldsBlockingEnabled)), [
-    false,
-    true
-  ]);
+  // Execution order is randomized; exactly one arm runs the blocking engine.
+  const blockingFlags = scanOptions.map((options) =>
+    Boolean((options as { shieldsBlockingEnabled?: boolean }).shieldsBlockingEnabled)
+  );
+  assert.deepEqual([...blockingFlags].sort(), [false, true]);
   assert.equal(result.diff.totalRequests.before, 8);
   assert.equal(result.diff.totalRequests.after, 3);
   assert.equal(result.diff.totalRequests.delta, -5);
+  const firstLabel = blockingFlags[0] ? "Brave-list blocking" : "No blocking";
+  assert.equal(
+    result.warnings.includes(`The two visits ran in randomized order; the "${firstLabel}" visit ran first.`),
+    true
+  );
   assert.equal(result.share?.path.startsWith("/reports/"), true);
   assert.deepEqual(await readV1Report(result.share?.id || ""), result);
 });
@@ -317,9 +368,17 @@ test("runScanRequest can run and persist a consent accept/reject comparison", as
   // provably dispatched and the producer must label both arms as attempts.
   assert.equal(result.title, "Consent comparison attempt (no banner clicked)");
   assert.deepEqual(result.runLabels, { baseline: "Accept-all attempt", variant: "Reject-all attempt" });
-  // The accept run comes first as the baseline; both keep the requested GPC state.
-  assert.deepEqual(scannedPayloads.map((payload) => payload.consentMode), ["accept-all", "reject-all"]);
+  // Execution order is randomized; the accept run stays the baseline arm and
+  // both visits keep the requested GPC state.
+  assert.deepEqual([...scannedPayloads.map((payload) => payload.consentMode)].sort(), ["accept-all", "reject-all"]);
+  assert.equal(result.baseline.conditions.consentMode, "accept-all");
+  assert.equal(result.variant.conditions.consentMode, "reject-all");
   assert.deepEqual(scannedPayloads.map((payload) => payload.gpcEnabled), [true, true]);
+  const firstConsentLabel = scannedPayloads[0].consentMode === "accept-all" ? "Accept-all attempt" : "Reject-all attempt";
+  assert.equal(
+    result.warnings.includes(`The two visits ran in randomized order; the "${firstConsentLabel}" visit ran first.`),
+    true
+  );
   assert.equal(result.diff.totalRequests.before, 9);
   assert.equal(result.diff.totalRequests.after, 2);
   assert.equal(result.diff.totalRequests.delta, -7);
