@@ -1109,6 +1109,10 @@ export function SiteBehaviorApp({
               Glossary
             </a>
             {" · "}
+            <a className="footer-link" href={staticAssetPath("/methodology/")}>
+              Methodology
+            </a>
+            {" · "}
             <a className="footer-link" href={staticAssetPath("/privacy/")}>
               Privacy
             </a>

@@ -2314,6 +2314,22 @@ a {
   color: var(--text-subtle);
 }
 
+.site-sparkline {
+  color: var(--accent);
+  margin: 14px 0 0;
+}
+
+.site-sparkline svg {
+  display: block;
+  max-width: 100%;
+}
+
+.site-sparkline figcaption {
+  color: var(--text-subtle);
+  font-size: 12px;
+  margin-top: 6px;
+}
+
 /* ---- Category rollups (directory) ---- */
 .category-rollups {
   margin: 8px 0 36px;

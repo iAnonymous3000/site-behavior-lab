@@ -28,7 +28,12 @@ export async function generateMetadata({ params }: { params: Promise<{ domain: s
     } for ${profile.domain}, with reproducible evidence${
       compatibleChanges > 0 ? " and observed differences across comparable visits" : " from the curated public corpus"
     }.`,
-    alternates: { canonical: `${sitePagesBasePath()}${siteProfilePath(profile.domain)}/` }
+    alternates: {
+      canonical: `${sitePagesBasePath()}${siteProfilePath(profile.domain)}/`,
+      types: {
+        "application/atom+xml": `${sitePagesBasePath()}${siteProfilePath(profile.domain)}/feed.xml`
+      }
+    }
   };
 }
 
@@ -54,6 +59,9 @@ export default async function SiteProfilePage({ params }: { params: Promise<{ do
             Open latest evidence
           </Link>
           <Link className="topbar-link" href="/directory/">All scanned sites</Link>
+          <a className="topbar-link" href={`${sitePagesBasePath()}${siteProfilePath(profile.domain)}/feed.xml`}>
+            Atom feed
+          </a>
         </div>
       </header>
 
@@ -102,6 +110,7 @@ export default async function SiteProfilePage({ params }: { params: Promise<{ do
       <section className="site-profile-section" aria-labelledby="history-title">
         <p className="eyebrow">Evidence timeline</p>
         <h2 id="history-title">{profile.entries.length} {profile.entries.length === 1 ? "report" : "reports"}</h2>
+        <HistorySparkline entries={profile.entries} />
         <ol className="site-history-list">
           {profile.entries.map((entry) => (
             <li key={entry.id}>
@@ -139,6 +148,53 @@ function CappedChip() {
     >
       recording capped
     </span>
+  );
+}
+
+/**
+ * Dependency-free inline sparkline over the timeline's own listed numbers
+ * (third-party requests per report, oldest to newest). It plots exactly what
+ * the list below shows; the caption carries the mixed-conditions caveat and
+ * the full series is in the accessible label.
+ */
+function HistorySparkline({ entries }: { entries: DirectoryEntry[] }) {
+  // `entries` arrive newest first; plot chronologically.
+  const points = [...entries].reverse().map((entry) => entry.thirdPartyRequests);
+  if (points.length < 2) return null;
+  const width = 240;
+  const height = 48;
+  const pad = 4;
+  const max = Math.max(...points, 1);
+  const step = (width - 2 * pad) / (points.length - 1);
+  const coords = points.map((value, index) => ({
+    x: Number((pad + index * step).toFixed(1)),
+    y: Number((height - pad - (value / max) * (height - 2 * pad)).toFixed(1))
+  }));
+  const last = coords[coords.length - 1];
+  return (
+    <figure className="site-sparkline">
+      <svg
+        viewBox={`0 0 ${width} ${height}`}
+        width={width}
+        height={height}
+        role="img"
+        aria-label={`Third-party requests across ${points.length} reports, oldest to newest: ${points.join(", ")}.`}
+      >
+        <polyline
+          points={coords.map((point) => `${point.x},${point.y}`).join(" ")}
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinejoin="round"
+          strokeLinecap="round"
+        />
+        <circle cx={last.x} cy={last.y} r="2.5" fill="currentColor" />
+      </svg>
+      <figcaption>
+        Third-party requests per report, oldest to newest. Reports can differ in kind and conditions; see the
+        timeline below.
+      </figcaption>
+    </figure>
   );
 }
 

@@ -1,0 +1,86 @@
+import { loadCorpusOverview, type DirectoryEntry } from "@/lib/corpus-overview";
+import { reportPagePath } from "@/lib/report-locator";
+import { siteProfileKey } from "@/lib/site-profile";
+import { siteBaseUrl } from "@/lib/site-url";
+
+export const dynamic = "force-static";
+
+/**
+ * Per-domain Atom feed: the same reviewed corpus entries the site history page
+ * lists, newest first, so a site can be watched from any feed reader without
+ * this project running notification infrastructure. Only corpus publications
+ * appear here; live share reports stay unlisted by design.
+ */
+
+export async function generateStaticParams() {
+  const { entries } = await loadCorpusOverview();
+  return [...new Set(entries.map((entry) => siteProfileKey(entry.domain)).filter((key): key is string => Boolean(key)))].map(
+    (domain) => ({ domain })
+  );
+}
+
+export async function GET(_request: Request, context: { params: Promise<{ domain: string }> }) {
+  const key = siteProfileKey((await context.params).domain);
+  if (!key) return new Response("Not found", { status: 404 });
+  const { entries } = await loadCorpusOverview();
+  const matches = entries
+    .filter((entry) => siteProfileKey(entry.domain) === key)
+    .sort((left, right) => Date.parse(right.scannedAt) - Date.parse(left.scannedAt));
+  if (matches.length === 0) return new Response("Not found", { status: 404 });
+
+  const base = siteBaseUrl();
+  const profileUrl = `${base}/sites/${encodeURIComponent(key)}/`;
+  const feedUrl = `${base}/sites/${encodeURIComponent(key)}/feed.xml`;
+  const updated = feedTimestamp(matches[0]);
+
+  const feedEntries = matches
+    .map((entry) => {
+      const reportUrl = `${base}${reportPagePath(entry.id)}/`;
+      return [
+        "  <entry>",
+        `    <id>${escapeXml(reportUrl)}</id>`,
+        `    <title>${escapeXml(entry.headline)}</title>`,
+        `    <link rel="alternate" type="text/html" href="${escapeXml(reportUrl)}"/>`,
+        `    <updated>${escapeXml(feedTimestamp(entry))}</updated>`,
+        `    <summary>${escapeXml(entrySummary(entry))}</summary>`,
+        "  </entry>"
+      ].join("\n");
+    })
+    .join("\n");
+
+  const xml = `<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>${escapeXml(`${key} site behavior reports`)}</title>
+  <subtitle>Reviewed Site Behavior Lab evidence for ${escapeXml(key)}, from the curated public corpus.</subtitle>
+  <id>${escapeXml(profileUrl)}</id>
+  <link rel="alternate" type="text/html" href="${escapeXml(profileUrl)}"/>
+  <link rel="self" type="application/atom+xml" href="${escapeXml(feedUrl)}"/>
+  <updated>${escapeXml(updated)}</updated>
+${feedEntries}
+</feed>
+`;
+
+  return new Response(xml, {
+    headers: { "content-type": "application/atom+xml; charset=utf-8" }
+  });
+}
+
+function entrySummary(entry: DirectoryEntry): string {
+  return `${entry.thirdPartyRequests.toLocaleString("en-US")} third-party requests, ${entry.trackerRequests.toLocaleString(
+    "en-US"
+  )} catalogued tracking requests, ${entry.thirdPartyCookies.toLocaleString("en-US")} third-party cookies.`;
+}
+
+function feedTimestamp(entry: DirectoryEntry): string {
+  const parsed = Date.parse(entry.scannedAt);
+  return Number.isFinite(parsed) ? new Date(parsed).toISOString() : new Date(0).toISOString();
+}
+
+function escapeXml(value: string): string {
+  return value
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&apos;");
+}
