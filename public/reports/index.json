@@ -1,6 +1,78 @@
 {
-  "generatedAt": "2026-07-12T20:31:01.646Z",
+  "generatedAt": "2026-07-14T03:27:45.505Z",
   "reports": [
+    {
+      "id": "20260714-ad6a59f306b5ef20da4a0adcfa4eac63",
+      "title": "Khan Academy | Free Online Courses, Lessons & Practice",
+      "headline": "khanacademy.org told Google you were here.",
+      "tone": "warn",
+      "domain": "khanacademy.org",
+      "requestedUrl": "https://www.khanacademy.org/",
+      "scannedAt": "2026-07-14T03:26:12.677Z",
+      "reportType": "comparison",
+      "comparisonType": "consent",
+      "device": "desktop",
+      "gpcEnabled": "comparison",
+      "historyKey": "v2-r2:7988ad53bdf0d8a893ababac1fa56eda6d51e567c23904a72159b4f74b9dab5e:8897e91bf2965a063365d29b8c01d076d7e9e9660c6fd8e0ceb7275705fae252|khanacademy.org|consent|accept-and-reject|https://www.khanacademy.org|https://www.khanacademy.org",
+      "metrics": {
+        "totalRequests": 154,
+        "thirdPartyRequests": 131,
+        "knownTrackerRequests": 1,
+        "thirdPartyDomains": 6,
+        "cookies": 8,
+        "thirdPartyCookies": 0,
+        "fingerprintEvents": 0,
+        "shieldsBlockedRequests": 4
+      }
+    },
+    {
+      "id": "20260714-be94cc2d911e26d027950a336147917e",
+      "title": "Node.js — Run JavaScript Everywhere",
+      "headline": "nodejs.org kept this visit relatively private.",
+      "tone": "calm",
+      "domain": "nodejs.org",
+      "requestedUrl": "https://nodejs.org/",
+      "scannedAt": "2026-07-14T03:24:56.423Z",
+      "reportType": "comparison",
+      "comparisonType": "shields",
+      "device": "desktop",
+      "gpcEnabled": "comparison",
+      "historyKey": "v2-r2:7988ad53bdf0d8a893ababac1fa56eda6d51e567c23904a72159b4f74b9dab5e:cac1352f3a0edcd9dee3e6a10871ae282021f6b1af270c6f00f1cb6b3b2ce6e9|nodejs.org|shields|https://nodejs.org|https://nodejs.org/en",
+      "metrics": {
+        "totalRequests": 48,
+        "thirdPartyRequests": 0,
+        "knownTrackerRequests": 0,
+        "thirdPartyDomains": 0,
+        "cookies": 0,
+        "thirdPartyCookies": 0,
+        "fingerprintEvents": 0,
+        "shieldsBlockedRequests": 1
+      }
+    },
+    {
+      "id": "20260714-037432196e0886d553c82cad9aeaa1c6",
+      "title": "Node.js — Run JavaScript Everywhere",
+      "headline": "nodejs.org kept this visit relatively private.",
+      "tone": "calm",
+      "domain": "nodejs.org",
+      "requestedUrl": "https://nodejs.org/",
+      "scannedAt": "2026-07-14T03:18:40.331Z",
+      "reportType": "comparison",
+      "comparisonType": "gpc",
+      "device": "desktop",
+      "gpcEnabled": "comparison",
+      "historyKey": "v2-r2:7988ad53bdf0d8a893ababac1fa56eda6d51e567c23904a72159b4f74b9dab5e:1c6bf961e29008806011517def9ba5bb24a8ed8e3c59e906a6867d8dc3b1f878|nodejs.org|gpc|https://nodejs.org|https://nodejs.org/en",
+      "metrics": {
+        "totalRequests": 46,
+        "thirdPartyRequests": 0,
+        "knownTrackerRequests": 0,
+        "thirdPartyDomains": 0,
+        "cookies": 0,
+        "thirdPartyCookies": 0,
+        "fingerprintEvents": 0,
+        "shieldsBlockedRequests": 1
+      }
+    },
     {
       "id": "20260706-9ded9afa956074e84816d56759ba9948",
       "title": "Brave-list blocking off/on comparison",

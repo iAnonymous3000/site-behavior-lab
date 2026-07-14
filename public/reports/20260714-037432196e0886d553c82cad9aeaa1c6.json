@@ -1,0 +1,1837 @@
+{
+  "schemaVersion": 2,
+  "schemaRevision": 2,
+  "reportType": "comparison",
+  "baseline": {
+    "runId": "20260714-720480e1c6c50be71bb4000a284e9ba0",
+    "startedAt": "2026-07-14T03:18:40.331Z",
+    "subject": {
+      "requested": {
+        "origin": "https://nodejs.org",
+        "registrableDomain": "nodejs.org",
+        "routeShape": "/"
+      },
+      "observed": {
+        "origin": "https://nodejs.org",
+        "registrableDomain": "nodejs.org",
+        "routeShape": "/en"
+      }
+    },
+    "conditions": {
+      "gpc": false,
+      "shields": "classification",
+      "consent": "observe",
+      "device": {
+        "kind": "desktop",
+        "viewport": {
+          "width": 1440,
+          "height": 980,
+          "isMobile": false
+        }
+      },
+      "probes": {
+        "keystroke": true,
+        "policyVisit": true
+      },
+      "locale": "en-US",
+      "language": "en-US",
+      "timezone": "UTC",
+      "egress": {
+        "label": "cloudflare-containers"
+      },
+      "browser": {
+        "name": "chromium",
+        "version": "149.0.7827.55"
+      },
+      "headless": true,
+      "automation": "playwright-chromium"
+    },
+    "provenance": {
+      "observer": "node-playwright",
+      "acquisition": "public-api",
+      "buildCommit": "13e4449444ad3eed12fcb3d2e9dd48d5e233a438",
+      "methodologyVersion": "shields-request-context-v2-adblock-rust-0.13.0-request-method-v1+phase-kernel-v1+boundary-state-v1+consent-r2-v1+resource-budget-v1",
+      "detectorRegistry": {
+        "version": "node-detectors-v2",
+        "digest": "1961b4197b649b6eb8028f95a9f2f6b28973b7427178b23e661017da7ed0c7c4"
+      }
+    },
+    "toolchain": {
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.06",
+        "entries": 133,
+        "digest": "b7d4991063310a81b56342ca7ad949723e785704326179e1658335d7af2f88cf"
+      },
+      "adblock": {
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-13T09:47:59.645Z",
+        "manifestDigest": "17d246aca749766d24266f98061bb05f9d88182529285a3472e57045663261a9",
+        "engineVersion": "adblock-rust-0.13.0"
+      },
+      "normalizationVersion": "redaction-v3+allowlists-v2:042fbfccf7b914479b7100002c5f709b54314606840c4dde50fb2368e23c30e8+public-string-policy-v2:74f1170bbf38a2f85629fa612c01f5da3c0ab1d8f0042f4082eef21815db868c+tldts@7.4.3+node-evidence-policy-v1"
+    },
+    "fingerprints": {
+      "execution": "e8bb7cc8b4599ce10dc764ba2b07fa526dfcba198d54e7c7cbee56ba4a677d58",
+      "measurementEnvironment": "7988ad53bdf0d8a893ababac1fa56eda6d51e567c23904a72159b4f74b9dab5e",
+      "condition": "1c6bf961e29008806011517def9ba5bb24a8ed8e3c59e906a6867d8dc3b1f878"
+    },
+    "qualityFacts": {
+      "status": 200,
+      "botWallTitleMatched": false,
+      "navigationSettled": true,
+      "budgetsExhausted": [],
+      "captureLoss": []
+    },
+    "quality": {
+      "evaluatorVersion": "1",
+      "run": {
+        "outcome": "complete",
+        "reasons": []
+      },
+      "byFamily": {
+        "requests": {
+          "outcome": "complete",
+          "reasons": []
+        },
+        "cookies": {
+          "outcome": "complete",
+          "reasons": []
+        },
+        "storage": {
+          "outcome": "complete",
+          "reasons": []
+        },
+        "fingerprinting": {
+          "outcome": "complete",
+          "reasons": []
+        },
+        "detector-output": {
+          "outcome": "complete",
+          "reasons": []
+        },
+        "consent-verification": {
+          "outcome": "complete",
+          "reasons": []
+        }
+      }
+    },
+    "privacy": {
+      "redactionVersion": 3,
+      "redaction": {
+        "pathSegmentsGeneralized": 112,
+        "queryKeysRedacted": 42,
+        "storageKeysRedacted": 0,
+        "cookieNamesRedacted": 0,
+        "matrixParamsStripped": 0,
+        "subdomainLabelsGeneralized": 0,
+        "malformedUrlsDropped": 0
+      }
+    },
+    "detectors": {
+      "fingerprint-heuristics": {
+        "version": "fingerprint-observer@1",
+        "status": "complete",
+        "phaseId": 0
+      },
+      "keystroke-exfiltration": {
+        "version": "synthetic-sentinel@1",
+        "status": "complete",
+        "phaseId": 1
+      },
+      "cname-uncloaking": {
+        "version": "dns-cname-chain@1",
+        "status": "complete",
+        "phaseId": 0
+      },
+      "pixel-events": {
+        "version": "pixel-request-decoder@1",
+        "status": "complete",
+        "phaseId": 0
+      },
+      "consent-banner": {
+        "version": "consent-control-and-state@1",
+        "status": "complete",
+        "phaseId": 0
+      },
+      "privacy-policy": {
+        "version": "policy-text-cross-check@1",
+        "status": "unsupported",
+        "reason": "unsupported"
+      }
+    },
+    "phases": [
+      {
+        "phaseId": 0,
+        "kind": "passive-load",
+        "startedAtMs": 0,
+        "endedAtMs": 5063
+      },
+      {
+        "phaseId": 1,
+        "kind": "active-probe",
+        "startedAtMs": 5063,
+        "endedAtMs": 5486
+      }
+    ],
+    "summary": {
+      "pageTitle": "Node.js — Run JavaScript Everywhere",
+      "status": 200,
+      "durationMs": 5488,
+      "counts": {
+        "totalRequests": 46,
+        "thirdPartyRequests": 0,
+        "knownTrackerRequests": 0,
+        "thirdPartyDomains": 0,
+        "cookies": 0,
+        "thirdPartyCookies": 0,
+        "storageEntries": 0,
+        "fingerprintEvents": 0,
+        "shieldsBlockedRequests": 1
+      },
+      "countsByPhase": [
+        {
+          "phaseId": 0,
+          "totalRequests": 37,
+          "thirdPartyRequests": 0,
+          "knownTrackerRequests": 0
+        },
+        {
+          "phaseId": 1,
+          "totalRequests": 9,
+          "thirdPartyRequests": 0,
+          "knownTrackerRequests": 0
+        }
+      ]
+    },
+    "evidence": {
+      "requests": [
+        {
+          "id": 1,
+          "url": "https://nodejs.org/",
+          "domain": "nodejs.org",
+          "method": "GET",
+          "resourceType": "document",
+          "status": 307,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 2581,
+          "phaseId": 0
+        },
+        {
+          "id": 2,
+          "url": "https://nodejs.org/en",
+          "domain": "nodejs.org",
+          "method": "GET",
+          "resourceType": "document",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "startedAtMs": 2721,
+          "phaseId": 0
+        },
+        {
+          "id": 3,
+          "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
+          "domain": "nodejs.org",
+          "method": "GET",
+          "resourceType": "font",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 2854,
+          "phaseId": 0
+        },
+        {
+          "id": 4,
+          "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
+          "domain": "nodejs.org",
+          "method": "GET",
+          "resourceType": "font",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 2909,
+          "phaseId": 0
+        },
+        {
+          "id": 5,
+          "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
+          "domain": "nodejs.org",
+          "method": "GET",
+          "resourceType": "stylesheet",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 2911,
+          "phaseId": 0
+        },
+        {
+          "id": 6,
+          "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
+          "domain": "nodejs.org",
+          "method": "GET",
+          "resourceType": "stylesheet",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 2912,
+          "phaseId": 0
+        },
+        {
+          "id": 7,
+          "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
+          "domain": "nodejs.org",
+          "method": "GET",
+          "resourceType": "stylesheet",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 2913,
+          "phaseId": 0
+        },
+        {
+          "id": 8,
+          "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
+          "domain": "nodejs.org",
+          "method": "GET",
+          "resourceType": "stylesheet",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 2919,
+          "phaseId": 0
+        },
+        {
+          "id": 9,
+          "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
+          "domain": "nodejs.org",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 2919,
+          "phaseId": 0
+        },
+        {
+          "id": 10,
+          "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
+          "domain": "nodejs.org",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 2925,
+          "phaseId": 0
+        },
+        {
+          "id": 11,
+          "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
+          "domain": "nodejs.org",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 2927,
+          "phaseId": 0
+        },
+        {
+          "id": 12,
+          "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
+          "domain": "nodejs.org",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 2928,
+          "phaseId": 0
+        },
+        {
+          "id": 13,
+          "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
+          "domain": "nodejs.org",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 2928,
+          "phaseId": 0
+        },
+        {
+          "id": 14,
+          "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
+          "domain": "nodejs.org",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 2929,
+          "phaseId": 0
+        },
+        {
+          "id": 15,
+          "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
+          "domain": "nodejs.org",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 2932,
+          "phaseId": 0
+        },
+        {
+          "id": 16,
+          "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
+          "domain": "nodejs.org",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 2934,
+          "phaseId": 0
+        },
+        {
+          "id": 17,
+          "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
+          "domain": "nodejs.org",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 2938,
+          "phaseId": 0
+        },
+        {
+          "id": 18,
+          "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
+          "domain": "nodejs.org",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 2939,
+          "phaseId": 0
+        },
+        {
+          "id": 19,
+          "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
+          "domain": "nodejs.org",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 2940,
+          "phaseId": 0
+        },
+        {
+          "id": 20,
+          "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
+          "domain": "nodejs.org",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 2940,
+          "phaseId": 0
+        },
+        {
+          "id": 21,
+          "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
+          "domain": "nodejs.org",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 2941,
+          "phaseId": 0
+        },
+        {
+          "id": 22,
+          "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
+          "domain": "nodejs.org",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 2941,
+          "phaseId": 0
+        },
+        {
+          "id": 23,
+          "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
+          "domain": "nodejs.org",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 2947,
+          "phaseId": 0
+        },
+        {
+          "id": 24,
+          "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
+          "domain": "nodejs.org",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 2948,
+          "phaseId": 0
+        },
+        {
+          "id": 25,
+          "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
+          "domain": "nodejs.org",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 2949,
+          "phaseId": 0
+        },
+        {
+          "id": 26,
+          "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
+          "domain": "nodejs.org",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 2949,
+          "phaseId": 0
+        },
+        {
+          "id": 27,
+          "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
+          "domain": "nodejs.org",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 2959,
+          "phaseId": 0
+        },
+        {
+          "id": 28,
+          "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
+          "domain": "nodejs.org",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 2967,
+          "phaseId": 0
+        },
+        {
+          "id": 29,
+          "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
+          "domain": "nodejs.org",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 2970,
+          "phaseId": 0
+        },
+        {
+          "id": 30,
+          "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
+          "domain": "nodejs.org",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 2971,
+          "phaseId": 0
+        },
+        {
+          "id": 31,
+          "url": "https://nodejs.org/{seg}/{seg}/{seg}",
+          "domain": "nodejs.org",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": true,
+          "startedAtMs": 4951,
+          "phaseId": 0
+        },
+        {
+          "id": 32,
+          "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
+          "domain": "nodejs.org",
+          "method": "GET",
+          "resourceType": "stylesheet",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 4961,
+          "phaseId": 0
+        },
+        {
+          "id": 33,
+          "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
+          "domain": "nodejs.org",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 4962,
+          "phaseId": 0
+        },
+        {
+          "id": 34,
+          "url": "https://nodejs.org/en/{seg}",
+          "domain": "nodejs.org",
+          "method": "GET",
+          "resourceType": "fetch",
+          "status": 307,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 5026,
+          "phaseId": 0
+        },
+        {
+          "id": 35,
+          "url": "https://nodejs.org/en/about/{seg}",
+          "domain": "nodejs.org",
+          "method": "GET",
+          "resourceType": "fetch",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 5027,
+          "phaseId": 0
+        },
+        {
+          "id": 36,
+          "url": "https://nodejs.org/en/about/{seg}",
+          "domain": "nodejs.org",
+          "method": "GET",
+          "resourceType": "fetch",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 5027,
+          "phaseId": 0
+        },
+        {
+          "id": 37,
+          "url": "https://nodejs.org/en/download",
+          "domain": "nodejs.org",
+          "method": "GET",
+          "resourceType": "fetch",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 5028,
+          "phaseId": 0
+        },
+        {
+          "id": 38,
+          "url": "https://nodejs.org/{seg}/{seg}",
+          "domain": "nodejs.org",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 5071,
+          "phaseId": 1
+        },
+        {
+          "id": 39,
+          "url": "https://nodejs.org/{seg}",
+          "domain": "nodejs.org",
+          "method": "GET",
+          "resourceType": "fetch",
+          "status": 308,
+          "thirdParty": false,
+          "tracker": null,
+          "startedAtMs": 5164,
+          "phaseId": 1
+        },
+        {
+          "id": 40,
+          "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
+          "domain": "nodejs.org",
+          "method": "GET",
+          "resourceType": "script",
+          "status": null,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 5389,
+          "phaseId": 1
+        },
+        {
+          "id": 41,
+          "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
+          "domain": "nodejs.org",
+          "method": "GET",
+          "resourceType": "script",
+          "status": null,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 5400,
+          "phaseId": 1
+        },
+        {
+          "id": 42,
+          "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
+          "domain": "nodejs.org",
+          "method": "GET",
+          "resourceType": "script",
+          "status": null,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 5401,
+          "phaseId": 1
+        },
+        {
+          "id": 43,
+          "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
+          "domain": "nodejs.org",
+          "method": "GET",
+          "resourceType": "script",
+          "status": null,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 5401,
+          "phaseId": 1
+        },
+        {
+          "id": 44,
+          "url": "https://nodejs.org/en/blog",
+          "domain": "nodejs.org",
+          "method": "GET",
+          "resourceType": "fetch",
+          "status": null,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 5410,
+          "phaseId": 1
+        },
+        {
+          "id": 45,
+          "url": "https://nodejs.org/{seg}",
+          "domain": "nodejs.org",
+          "method": "GET",
+          "resourceType": "fetch",
+          "status": null,
+          "thirdParty": false,
+          "tracker": null,
+          "startedAtMs": 5423,
+          "phaseId": 1
+        },
+        {
+          "id": 46,
+          "url": "https://nodejs.org/en/about",
+          "domain": "nodejs.org",
+          "method": "GET",
+          "resourceType": "fetch",
+          "status": null,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 5449,
+          "phaseId": 1
+        }
+      ],
+      "cookieMutations": [],
+      "cookiesFinal": [],
+      "storageMutations": [],
+      "storageFinal": [],
+      "fingerprintEvents": [],
+      "fingerprintDetections": [],
+      "cnameCloaks": [],
+      "pixelEvents": []
+    },
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent, any activity inside Web or Service Workers, and WebSocket traffic are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only."
+    ],
+    "verificationFacts": {
+      "gpc": {
+        "method": "gpc-header-readback@1",
+        "header": "confirmed-absent",
+        "jsSignal": "confirmed-absent",
+        "observedOn": "first-party-navigation",
+        "phaseId": 0
+      },
+      "shields": {
+        "method": "shields-engine-status@1",
+        "engineLoaded": true,
+        "applied": false,
+        "requestsEvaluated": 42,
+        "requestsMatched": 1,
+        "requestsActuallyBlocked": 0,
+        "phaseId": 0
+      }
+    }
+  },
+  "variant": {
+    "runId": "20260714-8470656a925a083394b0918798ff2988",
+    "startedAt": "2026-07-14T03:18:45.986Z",
+    "subject": {
+      "requested": {
+        "origin": "https://nodejs.org",
+        "registrableDomain": "nodejs.org",
+        "routeShape": "/"
+      },
+      "observed": {
+        "origin": "https://nodejs.org",
+        "registrableDomain": "nodejs.org",
+        "routeShape": "/en"
+      }
+    },
+    "conditions": {
+      "gpc": true,
+      "shields": "classification",
+      "consent": "observe",
+      "device": {
+        "kind": "desktop",
+        "viewport": {
+          "width": 1440,
+          "height": 980,
+          "isMobile": false
+        }
+      },
+      "probes": {
+        "keystroke": true,
+        "policyVisit": true
+      },
+      "locale": "en-US",
+      "language": "en-US",
+      "timezone": "UTC",
+      "egress": {
+        "label": "cloudflare-containers"
+      },
+      "browser": {
+        "name": "chromium",
+        "version": "149.0.7827.55"
+      },
+      "headless": true,
+      "automation": "playwright-chromium"
+    },
+    "provenance": {
+      "observer": "node-playwright",
+      "acquisition": "public-api",
+      "buildCommit": "13e4449444ad3eed12fcb3d2e9dd48d5e233a438",
+      "methodologyVersion": "shields-request-context-v2-adblock-rust-0.13.0-request-method-v1+phase-kernel-v1+boundary-state-v1+consent-r2-v1+resource-budget-v1",
+      "detectorRegistry": {
+        "version": "node-detectors-v2",
+        "digest": "1961b4197b649b6eb8028f95a9f2f6b28973b7427178b23e661017da7ed0c7c4"
+      }
+    },
+    "toolchain": {
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.06",
+        "entries": 133,
+        "digest": "b7d4991063310a81b56342ca7ad949723e785704326179e1658335d7af2f88cf"
+      },
+      "adblock": {
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-13T09:47:59.645Z",
+        "manifestDigest": "17d246aca749766d24266f98061bb05f9d88182529285a3472e57045663261a9",
+        "engineVersion": "adblock-rust-0.13.0"
+      },
+      "normalizationVersion": "redaction-v3+allowlists-v2:042fbfccf7b914479b7100002c5f709b54314606840c4dde50fb2368e23c30e8+public-string-policy-v2:74f1170bbf38a2f85629fa612c01f5da3c0ab1d8f0042f4082eef21815db868c+tldts@7.4.3+node-evidence-policy-v1"
+    },
+    "fingerprints": {
+      "execution": "537f596fc3e5426d6ccf06a865fa8fd0cc2b52089f9633a89e4d7b131fac285e",
+      "measurementEnvironment": "7988ad53bdf0d8a893ababac1fa56eda6d51e567c23904a72159b4f74b9dab5e",
+      "condition": "cac1352f3a0edcd9dee3e6a10871ae282021f6b1af270c6f00f1cb6b3b2ce6e9"
+    },
+    "qualityFacts": {
+      "status": 200,
+      "botWallTitleMatched": false,
+      "navigationSettled": true,
+      "budgetsExhausted": [],
+      "captureLoss": []
+    },
+    "quality": {
+      "evaluatorVersion": "1",
+      "run": {
+        "outcome": "complete",
+        "reasons": []
+      },
+      "byFamily": {
+        "requests": {
+          "outcome": "complete",
+          "reasons": []
+        },
+        "cookies": {
+          "outcome": "complete",
+          "reasons": []
+        },
+        "storage": {
+          "outcome": "complete",
+          "reasons": []
+        },
+        "fingerprinting": {
+          "outcome": "complete",
+          "reasons": []
+        },
+        "detector-output": {
+          "outcome": "complete",
+          "reasons": []
+        },
+        "consent-verification": {
+          "outcome": "complete",
+          "reasons": []
+        }
+      }
+    },
+    "privacy": {
+      "redactionVersion": 3,
+      "redaction": {
+        "pathSegmentsGeneralized": 112,
+        "queryKeysRedacted": 44,
+        "storageKeysRedacted": 0,
+        "cookieNamesRedacted": 0,
+        "matrixParamsStripped": 0,
+        "subdomainLabelsGeneralized": 0,
+        "malformedUrlsDropped": 0
+      }
+    },
+    "detectors": {
+      "fingerprint-heuristics": {
+        "version": "fingerprint-observer@1",
+        "status": "complete",
+        "phaseId": 0
+      },
+      "keystroke-exfiltration": {
+        "version": "synthetic-sentinel@1",
+        "status": "complete",
+        "phaseId": 1
+      },
+      "cname-uncloaking": {
+        "version": "dns-cname-chain@1",
+        "status": "complete",
+        "phaseId": 0
+      },
+      "pixel-events": {
+        "version": "pixel-request-decoder@1",
+        "status": "complete",
+        "phaseId": 0
+      },
+      "consent-banner": {
+        "version": "consent-control-and-state@1",
+        "status": "complete",
+        "phaseId": 0
+      },
+      "privacy-policy": {
+        "version": "policy-text-cross-check@1",
+        "status": "unsupported",
+        "reason": "unsupported"
+      }
+    },
+    "phases": [
+      {
+        "phaseId": 0,
+        "kind": "passive-load",
+        "startedAtMs": 0,
+        "endedAtMs": 2402
+      },
+      {
+        "phaseId": 1,
+        "kind": "active-probe",
+        "startedAtMs": 2402,
+        "endedAtMs": 2462
+      }
+    ],
+    "summary": {
+      "pageTitle": "Node.js — Run JavaScript Everywhere",
+      "status": 200,
+      "durationMs": 2462,
+      "counts": {
+        "totalRequests": 48,
+        "thirdPartyRequests": 0,
+        "knownTrackerRequests": 0,
+        "thirdPartyDomains": 0,
+        "cookies": 0,
+        "thirdPartyCookies": 0,
+        "storageEntries": 0,
+        "fingerprintEvents": 0,
+        "shieldsBlockedRequests": 1
+      },
+      "countsByPhase": [
+        {
+          "phaseId": 0,
+          "totalRequests": 48,
+          "thirdPartyRequests": 0,
+          "knownTrackerRequests": 0
+        }
+      ]
+    },
+    "evidence": {
+      "requests": [
+        {
+          "id": 1,
+          "url": "https://nodejs.org/",
+          "domain": "nodejs.org",
+          "method": "GET",
+          "resourceType": "document",
+          "status": 307,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 160,
+          "phaseId": 0
+        },
+        {
+          "id": 2,
+          "url": "https://nodejs.org/en",
+          "domain": "nodejs.org",
+          "method": "GET",
+          "resourceType": "document",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "startedAtMs": 266,
+          "phaseId": 0
+        },
+        {
+          "id": 3,
+          "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
+          "domain": "nodejs.org",
+          "method": "GET",
+          "resourceType": "font",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 381,
+          "phaseId": 0
+        },
+        {
+          "id": 4,
+          "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
+          "domain": "nodejs.org",
+          "method": "GET",
+          "resourceType": "font",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 382,
+          "phaseId": 0
+        },
+        {
+          "id": 5,
+          "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
+          "domain": "nodejs.org",
+          "method": "GET",
+          "resourceType": "stylesheet",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 382,
+          "phaseId": 0
+        },
+        {
+          "id": 6,
+          "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
+          "domain": "nodejs.org",
+          "method": "GET",
+          "resourceType": "stylesheet",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 395,
+          "phaseId": 0
+        },
+        {
+          "id": 7,
+          "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
+          "domain": "nodejs.org",
+          "method": "GET",
+          "resourceType": "stylesheet",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 401,
+          "phaseId": 0
+        },
+        {
+          "id": 8,
+          "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
+          "domain": "nodejs.org",
+          "method": "GET",
+          "resourceType": "stylesheet",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 402,
+          "phaseId": 0
+        },
+        {
+          "id": 9,
+          "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
+          "domain": "nodejs.org",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 434,
+          "phaseId": 0
+        },
+        {
+          "id": 10,
+          "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
+          "domain": "nodejs.org",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 435,
+          "phaseId": 0
+        },
+        {
+          "id": 11,
+          "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
+          "domain": "nodejs.org",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 436,
+          "phaseId": 0
+        },
+        {
+          "id": 12,
+          "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
+          "domain": "nodejs.org",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 436,
+          "phaseId": 0
+        },
+        {
+          "id": 13,
+          "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
+          "domain": "nodejs.org",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 437,
+          "phaseId": 0
+        },
+        {
+          "id": 14,
+          "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
+          "domain": "nodejs.org",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 440,
+          "phaseId": 0
+        },
+        {
+          "id": 15,
+          "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
+          "domain": "nodejs.org",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 441,
+          "phaseId": 0
+        },
+        {
+          "id": 16,
+          "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
+          "domain": "nodejs.org",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 443,
+          "phaseId": 0
+        },
+        {
+          "id": 17,
+          "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
+          "domain": "nodejs.org",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 445,
+          "phaseId": 0
+        },
+        {
+          "id": 18,
+          "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
+          "domain": "nodejs.org",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 447,
+          "phaseId": 0
+        },
+        {
+          "id": 19,
+          "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
+          "domain": "nodejs.org",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 449,
+          "phaseId": 0
+        },
+        {
+          "id": 20,
+          "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
+          "domain": "nodejs.org",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 449,
+          "phaseId": 0
+        },
+        {
+          "id": 21,
+          "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
+          "domain": "nodejs.org",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 451,
+          "phaseId": 0
+        },
+        {
+          "id": 22,
+          "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
+          "domain": "nodejs.org",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 452,
+          "phaseId": 0
+        },
+        {
+          "id": 23,
+          "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
+          "domain": "nodejs.org",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 456,
+          "phaseId": 0
+        },
+        {
+          "id": 24,
+          "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
+          "domain": "nodejs.org",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 457,
+          "phaseId": 0
+        },
+        {
+          "id": 25,
+          "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
+          "domain": "nodejs.org",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 457,
+          "phaseId": 0
+        },
+        {
+          "id": 26,
+          "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
+          "domain": "nodejs.org",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 459,
+          "phaseId": 0
+        },
+        {
+          "id": 27,
+          "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
+          "domain": "nodejs.org",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 460,
+          "phaseId": 0
+        },
+        {
+          "id": 28,
+          "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
+          "domain": "nodejs.org",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 460,
+          "phaseId": 0
+        },
+        {
+          "id": 29,
+          "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
+          "domain": "nodejs.org",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 464,
+          "phaseId": 0
+        },
+        {
+          "id": 30,
+          "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
+          "domain": "nodejs.org",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 465,
+          "phaseId": 0
+        },
+        {
+          "id": 31,
+          "url": "https://nodejs.org/{seg}/{seg}/{seg}",
+          "domain": "nodejs.org",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": true,
+          "startedAtMs": 1743,
+          "phaseId": 0
+        },
+        {
+          "id": 32,
+          "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
+          "domain": "nodejs.org",
+          "method": "GET",
+          "resourceType": "stylesheet",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 1747,
+          "phaseId": 0
+        },
+        {
+          "id": 33,
+          "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
+          "domain": "nodejs.org",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 1748,
+          "phaseId": 0
+        },
+        {
+          "id": 34,
+          "url": "https://nodejs.org/en/{seg}",
+          "domain": "nodejs.org",
+          "method": "GET",
+          "resourceType": "fetch",
+          "status": 307,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 1777,
+          "phaseId": 0
+        },
+        {
+          "id": 35,
+          "url": "https://nodejs.org/en/about/{seg}",
+          "domain": "nodejs.org",
+          "method": "GET",
+          "resourceType": "fetch",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 1784,
+          "phaseId": 0
+        },
+        {
+          "id": 36,
+          "url": "https://nodejs.org/en/about/{seg}",
+          "domain": "nodejs.org",
+          "method": "GET",
+          "resourceType": "fetch",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 1788,
+          "phaseId": 0
+        },
+        {
+          "id": 37,
+          "url": "https://nodejs.org/en/download",
+          "domain": "nodejs.org",
+          "method": "GET",
+          "resourceType": "fetch",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 1792,
+          "phaseId": 0
+        },
+        {
+          "id": 38,
+          "url": "https://nodejs.org/{seg}/{seg}",
+          "domain": "nodejs.org",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 1848,
+          "phaseId": 0
+        },
+        {
+          "id": 39,
+          "url": "https://nodejs.org/{seg}",
+          "domain": "nodejs.org",
+          "method": "GET",
+          "resourceType": "fetch",
+          "status": 308,
+          "thirdParty": false,
+          "tracker": null,
+          "startedAtMs": 1950,
+          "phaseId": 0
+        },
+        {
+          "id": 40,
+          "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
+          "domain": "nodejs.org",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 1993,
+          "phaseId": 0
+        },
+        {
+          "id": 41,
+          "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
+          "domain": "nodejs.org",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 2007,
+          "phaseId": 0
+        },
+        {
+          "id": 42,
+          "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
+          "domain": "nodejs.org",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 2008,
+          "phaseId": 0
+        },
+        {
+          "id": 43,
+          "url": "https://nodejs.org/{seg}/static/{seg}/{seg}",
+          "domain": "nodejs.org",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 2008,
+          "phaseId": 0
+        },
+        {
+          "id": 44,
+          "url": "https://nodejs.org/en/blog",
+          "domain": "nodejs.org",
+          "method": "GET",
+          "resourceType": "fetch",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 2010,
+          "phaseId": 0
+        },
+        {
+          "id": 45,
+          "url": "https://nodejs.org/en/about",
+          "domain": "nodejs.org",
+          "method": "GET",
+          "resourceType": "fetch",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 2029,
+          "phaseId": 0
+        },
+        {
+          "id": 46,
+          "url": "https://nodejs.org/en",
+          "domain": "nodejs.org",
+          "method": "GET",
+          "resourceType": "fetch",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 2056,
+          "phaseId": 0
+        },
+        {
+          "id": 47,
+          "url": "https://nodejs.org/{seg}",
+          "domain": "nodejs.org",
+          "method": "GET",
+          "resourceType": "fetch",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "startedAtMs": 2087,
+          "phaseId": 0
+        },
+        {
+          "id": 48,
+          "url": "https://nodejs.org/en",
+          "domain": "nodejs.org",
+          "method": "GET",
+          "resourceType": "fetch",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 2237,
+          "phaseId": 0
+        }
+      ],
+      "cookieMutations": [],
+      "cookiesFinal": [],
+      "storageMutations": [],
+      "storageFinal": [],
+      "fingerprintEvents": [],
+      "fingerprintDetections": [],
+      "cnameCloaks": [],
+      "pixelEvents": []
+    },
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent, any activity inside Web or Service Workers, and WebSocket traffic are not observed. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only."
+    ],
+    "verificationFacts": {
+      "gpc": {
+        "method": "gpc-header-readback@1",
+        "header": "confirmed-present",
+        "jsSignal": "confirmed-true",
+        "observedOn": "first-party-navigation",
+        "phaseId": 0
+      },
+      "shields": {
+        "method": "shields-engine-status@1",
+        "engineLoaded": true,
+        "applied": false,
+        "requestsEvaluated": 44,
+        "requestsMatched": 1,
+        "requestsActuallyBlocked": 0,
+        "phaseId": 0
+      }
+    }
+  },
+  "experiment": {
+    "kind": "intervention",
+    "axis": "gpc",
+    "pairId": "pair-58a302006fbb5d341ba1345908e64204",
+    "order": "AB",
+    "verification": {
+      "baseline": {
+        "axis": "gpc",
+        "expected": "gpc:off",
+        "observed": "gpc:off",
+        "method": "gpc-header-readback@1",
+        "outcome": "passed",
+        "phaseId": 0
+      },
+      "variant": {
+        "axis": "gpc",
+        "expected": "gpc:on",
+        "observed": "gpc:on",
+        "method": "gpc-header-readback@1",
+        "outcome": "passed",
+        "phaseId": 0
+      }
+    },
+    "evidence": {
+      "pairs": 1,
+      "counterbalanced": false,
+      "strength": "observed-difference"
+    }
+  },
+  "comparability": {
+    "evaluatorVersion": "1",
+    "metricRegistryVersion": "1",
+    "pairValidity": {
+      "eligible": true,
+      "reasons": []
+    },
+    "perMetric": {
+      "raw-counts": {
+        "eligible": false,
+        "reasons": [
+          "unknown-dimension:egress.region"
+        ]
+      },
+      "tracker-classification": {
+        "eligible": false,
+        "reasons": [
+          "unknown-dimension:egress.region"
+        ]
+      },
+      "shields-simulation": {
+        "eligible": false,
+        "reasons": [
+          "unknown-dimension:egress.region"
+        ]
+      },
+      "consent-verification": {
+        "eligible": false,
+        "reasons": [
+          "unknown-dimension:egress.region",
+          "unknown-dimension:consent-interpreter"
+        ]
+      },
+      "detector-findings": {
+        "eligible": false,
+        "reasons": [
+          "unknown-dimension:egress.region",
+          "dependency-version-mismatch:detectorStatus.privacy-policy"
+        ]
+      }
+    },
+    "interventionVerified": true
+  },
+  "diff": {
+    "families": {
+      "raw-counts": {
+        "eligible": false,
+        "metrics": {
+          "totalRequests": {
+            "baseline": 46,
+            "variant": 48,
+            "delta": 2
+          },
+          "thirdPartyRequests": {
+            "baseline": 0,
+            "variant": 0,
+            "delta": 0
+          },
+          "thirdPartyDomains": {
+            "baseline": 0,
+            "variant": 0,
+            "delta": 0
+          },
+          "cookies": {
+            "baseline": 0,
+            "variant": 0,
+            "delta": 0
+          },
+          "thirdPartyCookies": {
+            "baseline": 0,
+            "variant": 0,
+            "delta": 0
+          },
+          "storageEntries": {
+            "baseline": 0,
+            "variant": 0,
+            "delta": 0
+          }
+        }
+      },
+      "tracker-classification": {
+        "eligible": false,
+        "metrics": {
+          "knownTrackerRequests": {
+            "baseline": 0,
+            "variant": 0,
+            "delta": 0
+          }
+        },
+        "addedTrackerDomains": [],
+        "removedTrackerDomains": []
+      },
+      "shields-simulation": {
+        "eligible": false,
+        "metrics": {
+          "shieldsBlockedRequests": {
+            "baseline": 1,
+            "variant": 1,
+            "delta": 0
+          }
+        }
+      },
+      "consent-verification": {
+        "eligible": false
+      },
+      "detector-findings": {
+        "eligible": false,
+        "addedDetectionKinds": [],
+        "removedDetectionKinds": []
+      }
+    }
+  },
+  "share": {
+    "id": "20260714-037432196e0886d553c82cad9aeaa1c6",
+    "path": "/reports/20260714-037432196e0886d553c82cad9aeaa1c6/",
+    "jsonPath": "/reports/20260714-037432196e0886d553c82cad9aeaa1c6.json"
+  }
+}

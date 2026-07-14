@@ -1,14 +1,12 @@
 # Go live: opening the public Shields scanner
 
-> **Status: LIVE (2026-06-22).** This go-live is complete. sitebehavior.org's
-> live scanner is the full Containers scanner at `scan.sitebehavior.org`, open to
-> the public behind Turnstile + per-client rate limiting, with shareable report
-> permalinks. This document is now both the runbook and the record of how it was
-> done; the WAF rate-limit rule remains a coarse ceiling above the in-app atomic
-> quota.
+> **Status: LIVE on r2 (2026-07-13).** The original public go-live completed on
+> 2026-06-22. The full Containers scanner at `scan.sitebehavior.org` now returns
+> public r2 reports behind Turnstile and the in-app atomic quota. The WAF
+> rate-limit rule still needs explicit ceiling verification above that quota.
 
-This runbook takes the full Node/Playwright scanner (the path that runs **live
-Brave Shields**, tried-vs-blocked) from operator-gated to a **public** front door
+This runbook takes the full Node/Playwright scanner (the path that runs the
+**Brave-list blocking simulation**, tried-vs-blocked) from operator-gated to a **public** front door
 on [sitebehavior.org](https://sitebehavior.org), behind Cloudflare Turnstile and
 rate limiting.
 
@@ -118,6 +116,27 @@ The front Worker chooses one of three postures from its config:
 
    For the open public origin, step 2's manual Turnstile scan is the end-to-end
    check; step 3 already confirms the unattended (no-token) request is rejected.
+
+### 2026-07-13 r2 rollout receipt
+
+- The promoted build `003060abfba64ace4ede56453e979df851678f0a`
+  enabled public r2 reports and consent verification under a temporary
+  access-token lock. Pages serves the r2 schema alias, and an authenticated live
+  r2 scan/save/read smoke passed on that exact image.
+- Step-5 repeat evidence used two preselected GPC pairs. Both ran AB, both were
+  eligible and intervention-verified, and all four primary arms passed. This is
+  a one-order-only observed difference, not a replicated-effect claim.
+- The repeat receipt ran on the immediately preceding feature build
+  `13e4449444ad3eed12fcb3d2e9dd48d5e233a438`; no application logic changed in
+  the enabling commit. The shadow secret was deleted and its build-scoped R2
+  prefix was cleaned to zero objects after validation.
+- Fresh GPC, Shields, and consent r2 reports were validated and added to the
+  mixed-version corpus. The access-token lock was then removed last; final
+  health proved open access, Turnstile enabled, r2 and consent enabled, shadow
+  disabled, and no warnings; the deployment config pins capacity at three
+  instances. The Brave-list refresh rerun also succeeded.
+- Container-observability retention/query verification and the WAF ceiling
+  remain external operational follow-ups.
 
 ## Sharing live-scan results
 

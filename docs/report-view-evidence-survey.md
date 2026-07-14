@@ -1,9 +1,9 @@
 # ReportView evidence-surface survey (RFC 14.8 renderer migration)
 
-Working note for the renderer migration. Captures what every consumer reads
-from the v1 wire today, so the expanded `ReportView` contract
-(lib/scan-report-view.ts) covers all of it before components migrate. Delete
-when the migration completes.
+Historical working note for the renderer migration. The migration and public
+r2 producer work are complete; earlier sequencing and "remaining" statements
+below record the state at the date of their section and are superseded by the
+2026-07-13 rollout receipt near the end of this note.
 
 ## Why
 
@@ -597,9 +597,9 @@ disposition after the review:
   history, and registrable-domain `/sites/<domain>` profiles are now landed in
   the product-loop slice. The headline-focus default arm residual remains.
 
-## Kernel staging progress (2026-07-13)
+## Kernel rollout receipt (2026-07-13)
 
-Steps 2 through 4 of the user-sequenced measurement kernel staging landed:
+Steps 2 through 5 of the user-sequenced measurement kernel rollout landed:
 
 - **Step 2 complete.** GPC/Shields readbacks (61b4726) plus randomized AB/BA
   arm order: the Node producer and the Browser Run worker draw a fair
@@ -607,7 +607,7 @@ Steps 2 through 4 of the user-sequenced measurement kernel staging landed:
   fixed, and the executed order is disclosed on the report ("The two visits
   ran in randomized order; ..."), admitted at the warning boundary only with
   a known run label.
-- **Step 3 complete (flag-gated).** SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION=1
+- **Step 3 complete and deployed.** SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION=1
   records banner-visibility moments (before/after click, after reload) and
   strong interpreter reads (tcf-api@1 in-page, onetrust-cookie@1) into the
   staged r2 consent facts, with one disclosed post-choice reload in its own
@@ -616,7 +616,7 @@ Steps 2 through 4 of the user-sequenced measurement kernel staging landed:
   verification or contradiction. Observe-mode visits under the flag perform
   one non-mutating visibility read so the always-on consent-banner detector
   leaves its default state.
-- **Step 4: controlled (shadow) emission landed and the production receipt is
+- **Step 4 controlled (shadow) emission and its production receipt are
   complete.**
   SITE_BEHAVIOR_LAB_V2_SHADOW_EMISSION=1 writes one redacted public r2 wire
   per completed scan (create-only; build provenance required; failures are
@@ -633,11 +633,26 @@ Steps 2 through 4 of the user-sequenced measurement kernel staging landed:
   deep-validated one GPC, one Shields, and one consent comparison: all three
   pairs were eligible and intervention-verified, all six primary arms passed,
   and the selected receipts included both AB and BA order. The temporary flags,
-  access lock, reports, and shadow objects were then removed. REMAINING before
-  public r2 publication: make the producer and mixed-version corpus pipeline
-  r2-safe, move the r1->r2 alias, generate fresh r2 reports (historical v1
-  evidence cannot be upgraded), and add repeat-pair evidence without claiming
-  a replicated effect that r2 does not encode.
+  reports, and shadow objects from that receipt were then removed. The later
+  repeat receipt below supersedes this first receipt's then-pending rollout
+  list.
+- **Public r2 rollout complete.** The promoted build
+  `003060abfba64ace4ede56453e979df851678f0a` runs public r2 reports and consent
+  verification. The live Pages schema alias serves r2, and an authenticated
+  live r2 scan/save/read smoke passed on that exact image before the temporary
+  operator lock was removed. Historical v1 reports remain legacy-derived; fresh
+  GPC, Shields, and consent r2 reports now flow through the mixed-version corpus
+  pipeline. Final health proved open access, Turnstile enabled, shadow disabled,
+  and no warnings; the deployment config pins capacity at three instances.
+- **Step 5 repeat evidence complete.** On feature build
+  `13e4449444ad3eed12fcb3d2e9dd48d5e233a438`, two preselected GPC pairs were captured;
+  both were AB, both were eligible and intervention-verified, and all four
+  primary arms passed. The aggregate therefore records eligible 2, verified 2,
+  and 4/4 passing arms, with a one-order-only observed difference. It is not a
+  replicated-effect claim because BA was not observed and r2 does not encode
+  such a claim.
+- The repeat shadow secret was deleted and the operator-only R2 shadow prefix
+  was cleaned to zero objects after verification.
 - The headline-focus residual is closed: ReportHeadline.focusArm declares the
   arm whose stats the lead finding quotes (consent reject-visit branches, GPC
   still-contacted alarm), and the shell's evidence switcher opens there.
@@ -649,8 +664,8 @@ lifecycles for `reports/` after 7 days and `v2-shadow/` after 1 day; Pages uses
 the `production` branch with previews disabled; the scanner build also uses
 `production` with non-production builds disabled; and Cloudflare Insights is
 disabled with no live beacon, matching the privacy disclosure. Still pending
-outside the repo are container-observability retention/query verification, WAF
-ceiling verification, and a re-run of the failed scheduled Brave-list refresh.
+outside the repo are container-observability retention/query verification and
+WAF ceiling verification. The scheduled Brave-list refresh rerun succeeded.
 Chromium sandbox is opt-in via SITE_BEHAVIOR_LAB_CHROMIUM_SANDBOX=1 after a
 verified deployed scan.
 
