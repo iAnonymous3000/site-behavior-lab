@@ -1,4 +1,5 @@
 import { randomBytes } from "node:crypto";
+import { BUILD_COMMIT_ENV, recordedBuildCommit } from "./build-provenance";
 import type { AcquisitionKind } from "./scan-report-v2";
 import type { EphemeralComparisonReportR2, EphemeralSingleReportR2 } from "./scan-report-v2-r2";
 import {
@@ -8,8 +9,6 @@ import {
 } from "./scan-result-v2-r2-builder";
 import { stagedSingleVisitMeasurement, type StagedSingleVisitMeasurement } from "./scanner";
 import type { ScanResult } from "./types";
-
-const BUILD_COMMIT_ENV = "SITE_BEHAVIOR_LAB_BUILD_COMMIT";
 
 export type RuntimeR2BuildFailureCode = "no-staged-measurement" | "build-provenance-missing";
 
@@ -60,8 +59,7 @@ export function buildRuntimeComparisonScanReportV2R2(
 }
 
 function assertBuildProvenance(env: NodeJS.ProcessEnv): void {
-  const buildCommit = env[BUILD_COMMIT_ENV]?.trim().toLowerCase() ?? "";
-  if (!/^[0-9a-f]{40}$/.test(buildCommit)) {
+  if (recordedBuildCommit(env) === null) {
     throw new RuntimeR2BuildPrerequisiteError(
       "build-provenance-missing",
       `${BUILD_COMMIT_ENV} must identify a full 40-character Git commit; unknown provenance is rejected.`

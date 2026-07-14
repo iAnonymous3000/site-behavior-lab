@@ -1,4 +1,5 @@
 import { adblockListMeta, type AdblockListMeta } from "./adblock-engine";
+import { BUILD_COMMIT_ENV, recordedBuildCommit } from "./build-provenance";
 import { NODE_ADBLOCK_ENGINE_VERSION, NODE_SHIELDS_REQUEST_CONTEXT_VERSION } from "./legacy-methodology";
 import {
   DETECTOR_REGISTRY_DIGEST,
@@ -128,8 +129,6 @@ const MAX_CONSENT_OBSERVATIONS = 32;
 const MAX_POLICY_CLAIMS = 32;
 const MAX_POLICY_ENTITIES = 100;
 
-const BUILD_COMMIT_ENV = "SITE_BEHAVIOR_LAB_BUILD_COMMIT";
-const FULL_GIT_SHA = /^[0-9a-f]{40}$/;
 const SHA256 = /^[0-9a-f]{64}$/;
 const MAX_PAGE_TITLE_CHARS = 200;
 
@@ -1016,8 +1015,8 @@ function assertVocabCode(label: string, value: string): void {
 }
 
 function resolveBuildCommit(env: NodeJS.ProcessEnv): string {
-  const value = env[BUILD_COMMIT_ENV]?.trim().toLowerCase() ?? "";
-  if (!FULL_GIT_SHA.test(value)) {
+  const value = recordedBuildCommit(env);
+  if (value === null) {
     throw new Error(`${BUILD_COMMIT_ENV} must identify a full 40-character Git commit; unknown provenance is rejected.`);
   }
   return value;

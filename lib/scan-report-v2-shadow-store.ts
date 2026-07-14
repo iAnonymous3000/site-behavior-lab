@@ -1,5 +1,6 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { BUILD_COMMIT_ENV, FULL_GIT_SHA } from "./build-provenance";
 import { createR2ReportStoreBackend, r2ReportStoreConfigFromEnv, type R2ReportStoreConfig } from "./report-store-r2";
 import { readStoredScanReport } from "./scan-report-reader";
 import { toPublicScanReportR2 } from "./scan-report-v2-r2-projection";
@@ -9,9 +10,7 @@ export const V2_SHADOW_BACKEND_ENV = "SITE_BEHAVIOR_LAB_V2_SHADOW_BACKEND";
 export const V2_SHADOW_DIR_ENV = "SITE_BEHAVIOR_LAB_V2_SHADOW_DIR";
 export const V2_SHADOW_EMISSION_ENV = "SITE_BEHAVIOR_LAB_V2_SHADOW_EMISSION";
 export const DEFAULT_V2_SHADOW_DIR = ".site-behavior-lab/v2-shadow";
-const BUILD_COMMIT_ENV = "SITE_BEHAVIOR_LAB_BUILD_COMMIT";
 const OPAQUE_ID = /^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/;
-const FULL_GIT_SHA = /^[0-9a-f]{40}$/;
 
 export type V2ShadowStoreSink = "filesystem" | "r2";
 

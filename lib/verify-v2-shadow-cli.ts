@@ -1,11 +1,10 @@
 import { readFile, readdir } from "node:fs/promises";
+import { FULL_GIT_SHA } from "./build-provenance";
 import path from "node:path";
 import { DEFAULT_V2_SHADOW_DIR, V2_SHADOW_DIR_ENV } from "./scan-report-v2-shadow-store";
 import { readStoredScanReport } from "./scan-report-reader";
 import type { ArmVerification, InterventionAxis } from "./scan-report-v2";
 import type { PublicScanReportV2R2, ScanRunV2R2 } from "./scan-report-v2-r2";
-
-const FULL_GIT_SHA = /^[0-9a-f]{40}$/;
 
 export type VerifyV2ShadowArgs = {
   directory: string;

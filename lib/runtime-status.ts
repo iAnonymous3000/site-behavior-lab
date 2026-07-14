@@ -1,4 +1,5 @@
 import { adblockEngineStatus, type AdblockEngineStatus } from "./adblock-engine";
+import { recordedBuildCommit } from "./build-provenance";
 import { scanAccessTokenConfigured } from "./access-control";
 import { chromiumSandboxEnabled } from "./chromium-sandbox";
 import { CONSENT_VERIFICATION_ENV } from "./consent-verification";
@@ -17,7 +18,6 @@ import {
 } from "./scan-report-v2-shadow-store";
 
 const SCANNER_EGRESS_ENV = "SITE_BEHAVIOR_LAB_SCANNER_EGRESS";
-const BUILD_COMMIT_ENV = "SITE_BEHAVIOR_LAB_BUILD_COMMIT";
 
 // Backend-agnostic public projection: never exposes a filesystem path or an R2
 // bucket/endpoint to /api/health, only the backend kind and shared policy.
@@ -221,8 +221,7 @@ function unauthenticatedScansAllowed(): boolean {
 }
 
 function scannerBuildCommit(): string {
-  const value = process.env[BUILD_COMMIT_ENV]?.trim().toLowerCase() ?? "";
-  return /^[0-9a-f]{40}$/.test(value) ? value : "unknown";
+  return recordedBuildCommit() ?? "unknown";
 }
 
 function productionWarnings(reportStore: ReturnType<typeof reportStoreStatus> | null): string[] {

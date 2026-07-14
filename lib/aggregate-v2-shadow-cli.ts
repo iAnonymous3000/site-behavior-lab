@@ -1,10 +1,10 @@
 import { createHash } from "node:crypto";
+import { FULL_GIT_SHA } from "./build-provenance";
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { aggregateSupportingPairR2 } from "./scan-report-v2-r2-aggregate";
 import { NODE_SCAN_REPORT_V2_R2_MAX_PUBLIC_BYTES } from "./scan-report-v2-r2-limits";
 
-const FULL_GIT_SHA = /^[0-9a-f]{40}$/;
 const SAFE_SOURCE_KEY = /^[^\u0000-\u001f\u007f]{1,1024}$/;
 
 export type AggregateV2ShadowArgs = {

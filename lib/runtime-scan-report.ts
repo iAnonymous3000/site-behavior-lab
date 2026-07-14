@@ -1,3 +1,4 @@
+import { BUILD_COMMIT_ENV, recordedBuildCommit } from "./build-provenance";
 import { CONSENT_VERIFICATION_ENV } from "./consent-verification";
 import { PublicScanError } from "./public-errors";
 import type { EphemeralComparisonReportR2, EphemeralSingleReportR2 } from "./scan-report-v2-r2";
@@ -22,7 +23,7 @@ export type RuntimeScanJobStatusResponse = Omit<ScanJobStatusResponse, "report">
 export type RuntimeScanJobApiResponse = RuntimeScanJobStatusResponse | ScanError;
 
 export const PUBLIC_R2_REPORTS_ENV = "SITE_BEHAVIOR_LAB_PUBLIC_R2_REPORTS";
-export const BUILD_COMMIT_ENV = "SITE_BEHAVIOR_LAB_BUILD_COMMIT";
+export { BUILD_COMMIT_ENV };
 
 export type PublicR2ReportsReadiness = {
   status: "enabled" | "disabled" | "misconfigured";
@@ -43,8 +44,7 @@ export function publicR2ReportsReadiness(env: NodeJS.ProcessEnv = process.env): 
   }
 
   const issues: string[] = [];
-  const buildCommit = env[BUILD_COMMIT_ENV]?.trim().toLowerCase() ?? "";
-  if (!/^[0-9a-f]{40}$/.test(buildCommit)) {
+  if (recordedBuildCommit(env) === null) {
     issues.push(`${BUILD_COMMIT_ENV} must identify a full 40-character Git commit.`);
   }
   if (env[CONSENT_VERIFICATION_ENV] !== "1") {

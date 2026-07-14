@@ -1,10 +1,10 @@
+import { FULL_GIT_SHA } from "./build-provenance";
 import { NODE_SCAN_REPORT_V2_R2_MAX_PUBLIC_BYTES } from "./scan-report-v2-r2-limits";
 import { readStoredScanReport } from "./scan-report-reader";
 import { toPublicScanReportR2 } from "./scan-report-v2-r2-projection";
 import { scanReportV2R2SemanticViolations } from "./scan-report-v2-r2-evaluators";
 import type { PublicComparisonReportV2R2, SupportingPairR2 } from "./scan-report-v2-r2";
 
-const FULL_GIT_SHA = /^[0-9a-f]{40}$/;
 const OPAQUE_PRODUCER_ID = /^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/;
 
 export type AggregatedSupportingPairR2 = {
