@@ -35,6 +35,13 @@
     "SITE_BEHAVIOR_LAB_PUBLIC_SCAN_RATE_LIMIT_PER_MINUTE": "6",
     "SITE_BEHAVIOR_LAB_PUBLIC_SCAN_RATE_LIMIT_PER_DAY": "120",
 
+    // Public ScanReport v2/r2 is the durable production producer. Consent
+    // readback is a hard prerequisite; a bad gate/build/store configuration
+    // fails scans closed instead of silently falling back to v1. Private
+    // shadow emission remains off during normal public operation.
+    "SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION": "1",
+    "SITE_BEHAVIOR_LAB_PUBLIC_R2_REPORTS": "1",
+
     // Forwarded into the Node container. The deployed smoke test requires the
     // effective launch state to be "enabled" in /api/health.
     "SITE_BEHAVIOR_LAB_CHROMIUM_SANDBOX": "1"

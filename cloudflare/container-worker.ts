@@ -110,7 +110,7 @@ export class ScannerContainer extends Container<Env> {
     SITE_BEHAVIOR_LAB_ASYNC_SCANS: "1",
     SITE_BEHAVIOR_LAB_CHROMIUM_SANDBOX: this.env.SITE_BEHAVIOR_LAB_CHROMIUM_SANDBOX ?? "",
     // Shadow output is always the operator-only R2 prefix in Containers; the
-    // two rollout flags remain off unless explicitly set at the Worker boundary.
+    // rollout controls are owned at the Worker boundary and forwarded exactly.
     // Bucket-level public access is an operator preflight in the runbook.
     SITE_BEHAVIOR_LAB_V2_SHADOW_BACKEND: "r2",
     SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION: this.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION ?? "",

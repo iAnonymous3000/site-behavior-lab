@@ -473,40 +473,80 @@ The exact prerequisites are a full deployed build SHA,
 When the gate is on, a builder or persistence failure fails the scan; it never returns a
 v1 substitute. Shadow emission remains independently usable when both flags are on.
 
-Set the two rollout values at the front Worker boundary so `ScannerContainer.envVars`
-forwards them into Node, then require the combined edge/container health signal before
-opening traffic:
+The production values are committed under `vars` in `wrangler.container.jsonc`, so the
+tested production branch is the source of truth and a later deploy cannot silently reset
+them. Before promoting the enabling commit, set the temporary scan access token so no
+public scan can enter during the mixed Pages/container rollout. Keep that lock until the
+updated Pages client and container both serve the exact tested SHA, then require the
+combined edge/container health signal:
+
+```bash
+umask 077
+export R2_ROLLOUT_TOKEN_FILE="$(mktemp)"
+openssl rand -hex 32 > "$R2_ROLLOUT_TOKEN_FILE"
+npx wrangler secret put SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN \
+  -c wrangler.container.jsonc < "$R2_ROLLOUT_TOKEN_FILE"
+
+curl --fail-with-body -s "$SCAN_BASE_URL/api/health" | jq \
+  '{authenticated, openAccess, turnstile}'
+# require authenticated == true, openAccess == false, and turnstile == false
+```
 
 Before enabling the producer, deploy the updated Pages client that recognizes r2 report
 roots without a v1-style `ok` field; an older client will reject a valid r2 result.
 
 ```bash
-printf '1' | npx wrangler secret put SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION \
-  -c wrangler.container.jsonc
-printf '1' | npx wrangler secret put SITE_BEHAVIOR_LAB_PUBLIC_R2_REPORTS \
-  -c wrangler.container.jsonc
-
 curl --fail-with-body -s "$SCAN_BASE_URL/api/health" | jq \
   '{deployment, scansAvailable, publicR2: .checks.publicR2Reports, consent: .checks.consentVerification, store: .checks.reportStore}'
 # require deployment == the verified full SHA, scansAvailable == true,
 # publicR2.status == "enabled", consent == "enabled", and store.kind != "unavailable"
+
+curl --fail-with-body -s https://sitebehavior.org/scan-report.schema.json | jq -e \
+  '."$id" == "https://sitebehavior.org/schemas/scan-report.v2.r2.schema.json"'
+
+SCAN_BASE_URL="$SCAN_BASE_URL" \
+  SMOKE_SCAN_ACCESS_TOKEN="$(tr -d '\r\n' < "$R2_ROLLOUT_TOKEN_FILE")" \
+  npm run test:smoke:scanner
 ```
 
-The synchronous response and the submitter-only completed-job response may carry the
-ephemeral screenshot block. `/api/reports/:id` and every stored object carry only the
-public r2 projection plus its share pointer and managed provenance sidecar.
+Run one authenticated deployed scan and retrieve its saved JSON before removing the
+temporary access token. That write/read round trip is the remote R2 permission and
+reachability proof that `/api/health` intentionally does not attempt.
 
-Rollback the public producer first. With the public gate absent, the runtime immediately
-returns to its existing v1 response path; the shadow flag, if separately enabled, keeps
-its prior best-effort behavior:
+The synchronous response and the submitter-only completed-job response may carry the
+ephemeral screenshot block. `/api/reports/:id` and the stored report object carry only
+the public r2 projection plus its share pointer. Managed provenance is written as a
+separate sidecar object.
+
+Remove the lock last, then prove the public posture. Keep the token file until the
+secret deletion succeeds so a failed unlock can be retried safely:
 
 ```bash
-npx wrangler secret delete SITE_BEHAVIOR_LAB_PUBLIC_R2_REPORTS \
+npx wrangler secret delete SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN \
   -c wrangler.container.jsonc
+rm -f "$R2_ROLLOUT_TOKEN_FILE"
+unset R2_ROLLOUT_TOKEN_FILE
 
+curl --fail-with-body -s "$SCAN_BASE_URL/api/health" | jq -e '
+  .authenticated == false and .openAccess == true and .turnstile == true and
+  .checks.publicR2Reports.status == "enabled" and
+  .checks.consentVerification == "enabled" and
+  .checks.v2ShadowEmission.status == "disabled"'
+```
+
+Rollback the public producer first. Keep or restore the temporary scan access token and
+change `SITE_BEHAVIOR_LAB_PUBLIC_R2_REPORTS` to `0`. Leave consent verification enabled
+until private shadow emission is also disabled, then optionally return consent to `0`
+and promote the tested rollback. With the public gate off, the runtime returns to its v1
+response path. The production-health workflow intentionally fails while r2 is disabled;
+if the rollback is expected to persist, change its asserted posture in the same rollback
+commit. Do not reopen traffic until health proves the rollback SHA and disabled producer:
+
+```bash
 curl --fail-with-body -s "$SCAN_BASE_URL/api/health" | jq \
-  '{scansAvailable, publicR2: .checks.publicR2Reports}'
-# require scansAvailable == true and publicR2.status == "disabled"
+  '{deployment, scansAvailable, publicR2: .checks.publicR2Reports, consent: .checks.consentVerification}'
+# require the rollback SHA, scansAvailable == true, publicR2.status == "disabled",
+# and consent == "disabled"
 ```
 
 ## Cost

@@ -34,9 +34,24 @@ jobs:
             --retry-max-time 75 \
             "$HEALTH_URL" > "$RUNNER_TEMP/production-health.json"
 
+      - name: Fetch live Pages report contract
+        env:
+          SCHEMA_URL: https://sitebehavior.org/scan-report.schema.json
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error \
+            --connect-timeout 10 \
+            --max-time 20 \
+            --retry 3 \
+            --retry-all-errors \
+            --retry-delay 5 \
+            --retry-max-time 75 \
+            "$SCHEMA_URL" > "$RUNNER_TEMP/production-scan-report-schema.json"
+
       - name: Validate availability and production posture
         env:
           HEALTH_FILE: ${{ runner.temp }}/production-health.json
+          SCHEMA_FILE: ${{ runner.temp }}/production-scan-report-schema.json
         run: |
           node <<'NODE'
           const fs = require("node:fs");
@@ -51,6 +66,7 @@ jobs:
           }
 
           const health = readJson(process.env.HEALTH_FILE, "Health response");
+          const schema = readJson(process.env.SCHEMA_FILE, "Pages report schema");
           const failures = [];
           const assertPosture = (condition, message) => {
             if (!condition) failures.push(message);
@@ -72,6 +88,14 @@ jobs:
           assertPosture(health?.checks?.reportStore?.configuredPath === true, "R2 report path must be configured");
           assertPosture(health?.checks?.reportStore?.maxAgeDays === 7, "R2 report retention must be seven days");
           assertPosture(health?.checks?.scannerEgress === "configured", "scanner egress proxy must be configured");
+          assertPosture(health?.checks?.consentVerification === "enabled",
+            "consent registration verification must be enabled");
+          assertPosture(health?.checks?.publicR2Reports?.status === "enabled",
+            "public ScanReport v2/r2 production must be enabled");
+          assertPosture(health?.checks?.v2ShadowEmission?.status === "disabled",
+            "private v2 shadow emission must be disabled during normal public operation");
+          assertPosture(schema?.$id === "https://sitebehavior.org/schemas/scan-report.v2.r2.schema.json",
+            "live Pages must advertise the ScanReport v2/r2 contract");
           assertPosture(Number.isFinite(health?.limits?.publicScanRateLimitPerMinute) && health.limits.publicScanRateLimitPerMinute > 0,
             "per-minute public scan rate limit must be active");
           assertPosture(Number.isFinite(health?.limits?.publicScanRateLimitPerDay) && health.limits.publicScanRateLimitPerDay > 0,
@@ -99,6 +123,9 @@ jobs:
             "",
             "- Status: **ok**",
             "- Public scanning: **available** (Turnstile protected)",
+            "- Public report contract: **ScanReport v2/r2**",
+            "- Consent registration verification: **enabled**",
+            "- Pages report contract: **v2/r2**",
             "- Report storage: **R2**, seven-day retention",
             `- Deployment: \`${health.deployment}\``,
             "- Warnings: **none**"
