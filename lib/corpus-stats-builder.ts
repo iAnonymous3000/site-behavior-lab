@@ -59,6 +59,15 @@ export async function buildCorpusStats(reportsDir: string, now = new Date()): Pr
       throw new StaticReportBundleError(id, read.outcome === "not-found" ? "missing-report" : read.reason);
     }
     if (read.stored.schemaVersion !== 1) {
+      // v2 metrics stay out of the v1 percentile distribution, but a loaded
+      // v2 report still proves the site was scanned: coverage would otherwise
+      // silently shrink as v1 reports prune away while their sites remain in
+      // the corpus with v2 evidence.
+      const lead = read.stored.report.reportType === "single" ? read.stored.report.run : read.stored.report.baseline;
+      if (typeof lead.summary.status === "number" && lead.summary.status < 400) {
+        const v2Domain = normalizeDomain(lead.subject.observed.registrableDomain);
+        if (v2Domain && !isReservedReportDomain(v2Domain)) coverageDomains.add(v2Domain);
+      }
       warnings.push(`Skipping corpus report ${file}: schemaVersion 2 metrics are not comparable to the v1 distribution.`);
       continue;
     }

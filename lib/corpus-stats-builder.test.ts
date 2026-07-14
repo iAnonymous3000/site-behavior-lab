@@ -107,6 +107,39 @@ test("one data point per site, newest scan wins, percentiles over real sites", a
   assert.equal(stats.metrics.thirdPartyRequests?.min, 20);
 });
 
+test("a loaded v2 site stays covered even though its metrics are never measured", async () => {
+  await writeReport(
+    "20260701-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    makeResult({ firstPartyDomain: "legacy-fixture.dev", thirdPartyRequests: 20 })
+  );
+
+  const id = "20260710-cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd";
+  const r2 = makePublicSingleReportV2R2();
+  const subject = { origin: "https://covered-fixture.dev", registrableDomain: "covered-fixture.dev", routeShape: "/" };
+  r2.run.subject = { requested: subject, observed: { ...subject } };
+  r2.run.privacy.redactionVersion = REDACTION_VERSION;
+  r2.share = buildStaticReportShare(id);
+  await writeFile(path.join(reportsDir, `${id}.json`), `${JSON.stringify(r2, null, 2)}\n`);
+  await writeFile(
+    path.join(reportsDir, committedSidecarFilename(id)),
+    `${JSON.stringify(
+      buildProvenanceEntry({
+        reportId: id,
+        publicReport: r2,
+        writtenAt: "2026-07-14T00:00:00.000Z",
+        createdAt: r2.run.startedAt,
+        expiresAt: null
+      })
+    )}\n`
+  );
+
+  const { stats } = await buildCorpusStats(reportsDir);
+  // Coverage must not shrink as a site's newest evidence migrates from v1 to
+  // v2: the v2 site loaded, so it is covered; only measurement stays v1-only.
+  assert.equal(stats.sampleSize, 1);
+  assert.equal(stats.coverageSiteCount, 2);
+});
+
 test("r2 reports remain visible to the corpus but never enter the legacy v1 percentile cohort", async () => {
   await writeReport(
     "20260701-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
@@ -135,6 +168,9 @@ test("r2 reports remain visible to the corpus but never enter the legacy v1 perc
   assert.equal(stats.sampleSize, 1);
   assert.equal(stats.metrics.thirdPartyRequests?.min, 20);
   assert.equal(stats.metrics.thirdPartyRequests?.max, 20);
+  // The fixture's subject is the reserved example.com, so it stays out of
+  // coverage exactly as a reserved v1 report would.
+  assert.equal(stats.coverageSiteCount, 1);
   assert.deepEqual(warnings, [
     `Skipping corpus report ${id}.json: schemaVersion 2 metrics are not comparable to the v1 distribution.`
   ]);
