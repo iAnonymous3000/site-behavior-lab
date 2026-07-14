@@ -389,6 +389,47 @@ The verifier must report all three axes, the observed AB/BA order, eligibility,
 verification, and both arm outcomes without printing subjects or evidence. Any invalid
 object, filename/ID mismatch, non-r2 revision, or build mismatch fails the run.
 
+### Optional operator/CI supporting-pair artifact
+
+ScanReport v2/r2 can record a second complete pair, but it cannot claim a replicated
+effect: its strength remains `observed-difference` even when the two recorded orders
+cover both AB and BA. To exercise that wire shape without adding an undercharged public
+four-visit mode, run the same comparison axis twice as two ordinary jobs. Each job is
+independently admitted and costs two scan tokens. Preselect the two attempts; never keep
+or discard a pair based on its measured delta.
+
+Download the two exact comparison keys into an input directory, then aggregate them into
+a different, local-only output directory:
+
+```bash
+REPEAT_INPUT_DIR=$(mktemp -d)
+REPEAT_OUTPUT_DIR=$(mktemp -d)
+
+npx wrangler r2 object get "site-behavior-lab-reports/$PRIMARY_KEY" \
+  --remote --file "$REPEAT_INPUT_DIR/primary.json"
+npx wrangler r2 object get "site-behavior-lab-reports/$SUPPORTING_KEY" \
+  --remote --file "$REPEAT_INPUT_DIR/supporting.json"
+
+npm run reports:aggregate-v2-shadow -- \
+  --expected-build "$DEPLOYMENT" \
+  --primary "$REPEAT_INPUT_DIR/primary.json" \
+  --supporting "$REPEAT_INPUT_DIR/supporting.json" \
+  --primary-key "$PRIMARY_KEY" \
+  --supporting-key "$SUPPORTING_KEY" \
+  --out-dir "$REPEAT_OUTPUT_DIR"
+```
+
+The command requires primary-only, validator-clean, pair-eligible, verified inputs from
+the same build and axis; the final four run IDs and two pair IDs must be unique, and the
+subject, conditions, and measurement environment must match. It writes one public r2
+JSON artifact plus a separate local receipt binding the exact input keys and byte hashes.
+The receipt is operator provenance, not part of the frozen report schema. Add
+`--require-counterbalanced` only when the two preselected pairs recorded opposite AB/BA
+orders; otherwise the artifact truthfully records `counterbalanced: false`. The command
+is create-only and refuses a combined public wire larger than 8 MiB. Do not upload either
+file into `reports/` or describe it as a replicated difference. Delete both source
+objects by exact key and remove both temporary directories after verification.
+
 Keep the operator gate in place while disabling shadow emission, then delete every test
 object by exact key and remove the temporary directory. Restore the scan gate last so no
 public request can race the cleanup. These commands assume all three rollout secrets were

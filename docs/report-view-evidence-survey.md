@@ -616,7 +616,8 @@ Steps 2 through 4 of the user-sequenced measurement kernel staging landed:
   verification or contradiction. Observe-mode visits under the flag perform
   one non-mutating visibility read so the always-on consent-banner detector
   leaves its default state.
-- **Step 4: controlled (shadow) emission landed; rollout remains.**
+- **Step 4: controlled (shadow) emission landed and the production receipt is
+  complete.**
   SITE_BEHAVIOR_LAB_V2_SHADOW_EMISSION=1 writes one redacted public r2 wire
   per completed scan (create-only; build provenance required; failures are
   diagnostics, never failed scans). Local development retains the filesystem
@@ -628,23 +629,30 @@ Steps 2 through 4 of the user-sequenced measurement kernel staging landed:
   comparisons emit one complete pair wire, with canonical semantic arms,
   recorded AB/BA chronology, arm verification, pairValidity, per-family
   comparability, and diff derived at build time. No partial per-arm artifact is
-  written. REMAINING before the alias flip and corpus regeneration: deploy and
-  operator-verify GPC, Shields, and consent pair shadow output, then the r1->r2
-  alias move and corpus regen (step 4 ops) and replication (step 5).
+  written. On 2026-07-13 the build-pinned production run retrieved and
+  deep-validated one GPC, one Shields, and one consent comparison: all three
+  pairs were eligible and intervention-verified, all six primary arms passed,
+  and the selected receipts included both AB and BA order. The temporary flags,
+  access lock, reports, and shadow objects were then removed. REMAINING before
+  public r2 publication: make the producer and mixed-version corpus pipeline
+  r2-safe, move the r1->r2 alias, generate fresh r2 reports (historical v1
+  evidence cannot be upgraded), and add repeat-pair evidence without claiming
+  a replicated effect that r2 does not encode.
 - The headline-focus residual is closed: ReportHeadline.focusArm declares the
   arm whose stats the lead finding quotes (consent reject-visit branches, GPC
   still-contacted alarm), and the shell's evidence switcher opens there.
   Pair-framed branches with lead-run stat chips (Shields fewer-requests, GPC
   calm drop) deliberately declare no focus arm.
 
-Operator-side items surfaced to the user (not repo-fixable):
-R2 lifecycle rule for the 7-day promise (prune is opportunistic:
-save-triggered or read-of-expired only), Cloudflare Insights beacon on the
-Pages project vs the privacy page's disclosure, container observability,
-WAF ceiling verification, re-run of the failed scheduled Brave-list refresh,
-and the two standing dashboard flips (production branch for both builds,
-non-production builds off). Chromium sandbox is now opt-in via
-SITE_BEHAVIOR_LAB_CHROMIUM_SANDBOX=1 after a verified deployed scan.
+Operator-side status rechecked on 2026-07-13: the R2 bucket has enabled
+lifecycles for `reports/` after 7 days and `v2-shadow/` after 1 day; Pages uses
+the `production` branch with previews disabled; the scanner build also uses
+`production` with non-production builds disabled; and Cloudflare Insights is
+disabled with no live beacon, matching the privacy disclosure. Still pending
+outside the repo are container-observability retention/query verification, WAF
+ceiling verification, and a re-run of the failed scheduled Brave-list refresh.
+Chromium sandbox is opt-in via SITE_BEHAVIOR_LAB_CHROMIUM_SANDBOX=1 after a
+verified deployed scan.
 
 Review overclaims rejected after verification: the percentile copy said
 "about 90%" (hedged, not the claimed "more than 90%"; replaced anyway with

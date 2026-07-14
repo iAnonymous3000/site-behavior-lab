@@ -4,6 +4,7 @@ import { readManagedReport } from "./managed-report-reader";
 import { buildProvenanceEntry } from "./redaction-provenance";
 import { REDACTION_VERSION } from "./redaction-v2";
 import { buildReportShare, buildStaticReportShare } from "./report-locator";
+import { makeSupportingPairInterventionReportV2R2 } from "./scan-report-v2-r2-fixtures";
 import { makePublicSingleReportV2, makeScanReportV1 } from "./scan-report-v2-fixtures";
 
 const REPORT_ID = "20260712-" + "a".repeat(32);
@@ -83,6 +84,38 @@ test("a current sidecar cannot bless an older embedded v2 redaction revision", (
     }),
     { ok: false, error: "invalid", reason: "redaction-version-mismatch" }
   );
+});
+
+test("a current sidecar cannot bless an older redaction revision in an r2 supporting-pair arm", () => {
+  const report = makeSupportingPairInterventionReportV2R2();
+  assert.equal(report.experiment.kind, "intervention");
+  if (report.experiment.kind !== "intervention") throw new Error("expected intervention fixture");
+  const supportingPair = report.experiment.supportingPairs?.[0];
+  assert.ok(supportingPair);
+
+  for (const run of [report.baseline, report.variant, supportingPair.baseline, supportingPair.variant]) {
+    run.privacy.redactionVersion = REDACTION_VERSION;
+  }
+
+  const read = () => {
+    const sidecar = buildProvenanceEntry({
+      reportId: REPORT_ID,
+      publicReport: report,
+      writtenAt: RETENTION.createdAt,
+      createdAt: RETENTION.createdAt,
+      expiresAt: RETENTION.expiresAt
+    });
+    return readManagedReport({
+      reportId: REPORT_ID,
+      reportContents: JSON.stringify(report),
+      sidecarContents: JSON.stringify(sidecar),
+      retention: RETENTION
+    });
+  };
+
+  assert.equal(read().ok, true);
+  supportingPair.variant.privacy.redactionVersion = REDACTION_VERSION - 1;
+  assert.deepEqual(read(), { ok: false, error: "invalid", reason: "redaction-version-mismatch" });
 });
 
 test("partial and malformed managed states fail closed", () => {

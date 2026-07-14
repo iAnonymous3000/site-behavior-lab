@@ -21,6 +21,8 @@ type AxisSummary = {
   interventionVerified: number;
 };
 
+type AxisArmSummary = Record<ArmVerification["outcome"], number>;
+
 export type V2ShadowVerificationSummary = {
   expectedBuild: string;
   artifacts: number;
@@ -76,6 +78,11 @@ export async function verifyV2ShadowDirectory(input: VerifyV2ShadowArgs): Promis
   if (entries.length === 0) throw new Error("No v2 shadow JSON artifacts were found.");
 
   const summary = emptySummary(input.expectedBuild);
+  const primaryArmsByAxis: Record<InterventionAxis, AxisArmSummary> = {
+    gpc: emptyArmSummary(),
+    shields: emptyArmSummary(),
+    consent: emptyArmSummary()
+  };
   for (const file of entries) {
     const report = await readShadowFile(path.join(input.directory, file), file);
     verifyBuild(report, input.expectedBuild, file);
@@ -104,6 +111,7 @@ export async function verifyV2ShadowDirectory(input: VerifyV2ShadowArgs): Promis
     if (report.comparability.interventionVerified) axis.interventionVerified += 1;
     for (const arm of [report.experiment.verification.baseline, report.experiment.verification.variant]) {
       summary.arms[arm.outcome] += 1;
+      primaryArmsByAxis[report.experiment.axis][arm.outcome] += 1;
     }
   }
   const invalidRequiredAxis = input.requiredAxes?.find((axis) => !isInterventionAxis(axis));
@@ -115,6 +123,28 @@ export async function verifyV2ShadowDirectory(input: VerifyV2ShadowArgs): Promis
   );
   if (missingAxes.length > 0) {
     throw new Error(`Missing required comparison axes: ${missingAxes.join(", ")}.`);
+  }
+  const failedAxes = [...new Set(input.requiredAxes ?? [])].filter((axis) => {
+    const value = summary.axes[axis];
+    return (
+      value.pairEligible !== value.comparisons ||
+      value.interventionVerified !== value.comparisons ||
+      primaryArmsByAxis[axis].passed !== value.comparisons * 2
+    );
+  });
+  if (failedAxes.length > 0) {
+    const details = failedAxes.map((axis) => {
+      const value = summary.axes[axis];
+      const arms = primaryArmsByAxis[axis];
+      return (
+        `${axis} (eligible ${value.pairEligible}/${value.comparisons}, ` +
+        `verified ${value.interventionVerified}/${value.comparisons}, ` +
+        `primary arms ${arms.passed}/${value.comparisons * 2} passed` +
+        `${arms.failed > 0 ? `, ${arms.failed} failed` : ""}` +
+        `${arms.inconclusive > 0 ? `, ${arms.inconclusive} inconclusive` : ""})`
+      );
+    });
+    throw new Error(`Required comparison axes failed rollout gate: ${details.join("; ")}.`);
   }
   return summary;
 }
@@ -178,6 +208,10 @@ function emptySummary(expectedBuild: string): V2ShadowVerificationSummary {
     axes: { gpc: axis(), shields: axis(), consent: axis() },
     arms: { passed: 0, failed: 0, inconclusive: 0 }
   };
+}
+
+function emptyArmSummary(): AxisArmSummary {
+  return { passed: 0, failed: 0, inconclusive: 0 };
 }
 
 function isInterventionAxis(value: string): value is InterventionAxis {

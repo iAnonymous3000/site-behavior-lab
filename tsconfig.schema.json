@@ -25,6 +25,9 @@
     "lib/prune-static-reports-cli.ts",
     "lib/remediation-inventory-cli.ts",
     "lib/remediate-reports-cli.ts",
+    "lib/scan-report-v2-r2-limits.ts",
+    "lib/scan-report-v2-r2-aggregate.ts",
+    "lib/aggregate-v2-shadow-cli.ts",
     "lib/verify-v2-shadow-cli.ts"
   ],
   "exclude": ["node_modules", ".next", ".unit-test-dist", "dist"]

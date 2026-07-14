@@ -45,6 +45,7 @@ import {
 } from "./redact-scan-report-v1";
 import { MIN_POLICY_TEXT_LENGTH } from "./privacy-policy";
 import { toPublicScanReportR2 } from "./scan-report-v2-r2-projection";
+import { NODE_SCAN_REPORT_V2_R2_MAX_PUBLIC_BYTES } from "./scan-report-v2-r2-limits";
 import {
   deriveArmVerificationR2,
   deriveChoiceStateR2,
@@ -112,7 +113,7 @@ export const NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION =
 export const NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION =
   `${NODE_SHIELDS_REQUEST_CONTEXT_VERSION}+phase-kernel-v1+boundary-state-v1+consent-r2-v1+resource-budget-v1`;
 
-export const NODE_SCAN_REPORT_V2_R2_MAX_PUBLIC_BYTES = 8 * 1024 * 1024;
+export { NODE_SCAN_REPORT_V2_R2_MAX_PUBLIC_BYTES } from "./scan-report-v2-r2-limits";
 const MAX_PHASES = 16;
 const MAX_WARNINGS = 64;
 const MAX_COOKIE_RECORDS = 1_000;

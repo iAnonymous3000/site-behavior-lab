@@ -131,9 +131,22 @@ export function readManagedReport(input: {
 }
 
 function embeddedRedactionVersions(stored: Extract<StoredScanReport, { schemaVersion: 2 }>): number[] {
-  return stored.report.reportType === "single"
-    ? [stored.report.run.privacy.redactionVersion]
-    : [stored.report.baseline.privacy.redactionVersion, stored.report.variant.privacy.redactionVersion];
+  if (stored.report.reportType === "single") return [stored.report.run.privacy.redactionVersion];
+
+  const versions = [
+    stored.report.baseline.privacy.redactionVersion,
+    stored.report.variant.privacy.redactionVersion
+  ];
+  if (
+    stored.schemaRevision === 2 &&
+    stored.report.experiment.kind === "intervention" &&
+    stored.report.experiment.supportingPairs !== undefined
+  ) {
+    for (const pair of stored.report.experiment.supportingPairs) {
+      versions.push(pair.baseline.privacy.redactionVersion, pair.variant.privacy.redactionVersion);
+    }
+  }
+  return versions;
 }
 
 function provenanceFailure(match: Exclude<ProvenanceMatch, { status: "matched" }>): ManagedReportReadResult {
