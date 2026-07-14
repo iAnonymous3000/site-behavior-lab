@@ -65,7 +65,7 @@ import {
 import { consentChoiceLabel } from "@/lib/consent-interaction";
 import { requestLogToCsv } from "@/lib/csv-export";
 import { displayableScreenshot } from "@/lib/report-insights";
-import { buildReportHeadline } from "@/lib/report-headline";
+import { buildReportHeadline, reportPageTitle } from "@/lib/report-headline";
 import { committedReportLocation } from "@/lib/report-locator";
 import { isScanRuntimeHealth, type ScanRuntimeHealth } from "@/lib/scan-runtime-health";
 import { RUN_MODE_LABELS, RUN_MODE_TITLES, runModeHint, type RunMode } from "@/lib/run-mode-copy";
@@ -816,7 +816,7 @@ export function SiteBehaviorApp({
               <p className="eyebrow">{reportPage ? "Site Behavior Lab · Evidence" : "Site Behavior Lab"}</p>
               <h1>
                 {permalinkHeadline
-                  ? `${permalinkHeadline.domain}: ${permalinkHeadline.headline}`
+                  ? reportPageTitle(permalinkHeadline)
                   : reportPage
                     ? "Saved site behavior report"
                     : "See what a site does, not just what it says."}

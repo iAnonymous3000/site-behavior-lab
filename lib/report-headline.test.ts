@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { createConsentComparisonReport, createGpcComparisonReport, createShieldsComparisonReport } from "./compare-reports";
 import { displayableScreenshot } from "./report-insights";
-import { buildReportHeadline } from "./report-headline";
+import { buildReportHeadline, reportPageTitle } from "./report-headline";
 import { viewFromV1Report } from "./scan-report-views";
 import {
   SCAN_REPORT_SCHEMA_VERSION,
@@ -822,4 +822,31 @@ test("unanswered tracking companies get sent-not-shared wording", () => {
   const headline = buildReportHeadline(viewFromV1Report(result));
   assert.match(headline.headline, /shop\.example sent this visit to 1 tracking company\./);
   assert.match(headline.subhead, /recorded no response, so receipt is unproven/);
+});
+
+test("reportPageTitle prefixes the domain only when the headline does not already name the site", () => {
+  const base = {
+    tone: "info" as const,
+    kicker: "What this actually means",
+    subhead: "subhead",
+    caveat: "caveat",
+    stats: [],
+    shareText: "share"
+  };
+  // Most branches name the site themselves; prefixing again produced
+  // "webmd.com: webmd.com loaded ..." in every tab title and page header.
+  assert.equal(
+    reportPageTitle({ ...base, domain: "webmd.com", headline: "webmd.com loaded 306 fewer third-party requests with Brave-list blocking on." }),
+    "webmd.com loaded 306 fewer third-party requests with Brave-list blocking on."
+  );
+  // Domain matching is case-insensitive and position-independent.
+  assert.equal(
+    reportPageTitle({ ...base, domain: "shop.example", headline: "Off-site requests to shop.example dropped 62% with a privacy signal on." }),
+    "Off-site requests to shop.example dropped 62% with a privacy signal on."
+  );
+  // A headline that never names the site still gets the identifying prefix.
+  assert.equal(
+    reportPageTitle({ ...base, domain: "shop.example", headline: "This visit looked quiet." }),
+    "shop.example: This visit looked quiet."
+  );
 });

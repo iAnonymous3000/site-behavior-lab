@@ -409,6 +409,18 @@ export function buildReportHeadline(view: ReportView): ReportHeadline {
   );
 }
 
+/**
+ * Page/tab title for a report permalink. Most headline branches already name
+ * the site ("webmd.com loaded 306 fewer..."), and prefixing the domain again
+ * produced "webmd.com: webmd.com loaded ..." in every tab, header, and search
+ * result. Prefix only when the headline does not already identify the site.
+ */
+export function reportPageTitle(headline: ReportHeadline): string {
+  return headline.headline.toLowerCase().includes(headline.domain.toLowerCase())
+    ? headline.headline
+    : `${headline.domain}: ${headline.headline}`;
+}
+
 function buildStats(run: RunView, trackingCount: number): ReportHeadlineStat[] {
   const stats: ReportHeadlineStat[] = [];
 

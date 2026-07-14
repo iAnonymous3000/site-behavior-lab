@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { buildReportHeadline } from "@/lib/report-headline";
+import { buildReportHeadline, reportPageTitle } from "@/lib/report-headline";
 import { serializeJsonLd } from "@/lib/jsonld-script";
 import { buildReportDataset } from "@/lib/report-jsonld";
 import { readStoredReportForId } from "@/lib/report-source";
@@ -32,7 +32,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   // works for any readable schema generation, matching the view-based client
   // renderer below.
   const headline = buildReportHeadline(toReportView(result.stored));
-  const title = `${headline.domain}: ${headline.headline}`;
+  const title = reportPageTitle(headline);
   const description = headline.subhead;
 
   return {

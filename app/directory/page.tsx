@@ -221,7 +221,7 @@ export default async function DirectoryPage() {
                     <b>{entry.trackerRequests.toLocaleString()}</b> tracker
                   </span>
                   <span>
-                    <b>{entry.thirdPartyCookies.toLocaleString()}</b> cookies
+                    <b>{entry.thirdPartyCookies.toLocaleString()}</b> {entry.thirdPartyCookies === 1 ? "cookie" : "cookies"}
                   </span>
                 </span>
                 {entry.sinceLastScan && (

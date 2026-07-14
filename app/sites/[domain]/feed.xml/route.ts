@@ -53,6 +53,7 @@ export async function GET(_request: Request, context: { params: Promise<{ domain
   <title>${escapeXml(`${key} site behavior reports`)}</title>
   <subtitle>Reviewed Site Behavior Lab evidence for ${escapeXml(key)}, from the curated public corpus.</subtitle>
   <id>${escapeXml(profileUrl)}</id>
+  <author><name>Site Behavior Lab</name></author>
   <link rel="alternate" type="text/html" href="${escapeXml(profileUrl)}"/>
   <link rel="self" type="application/atom+xml" href="${escapeXml(feedUrl)}"/>
   <updated>${escapeXml(updated)}</updated>
