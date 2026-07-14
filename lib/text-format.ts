@@ -27,3 +27,14 @@ export function humanList(items: string[], limit = 3): string {
   const joined = `${visible.slice(0, -1).join(", ")} and ${visible.at(-1)}`;
   return remaining > 0 ? `${joined}, plus ${plural(remaining, "other")}` : joined;
 }
+
+/**
+ * Reader-facing form of a privacy-generalized host or cookie domain: the
+ * sanitizer's "{label}" tokens (unreviewed subdomain labels, RFC 9.1) render
+ * as the conventional "*" wildcard. Braces are invalid in real hostnames, so
+ * the token can never collide with recorded network data. Display-only; the
+ * wire keeps the exact recorded shape.
+ */
+export function displayHost(host: string): string {
+  return host.replaceAll("{label}", "*");
+}

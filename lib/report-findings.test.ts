@@ -3,7 +3,7 @@ import { test } from "node:test";
 import { createConsentComparisonReport, createGpcComparisonReport, createShieldsComparisonReport } from "./compare-reports";
 import { buildFindings, type Finding, type FindingIconKey } from "./report-findings";
 import type { CorpusStats } from "./corpus-stats";
-import { makeConsentInterventionReportV2R2 } from "./scan-report-v2-r2-fixtures";
+import { makeConsentInterventionReportV2R2, makeShieldsInterventionReportV2R2 } from "./scan-report-v2-r2-fixtures";
 import { makePublicSingleReportV2 } from "./scan-report-v2-fixtures";
 import { viewFromV1Report, viewFromV2 } from "./scan-report-views";
 import {
@@ -900,3 +900,35 @@ function consentPair(accept: ScanResult, reject: ScanResult) {
   reject.conditions = { ...reject.conditions, consentMode: "reject-all" as const };
   return createConsentComparisonReport(accept, reject);
 }
+
+test("an ineligible pair is a methodology note: prose reasons, and no bottom-line flip", () => {
+  // The production gap this pins: a producer that recorded no egress region
+  // gates every family (unknown never matches unknown), like the first three
+  // committed r2 reports.
+  const gated = makeShieldsInterventionReportV2R2();
+  const ineligible = () => ({ eligible: false, reasons: ["unknown-dimension:egress.region" as const] });
+  gated.comparability = {
+    ...gated.comparability,
+    perMetric: {
+      "raw-counts": ineligible(),
+      "tracker-classification": ineligible(),
+      "shields-simulation": ineligible(),
+      "consent-verification": ineligible(),
+      "detector-findings": ineligible()
+    }
+  };
+  const findings = buildFindings(viewFromV2(gated, 2), null);
+
+  const card = byId(findings, "shields-comparison");
+  assert.equal(card.methodology, true);
+  // The recorded token is translated for readers; the raw vocabulary never renders.
+  assert.match(card.lead, /did not record the network egress region/);
+  assert.doesNotMatch(card.lead, /unknown-dimension/);
+
+  // The meta card describes the report, not the site: with otherwise-clean
+  // evidence the bottom line must not call the visit review-worthy just
+  // because the pair's deltas are refused.
+  const bottom = byId(findings, "bottom-line");
+  assert.equal(bottom.title, "Bottom line: few review signals in this visit");
+  assert.equal(bottom.level, "ok");
+});

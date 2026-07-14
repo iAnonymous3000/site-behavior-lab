@@ -6,6 +6,7 @@ import {
   createTemporalComparisonReport
 } from "./compare-reports";
 import {
+  describeComparabilityReason,
   legacyComparisonDecision,
   legacyComparisonHistoryCohortFingerprint,
   legacyMeasurementEnvironmentFingerprint,
@@ -379,5 +380,56 @@ test("v2 decisions come from the recorded comparability block and recorded finge
   assert.equal(
     interventionView.claims.pairComparison?.allowed,
     interventionView.claims.decision?.mode === "comparable"
+  );
+});
+
+test("v2 decision reasons are reader-facing sentences, never recorded tokens", () => {
+  const report = makeInterventionComparisonReportV2();
+  report.comparability = {
+    ...report.comparability,
+    pairValidity: { eligible: false, reasons: ["run-failed:variant"] },
+    perMetric: {
+      ...report.comparability.perMetric,
+      "raw-counts": {
+        eligible: false,
+        reasons: ["unknown-dimension:egress.region", "dependency-version-mismatch:environment"]
+      },
+      "shields-simulation": { eligible: false, reasons: ["dependency-digest-mismatch:adblockManifest"] },
+      "detector-findings": {
+        eligible: false,
+        reasons: ["dependency-version-mismatch:detectorStatus.privacy-policy"]
+      }
+    }
+  };
+  const decision = v2ComparisonDecision(report);
+
+  assert.equal(decision.mode, "raw-only");
+  assert.deepEqual(decision.reasons, [
+    "The variant visit did not complete, and a failed load reflects an error page, not the site."
+  ]);
+  assert.deepEqual(decision.families["raw-counts"].reasons, [
+    "The pair did not record the network egress region for both visits, and an unrecorded condition never counts as matching.",
+    "The two visits ran in different measurement environments (browser, device, probe, or session configuration)."
+  ]);
+  assert.deepEqual(decision.families["shields-simulation"].reasons, [
+    "The two visits used different versions of the filter-list snapshot, so their numbers measure different things."
+  ]);
+  assert.deepEqual(decision.families["detector-findings"].reasons, [
+    "The privacy-policy detector's status differed between the two visits, so their numbers measure different things."
+  ]);
+  // No raw vocabulary token may reach a reader through the decision.
+  for (const family of Object.values(decision.families)) {
+    for (const reason of family.reasons) assert.doesNotMatch(reason, /^[a-z-]+(:|$)/);
+  }
+});
+
+test("an unrecognized recorded reason token is quoted, never guessed at", () => {
+  assert.equal(
+    describeComparabilityReason("brand-new-evaluator-token"),
+    'The recorded comparability evaluation named "brand-new-evaluator-token".'
+  );
+  assert.equal(
+    describeComparabilityReason("unknown-dimension:detectorStatus.pixel-events"),
+    "The pair did not record the pixel-events detector's status for both visits, and an unrecorded condition never counts as matching."
   );
 });

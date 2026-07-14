@@ -76,6 +76,12 @@ export type Finding = {
   detail: string;
   evidence: string;
   benchmark?: string;
+  /**
+   * True on cards that describe this REPORT's methodology (an ineligible
+   * pair) rather than the site's observed behavior. The bottom line
+   * summarizes observed signals, so these never flip it to "review-worthy".
+   */
+  methodology?: true;
 };
 
 type BenchmarkMetric = "thirdPartyDomains" | "trackerEntities" | "thirdPartyCookies" | "fingerprintEvents";
@@ -744,7 +750,11 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
   // cards themselves sit at "info" on a censored run and must not read as
   // review-worthy signals.
   const censorshipNotes = runCensorshipNotes(run);
-  const overallLevel = strongestLevel(findings.map((finding) => finding.level));
+  // Methodology cards (an ineligible pair) are about this report, not the
+  // site: "review-worthy signals" must reflect observed behavior only.
+  const overallLevel = strongestLevel(
+    findings.filter((finding) => finding.methodology !== true).map((finding) => finding.level)
+  );
   const censoredQuiet =
     censorshipNotes.length > 0 && (overallLevel === "ok" || overallLevel === "quiet" || overallLevel === "info");
   findings.unshift({
@@ -794,13 +804,16 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
       lead:
         blocked > 0
           ? simulated
-            ? `${plural(blocked, "request")} were aborted before they could load by Brave's ad-block engine running Shields' default filter lists, a block simulation in this scanner's browser, not a live Brave-browser visit.`
+            ? `Brave's ad-block engine running Shields' default filter lists stopped ${plural(blocked, "request")} from loading, a block simulation in this scanner's browser, not a live Brave-browser visit.`
             : `${plural(blocked, "request")} matched the default filter lists of Brave Shields, the ad and tracker blocker built into the Brave browser, while loading normally.`
           : "No requests matched the default filter lists of Brave Shields, the ad and tracker blocker built into the Brave browser.",
       detail: simulated
         ? "Measured with Brave's own ad-block engine and default filter lists actively blocking (network requests only, so no cosmetic or CNAME-based blocking). Blocked requests are not in this run's totals, and requests a blocked script would have made never started."
         : "Computed with Brave's own ad-block engine and default filter lists in classification mode: matched requests LOADED normally and are counted in this report. Matching shows what Shields would target on this visit's traffic; an actual Shields visit blocks these and also prevents their follow-on requests, so this number is neither a measured block count nor the total effect.",
-      evidence: `${plural(run.counts.knownTrackerRequests, "named-service request")} of them are also in the curated catalog.`
+      // The catalog count is run-wide: it is a separate labeling layer, not a
+      // proven subset of the Shields-matched requests, so the sentence must
+      // not chain the two sets together.
+      evidence: `The hand-curated service catalog separately labels ${plural(run.counts.knownTrackerRequests, "request")} in this visit.`
     });
   }
 
@@ -834,6 +847,7 @@ function ineligibleComparisonFinding(id: string, title: string, gate: ClaimGate)
     id,
     icon: "alert",
     level: "info",
+    methodology: true,
     title,
     lead: humanList(gate.reasons, 3),
     detail:

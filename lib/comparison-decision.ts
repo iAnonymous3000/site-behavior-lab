@@ -36,7 +36,11 @@ export type ComparisonDecisionMode = "comparable" | "raw-only" | "suppressed";
 
 export type FamilyDecision = {
   mode: ComparisonDecisionMode;
-  /** Why the mode is not "comparable"; empty when it is. Full sentences on v1, recorded reason tokens on v2. */
+  /**
+   * Why the mode is not "comparable"; empty when it is. Always full
+   * sentences: v1 reasons are written here, v2 reasons are translated from
+   * the wire's recorded reason tokens (which stay untouched on the wire).
+   */
   reasons: string[];
 };
 
@@ -366,12 +370,101 @@ export function legacyComparisonDecision(report: ComparisonScanResult): Comparis
 // v2 (recorded)
 // ---------------------------------------------------------------------------
 
+/** Reader-facing names for the RFC 3.2 comparability dimensions. */
+const COMPARABILITY_DIMENSION_NAMES: Record<string, string> = {
+  "browser.name": "the browser",
+  "browser.version": "the browser version",
+  locale: "the locale",
+  language: "the language",
+  timezone: "the timezone",
+  "egress.label": "the network egress",
+  "egress.region": "the network egress region",
+  automation: "the automation toolchain",
+  methodologyVersion: "the methodology version",
+  observer: "the observation method",
+  normalizationVersion: "the normalization version",
+  adblock: "the filter-list engine",
+  adblockEngine: "the filter-list engine version",
+  adblockManifest: "the filter-list snapshot",
+  trackerCatalog: "the tracker-catalog snapshot",
+  "consent-banner": "the consent-banner state",
+  "consent-interpreter": "the consent-platform interpreter"
+};
+
+function comparabilityDimensionName(dimension: string): string {
+  const named = COMPARABILITY_DIMENSION_NAMES[dimension];
+  if (named) return named;
+  const detector = dimension.match(/^detectorStatus\.(.+)$/);
+  if (detector) return `the ${detector[1]} detector's status`;
+  return `the recorded "${dimension}" condition`;
+}
+
+function comparabilityArmName(arm: string): string {
+  return arm === "baseline" || arm === "variant" ? `${arm} visit` : `"${arm}" visit`;
+}
+
+/**
+ * Translate one recorded ComparabilityReason token (RFC 4.4 vocabulary) into
+ * the sentence a report reader sees. Unrecognized tokens are quoted verbatim
+ * instead of guessed at, so an evaluator vocabulary bump can never make this
+ * reader claim a reason that was not recorded.
+ */
+export function describeComparabilityReason(reason: string): string {
+  if (reason === "subject-mismatch") {
+    return "The two visits observed different subjects, so their evidence describes different pages.";
+  }
+  if (reason === "design-invalid") {
+    return "The recorded experiment design is not a valid pair for its declared kind.";
+  }
+  const runFailed = reason.match(/^run-failed:(.+)$/);
+  if (runFailed) {
+    return `The ${comparabilityArmName(runFailed[1])} did not complete, and a failed load reflects an error page, not the site.`;
+  }
+  const unknown = reason.match(/^unknown-dimension:(.+)$/);
+  if (unknown) {
+    return `The pair did not record ${comparabilityDimensionName(unknown[1])} for both visits, and an unrecorded condition never counts as matching.`;
+  }
+  const digest = reason.match(/^dependency-digest-mismatch:(.+)$/);
+  if (digest) {
+    return `The two visits used different versions of ${comparabilityDimensionName(digest[1])}, so their numbers measure different things.`;
+  }
+  const version = reason.match(/^dependency-version-mismatch:(.+)$/);
+  if (version) {
+    return version[1] === "environment"
+      ? "The two visits ran in different measurement environments (browser, device, probe, or session configuration)."
+      : `${capitalizeSentence(comparabilityDimensionName(version[1]))} differed between the two visits, so their numbers measure different things.`;
+  }
+  const censored = reason.match(/^family-censored:(.+)$/);
+  if (censored) {
+    return `The ${comparabilityArmName(censored[1])}'s collection was cut short by a recording cap, so its numbers are floors, not totals.`;
+  }
+  const verificationFailed = reason.match(/^arm-verification-failed:(.+)$/);
+  if (verificationFailed) {
+    return `The ${comparabilityArmName(verificationFailed[1])} failed its intervention readback, so the pair does not prove its declared conditions.`;
+  }
+  const verificationInconclusive = reason.match(/^arm-verification-inconclusive:(.+)$/);
+  if (verificationInconclusive) {
+    return `The ${comparabilityArmName(verificationInconclusive[1])}'s intervention readback was inconclusive, so the pair does not prove its declared conditions.`;
+  }
+  return `The recorded comparability evaluation named "${reason}".`;
+}
+
+function capitalizeSentence(text: string): string {
+  return text.charAt(0).toUpperCase() + text.slice(1);
+}
+
+function describeComparabilityReasons(reasons: readonly string[]): string[] {
+  return [...new Set(reasons.map(describeComparabilityReason))];
+}
+
 /**
  * The decision a v2 comparison recorded: pair mode from
  * comparability.pairValidity, family modes from comparability.perMetric, and
  * the fingerprint from each run's RECORDED measurementEnvironment digest. v2
  * families stay comparable/raw-only: the evaluator recorded eligibility, and
  * this reader must not invent a suppression the evaluator did not record.
+ * Reasons are translated to reader-facing sentences; the recorded tokens
+ * remain on the wire for tooling.
  */
 export function v2ComparisonDecision(
   report: Extract<PublicScanReportV2 | PublicScanReportV2R2, { reportType: "comparison" }>
@@ -381,7 +474,7 @@ export function v2ComparisonDecision(
   const variant = report.variant.fingerprints.measurementEnvironment;
   return {
     mode: comparability.pairValidity.eligible ? "comparable" : "raw-only",
-    reasons: [...comparability.pairValidity.reasons],
+    reasons: describeComparabilityReasons(comparability.pairValidity.reasons),
     compatibility: {
       origin: "recorded",
       baseline,
@@ -393,7 +486,7 @@ export function v2ComparisonDecision(
         family,
         entry.eligible
           ? { mode: "comparable", reasons: [] }
-          : { mode: "raw-only", reasons: [...entry.reasons] }
+          : { mode: "raw-only", reasons: describeComparabilityReasons(entry.reasons) }
       ])
     ) as Record<MetricFamily, FamilyDecision>
   };

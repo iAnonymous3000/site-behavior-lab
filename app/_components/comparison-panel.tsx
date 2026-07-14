@@ -5,7 +5,7 @@ import type { ReactNode } from "react";
 import { comparisonArmViews, comparisonDiffView, type ReportView } from "@/lib/scan-report-views";
 import { provenanceChangeText } from "@/lib/report-findings";
 import { pixelFieldLabel } from "@/lib/report-insights";
-import { plural } from "@/lib/text-format";
+import { displayHost, plural } from "@/lib/text-format";
 import type {
   ComparisonMetricDelta,
   CookieChange,
@@ -266,7 +266,7 @@ function ChangeList({ title, changes, tone }: { title: string; changes: DomainCh
       renderItem={(change) => (
         <div className={`change-row change-${tone}`} key={change.domain}>
           <span>
-            <strong>{change.domain}</strong>
+            <strong>{displayHost(change.domain)}</strong>
             <small>{change.tracker ? `${change.tracker.entity} · ${change.tracker.category}` : "unlabeled"}</small>
           </span>
           <b>{change.requests}</b>
@@ -305,7 +305,7 @@ function CookieChangeList({ title, changes, tone }: { title: string; changes: Co
         <div className={`change-row change-${tone}`} key={`${change.name}:${change.domain}:${index}`}>
           <span>
             <strong>{change.name}</strong>
-            <small>{change.domain}</small>
+            <small>{displayHost(change.domain)}</small>
           </span>
           <b className="change-tag">{change.thirdParty ? "third-party" : "first-party"}</b>
         </div>
@@ -413,7 +413,7 @@ function ProvenanceChangeList({ title, changes, tone }: { title: string; changes
           key={`${index}:${change.domain}:${change.initiator ?? ""}:${change.script ?? ""}:${change.injectedBy ?? ""}`}
         >
           <span>
-            <strong>{change.domain}</strong>
+            <strong>{displayHost(change.domain)}</strong>
             <small>{provenanceChangeText(change)}</small>
           </span>
           <b>{change.requests}</b>

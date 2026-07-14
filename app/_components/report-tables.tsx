@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { AlertTriangle, CheckCircle2, ChevronDown, Database, Fingerprint, Radar } from "lucide-react";
 import { requestProvenanceSearchText, requestProvenanceSummary } from "@/lib/report-findings";
+import { displayHost, plural } from "@/lib/text-format";
 import { detectionEvidence, detectionLabel, pixelFieldLabel } from "@/lib/report-insights";
 import type {
   CookieRecord,
@@ -49,7 +50,7 @@ function DomainTable({ domains }: { domains: DomainSummary[] }) {
     <details className="data-section disclosure" open>
       <summary className="section-heading">
         <h2>Domain evidence</h2>
-        <span className="count-badge">{domains.length} domains</span>
+        <span className="count-badge">{plural(domains.length, "domain")}</span>
         <ChevronDown className="disclosure-chevron" size={16} aria-hidden="true" />
       </summary>
       <div className="section-tools disclosure-tools">
@@ -76,7 +77,7 @@ function DomainTable({ domains }: { domains: DomainSummary[] }) {
           <tbody>
             {shown.map((domain) => (
               <tr key={domain.domain}>
-                <td className="mono" data-label="Domain">{domain.domain}</td>
+                <td className="mono" data-label="Domain">{displayHost(domain.domain)}</td>
                 <td data-label="Role">{roleTag(domain)}</td>
                 <td data-label="Requests">{domain.requests.toLocaleString("en-US")}</td>
                 <td data-label="Known service">{domain.tracker ? `${domain.tracker.entity}: ${domain.tracker.category}` : "-"}</td>
@@ -148,7 +149,7 @@ function RequestTable({ requests }: { requests: NetworkRequestRecord[] }) {
         <h2>Request log</h2>
         <span className="count-badge">
           {filtered.length === requests.length
-            ? `${requests.length} requests`
+            ? plural(requests.length, "request")
             : `${filtered.length} of ${requests.length}`}
         </span>
         <ChevronDown className="disclosure-chevron" size={16} aria-hidden="true" />
@@ -229,7 +230,7 @@ function RequestTable({ requests }: { requests: NetworkRequestRecord[] }) {
                   <StatusCell status={request.status} />
                 </td>
                 <td data-label="Type">{request.resourceType}</td>
-                <td className="mono" data-label="Domain">{request.domain}</td>
+                <td className="mono" data-label="Domain">{displayHost(request.domain)}</td>
                 <td data-label="Provenance">
                   <RequestProvenanceCell request={request} />
                 </td>
@@ -348,7 +349,7 @@ function TopThirdParties({ domains }: { domains: DomainSummary[] }) {
       {top.map((domain) => (
         <div className="domain-chip" key={domain.domain}>
           <div className="chip-main">
-            <strong>{domain.domain}</strong>
+            <strong>{displayHost(domain.domain)}</strong>
             <span className="chip-sub">{domain.tracker ? `${domain.tracker.entity} · ${domain.tracker.category}` : "unlabeled third party"}</span>
           </div>
           <span className="count-pill">{domain.requests.toLocaleString("en-US")}</span>
@@ -387,7 +388,7 @@ function CookieList({ cookies }: { cookies: CookieRecord[] }) {
           <span>
             {cookie.name}
             <small>
-              {cookie.domain} · {cookie.session ? "session" : "persistent"} · {cookie.thirdParty ? "third-party" : "first-party"}
+              {displayHost(cookie.domain)} · {cookie.session ? "session" : "persistent"} · {cookie.thirdParty ? "third-party" : "first-party"}
             </small>
           </span>
         </div>
