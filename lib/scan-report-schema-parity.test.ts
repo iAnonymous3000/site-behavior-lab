@@ -61,18 +61,18 @@ type AnyRecord = Record<string, any>;
 test("the committed schema files equal a fresh generation from the types", () => {
   const committed = JSON.parse(readFileSync(path.join(rootDir, "public", "schemas", "scan-report.v2.r1.schema.json"), "utf8"));
   assert.deepEqual(committed, generated, "run `npm run build:schema` and commit the result");
-  // While the alias targets r1 it must be the SAME BYTES, not merely
-  // JSON-equivalent: a reordered or reformatted alias would hash differently
-  // and undermine the freeze pin below.
+  // r1 remains immutable and revision-addressable after the stable alias moves
+  // to r2. Guard against accidentally repointing the alias back to historical
+  // r1; the r2 parity harness pins its exact current bytes.
   const aliasBytes = readFileSync(path.join(rootDir, "public", "scan-report.schema.json"));
   const revisionedBytes = readFileSync(path.join(rootDir, "public", "schemas", "scan-report.v2.r1.schema.json"));
-  assert.equal(aliasBytes.equals(revisionedBytes), true, "the stable alias must be byte-identical to the current revision");
+  assert.equal(aliasBytes.equals(revisionedBytes), false, "the stable alias must not point back to historical r1");
 });
 
 // THE r1 freeze, executable (RFC 10.2). The drift test above would pass if
 // someone edited the r1 types and regenerated the committed file with them;
 // this pin cannot. It never changes: new shapes belong in a new revision's
-// schema file, and the alias moves only after complete consumer migration.
+// schema file. Moving the stable alias does not alter this revisioned artifact.
 const R1_SCHEMA_SHA256 = "7b865e6903ecdd1ecc2a5d5e848ffb320b7a1db9742dc108f603e5e21c9756a6";
 
 test("the published r1 schema file is frozen byte-for-byte", () => {

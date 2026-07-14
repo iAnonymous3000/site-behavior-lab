@@ -2,11 +2,13 @@ import { randomUUID } from "node:crypto";
 import { open, readdir, readFile, rename, stat, unlink } from "node:fs/promises";
 import path from "node:path";
 import { publicReportDigest } from "./canonical-json";
+import { committedReportCreatedAt } from "./committed-report-created-at";
 import { readManagedReport, type ManagedReportReadFailureReason } from "./managed-report-reader";
 import { redactScanReportV1 } from "./redact-scan-report-v1";
 import { buildProvenanceEntry, committedSidecarFilename } from "./redaction-provenance";
 import { REPORT_ID_PATTERN } from "./report-validation";
 import { readStoredScanReport } from "./scan-report-reader";
+import { NODE_SCAN_REPORT_V2_R2_MAX_PUBLIC_BYTES } from "./scan-report-v2-r2-limits";
 import type { ScanReport } from "./types";
 
 const REPORT_FILE_PATTERN = /^([0-9]{8}-[0-9a-f]{32})\.json$/;
@@ -64,9 +66,15 @@ type PlannedReport = {
 };
 
 /**
- * Remediate the committed v1 report corpus. Dry-run is deliberately the
- * default. Apply preflights the entire corpus, then atomically replaces each
- * changed report before atomically creating/replacing its provenance sidecar.
+ * Remediate the mixed committed report corpus. Frozen v1 reports retain their
+ * historical sanitizer/rewrite behavior. Readable v2 reports whose every
+ * embedded run records the current redaction version are strict pass-through:
+ * apply may backfill or repair only their provenance sidecar, never rewrite
+ * their report bytes. A readable older-redaction v2 report fails managed
+ * preflight instead of being blessed by a current sidecar. Dry-run is
+ * deliberately the default. Apply preflights the entire corpus, then
+ * atomically replaces each changed v1 report before atomically
+ * creating/replacing its provenance sidecar.
  */
 export async function remediateReports(input: {
   reportsDir: string;
@@ -165,19 +173,31 @@ async function planReport(reportsDir: string, file: string, writtenAt: string): 
   if (!read.ok) {
     throw new Error(`Cannot remediate ${file}: unreadable report (${read.error}).`);
   }
-  if (read.stored.schemaVersion !== 1) {
-    throw new Error(`Cannot remediate ${file}: committed remediation only supports schemaVersion 1.`);
+  if (
+    read.stored.schemaVersion === 2 &&
+    read.stored.schemaRevision === 2 &&
+    Buffer.byteLength(originalWire, "utf8") > NODE_SCAN_REPORT_V2_R2_MAX_PUBLIC_BYTES
+  ) {
+    throw new Error(
+      `Cannot remediate ${file}: v2/r2 report exceeds the ${NODE_SCAN_REPORT_V2_R2_MAX_PUBLIC_BYTES}-byte public limit.`
+    );
+  }
+  let publicReport = read.stored.report;
+  let publicWire = originalWire;
+  let reportChanged = false;
+  if (read.stored.schemaVersion === 1) {
+    const original = read.stored.report;
+    const redacted = redactScanReportV1(original).report;
+    assertPreservedIdentity(reportId, original, redacted);
+    reportChanged = publicReportDigest(original) !== publicReportDigest(redacted);
+    publicReport = redacted;
+    publicWire = reportChanged ? `${JSON.stringify(redacted, null, 2)}\n` : originalWire;
   }
 
-  const original = read.stored.report;
-  const redacted = redactScanReportV1(original).report;
-  assertPreservedIdentity(reportId, original, redacted);
-  const createdAt = reportCreatedAt(original);
-  const reportChanged = publicReportDigest(original) !== publicReportDigest(redacted);
-  const publicWire = reportChanged ? `${JSON.stringify(redacted, null, 2)}\n` : originalWire;
+  const createdAt = committedReportCreatedAt(read.stored);
   const sidecar = buildProvenanceEntry({
     reportId,
-    publicReport: redacted,
+    publicReport,
     writtenAt,
     createdAt,
     expiresAt: null
@@ -231,12 +251,6 @@ async function checkPlans(plans: PlannedReport[]): Promise<RemediationIssue[]> {
     if (!managed.ok) issues.push({ reportId: plan.reportId, reason: managed.reason });
   }
   return issues;
-}
-
-function reportCreatedAt(report: ScanReport): string {
-  const createdAt = report.reportType === "comparison" ? report.scannedAt : report.conditions.scannedAt;
-  assertCanonicalTimestamp(createdAt, "recorded report creation time");
-  return createdAt;
 }
 
 function assertPreservedIdentity(reportId: string, before: ScanReport, after: ScanReport): void {

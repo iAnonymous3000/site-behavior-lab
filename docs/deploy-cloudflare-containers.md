@@ -462,6 +462,53 @@ curl --fail-with-body -s "$SCAN_BASE_URL/api/health" | jq \
 # consent == "disabled", authenticated == false, and openAccess == true
 ```
 
+## 9. Enable public v2/r2 reports after verification
+
+Public r2 production is a separate fail-closed switch from private shadow emission.
+Enable it only after the candidate build has passed the shadow verifier and the public
+report-store configuration is constructible. Health verifies configuration readiness,
+not remote bucket reachability or permissions; confirm those with a saved-report smoke.
+The exact prerequisites are a full deployed build SHA,
+`SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION=1`, and a configured report-store backend.
+When the gate is on, a builder or persistence failure fails the scan; it never returns a
+v1 substitute. Shadow emission remains independently usable when both flags are on.
+
+Set the two rollout values at the front Worker boundary so `ScannerContainer.envVars`
+forwards them into Node, then require the combined edge/container health signal before
+opening traffic:
+
+Before enabling the producer, deploy the updated Pages client that recognizes r2 report
+roots without a v1-style `ok` field; an older client will reject a valid r2 result.
+
+```bash
+printf '1' | npx wrangler secret put SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION \
+  -c wrangler.container.jsonc
+printf '1' | npx wrangler secret put SITE_BEHAVIOR_LAB_PUBLIC_R2_REPORTS \
+  -c wrangler.container.jsonc
+
+curl --fail-with-body -s "$SCAN_BASE_URL/api/health" | jq \
+  '{deployment, scansAvailable, publicR2: .checks.publicR2Reports, consent: .checks.consentVerification, store: .checks.reportStore}'
+# require deployment == the verified full SHA, scansAvailable == true,
+# publicR2.status == "enabled", consent == "enabled", and store.kind != "unavailable"
+```
+
+The synchronous response and the submitter-only completed-job response may carry the
+ephemeral screenshot block. `/api/reports/:id` and every stored object carry only the
+public r2 projection plus its share pointer and managed provenance sidecar.
+
+Rollback the public producer first. With the public gate absent, the runtime immediately
+returns to its existing v1 response path; the shadow flag, if separately enabled, keeps
+its prior best-effort behavior:
+
+```bash
+npx wrangler secret delete SITE_BEHAVIOR_LAB_PUBLIC_R2_REPORTS \
+  -c wrangler.container.jsonc
+
+curl --fail-with-body -s "$SCAN_BASE_URL/api/health" | jq \
+  '{scansAvailable, publicR2: .checks.publicR2Reports}'
+# require scansAvailable == true and publicR2.status == "disabled"
+```
+
 ## Cost
 
 Workers Paid is $5/mo; container compute is metered while an instance is running

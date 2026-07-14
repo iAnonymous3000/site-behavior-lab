@@ -3,7 +3,7 @@
  * mirroring the r1 harness: the hand-written r2 runtime validator and the
  * generated r2 JSON Schema must agree wherever the schema can express the
  * rule; the committed r2 file must equal a fresh generation and is pinned
- * byte-for-byte; and the stable alias must still serve r1.
+ * byte-for-byte; and the stable alias must serve the current r2 revision.
  */
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
@@ -71,11 +71,10 @@ test("the committed r2 schema equals a fresh generation and is frozen byte-for-b
   const bytes = readFileSync(committedPath);
   assert.equal(createHash("sha256").update(bytes).digest("hex"), R2_SCHEMA_SHA256);
 
-  // The stable alias must STILL serve r1, byte for byte (RFC 14.9: it moves
-  // only after complete dual-read consumer migration).
+  // Dual-read migration is complete, so the stable alias serves r2 byte for
+  // byte. The immutable r1 file remains independently addressable.
   const aliasBytes = readFileSync(path.join(rootDir, "public", "scan-report.schema.json"));
-  const r1Bytes = readFileSync(path.join(rootDir, "public", "schemas", "scan-report.v2.r1.schema.json"));
-  assert.equal(aliasBytes.equals(r1Bytes), true, "the stable alias must stay on r1");
+  assert.equal(aliasBytes.equals(bytes), true, "the stable alias must be byte-identical to r2");
 });
 
 test("every valid r2 fixture passes both the runtime validator and the generated schema", () => {

@@ -1,9 +1,14 @@
 import { adblockEngineStatus, type AdblockEngineStatus } from "./adblock-engine";
 import { scanAccessTokenConfigured } from "./access-control";
 import { chromiumSandboxEnabled } from "./chromium-sandbox";
+import { CONSENT_VERIFICATION_ENV } from "./consent-verification";
 import { reportStoreStatus } from "./report-store";
 import type { ReportStoreKind } from "./report-store-backend";
 import { producerCapability } from "./report-producers";
+import {
+  publicR2ReportsReadiness,
+  type PublicR2ReportsReadiness
+} from "./runtime-scan-report";
 import { asScanRuntimeHealth, type ScanRuntimeCapabilities } from "./scan-runtime-health";
 import {
   V2_SHADOW_DIR_ENV,
@@ -13,7 +18,6 @@ import {
 
 const SCANNER_EGRESS_ENV = "SITE_BEHAVIOR_LAB_SCANNER_EGRESS";
 const BUILD_COMMIT_ENV = "SITE_BEHAVIOR_LAB_BUILD_COMMIT";
-const CONSENT_VERIFICATION_ENV = "SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION";
 
 // Backend-agnostic public projection: never exposes a filesystem path or an R2
 // bucket/endpoint to /api/health, only the backend kind and shared policy.
@@ -36,6 +40,7 @@ export type RuntimeStatus = {
   authenticated: boolean;
   openAccess: boolean;
   turnstile: boolean;
+  scansAvailable: boolean;
   checks: {
     adblock: RuntimeStatusAdblockCheck;
     chromiumSandbox: "enabled" | "disabled";
@@ -44,6 +49,7 @@ export type RuntimeStatus = {
     reportStore: PublicReportStoreStatus;
     scannerEgress: "configured" | "default";
     consentVerification: "enabled" | "disabled" | "misconfigured";
+    publicR2Reports: Pick<PublicR2ReportsReadiness, "status">;
     v2ShadowEmission: {
       status: "enabled" | "disabled" | "misconfigured";
       backend: "filesystem" | "r2" | "none";
@@ -66,6 +72,15 @@ export async function runtimeStatus(
   const warnings = productionWarnings(store.status);
   const shadow = shadowRuntimeCheck();
   warnings.push(...shadow.warnings);
+  const publicR2Config = publicR2ReportsReadiness();
+  let publicR2Status = publicR2Config.status;
+  if (publicR2Config.status === "misconfigured") {
+    warnings.push(...publicR2Config.issues.map((issue) => `Public r2 reports are not ready: ${issue}`));
+  }
+  if (publicR2Config.status === "enabled" && store.error !== null) {
+    publicR2Status = "misconfigured";
+    warnings.push("Public r2 reports are not ready because required report persistence is unavailable.");
+  }
   const reportStore = store.public;
   if (store.error !== null) {
     warnings.push(`The report store backend is misconfigured and unavailable: ${store.error}`);
@@ -86,6 +101,7 @@ export async function runtimeStatus(
     authenticated,
     openAccess: !authenticated,
     turnstile: false,
+    scansAvailable: publicR2Status !== "misconfigured",
     // Top-level `storage` is the shared-contract field the client status text
     // reads; the Browser Run worker already emits it, and without it here the
     // Node scanner's status line never says where reports live.
@@ -98,6 +114,7 @@ export async function runtimeStatus(
       reportStore,
       scannerEgress: process.env[SCANNER_EGRESS_ENV]?.trim() ? "configured" : "default",
       consentVerification: shadow.consentVerification,
+      publicR2Reports: { status: publicR2Status },
       v2ShadowEmission: shadow.emission
     },
     capabilities: {

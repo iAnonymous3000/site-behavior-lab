@@ -4,18 +4,28 @@ import {
   assertRateLimit,
   QUEUE_TIMEOUT_MS
 } from "./scan-limits";
+import { PublicScanError } from "./public-errors";
 import {
   createConsentComparisonReport,
   createGpcComparisonReport,
   createShieldsComparisonReport,
   type ComparisonExecutedFirst
 } from "./compare-reports";
-import { saveScanReport } from "./report-store";
+import { assertReportStoreAvailable, saveScanReport } from "./report-store";
 import {
   emitShadowComparisonScanReportV2R2,
   emitShadowScanReportV2R2,
   v2ShadowEmissionEnabled
 } from "./scan-report-v2-emission";
+import {
+  buildRuntimeComparisonScanReportV2R2,
+  buildRuntimeScanReportV2R2
+} from "./scan-report-v2-runtime-builder";
+import {
+  requireRuntimeScanReportMode,
+  type RuntimeReportSaver,
+  type RuntimeScanReport
+} from "./runtime-scan-report";
 import { scanSite, type ScanSiteOptions } from "./scanner";
 import type { ConsentMode, ScanDevice, ScanReport, ScanRequestPayload, ScanResult } from "./types";
 import { prepareScanRequest, type PreparedScanRequest } from "./scan-gate";
@@ -23,7 +33,7 @@ import { prepareScanRequest, type PreparedScanRequest } from "./scan-gate";
 export { prepareScanRequest, ScanGate, scanRateLimitCost, type PreparedScanRequest } from "./scan-gate";
 
 export type ScanRunner = (payload: ScanRequestPayload, options?: ScanSiteOptions) => Promise<ScanResult>;
-export type ReportSaver = <T extends ScanReport>(report: T) => Promise<T>;
+export type ReportSaver = RuntimeReportSaver;
 
 export type ScanExecutionControl = {
   signal?: AbortSignal;
@@ -36,7 +46,7 @@ export type ScanExecutionControl = {
   /** Deterministic counterbalancing draw for tests; production draws randomly. */
   drawComparisonFirstArm?: () => ComparisonExecutedFirst;
   /**
-   * Schedule diagnostic work after the v1 publication attempt. The primary
+   * Schedule diagnostic work after the public report publication attempt. The primary
    * result and scan slot never await this work. Tests may inject a collector.
    */
   schedulePostPublication?: (task: () => Promise<unknown>) => void | Promise<unknown>;
@@ -48,7 +58,7 @@ export async function runScanRequest(
   request: Request,
   scan: ScanRunner = scanSite,
   saveReport: ReportSaver = saveScanReport
-): Promise<ScanReport> {
+): Promise<RuntimeScanReport> {
   const prepared = await prepareScanRequest(request);
   return executePreparedScan(prepared, scan, saveReport);
 }
@@ -60,7 +70,10 @@ export async function executePreparedScan(
   queueTimeoutMs = QUEUE_TIMEOUT_MS,
   chargeRateLimit = true,
   control: ScanExecutionControl = {}
-): Promise<ScanReport> {
+): Promise<RuntimeScanReport> {
+  // Resolve before consuming a Chromium slot or scan quota. An explicitly
+  // requested but unready r2 producer must refuse the scan, never emit v1.
+  const reportMode = requireRuntimeScanReportModeForSaver(saveReport);
   const releaseScanSlot = await acquireScanSlot(queueTimeoutMs, control.signal);
   try {
     throwIfCancelled(control.signal);
@@ -88,6 +101,14 @@ export async function executePreparedScan(
         },
         control.signal
       );
+      if (reportMode === "r2") {
+        return saveRuntimeR2Report(
+          buildRuntimeComparisonScanReportV2R2(baseline, variant, executedFirst, "public-api"),
+          saveReport,
+          control,
+          () => emitShadowComparisonScanReportV2R2(baseline, variant, executedFirst, "public-api")
+        );
+      }
       const report = createGpcComparisonReport(baseline, variant, { executedFirst });
       const saved = await saveScanReportBestEffort(report, saveReport, control);
       scheduleShadowEmission(control, () =>
@@ -115,6 +136,14 @@ export async function executePreparedScan(
         },
         control.signal
       );
+      if (reportMode === "r2") {
+        return saveRuntimeR2Report(
+          buildRuntimeComparisonScanReportV2R2(baseline, variant, executedFirst, "public-api"),
+          saveReport,
+          control,
+          () => emitShadowComparisonScanReportV2R2(baseline, variant, executedFirst, "public-api")
+        );
+      }
       const report = createShieldsComparisonReport(baseline, variant, { executedFirst });
       const saved = await saveScanReportBestEffort(report, saveReport, control);
       scheduleShadowEmission(control, () =>
@@ -141,6 +170,14 @@ export async function executePreparedScan(
         },
         control.signal
       );
+      if (reportMode === "r2") {
+        return saveRuntimeR2Report(
+          buildRuntimeComparisonScanReportV2R2(acceptRun, rejectRun, executedFirst, "public-api"),
+          saveReport,
+          control,
+          () => emitShadowComparisonScanReportV2R2(acceptRun, rejectRun, executedFirst, "public-api")
+        );
+      }
       const report = createConsentComparisonReport(acceptRun, rejectRun, { executedFirst });
       const saved = await saveScanReportBestEffort(report, saveReport, control);
       scheduleShadowEmission(control, () =>
@@ -153,6 +190,14 @@ export async function executePreparedScan(
       publicUrlAlreadyVerified: true,
       signal: control.signal
     });
+    if (reportMode === "r2") {
+      return saveRuntimeR2Report(
+        buildRuntimeScanReportV2R2(result, "public-api"),
+        saveReport,
+        control,
+        () => emitShadowScanReportV2R2(result, "public-api")
+      );
+    }
     const saved = await saveScanReportBestEffort(result, saveReport, control);
     scheduleShadowEmission(control, () => emitShadowScanReportV2R2(result, "public-api"));
     return saved;
@@ -162,8 +207,25 @@ export async function executePreparedScan(
 }
 
 /**
+ * Public r2 requires persistence. When production's canonical saver is in use,
+ * reject a broken backend before quota, queue, or Chromium work. Injected test
+ * savers remain independent of deployment storage configuration.
+ */
+export function requireRuntimeScanReportModeForSaver(saveReport: ReportSaver): "v1" | "r2" {
+  const reportMode = requireRuntimeScanReportMode();
+  if (reportMode === "r2" && saveReport === saveScanReport) {
+    try {
+      assertReportStoreAvailable();
+    } catch {
+      throw new PublicScanError("Public r2 report persistence is unavailable.", 503);
+    }
+  }
+  return reportMode;
+}
+
+/**
  * Shadow evidence is deliberately outside the scan's completion contract. A
- * stalled R2/S3 transport must not withhold a v1 response, leave an async job
+ * stalled R2/S3 transport must not withhold the public response, leave an async job
  * running, or consume a scarce Chromium slot. The task owns its own diagnostic
  * logging; this outer guard covers only an unexpected scheduler failure.
  */
@@ -252,6 +314,38 @@ async function saveScanReportBestEffort<T extends ScanReport>(
     console.warn("Failed to save shareable scan report.", error);
     return appendWarning(report, SHARE_SAVE_WARNING);
   }
+}
+
+/**
+ * r2 has no post-builder free-form warning seam. A persistence failure must
+ * therefore propagate instead of mutating a validator-clean report after its
+ * redaction and semantic gates have run.
+ */
+async function saveScanReportRequired<T extends RuntimeScanReport>(
+  report: T,
+  saveReport: ReportSaver,
+  control: ScanExecutionControl
+): Promise<T> {
+  throwIfCancelled(control.signal);
+  control.beforeSave?.();
+  throwIfCancelled(control.signal);
+  const saved = await saveReport(report);
+  throwIfCancelled(control.signal);
+  return saved;
+}
+
+async function saveRuntimeR2Report<T extends RuntimeScanReport>(
+  report: T,
+  saveReport: ReportSaver,
+  control: ScanExecutionControl,
+  shadowTask: () => Promise<unknown>
+): Promise<T> {
+  const saved = await saveScanReportRequired(report, saveReport, control);
+  // Public r2 and private shadow emission are independent rollout controls.
+  // When both are enabled, keep the operator artifact best-effort and off the
+  // response/Chromium critical path exactly as it is for a v1 response.
+  scheduleShadowEmission(control, shadowTask);
+  return saved;
 }
 
 function throwIfCancelled(signal?: AbortSignal): void {

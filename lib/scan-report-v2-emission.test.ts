@@ -5,7 +5,7 @@ import { connect } from "node:net";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { test } from "node:test";
-import { executePreparedScan, type PreparedScanRequest } from "./scan-api";
+import { executePreparedScan, type PreparedScanRequest, type ReportSaver } from "./scan-api";
 import {
   emitShadowComparisonScanReportV2R2,
   emitShadowScanReportV2R2,
@@ -19,7 +19,6 @@ import {
   scanSite,
   stagedSingleVisitMeasurement
 } from "./scanner";
-import type { ScanReport } from "./types";
 
 test("v2ShadowEmissionEnabled reads only the exact opt-in value", () => {
   assert.equal(v2ShadowEmissionEnabled({}), false);
@@ -194,7 +193,7 @@ test("a real visit shadow-emits a validator-clean public r2 wire", { timeout: 30
       compareConsent: false,
       rateLimitCost: 2
     };
-    const keepReport = async <T extends ScanReport>(report: T): Promise<T> => report;
+    const keepReport: ReportSaver = async (report) => report;
     for (const executedFirst of ["baseline", "variant"] as const) {
       const apiPairDir = path.join(shadowDir, `api-${executedFirst}`);
       process.env.SITE_BEHAVIOR_LAB_V2_SHADOW_DIR = apiPairDir;

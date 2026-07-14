@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { adblockListMeta } from "./adblock-engine";
+import { consentInteractionWarning } from "./consent-interaction";
 import { NODE_ADBLOCK_ENGINE_VERSION, NODE_SHIELDS_REQUEST_CONTEXT_VERSION } from "./legacy-methodology";
 import {
   DETECTOR_REGISTRY_DIGEST,
@@ -444,6 +445,26 @@ test("warnings cross the shared scanner-vocabulary boundary", () => {
     "The scan stopped loading additional response bytes after reaching the 64 MiB aggregate response-byte budget.",
     "[redacted warning]"
   ]);
+});
+
+test("verified r2 consent pairs drop the contradictory v1 dispatch-only warning", () => {
+  const input = comparisonInput("consent", "baseline");
+  for (const [arm, mode] of [
+    [input.baseline, "accept-all"],
+    [input.variant, "reject-all"]
+  ] as const) {
+    if (!arm.consent) throw new Error("fixture invariant");
+    arm.consent.cmp = "OneTrust";
+    arm.warnings = [consentInteractionWarning({ mode, clicked: true, cmp: "OneTrust" })];
+  }
+
+  const report = buildNodeComparisonScanReportV2R2(input);
+  assert.equal(report.comparability.interventionVerified, true);
+  assert.equal(report.baseline.evidence.consent?.choiceState, "verified");
+  assert.equal(report.variant.evidence.consent?.choiceState, "verified");
+  for (const warning of [...report.baseline.warnings, ...report.variant.warnings]) {
+    assert.doesNotMatch(warning, /dispatched, not verified as registered/);
+  }
 });
 
 test("the builder sanitizes every raw evidence and consent string at its own boundary", () => {

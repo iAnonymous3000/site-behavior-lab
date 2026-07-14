@@ -77,13 +77,11 @@ export default function MethodologyPage() {
           nothing was.
         </p>
         <p>
-          A consent click is <strong>dispatched, not verified</strong>: the scanner clicks the control but cannot
-          assume the site registered the choice, and each visit&apos;s recording covers traffic from before and
-          after its click. Report wording never attributes traffic to the choice for that reason. When the
-          registered-state readback is enabled on a deployment, the scanner additionally reads the site&apos;s
-          consent-platform state (and may reload the page once, disclosed in the report, with the requests observed
-          during that reload phase excluded from the counts) so a future report generation can distinguish a
-          dispatched click from a registered choice.
+          Legacy v1 reports record only that a consent click was dispatched. R2 reports also record bounded
+          consent-platform readbacks and distinguish a verified registered choice from a contradiction, weak signal,
+          unavailable state, or failed check; one disclosed reload can re-read the state, and requests observed during
+          that reload phase are excluded from the counts. Every visit&apos;s recorded requests still span before and
+          after its click, so even verified r2 wording does not attribute every request to the choice.
         </p>
       </section>
 
@@ -131,12 +129,14 @@ export default function MethodologyPage() {
       <section className="legal-section">
         <h2>The corpus and percentiles</h2>
         <p>
-          Findings like &quot;more third-party domains than about 90% of sites scanned so far&quot; rank a report
+          Findings like &quot;at or above the 90th-percentile mark for third-party domains&quot; compare a report
           against the measured public corpus: one data point per distinct site, using only fully measured visits
-          (failed and recording-capped visits are excluded from the distributions). The corpus is a curated set of
-          popular sites plus a diversity seed list, not a random sample of the web, and the wording says so. Site
-          history pages compare a site only against its own earlier reports with a compatible method, browser,
-          device, and filter snapshot; retention alone never makes two reports comparable.
+          (failed and recording-capped visits are excluded from the distributions). The wording is anchored to the
+          stored percentile mark, not the percentage of sites strictly below a value, because ties can make those
+          different. The corpus is a curated set of popular sites plus a diversity seed list, not a random sample
+          of the web, and the wording says so. Site history pages compare a site only against its own earlier
+          reports with a compatible schema, method, browser, device, and filter snapshot; retention alone never
+          makes two reports comparable.
         </p>
       </section>
 

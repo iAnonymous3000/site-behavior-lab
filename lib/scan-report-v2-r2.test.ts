@@ -2,8 +2,8 @@
  * Types-and-fixtures slice for v2 REVISION 2 (r2-a4, RFC section 15). The r2
  * validator/evaluator arrive in the next slice; these tests pin what this
  * slice guarantees: the fixture corpus is well-formed against the a4 rules it
- * can express, every producer still emits legacy v1, and the frozen r1 schema
- * hash is asserted permanently (scan-report-schema-parity.test.ts).
+ * can express, legacy builders still emit v1, and the frozen r1 schema hash is
+ * asserted permanently (scan-report-schema-parity.test.ts).
  */
 import assert from "node:assert/strict";
 import { test } from "node:test";
@@ -196,7 +196,7 @@ test("the supporting-pair fixture obeys the a4 uniqueness, order, and evidence r
   assert.deepEqual(report.experiment.evidence, { pairs: 2, counterbalanced: true, strength: "observed-difference" });
 });
 
-test("every producer lane still emits legacy v1", () => {
+test("legacy runtime builders remain v1 while the CI publication lane accepts current r2", () => {
   assert.equal(SCAN_REPORT_SCHEMA_VERSION, 1);
 
   // The shared Node builder, exercised for real across all three condition
@@ -241,13 +241,23 @@ test("every producer lane still emits legacy v1", () => {
   assert.equal("schemaRevision" in comparison, false, "v1 wire has no revision field");
 
   // The CI publication lane delegates persistence to the compiled publisher
-  // boundary, which refuses anything but v1 until the r2 producer rollout.
-  // Neither file can be imported here (script + CLI), so the delegation and
-  // the v1-only refusal are asserted at source level.
+  // boundary and dispatches report success/bot-wall evidence by revision. The
+  // executable entrypoints cannot be imported here, so delegation is asserted
+  // at source level; the pure CI gate and CLI integration have dedicated tests.
   const ciScanSource = readFileSync(path.join(process.cwd(), "scripts", "run-ci-scan.mjs"), "utf8");
+  const ciReportGateSource = readFileSync(
+    path.join(process.cwd(), "scripts", "run-ci-scan-report.mjs"),
+    "utf8"
+  );
   assert.equal(ciScanSource.includes("publish-scan-report-cli"), true);
-  assert.equal(ciScanSource.includes("schemaRevision"), false);
+  assert.equal(ciScanSource.includes("isPublishableScanReport"), true);
+  assert.equal(ciScanSource.includes("botBlockReason"), true);
+  assert.equal(ciReportGateSource.includes("response.schemaRevision === 2"), true);
+  assert.equal(ciReportGateSource.includes("run.summary?.counts?.totalRequests"), true);
+  assert.equal(ciReportGateSource.includes("report.experiment.supportingPairs"), true);
   const publisherSource = readFileSync(path.join(process.cwd(), "lib", "publish-scan-report-cli.ts"), "utf8");
-  assert.equal(publisherSource.includes("read.stored.schemaVersion !== 1"), true);
-  assert.equal(publisherSource.includes("committed corpus reports are v1 until the r2 producer rollout"), true);
+  assert.equal(publisherSource.includes("readScanTransportPayload"), true);
+  assert.equal(publisherSource.includes("publicWireForExportOrPersistence"), true);
+  assert.equal(publisherSource.includes('transport.loaded.source === "v2-public"'), true);
+  assert.equal(publisherSource.includes("only v1 and v2/r2 may enter the committed corpus"), true);
 });

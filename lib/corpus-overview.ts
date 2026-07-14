@@ -79,7 +79,7 @@ export type DirectoryEntry = {
   requestedUrl: string;
   /** Lead run's final URL after redirects; a different landing page is a different subject. */
   finalUrl: string;
-  /** Wire schema generation of the stored report (rows stay 1 until producers emit v2). */
+  /** Wire schema generation of the stored report. */
   schemaVersion: 1 | 2;
   /** v2 schema revision; null on v1 reports. */
   schemaRevision: 1 | 2 | null;

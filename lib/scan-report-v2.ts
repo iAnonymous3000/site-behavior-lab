@@ -2,8 +2,8 @@
  * ScanReport v2 revision 1 wire types, as specified by the accepted RFC
  * (docs/scan-report-v2-rfc.md). These types are the source of truth for the v2
  * runtime validator (lib/scan-report-v2-validation.ts) and the generated JSON
- * Schema. v1 stays frozen in lib/types.ts; nothing here is emitted by any
- * producer yet (RFC section 14: readers land before emission).
+ * Schema. v1 stays frozen in lib/types.ts; public r2 production composes these
+ * unchanged r1 foundations through the revision-2 types.
  *
  * Normative-vs-non-normative status follows RFC section 10.5: the shapes here
  * are the normative r1 contract except ComparisonDiffV2, which is

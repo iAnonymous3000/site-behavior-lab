@@ -5,6 +5,8 @@ import {
   recoverDurableScanJobResponse
 } from "./durable-scan-job-recovery";
 import type { DurableScanJobRegistration } from "./durable-scan-job-registry";
+import { makeShieldsInterventionReportV2R2 } from "./scan-report-v2-r2-fixtures";
+import { makeScanReportV1 } from "./scan-report-v2-fixtures";
 
 const JOB_ID = `20260713-${"a".repeat(32)}`;
 const REPORT_ID = `20260713-${"b".repeat(32)}`;
@@ -16,7 +18,7 @@ const REGISTRATION: DurableScanJobRegistration = {
 };
 
 test("known persisted jobs recover as succeeded with the saved report", async () => {
-  const report = { ok: true, schemaVersion: 1, reportType: "comparison" };
+  const report = makeScanReportV1();
   const response = await recover({ reportResponse: Response.json(report) });
 
   assert.equal(response.status, 200);
@@ -28,6 +30,23 @@ test("known persisted jobs recover as succeeded with the saved report", async ()
     progress: { phase: "saving", completedRuns: 2, totalRuns: 2 },
     report
   });
+});
+
+test("known r2 jobs recover as succeeded without a root ok and preserve the exact report", async () => {
+  const report = makeShieldsInterventionReportV2R2();
+  const response = await recover({ reportResponse: Response.json(report) });
+
+  assert.equal(response.status, 200);
+  const recovered = await response.json();
+  assert.deepEqual(recovered, {
+    ok: true,
+    jobId: JOB_ID,
+    status: "succeeded",
+    progress: { phase: "saving", completedRuns: 2, totalRuns: 2 },
+    report
+  });
+  assert.deepEqual(recovered.report, report);
+  assert.equal("ok" in recovered.report, false);
 });
 
 test("known jobs with no saved report recover as explicit restart expiry", async () => {

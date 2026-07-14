@@ -1,5 +1,6 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { committedReportCreatedAt } from "./committed-report-created-at";
 import { buildStaticReportShare } from "./report-locator";
 import {
   buildProvenanceEntry,
@@ -8,16 +9,18 @@ import {
 import { REPORT_ID_PATTERN } from "./report-validation";
 import { readManagedReport } from "./managed-report-reader";
 import { readStoredScanReport } from "./scan-report-reader";
-import { toPublicScanReportV1 } from "./scan-report-v1-projection";
+import { publicWireForExportOrPersistence, readScanTransportPayload } from "./scan-report-view";
+import { NODE_SCAN_REPORT_V2_R2_MAX_PUBLIC_BYTES } from "./scan-report-v2-r2-limits";
 
 /**
  * THE persistence boundary for CI-produced committed reports (RFC 14.8/9.2):
  * scripts/run-ci-scan.mjs pipes the scan API's JSON through this compiled CLI
  * instead of spread-copying it into public/reports/. The payload must pass
- * the canonical version-aware deep reader, is then projected through the
- * named-field v1 projector (screenshots dropped, unknown/smuggled fields
+ * the canonical version-aware transport reader, is then projected through the
+ * public persistence boundary (screenshots dropped, unknown/smuggled fields
  * impossible), gets the canonical public share pointer for its id, and is
- * re-validated before a single byte is written.
+ * re-validated before a single byte is written. The committed rollout accepts
+ * frozen v1 and validator-clean v2/r2; v2/r1 remains read-only compatibility.
  *
  *   node dist/schema/lib/publish-scan-report-cli.js <input.json> <output.json> <report-id>
  *
@@ -36,37 +39,47 @@ async function main(): Promise<void> {
   }
 
   const parsed = JSON.parse(await readFile(inputPath, "utf8")) as unknown;
-  const read = readStoredScanReport(parsed);
-  if (!read.ok) {
-    throw new Error(
-      `Refusing to publish: the scan result is not a readable report (${read.error}${read.violations ? `: ${read.violations[0]}` : ""}).`
-    );
+  const transport = readScanTransportPayload(parsed);
+  if (transport.kind !== "report") {
+    const detail =
+      transport.kind === "unreadable"
+        ? `${transport.error}${transport.violations ? `: ${transport.violations[0]}` : ""}`
+        : transport.kind === "api-error" || transport.kind === "job-ended"
+          ? transport.message
+          : `scan job is still ${transport.status}`;
+    throw new Error(`Refusing to publish: the scan result is not a readable report (${detail}).`);
   }
-  if (read.stored.schemaVersion !== 1) {
-    throw new Error("Refusing to publish: committed corpus reports are v1 until the r2 producer rollout (RFC 14 step 12).");
+  if (transport.loaded.source === "v2-public" || transport.loaded.source === "v2-ephemeral") {
+    throw new Error("Refusing to publish: v2/r1 is compatibility-readable but only v1 and v2/r2 may enter the committed corpus.");
   }
 
-  // Apply both defenses after attaching the generated capability paths: deep
-  // named-field projection drops anything the tolerant v1 reader did not
-  // recognize, and the idempotent sanitizer minimizes every retained field
-  // and rederives comparison diffs from the sanitized arms.
-  const publicReport = toPublicScanReportV1({
-    ...toPublicScanReportV1(read.stored.report),
+  // The transport reader proves the input generation and semantics. The
+  // persistence projector then strips ephemeral screenshot shells and applies
+  // the frozen v1 allowlist/sanitizer before the generated capability paths
+  // are attached.
+  const publicCandidate = {
+    ...publicWireForExportOrPersistence(transport.loaded),
     share: buildStaticReportShare(reportId)
-  });
+  };
 
   // Belt and braces: the exact bytes about to be committed must round-trip
   // through the same reader every consumer uses.
-  const wire = `${JSON.stringify(publicReport, null, 2)}\n`;
+  const wire = `${JSON.stringify(publicCandidate, null, 2)}\n`;
+  if (
+    (transport.loaded.source === "v2-r2-public" || transport.loaded.source === "v2-r2-ephemeral") &&
+    Buffer.byteLength(wire, "utf8") > NODE_SCAN_REPORT_V2_R2_MAX_PUBLIC_BYTES
+  ) {
+    throw new Error(
+      `Refusing to publish: projected v2/r2 report exceeds the ${NODE_SCAN_REPORT_V2_R2_MAX_PUBLIC_BYTES}-byte public limit.`
+    );
+  }
   const reread = readStoredScanReport(JSON.parse(wire));
   if (!reread.ok) {
     throw new Error(`Projected report failed re-validation (${reread.error}); refusing to publish.`);
   }
+  const publicReport = reread.stored.report;
 
-  const createdAt =
-    publicReport.reportType === "comparison"
-      ? publicReport.scannedAt
-      : publicReport.conditions.scannedAt;
+  const createdAt = committedReportCreatedAt(reread.stored);
   const provenance = buildProvenanceEntry({
     reportId,
     publicReport,

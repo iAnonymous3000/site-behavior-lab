@@ -31,6 +31,7 @@ test("isScanRuntimeHealth accepts the private shadow readiness projection", () =
       ok: true,
       checks: {
         consentVerification: "enabled",
+        publicR2Reports: { status: "enabled" },
         v2ShadowEmission: { status: "enabled", backend: "r2" }
       }
     }),
@@ -49,6 +50,7 @@ test("isScanRuntimeHealth rejects malformed payloads", () => {
   assert.equal(isScanRuntimeHealth({ ok: true, warnings: ["ok", 1] }), false);
   assert.equal(isScanRuntimeHealth({ ok: true, checks: { scanAccess: "broken" } }), false);
   assert.equal(isScanRuntimeHealth({ ok: true, checks: { consentVerification: "sometimes" } }), false);
+  assert.equal(isScanRuntimeHealth({ ok: true, checks: { publicR2Reports: { status: "sometimes" } } }), false);
   assert.equal(
     isScanRuntimeHealth({ ok: true, checks: { v2ShadowEmission: { status: "enabled", backend: "public" } } }),
     false

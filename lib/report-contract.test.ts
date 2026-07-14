@@ -2,15 +2,17 @@ import assert from "node:assert/strict";
 import { readdir } from "node:fs/promises";
 import path from "node:path";
 import { test } from "node:test";
+import { committedReportCreatedAt } from "./committed-report-created-at";
 import { createGpcComparisonReport } from "./compare-reports";
 import { pageGraphToScanResult } from "./pagegraph-adapter";
 import { REPORT_PRODUCER_CAPABILITIES } from "./report-producers";
 import { isScanReport } from "./report-validation";
+import type { StoredScanReport } from "./scan-report-reader";
 import {
   listDanglingStaticSidecarIds,
   readStaticReportBundle
 } from "./static-report-files";
-import { SCAN_REPORT_SCHEMA_VERSION, type ScanConditions, type ScanReport, type ScanRequestPayload, type ScanResult } from "./types";
+import { SCAN_REPORT_SCHEMA_VERSION, type ScanRequestPayload, type ScanResult } from "./types";
 
 const DISALLOWED_STATIC_CATALOG_VALUES = new Set([
   "DuckDuckGo Tracker Radar + curated overrides",
@@ -18,7 +20,7 @@ const DISALLOWED_STATIC_CATALOG_VALUES = new Set([
   "brave-curated-2026.06"
 ]);
 
-test("static fixture reports use the current ScanReport schema", async () => {
+test("static fixture reports are current version-aware managed reports", async () => {
   const reportsDir = path.join(process.cwd(), "public", "reports");
   const reportFiles = (await readdir(reportsDir)).filter((file) => /^\d{8}-[a-f0-9]{32}\.json$/.test(file));
 
@@ -31,12 +33,12 @@ test("static fixture reports use the current ScanReport schema", async () => {
     if (managed.outcome !== "found") {
       assert.fail(`${file} should be a current managed report (${managed.outcome === "unreadable" ? managed.reason : managed.outcome})`);
     }
-    const report = JSON.parse(managed.wire) as unknown;
-    if (!isScanReport(report)) {
-      assert.fail(`${file} should be a current ScanReport`);
-    }
-
-    for (const catalog of trackerCatalogsForReport(report)) {
+    assert.equal(
+      managed.provenance.createdAt,
+      committedReportCreatedAt(managed.stored),
+      `${file} has a provenance clock that does not cover every embedded run`
+    );
+    for (const catalog of trackerCatalogsForStoredReport(managed.stored)) {
       assert.equal(DISALLOWED_STATIC_CATALOG_VALUES.has(catalog.source), false, `${file} has stale tracker catalog source`);
       assert.equal(DISALLOWED_STATIC_CATALOG_VALUES.has(catalog.version), false, `${file} has stale tracker catalog version`);
     }
@@ -275,12 +277,29 @@ test("report producer capability matrix captures intentional runtime gaps", () =
   assert.equal(capabilities.get("pagegraph")?.reportStore, "caller-managed");
 });
 
-function trackerCatalogsForReport(report: ScanReport): ScanConditions["trackerCatalog"][] {
-  if (report.reportType === "comparison") {
-    return [report.baseline.conditions.trackerCatalog, report.variant.conditions.trackerCatalog];
+function trackerCatalogsForStoredReport(stored: StoredScanReport): Array<{ source: string; version: string }> {
+  if (stored.schemaVersion === 1) {
+    if (stored.report.reportType === "comparison") {
+      return [stored.report.baseline.conditions.trackerCatalog, stored.report.variant.conditions.trackerCatalog];
+    }
+    return [stored.report.conditions.trackerCatalog];
   }
 
-  return [report.conditions.trackerCatalog];
+  if (stored.report.reportType === "single") return [stored.report.run.toolchain.trackerCatalog];
+
+  const catalogs = [
+    stored.report.baseline.toolchain.trackerCatalog,
+    stored.report.variant.toolchain.trackerCatalog
+  ];
+  if (
+    stored.schemaRevision === 2 &&
+    stored.report.experiment.kind === "intervention"
+  ) {
+    for (const pair of stored.report.experiment.supportingPairs ?? []) {
+      catalogs.push(pair.baseline.toolchain.trackerCatalog, pair.variant.toolchain.trackerCatalog);
+    }
+  }
+  return catalogs;
 }
 
 function makeScanResult(payload: ScanRequestPayload): ScanResult {

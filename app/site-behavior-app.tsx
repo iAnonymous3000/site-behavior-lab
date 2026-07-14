@@ -87,12 +87,11 @@ import {
 import type { LoadedReport } from "@/lib/scan-report-view";
 import { REPORT_ID_PATTERN } from "@/lib/report-validation";
 import { safeNavigableHttpUrl } from "@/lib/report-url";
+import type { RuntimeScanApiResponse, RuntimeScanJobApiResponse } from "@/lib/runtime-scan-report";
 import type {
   ComparisonScanResult,
   ReportShare,
-  ScanApiResponse,
   ScanDevice,
-  ScanJobApiResponse,
   ScanJobSubmissionResponse,
   ScanReport,
   StaticReportManifestEntry
@@ -409,8 +408,8 @@ export function SiteBehaviorApp({
           ...(turnstileRequired && turnstileToken ? { turnstileToken } : {})
         })
       });
-      const payload = (await response.json()) as ScanApiResponse;
-      if (!payload.ok) throw new Error(payload.error);
+      const payload = (await response.json()) as RuntimeScanApiResponse;
+      if ("ok" in payload && payload.ok === false) throw new Error(payload.error);
       if (isScanJobSubmissionResponse(payload)) {
         const jobAccessKey = scannerRequiresAccessKey ? accessKey : "";
         const pollController = new AbortController();
@@ -456,7 +455,7 @@ export function SiteBehaviorApp({
         cache: "no-store",
         headers
       });
-      const payload = (await response.json()) as ScanJobApiResponse;
+      const payload = (await response.json()) as RuntimeScanJobApiResponse;
       if (!payload.ok) throw new Error(payload.error);
       if (payload.status !== "cancelled") throw new Error("The scan could not be cancelled.");
 
@@ -1302,7 +1301,7 @@ async function pollScanJob(
     }
 
     const response = await fetch(scannerApiUrl(statusPath), { cache: "no-store", headers, signal });
-    const payload = (await response.json()) as ScanJobApiResponse;
+    const payload = (await response.json()) as RuntimeScanJobApiResponse;
     if (!payload.ok) {
       if (response.status === 404 && savedReportId) {
         const recovered = await readSavedReport(savedReportId);
@@ -1358,8 +1357,14 @@ function scanJobIdFromStatusPath(statusPath: string): string | null {
   return REPORT_ID_PATTERN.test(id) ? id : null;
 }
 
-function isScanJobSubmissionResponse(value: ScanApiResponse): value is ScanJobSubmissionResponse {
-  return value.ok === true && "jobId" in value && value.status === "queued" && typeof value.statusPath === "string";
+function isScanJobSubmissionResponse(value: RuntimeScanApiResponse): value is ScanJobSubmissionResponse {
+  return (
+    "ok" in value &&
+    value.ok === true &&
+    "jobId" in value &&
+    value.status === "queued" &&
+    typeof value.statusPath === "string"
+  );
 }
 
 function sleep(ms: number, signal?: AbortSignal): Promise<void> {

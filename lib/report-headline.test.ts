@@ -3,7 +3,8 @@ import { test } from "node:test";
 import { createConsentComparisonReport, createGpcComparisonReport, createShieldsComparisonReport } from "./compare-reports";
 import { displayableScreenshot } from "./report-insights";
 import { buildReportHeadline, reportPageTitle } from "./report-headline";
-import { viewFromV1Report } from "./scan-report-views";
+import { makeConsentInterventionReportV2R2 } from "./scan-report-v2-r2-fixtures";
+import { viewFromV1Report, viewFromV2 } from "./scan-report-views";
 import {
   SCAN_REPORT_SCHEMA_VERSION,
   type DomainSummary,
@@ -520,9 +521,29 @@ test("trackers surviving a real Reject all click lead the consent-comparison hea
   // no sentence may sequence the traffic relative to the click.
   assert.match(headline.subhead, /In the visit where the scanner clicked Reject all/);
   assert.match(headline.subhead, /before and after the click/);
-  assert.match(headline.subhead, /never verified/);
+  assert.match(headline.subhead, /v1 report records only/);
+  assert.match(headline.subhead, /cannot verify/);
+  assert.match(headline.subhead, /legitimate interest/);
   assert.doesNotMatch(headline.subhead, /After the scanner clicked/);
   assert.equal(headline.focusArm, "variant");
+});
+
+test("a verified r2 consent headline states registration without dropping whole-visit caveats", () => {
+  const view = viewFromV2(makeConsentInterventionReportV2R2(), 2);
+  const variant = view.runs.find((run) => run.label === "variant");
+  if (!variant) throw new Error("fixture invariant");
+  variant.evidence.domains = [makeTrackerDomain("google-analytics.com", 3, "Google", "analytics")];
+  variant.counts.knownTrackerRequests = 3;
+  variant.counts.thirdPartyRequests = 3;
+  variant.counts.thirdPartyDomains = 1;
+
+  const headline = buildReportHeadline(view);
+  assert.match(headline.subhead, /verified that the site registered Reject all/);
+  assert.match(headline.subhead, /again after one page reload/);
+  assert.match(headline.subhead, /pre-choice traffic/);
+  assert.match(headline.subhead, /strictly necessary/);
+  assert.match(headline.subhead, /legitimate interest/);
+  assert.doesNotMatch(headline.subhead, /never verified|cannot verify/);
 });
 
 test("a clean reject run headlines that the consent choice made a difference", () => {

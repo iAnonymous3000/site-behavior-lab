@@ -18,6 +18,7 @@ import {
   trackerEntitySummaries
 } from "./report-insights";
 import { plural } from "./text-format";
+import { CONSENT_WHOLE_VISIT_CAVEAT, consentRegistrationSentence } from "./report-consent-copy";
 
 /**
  * Plain-language "headline" layer.
@@ -207,24 +208,24 @@ export function buildReportHeadline(view: ReportView): ReportHeadline {
   // Claims are gated on the reject click having really been dispatched AND on
   // the pair claim gate; when either fails, the report falls through to the
   // ordinary evidence-led headline instead of pretending the choice was
-  // measured. The scanner clicks the control but cannot verify the site
-  // accepted the choice, and recording covers the whole visit including
-  // pre-click traffic, so the wording stays observational.
+  // measured. Registration wording comes from the recorded consent state;
+  // even verified r2 evidence does not make the whole request log post-choice.
   if (classificationDeltasUsable && arms && axis === "consent" && arms.variant.consent?.controlActivated === true) {
     const rejectTracking = trackerEntitySummaries(arms.variant.evidence).filter((entity) => !isOperationalEntity(entity));
     // Both consent headlines describe the Reject-all (variant) visit, so the
     // stat chips and share text must quote that run too, not the Accept-all
     // baseline the report otherwise leads with. "In the visit where the
     // scanner clicked", never "after the click": the recording covers traffic
-    // from before and after an unverified click, so no sentence may sequence
-    // the traffic relative to it.
+    // from before and after the click, so no sentence may sequence every
+    // request relative to it even when r2 verified the registered state.
+    const registration = consentRegistrationSentence(view, arms.variant.consent, "Reject all");
     if (rejectTracking.length > 0) {
       return finish(
         "warn",
         `${domain} still reached ${plural(rejectTracking.length, "tracking company", "tracking companies")} in the visit that clicked Reject all.`,
         `In the visit where the scanner clicked Reject all, ${joinNames(
           rejectTracking.map((entity) => entity.entity)
-        )} received requests. The recording covers traffic from before and after the click, the click's acceptance by the site is never verified, and some vendors may be claimed as strictly necessary; the diff lists the services that appeared only in the visit that clicked Accept all.`,
+        )} received requests. ${registration} ${CONSENT_WHOLE_VISIT_CAVEAT} The diff lists the services that appeared only in the visit that clicked Accept all.`,
         buildStats(arms.variant, rejectTracking.length),
         "variant"
       );
@@ -237,7 +238,7 @@ export function buildReportHeadline(view: ReportView): ReportHeadline {
           trackingEntities.length,
           "tracking company",
           "tracking companies"
-        )}: ${plural(arms.baseline.counts.thirdPartyRequests, "third-party request")} became ${arms.variant.counts.thirdPartyRequests.toLocaleString("en-US")}.`,
+        )}: ${plural(arms.baseline.counts.thirdPartyRequests, "third-party request")} became ${arms.variant.counts.thirdPartyRequests.toLocaleString("en-US")}. ${registration} ${CONSENT_WHOLE_VISIT_CAVEAT}`,
         buildStats(arms.variant, 0),
         "variant"
       );

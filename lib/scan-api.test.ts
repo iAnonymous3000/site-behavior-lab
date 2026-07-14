@@ -3,10 +3,30 @@ import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, test } from "node:test";
+import { CONSENT_VERIFICATION_ENV } from "./consent-verification";
 import { PublicScanError } from "./public-errors";
 import { RATE_LIMIT_MAX, resetScanLimitStateForTests, scanLimitStateForTests } from "./scan-limits";
-import { executePreparedScan, prepareScanRequest, runScanRequest, type PreparedScanRequest, type ScanRunner } from "./scan-api";
-import { readStoredScanReportById } from "./report-store";
+import {
+  executePreparedScan,
+  prepareScanRequest,
+  runScanRequest,
+  type PreparedScanRequest,
+  type ReportSaver,
+  type ScanRunner
+} from "./scan-api";
+import { readStoredScanReportById, saveScanReport } from "./report-store";
+import {
+  makeConsentInterventionReportV2R2,
+  makeGpcInterventionReportV2R2,
+  makePublicSingleReportV2R2,
+  makeShieldsInterventionReportV2R2
+} from "./scan-report-v2-r2-fixtures";
+import { scanResultWithStagedR2Run } from "./scan-report-v2-runtime-fixtures";
+import {
+  BUILD_COMMIT_ENV,
+  PUBLIC_R2_REPORTS_ENV,
+  type RuntimeScanReport
+} from "./runtime-scan-report";
 import { SCAN_REPORT_SCHEMA_VERSION, type ScanReport, type ScanRequestPayload, type ScanResult } from "./types";
 
 // Reads through the typed accessor, narrowing to v1 exactly as production
@@ -19,6 +39,13 @@ async function readV1Report(id: string) {
 
 const SCAN_ACCESS_TOKEN_ENV = "SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN";
 const REPORT_STORE_DIR_ENV = "SITE_BEHAVIOR_LAB_REPORT_STORE_DIR";
+const REPORT_STORE_BACKEND_ENV = "SITE_BEHAVIOR_LAB_REPORT_STORE_BACKEND";
+const R2_ENVS = [
+  "SITE_BEHAVIOR_LAB_R2_BUCKET",
+  "SITE_BEHAVIOR_LAB_R2_ENDPOINT",
+  "SITE_BEHAVIOR_LAB_R2_ACCESS_KEY_ID",
+  "SITE_BEHAVIOR_LAB_R2_SECRET_ACCESS_KEY"
+] as const;
 
 // Route report writes to a per-test temp dir; never touch (or delete) the
 // repo's real `.site-behavior-lab` default store, which may hold a developer's
@@ -33,6 +60,12 @@ beforeEach(async () => {
 afterEach(async () => {
   delete process.env[SCAN_ACCESS_TOKEN_ENV];
   delete process.env[REPORT_STORE_DIR_ENV];
+  delete process.env[PUBLIC_R2_REPORTS_ENV];
+  delete process.env[BUILD_COMMIT_ENV];
+  delete process.env[CONSENT_VERIFICATION_ENV];
+  delete process.env.SITE_BEHAVIOR_LAB_V2_SHADOW_EMISSION;
+  delete process.env[REPORT_STORE_BACKEND_ENV];
+  for (const name of R2_ENVS) delete process.env[name];
   resetScanLimitStateForTests();
   await rm(reportDir, { recursive: true, force: true });
 });
@@ -63,9 +96,11 @@ test("runScanRequest accepts authorized scans", async () => {
   process.env[SCAN_ACCESS_TOKEN_ENV] = "secret-key";
   const scan: ScanRunner = async (payload) => makeScanResult(payload);
 
-  const result = await runScanRequest(
-    makeScanRequest("https://1.1.1.1/", {}, { "x-site-behavior-lab-access-token": "secret-key" }),
-    scan
+  const result = expectV1Report(
+    await runScanRequest(
+      makeScanRequest("https://1.1.1.1/", {}, { "x-site-behavior-lab-access-token": "secret-key" }),
+      scan
+    )
   );
 
   assert.equal(result.ok, true);
@@ -164,7 +199,7 @@ test("executePreparedScan charges rate limits only after acquiring a scan slot",
     return makeScanResult(payload);
   };
 
-  const result = await executePreparedScan(prepared, scan, async (report) => report);
+  const result = expectV1Report(await executePreparedScan(prepared, scan, async (report) => report));
 
   assert.equal(result.ok, true);
   assert.deepEqual(scannedPayloads, [
@@ -203,18 +238,20 @@ test("post-publication shadow work cannot hold the v1 result or scan slot", { ti
   let scheduled = 0;
   process.env.SITE_BEHAVIOR_LAB_V2_SHADOW_EMISSION = "1";
   try {
-    const result = await executePreparedScan(
-      prepared,
-      async (payload) => makeScanResult(payload),
-      async (report) => report,
-      undefined,
-      false,
-      {
-        schedulePostPublication: () => {
-          scheduled += 1;
-          return new Promise(() => {});
+    const result = expectV1Report(
+      await executePreparedScan(
+        prepared,
+        async (payload) => makeScanResult(payload),
+        async (report) => report,
+        undefined,
+        false,
+        {
+          schedulePostPublication: () => {
+            scheduled += 1;
+            return new Promise(() => {});
+          }
         }
-      }
+      )
     );
     assert.equal(result.ok, true);
     assert.equal(scheduled, 1);
@@ -245,7 +282,9 @@ test("runScanRequest does not charge rate limit quota for blocked target URLs", 
     trackedReportReadClients: 0
   });
 
-  const result = await runScanRequest(makeScanRequest("https://1.1.1.1/?token=still-scanned"), scan);
+  const result = expectV1Report(
+    await runScanRequest(makeScanRequest("https://1.1.1.1/?token=still-scanned"), scan)
+  );
 
   assert.equal(result.ok, true);
   assert.equal(result.share?.path.startsWith("/reports/"), true);
@@ -286,7 +325,9 @@ test("runScanRequest can run and persist a GPC off/on comparison", async () => {
     return makeScanResult(payload, payload.gpcEnabled ? 3 : 5);
   };
 
-  const result = await runScanRequest(makeScanRequest("https://1.1.1.1/", { compareGpc: true }), scan);
+  const result = expectV1Report(
+    await runScanRequest(makeScanRequest("https://1.1.1.1/", { compareGpc: true }), scan)
+  );
 
   assert.equal(result.reportType, "comparison");
   // Execution order is a randomized counterbalancing draw; both arms always run.
@@ -325,9 +366,11 @@ test("executePreparedScan honors the drawn arm order in both directions", async 
       rateLimitCost: 2
     };
 
-    const result = await executePreparedScan(prepared, scan, async (report) => report, undefined, true, {
-      drawComparisonFirstArm: () => executedFirst
-    });
+    const result = expectV1Report(
+      await executePreparedScan(prepared, scan, async (report) => report, undefined, true, {
+        drawComparisonFirstArm: () => executedFirst
+      })
+    );
 
     if (result.reportType !== "comparison") throw new Error("expected comparison report");
     assert.deepEqual(
@@ -344,6 +387,197 @@ test("executePreparedScan honors the drawn arm order in both directions", async 
   }
 });
 
+test("the public r2 gate returns and persists a single plus every comparison axis", async () => {
+  enablePublicR2();
+
+  for (const kind of ["single", "gpc", "shields", "consent"] as const) {
+    const prepared: PreparedScanRequest = {
+      clientKey: `public-r2-${kind}`,
+      url: "https://shop.example.com/products/runtime-private",
+      device: "desktop",
+      gpcEnabled: true,
+      compareGpc: kind === "gpc",
+      compareShields: kind === "shields",
+      compareConsent: kind === "consent",
+      rateLimitCost: kind === "single" ? 1 : 2
+    };
+    const scan: ScanRunner = async (payload, options) => {
+      if (kind === "single") {
+        return scanResultWithStagedR2Run(makePublicSingleReportV2R2().run, `data:image/png;base64,${kind}`);
+      }
+      if (kind === "gpc") {
+        const fixture = makeGpcInterventionReportV2R2();
+        return scanResultWithStagedR2Run(payload.gpcEnabled ? fixture.variant : fixture.baseline, `data:image/png;base64,${kind}`);
+      }
+      if (kind === "shields") {
+        const fixture = makeShieldsInterventionReportV2R2();
+        return scanResultWithStagedR2Run(
+          options?.shieldsBlockingEnabled ? fixture.variant : fixture.baseline,
+          `data:image/png;base64,${kind}`
+        );
+      }
+      const fixture = makeConsentInterventionReportV2R2();
+      return scanResultWithStagedR2Run(
+        payload.consentMode === "reject-all" ? fixture.variant : fixture.baseline,
+        `data:image/png;base64,${kind}`
+      );
+    };
+
+    const result = await executePreparedScan(prepared, scan, saveScanReport, undefined, false, {
+      drawComparisonFirstArm: () => "baseline"
+    });
+    assert.equal(result.schemaVersion, 2);
+    if (result.schemaVersion !== 2) throw new Error("expected public r2 result");
+    assert.equal(result.schemaRevision, 2);
+    assert.match(result.share?.id ?? "", /^[0-9]{8}-[0-9a-f]{32}$/);
+    if (kind === "single") {
+      assert.equal(result.reportType, "single");
+      if (result.reportType !== "single") throw new Error("expected r2 single");
+      assert.equal(result.ephemeral.screenshot, `data:image/png;base64,${kind}`);
+    } else {
+      assert.equal(result.reportType, "comparison");
+      if (result.reportType !== "comparison") throw new Error("expected r2 comparison");
+      assert.equal(result.experiment.kind, "intervention");
+      if (result.experiment.kind !== "intervention") throw new Error("expected intervention");
+      assert.equal(result.experiment.axis, kind);
+      assert.equal(result.ephemeral.baselineScreenshot, `data:image/png;base64,${kind}`);
+      assert.equal(result.ephemeral.variantScreenshot, `data:image/png;base64,${kind}`);
+    }
+
+    const stored = await readStoredScanReportById(result.share?.id ?? "");
+    assert.equal(stored.outcome, "found");
+    if (stored.outcome !== "found") throw new Error("expected stored r2 report");
+    assert.equal(stored.stored.schemaVersion, 2);
+    if (stored.stored.schemaVersion !== 2) throw new Error("expected stored r2 report");
+    assert.equal(stored.stored.schemaRevision, 2);
+    assert.equal("ephemeral" in JSON.parse(stored.wire), false);
+  }
+});
+
+test("public r2 failures never fall back to or persist a v1 report", async () => {
+  enablePublicR2();
+  const prepared: PreparedScanRequest = {
+    clientKey: "public-r2-no-fallback",
+    url: "https://1.1.1.1/",
+    device: "desktop",
+    gpcEnabled: true,
+    compareGpc: false,
+    compareShields: false,
+    compareConsent: false,
+    rateLimitCost: 1
+  };
+  let scanCalls = 0;
+  let saveCalls = 0;
+  const save: ReportSaver = async (report) => {
+    saveCalls += 1;
+    return report;
+  };
+
+  await assert.rejects(
+    () =>
+      executePreparedScan(
+        prepared,
+        async (payload) => {
+          scanCalls += 1;
+          return makeScanResult(payload);
+        },
+        save,
+        undefined,
+        false
+      ),
+    /missing its process-local r2 measurement facts/
+  );
+  assert.equal(scanCalls, 1);
+  assert.equal(saveCalls, 0);
+
+  delete process.env[CONSENT_VERIFICATION_ENV];
+  scanCalls = 0;
+  await assert.rejects(
+    () => executePreparedScan(prepared, async (payload) => {
+      scanCalls += 1;
+      return makeScanResult(payload);
+    }, save, undefined, false),
+    (error) => error instanceof PublicScanError && error.status === 503 && /CONSENT_VERIFICATION/.test(error.message)
+  );
+  assert.equal(scanCalls, 0);
+  assert.equal(saveCalls, 0);
+});
+
+test("public r2 keeps independently enabled shadow emission off the response path", async () => {
+  enablePublicR2();
+  process.env.SITE_BEHAVIOR_LAB_V2_SHADOW_EMISSION = "1";
+  let scheduled = 0;
+  const result = await executePreparedScan(
+    {
+      clientKey: "public-r2-plus-shadow",
+      url: "https://shop.example.com/",
+      device: "desktop",
+      gpcEnabled: true,
+      compareGpc: false,
+      compareShields: false,
+      compareConsent: false,
+      rateLimitCost: 1
+    },
+    async () => scanResultWithStagedR2Run(makePublicSingleReportV2R2().run),
+    async (report) => report,
+    undefined,
+    false,
+    {
+      schedulePostPublication: () => {
+        scheduled += 1;
+        return new Promise(() => {});
+      }
+    }
+  );
+  assert.equal(result.schemaVersion, 2);
+  assert.equal(scheduled, 1);
+  assert.equal(scanLimitStateForTests().activeScans, 0);
+});
+
+test("public r2 preflights default persistence before scan quota or Chromium", async () => {
+  enablePublicR2();
+  process.env[REPORT_STORE_BACKEND_ENV] = "r2";
+  let scanCalls = 0;
+  const scan: ScanRunner = async () => {
+    scanCalls += 1;
+    return scanResultWithStagedR2Run(makePublicSingleReportV2R2().run);
+  };
+
+  await assert.rejects(
+    () => runScanRequest(makeScanRequest("https://1.1.1.1/"), scan),
+    (error) =>
+      error instanceof PublicScanError &&
+      error.status === 503 &&
+      error.message === "Public r2 report persistence is unavailable."
+  );
+  assert.equal(scanCalls, 0);
+  assert.deepEqual(scanLimitStateForTests(), {
+    activeScans: 0,
+    queuedScans: 0,
+    trackedClients: 0,
+    trackedReportReadClients: 0
+  });
+
+  const injected = await executePreparedScan(
+    {
+      clientKey: "public-r2-injected-store",
+      url: "https://1.1.1.1/",
+      device: "desktop",
+      gpcEnabled: true,
+      compareGpc: false,
+      compareShields: false,
+      compareConsent: false,
+      rateLimitCost: 1
+    },
+    scan,
+    async (report) => report,
+    undefined,
+    false
+  );
+  assert.equal(injected.schemaVersion, 2);
+  assert.equal(scanCalls, 1);
+});
+
 test("runScanRequest can run and persist a Shields off/on comparison", async () => {
   const scannedPayloads: ScanRequestPayload[] = [];
   const scanOptions: unknown[] = [];
@@ -353,7 +587,9 @@ test("runScanRequest can run and persist a Shields off/on comparison", async () 
     return makeScanResult(payload, options?.shieldsBlockingEnabled ? 3 : 8);
   };
 
-  const result = await runScanRequest(makeScanRequest("https://1.1.1.1/", { compareShields: true }), scan);
+  const result = expectV1Report(
+    await runScanRequest(makeScanRequest("https://1.1.1.1/", { compareShields: true }), scan)
+  );
 
   assert.equal(result.reportType, "comparison");
   if (result.reportType !== "comparison") throw new Error("expected comparison report");
@@ -394,7 +630,9 @@ test("runScanRequest can run and persist a consent accept/reject comparison", as
     return makeScanResult(payload, payload.consentMode === "accept-all" ? 9 : 2);
   };
 
-  const result = await runScanRequest(makeScanRequest("https://1.1.1.1/", { compareConsent: true }), scan);
+  const result = expectV1Report(
+    await runScanRequest(makeScanRequest("https://1.1.1.1/", { compareConsent: true }), scan)
+  );
 
   assert.equal(result.reportType, "comparison");
   if (result.reportType !== "comparison") throw new Error("expected comparison report");
@@ -464,7 +702,7 @@ test("executePreparedScan does not charge rate limits when the scan slot queue t
     rateLimitCost: 1
   };
   const hang: ScanRunner = () => new Promise(() => {});
-  const save = async <T extends ScanReport>(report: T) => report;
+  const save: ReportSaver = async (report) => report;
 
   void executePreparedScan(prepared, hang, save, 50);
   void executePreparedScan(prepared, hang, save, 50);
@@ -496,10 +734,23 @@ test("runScanRequest returns scan results when report persistence fails", async 
   }
 
   assert.ok(result);
-  assert.equal(result.ok, true);
-  assert.equal(result.share, undefined);
-  assert.equal(result.warnings.includes("Shareable report could not be saved on this host; JSON export is still available."), true);
+  const v1Result = expectV1Report(result);
+  assert.equal(v1Result.ok, true);
+  assert.equal(v1Result.share, undefined);
+  assert.equal(v1Result.warnings.includes("Shareable report could not be saved on this host; JSON export is still available."), true);
 });
+
+function expectV1Report(report: RuntimeScanReport): ScanReport {
+  assert.equal(report.schemaVersion, 1);
+  if (report.schemaVersion !== 1) throw new Error("expected frozen v1 report");
+  return report;
+}
+
+function enablePublicR2(): void {
+  process.env[PUBLIC_R2_REPORTS_ENV] = "1";
+  process.env[BUILD_COMMIT_ENV] = "a".repeat(40);
+  process.env[CONSENT_VERIFICATION_ENV] = "1";
+}
 
 function makeScanRequest(
   url: string,

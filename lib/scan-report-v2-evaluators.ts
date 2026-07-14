@@ -9,11 +9,8 @@
  *
  * Version discipline (RFC 10.2): these constants are the definitions of
  * quality evaluator "1", comparability evaluator "1", and metric dependency
- * registry "1". Decision 2026-07-09: pre-emission refinements keep version
- * "1" because no v2 report has ever been emitted, stored, or published (all
- * producers are v1 and the published JSON Schema encodes shape, not evaluator
- * behavior). The versions freeze the moment the first producer emits v2;
- * any behavior change after that bumps them.
+ * registry "1". These versions are frozen now that a public producer can emit
+ * v2/r2; any behavior change after this rollout must bump them.
  */
 import {
   DETECTOR_IDS,

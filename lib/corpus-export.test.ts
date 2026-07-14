@@ -115,8 +115,10 @@ test("consent rows expose the dispatched click state so unclicked runs are filte
   assert.equal(rows[0].consentClicks, "none");
   // The note must tell researchers that anything short of accept-and-reject
   // leaves at least one run in the pre-consent state, so the row is not a
-  // verified choice comparison.
+  // complete choice comparison. Dispatch and r2 verification stay distinct.
   assert.match(CORPUS_EXPORT_NOTE, /consent_clicks/);
+  assert.match(CORPUS_EXPORT_NOTE, /dispatch column, not a verification column/);
+  assert.match(CORPUS_EXPORT_NOTE, /r2 reports carry recorded verification observations/);
   assert.match(CORPUS_EXPORT_NOTE, /pre-consent state/);
 });
 
@@ -135,7 +137,7 @@ test("CSV pins the header and escapes commas and quotes in headlines", () => {
   );
   assert.match(row, /"shop\.example told Google, Meta ""you were here""\."/);
   assert.match(row, /,desktop,yes,observe,,200,/);
-  // Schema columns: every current corpus row is v1, legacy-derived, limited.
+  // This fixture is a historical v1, legacy-derived, limited row.
   assert.match(row, /,1,,legacy-derived,yes$/);
   assert.equal(csv.endsWith("\r\n"), true);
 });
@@ -184,4 +186,5 @@ test("rows carry the schema generation so researchers can filter by wire version
   assert.equal(rows[0].limited, true);
   assert.match(CORPUS_EXPORT_NOTE, /schema_version/);
   assert.match(CORPUS_EXPORT_NOTE, /legacy-derived/);
+  assert.match(CORPUS_EXPORT_NOTE, /percentile distributions remain v1-only/);
 });

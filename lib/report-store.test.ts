@@ -5,7 +5,12 @@ import path from "node:path";
 import { afterEach, beforeEach, test } from "node:test";
 import { createComparisonReport, createGpcComparisonReport } from "./compare-reports";
 import { buildProvenanceEntry, matchProvenance } from "./redaction-provenance";
+import { REDACTION_VERSION } from "./redaction-v2";
 import { pruneStoredReports, readStoredScanReportById, reportStoreStatus, saveScanReport } from "./report-store";
+import { makeGpcInterventionReportV2R2, makePublicSingleReportV2R2 } from "./scan-report-v2-r2-fixtures";
+import { NODE_SCAN_REPORT_V2_R2_MAX_PUBLIC_BYTES } from "./scan-report-v2-r2-limits";
+import { toPublicScanReportR2 } from "./scan-report-v2-r2-projection";
+import type { EphemeralComparisonReportR2, EphemeralSingleReportR2 } from "./scan-report-v2-r2";
 import { SCAN_REPORT_SCHEMA_VERSION, type ScanRequestPayload, type ScanResult } from "./types";
 
 const REPORT_MAX_COUNT_ENV = "SITE_BEHAVIOR_LAB_REPORT_MAX_COUNT";
@@ -184,6 +189,76 @@ test("saveScanReport keeps returned screenshots but strips persisted screenshots
   if (persistedComparison?.reportType !== "comparison") throw new Error("expected comparison report");
   assert.equal(persistedComparison.baseline.screenshot, null);
   assert.equal(persistedComparison.variant.screenshot, null);
+});
+
+test("saveScanReport attaches shares to ephemeral r2 responses and persists only public projections", async () => {
+  const singlePublic = makePublicSingleReportV2R2();
+  singlePublic.run.privacy.redactionVersion = REDACTION_VERSION;
+  const single: EphemeralSingleReportR2 = {
+    ...singlePublic,
+    ephemeral: { screenshot: "data:image/png;base64,R2_SINGLE_PRIVATE" }
+  };
+  const savedSingle = await saveScanReport(single);
+  assert.match(savedSingle.share?.id ?? "", /^[0-9]{8}-[0-9a-f]{32}$/);
+  assert.equal(savedSingle.ephemeral.screenshot, "data:image/png;base64,R2_SINGLE_PRIVATE");
+
+  const storedSingle = await readStoredScanReportById(savedSingle.share?.id ?? "");
+  assert.equal(storedSingle.outcome, "found");
+  if (storedSingle.outcome !== "found") throw new Error("expected stored r2 single");
+  assert.equal(storedSingle.stored.schemaVersion, 2);
+  assert.equal(storedSingle.wire.includes("R2_SINGLE_PRIVATE"), false);
+  assert.equal("ephemeral" in JSON.parse(storedSingle.wire), false);
+  assert.equal(storedSingle.stored.report.share?.id, savedSingle.share?.id);
+
+  const comparisonPublic = makeGpcInterventionReportV2R2();
+  comparisonPublic.baseline.privacy.redactionVersion = REDACTION_VERSION;
+  comparisonPublic.variant.privacy.redactionVersion = REDACTION_VERSION;
+  const comparison: EphemeralComparisonReportR2 = {
+    ...comparisonPublic,
+    ephemeral: {
+      baselineScreenshot: "data:image/png;base64,R2_BASELINE_PRIVATE",
+      variantScreenshot: "data:image/png;base64,R2_VARIANT_PRIVATE"
+    }
+  };
+  const savedComparison = await saveScanReport(comparison);
+  assert.equal(savedComparison.ephemeral.baselineScreenshot, "data:image/png;base64,R2_BASELINE_PRIVATE");
+  assert.equal(savedComparison.ephemeral.variantScreenshot, "data:image/png;base64,R2_VARIANT_PRIVATE");
+  assert.match(savedComparison.share?.id ?? "", /^[0-9]{8}-[0-9a-f]{32}$/);
+
+  const storedComparison = await readStoredScanReportById(savedComparison.share?.id ?? "");
+  assert.equal(storedComparison.outcome, "found");
+  if (storedComparison.outcome !== "found") throw new Error("expected stored r2 comparison");
+  assert.equal(storedComparison.stored.schemaVersion, 2);
+  assert.equal(storedComparison.wire.includes("R2_BASELINE_PRIVATE"), false);
+  assert.equal(storedComparison.wire.includes("R2_VARIANT_PRIVATE"), false);
+  assert.equal("ephemeral" in JSON.parse(storedComparison.wire), false);
+  assert.equal(storedComparison.stored.report.share?.id, savedComparison.share?.id);
+});
+
+test("saveScanReport enforces the r2 byte cap after attaching a share and writes nothing", async () => {
+  const publicReport = makePublicSingleReportV2R2();
+  publicReport.run.privacy.redactionVersion = REDACTION_VERSION;
+  publicReport.run.warnings = [""];
+  const report: EphemeralSingleReportR2 = {
+    ...publicReport,
+    ephemeral: { screenshot: null }
+  };
+  const emptyWarningBytes = Buffer.byteLength(
+    `${JSON.stringify(toPublicScanReportR2(report), null, 2)}\n`,
+    "utf8"
+  );
+  report.run.warnings = ["x".repeat(NODE_SCAN_REPORT_V2_R2_MAX_PUBLIC_BYTES - emptyWarningBytes - 16)];
+  const preShareBytes = Buffer.byteLength(
+    `${JSON.stringify(toPublicScanReportR2(report), null, 2)}\n`,
+    "utf8"
+  );
+  assert.ok(preShareBytes <= NODE_SCAN_REPORT_V2_R2_MAX_PUBLIC_BYTES);
+
+  await assert.rejects(
+    () => saveScanReport(report),
+    new RegExp(`larger than ${NODE_SCAN_REPORT_V2_R2_MAX_PUBLIC_BYTES} public bytes after attaching its share`)
+  );
+  assert.deepEqual(await readdir(reportDir), []);
 });
 
 test("the stored-report read accepts non-GPC comparison reports", async () => {

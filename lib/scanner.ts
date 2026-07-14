@@ -207,8 +207,8 @@ export type ScanSiteOptions = {
 
 /**
  * Phase-1 collection artifact for a live Node single visit. It has the exact
- * measurement/evidence shape consumed by the staged r2 builder, but remains
- * process-local while public producers intentionally keep emitting v1.
+ * measurement/evidence shape consumed by the staged r2 builder. It remains
+ * process-local until a public or shadow r2 report is built from it.
  */
 export type StagedSingleVisitMeasurement = {
   measurement: MeasurementKernelResultR2;
@@ -220,7 +220,7 @@ export type StagedSingleVisitMeasurement = {
     shields: ShieldsVerificationFactsR2;
   };
   /**
-   * Raw builder inputs for the flag-gated shadow emission (kernel step 4).
+   * Raw builder inputs for public and shadow r2 emission (kernel step 4).
    * Process-local only: the raw subject URLs here never serialize anywhere;
    * the r2 builder applies its own redaction when a report is built from them.
    */
@@ -445,8 +445,8 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
     });
 
     // Kernel step 3 state (flag-gated): registered consent-state readback.
-    // Everything recorded here is staged r2 fact material; the frozen v1 wire
-    // never carries it.
+    // Everything recorded here is staged r2 fact material. It remains private
+    // until an r2 builder sanitizes and projects it onto a report wire.
     const verificationFlagOn = consentVerificationEnabled();
     const verificationEnabled = payload.consentMode !== "observe" && verificationFlagOn;
     const consentObservations: ConsentObservationFactsR2[] = [];

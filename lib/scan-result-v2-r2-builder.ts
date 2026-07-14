@@ -99,9 +99,9 @@ import type { FingerprintDetectionSummary, PrivacyPolicySummary, TrackerMatch } 
 /**
  * Node-only ScanReport v2/r2 single-run builder.
  *
- * The live Node scanner now collects and stages this input shape out of band
- * while its public producer remains frozen on v1. Its input starts after the
- * raw/classification seam: evidence and mutation records are phase-tagged but
+ * The live Node scanner collects and stages this input shape out of band for
+ * gated public or shadow r2 emission. Its input starts after the raw/classification
+ * seam: evidence and mutation records are phase-tagged but
  * may still contain page-controlled strings. This builder owns the one public
  * sanitizer and computes its counters from the exact emitted evidence.
  * Every conclusion-like field is derived, and the completed ephemeral report
@@ -283,7 +283,17 @@ export function buildNodeScanReportV2R2(
 
   if (consentFacts !== undefined) {
     const consent = consentEvidenceFromFacts(consentFacts, run);
-    run = { ...run, evidence: { ...run.evidence, consent } };
+    run = {
+      ...run,
+      // The v1 result keeps its dispatch-only disclosure. An r2 run whose
+      // structured readbacks verified registration must not contradict that
+      // evidence by forwarding the same legacy warning.
+      warnings:
+        consent.choiceState === "verified"
+          ? run.warnings.filter((warning) => !isLegacyUnverifiedConsentWarning(warning))
+          : run.warnings,
+      evidence: { ...run.evidence, consent }
+    };
   }
 
   const report: EphemeralSingleReportR2 = {
@@ -309,6 +319,10 @@ export function buildNodeScanReportV2R2(
     throw new Error(`Refusing to build an inconsistent ScanReport v2/r2: ${violations.join("; ")}`);
   }
   return report;
+}
+
+function isLegacyUnverifiedConsentWarning(warning: string): boolean {
+  return warning.includes("The click was dispatched, not verified as registered by the site");
 }
 
 /**

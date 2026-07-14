@@ -3,6 +3,7 @@ import { test } from "node:test";
 import { createConsentComparisonReport, createGpcComparisonReport, createShieldsComparisonReport } from "./compare-reports";
 import { buildFindings, type Finding, type FindingIconKey } from "./report-findings";
 import type { CorpusStats } from "./corpus-stats";
+import { makeConsentInterventionReportV2R2 } from "./scan-report-v2-r2-fixtures";
 import { makePublicSingleReportV2 } from "./scan-report-v2-fixtures";
 import { viewFromV1Report, viewFromV2 } from "./scan-report-views";
 import {
@@ -380,12 +381,32 @@ test("a consent comparison flags trackers that survive Reject all", () => {
   assert.match(card.detail, /not a violation ruling/);
   // The claim must stay observational: recording spans the whole visit and the
   // click is dispatched, not verified.
-  assert.match(card.detail, /before AND after the click/);
-  assert.match(card.detail, /cannot verify the site registered the choice/);
+  assert.match(card.detail, /v1 report records only/);
+  assert.match(card.detail, /cannot verify/);
+  assert.match(card.detail, /before and after the click/);
+  assert.match(card.detail, /legitimate interest/);
   // The diff pointer must describe set membership, not an effect of rejecting.
   assert.match(card.detail, /appeared only in the visit that clicked Accept all/);
   assert.doesNotMatch(card.detail, /did remove/);
   assert.match(card.evidence, /30 with the accept-all click, 6 with the reject-all click/);
+});
+
+test("a verified r2 consent finding reports registration and retains scope caveats", () => {
+  const view = viewFromV2(makeConsentInterventionReportV2R2(), 2);
+  const variant = view.runs.find((run) => run.label === "variant");
+  if (!variant) throw new Error("fixture invariant");
+  variant.evidence.domains = [makeTrackerDomain("google-analytics.com", 3, "Google", "analytics")];
+  variant.counts.knownTrackerRequests = 3;
+  variant.counts.thirdPartyRequests = 3;
+  variant.counts.thirdPartyDomains = 1;
+
+  const card = byId(buildFindings(view, null), "consent-comparison");
+  assert.match(card.detail, /verified that the site registered Reject all/);
+  assert.match(card.detail, /again after one page reload/);
+  assert.match(card.detail, /pre-choice traffic/);
+  assert.match(card.detail, /strictly necessary/);
+  assert.match(card.detail, /legitimate interest/);
+  assert.doesNotMatch(card.detail, /cannot verify|never verified/);
 });
 
 test("a consent comparison with no clickable banner claims nothing", () => {

@@ -3,8 +3,14 @@ import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, test } from "node:test";
+import { CONSENT_VERIFICATION_ENV } from "./consent-verification";
 import { PublicScanError } from "./public-errors";
-import { MAX_QUEUED_JOBS, RATE_LIMIT_MAX, resetScanLimitStateForTests } from "./scan-limits";
+import {
+  MAX_QUEUED_JOBS,
+  RATE_LIMIT_MAX,
+  resetScanLimitStateForTests,
+  scanLimitStateForTests
+} from "./scan-limits";
 import { readStoredScanReportById } from "./report-store";
 import {
   advanceScanJobClockForTests,
@@ -18,6 +24,9 @@ import {
   waitForScanJobForTests
 } from "./scan-jobs";
 import type { PreparedScanRequest, ScanRunner } from "./scan-api";
+import { makePublicSingleReportV2R2 } from "./scan-report-v2-r2-fixtures";
+import { scanResultWithStagedR2Run } from "./scan-report-v2-runtime-fixtures";
+import { BUILD_COMMIT_ENV, PUBLIC_R2_REPORTS_ENV } from "./runtime-scan-report";
 import { SCAN_REPORT_SCHEMA_VERSION, type ScanRequestPayload, type ScanResult } from "./types";
 
 // Reads through the typed accessor, narrowing to v1 exactly as production
@@ -30,6 +39,13 @@ async function readV1Report(id: string) {
 
 const ASYNC_SCANS_ENV = "SITE_BEHAVIOR_LAB_ASYNC_SCANS";
 const REPORT_STORE_DIR_ENV = "SITE_BEHAVIOR_LAB_REPORT_STORE_DIR";
+const REPORT_STORE_BACKEND_ENV = "SITE_BEHAVIOR_LAB_REPORT_STORE_BACKEND";
+const R2_ENVS = [
+  "SITE_BEHAVIOR_LAB_R2_BUCKET",
+  "SITE_BEHAVIOR_LAB_R2_ENDPOINT",
+  "SITE_BEHAVIOR_LAB_R2_ACCESS_KEY_ID",
+  "SITE_BEHAVIOR_LAB_R2_SECRET_ACCESS_KEY"
+] as const;
 
 // Route report writes to a per-test temp dir; never touch (or delete) the
 // repo's real `.site-behavior-lab` default store, which may hold a developer's
@@ -44,6 +60,11 @@ beforeEach(async () => {
 afterEach(async () => {
   delete process.env[ASYNC_SCANS_ENV];
   delete process.env[REPORT_STORE_DIR_ENV];
+  delete process.env[PUBLIC_R2_REPORTS_ENV];
+  delete process.env[BUILD_COMMIT_ENV];
+  delete process.env[CONSENT_VERIFICATION_ENV];
+  delete process.env[REPORT_STORE_BACKEND_ENV];
+  for (const name of R2_ENVS) delete process.env[name];
   resetScanJobStateForTests();
   resetScanLimitStateForTests();
   await rm(reportDir, { recursive: true, force: true });
@@ -80,7 +101,9 @@ test("enqueuePreparedScanJob returns a submission and stores the completed repor
   assert.equal(status?.status, "succeeded");
   assert.equal(status?.progress?.completedRuns, 1);
   assert.equal(status?.progress?.totalRuns, 1);
-  assert.equal(status?.report?.ok, true);
+  assert.equal(status?.report?.schemaVersion, 1);
+  if (status?.report?.schemaVersion !== 1) throw new Error("expected v1 job report");
+  assert.equal(status.report.ok, true);
   assert.deepEqual(scannedPayloads, [
     {
       url: "https://1.1.1.1/",
@@ -124,6 +147,67 @@ test("enqueuePreparedScanJob persists default saved reports under the submission
   // Nothing may be stored under the job ID: the report store is public by ID,
   // and the job ID must stay a submitter-only capability.
   assert.equal(await readV1Report(submission.jobId), null);
+});
+
+test("an async public-r2 job returns its ephemeral screenshot and stores only the public projection", async () => {
+  process.env[PUBLIC_R2_REPORTS_ENV] = "1";
+  process.env[BUILD_COMMIT_ENV] = "a".repeat(40);
+  process.env[CONSENT_VERIFICATION_ENV] = "1";
+  const scan: ScanRunner = async () =>
+    scanResultWithStagedR2Run(
+      makePublicSingleReportV2R2().run,
+      "data:image/png;base64,ASYNC_PRIVATE"
+    );
+
+  const submission = enqueuePreparedScanJob(makePreparedScanRequest(), { scan });
+  await waitForScanJobForTests(submission.jobId);
+
+  const status = getScanJobStatus(submission.jobId);
+  assert.equal(status?.status, "succeeded");
+  assert.equal(status?.report?.schemaVersion, 2);
+  if (status?.report?.schemaVersion !== 2 || status.report.reportType !== "single") {
+    throw new Error("expected r2 single job report");
+  }
+  assert.equal(status.report.ephemeral.screenshot, "data:image/png;base64,ASYNC_PRIVATE");
+  assert.equal(status.report.share?.id, submission.reportId);
+
+  const stored = await readStoredScanReportById(submission.reportId);
+  assert.equal(stored.outcome, "found");
+  if (stored.outcome !== "found") throw new Error("expected stored async r2 report");
+  assert.equal(stored.stored.schemaVersion, 2);
+  assert.equal("ephemeral" in JSON.parse(stored.wire), false);
+  assert.equal(stored.wire.includes("ASYNC_PRIVATE"), false);
+  assert.deepEqual(await readStoredScanReportById(submission.jobId), { outcome: "not-found" });
+});
+
+test("an async public-r2 job refuses broken default persistence before admission or charge", () => {
+  process.env[PUBLIC_R2_REPORTS_ENV] = "1";
+  process.env[BUILD_COMMIT_ENV] = "a".repeat(40);
+  process.env[CONSENT_VERIFICATION_ENV] = "1";
+  process.env[REPORT_STORE_BACKEND_ENV] = "r2";
+  let scanCalls = 0;
+
+  assert.throws(
+    () =>
+      enqueuePreparedScanJob(makePreparedScanRequest(), {
+        scan: async () => {
+          scanCalls += 1;
+          return scanResultWithStagedR2Run(makePublicSingleReportV2R2().run);
+        }
+      }),
+    (error) =>
+      error instanceof PublicScanError &&
+      error.status === 503 &&
+      error.message === "Public r2 report persistence is unavailable."
+  );
+  assert.equal(scanCalls, 0);
+  assert.deepEqual(scanJobStateForTests(), { queuedJobs: 0, activeJobWorkers: 0, retainedJobs: 0 });
+  assert.deepEqual(scanLimitStateForTests(), {
+    activeScans: 0,
+    queuedScans: 0,
+    trackedClients: 0,
+    trackedReportReadClients: 0
+  });
 });
 
 test("enqueuePreparedScanJob reports sanitized job failures", async () => {

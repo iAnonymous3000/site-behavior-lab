@@ -12,6 +12,7 @@
 // Full runbook: docs/go-live-public-scanner.md
 import { Container, getContainer } from "@cloudflare/containers";
 import { scanCorsHeaders } from "../lib/cors";
+import { scansAvailableAfterEdgeOverlay } from "../lib/container-health-overlay";
 import { PublicFacingError } from "../lib/public-errors";
 import {
   DEFAULT_PUBLIC_SCAN_RATE_LIMIT_PER_DAY,
@@ -54,6 +55,7 @@ type Env = {
   // sandbox; /api/health exposes the effective state for deployment checks.
   SITE_BEHAVIOR_LAB_CHROMIUM_SANDBOX?: string;
   SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION?: string;
+  SITE_BEHAVIOR_LAB_PUBLIC_R2_REPORTS?: string;
   SITE_BEHAVIOR_LAB_V2_SHADOW_EMISSION?: string;
   // "1" waives the Turnstile requirement for open access (atomic rate limit only).
   // Without it, open access with no TURNSTILE_SECRET_KEY fails closed.
@@ -112,6 +114,7 @@ export class ScannerContainer extends Container<Env> {
     // Bucket-level public access is an operator preflight in the runbook.
     SITE_BEHAVIOR_LAB_V2_SHADOW_BACKEND: "r2",
     SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION: this.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION ?? "",
+    SITE_BEHAVIOR_LAB_PUBLIC_R2_REPORTS: this.env.SITE_BEHAVIOR_LAB_PUBLIC_R2_REPORTS ?? "",
     SITE_BEHAVIOR_LAB_V2_SHADOW_EMISSION: this.env.SITE_BEHAVIOR_LAB_V2_SHADOW_EMISSION ?? "",
     // The front Worker is the public gate, but the container also enforces the
     // token (defense in depth). Cloudflare's deny-by-default egress switch is
@@ -391,7 +394,7 @@ async function patchHealthResponse(response: Response, env: Env): Promise<Respon
         // SQLite quota ledger, so an external KV binding is no longer needed.
         rateLimitStoreBound: true
       });
-      health.scansAvailable = refusals.length === 0;
+      health.scansAvailable = scansAvailableAfterEdgeOverlay(health.scansAvailable, refusals);
       health.checks = withPublicScanAccessCheck(health.checks, gate, refusals);
       if (refusals.length > 0) {
         health.status = "degraded";

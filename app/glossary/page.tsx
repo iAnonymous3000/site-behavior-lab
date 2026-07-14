@@ -78,7 +78,7 @@ const ENTRIES: GlossaryEntry[] = [
     id: "consent-diff",
     term: "Consent comparison",
     definition:
-      'Two paired visits: one clicking "Accept all" on the cookie/consent banner and one clicking "Reject all" (recognized banner controls or an exact accept/reject label, first layer only). The diff shows what differed between the two visits, including tracking companies that still appeared in the visit that clicked Reject all. The scanner dispatches the click but cannot verify the site registered the choice, and each visit records traffic from before and after its click. Banners often appear only in regions that require them, so a visit where no control was found stays pre-consent and the report says so.'
+      'Two paired visits: one clicking "Accept all" on the cookie/consent banner and one clicking "Reject all" (recognized banner controls or an exact accept/reject label, first layer only). The diff shows what differed between the visits. Legacy v1 reports record only that a click was dispatched; r2 reports also record bounded consent-platform readbacks and say whether registration was verified or contradicted, only a weak banner-transition signal was seen, or verification was unavailable or failed. Even a verified r2 visit records requests from before and after its click, so traffic can still be pre-choice, strictly necessary, or processing claimed under legitimate interest. A visit where no control was found stays pre-consent and the report says so.'
   }
 ];
 

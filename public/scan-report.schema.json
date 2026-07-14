@@ -1,51 +1,67 @@
 {
-  "$id": "https://sitebehavior.org/schemas/scan-report.v2.r1.schema.json",
+  "$id": "https://sitebehavior.org/schemas/scan-report.v2.r2.schema.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$ref": "#/definitions/PublicScanReportV2",
+  "$ref": "#/definitions/PublicScanReportV2R2",
   "definitions": {
-    "PublicScanReportV2": {
+    "PublicScanReportV2R2": {
       "anyOf": [
         {
-          "$ref": "#/definitions/PublicSingleReportV2"
+          "$ref": "#/definitions/PublicSingleReportV2R2"
         },
         {
-          "$ref": "#/definitions/PublicComparisonReportV2"
+          "$ref": "#/definitions/PublicComparisonReportV2R2"
         }
       ]
     },
-    "PublicSingleReportV2": {
+    "PublicSingleReportV2R2": {
       "type": "object",
+      "additionalProperties": false,
       "properties": {
+        "schemaRevision": {
+          "type": "number",
+          "const": 2
+        },
+        "run": {
+          "$ref": "#/definitions/ScanRunV2R2"
+        },
         "schemaVersion": {
           "type": "number",
           "const": 2
         },
-        "schemaRevision": {
-          "type": "number",
-          "const": 1
-        },
         "reportType": {
           "type": "string",
           "const": "single"
-        },
-        "run": {
-          "$ref": "#/definitions/ScanRunV2"
         },
         "share": {
           "$ref": "#/definitions/ReportShare"
         }
       },
       "required": [
-        "schemaVersion",
-        "schemaRevision",
         "reportType",
-        "run"
-      ],
-      "additionalProperties": false
+        "run",
+        "schemaRevision",
+        "schemaVersion"
+      ]
     },
-    "ScanRunV2": {
+    "ScanRunV2R2": {
       "type": "object",
+      "additionalProperties": false,
       "properties": {
+        "evidence": {
+          "$ref": "#/definitions/RunEvidenceR2"
+        },
+        "verificationFacts": {
+          "type": "object",
+          "properties": {
+            "gpc": {
+              "$ref": "#/definitions/GpcVerificationFactsR2"
+            },
+            "shields": {
+              "$ref": "#/definitions/ShieldsVerificationFactsR2"
+            }
+          },
+          "additionalProperties": false
+        },
         "runId": {
           "type": "string"
         },
@@ -89,9 +105,6 @@
         "summary": {
           "$ref": "#/definitions/RunSummary"
         },
-        "evidence": {
-          "$ref": "#/definitions/RunEvidence"
-        },
         "warnings": {
           "type": "array",
           "items": {
@@ -101,1011 +114,30 @@
         }
       },
       "required": [
+        "conditions",
+        "detectors",
+        "evidence",
+        "fingerprints",
+        "phases",
+        "privacy",
+        "provenance",
+        "quality",
+        "qualityFacts",
         "runId",
         "startedAt",
         "subject",
-        "conditions",
-        "provenance",
-        "toolchain",
-        "fingerprints",
-        "qualityFacts",
-        "quality",
-        "privacy",
-        "detectors",
-        "phases",
         "summary",
-        "evidence",
+        "toolchain",
         "warnings"
-      ],
-      "additionalProperties": false
+      ]
     },
-    "SubjectIdentity": {
+    "RunEvidenceR2": {
       "type": "object",
+      "additionalProperties": false,
       "properties": {
-        "requested": {
-          "$ref": "#/definitions/SubjectKey",
-          "description": "What the submitter asked for."
-        },
-        "observed": {
-          "$ref": "#/definitions/SubjectKey",
-          "description": "Derived from the FINAL url; the measured subject and comparison identity."
-        }
-      },
-      "required": [
-        "requested",
-        "observed"
-      ],
-      "additionalProperties": false
-    },
-    "SubjectKey": {
-      "type": "object",
-      "properties": {
-        "origin": {
-          "type": "string",
-          "description": "Normalized privacy-safe origin: lowercase, IDN as punycode A-label, default port stripped, token-like subdomain labels generalized (RFC 9.1)."
-        },
-        "registrableDomain": {
-          "type": "string",
-          "description": "eTLD+1 (\"example.com\"). Public profile grouping key."
-        },
-        "routeShape": {
-          "type": "string",
-          "description": "Privacy-safe path shape (\"/products/{seg}\", RFC 9.1)."
-        }
-      },
-      "required": [
-        "origin",
-        "registrableDomain",
-        "routeShape"
-      ],
-      "additionalProperties": false
-    },
-    "ConditionVector": {
-      "type": "object",
-      "properties": {
-        "gpc": {
-          "type": "boolean"
-        },
-        "shields": {
-          "$ref": "#/definitions/ShieldsCondition"
-        },
         "consent": {
-          "$ref": "#/definitions/ConsentCondition"
+          "$ref": "#/definitions/ConsentEvidenceR2"
         },
-        "device": {
-          "type": "object",
-          "properties": {
-            "kind": {
-              "type": "string",
-              "enum": [
-                "desktop",
-                "mobile"
-              ]
-            },
-            "viewport": {
-              "type": "object",
-              "properties": {
-                "width": {
-                  "type": "number"
-                },
-                "height": {
-                  "type": "number"
-                },
-                "isMobile": {
-                  "type": "boolean"
-                }
-              },
-              "required": [
-                "width",
-                "height",
-                "isMobile"
-              ],
-              "additionalProperties": false
-            }
-          },
-          "required": [
-            "kind",
-            "viewport"
-          ],
-          "additionalProperties": false
-        },
-        "probes": {
-          "type": "object",
-          "properties": {
-            "keystroke": {
-              "type": "boolean"
-            },
-            "policyVisit": {
-              "type": "boolean"
-            }
-          },
-          "required": [
-            "keystroke",
-            "policyVisit"
-          ],
-          "additionalProperties": false
-        },
-        "locale": {
-          "type": "string"
-        },
-        "language": {
-          "type": "string"
-        },
-        "timezone": {
-          "type": "string"
-        },
-        "egress": {
-          "type": "object",
-          "properties": {
-            "label": {
-              "type": "string"
-            },
-            "region": {
-              "type": "string"
-            }
-          },
-          "required": [
-            "label"
-          ],
-          "additionalProperties": false
-        },
-        "browser": {
-          "type": "object",
-          "properties": {
-            "name": {
-              "type": "string"
-            },
-            "version": {
-              "type": "string"
-            }
-          },
-          "required": [
-            "name",
-            "version"
-          ],
-          "additionalProperties": false
-        },
-        "headless": {
-          "type": "boolean"
-        },
-        "automation": {
-          "$ref": "#/definitions/ScanAutomation"
-        }
-      },
-      "required": [
-        "gpc",
-        "shields",
-        "consent",
-        "device",
-        "probes",
-        "locale",
-        "language",
-        "timezone",
-        "egress",
-        "browser",
-        "headless",
-        "automation"
-      ],
-      "additionalProperties": false
-    },
-    "ShieldsCondition": {
-      "type": "string",
-      "enum": [
-        "off",
-        "classification",
-        "block-simulation"
-      ]
-    },
-    "ConsentCondition": {
-      "type": "string",
-      "enum": [
-        "observe",
-        "accept-all",
-        "reject-all"
-      ]
-    },
-    "ScanAutomation": {
-      "type": "string",
-      "enum": [
-        "playwright-chromium",
-        "brave-pagegraph",
-        "external"
-      ]
-    },
-    "Provenance": {
-      "type": "object",
-      "properties": {
-        "observer": {
-          "$ref": "#/definitions/ObserverKind",
-          "description": "What measured."
-        },
-        "acquisition": {
-          "$ref": "#/definitions/AcquisitionKind",
-          "description": "What asked for the measurement; CI is an orchestrator, not a scanner."
-        },
-        "buildCommit": {
-          "type": "string",
-          "description": "Self-reported, machine-checkable metadata, not cryptographic proof."
-        },
-        "methodologyVersion": {
-          "type": "string",
-          "description": "Meaning of the numbers; distinct from schemaVersion (shape)."
-        },
-        "detectorRegistry": {
-          "type": "object",
-          "properties": {
-            "version": {
-              "type": "string"
-            },
-            "digest": {
-              "type": "string"
-            }
-          },
-          "required": [
-            "version",
-            "digest"
-          ],
-          "additionalProperties": false,
-          "description": "The known-detector set itself is versioned."
-        },
-        "sourceArtifactDigest": {
-          "type": "string",
-          "description": "e.g. sha256 of an imported PageGraph GraphML."
-        }
-      },
-      "required": [
-        "observer",
-        "acquisition",
-        "buildCommit",
-        "methodologyVersion",
-        "detectorRegistry"
-      ],
-      "additionalProperties": false
-    },
-    "ObserverKind": {
-      "type": "string",
-      "enum": [
-        "node-playwright",
-        "browser-run-worker",
-        "pagegraph-import"
-      ]
-    },
-    "AcquisitionKind": {
-      "type": "string",
-      "enum": [
-        "public-api",
-        "operator-cli",
-        "ci-workflow",
-        "upload"
-      ]
-    },
-    "Toolchain": {
-      "type": "object",
-      "properties": {
-        "trackerCatalog": {
-          "type": "object",
-          "properties": {
-            "source": {
-              "type": "string"
-            },
-            "version": {
-              "type": "string"
-            },
-            "entries": {
-              "type": "number"
-            },
-            "digest": {
-              "type": "string"
-            }
-          },
-          "required": [
-            "source",
-            "version",
-            "entries",
-            "digest"
-          ],
-          "additionalProperties": false
-        },
-        "adblock": {
-          "anyOf": [
-            {
-              "type": "object",
-              "properties": {
-                "source": {
-                  "type": "string"
-                },
-                "lists": {
-                  "type": "number"
-                },
-                "fetchedAt": {
-                  "type": "string"
-                },
-                "manifestDigest": {
-                  "type": "string",
-                  "description": "Aggregate digest; keys the published immutable per-list digest manifest."
-                },
-                "engineVersion": {
-                  "type": "string"
-                }
-              },
-              "required": [
-                "source",
-                "lists",
-                "fetchedAt",
-                "manifestDigest",
-                "engineVersion"
-              ],
-              "additionalProperties": false
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "normalizationVersion": {
-          "type": "string",
-          "description": "URL/host canonicalization rules version (RFC section 9)."
-        }
-      },
-      "required": [
-        "trackerCatalog",
-        "adblock",
-        "normalizationVersion"
-      ],
-      "additionalProperties": false,
-      "description": "The digests/versions the fingerprints hash, stored on the run (RFC 3.5)."
-    },
-    "Fingerprints": {
-      "type": "object",
-      "properties": {
-        "execution": {
-          "type": "string",
-          "description": "Exact reproducibility: full conditions + buildCommit + methodology + registries + toolchain."
-        },
-        "measurementEnvironment": {
-          "type": "string",
-          "description": "Behavior-affecting environment EXCLUDING the intervention axes' values and buildCommit. Equal values mean \"measured the same way\"; intervention state may still differ."
-        },
-        "condition": {
-          "type": "string",
-          "description": "The complete condition vector alone. Equal values mean \"same requested setup\"."
-        }
-      },
-      "required": [
-        "execution",
-        "measurementEnvironment",
-        "condition"
-      ],
-      "additionalProperties": false,
-      "description": "RFC 3.2: three digests over canonical JSON. Stored beside their inputs (conditions, provenance, toolchain), so every fingerprint is recomputable from the report itself."
-    },
-    "QualityFacts": {
-      "type": "object",
-      "properties": {
-        "status": {
-          "type": [
-            "number",
-            "null"
-          ]
-        },
-        "botWallTitleMatched": {
-          "type": "boolean"
-        },
-        "navigationSettled": {
-          "type": "boolean"
-        },
-        "budgetsExhausted": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "captureLoss": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/CaptureLossEntry"
-          }
-        }
-      },
-      "required": [
-        "status",
-        "botWallTitleMatched",
-        "navigationSettled",
-        "budgetsExhausted",
-        "captureLoss"
-      ],
-      "additionalProperties": false,
-      "description": "Recorded facts; producers never declare quality directly (RFC 5.3)."
-    },
-    "CaptureLossEntry": {
-      "type": "object",
-      "properties": {
-        "family": {
-          "$ref": "#/definitions/EvidenceFamily"
-        },
-        "phaseId": {
-          "anyOf": [
-            {
-              "$ref": "#/definitions/PhaseId"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "description": "null = not attributable to a phase."
-        },
-        "kind": {
-          "type": "string",
-          "enum": [
-            "dropped",
-            "clipped",
-            "truncated",
-            "timeout",
-            "cap"
-          ]
-        },
-        "count": {
-          "type": "number"
-        },
-        "detail": {
-          "type": "string"
-        }
-      },
-      "required": [
-        "family",
-        "phaseId",
-        "kind",
-        "count"
-      ],
-      "additionalProperties": false
-    },
-    "EvidenceFamily": {
-      "type": "string",
-      "enum": [
-        "requests",
-        "cookies",
-        "storage",
-        "fingerprinting",
-        "detector-output",
-        "consent-verification"
-      ]
-    },
-    "PhaseId": {
-      "type": "number"
-    },
-    "Quality": {
-      "type": "object",
-      "properties": {
-        "evaluatorVersion": {
-          "type": "string"
-        },
-        "run": {
-          "type": "object",
-          "properties": {
-            "outcome": {
-              "type": "string",
-              "enum": [
-                "complete",
-                "failed"
-              ]
-            },
-            "reasons": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/QualityReason"
-              }
-            }
-          },
-          "required": [
-            "outcome",
-            "reasons"
-          ],
-          "additionalProperties": false,
-          "description": "Run-level: did the page load produce a valid observation at all?"
-        },
-        "byFamily": {
-          "type": "object",
-          "properties": {
-            "requests": {
-              "type": "object",
-              "properties": {
-                "outcome": {
-                  "type": "string",
-                  "enum": [
-                    "complete",
-                    "censored"
-                  ]
-                },
-                "reasons": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/definitions/QualityReason"
-                  }
-                }
-              },
-              "required": [
-                "outcome",
-                "reasons"
-              ],
-              "additionalProperties": false
-            },
-            "cookies": {
-              "type": "object",
-              "properties": {
-                "outcome": {
-                  "type": "string",
-                  "enum": [
-                    "complete",
-                    "censored"
-                  ]
-                },
-                "reasons": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/definitions/QualityReason"
-                  }
-                }
-              },
-              "required": [
-                "outcome",
-                "reasons"
-              ],
-              "additionalProperties": false
-            },
-            "storage": {
-              "type": "object",
-              "properties": {
-                "outcome": {
-                  "type": "string",
-                  "enum": [
-                    "complete",
-                    "censored"
-                  ]
-                },
-                "reasons": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/definitions/QualityReason"
-                  }
-                }
-              },
-              "required": [
-                "outcome",
-                "reasons"
-              ],
-              "additionalProperties": false
-            },
-            "fingerprinting": {
-              "type": "object",
-              "properties": {
-                "outcome": {
-                  "type": "string",
-                  "enum": [
-                    "complete",
-                    "censored"
-                  ]
-                },
-                "reasons": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/definitions/QualityReason"
-                  }
-                }
-              },
-              "required": [
-                "outcome",
-                "reasons"
-              ],
-              "additionalProperties": false
-            },
-            "detector-output": {
-              "type": "object",
-              "properties": {
-                "outcome": {
-                  "type": "string",
-                  "enum": [
-                    "complete",
-                    "censored"
-                  ]
-                },
-                "reasons": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/definitions/QualityReason"
-                  }
-                }
-              },
-              "required": [
-                "outcome",
-                "reasons"
-              ],
-              "additionalProperties": false
-            },
-            "consent-verification": {
-              "type": "object",
-              "properties": {
-                "outcome": {
-                  "type": "string",
-                  "enum": [
-                    "complete",
-                    "censored"
-                  ]
-                },
-                "reasons": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/definitions/QualityReason"
-                  }
-                }
-              },
-              "required": [
-                "outcome",
-                "reasons"
-              ],
-              "additionalProperties": false
-            }
-          },
-          "required": [
-            "requests",
-            "cookies",
-            "storage",
-            "fingerprinting",
-            "detector-output",
-            "consent-verification"
-          ],
-          "additionalProperties": false,
-          "description": "Family-level censoring; one family's loss never contaminates another."
-        }
-      },
-      "required": [
-        "evaluatorVersion",
-        "run",
-        "byFamily"
-      ],
-      "additionalProperties": false
-    },
-    "QualityReason": {
-      "type": "string",
-      "description": "Normative initial vocabulary (RFC 5.3); extensible only with an evaluatorVersion bump. Parameterized codes use \"code:qualifier\"."
-    },
-    "PrivacyStats": {
-      "type": "object",
-      "properties": {
-        "redactionVersion": {
-          "type": "number"
-        },
-        "redaction": {
-          "type": "object",
-          "properties": {
-            "pathSegmentsGeneralized": {
-              "type": "number"
-            },
-            "queryKeysRedacted": {
-              "type": "number"
-            },
-            "storageKeysRedacted": {
-              "type": "number"
-            },
-            "cookieNamesRedacted": {
-              "type": "number"
-            },
-            "matrixParamsStripped": {
-              "type": "number"
-            },
-            "subdomainLabelsGeneralized": {
-              "type": "number"
-            },
-            "malformedUrlsDropped": {
-              "type": "number"
-            }
-          },
-          "required": [
-            "pathSegmentsGeneralized",
-            "queryKeysRedacted",
-            "storageKeysRedacted",
-            "cookieNamesRedacted",
-            "matrixParamsStripped",
-            "subdomainLabelsGeneralized",
-            "malformedUrlsDropped"
-          ],
-          "additionalProperties": false
-        }
-      },
-      "required": [
-        "redactionVersion",
-        "redaction"
-      ],
-      "additionalProperties": false,
-      "description": "Redaction is expected behavior, never censoring (RFC 5.2)."
-    },
-    "DetectorLedger": {
-      "type": "object",
-      "properties": {
-        "fingerprint-heuristics": {
-          "type": "object",
-          "properties": {
-            "version": {
-              "type": "string"
-            },
-            "status": {
-              "$ref": "#/definitions/DetectorStatus"
-            },
-            "reason": {
-              "type": "string"
-            },
-            "phaseId": {
-              "$ref": "#/definitions/PhaseId"
-            }
-          },
-          "required": [
-            "version",
-            "status"
-          ],
-          "additionalProperties": false
-        },
-        "keystroke-exfiltration": {
-          "type": "object",
-          "properties": {
-            "version": {
-              "type": "string"
-            },
-            "status": {
-              "$ref": "#/definitions/DetectorStatus"
-            },
-            "reason": {
-              "type": "string"
-            },
-            "phaseId": {
-              "$ref": "#/definitions/PhaseId"
-            }
-          },
-          "required": [
-            "version",
-            "status"
-          ],
-          "additionalProperties": false
-        },
-        "cname-uncloaking": {
-          "type": "object",
-          "properties": {
-            "version": {
-              "type": "string"
-            },
-            "status": {
-              "$ref": "#/definitions/DetectorStatus"
-            },
-            "reason": {
-              "type": "string"
-            },
-            "phaseId": {
-              "$ref": "#/definitions/PhaseId"
-            }
-          },
-          "required": [
-            "version",
-            "status"
-          ],
-          "additionalProperties": false
-        },
-        "pixel-events": {
-          "type": "object",
-          "properties": {
-            "version": {
-              "type": "string"
-            },
-            "status": {
-              "$ref": "#/definitions/DetectorStatus"
-            },
-            "reason": {
-              "type": "string"
-            },
-            "phaseId": {
-              "$ref": "#/definitions/PhaseId"
-            }
-          },
-          "required": [
-            "version",
-            "status"
-          ],
-          "additionalProperties": false
-        },
-        "consent-banner": {
-          "type": "object",
-          "properties": {
-            "version": {
-              "type": "string"
-            },
-            "status": {
-              "$ref": "#/definitions/DetectorStatus"
-            },
-            "reason": {
-              "type": "string"
-            },
-            "phaseId": {
-              "$ref": "#/definitions/PhaseId"
-            }
-          },
-          "required": [
-            "version",
-            "status"
-          ],
-          "additionalProperties": false
-        },
-        "privacy-policy": {
-          "type": "object",
-          "properties": {
-            "version": {
-              "type": "string"
-            },
-            "status": {
-              "$ref": "#/definitions/DetectorStatus"
-            },
-            "reason": {
-              "type": "string"
-            },
-            "phaseId": {
-              "$ref": "#/definitions/PhaseId"
-            }
-          },
-          "required": [
-            "version",
-            "status"
-          ],
-          "additionalProperties": false
-        }
-      },
-      "required": [
-        "fingerprint-heuristics",
-        "keystroke-exfiltration",
-        "cname-uncloaking",
-        "pixel-events",
-        "consent-banner",
-        "privacy-policy"
-      ],
-      "additionalProperties": false
-    },
-    "DetectorStatus": {
-      "type": "string",
-      "enum": [
-        "complete",
-        "partial",
-        "skipped",
-        "unsupported",
-        "failed"
-      ]
-    },
-    "PhaseSpan": {
-      "type": "object",
-      "properties": {
-        "phaseId": {
-          "$ref": "#/definitions/PhaseId"
-        },
-        "kind": {
-          "$ref": "#/definitions/PhaseKind"
-        },
-        "startedAtMs": {
-          "type": "number"
-        },
-        "endedAtMs": {
-          "type": "number"
-        }
-      },
-      "required": [
-        "phaseId",
-        "kind",
-        "startedAtMs",
-        "endedAtMs"
-      ],
-      "additionalProperties": false
-    },
-    "PhaseKind": {
-      "type": "string",
-      "enum": [
-        "passive-load",
-        "consent-interaction",
-        "post-choice-reload",
-        "active-probe",
-        "policy-analysis"
-      ]
-    },
-    "RunSummary": {
-      "type": "object",
-      "properties": {
-        "pageTitle": {
-          "type": "string"
-        },
-        "status": {
-          "type": [
-            "number",
-            "null"
-          ]
-        },
-        "durationMs": {
-          "type": "number"
-        },
-        "counts": {
-          "type": "object",
-          "properties": {
-            "totalRequests": {
-              "type": "number"
-            },
-            "thirdPartyRequests": {
-              "type": "number"
-            },
-            "knownTrackerRequests": {
-              "type": "number"
-            },
-            "thirdPartyDomains": {
-              "type": "number"
-            },
-            "cookies": {
-              "type": "number"
-            },
-            "thirdPartyCookies": {
-              "type": "number"
-            },
-            "storageEntries": {
-              "type": "number"
-            },
-            "fingerprintEvents": {
-              "type": "number"
-            },
-            "shieldsBlockedRequests": {
-              "type": "number"
-            }
-          },
-          "required": [
-            "totalRequests",
-            "thirdPartyRequests",
-            "knownTrackerRequests",
-            "thirdPartyDomains",
-            "cookies",
-            "thirdPartyCookies",
-            "storageEntries",
-            "fingerprintEvents"
-          ],
-          "additionalProperties": false
-        },
-        "countsByPhase": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "phaseId": {
-                "$ref": "#/definitions/PhaseId"
-              },
-              "totalRequests": {
-                "type": "number"
-              },
-              "thirdPartyRequests": {
-                "type": "number"
-              },
-              "knownTrackerRequests": {
-                "type": "number"
-              }
-            },
-            "required": [
-              "phaseId",
-              "totalRequests",
-              "thirdPartyRequests",
-              "knownTrackerRequests"
-            ],
-            "additionalProperties": false
-          }
-        }
-      },
-      "required": [
-        "pageTitle",
-        "status",
-        "durationMs",
-        "counts",
-        "countsByPhase"
-      ],
-      "additionalProperties": false
-    },
-    "RunEvidence": {
-      "type": "object",
-      "properties": {
         "requests": {
           "type": "array",
           "items": {
@@ -1679,23 +711,300 @@
         },
         "privacyPolicy": {
           "$ref": "#/definitions/PrivacyPolicySummary"
-        },
-        "consent": {
-          "$ref": "#/definitions/ConsentEvidence"
         }
       },
       "required": [
-        "requests",
+        "cnameCloaks",
         "cookieMutations",
         "cookiesFinal",
-        "storageMutations",
-        "storageFinal",
-        "fingerprintEvents",
         "fingerprintDetections",
-        "cnameCloaks",
-        "pixelEvents"
+        "fingerprintEvents",
+        "pixelEvents",
+        "requests",
+        "storageFinal",
+        "storageMutations"
+      ]
+    },
+    "ConsentEvidenceR2": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "verificationObservations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ConsentVerificationObservationR2"
+          }
+        },
+        "bannerTransition": {
+          "$ref": "#/definitions/BannerTransitionR2"
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "accept-all",
+            "reject-all"
+          ]
+        },
+        "interactionAttempted": {
+          "type": "boolean"
+        },
+        "controlActivated": {
+          "type": "boolean",
+          "description": "A control was actually clicked (v1 `clicked`)."
+        },
+        "choiceState": {
+          "$ref": "#/definitions/ConsentChoiceState",
+          "description": "Derived by the shared evaluator from the observations."
+        },
+        "reverifiedAfterReload": {
+          "type": "boolean",
+          "description": "true iff a post-choice-reload observation exists and agrees."
+        },
+        "verificationFailureReason": {
+          "type": "string"
+        },
+        "cmp": {
+          "type": "string"
+        },
+        "selector": {
+          "type": "string"
+        },
+        "matchedText": {
+          "type": "string"
+        },
+        "frameUrl": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "choiceState",
+        "controlActivated",
+        "interactionAttempted",
+        "mode",
+        "reverifiedAfterReload",
+        "verificationObservations"
+      ]
+    },
+    "ConsentVerificationObservationR2": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "result": {
+          "$ref": "#/definitions/ConsentObservationResultR2"
+        },
+        "phaseId": {
+          "$ref": "#/definitions/PhaseId"
+        },
+        "method": {
+          "type": "string",
+          "description": "Versioned interpreter id: \"tcf-api@1\", \"onetrust-cookie@1\"."
+        },
+        "observed": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/ConsentObservedState"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "The normalized state read; null = interpreter ran, nothing readable."
+        },
+        "consistentWithChoice": {
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "description": "null when observed is null."
+        }
+      },
+      "required": [
+        "consistentWithChoice",
+        "method",
+        "observed",
+        "phaseId"
+      ]
+    },
+    "ConsentObservationResultR2": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "outcome": {
+              "type": "string",
+              "const": "read"
+            },
+            "sequence": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "outcome",
+            "sequence"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "outcome": {
+              "type": "string",
+              "const": "unreadable"
+            },
+            "sequence": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "outcome",
+            "sequence"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "outcome": {
+              "type": "string",
+              "const": "error"
+            },
+            "sequence": {
+              "type": "number"
+            },
+            "errorCode": {
+              "type": "string",
+              "enum": [
+                "interpreter-threw",
+                "state-format-unrecognized"
+              ]
+            }
+          },
+          "required": [
+            "outcome",
+            "sequence",
+            "errorCode"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "outcome": {
+              "type": "string",
+              "const": "timeout"
+            },
+            "sequence": {
+              "type": "number"
+            },
+            "errorCode": {
+              "type": "string",
+              "const": "api-timeout"
+            }
+          },
+          "required": [
+            "outcome",
+            "sequence",
+            "errorCode"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "outcome": {
+              "type": "string",
+              "const": "unsupported-frame"
+            },
+            "sequence": {
+              "type": "number"
+            },
+            "errorCode": {
+              "type": "string",
+              "const": "cross-origin-frame-blocked"
+            }
+          },
+          "required": [
+            "outcome",
+            "sequence",
+            "errorCode"
+          ],
+          "additionalProperties": false
+        }
+      ],
+      "description": "Structurally OPTIONAL so the r2 schema stays a superset of r1; the r2 evaluator makes it MANDATORY on every observation present in an r2 consent run. Discriminated: each outcome pins its allowed error code."
+    },
+    "PhaseId": {
+      "type": "number"
+    },
+    "ConsentObservedState": {
+      "type": "string",
+      "enum": [
+        "accepted-all",
+        "rejected-all",
+        "partial",
+        "unknown"
+      ],
+      "description": "Normalized consent state (RFC 9.4): never the raw CMP payload. Interpreters map whatever they read into this closed vocabulary before anything persists."
+    },
+    "BannerTransitionR2": {
+      "type": "object",
+      "properties": {
+        "method": {
+          "type": "string",
+          "const": "banner-visibility@1"
+        },
+        "observations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "moment": {
+                "$ref": "#/definitions/BannerTransitionMomentR2"
+              },
+              "phaseId": {
+                "$ref": "#/definitions/PhaseId"
+              },
+              "atMs": {
+                "type": "number",
+                "description": "Must lie inside the referenced phase's span; strictly before < after (< reload)."
+              },
+              "visible": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "moment",
+              "phaseId",
+              "atMs",
+              "visible"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "method",
+        "observations"
       ],
       "additionalProperties": false
+    },
+    "BannerTransitionMomentR2": {
+      "type": "string",
+      "enum": [
+        "before-interaction",
+        "after-interaction",
+        "after-reload"
+      ]
+    },
+    "ConsentChoiceState": {
+      "type": "string",
+      "enum": [
+        "verified",
+        "contradicted",
+        "weak-signal",
+        "unavailable",
+        "failed"
+      ]
     },
     "NetworkRequestRecordV2": {
       "type": "object",
@@ -2061,120 +1370,1069 @@
       ],
       "description": "A specific, checkable statement found in the site's privacy policy by a conservative sentence-level text match. `quote` is the matched sentence (capped) so a reader can verify the match in context; this is an automated text match, never a legal reading of the policy."
     },
-    "ConsentEvidence": {
+    "GpcVerificationFactsR2": {
       "type": "object",
       "properties": {
-        "mode": {
+        "method": {
+          "type": "string",
+          "const": "gpc-header-readback@1"
+        },
+        "header": {
           "type": "string",
           "enum": [
-            "accept-all",
-            "reject-all"
+            "confirmed-present",
+            "confirmed-absent",
+            "unobservable"
           ]
         },
-        "interactionAttempted": {
-          "type": "boolean"
+        "jsSignal": {
+          "type": "string",
+          "enum": [
+            "confirmed-true",
+            "confirmed-false",
+            "confirmed-absent",
+            "read-failed",
+            "unobservable"
+          ]
         },
-        "controlActivated": {
-          "type": "boolean",
-          "description": "A control was actually clicked (v1 `clicked`)."
+        "observedOn": {
+          "type": "string",
+          "const": "first-party-navigation",
+          "description": "The only scope in r2; sampled scopes are deferred to a later revision."
         },
-        "verificationObservations": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/ConsentVerificationObservation"
-          },
-          "description": "The recorded facts, phase-tagged. An intervention-grade verification has at least one observation in consent-interaction and one in post-choice-reload."
-        },
-        "choiceState": {
-          "$ref": "#/definitions/ConsentChoiceState",
-          "description": "Derived by the shared evaluator from the observations."
-        },
-        "reverifiedAfterReload": {
-          "type": "boolean",
-          "description": "true iff a post-choice-reload observation exists and agrees."
-        },
-        "verificationFailureReason": {
-          "type": "string"
-        },
-        "cmp": {
-          "type": "string"
-        },
-        "selector": {
-          "type": "string"
-        },
-        "matchedText": {
-          "type": "string"
-        },
-        "frameUrl": {
-          "type": "string"
+        "phaseId": {
+          "$ref": "#/definitions/PhaseId",
+          "description": "Must reference a passive-load phase containing the eligible navigation."
         }
       },
       "required": [
-        "mode",
-        "interactionAttempted",
-        "controlActivated",
-        "verificationObservations",
-        "choiceState",
-        "reverifiedAfterReload"
+        "method",
+        "header",
+        "jsSignal",
+        "observedOn",
+        "phaseId"
       ],
       "additionalProperties": false
     },
-    "ConsentVerificationObservation": {
+    "ShieldsVerificationFactsR2": {
       "type": "object",
       "properties": {
-        "phaseId": {
-          "$ref": "#/definitions/PhaseId"
-        },
         "method": {
           "type": "string",
-          "description": "Versioned interpreter id: \"tcf-api@1\", \"onetrust-cookie@1\"."
+          "const": "shields-engine-status@1"
+        },
+        "engineLoaded": {
+          "type": "boolean"
+        },
+        "applied": {
+          "type": "boolean"
+        },
+        "requestsEvaluated": {
+          "type": "number",
+          "description": "Nonnegative integers; actuallyBlocked <= matched <= evaluated."
+        },
+        "requestsMatched": {
+          "type": "number"
+        },
+        "requestsActuallyBlocked": {
+          "type": "number"
+        },
+        "phaseId": {
+          "$ref": "#/definitions/PhaseId",
+          "description": "The passive-load phase of the engine-status observation."
+        }
+      },
+      "required": [
+        "method",
+        "engineLoaded",
+        "applied",
+        "requestsEvaluated",
+        "requestsMatched",
+        "requestsActuallyBlocked",
+        "phaseId"
+      ],
+      "additionalProperties": false
+    },
+    "SubjectIdentity": {
+      "type": "object",
+      "properties": {
+        "requested": {
+          "$ref": "#/definitions/SubjectKey",
+          "description": "What the submitter asked for."
         },
         "observed": {
+          "$ref": "#/definitions/SubjectKey",
+          "description": "Derived from the FINAL url; the measured subject and comparison identity."
+        }
+      },
+      "required": [
+        "requested",
+        "observed"
+      ],
+      "additionalProperties": false
+    },
+    "SubjectKey": {
+      "type": "object",
+      "properties": {
+        "origin": {
+          "type": "string",
+          "description": "Normalized privacy-safe origin: lowercase, IDN as punycode A-label, default port stripped, token-like subdomain labels generalized (RFC 9.1)."
+        },
+        "registrableDomain": {
+          "type": "string",
+          "description": "eTLD+1 (\"example.com\"). Public profile grouping key."
+        },
+        "routeShape": {
+          "type": "string",
+          "description": "Privacy-safe path shape (\"/products/{seg}\", RFC 9.1)."
+        }
+      },
+      "required": [
+        "origin",
+        "registrableDomain",
+        "routeShape"
+      ],
+      "additionalProperties": false
+    },
+    "ConditionVector": {
+      "type": "object",
+      "properties": {
+        "gpc": {
+          "type": "boolean"
+        },
+        "shields": {
+          "$ref": "#/definitions/ShieldsCondition"
+        },
+        "consent": {
+          "$ref": "#/definitions/ConsentCondition"
+        },
+        "device": {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "enum": [
+                "desktop",
+                "mobile"
+              ]
+            },
+            "viewport": {
+              "type": "object",
+              "properties": {
+                "width": {
+                  "type": "number"
+                },
+                "height": {
+                  "type": "number"
+                },
+                "isMobile": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "width",
+                "height",
+                "isMobile"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "kind",
+            "viewport"
+          ],
+          "additionalProperties": false
+        },
+        "probes": {
+          "type": "object",
+          "properties": {
+            "keystroke": {
+              "type": "boolean"
+            },
+            "policyVisit": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "keystroke",
+            "policyVisit"
+          ],
+          "additionalProperties": false
+        },
+        "locale": {
+          "type": "string"
+        },
+        "language": {
+          "type": "string"
+        },
+        "timezone": {
+          "type": "string"
+        },
+        "egress": {
+          "type": "object",
+          "properties": {
+            "label": {
+              "type": "string"
+            },
+            "region": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "label"
+          ],
+          "additionalProperties": false
+        },
+        "browser": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "version": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "name",
+            "version"
+          ],
+          "additionalProperties": false
+        },
+        "headless": {
+          "type": "boolean"
+        },
+        "automation": {
+          "$ref": "#/definitions/ScanAutomation"
+        }
+      },
+      "required": [
+        "gpc",
+        "shields",
+        "consent",
+        "device",
+        "probes",
+        "locale",
+        "language",
+        "timezone",
+        "egress",
+        "browser",
+        "headless",
+        "automation"
+      ],
+      "additionalProperties": false
+    },
+    "ShieldsCondition": {
+      "type": "string",
+      "enum": [
+        "off",
+        "classification",
+        "block-simulation"
+      ]
+    },
+    "ConsentCondition": {
+      "type": "string",
+      "enum": [
+        "observe",
+        "accept-all",
+        "reject-all"
+      ]
+    },
+    "ScanAutomation": {
+      "type": "string",
+      "enum": [
+        "playwright-chromium",
+        "brave-pagegraph",
+        "external"
+      ]
+    },
+    "Provenance": {
+      "type": "object",
+      "properties": {
+        "observer": {
+          "$ref": "#/definitions/ObserverKind",
+          "description": "What measured."
+        },
+        "acquisition": {
+          "$ref": "#/definitions/AcquisitionKind",
+          "description": "What asked for the measurement; CI is an orchestrator, not a scanner."
+        },
+        "buildCommit": {
+          "type": "string",
+          "description": "Self-reported, machine-checkable metadata, not cryptographic proof."
+        },
+        "methodologyVersion": {
+          "type": "string",
+          "description": "Meaning of the numbers; distinct from schemaVersion (shape)."
+        },
+        "detectorRegistry": {
+          "type": "object",
+          "properties": {
+            "version": {
+              "type": "string"
+            },
+            "digest": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "version",
+            "digest"
+          ],
+          "additionalProperties": false,
+          "description": "The known-detector set itself is versioned."
+        },
+        "sourceArtifactDigest": {
+          "type": "string",
+          "description": "e.g. sha256 of an imported PageGraph GraphML."
+        }
+      },
+      "required": [
+        "observer",
+        "acquisition",
+        "buildCommit",
+        "methodologyVersion",
+        "detectorRegistry"
+      ],
+      "additionalProperties": false
+    },
+    "ObserverKind": {
+      "type": "string",
+      "enum": [
+        "node-playwright",
+        "browser-run-worker",
+        "pagegraph-import"
+      ]
+    },
+    "AcquisitionKind": {
+      "type": "string",
+      "enum": [
+        "public-api",
+        "operator-cli",
+        "ci-workflow",
+        "upload"
+      ]
+    },
+    "Toolchain": {
+      "type": "object",
+      "properties": {
+        "trackerCatalog": {
+          "type": "object",
+          "properties": {
+            "source": {
+              "type": "string"
+            },
+            "version": {
+              "type": "string"
+            },
+            "entries": {
+              "type": "number"
+            },
+            "digest": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "source",
+            "version",
+            "entries",
+            "digest"
+          ],
+          "additionalProperties": false
+        },
+        "adblock": {
           "anyOf": [
             {
-              "$ref": "#/definitions/ConsentObservedState"
+              "type": "object",
+              "properties": {
+                "source": {
+                  "type": "string"
+                },
+                "lists": {
+                  "type": "number"
+                },
+                "fetchedAt": {
+                  "type": "string"
+                },
+                "manifestDigest": {
+                  "type": "string",
+                  "description": "Aggregate digest; keys the published immutable per-list digest manifest."
+                },
+                "engineVersion": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "source",
+                "lists",
+                "fetchedAt",
+                "manifestDigest",
+                "engineVersion"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "normalizationVersion": {
+          "type": "string",
+          "description": "URL/host canonicalization rules version (RFC section 9)."
+        }
+      },
+      "required": [
+        "trackerCatalog",
+        "adblock",
+        "normalizationVersion"
+      ],
+      "additionalProperties": false,
+      "description": "The digests/versions the fingerprints hash, stored on the run (RFC 3.5)."
+    },
+    "Fingerprints": {
+      "type": "object",
+      "properties": {
+        "execution": {
+          "type": "string",
+          "description": "Exact reproducibility: full conditions + buildCommit + methodology + registries + toolchain."
+        },
+        "measurementEnvironment": {
+          "type": "string",
+          "description": "Behavior-affecting environment EXCLUDING the intervention axes' values and buildCommit. Equal values mean \"measured the same way\"; intervention state may still differ."
+        },
+        "condition": {
+          "type": "string",
+          "description": "The complete condition vector alone. Equal values mean \"same requested setup\"."
+        }
+      },
+      "required": [
+        "execution",
+        "measurementEnvironment",
+        "condition"
+      ],
+      "additionalProperties": false,
+      "description": "RFC 3.2: three digests over canonical JSON. Stored beside their inputs (conditions, provenance, toolchain), so every fingerprint is recomputable from the report itself."
+    },
+    "QualityFacts": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "botWallTitleMatched": {
+          "type": "boolean"
+        },
+        "navigationSettled": {
+          "type": "boolean"
+        },
+        "budgetsExhausted": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "captureLoss": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/CaptureLossEntry"
+          }
+        }
+      },
+      "required": [
+        "status",
+        "botWallTitleMatched",
+        "navigationSettled",
+        "budgetsExhausted",
+        "captureLoss"
+      ],
+      "additionalProperties": false,
+      "description": "Recorded facts; producers never declare quality directly (RFC 5.3)."
+    },
+    "CaptureLossEntry": {
+      "type": "object",
+      "properties": {
+        "family": {
+          "$ref": "#/definitions/EvidenceFamily"
+        },
+        "phaseId": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/PhaseId"
             },
             {
               "type": "null"
             }
           ],
-          "description": "The normalized state read; null = interpreter ran, nothing readable."
+          "description": "null = not attributable to a phase."
         },
-        "consistentWithChoice": {
-          "type": [
-            "boolean",
-            "null"
+        "kind": {
+          "type": "string",
+          "enum": [
+            "dropped",
+            "clipped",
+            "truncated",
+            "timeout",
+            "cap"
+          ]
+        },
+        "count": {
+          "type": "number"
+        },
+        "detail": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "family",
+        "phaseId",
+        "kind",
+        "count"
+      ],
+      "additionalProperties": false
+    },
+    "EvidenceFamily": {
+      "type": "string",
+      "enum": [
+        "requests",
+        "cookies",
+        "storage",
+        "fingerprinting",
+        "detector-output",
+        "consent-verification"
+      ]
+    },
+    "Quality": {
+      "type": "object",
+      "properties": {
+        "evaluatorVersion": {
+          "type": "string"
+        },
+        "run": {
+          "type": "object",
+          "properties": {
+            "outcome": {
+              "type": "string",
+              "enum": [
+                "complete",
+                "failed"
+              ]
+            },
+            "reasons": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/QualityReason"
+              }
+            }
+          },
+          "required": [
+            "outcome",
+            "reasons"
           ],
-          "description": "null when observed is null."
+          "additionalProperties": false,
+          "description": "Run-level: did the page load produce a valid observation at all?"
+        },
+        "byFamily": {
+          "type": "object",
+          "properties": {
+            "requests": {
+              "type": "object",
+              "properties": {
+                "outcome": {
+                  "type": "string",
+                  "enum": [
+                    "complete",
+                    "censored"
+                  ]
+                },
+                "reasons": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/QualityReason"
+                  }
+                }
+              },
+              "required": [
+                "outcome",
+                "reasons"
+              ],
+              "additionalProperties": false
+            },
+            "cookies": {
+              "type": "object",
+              "properties": {
+                "outcome": {
+                  "type": "string",
+                  "enum": [
+                    "complete",
+                    "censored"
+                  ]
+                },
+                "reasons": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/QualityReason"
+                  }
+                }
+              },
+              "required": [
+                "outcome",
+                "reasons"
+              ],
+              "additionalProperties": false
+            },
+            "storage": {
+              "type": "object",
+              "properties": {
+                "outcome": {
+                  "type": "string",
+                  "enum": [
+                    "complete",
+                    "censored"
+                  ]
+                },
+                "reasons": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/QualityReason"
+                  }
+                }
+              },
+              "required": [
+                "outcome",
+                "reasons"
+              ],
+              "additionalProperties": false
+            },
+            "fingerprinting": {
+              "type": "object",
+              "properties": {
+                "outcome": {
+                  "type": "string",
+                  "enum": [
+                    "complete",
+                    "censored"
+                  ]
+                },
+                "reasons": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/QualityReason"
+                  }
+                }
+              },
+              "required": [
+                "outcome",
+                "reasons"
+              ],
+              "additionalProperties": false
+            },
+            "detector-output": {
+              "type": "object",
+              "properties": {
+                "outcome": {
+                  "type": "string",
+                  "enum": [
+                    "complete",
+                    "censored"
+                  ]
+                },
+                "reasons": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/QualityReason"
+                  }
+                }
+              },
+              "required": [
+                "outcome",
+                "reasons"
+              ],
+              "additionalProperties": false
+            },
+            "consent-verification": {
+              "type": "object",
+              "properties": {
+                "outcome": {
+                  "type": "string",
+                  "enum": [
+                    "complete",
+                    "censored"
+                  ]
+                },
+                "reasons": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/QualityReason"
+                  }
+                }
+              },
+              "required": [
+                "outcome",
+                "reasons"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "requests",
+            "cookies",
+            "storage",
+            "fingerprinting",
+            "detector-output",
+            "consent-verification"
+          ],
+          "additionalProperties": false,
+          "description": "Family-level censoring; one family's loss never contaminates another."
+        }
+      },
+      "required": [
+        "evaluatorVersion",
+        "run",
+        "byFamily"
+      ],
+      "additionalProperties": false
+    },
+    "QualityReason": {
+      "type": "string",
+      "description": "Normative initial vocabulary (RFC 5.3); extensible only with an evaluatorVersion bump. Parameterized codes use \"code:qualifier\"."
+    },
+    "PrivacyStats": {
+      "type": "object",
+      "properties": {
+        "redactionVersion": {
+          "type": "number"
+        },
+        "redaction": {
+          "type": "object",
+          "properties": {
+            "pathSegmentsGeneralized": {
+              "type": "number"
+            },
+            "queryKeysRedacted": {
+              "type": "number"
+            },
+            "storageKeysRedacted": {
+              "type": "number"
+            },
+            "cookieNamesRedacted": {
+              "type": "number"
+            },
+            "matrixParamsStripped": {
+              "type": "number"
+            },
+            "subdomainLabelsGeneralized": {
+              "type": "number"
+            },
+            "malformedUrlsDropped": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "pathSegmentsGeneralized",
+            "queryKeysRedacted",
+            "storageKeysRedacted",
+            "cookieNamesRedacted",
+            "matrixParamsStripped",
+            "subdomainLabelsGeneralized",
+            "malformedUrlsDropped"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "redactionVersion",
+        "redaction"
+      ],
+      "additionalProperties": false,
+      "description": "Redaction is expected behavior, never censoring (RFC 5.2)."
+    },
+    "DetectorLedger": {
+      "type": "object",
+      "properties": {
+        "fingerprint-heuristics": {
+          "type": "object",
+          "properties": {
+            "version": {
+              "type": "string"
+            },
+            "status": {
+              "$ref": "#/definitions/DetectorStatus"
+            },
+            "reason": {
+              "type": "string"
+            },
+            "phaseId": {
+              "$ref": "#/definitions/PhaseId"
+            }
+          },
+          "required": [
+            "version",
+            "status"
+          ],
+          "additionalProperties": false
+        },
+        "keystroke-exfiltration": {
+          "type": "object",
+          "properties": {
+            "version": {
+              "type": "string"
+            },
+            "status": {
+              "$ref": "#/definitions/DetectorStatus"
+            },
+            "reason": {
+              "type": "string"
+            },
+            "phaseId": {
+              "$ref": "#/definitions/PhaseId"
+            }
+          },
+          "required": [
+            "version",
+            "status"
+          ],
+          "additionalProperties": false
+        },
+        "cname-uncloaking": {
+          "type": "object",
+          "properties": {
+            "version": {
+              "type": "string"
+            },
+            "status": {
+              "$ref": "#/definitions/DetectorStatus"
+            },
+            "reason": {
+              "type": "string"
+            },
+            "phaseId": {
+              "$ref": "#/definitions/PhaseId"
+            }
+          },
+          "required": [
+            "version",
+            "status"
+          ],
+          "additionalProperties": false
+        },
+        "pixel-events": {
+          "type": "object",
+          "properties": {
+            "version": {
+              "type": "string"
+            },
+            "status": {
+              "$ref": "#/definitions/DetectorStatus"
+            },
+            "reason": {
+              "type": "string"
+            },
+            "phaseId": {
+              "$ref": "#/definitions/PhaseId"
+            }
+          },
+          "required": [
+            "version",
+            "status"
+          ],
+          "additionalProperties": false
+        },
+        "consent-banner": {
+          "type": "object",
+          "properties": {
+            "version": {
+              "type": "string"
+            },
+            "status": {
+              "$ref": "#/definitions/DetectorStatus"
+            },
+            "reason": {
+              "type": "string"
+            },
+            "phaseId": {
+              "$ref": "#/definitions/PhaseId"
+            }
+          },
+          "required": [
+            "version",
+            "status"
+          ],
+          "additionalProperties": false
+        },
+        "privacy-policy": {
+          "type": "object",
+          "properties": {
+            "version": {
+              "type": "string"
+            },
+            "status": {
+              "$ref": "#/definitions/DetectorStatus"
+            },
+            "reason": {
+              "type": "string"
+            },
+            "phaseId": {
+              "$ref": "#/definitions/PhaseId"
+            }
+          },
+          "required": [
+            "version",
+            "status"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "fingerprint-heuristics",
+        "keystroke-exfiltration",
+        "cname-uncloaking",
+        "pixel-events",
+        "consent-banner",
+        "privacy-policy"
+      ],
+      "additionalProperties": false
+    },
+    "DetectorStatus": {
+      "type": "string",
+      "enum": [
+        "complete",
+        "partial",
+        "skipped",
+        "unsupported",
+        "failed"
+      ]
+    },
+    "PhaseSpan": {
+      "type": "object",
+      "properties": {
+        "phaseId": {
+          "$ref": "#/definitions/PhaseId"
+        },
+        "kind": {
+          "$ref": "#/definitions/PhaseKind"
+        },
+        "startedAtMs": {
+          "type": "number"
+        },
+        "endedAtMs": {
+          "type": "number"
         }
       },
       "required": [
         "phaseId",
-        "method",
-        "observed",
-        "consistentWithChoice"
+        "kind",
+        "startedAtMs",
+        "endedAtMs"
       ],
       "additionalProperties": false
     },
-    "ConsentObservedState": {
+    "PhaseKind": {
       "type": "string",
       "enum": [
-        "accepted-all",
-        "rejected-all",
-        "partial",
-        "unknown"
-      ],
-      "description": "Normalized consent state (RFC 9.4): never the raw CMP payload. Interpreters map whatever they read into this closed vocabulary before anything persists."
-    },
-    "ConsentChoiceState": {
-      "type": "string",
-      "enum": [
-        "verified",
-        "contradicted",
-        "weak-signal",
-        "unavailable",
-        "failed"
+        "passive-load",
+        "consent-interaction",
+        "post-choice-reload",
+        "active-probe",
+        "policy-analysis"
       ]
+    },
+    "RunSummary": {
+      "type": "object",
+      "properties": {
+        "pageTitle": {
+          "type": "string"
+        },
+        "status": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "durationMs": {
+          "type": "number"
+        },
+        "counts": {
+          "type": "object",
+          "properties": {
+            "totalRequests": {
+              "type": "number"
+            },
+            "thirdPartyRequests": {
+              "type": "number"
+            },
+            "knownTrackerRequests": {
+              "type": "number"
+            },
+            "thirdPartyDomains": {
+              "type": "number"
+            },
+            "cookies": {
+              "type": "number"
+            },
+            "thirdPartyCookies": {
+              "type": "number"
+            },
+            "storageEntries": {
+              "type": "number"
+            },
+            "fingerprintEvents": {
+              "type": "number"
+            },
+            "shieldsBlockedRequests": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "totalRequests",
+            "thirdPartyRequests",
+            "knownTrackerRequests",
+            "thirdPartyDomains",
+            "cookies",
+            "thirdPartyCookies",
+            "storageEntries",
+            "fingerprintEvents"
+          ],
+          "additionalProperties": false
+        },
+        "countsByPhase": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "phaseId": {
+                "$ref": "#/definitions/PhaseId"
+              },
+              "totalRequests": {
+                "type": "number"
+              },
+              "thirdPartyRequests": {
+                "type": "number"
+              },
+              "knownTrackerRequests": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "phaseId",
+              "totalRequests",
+              "thirdPartyRequests",
+              "knownTrackerRequests"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "pageTitle",
+        "status",
+        "durationMs",
+        "counts",
+        "countsByPhase"
+      ],
+      "additionalProperties": false
     },
     "ReportShare": {
       "type": "object",
@@ -2196,29 +2454,30 @@
       ],
       "additionalProperties": false
     },
-    "PublicComparisonReportV2": {
+    "PublicComparisonReportV2R2": {
       "type": "object",
+      "additionalProperties": false,
       "properties": {
+        "schemaRevision": {
+          "type": "number",
+          "const": 2
+        },
+        "baseline": {
+          "$ref": "#/definitions/ScanRunV2R2"
+        },
+        "variant": {
+          "$ref": "#/definitions/ScanRunV2R2"
+        },
+        "experiment": {
+          "$ref": "#/definitions/ExperimentR2"
+        },
         "schemaVersion": {
           "type": "number",
           "const": 2
         },
-        "schemaRevision": {
-          "type": "number",
-          "const": 1
-        },
         "reportType": {
           "type": "string",
           "const": "comparison"
-        },
-        "baseline": {
-          "$ref": "#/definitions/ScanRunV2"
-        },
-        "variant": {
-          "$ref": "#/definitions/ScanRunV2"
-        },
-        "experiment": {
-          "$ref": "#/definitions/Experiment"
         },
         "comparability": {
           "$ref": "#/definitions/Comparability"
@@ -2231,21 +2490,20 @@
         }
       },
       "required": [
-        "schemaVersion",
-        "schemaRevision",
-        "reportType",
         "baseline",
-        "variant",
-        "experiment",
         "comparability",
-        "diff"
-      ],
-      "additionalProperties": false
+        "diff",
+        "experiment",
+        "reportType",
+        "schemaRevision",
+        "schemaVersion",
+        "variant"
+      ]
     },
-    "Experiment": {
+    "ExperimentR2": {
       "anyOf": [
         {
-          "$ref": "#/definitions/InterventionExperiment"
+          "$ref": "#/definitions/InterventionExperimentR2"
         },
         {
           "$ref": "#/definitions/TemporalExperiment"
@@ -2255,9 +2513,16 @@
         }
       ]
     },
-    "InterventionExperiment": {
+    "InterventionExperimentR2": {
       "type": "object",
+      "additionalProperties": false,
       "properties": {
+        "supportingPairs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/SupportingPairR2"
+          }
+        },
         "kind": {
           "type": "string",
           "const": "intervention"
@@ -2316,23 +2581,60 @@
         }
       },
       "required": [
-        "kind",
         "axis",
+        "evidence",
+        "kind",
+        "order",
+        "pairId",
+        "verification"
+      ],
+      "description": "supportingPairs exist ONLY on intervention experiments."
+    },
+    "SupportingPairR2": {
+      "type": "object",
+      "properties": {
+        "pairId": {
+          "type": "string"
+        },
+        "order": {
+          "type": "string",
+          "enum": [
+            "AB",
+            "BA"
+          ]
+        },
+        "baseline": {
+          "$ref": "#/definitions/ScanRunV2R2",
+          "description": "COMPLETE embedded runs, never counters (RFC 15.6)."
+        },
+        "variant": {
+          "$ref": "#/definitions/ScanRunV2R2"
+        },
+        "verification": {
+          "type": "object",
+          "properties": {
+            "baseline": {
+              "$ref": "#/definitions/ArmVerification"
+            },
+            "variant": {
+              "$ref": "#/definitions/ArmVerification"
+            }
+          },
+          "required": [
+            "baseline",
+            "variant"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
         "pairId",
         "order",
-        "verification",
-        "evidence"
+        "baseline",
+        "variant",
+        "verification"
       ],
       "additionalProperties": false
-    },
-    "InterventionAxis": {
-      "type": "string",
-      "enum": [
-        "gpc",
-        "shields",
-        "consent"
-      ],
-      "description": "The axes an experiment may move. Everything else is environment."
     },
     "ArmVerification": {
       "type": "object",
@@ -2380,6 +2682,15 @@
         "phaseId"
       ],
       "additionalProperties": false
+    },
+    "InterventionAxis": {
+      "type": "string",
+      "enum": [
+        "gpc",
+        "shields",
+        "consent"
+      ],
+      "description": "The axes an experiment may move. Everything else is environment."
     },
     "AxisState": {
       "type": "string",

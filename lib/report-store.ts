@@ -3,6 +3,9 @@ import { readManagedReport } from "./managed-report-reader";
 import { buildProvenanceEntry } from "./redaction-provenance";
 import { redactScanReportV1 } from "./redact-scan-report-v1";
 import { buildReportShare } from "./report-locator";
+import type { RuntimeScanReport } from "./runtime-scan-report";
+import { NODE_SCAN_REPORT_V2_R2_MAX_PUBLIC_BYTES } from "./scan-report-v2-r2-limits";
+import { toPublicScanReportR2 } from "./scan-report-v2-r2-projection";
 import {
   resolveReportStoreBackend,
   type ReportRetentionMetadata,
@@ -23,19 +26,42 @@ export type ReportStoreStatus = ReportStoreBackendStatus & {
   maxCount: number;
 };
 
-export async function saveScanReport<T extends ScanReport>(report: T, options: { shareId?: string } = {}): Promise<T> {
+export async function saveScanReport<T extends RuntimeScanReport>(
+  report: T,
+  options: { shareId?: string } = {}
+): Promise<T> {
   const share = createReportShare(options.shareId);
-  // Idempotently enforce the current public sanitizer at the persistence
-  // boundary even when the producer already applied it. Only those exact
-  // sanitized bytes may receive a current-version provenance sidecar.
-  const saved = redactScanReportV1(attachShare(report, share)).report;
-  const publicReport = stripScreenshotsForStorage(saved);
+  const runtimeReport: RuntimeScanReport = report;
+  let saved: RuntimeScanReport;
+  let publicReport: ScanReport | ReturnType<typeof toPublicScanReportR2>;
+  if (runtimeReport.schemaVersion === 1) {
+    // Idempotently enforce the frozen v1 public sanitizer at the persistence
+    // boundary even when the producer already applied it.
+    const sanitized = redactScanReportV1(attachShare(runtimeReport, share)).report;
+    saved = sanitized;
+    publicReport = stripScreenshotsForStorage(sanitized);
+  } else {
+    // r2 was already sanitized and semantically gated by its builder. Attach
+    // the share to the immediate shell, then use the named-field projector as
+    // the only persistence path; it strips the entire ephemeral screenshot
+    // block by construction.
+    saved = attachShare(runtimeReport, share);
+    publicReport = toPublicScanReportR2(saved);
+  }
   const now = new Date();
   const retention: ReportRetentionMetadata = {
     createdAt: now.toISOString(),
     expiresAt: new Date(now.getTime() + reportMaxAgeMs()).toISOString()
   };
   const reportWire = `${JSON.stringify(publicReport, null, 2)}\n`;
+  if (
+    runtimeReport.schemaVersion === 2 &&
+    Buffer.byteLength(reportWire, "utf8") > NODE_SCAN_REPORT_V2_R2_MAX_PUBLIC_BYTES
+  ) {
+    throw new Error(
+      `Refusing to persist a ScanReport v2/r2 larger than ${NODE_SCAN_REPORT_V2_R2_MAX_PUBLIC_BYTES} public bytes after attaching its share.`
+    );
+  }
   const sidecar = buildProvenanceEntry({
     reportId: share.id,
     publicReport,
@@ -43,15 +69,27 @@ export async function saveScanReport<T extends ScanReport>(report: T, options: {
     createdAt: retention.createdAt,
     expiresAt: retention.expiresAt
   });
+  const sidecarWire = `${JSON.stringify(sidecar, null, 2)}\n`;
+  // Validate the exact bundle before the first externally visible write. This
+  // also pins every embedded r2 run to the sidecar's current redactionVersion.
+  const managed = readManagedReport({
+    reportId: share.id,
+    reportContents: reportWire,
+    sidecarContents: sidecarWire,
+    retention
+  });
+  if (!managed.ok) {
+    throw new Error(`Refusing to persist an unreadable managed report (${managed.reason}).`);
+  }
   const backend = resolveReportStoreBackend();
   // Deliberately non-atomic and ordered: a crash/failure after the report PUT
   // leaves no matching sidecar, so reads fail closed rather than trusting an
   // unattested object. The share operation itself does not succeed until both
   // writes do.
   await backend.write(share.id, reportWire, retention);
-  await backend.writeSidecar(share.id, `${JSON.stringify(sidecar, null, 2)}\n`);
+  await backend.writeSidecar(share.id, sidecarWire);
   await pruneStoredReportsSafely(share.id);
-  return saved;
+  return saved as T;
 }
 
 /**
@@ -131,7 +169,12 @@ export function reportStoreStatus(): ReportStoreStatus {
   };
 }
 
-function attachShare<T extends ScanReport>(report: T, share: ReportShare): T {
+/** Construct the configured backend without performing IO; throws on bad config. */
+export function assertReportStoreAvailable(): void {
+  resolveReportStoreBackend();
+}
+
+function attachShare<T extends RuntimeScanReport>(report: T, share: ReportShare): T {
   return {
     ...report,
     share

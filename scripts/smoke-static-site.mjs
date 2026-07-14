@@ -58,8 +58,8 @@ async function main() {
     await expectText(page.locator(".static-gallery"), "Saved reports");
     pass("static home renders archive shell");
 
-    // The published ScanReport v2 schema: the immutable revisioned file and
-    // its stable alias must both serve and agree (scan-report-v2-rfc.md 10.3).
+    // Both immutable ScanReport v2 revisions publish independently; the
+    // stable alias serves the current r2 revision (RFC 10.3/14.11).
     const revisionedResponse = await fetch(`${baseUrl}/schemas/scan-report.v2.r1.schema.json`);
     if (!revisionedResponse.ok) fail(`revisioned schema not served (${revisionedResponse.status})`);
     const revisionedSchema = await revisionedResponse.json();
@@ -69,21 +69,19 @@ async function main() {
     const aliasResponse = await fetch(`${baseUrl}/scan-report.schema.json`);
     if (!aliasResponse.ok) fail(`stable schema alias not served (${aliasResponse.status})`);
     const aliasSchema = await aliasResponse.json();
-    if (JSON.stringify(aliasSchema) !== JSON.stringify(revisionedSchema)) {
-      fail("stable schema alias does not match the current revision");
-    }
     const r2Response = await fetch(`${baseUrl}/schemas/scan-report.v2.r2.schema.json`);
     if (!r2Response.ok) fail(`r2 revisioned schema not served (${r2Response.status})`);
     const r2Schema = await r2Response.json();
     if (r2Schema.$id !== "https://sitebehavior.org/schemas/scan-report.v2.r2.schema.json") {
       fail("r2 revisioned schema has the wrong $id");
     }
-    // The stable alias must STILL serve r1 (RFC 14.9: it moves only after
-    // complete dual-read consumer migration).
-    if (JSON.stringify(aliasSchema) === JSON.stringify(r2Schema)) {
-      fail("the stable alias must not serve r2 before consumer migration completes");
+    if (JSON.stringify(aliasSchema) !== JSON.stringify(r2Schema)) {
+      fail("stable schema alias does not match the current r2 revision");
     }
-    pass("scan-report v2 schemas published (r1 + r2 revisioned files, stable alias on r1)");
+    if (JSON.stringify(aliasSchema) === JSON.stringify(revisionedSchema)) {
+      fail("stable schema alias still serves historical r1");
+    }
+    pass("scan-report v2 schemas published (r1 + r2 revisioned files, stable alias on r2)");
 
     if (liveScanApiBase) {
       await expectText(page.locator(".status-pill"), "Live");

@@ -6,6 +6,9 @@ import { afterEach, beforeEach, test } from "node:test";
 import { buildCorpusStats } from "./corpus-stats-builder";
 import { buildProvenanceEntry, committedSidecarFilename } from "./redaction-provenance";
 import { redactScanReportV1 } from "./redact-scan-report-v1";
+import { REDACTION_VERSION } from "./redaction-v2";
+import { buildStaticReportShare } from "./report-locator";
+import { makePublicSingleReportV2R2 } from "./scan-report-v2-r2-fixtures";
 import { makeScanReportV1 } from "./scan-report-v2-fixtures";
 import type { ScanReport, ScanResult } from "./types";
 
@@ -102,6 +105,39 @@ test("one data point per site, newest scan wins, percentiles over real sites", a
   // one-fixture.dev contributes its NEWEST scan (40), not the older 10.
   assert.equal(stats.metrics.thirdPartyRequests?.max, 40);
   assert.equal(stats.metrics.thirdPartyRequests?.min, 20);
+});
+
+test("r2 reports remain visible to the corpus but never enter the legacy v1 percentile cohort", async () => {
+  await writeReport(
+    "20260701-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    makeResult({ firstPartyDomain: "legacy-fixture.dev", thirdPartyRequests: 20 })
+  );
+
+  const id = "20260710-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
+  const r2 = makePublicSingleReportV2R2();
+  r2.run.privacy.redactionVersion = REDACTION_VERSION;
+  r2.share = buildStaticReportShare(id);
+  await writeFile(path.join(reportsDir, `${id}.json`), `${JSON.stringify(r2, null, 2)}\n`);
+  await writeFile(
+    path.join(reportsDir, committedSidecarFilename(id)),
+    `${JSON.stringify(
+      buildProvenanceEntry({
+        reportId: id,
+        publicReport: r2,
+        writtenAt: "2026-07-12T00:00:00.000Z",
+        createdAt: r2.run.startedAt,
+        expiresAt: null
+      })
+    )}\n`
+  );
+
+  const { stats, warnings } = await buildCorpusStats(reportsDir);
+  assert.equal(stats.sampleSize, 1);
+  assert.equal(stats.metrics.thirdPartyRequests?.min, 20);
+  assert.equal(stats.metrics.thirdPartyRequests?.max, 20);
+  assert.deepEqual(warnings, [
+    `Skipping corpus report ${id}.json: schemaVersion 2 metrics are not comparable to the v1 distribution.`
+  ]);
 });
 
 test("malformed reports fail the managed corpus build, never zero-coerce into the distribution", async () => {

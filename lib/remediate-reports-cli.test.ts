@@ -15,7 +15,12 @@ import {
 import { buildProvenanceEntry, committedSidecarFilename, matchProvenance } from "./redaction-provenance";
 import { REDACTION_VERSION } from "./redaction-v2";
 import { buildStaticReportShare } from "./report-locator";
-import { makeScanReportV1 } from "./scan-report-v2-fixtures";
+import {
+  makePublicSingleReportV2R2,
+  makeSupportingPairInterventionReportV2R2
+} from "./scan-report-v2-r2-fixtures";
+import { NODE_SCAN_REPORT_V2_R2_MAX_PUBLIC_BYTES } from "./scan-report-v2-r2-limits";
+import { makePublicSingleReportV2, makeScanReportV1 } from "./scan-report-v2-fixtures";
 import type { ScanReport, ScanResult } from "./types";
 
 const WRITTEN_AT = "2026-07-12T20:00:00.000Z";
@@ -110,6 +115,105 @@ test("apply preserves report identity and clocks, uses one writtenAt, and is rep
   const checked = await remediateReports({ reportsDir, mode: "check", writtenAt: LATER_WRITTEN_AT });
   assert.equal(checked.reportChanges, 0);
   assert.deepEqual(checked.issues, []);
+});
+
+test("r2 remediation is byte-for-byte pass-through and backfills only a current sidecar", async () => {
+  const reportsDir = await makeReportsDirectory();
+  const id = reportId("1");
+  const report = makeSupportingPairInterventionReportV2R2();
+  assert.equal(report.experiment.kind, "intervention");
+  if (report.experiment.kind !== "intervention") throw new Error("expected intervention fixture");
+  const supportingPair = report.experiment.supportingPairs?.[0];
+  assert.ok(supportingPair);
+  for (const run of [report.baseline, report.variant, supportingPair.baseline, supportingPair.variant]) {
+    run.privacy.redactionVersion = REDACTION_VERSION;
+  }
+  report.share = buildStaticReportShare(id);
+  const originalWire = `${JSON.stringify(report)}\n`;
+  await writeFile(reportPath(reportsDir, id), originalWire);
+
+  const dryRun = await remediateReports({ reportsDir, writtenAt: WRITTEN_AT });
+  assert.equal(dryRun.reportChanges, 0);
+  assert.equal(dryRun.sidecarsWritten, 0);
+  assert.deepEqual(dryRun.issues, [{ reportId: id, reason: "no-sidecar" }]);
+  assert.equal(await readFile(reportPath(reportsDir, id), "utf8"), originalWire);
+
+  const applied = await remediateReports({ reportsDir, mode: "apply", writtenAt: WRITTEN_AT });
+  assert.equal(applied.reportChanges, 0);
+  assert.equal(applied.sidecarsWritten, 1);
+  assert.equal(await readFile(reportPath(reportsDir, id), "utf8"), originalWire);
+
+  const sidecarWire = await readFile(sidecarPath(reportsDir, id), "utf8");
+  const sidecar = JSON.parse(sidecarWire);
+  assert.equal(sidecar.createdAt, "2026-07-09T11:01:00.000Z");
+  assert.equal(sidecar.expiresAt, null);
+  assert.equal(matchProvenance(report, sidecar, id).status, "matched");
+  assert.equal(
+    readManagedReport({
+      reportId: id,
+      reportContents: originalWire,
+      sidecarContents: sidecarWire,
+      retention: { createdAt: sidecar.createdAt, expiresAt: null }
+    }).ok,
+    true
+  );
+
+  const checked = await remediateReports({ reportsDir, mode: "check", writtenAt: LATER_WRITTEN_AT });
+  assert.equal(checked.reportChanges, 0);
+  assert.deepEqual(checked.issues, []);
+});
+
+test("r2 remediation refuses to rewrite evidence with a non-current embedded redaction version", async () => {
+  const reportsDir = await makeReportsDirectory();
+  const id = reportId("2");
+  const report = makePublicSingleReportV2R2();
+  report.share = buildStaticReportShare(id);
+  report.run.privacy.redactionVersion = REDACTION_VERSION + 1;
+  const originalWire = `${JSON.stringify(report, null, 2)}\n`;
+  await writeFile(reportPath(reportsDir, id), originalWire);
+
+  await assert.rejects(
+    () => remediateReports({ reportsDir, mode: "apply", writtenAt: WRITTEN_AT }),
+    /generated managed report failed validation \(redaction-version-mismatch\)/
+  );
+  assert.equal(await readFile(reportPath(reportsDir, id), "utf8"), originalWire);
+  await assert.rejects(() => readFile(sidecarPath(reportsDir, id), "utf8"), /ENOENT/);
+});
+
+test("v2/r1 with its stale embedded redaction version is not blessed by remediation", async () => {
+  const reportsDir = await makeReportsDirectory();
+  const id = reportId("3");
+  const report = makePublicSingleReportV2();
+  assert.notEqual(report.run.privacy.redactionVersion, REDACTION_VERSION);
+  report.share = buildStaticReportShare(id);
+  const originalWire = `${JSON.stringify(report, null, 2)}\n`;
+  await writeFile(reportPath(reportsDir, id), originalWire);
+
+  await assert.rejects(
+    () => remediateReports({ reportsDir, mode: "apply", writtenAt: WRITTEN_AT }),
+    /generated managed report failed validation \(redaction-version-mismatch\)/
+  );
+  assert.equal(await readFile(reportPath(reportsDir, id), "utf8"), originalWire);
+  await assert.rejects(() => readFile(sidecarPath(reportsDir, id), "utf8"), /ENOENT/);
+});
+
+test("oversized r2 remediation refuses before writing and preserves the exact report bytes", async () => {
+  const reportsDir = await makeReportsDirectory();
+  const id = reportId("4");
+  const report = makePublicSingleReportV2R2();
+  report.run.privacy.redactionVersion = REDACTION_VERSION;
+  report.run.warnings = ["x".repeat(NODE_SCAN_REPORT_V2_R2_MAX_PUBLIC_BYTES)];
+  report.share = buildStaticReportShare(id);
+  const originalWire = `${JSON.stringify(report)}\n`;
+  assert.ok(Buffer.byteLength(originalWire, "utf8") > NODE_SCAN_REPORT_V2_R2_MAX_PUBLIC_BYTES);
+  await writeFile(reportPath(reportsDir, id), originalWire);
+
+  await assert.rejects(
+    () => remediateReports({ reportsDir, mode: "apply", writtenAt: WRITTEN_AT }),
+    /v2\/r2 report exceeds the 8388608-byte public limit/
+  );
+  assert.equal(await readFile(reportPath(reportsDir, id), "utf8"), originalWire);
+  await assert.rejects(() => readFile(sidecarPath(reportsDir, id), "utf8"), /ENOENT/);
 });
 
 test("check fails closed for every incomplete or contradictory provenance state", async (context) => {

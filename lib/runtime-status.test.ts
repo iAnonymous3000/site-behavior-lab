@@ -10,6 +10,7 @@ const REPORT_STORE_BACKEND_ENV = "SITE_BEHAVIOR_LAB_REPORT_STORE_BACKEND";
 const CHROMIUM_SANDBOX_ENV = "SITE_BEHAVIOR_LAB_CHROMIUM_SANDBOX";
 const BUILD_COMMIT_ENV = "SITE_BEHAVIOR_LAB_BUILD_COMMIT";
 const CONSENT_VERIFICATION_ENV = "SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION";
+const PUBLIC_R2_REPORTS_ENV = "SITE_BEHAVIOR_LAB_PUBLIC_R2_REPORTS";
 const V2_SHADOW_EMISSION_ENV = "SITE_BEHAVIOR_LAB_V2_SHADOW_EMISSION";
 const V2_SHADOW_BACKEND_ENV = "SITE_BEHAVIOR_LAB_V2_SHADOW_BACKEND";
 const R2_ENVS = [
@@ -28,6 +29,7 @@ afterEach(() => {
   delete process.env[CHROMIUM_SANDBOX_ENV];
   delete process.env[BUILD_COMMIT_ENV];
   delete process.env[CONSENT_VERIFICATION_ENV];
+  delete process.env[PUBLIC_R2_REPORTS_ENV];
   delete process.env[V2_SHADOW_EMISSION_ENV];
   delete process.env[V2_SHADOW_BACKEND_ENV];
   for (const name of R2_ENVS) delete process.env[name];
@@ -51,6 +53,14 @@ test("runtimeStatus degrades instead of throwing when the store backend is misco
     status.warnings.some((warning) => warning.includes("report store backend is misconfigured")),
     true
   );
+
+  process.env[PUBLIC_R2_REPORTS_ENV] = "1";
+  process.env[BUILD_COMMIT_ENV] = "a".repeat(40);
+  process.env[CONSENT_VERIFICATION_ENV] = "1";
+  const publicR2Status = await runtimeStatus(loadedAdblock);
+  assert.equal(publicR2Status.scansAvailable, false);
+  assert.deepEqual(publicR2Status.checks.publicR2Reports, { status: "misconfigured" });
+  assert.equal(publicR2Status.warnings.some((warning) => warning.includes("required report persistence")), true);
 });
 
 test("runtimeStatus reports degraded status for open local defaults", async () => {
@@ -77,6 +87,7 @@ test("runtimeStatus reports degraded status for open local defaults", async () =
   assert.equal(status.checks.scannerEgress, "default");
   assert.equal(status.checks.chromiumSandbox, "disabled");
   assert.equal(status.checks.consentVerification, "disabled");
+  assert.deepEqual(status.checks.publicR2Reports, { status: "disabled" });
   assert.deepEqual(status.checks.v2ShadowEmission, { status: "disabled", backend: "filesystem" });
   assert.equal(status.warnings.length, 3);
 });
@@ -123,6 +134,35 @@ test("runtimeStatus exposes only a full validated build revision", async () => {
 
   process.env[BUILD_COMMIT_ENV] = "main";
   assert.equal((await runtimeStatus(loadedAdblock)).deployment, "unknown");
+});
+
+test("runtimeStatus makes public-r2 rollout readiness explicit and refuses misconfiguration", async () => {
+  process.env[SCAN_ACCESS_TOKEN_ENV] = "secret-key";
+  process.env[REPORT_STORE_DIR_ENV] = "/var/lib/site-behavior-lab/reports";
+  process.env[SCANNER_EGRESS_ENV] = "iad-lab-egress";
+
+  process.env[PUBLIC_R2_REPORTS_ENV] = "sometimes";
+  const badFlag = await runtimeStatus(loadedAdblock);
+  assert.equal(badFlag.status, "degraded");
+  assert.equal(badFlag.scansAvailable, false);
+  assert.deepEqual(badFlag.checks.publicR2Reports, { status: "misconfigured" });
+  assert.equal(badFlag.warnings.some((warning) => warning.includes(`${PUBLIC_R2_REPORTS_ENV} must be 0, 1`)), true);
+
+  process.env[PUBLIC_R2_REPORTS_ENV] = "1";
+  const missingPrerequisites = await runtimeStatus(loadedAdblock);
+  assert.equal(missingPrerequisites.status, "degraded");
+  assert.equal(missingPrerequisites.scansAvailable, false);
+  assert.deepEqual(missingPrerequisites.checks.publicR2Reports, { status: "misconfigured" });
+  assert.equal(missingPrerequisites.warnings.some((warning) => warning.includes("full 40-character Git commit")), true);
+  assert.equal(missingPrerequisites.warnings.some((warning) => warning.includes(CONSENT_VERIFICATION_ENV)), true);
+
+  process.env[BUILD_COMMIT_ENV] = "a".repeat(40);
+  process.env[CONSENT_VERIFICATION_ENV] = "1";
+  const ready = await runtimeStatus(loadedAdblock);
+  assert.equal(ready.status, "ok");
+  assert.equal(ready.scansAvailable, true);
+  assert.deepEqual(ready.checks.publicR2Reports, { status: "enabled" });
+  assert.deepEqual(ready.warnings, []);
 });
 
 test("runtimeStatus exposes a configured private R2 shadow posture", async () => {

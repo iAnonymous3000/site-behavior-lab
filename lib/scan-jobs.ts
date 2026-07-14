@@ -2,6 +2,7 @@ import { randomBytes } from "node:crypto";
 import {
   executePreparedScan,
   prepareScanRequest,
+  requireRuntimeScanReportModeForSaver,
   type PreparedScanRequest,
   type ReportSaver,
   type ScanRunner
@@ -9,7 +10,11 @@ import {
 import { saveScanReport } from "./report-store";
 import { assertRateLimit, MAX_CONCURRENT_SCANS, MAX_QUEUED_JOBS, QUEUE_TIMEOUT_MS } from "./scan-limits";
 import { PublicScanError, toPublicError } from "./public-errors";
-import type { ScanJobProgress, ScanJobStatus, ScanJobStatusResponse, ScanJobSubmissionResponse, ScanReport } from "./types";
+import {
+  type RuntimeScanJobStatusResponse,
+  type RuntimeScanReport
+} from "./runtime-scan-report";
+import type { ScanJobProgress, ScanJobStatus, ScanJobSubmissionResponse } from "./types";
 
 const ASYNC_SCANS_ENV = "SITE_BEHAVIOR_LAB_ASYNC_SCANS";
 const JOB_ID_PATTERN = /^[0-9]{8}-[0-9a-f]{32}$/;
@@ -35,10 +40,11 @@ type InternalScanJobRecord = {
   finishedAt?: string;
   prepared: PreparedScanRequest;
   progress: ScanJobProgress;
-  report?: ScanReport;
+  report?: RuntimeScanReport;
   error?: string;
   scan?: ScanRunner;
   saveReport?: ReportSaver;
+  usesDefaultPersistence: boolean;
   abortController: AbortController;
   publicationStarted: boolean;
   done: Deferred;
@@ -62,6 +68,11 @@ export function enqueuePreparedScanJob(
   dependencies: { scan?: ScanRunner; saveReport?: ReportSaver } = {}
 ): ScanJobSubmissionResponse {
   pruneScanJobs();
+  // Reject an explicitly requested but unready r2 producer before this job is
+  // accepted or its client is charged. The worker checks again at execution
+  // time in case deployment configuration changes while a job is queued.
+  const admissionSaver = dependencies.saveReport ?? saveScanReport;
+  requireRuntimeScanReportModeForSaver(admissionSaver);
   // Explicit aggregate admission: once accepted, a job is a promise of work
   // that must never be silently dropped, so admission is refused up front
   // (before the client is charged) when the queue is full.
@@ -94,6 +105,7 @@ export function enqueuePreparedScanJob(
     progress: createProgress("queued", prepared, 0),
     scan: dependencies.scan,
     saveReport: dependencies.saveReport,
+    usesDefaultPersistence: admissionSaver === saveScanReport,
     abortController: new AbortController(),
     publicationStarted: false,
     done: createDeferred()
@@ -112,14 +124,14 @@ export function enqueuePreparedScanJob(
   };
 }
 
-export function getScanJobStatus(id: string): ScanJobStatusResponse | null {
+export function getScanJobStatus(id: string): RuntimeScanJobStatusResponse | null {
   pruneScanJobs();
   if (!JOB_ID_PATTERN.test(id)) return null;
 
   const record = jobs.get(id);
   if (!record) return null;
 
-  const response: ScanJobStatusResponse = {
+  const response: RuntimeScanJobStatusResponse = {
     ok: true,
     jobId: record.id,
     status: record.status,
@@ -147,7 +159,7 @@ export function getScanJobStatus(id: string): ScanJobStatusResponse | null {
  * both reportId and report data: DELETE is a control operation, not a second
  * path to either public share identity or screenshot-bearing evidence.
  */
-export function cancelScanJob(id: string): ScanJobStatusResponse | null {
+export function cancelScanJob(id: string): RuntimeScanJobStatusResponse | null {
   pruneScanJobs();
   if (!JOB_ID_PATTERN.test(id)) return null;
 
@@ -234,6 +246,9 @@ async function runScanJob(record: InternalScanJobRecord): Promise<void> {
   if (!markRunning(record)) return;
 
   try {
+    if (record.usesDefaultPersistence) {
+      requireRuntimeScanReportModeForSaver(saveScanReport);
+    }
     const saveReport: ReportSaver = record.saveReport ?? ((report) => saveScanReport(report, { shareId: record.reportId }));
     const report = await executePreparedScan(record.prepared, record.scan, saveReport, QUEUE_TIMEOUT_MS, false, {
       signal: record.abortController.signal,
@@ -260,7 +275,7 @@ function markRunning(record: InternalScanJobRecord): boolean {
   return true;
 }
 
-function markSucceeded(record: InternalScanJobRecord, report: ScanReport): void {
+function markSucceeded(record: InternalScanJobRecord, report: RuntimeScanReport): void {
   if (record.status !== "running") return;
   const now = new Date().toISOString();
   const totalRuns = totalRunsForPreparedRequest(record.prepared);
@@ -304,7 +319,7 @@ function markPublicationStarted(record: InternalScanJobRecord): void {
   record.updatedAt = new Date().toISOString();
 }
 
-function cancellationResponse(record: InternalScanJobRecord): ScanJobStatusResponse {
+function cancellationResponse(record: InternalScanJobRecord): RuntimeScanJobStatusResponse {
   return {
     ok: true,
     jobId: record.id,

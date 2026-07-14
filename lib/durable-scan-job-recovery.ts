@@ -1,4 +1,5 @@
 import type { DurableScanJobRegistration } from "./durable-scan-job-registry";
+import { readStoredScanReport } from "./scan-report-reader";
 
 type RecoveryDependencies = {
   findRegistration: (jobId: string) => Promise<DurableScanJobRegistration | null>;
@@ -63,7 +64,12 @@ export async function recoverDurableScanJobResponse(
       502
     );
   }
-  if (!report || typeof report !== "object" || (report as { ok?: unknown }).ok !== true) {
+  // Saved-report recovery crosses the same version-aware public-wire boundary
+  // as every other reader. r2 reports intentionally have no root `ok`, so a
+  // transport-era truthiness check would turn valid recovered jobs into 502s.
+  // Validate canonically, then return the parsed wire itself without projecting
+  // or rewriting it so recovery preserves the exact persisted payload.
+  if (!readStoredScanReport(report).ok) {
     return recoveryJson(
       { ok: false, error: "The saved scan report was invalid during restart recovery." },
       missingJobResponse,

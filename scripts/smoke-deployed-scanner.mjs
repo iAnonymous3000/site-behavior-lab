@@ -25,10 +25,19 @@
 // a real scan completes and is stored without a screenshot, a Shields comparison
 // actually runs the ad-block engine, and a link-local SSRF target is refused.
 
+import {
+  hasShieldsComparisonDiff,
+  isShieldsComparisonReport,
+  isSupportedDeployedReport,
+  savedReportRetainsScreenshot,
+  shieldsBlockedCounts,
+  shieldsEngineActive,
+  singleReportTotalRequests
+} from "./smoke-deployed-scanner-report.mjs";
+
 const baseUrl = (process.env.SCAN_BASE_URL || "").trim().replace(/\/+$/, "");
 const token = (process.env.SMOKE_SCAN_ACCESS_TOKEN || process.env.SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN || "").trim();
 const shieldsUrl = (process.env.SMOKE_SHIELDS_URL || "https://example.com").trim();
-const SCHEMA_VERSION = 1;
 const POLL_INTERVAL_MS = 2000;
 const MAX_POLLS = 120; // ~4 min ceiling for a Shields comparison (two visits)
 
@@ -78,7 +87,7 @@ function isAsyncSubmission(payload) {
 }
 
 function isReport(payload) {
-  return Boolean(payload && payload.ok !== false && (payload.summary || payload.baseline || payload.reportType));
+  return isSupportedDeployedReport(payload);
 }
 
 // Resolve a submission to a finished report, polling the job status if async.
@@ -160,14 +169,16 @@ async function checkSingleScan() {
     }),
     "single scan"
   );
-  if (!report.summary || report.summary.totalRequests < 1) fail("single scan produced no requests");
-  if (report.schemaVersion !== SCHEMA_VERSION) fail("single scan used an unexpected report schema version");
+  const totalRequests = singleReportTotalRequests(report);
+  if (totalRequests === null || totalRequests < 1) fail("single scan produced no requests");
   if (JSON.stringify(report).includes("smoke-secret")) fail("single scan leaked a query-string secret");
   if (!report.share?.jsonPath?.startsWith("/api/reports/")) fail("single scan did not return a share permalink");
 
   const saved = await fetchSavedReport(report.share.jsonPath);
-  if (!saved.ok || saved.share?.id !== report.share.id) fail("saved report endpoint did not return the scan");
-  if (saved.screenshot !== null && saved.screenshot !== undefined) fail("saved report retained an inline screenshot");
+  if (!isSupportedDeployedReport(saved) || saved.share?.id !== report.share.id) {
+    fail("saved report endpoint did not return the scan");
+  }
+  if (savedReportRetainsScreenshot(saved)) fail("saved report retained an inline screenshot");
   pass("single scan completes, is stored durably, and is screenshot-stripped");
 
   // The share permalink is only useful if the HTML page renders, not just the JSON.
@@ -189,17 +200,16 @@ async function checkShieldsComparison() {
     }),
     "Shields comparison"
   );
-  if (report.reportType !== "comparison" || report.comparisonType !== "shields") {
+  if (!isShieldsComparisonReport(report)) {
     fail("Shields request did not produce a Shields comparison report");
   }
-  if (!report.diff?.thirdPartyRequests) fail("Shields comparison is missing its diff");
-  if (!report.baseline?.conditions?.adblock?.active) {
+  if (!hasShieldsComparisonDiff(report)) fail("Shields comparison is missing its diff");
+  if (!shieldsEngineActive(report)) {
     fail("Shields comparison ran without the ad-block engine active");
   }
   // Two DIFFERENT measurements, never blended: the variant's engine-aborted
   // count and the baseline's filter-list matches while loading normally.
-  const engineBlocked = report.variant?.summary?.shieldsBlockedRequests;
-  const filterMatches = report.baseline?.summary?.shieldsBlockedRequests;
+  const { baseline: filterMatches, variant: engineBlocked } = shieldsBlockedCounts(report);
   pass(
     `live Shields comparison ran on ${shieldsUrl} (engine active; engine-blocked: ${engineBlocked ?? "n/a"}, baseline filter matches: ${filterMatches ?? "n/a"})`
   );

@@ -6,17 +6,13 @@ import { appendFile, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { botBlockReason, isPublishableScanReport } from "./run-ci-scan-report.mjs";
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const reportsDir = path.join(rootDir, "public", "reports");
 const baseUrl = stripTrailingSlash(process.env.BASE_URL || "http://127.0.0.1:3100");
 const targetUrl = process.env.SCAN_URL?.trim();
 const reportIdPattern = /^[0-9]{8}-[0-9a-f]{32}$/;
-// Titles served by common bot walls (Cloudflare, Akamai, PerimeterX, Google). A
-// report whose landing page is one of these is a challenge page, not the site, and
-// must not enter the public corpus.
-const BLOCK_TITLE_PATTERN =
-  /access denied|attention required|just a moment|pardon our interruption|are you (a )?(human|robot)|verify (you are|you'?re|your) (a )?human|checking your browser|unusual traffic|security check|request unsuccessful|captcha|enable javascript/i;
 
 if (!targetUrl) {
   console.error("SCAN_URL is required.");
@@ -43,14 +39,14 @@ if (booleanEnv("SCAN_COMPARE_SHIELDS", false)) {
 
 try {
   const scanResponse = await postJson(`${baseUrl}/api/scan`, payload);
-  if (!scanResponse.ok) {
-    throw new Error(scanResponse.error || "Scan failed.");
+  if (!isJobSubmission(scanResponse) && !isPublishableScanReport(scanResponse)) {
+    throw new Error(isRecord(scanResponse) && typeof scanResponse.error === "string" ? scanResponse.error : "Scan failed.");
   }
 
   const scanReport = isJobSubmission(scanResponse) ? await awaitScanJob(scanResponse) : scanResponse;
 
   const id = reportIdPattern.test(scanReport.share?.id || "") ? scanReport.share.id : createReportId();
-  const savedReport = await fetchSavedReport(scanReport, id);
+  const savedReport = await fetchSavedReport(scanReport);
 
   // Bot-detection interstitials return HTTP 200 with a challenge page, so the scan
   // "succeeds" but the report misrepresents the site (e.g. a cnn.com report with 0
@@ -107,12 +103,12 @@ try {
   process.exit(1);
 }
 
-async function fetchSavedReport(scanReport, id) {
-  if (!scanReport.share?.jsonPath) return scanReport;
+async function fetchSavedReport(scanReport) {
+  if (typeof scanReport.share?.jsonPath !== "string") return scanReport;
 
   try {
     const savedReport = await fetchJson(`${baseUrl}${scanReport.share.jsonPath}`);
-    return savedReport.ok ? savedReport : scanReport;
+    return isPublishableScanReport(savedReport) ? savedReport : scanReport;
   } catch {
     return scanReport;
   }
@@ -125,6 +121,7 @@ function accessHeaders() {
 
 function isJobSubmission(response) {
   return (
+    isRecord(response) &&
     response.ok === true &&
     typeof response.jobId === "string" &&
     response.status === "queued" &&
@@ -136,15 +133,21 @@ async function awaitScanJob(submission) {
   const statusUrl = `${baseUrl}${submission.statusPath}`;
   for (let attempt = 0; attempt < 180; attempt += 1) {
     const status = await fetchJson(statusUrl, accessHeaders());
-    if (status.ok && status.status === "succeeded") {
-      if (!status.report) throw new Error("Completed scan job did not include a report.");
+    if (isRecord(status) && status.ok && status.status === "succeeded") {
+      if (!isPublishableScanReport(status.report)) {
+        throw new Error("Completed scan job did not include a publishable report.");
+      }
       return status.report;
     }
-    if (status.ok && (status.status === "queued" || status.status === "running")) {
+    if (isRecord(status) && status.ok && (status.status === "queued" || status.status === "running")) {
       await delay(1000);
       continue;
     }
-    throw new Error(status.error || `Scan job ${submission.jobId} did not complete.`);
+    throw new Error(
+      isRecord(status) && typeof status.error === "string"
+        ? status.error
+        : `Scan job ${submission.jobId} did not complete.`
+    );
   }
   throw new Error(`Scan job ${submission.jobId} did not finish before the polling timeout.`);
 }
@@ -179,22 +182,6 @@ async function readJsonResponse(response) {
   return response.json();
 }
 
-function botBlockReason(report) {
-  const result = report.reportType === "comparison" ? report.baseline : report;
-  const summary = result?.summary;
-  if (!summary) return null;
-
-  const title = String(summary.pageTitle || "").trim();
-  const totalRequests = Number(summary.totalRequests) || 0;
-  if (title && BLOCK_TITLE_PATTERN.test(title)) {
-    return "landing page title matches a bot-block/challenge page";
-  }
-  if (totalRequests <= 1) {
-    return `only ${totalRequests} network request(s) observed, navigation likely failed or was blocked`;
-  }
-  return null;
-}
-
 function createReportId() {
   return `${new Date().toISOString().slice(0, 10).replaceAll("-", "")}-${randomBytes(16).toString("hex")}`;
 }
@@ -213,4 +200,8 @@ async function writeGithubOutput(values) {
   if (!process.env.GITHUB_OUTPUT) return;
   const lines = Object.entries(values).map(([key, value]) => `${key}=${value}`);
   await appendFile(process.env.GITHUB_OUTPUT, `${lines.join("\n")}\n`);
+}
+
+function isRecord(value) {
+  return value !== null && typeof value === "object" && !Array.isArray(value);
 }

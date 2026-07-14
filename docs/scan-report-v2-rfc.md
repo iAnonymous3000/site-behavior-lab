@@ -907,9 +907,9 @@ function toReportView(report: StoredScanReport): ReportView;
   regenerating both files cannot pass.
 - **v2 r2** is specified normatively in section 15. r1 arm fields are RETAINED and
   become DERIVED from the structured facts (never replaced); r2 publishes as its
-  own immutable file; **the stable alias stays on r1 for the entire foundation
-  milestone** and moves only after complete consumer dual-read migration,
-  immediately before producer rollout.
+  own immutable file. The complete dual-read gate has passed, so the stable alias
+  now points to r2; immutable r1 remains revision-addressable for historical
+  reports, and the alias move itself rewrites no stored artifact.
 
 ### 10.3 Validator and JSON Schema tooling (executable)
 
@@ -1170,8 +1170,8 @@ Then the larger phases:
   declare `schemaRevision: 2`; the r1 constant and generic types are untouched.
 - **Reader dispatch is exact**: v2 r1 and v2 r2 each validate against their own
   revision; r3+ returns `unsupported-revision`.
-- **The stable alias stays on r1** until step 14.11. Producers emit v1 through
-  the entire foundation, asserted in tests.
+- **The stable alias now points to r2** after step 14.11. Immutable r1 remains
+  available for historical reports; producer rollout is a separate boundary.
 
 ### 15.2 The r2 wire-type graph (complete)
 

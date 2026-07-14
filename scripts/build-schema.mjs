@@ -28,8 +28,8 @@ export const SCHEMA_ID = "https://sitebehavior.org/schemas/scan-report.v2.r1.sch
 export const R2_SCHEMA_ID = "https://sitebehavior.org/schemas/scan-report.v2.r2.schema.json";
 const REVISIONED_PATH = path.join(rootDir, "public", "schemas", "scan-report.v2.r1.schema.json");
 const R2_REVISIONED_PATH = path.join(rootDir, "public", "schemas", "scan-report.v2.r2.schema.json");
-// The stable alias stays on r1 until after complete dual-read consumer
-// migration (RFC 14.9); publishing r2 does NOT move it.
+// The stable alias serves the current revision (r2). The immutable r1 and r2
+// files above remain independently published for exact historical reads.
 const ALIAS_PATH = path.join(rootDir, "public", "scan-report.schema.json");
 
 /**
@@ -104,11 +104,12 @@ function main() {
   mkdirSync(path.dirname(REVISIONED_PATH), { recursive: true });
   writeFileSync(REVISIONED_PATH, serialized);
   writeFileSync(R2_REVISIONED_PATH, r2Serialized);
-  // The alias intentionally keeps serving r1 (RFC 14.9).
-  writeFileSync(ALIAS_PATH, serialized);
+  // Dual-read migration is complete: the stable alias now serves r2. This
+  // does not mutate either revisioned file or rewrite historical reports.
+  writeFileSync(ALIAS_PATH, r2Serialized);
   console.log(
     `Schemas written: ${path.relative(rootDir, REVISIONED_PATH)}, ${path.relative(rootDir, R2_REVISIONED_PATH)} ` +
-      "(+ stable alias on r1), validator artifact in dist/schema/."
+      "(+ stable alias on r2), validator artifact in dist/schema/."
   );
 }
 

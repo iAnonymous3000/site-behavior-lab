@@ -49,6 +49,7 @@ import {
 } from "./scan-report-views";
 import { humanList, plural } from "./text-format";
 import type { NetworkRequestRecord, PrivacyPolicyClaimKind, ProvenanceChange } from "./types";
+import { CONSENT_WHOLE_VISIT_CAVEAT, consentRegistrationSentence } from "./report-consent-copy";
 
 export type FindingLevel = "ok" | "quiet" | "info" | "warn" | "loud";
 
@@ -704,7 +705,7 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
     findings.unshift(
       pairGate && !pairGate.allowed && bothClicksDispatched
         ? ineligibleComparisonFinding("consent-comparison", "This consent comparison is not conclusive", pairGate)
-        : buildConsentComparisonFinding(arms.baseline, arms.variant, rawCountsAllowed, classificationAllowed)
+        : buildConsentComparisonFinding(view, arms.baseline, arms.variant, rawCountsAllowed, classificationAllowed)
     );
   }
 
@@ -848,6 +849,7 @@ function ineligibleComparisonFinding(id: string, title: string, gate: ClaimGate)
  * pretending the diff measured the choice.
  */
 function buildConsentComparisonFinding(
+  view: ReportView,
   baseline: RunView,
   variant: RunView,
   rawCountsAllowed: boolean,
@@ -859,6 +861,7 @@ function buildConsentComparisonFinding(
   const rejectTracking = trackerEntitySummaries(variant.evidence).filter((entity) => !isOperationalEntity(entity));
   const requestsBefore = baseline.counts.thirdPartyRequests;
   const requestsAfter = variant.counts.thirdPartyRequests;
+  const registration = consentRegistrationSentence(view, variant.consent, "Reject all");
   // The count juxtaposition is a raw-counts family delta; when that family is
   // not comparable across the two visits, the card keeps its per-visit story
   // but quotes no numbers side by side. The count labels come from what each
@@ -916,8 +919,7 @@ function buildConsentComparisonFinding(
           ? ` (${plural(acceptTracking.length, "tracking company", "tracking companies")} loaded in the visit that clicked Accept all)`
           : ""
       }.`,
-      detail:
-        "The visit records traffic from before AND after the click, and the scanner can dispatch the click but cannot verify the site registered the choice, so some of this can be pre-click traffic, vendors a site treats as strictly necessary, or processing claimed under legitimate interest. It is a documented observation to review against the banner's promises, not a violation ruling. The diff below lists the services that appeared only in the visit that clicked Accept all.",
+      detail: `${registration} ${CONSENT_WHOLE_VISIT_CAVEAT} It is a documented observation to review against the banner's promises, not a violation ruling. The diff below lists the services that appeared only in the visit that clicked Accept all.`,
       evidence
     };
   }
@@ -942,7 +944,7 @@ function buildConsentComparisonFinding(
         : classificationAllowed
           ? "No catalogued tracking company loaded in either visit; on this page the two visits differed little because there was little to consent to."
           : "The visit where the scanner clicked Reject all loaded no catalogued tracking company.",
-    detail: `A single paired comparison can also reflect run-to-run variance (ad rotation, caching, experiments), and the scanner cannot verify the site registered the click, so treat this as an observed difference for this pair of visits.${
+    detail: `${registration} ${CONSENT_WHOLE_VISIT_CAVEAT} A single paired comparison can also reflect run-to-run variance (ad rotation, caching, experiments), so treat this as an observed difference for this pair of visits.${
       rejectEvidenceCensored ? CENSORED_ABSENCE_NOTE : ""
     }`,
     evidence
