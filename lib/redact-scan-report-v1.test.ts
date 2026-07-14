@@ -341,3 +341,20 @@ test("legacy fingerprint sanitization drops detections that become structurally 
   assert.equal(readStoredScanReport(first).ok, true);
   assert.equal(JSON.stringify(second), JSON.stringify(first));
 });
+
+test("both CNAME disclosure generations survive redaction; look-alike page text does not", () => {
+  const input = sensitiveSingle();
+  input.warnings = [
+    // The grammatical singular the scanner emits today.
+    "Resolved 1 first-party subdomain that is a CNAME alias for a third-party tracker (CNAME cloaking), which request-URL matching alone would miss.",
+    // The older singular carried by committed corpus reports; remediation
+    // replays must keep it intact.
+    "Resolved 1 first-party subdomain that are CNAME aliases for third-party trackers (CNAME cloaking), which request-URL matching alone would miss.",
+    "Resolved 3 first-party subdomains that are CNAME aliases for third-party trackers (CNAME cloaking), which request-URL matching alone would miss.",
+    // A page-controlled look-alike must not ride the pattern through.
+    "Resolved 1 first-party subdomain that is a CNAME alias for a third-party tracker (CNAME cloaking), visit evil.example now."
+  ];
+
+  const { report } = redactScanResultV1(input);
+  assert.deepEqual(report.warnings, [...input.warnings.slice(0, 3), "[redacted warning]"]);
+});

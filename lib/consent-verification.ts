@@ -27,9 +27,14 @@ export const ONETRUST_CONSENT_COOKIE = "OptanonConsent";
  * v1 disclosure for the flag-gated post-choice reload. Shared with the public
  * warning boundary (lib/redact-scan-report-v1.ts) so the emitted sentence and
  * the admitted vocabulary cannot drift apart.
+ *
+ * "During that reload's measurement phase", not "from that reload": exclusion
+ * is by phase (lib/scanner.ts recordRequest), so a straggler request the
+ * reloaded document fires after the next phase begins is still recorded, and
+ * the sentence must not claim otherwise.
  */
 export const CONSENT_RELOAD_DISCLOSURE =
-  "After the consent click, the scanner attempted one page reload to read the site's registered consent state; requests from that reload are not part of the recorded request log or counts.";
+  "After the consent click, the scanner attempted one page reload to read the site's registered consent state; requests observed during that reload's measurement phase are not part of the recorded request log or counts.";
 
 /** In-page read budget: __tcfapi answers in microtasks when present. */
 export const TCF_READ_TIMEOUT_MS = 1_500;

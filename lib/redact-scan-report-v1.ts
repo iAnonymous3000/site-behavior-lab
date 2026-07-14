@@ -290,7 +290,7 @@ export const PUBLIC_STRING_POLICY_DIGEST = sha256Hex(
     chromiumUserAgentPattern: CHROMIUM_USER_AGENT.source,
     fixedWarnings: [...FIXED_SCANNER_WARNINGS].sort(),
     warningLabels: [...COMPARISON_WARNING_LABELS].sort(),
-    dynamicWarningPatterns: "scanner-warning-patterns-v3",
+    dynamicWarningPatterns: "scanner-warning-patterns-v4",
     cmpSelectors: CONSENT_CMP_SELECTORS,
     consentShadowHosts: CONSENT_SHADOW_HOSTS,
     consentTextPatterns: Object.fromEntries(
@@ -1014,7 +1014,10 @@ function isScannerWarning(warning: string): boolean {
   if (/^Skipped PageGraph request [0-9]+ because its URL was not HTTP\(S\)\.$/.test(warning)) {
     return true;
   }
-  if (/^Resolved (?:1 first-party subdomain|[0-9]+ first-party subdomains) that are CNAME aliases for third-party trackers \(CNAME cloaking\), which request-URL matching alone would miss\.$/.test(warning)) {
+  // Both CNAME sentence generations are admitted: the grammatical singular
+  // emitted today, and the older "1 ... that are" form carried by committed
+  // corpus reports, which remediation replays must keep intact.
+  if (/^Resolved (?:1 first-party subdomain that (?:is a CNAME alias for a third-party tracker|are CNAME aliases for third-party trackers)|[0-9]+ first-party subdomains that are CNAME aliases for third-party trackers) \(CNAME cloaking\), which request-URL matching alone would miss\.$/.test(warning)) {
     return true;
   }
   if (/^This scan typed a synthetic test value into (?:1 form field|[0-9]+ form fields) \(never submitting the form\) to test whether typed input is captured and sent to third parties\. The value is synthetic and is not stored\.(?: Requests the page sent during and after this typing, including any unload beacons, are part of the recorded request log and counts\.)?$/.test(warning)) {

@@ -1055,9 +1055,9 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
     }
     if (cnameCloaks.length > 0) {
       warnings.add(
-        `Resolved ${
-          cnameCloaks.length === 1 ? "1 first-party subdomain" : `${cnameCloaks.length} first-party subdomains`
-        } that are CNAME aliases for third-party trackers (CNAME cloaking), which request-URL matching alone would miss.`
+        cnameCloaks.length === 1
+          ? "Resolved 1 first-party subdomain that is a CNAME alias for a third-party tracker (CNAME cloaking), which request-URL matching alone would miss."
+          : `Resolved ${cnameCloaks.length} first-party subdomains that are CNAME aliases for third-party trackers (CNAME cloaking), which request-URL matching alone would miss.`
       );
     }
 

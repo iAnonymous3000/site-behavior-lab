@@ -81,9 +81,9 @@ export default function MethodologyPage() {
           assume the site registered the choice, and each visit&apos;s recording covers traffic from before and
           after its click. Report wording never attributes traffic to the choice for that reason. When the
           registered-state readback is enabled on a deployment, the scanner additionally reads the site&apos;s
-          consent-platform state (and may reload the page once, disclosed in the report, with that reload&apos;s
-          requests excluded from the counts) so a future report generation can distinguish a dispatched click from
-          a registered choice.
+          consent-platform state (and may reload the page once, disclosed in the report, with the requests observed
+          during that reload phase excluded from the counts) so a future report generation can distinguish a
+          dispatched click from a registered choice.
         </p>
       </section>
 
