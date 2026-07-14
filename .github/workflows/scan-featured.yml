@@ -86,6 +86,10 @@ env:
   # Disclose that the corpus was scanned from CI (GitHub-hosted runner egress).
   # Override with a repo Actions variable named SCANNER_EGRESS if you scan elsewhere.
   SITE_BEHAVIOR_LAB_SCANNER_EGRESS: ${{ vars.SCANNER_EGRESS || 'github-actions-ubuntu' }}
+  # GitHub-hosted runners have no reliable region metadata, so the recorded r2
+  # egress region stays empty (and comparison deltas stay refused) unless the
+  # operator declares one that truthfully names the runner egress.
+  SITE_BEHAVIOR_LAB_SCANNER_EGRESS_REGION: ${{ vars.SCANNER_EGRESS_REGION || '' }}
 
 jobs:
   scan-featured:

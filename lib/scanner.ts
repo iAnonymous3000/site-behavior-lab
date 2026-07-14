@@ -132,6 +132,7 @@ const SCAN_COLOR_SCHEME = "light" as const;
 const NAVIGATION_TIMEOUT_MS = 30_000;
 const NETWORK_IDLE_TIMEOUT_MS = 8_000;
 const SCANNER_EGRESS_ENV = "SITE_BEHAVIOR_LAB_SCANNER_EGRESS";
+const SCANNER_EGRESS_REGION_ENV = "SITE_BEHAVIOR_LAB_SCANNER_EGRESS_REGION";
 export const MAX_SCAN_DURATION_MS = 45_000;
 // Active keystroke-exfiltration probe: how many fields to type into, the minimum
 // time budget needed to bother, and how long to watch for the sentinel leaving.
@@ -1131,6 +1132,7 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
     }
 
     const scannerEgress = scannerEgressDescription();
+    const egressRegion = scannerEgressRegion();
     const adblockMeta = adblockEngine ? adblockListMeta() : null;
     const conditions = buildScanConditions({
       profile: "node-playwright",
@@ -1257,7 +1259,10 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
           locale: SCAN_LOCALE,
           language: SCAN_LOCALE,
           timezone: SCAN_TIMEZONE,
-          egress: { label: scannerEgress },
+          egress: {
+            label: scannerEgress,
+            ...(egressRegion !== undefined ? { region: egressRegion } : {})
+          },
           browser: { name: "chromium", version: chromiumVersion },
           headless: true,
           automation: "playwright-chromium"
@@ -2001,6 +2006,24 @@ function scanTimeoutError(): PublicScanError {
 
 function scannerEgressDescription(): string {
   return process.env[SCANNER_EGRESS_ENV]?.trim() || "this scanner instance";
+}
+
+/**
+ * The recorded egress region: an explicit operator declaration first, then
+ * the placement metadata Cloudflare Containers injects into every instance
+ * (region/location/country), joined so equality means equality on every
+ * recorded axis. Undefined when the deployment genuinely cannot name where
+ * its traffic leaves from; the r2 comparability gates then keep refusing
+ * cross-visit deltas instead of assuming two unknown regions match. Values
+ * are recorded verbatim; an oversized declaration fails the r2 build's text
+ * envelope rather than being silently rewritten.
+ */
+export function scannerEgressRegion(env: NodeJS.ProcessEnv = process.env): string | undefined {
+  const declared = env[SCANNER_EGRESS_REGION_ENV]?.trim();
+  if (declared) return declared;
+  const parts = [env.CLOUDFLARE_REGION?.trim(), env.CLOUDFLARE_LOCATION?.trim(), env.CLOUDFLARE_COUNTRY_A2?.trim()];
+  const present = parts.filter((part): part is string => part !== undefined && part !== "");
+  return present.length > 0 ? present.join("/") : undefined;
 }
 
 async function resolveCnameCloaksForScan(

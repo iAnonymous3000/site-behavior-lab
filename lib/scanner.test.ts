@@ -15,11 +15,31 @@ import {
   redactUrlForReport,
   SCAN_CHROMIUM_LAUNCH_ARGS,
   ScanRequestBudget,
+  scannerEgressRegion,
   scanSite,
   scanTimeout,
   ScanWarningCollector,
   stagedSingleVisitMeasurement
 } from "./scanner";
+
+test("scannerEgressRegion records the declared region, then Cloudflare placement, then nothing", () => {
+  // The r2 comparability gates treat an unrecorded egress region as unknown,
+  // and two unknowns never match (RFC 3.2), so a deployment that can name its
+  // egress location must record it or every production pair loses its deltas.
+  assert.equal(
+    scannerEgressRegion({ SITE_BEHAVIOR_LAB_SCANNER_EGRESS_REGION: " us-east " , CLOUDFLARE_REGION: "wnam" }),
+    "us-east"
+  );
+  assert.equal(
+    scannerEgressRegion({ CLOUDFLARE_REGION: "wnam", CLOUDFLARE_LOCATION: "Los Angeles", CLOUDFLARE_COUNTRY_A2: "US" }),
+    "wnam/Los Angeles/US"
+  );
+  // Partial placement metadata still records what is known; the composite only
+  // equals another composite when the same axes were recorded with the same values.
+  assert.equal(scannerEgressRegion({ CLOUDFLARE_COUNTRY_A2: "US" }), "US");
+  assert.equal(scannerEgressRegion({ SITE_BEHAVIOR_LAB_SCANNER_EGRESS_REGION: "  " }), undefined);
+  assert.equal(scannerEgressRegion({}), undefined);
+});
 
 test("scan browser launch args contain WebRTC egress containment", () => {
   // ICE/STUN speaks UDP directly to arbitrary hosts, bypassing the HTTP-only

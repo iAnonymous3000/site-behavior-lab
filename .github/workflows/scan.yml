@@ -72,6 +72,12 @@ env:
   SCAN_COMPARE_GPC: ${{ github.event.inputs.compare_gpc || github.event.client_payload.compare_gpc || 'false' }}
   SCAN_COMPARE_SHIELDS: ${{ github.event.inputs.compare_shields || github.event.client_payload.compare_shields || 'false' }}
   SCAN_COMPARE_CONSENT: ${{ github.event.inputs.compare_consent || github.event.client_payload.compare_consent || 'false' }}
+  # Disclose the CI runner egress exactly as the featured-gallery workflow does.
+  SITE_BEHAVIOR_LAB_SCANNER_EGRESS: ${{ vars.SCANNER_EGRESS || 'github-actions-ubuntu' }}
+  # GitHub-hosted runners have no reliable region metadata, so the recorded r2
+  # egress region stays empty (and comparison deltas stay refused) unless the
+  # operator declares one that truthfully names the runner egress.
+  SITE_BEHAVIOR_LAB_SCANNER_EGRESS_REGION: ${{ vars.SCANNER_EGRESS_REGION || '' }}
 
 jobs:
   scan:

@@ -122,6 +122,10 @@ SITE_BEHAVIOR_LAB_R2_ACCESS_KEY_ID=<r2 token key id>   # secret
 SITE_BEHAVIOR_LAB_R2_SECRET_ACCESS_KEY=<r2 token secret> # secret
 SITE_BEHAVIOR_LAB_R2_PREFIX=reports/
 SITE_BEHAVIOR_LAB_SCANNER_EGRESS=cloudflare-containers
+# The r2 egress region is auto-recorded from the CLOUDFLARE_REGION/
+# CLOUDFLARE_LOCATION/CLOUDFLARE_COUNTRY_A2 placement metadata the platform
+# injects into each instance; set SITE_BEHAVIOR_LAB_SCANNER_EGRESS_REGION only
+# to override it with a value that truthfully names the egress location.
 SITE_BEHAVIOR_LAB_ASYNC_SCANS=1                          # long scans don't hold the connection
 SITE_BEHAVIOR_LAB_CHROMIUM_SANDBOX=1                    # asserted by health + deployed smoke
 SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN=<strong secret>     # operator-gated launch (see §6)
