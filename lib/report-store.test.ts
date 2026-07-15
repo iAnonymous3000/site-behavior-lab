@@ -366,7 +366,9 @@ test("count pruning never age-deletes a report while another process delays its 
     createdAt: string;
     expiresAt: string;
   };
-  const inFlightId = `20260714-${"f".repeat(32)}`;
+  // Keep both IDs in the same date partition so the all-`f` suffix is the
+  // deterministic tie-break winner even when this test crosses UTC midnight.
+  const inFlightId = `${existingId.slice(0, 9)}${"f".repeat(32)}`;
   const existingPublicReport = JSON.parse(
     await readFile(path.join(reportDir, `${existingId}.json`), "utf8")
   ) as Record<string, unknown>;
