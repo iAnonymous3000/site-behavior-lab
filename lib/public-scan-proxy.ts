@@ -20,10 +20,18 @@ export type BlockedProxyTarget = {
    * block. "resolution-failed" is a DNS failure, "upstream-failed" a TCP
    * connect failure (the host may simply be down), "blocked-port" the
    * standard-ports policy, "upgrade-blocked" the WebSocket-proxying refusal,
-   * and "invalid-target" a malformed proxy request. None of those prove a
+   * "resource-limit" the independent proxy traffic bound, and
+   * "invalid-target" a malformed proxy request. None of those prove a
    * private-network target and must never be described as one.
    */
-  reason: "invalid-target" | "non-public-address" | "resolution-failed" | "blocked-port" | "upgrade-blocked" | "upstream-failed";
+  reason:
+    | "invalid-target"
+    | "non-public-address"
+    | "resolution-failed"
+    | "blocked-port"
+    | "upgrade-blocked"
+    | "upstream-failed"
+    | "resource-limit";
 };
 
 export type PublicScanProxy = {
@@ -44,6 +52,12 @@ export const MAX_PUBLIC_SCAN_PROXY_RESPONSE_BYTE_LIMIT = 128 * 1024 * 1024;
 export const PUBLIC_SCAN_PROXY_UPLOAD_BYTE_BUDGET_NAME = "request-upload" as const;
 export const DEFAULT_PUBLIC_SCAN_PROXY_UPLOAD_BYTE_LIMIT = 16 * 1024 * 1024;
 export const MAX_PUBLIC_SCAN_PROXY_UPLOAD_BYTE_LIMIT = 128 * 1024 * 1024;
+export const PUBLIC_SCAN_PROXY_TRAFFIC_BUDGET_NAME = "proxy-traffic" as const;
+export const DEFAULT_PUBLIC_SCAN_PROXY_TRANSACTION_LIMIT = 2_000;
+export const MAX_PUBLIC_SCAN_PROXY_TRANSACTION_LIMIT = 4_000;
+export const DEFAULT_PUBLIC_SCAN_PROXY_UNIQUE_TARGET_LIMIT = 256;
+export const MAX_PUBLIC_SCAN_PROXY_UNIQUE_TARGET_LIMIT = 1_000;
+export const MAX_RECORDED_PROXY_BLOCKS = 100;
 
 type PublicScanProxyByteBudgetName =
   | typeof PUBLIC_SCAN_PROXY_RESPONSE_BYTE_BUDGET_NAME
@@ -59,6 +73,21 @@ export type PublicScanProxyCaptureLoss<Name extends PublicScanProxyByteBudgetNam
 };
 
 export type PublicScanProxyDiagnostics = {
+  trafficBudget: {
+    name: typeof PUBLIC_SCAN_PROXY_TRAFFIC_BUDGET_NAME;
+    family: "requests";
+    transactionLimit: number;
+    transactionsSeen: number;
+    uniqueTargetLimit: number;
+    uniqueTargetsSeen: number;
+    captureLoss: {
+      family: "requests";
+      phaseId: null;
+      kind: "cap";
+      count: number;
+      detail: typeof PUBLIC_SCAN_PROXY_TRAFFIC_BUDGET_NAME;
+    } | null;
+  };
   responseByteBudget: {
     name: typeof PUBLIC_SCAN_PROXY_RESPONSE_BYTE_BUDGET_NAME;
     family: "requests";
@@ -101,6 +130,15 @@ type StartPublicScanProxyOptions = {
   responseByteLimitBytes?: number;
   /** Test/deployment override with the same non-disableable bound as responses. */
   uploadByteLimitBytes?: number;
+  /**
+   * Bounds proxy transactions, including traffic Playwright routing misses.
+   * Plain HTTP requests count individually; an HTTPS CONNECT tunnel counts as
+   * one transaction because its encrypted logical requests are not visible to
+   * this proxy. Aggregate byte limits still bound every tunnel.
+   */
+  transactionLimit?: number;
+  /** Bounds DNS/connect fan-out and the successful target cache. */
+  uniqueTargetLimit?: number;
   resolveHost?: ResolvePublicHost;
   /** Routes an already validated, pinned target in deterministic socket tests. */
   connectUpstreamForTests?: (target: Readonly<PinnedTarget>) => net.Socket;
@@ -122,6 +160,10 @@ export async function startPublicScanProxy(options: StartPublicScanProxyOptions 
     PUBLIC_SCAN_PROXY_UPLOAD_BYTE_BUDGET_NAME,
     normalizeUploadByteLimit(options.uploadByteLimitBytes)
   );
+  const trafficBudget = new ProxyTrafficBudget(
+    normalizeTransactionLimit(options.transactionLimit),
+    normalizeUniqueTargetLimit(options.uniqueTargetLimit)
+  );
   const connectUpstream = options.connectUpstreamForTests ?? defaultConnectUpstream;
 
   const server = http.createServer((request, response) => {
@@ -130,6 +172,7 @@ export async function startPublicScanProxy(options: StartPublicScanProxyOptions 
       resolveHost,
       blockedTargets,
       pinnedTargets,
+      trafficBudget,
       responseByteBudget,
       uploadByteBudget,
       connectUpstream
@@ -144,6 +187,7 @@ export async function startPublicScanProxy(options: StartPublicScanProxyOptions 
       resolveHost,
       blockedTargets,
       pinnedTargets,
+      trafficBudget,
       responseByteBudget,
       uploadByteBudget,
       connectUpstream
@@ -158,6 +202,7 @@ export async function startPublicScanProxy(options: StartPublicScanProxyOptions 
       resolveHost,
       blockedTargets,
       pinnedTargets,
+      trafficBudget,
       responseByteBudget,
       uploadByteBudget,
       connectUpstream
@@ -189,6 +234,7 @@ export async function startPublicScanProxy(options: StartPublicScanProxyOptions 
     server: `http://127.0.0.1:${address.port}`,
     blockedTargets,
     getDiagnostics: () => ({
+      trafficBudget: trafficBudget.snapshot(),
       responseByteBudget: responseByteBudget.snapshot(),
       uploadByteBudget: uploadByteBudget.snapshot()
     }),
@@ -205,6 +251,11 @@ async function handleHttpProxyRequest(
   state: ProxyState
 ): Promise<void> {
   const targetUrl = parseHttpProxyUrl(request);
+  if (!state.trafficBudget.claim(targetUrl)) {
+    recordBlockedTarget(state.blockedTargets, targetUrl ? safeTargetLabel(targetUrl) : "unknown", "resource-limit");
+    response.destroy();
+    return;
+  }
   if (!targetUrl || targetUrl.protocol !== "http:") {
     recordBlockedTarget(state.blockedTargets, request.url ?? "unknown", "invalid-target");
     response.destroy();
@@ -266,6 +317,11 @@ async function handleHttpsConnect(
   state: ProxyState
 ): Promise<void> {
   const targetUrl = parseConnectUrl(request.url ?? "");
+  if (!state.trafficBudget.claim(targetUrl)) {
+    recordBlockedTarget(state.blockedTargets, targetUrl ? safeTargetLabel(targetUrl) : request.url ?? "unknown", "resource-limit");
+    closeTunnel(clientSocket, 509);
+    return;
+  }
   if (!targetUrl) {
     recordBlockedTarget(state.blockedTargets, request.url ?? "unknown", "invalid-target");
     closeTunnel(clientSocket, 400);
@@ -318,6 +374,11 @@ function handleUpgradeRequest(request: IncomingMessage, socket: Duplex, state: P
   // A deliberate policy refusal (plaintext WebSocket proxying is unsupported),
   // not a malformed request and not a private-network block.
   const targetUrl = parseUpgradeProxyUrl(request);
+  if (!state.trafficBudget.claim(targetUrl)) {
+    recordBlockedTarget(state.blockedTargets, targetUrl ? safeTargetLabel(targetUrl) : request.url ?? "unknown", "resource-limit");
+    closeTunnel(socket, 509);
+    return;
+  }
   recordBlockedTarget(state.blockedTargets, targetUrl ? safeTargetLabel(targetUrl) : request.url ?? "unknown", "upgrade-blocked");
   closeTunnel(socket, 400);
 }
@@ -327,6 +388,7 @@ type ProxyState = {
   resolveHost: ResolvePublicHost;
   blockedTargets: BlockedProxyTarget[];
   pinnedTargets: Map<string, Promise<PinnedTarget>>;
+  trafficBudget: ProxyTrafficBudget;
   responseByteBudget: AggregateByteBudget<typeof PUBLIC_SCAN_PROXY_RESPONSE_BYTE_BUDGET_NAME>;
   uploadByteBudget: AggregateByteBudget<typeof PUBLIC_SCAN_PROXY_UPLOAD_BYTE_BUDGET_NAME>;
   connectUpstream: (target: Readonly<PinnedTarget>) => net.Socket;
@@ -491,7 +553,19 @@ function recordBlockedTarget(
   target: string,
   reason: BlockedProxyTarget["reason"]
 ): void {
-  blockedTargets.push({ target, reason });
+  const entry = { target, reason };
+  if (blockedTargets.length < MAX_RECORDED_PROXY_BLOCKS) {
+    blockedTargets.push(entry);
+    return;
+  }
+  // Preserve at least one example of every reason even after hostile traffic
+  // fills the diagnostics cap; scanner security decisions depend on retaining
+  // evidence that a non-public target was blocked.
+  if (blockedTargets.some((blocked) => blocked.reason === reason)) return;
+  const replaceIndex = blockedTargets.findLastIndex(
+    (blocked, index) => blockedTargets.findIndex((candidate) => candidate.reason === blocked.reason) !== index
+  );
+  if (replaceIndex >= 0) blockedTargets[replaceIndex] = entry;
 }
 
 function safeTargetLabel(url: URL): string {
@@ -567,6 +641,68 @@ class AggregateByteBudget<Name extends PublicScanProxyByteBudgetName> {
             }
     };
   }
+}
+
+/**
+ * Independent proxy-layer bound. Page routing is evidence collection, not a
+ * resource-control boundary: popup first requests and browser-internal traffic
+ * can reach the proxy without a page route. This counter therefore gates every
+ * proxy transaction and every new DNS/connect target before upstream work.
+ */
+class ProxyTrafficBudget {
+  private transactionsSeen = 0;
+  private refused = 0;
+  private readonly uniqueTargets = new Set<string>();
+
+  constructor(
+    readonly transactionLimit: number,
+    readonly uniqueTargetLimit: number
+  ) {}
+
+  claim(target: URL | null): boolean {
+    this.transactionsSeen += 1;
+    if (this.transactionsSeen > this.transactionLimit) {
+      this.refused += 1;
+      return false;
+    }
+    if (target === null) return true;
+
+    const key = proxyTargetKey(target);
+    if (this.uniqueTargets.has(key)) return true;
+    if (this.uniqueTargets.size >= this.uniqueTargetLimit) {
+      this.refused += 1;
+      return false;
+    }
+    this.uniqueTargets.add(key);
+    return true;
+  }
+
+  snapshot(): PublicScanProxyDiagnostics["trafficBudget"] {
+    return {
+      name: PUBLIC_SCAN_PROXY_TRAFFIC_BUDGET_NAME,
+      family: "requests",
+      transactionLimit: this.transactionLimit,
+      transactionsSeen: this.transactionsSeen,
+      uniqueTargetLimit: this.uniqueTargetLimit,
+      uniqueTargetsSeen: this.uniqueTargets.size,
+      captureLoss:
+        this.refused === 0
+          ? null
+          : {
+              family: "requests",
+              phaseId: null,
+              kind: "cap",
+              count: this.refused,
+              detail: PUBLIC_SCAN_PROXY_TRAFFIC_BUDGET_NAME
+            }
+    };
+  }
+}
+
+function proxyTargetKey(target: URL): string {
+  const hostname = normalizeHostname(target.hostname);
+  const port = target.port ? Number(target.port) : defaultPort(target.protocol);
+  return `${target.protocol}//${hostname}:${port}`;
 }
 
 /**
@@ -660,6 +796,29 @@ function normalizeUploadByteLimit(value: number | undefined): number {
     );
   }
   return limit;
+}
+
+function normalizeTransactionLimit(value: number | undefined): number {
+  return normalizePositiveBoundedLimit(
+    value ?? DEFAULT_PUBLIC_SCAN_PROXY_TRANSACTION_LIMIT,
+    MAX_PUBLIC_SCAN_PROXY_TRANSACTION_LIMIT,
+    "transaction"
+  );
+}
+
+function normalizeUniqueTargetLimit(value: number | undefined): number {
+  return normalizePositiveBoundedLimit(
+    value ?? DEFAULT_PUBLIC_SCAN_PROXY_UNIQUE_TARGET_LIMIT,
+    MAX_PUBLIC_SCAN_PROXY_UNIQUE_TARGET_LIMIT,
+    "unique-target"
+  );
+}
+
+function normalizePositiveBoundedLimit(value: number, maximum: number, label: string): number {
+  if (!Number.isSafeInteger(value) || value <= 0 || value > maximum) {
+    throw new Error(`Public scan proxy ${label} limit must be a positive integer no greater than ${maximum}.`);
+  }
+  return value;
 }
 
 function trackSocket(socket: Duplex, sockets: Set<Duplex>): void {

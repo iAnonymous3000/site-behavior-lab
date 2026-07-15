@@ -133,10 +133,13 @@ The front Worker chooses one of three postures from its config:
 - Fresh GPC, Shields, and consent r2 reports were validated and added to the
   mixed-version corpus. The access-token lock was then removed last; final
   health proved open access, Turnstile enabled, r2 and consent enabled, shadow
-  disabled, and no warnings; the deployment config pins capacity at three
-  instances. The Brave-list refresh rerun also succeeded.
-- Container-observability retention/query verification and the WAF ceiling
-  remain external operational follow-ups.
+  disabled, and no warnings. The deployment config permits at most three
+  instances, but the current `getContainer(env.SCANNER)` routing deliberately
+  uses one warm singleton; horizontal sharding is still pending. The Brave-list
+  refresh rerun also succeeded.
+- Container-observability retention/query verification, the WAF ceiling, and a
+  scoped synthetic R2 write/read/delete monitor remain external operational
+  follow-ups. `/api/health` proves R2 configuration, not remote reachability.
 
 ## Sharing live-scan results
 
@@ -158,9 +161,11 @@ For the link to **unfurl with its Open Graph / X card** (headline + key counts),
 the scanner image must be built with the public origin baked in, because
 `NEXT_PUBLIC_*` values are inlined by `next build`:
 
-- In the Worker's **Build** settings (Workers Builds), add a build variable /
-  Docker build arg `NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SITE_URL=https://scan.sitebehavior.org`,
-  then trigger a rebuild.
+- The committed Dockerfile already defaults
+  `NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SITE_URL=https://scan.sitebehavior.org`, because
+  Workers Builds does not pass custom Docker build arguments. Self-hosters on a
+  different public origin must override that build argument in their own image
+  build.
 
 Without it, shared links still render the report; they just won't show a card
 image.
@@ -199,8 +204,9 @@ and rerun CI on `main` to resume. Never move `production` by hand.
 
 ## Operate
 
-- Watch container compute/egress cost and `max_instances`; lower `sleepAfter` to
-  save cost or raise it to cut cold starts.
+- Watch container compute/egress cost. `max_instances` is only a ceiling while
+  routing uses the singleton container; lower `sleepAfter` to save cost or raise
+  it to cut cold starts.
 - Alert on `/api/health` `status: degraded` (includes the ad-block engine load
   state used for Shields).
 - Tune `SITE_BEHAVIOR_LAB_PUBLIC_SCAN_RATE_LIMIT_PER_MINUTE` / `_PER_DAY` and the

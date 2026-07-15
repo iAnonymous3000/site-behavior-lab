@@ -2,9 +2,15 @@
 
 ## Context
 
-The current scanner is intentionally simple: `POST /api/scan` validates the request, runs Playwright inside the HTTP request, saves the report, and returns the full `ScanReport`. That is a good fit for one self-hosted process with a trusted operator token. It becomes the main scaling boundary when scans are exposed to more traffic because a request can hold a connection for the whole scan window, and a GPC comparison runs two visits sequentially.
+The scanner supports both the original synchronous response and an in-process
+async queue. The production container enables async mode: `POST /api/scan`
+returns a capability-scoped job ID, while the front Worker keeps a bounded
+IDs-only recovery registry in Durable Object SQLite. A restart can recover a
+completed report that reached R2, but queued/running execution is not replayed.
 
-This note sketches the job-model seam without changing current behavior.
+This note records the implemented Phase-1 seam and the still-pending Phase-2
+durable execution protocol. The detailed status is pinned under Current
+Implementation below.
 
 ## Goals
 

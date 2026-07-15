@@ -3,7 +3,10 @@ import http from "node:http";
 import net, { type AddressInfo } from "node:net";
 import { test } from "node:test";
 import {
+  MAX_PUBLIC_SCAN_PROXY_TRANSACTION_LIMIT,
+  MAX_RECORDED_PROXY_BLOCKS,
   MAX_PUBLIC_SCAN_PROXY_RESPONSE_BYTE_LIMIT,
+  MAX_PUBLIC_SCAN_PROXY_UNIQUE_TARGET_LIMIT,
   MAX_PUBLIC_SCAN_PROXY_UPLOAD_BYTE_LIMIT,
   startPublicScanProxy
 } from "./public-scan-proxy";
@@ -114,6 +117,93 @@ test("public scan proxy rejects response-byte overrides that could disable its s
     /positive integer no greater/
   );
   await assert.rejects(() => startPublicScanProxy({ uploadByteLimitBytes: 0 }), /positive integer no greater/);
+  await assert.rejects(
+    () => startPublicScanProxy({ transactionLimit: MAX_PUBLIC_SCAN_PROXY_TRANSACTION_LIMIT + 1 }),
+    /transaction limit must be a positive integer no greater/
+  );
+  await assert.rejects(
+    () => startPublicScanProxy({ transactionLimit: 0 }),
+    /transaction limit must be a positive integer no greater/
+  );
+  await assert.rejects(
+    () => startPublicScanProxy({ uniqueTargetLimit: MAX_PUBLIC_SCAN_PROXY_UNIQUE_TARGET_LIMIT + 1 }),
+    /unique-target limit must be a positive integer no greater/
+  );
+  await assert.rejects(
+    () => startPublicScanProxy({ uniqueTargetLimit: 0 }),
+    /unique-target limit must be a positive integer no greater/
+  );
+});
+
+test("public scan proxy bounds target fan-out before a second DNS lookup", async (t) => {
+  let resolveCalls = 0;
+  const proxy = await startPublicScanProxy({
+    transactionLimit: 10,
+    uniqueTargetLimit: 1,
+    resolveHost: async () => {
+      resolveCalls += 1;
+      return [{ address: "127.0.0.1", family: 4 }];
+    }
+  });
+  t.after(() => proxy.close());
+
+  await assert.rejects(() => proxyGet(proxy.server, "http://first-target.test/"));
+  await assert.rejects(() => proxyGet(proxy.server, "http://second-target.test/"));
+
+  assert.equal(resolveCalls, 1);
+  assert.equal(proxy.blockedTargets.some((entry) => entry.reason === "resource-limit"), true);
+  assert.deepEqual(proxy.getDiagnostics().trafficBudget, {
+    name: "proxy-traffic",
+    family: "requests",
+    transactionLimit: 10,
+    transactionsSeen: 2,
+    uniqueTargetLimit: 1,
+    uniqueTargetsSeen: 1,
+    captureLoss: {
+      family: "requests",
+      phaseId: null,
+      kind: "cap",
+      count: 1,
+      detail: "proxy-traffic"
+    }
+  });
+});
+
+test("public scan proxy bounds repeated HTTP transactions independently of page routing", async (t) => {
+  let resolveCalls = 0;
+  const proxy = await startPublicScanProxy({
+    transactionLimit: 1,
+    uniqueTargetLimit: 10,
+    resolveHost: async () => {
+      resolveCalls += 1;
+      return [{ address: "127.0.0.1", family: 4 }];
+    }
+  });
+  t.after(() => proxy.close());
+
+  await assert.rejects(() => proxyGet(proxy.server, "http://same-target.test/one"));
+  await assert.rejects(() => proxyGet(proxy.server, "http://same-target.test/two"));
+
+  assert.equal(resolveCalls, 1);
+  assert.equal(proxy.getDiagnostics().trafficBudget.captureLoss?.count, 1);
+});
+
+test("blocked-target diagnostics stay bounded without losing a later private-address signal", async (t) => {
+  const proxy = await startPublicScanProxy({
+    resolveHost: async (hostname) => {
+      if (hostname === "private-late.test") return [{ address: "127.0.0.1", family: 4 }];
+      throw new Error("synthetic DNS failure");
+    }
+  });
+  t.after(() => proxy.close());
+
+  for (let index = 0; index < MAX_RECORDED_PROXY_BLOCKS + 5; index += 1) {
+    await assert.rejects(() => proxyGet(proxy.server, "http://dead-many.test/pixel"));
+  }
+  await assert.rejects(() => proxyGet(proxy.server, "http://private-late.test/metadata"));
+
+  assert.equal(proxy.blockedTargets.length, MAX_RECORDED_PROXY_BLOCKS);
+  assert.equal(proxy.blockedTargets.some((entry) => entry.reason === "non-public-address"), true);
 });
 
 test("public scan proxy forwards a normal HTTP upload and meters it separately from the response", async (t) => {
@@ -234,6 +324,7 @@ test("public scan proxy caps CONNECT client-to-upstream bytes including the pars
   assert.equal(proxy.getDiagnostics().uploadByteBudget.forwardedBytes, 16);
   assert.equal(proxy.getDiagnostics().uploadByteBudget.captureLoss?.count, 1);
   assert.equal(proxy.getDiagnostics().responseByteBudget.forwardedBytes, 0);
+  assert.equal(proxy.getDiagnostics().trafficBudget.transactionsSeen, 1);
   assert.deepEqual(proxy.blockedTargets, []);
 });
 

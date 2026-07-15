@@ -324,11 +324,19 @@ function isFiniteNumber(value: unknown): value is number {
 }
 
 function isCount(value: unknown): value is number {
-  return isFiniteNumber(value) && Number.isInteger(value) && value >= 0;
+  return typeof value === "number" && Number.isSafeInteger(value) && value >= 0;
 }
 
 function isInteger(value: unknown): value is number {
-  return isFiniteNumber(value) && Number.isInteger(value);
+  return typeof value === "number" && Number.isSafeInteger(value);
+}
+
+function isPositiveInteger(value: unknown): value is number {
+  return typeof value === "number" && Number.isSafeInteger(value) && value > 0;
+}
+
+function isHttpStatus(value: unknown): value is number {
+  return typeof value === "number" && Number.isInteger(value) && value >= 100 && value <= 599;
 }
 
 function isStringArray(value: unknown): value is string[] {
@@ -468,7 +476,7 @@ function isCaptureLossEntry(value: unknown, phaseCount: number): boolean {
 function isQualityFacts(value: unknown, phaseCount: number): value is QualityFacts {
   return (
     record(value, QUALITY_FACTS_KEYS) &&
-    (value.status === null || isFiniteNumber(value.status)) &&
+    (value.status === null || isHttpStatus(value.status)) &&
     typeof value.botWallTitleMatched === "boolean" &&
     typeof value.navigationSettled === "boolean" &&
     Array.isArray(value.budgetsExhausted) &&
@@ -549,8 +557,8 @@ function isPhaseSpans(value: unknown): value is PhaseSpan[] {
       span.phaseId === index &&
       typeof span.kind === "string" &&
       (PHASE_KINDS as readonly string[]).includes(span.kind) &&
-      isFiniteNumber(span.startedAtMs) &&
-      isFiniteNumber(span.endedAtMs)
+      isCount(span.startedAtMs) &&
+      isCount(span.endedAtMs)
   );
 }
 
@@ -570,7 +578,7 @@ function isRunSummary(value: unknown, phaseCount: number): value is RunSummary {
     (counts.shieldsBlockedRequests === undefined || isCount(counts.shieldsBlockedRequests));
   return (
     typeof value.pageTitle === "string" &&
-    (value.status === null || isFiniteNumber(value.status)) &&
+    (value.status === null || isHttpStatus(value.status)) &&
     isCount(value.durationMs) &&
     countsOk &&
     Array.isArray(value.countsByPhase) &&
@@ -609,17 +617,17 @@ function isRequestProvenance(value: unknown): boolean {
 function isNetworkRequest(value: unknown, phaseCount: number): boolean {
   return (
     record(value, REQUEST_KEYS) &&
-    isInteger(value.id) &&
+    isPositiveInteger(value.id) &&
     isNonEmptyString(value.url) &&
     isNonEmptyString(value.domain) &&
     isNonEmptyString(value.method) &&
     isNonEmptyString(value.resourceType) &&
-    (value.status === null || isFiniteNumber(value.status)) &&
+    (value.status === null || isHttpStatus(value.status)) &&
     typeof value.thirdParty === "boolean" &&
     (value.tracker === null || isTrackerMatch(value.tracker)) &&
     (value.blockedByShields === undefined || typeof value.blockedByShields === "boolean") &&
     (value.provenance === undefined || isRequestProvenance(value.provenance)) &&
-    isFiniteNumber(value.startedAtMs) &&
+    isCount(value.startedAtMs) &&
     isPhaseId(value.phaseId, phaseCount)
   );
 }

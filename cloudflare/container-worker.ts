@@ -3,12 +3,12 @@
 // repo Dockerfile as a Cloudflare Container and forwards requests to it.
 //
 // This Worker is the edge enforcement point: before a scan reaches the container's
-// real Chromium it applies access-token, Turnstile, and KV rate-limit gating
-// (shared with cloudflare/worker.ts via lib/edge-scan-gate.ts). Everything else
-// (health, report reads, CORS preflight) forwards straight through.
+// real Chromium it applies access-token and Turnstile gating plus an atomic
+// SQLite quota in the scanner Durable Object. Everything else (health, report
+// reads, CORS preflight) forwards straight through.
 //
-// Deployed separately (wrangler.container.jsonc) from cloudflare/worker.ts (the
-// Browser Run GPC worker), so the existing live GPC worker is untouched.
+// Deployed separately (wrangler.container.jsonc) from the retired Browser Run
+// worker retained in cloudflare/worker.ts for gated self-hosting.
 // Full runbook: docs/go-live-public-scanner.md
 import { Container, getContainer } from "@cloudflare/containers";
 import { scanCorsHeaders } from "../lib/cors";

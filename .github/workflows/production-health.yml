@@ -18,21 +18,44 @@ jobs:
   scanner:
     name: Verify scanner health and posture
     runs-on: ubuntu-latest
-    timeout-minutes: 3
+    timeout-minutes: 5
     steps:
-      - name: Fetch live health
+      - name: Resolve expected production revision
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+        with:
+          ref: production
+          fetch-depth: 1
+
+      - name: Record expected production revision
+        run: echo "EXPECTED_PRODUCTION_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+
+      - name: Wait for exact scanner and Pages revisions
         env:
           HEALTH_URL: https://scan.sitebehavior.org/api/health
+          PAGES_DEPLOYMENT_URL: https://sitebehavior.org/deployment.json
         run: |
           set -euo pipefail
-          curl --fail --silent --show-error \
-            --connect-timeout 10 \
-            --max-time 20 \
-            --retry 3 \
-            --retry-all-errors \
-            --retry-delay 5 \
-            --retry-max-time 75 \
-            "$HEALTH_URL" > "$RUNNER_TEMP/production-health.json"
+          for attempt in {1..6}; do
+            scanner=""
+            pages=""
+            if curl --fail --silent --show-error --connect-timeout 5 --max-time 10 \
+              "$HEALTH_URL" > "$RUNNER_TEMP/production-health.json"; then
+              scanner=$(jq -r '.deployment // empty' "$RUNNER_TEMP/production-health.json" 2>/dev/null || true)
+            fi
+            if curl --fail --silent --show-error --connect-timeout 5 --max-time 10 \
+              "$PAGES_DEPLOYMENT_URL" > "$RUNNER_TEMP/production-pages-deployment.json"; then
+              pages=$(jq -r '.deployment // empty' "$RUNNER_TEMP/production-pages-deployment.json" 2>/dev/null || true)
+            fi
+            if [[ "$scanner" == "$EXPECTED_PRODUCTION_SHA" && "$pages" == "$EXPECTED_PRODUCTION_SHA" ]]; then
+              break
+            fi
+            if [[ "$attempt" == 6 ]]; then
+              echo "::error title=Production rollout stale::expected $EXPECTED_PRODUCTION_SHA, scanner=${scanner:-unavailable}, Pages=${pages:-unavailable}"
+              exit 1
+            fi
+            echo "Waiting for production rollout (attempt $attempt/6): scanner=${scanner:-unavailable}, Pages=${pages:-unavailable}"
+            sleep 15
+          done
 
       - name: Fetch live Pages report contract
         env:
@@ -51,6 +74,7 @@ jobs:
       - name: Validate availability and production posture
         env:
           HEALTH_FILE: ${{ runner.temp }}/production-health.json
+          PAGES_DEPLOYMENT_FILE: ${{ runner.temp }}/production-pages-deployment.json
           SCHEMA_FILE: ${{ runner.temp }}/production-scan-report-schema.json
         run: |
           node <<'NODE'
@@ -66,7 +90,9 @@ jobs:
           }
 
           const health = readJson(process.env.HEALTH_FILE, "Health response");
+          const pagesDeployment = readJson(process.env.PAGES_DEPLOYMENT_FILE, "Pages deployment provenance");
           const schema = readJson(process.env.SCHEMA_FILE, "Pages report schema");
+          const expectedDeployment = process.env.EXPECTED_PRODUCTION_SHA;
           const failures = [];
           const assertPosture = (condition, message) => {
             if (!condition) failures.push(message);
@@ -87,7 +113,12 @@ jobs:
           assertPosture(health?.checks?.reportStore?.kind === "r2", "report store check must report R2");
           assertPosture(health?.checks?.reportStore?.configuredPath === true, "R2 report path must be configured");
           assertPosture(health?.checks?.reportStore?.maxAgeDays === 7, "R2 report retention must be seven days");
+          // This endpoint intentionally proves configuration only. A future
+          // scoped synthetic scan/read/delete monitor must cover remote R2
+          // reachability without leaving test reports behind.
           assertPosture(health?.checks?.scannerEgress === "configured", "scanner egress proxy must be configured");
+          assertPosture(health?.checks?.scannerEgressRegion === "configured",
+            "scanner egress region must be recorded so r2 comparison metrics remain eligible");
           assertPosture(health?.checks?.consentVerification === "enabled",
             "consent registration verification must be enabled");
           assertPosture(health?.checks?.publicR2Reports?.status === "enabled",
@@ -100,11 +131,16 @@ jobs:
             "per-minute public scan rate limit must be active");
           assertPosture(Number.isFinite(health?.limits?.publicScanRateLimitPerDay) && health.limits.publicScanRateLimitPerDay > 0,
             "daily public scan rate limit must be active");
-          // Cloudflare may take several minutes to roll out a newly promoted
-          // revision. Verify provenance shape here without turning normal
-          // deployment lag into a false outage alert.
           assertPosture(typeof health?.deployment === "string" && /^[0-9a-f]{40}$/.test(health.deployment),
             "live deployment must report a full commit SHA");
+          assertPosture(health?.deployment === expectedDeployment,
+            `scanner deployment must match production (${expectedDeployment}, received ${health?.deployment})`);
+          assertPosture(pagesDeployment?.schemaVersion === 1,
+            "Pages deployment provenance must use schema version 1");
+          assertPosture(typeof pagesDeployment?.deployment === "string" && /^[0-9a-f]{40}$/.test(pagesDeployment.deployment),
+            "Pages deployment must report a full commit SHA");
+          assertPosture(pagesDeployment?.deployment === expectedDeployment,
+            `Pages deployment must match production (${expectedDeployment}, received ${pagesDeployment?.deployment})`);
 
           const timestamp = Date.parse(health?.timestamp);
           const ageMs = Date.now() - timestamp;
@@ -124,10 +160,12 @@ jobs:
             "- Status: **ok**",
             "- Public scanning: **available** (Turnstile protected)",
             "- Public report contract: **ScanReport v2/r2**",
+            "- Scanner egress region: **configured**",
             "- Consent registration verification: **enabled**",
             "- Pages report contract: **v2/r2**",
             "- Report storage: **R2**, seven-day retention",
-            `- Deployment: \`${health.deployment}\``,
+            `- Scanner deployment: \`${health.deployment}\``,
+            `- Pages deployment: \`${pagesDeployment.deployment}\``,
             "- Warnings: **none**"
           ].join("\n");
           fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, `${summary}\n`);

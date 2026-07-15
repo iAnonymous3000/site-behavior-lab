@@ -7,6 +7,9 @@
  * regardless of the host's default locale.
  */
 
+import type { ConsentClicks } from "./temporal-report-identity";
+import type { ComparisonType } from "./types";
+
 export function formatCount(value: number): string {
   return value.toLocaleString("en-US");
 }
@@ -37,4 +40,43 @@ export function humanList(items: string[], limit = 3): string {
  */
 export function displayHost(host: string): string {
   return host.replaceAll("{label}", "*");
+}
+
+/** Match either the stored privacy token or the wildcard readers see. */
+export function hostMatchesQuery(host: string, query: string): boolean {
+  const needle = query.trim().toLowerCase();
+  if (!needle) return true;
+  return host.toLowerCase().includes(needle) || displayHost(host).toLowerCase().includes(needle);
+}
+
+export function comparisonDeltaHeading(
+  labels: { baseline: string; variant: string },
+  hasComparableDelta: boolean
+): string {
+  return hasComparableDelta
+    ? `${labels.baseline} → ${labels.variant} delta`
+    : `${labels.baseline} and ${labels.variant}: two visits, no comparable metric delta`;
+}
+
+/**
+ * One report-kind label for every corpus surface. A consent pair is a true
+ * choice comparison only when both controls were activated; otherwise the
+ * label names the attempted observation instead of overstating the evidence.
+ */
+export function reportKindLabel(entry: {
+  reportType: "single" | "comparison";
+  comparisonType?: ComparisonType | null;
+  consentClicks?: ConsentClicks | null;
+}): string {
+  if (entry.reportType !== "comparison") return "single scan";
+  if (entry.comparisonType === "shields") return "Brave-list blocking comparison";
+  if (entry.comparisonType === "gpc") return "GPC comparison";
+  if (entry.comparisonType === "consent") {
+    if (entry.consentClicks === "accept-and-reject") return "consent comparison";
+    if (entry.consentClicks === "accept-only") return "consent comparison attempt (Reject not clicked)";
+    if (entry.consentClicks === "reject-only") return "consent comparison attempt (Accept not clicked)";
+    return "consent comparison attempt (no banner clicked)";
+  }
+  if (entry.comparisonType === "temporal") return "temporal comparison";
+  return "comparison";
 }

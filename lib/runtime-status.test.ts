@@ -5,6 +5,7 @@ import { runtimeStatus } from "./runtime-status";
 const SCAN_ACCESS_TOKEN_ENV = "SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN";
 const REPORT_STORE_DIR_ENV = "SITE_BEHAVIOR_LAB_REPORT_STORE_DIR";
 const SCANNER_EGRESS_ENV = "SITE_BEHAVIOR_LAB_SCANNER_EGRESS";
+const SCANNER_EGRESS_REGION_ENV = "SITE_BEHAVIOR_LAB_SCANNER_EGRESS_REGION";
 const ALLOW_UNAUTHENTICATED_SCANS_ENV = "SITE_BEHAVIOR_LAB_ALLOW_UNAUTHENTICATED_SCANS";
 const REPORT_STORE_BACKEND_ENV = "SITE_BEHAVIOR_LAB_REPORT_STORE_BACKEND";
 const CHROMIUM_SANDBOX_ENV = "SITE_BEHAVIOR_LAB_CHROMIUM_SANDBOX";
@@ -24,6 +25,10 @@ afterEach(() => {
   delete process.env[SCAN_ACCESS_TOKEN_ENV];
   delete process.env[REPORT_STORE_DIR_ENV];
   delete process.env[SCANNER_EGRESS_ENV];
+  delete process.env[SCANNER_EGRESS_REGION_ENV];
+  delete process.env.CLOUDFLARE_REGION;
+  delete process.env.CLOUDFLARE_LOCATION;
+  delete process.env.CLOUDFLARE_COUNTRY_A2;
   delete process.env[ALLOW_UNAUTHENTICATED_SCANS_ENV];
   delete process.env[REPORT_STORE_BACKEND_ENV];
   delete process.env[CHROMIUM_SANDBOX_ENV];
@@ -85,6 +90,7 @@ test("runtimeStatus reports degraded status for open local defaults", async () =
   assert.equal(status.checks.dnsRebindingGuard, "connect-time-proxy");
   assert.equal(status.checks.reportStore.configuredPath, false);
   assert.equal(status.checks.scannerEgress, "default");
+  assert.equal(status.checks.scannerEgressRegion, "unrecorded");
   assert.equal(status.checks.chromiumSandbox, "disabled");
   assert.equal(status.checks.consentVerification, "disabled");
   assert.deepEqual(status.checks.publicR2Reports, { status: "disabled" });
@@ -115,6 +121,7 @@ test("runtimeStatus reports ok status when production controls are configured", 
     maxCount: 500
   });
   assert.equal(status.checks.scannerEgress, "configured");
+  assert.equal(status.checks.scannerEgressRegion, "unrecorded");
   assert.equal(status.checks.chromiumSandbox, "enabled");
   assert.equal(status.deployment, "unknown");
   assert.deepEqual(status.capabilities, {
@@ -158,11 +165,53 @@ test("runtimeStatus makes public-r2 rollout readiness explicit and refuses misco
 
   process.env[BUILD_COMMIT_ENV] = "a".repeat(40);
   process.env[CONSENT_VERIFICATION_ENV] = "1";
+  process.env[SCANNER_EGRESS_REGION_ENV] = "us-west";
   const ready = await runtimeStatus(loadedAdblock);
   assert.equal(ready.status, "ok");
   assert.equal(ready.scansAvailable, true);
   assert.deepEqual(ready.checks.publicR2Reports, { status: "enabled" });
   assert.deepEqual(ready.warnings, []);
+});
+
+test("runtimeStatus makes an unrecorded public-r2 egress region observable", async () => {
+  process.env[SCAN_ACCESS_TOKEN_ENV] = "secret-key";
+  process.env[REPORT_STORE_DIR_ENV] = "/var/lib/site-behavior-lab/reports";
+  process.env[SCANNER_EGRESS_ENV] = "iad-lab-egress";
+  process.env[PUBLIC_R2_REPORTS_ENV] = "1";
+  process.env[BUILD_COMMIT_ENV] = "a".repeat(40);
+  process.env[CONSENT_VERIFICATION_ENV] = "1";
+
+  const missing = await runtimeStatus(loadedAdblock);
+  assert.equal(missing.status, "degraded");
+  assert.equal(missing.scansAvailable, true, "single scans remain usable while comparison deltas fail closed");
+  assert.equal(missing.checks.scannerEgressRegion, "unrecorded");
+  assert.equal(missing.warnings.some((warning) => warning.includes("egress region is unrecorded")), true);
+
+  process.env.CLOUDFLARE_COUNTRY_A2 = "US";
+  const partialPlacement = await runtimeStatus(loadedAdblock);
+  assert.equal(partialPlacement.status, "degraded");
+  assert.equal(partialPlacement.scansAvailable, true, "single scans remain usable while invalid region metadata is omitted");
+  assert.equal(partialPlacement.checks.scannerEgressRegion, "misconfigured");
+  assert.equal(partialPlacement.warnings.some((warning) => warning.includes("full region/location/country")), true);
+
+  process.env.CLOUDFLARE_REGION = "wnam";
+  process.env.CLOUDFLARE_LOCATION = "Los Angeles";
+  const configured = await runtimeStatus(loadedAdblock);
+  assert.equal(configured.status, "ok");
+  assert.equal(configured.checks.scannerEgressRegion, "configured");
+  assert.deepEqual(configured.warnings, []);
+});
+
+test("runtimeStatus rejects explicit egress regions outside the r2 text envelope", async () => {
+  process.env[SCAN_ACCESS_TOKEN_ENV] = "secret-key";
+  process.env[REPORT_STORE_DIR_ENV] = "/var/lib/site-behavior-lab/reports";
+  process.env[SCANNER_EGRESS_ENV] = "iad-lab-egress";
+  process.env[SCANNER_EGRESS_REGION_ENV] = "x".repeat(65);
+
+  const status = await runtimeStatus(loadedAdblock);
+  assert.equal(status.status, "degraded");
+  assert.equal(status.checks.scannerEgressRegion, "misconfigured");
+  assert.equal(status.warnings.some((warning) => warning.includes("r2-safe stable region")), true);
 });
 
 test("runtimeStatus exposes a configured private R2 shadow posture", async () => {

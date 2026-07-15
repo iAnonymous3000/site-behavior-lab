@@ -71,14 +71,16 @@ test("the JSON payload embeds the measured-corpus framing", () => {
 
   assert.equal(payload.reportCount, 1);
   // Coverage and measurement are separate concepts: siteCount is every site
-  // that loaded (capped recordings included), measuredSampleSize the
-  // statistics basis, and the note defines both.
+  // that loaded (capped recordings included), measuredSampleSize is the exact
+  // legacy-v1 passive percentile cohort, and the note defines both.
   assert.equal(payload.siteCount, 104);
   assert.equal(payload.measuredSampleSize, 101);
   assert.equal(payload.note, CORPUS_EXPORT_NOTE);
   assert.match(payload.note, /not a random sample of the web/);
   assert.match(payload.note, /run-to-run variance/);
-  assert.match(payload.note, /measuredSampleSize counts the sites/);
+  assert.match(payload.note, /measuredSampleSize is the exact current percentile cohort/);
+  assert.match(payload.note, /passive observe consent state/);
+  assert.match(payload.note, /cross-version cohort can differ/);
   // Capped counts are floors/snapshots, never measured behavior.
   assert.match(payload.note, /floors cut off mid-collection/);
   assert.match(payload.note, /end-state snapshots of an interrupted visit/);

@@ -68,8 +68,8 @@ export default {
 > also forwards the report-store, egress, async, CORS, and secret env vars into
 > the container via the `ScannerContainer` `envVars`. Use the committed file.
 
-`wrangler.container.jsonc` (kept separate from the existing GPC `wrangler.jsonc` so the
-live Worker is untouched):
+`wrangler.container.jsonc` (kept separate from the retired Browser Run
+`wrangler.browser-run.jsonc` configuration):
 
 ```jsonc
 {
@@ -94,6 +94,10 @@ live Worker is untouched):
   "migrations": [{ "tag": "v1", "new_sqlite_classes": ["ScannerContainer"] }]
 }
 ```
+
+`max_instances` is a platform ceiling. The committed Worker currently routes
+through one default `getContainer(env.SCANNER)` singleton so the in-process queue
+remains coherent; it does not actively distribute scans across three instances.
 
 > **Verify these against current Cloudflare docs**, the `@cloudflare/containers` routing
 > helper (`getContainer`), the Durable Object migration shape (`new_sqlite_classes`), and
@@ -122,10 +126,10 @@ SITE_BEHAVIOR_LAB_R2_ACCESS_KEY_ID=<r2 token key id>   # secret
 SITE_BEHAVIOR_LAB_R2_SECRET_ACCESS_KEY=<r2 token secret> # secret
 SITE_BEHAVIOR_LAB_R2_PREFIX=reports/
 SITE_BEHAVIOR_LAB_SCANNER_EGRESS=cloudflare-containers
-# The r2 egress region is auto-recorded from the CLOUDFLARE_REGION/
-# CLOUDFLARE_LOCATION/CLOUDFLARE_COUNTRY_A2 placement metadata the platform
-# injects into each instance; set SITE_BEHAVIOR_LAB_SCANNER_EGRESS_REGION only
-# to override it with a value that truthfully names the egress location.
+# The r2 egress region is auto-recorded only when the platform injects the full
+# CLOUDFLARE_REGION/CLOUDFLARE_LOCATION/CLOUDFLARE_COUNTRY_A2 placement tuple;
+# a partial tuple makes health fail. Set SITE_BEHAVIOR_LAB_SCANNER_EGRESS_REGION
+# only to override it with a value that truthfully names the egress location.
 SITE_BEHAVIOR_LAB_ASYNC_SCANS=1                          # long scans don't hold the connection
 SITE_BEHAVIOR_LAB_CHROMIUM_SANDBOX=1                    # asserted by health + deployed smoke
 SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN=<strong secret>     # operator-gated launch (see §6)
@@ -279,8 +283,13 @@ container returns `202` + a job id to poll):
 ```bash
 SCAN_BASE_URL=https://scan.sitebehavior.org \
   SMOKE_SCAN_ACCESS_TOKEN=<the scan token> \
+  SMOKE_EXPECTED_STORAGE=r2 \
   npm run test:smoke:scanner
 ```
+
+R2 is the smoke default. A self-host intentionally using a filesystem store must
+set `SMOKE_EXPECTED_STORAGE=filesystem`; that checks the configured backend but
+cannot prove the host volume survives replacement.
 
 Point `SMOKE_SHIELDS_URL` at a tracker-heavy site to also eyeball non-zero engine-blocked
 and baseline filter-match counts. A quick manual check of the same essentials:

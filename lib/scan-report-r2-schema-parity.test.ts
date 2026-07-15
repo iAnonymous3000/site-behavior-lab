@@ -33,7 +33,7 @@ const rootDir = process.cwd();
 const R2_SCHEMA_ID = "https://sitebehavior.org/schemas/scan-report.v2.r2.schema.json";
 
 // THE r2 freeze, executable in tests as well as the build (RFC 10.2/14.6).
-const R2_SCHEMA_SHA256 = "539a0fbdcf2e06c41fa4e8662209d275a4e59364153137ab7c4a9f41c5b7c0c7";
+const R2_SCHEMA_SHA256 = "37775a2692dba7ef247cea6047d9da0f355d7084483fda328e5beaca5d2e3df1";
 
 // Keep in sync with scripts/build-schema.mjs (ESM, not importable here);
 // the drift test below fails if the two diverge in output.
@@ -118,6 +118,12 @@ test("r2 structural mutants are rejected by BOTH validators", () => {
       "bad banner moment",
       mutate(makeConsentSingleReportV2R2(), (draft) => (((draft.run.evidence.consent!.bannerTransition!.observations[0] as AnyRecord).moment = "later")))
     ],
+    [
+      "fractional banner timing",
+      mutate(makeConsentSingleReportV2R2(), (draft) => (draft.run.evidence.consent!.bannerTransition!.observations[0].atMs = 0.5))
+    ],
+    ["nonpositive request id", mutate(makePublicSingleReportV2R2(), (draft) => (draft.run.evidence.requests[0].id = 0))],
+    ["invalid request status", mutate(makePublicSingleReportV2R2(), (draft) => (draft.run.evidence.requests[0].status = 600))],
     [
       "unknown key inside a supporting-pair run",
       mutate(makeSupportingPairInterventionReportV2R2(), (draft) => {

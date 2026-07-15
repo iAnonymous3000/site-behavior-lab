@@ -107,6 +107,26 @@ test("one data point per site, newest scan wins, percentiles over real sites", a
   assert.equal(stats.metrics.thirdPartyRequests?.min, 20);
 });
 
+test("redacted and unredacted host labels collapse to one corpus site", async () => {
+  await writeReport(
+    "20260601-12121212121212121212121212121212",
+    makeResult({ firstPartyDomain: "mit.edu", thirdPartyRequests: 10, scannedAt: "2026-06-01T00:00:00.000Z" })
+  );
+  await writeReport(
+    "20260701-34343434343434343434343434343434",
+    makeResult({ firstPartyDomain: "{label}.mit.edu", thirdPartyRequests: 40, scannedAt: "2026-07-01T00:00:00.000Z" })
+  );
+  await writeReport(
+    "20260701-56565656565656565656565656565656",
+    makeResult({ firstPartyDomain: "stanford.edu", thirdPartyRequests: 20, scannedAt: "2026-07-01T00:00:00.000Z" })
+  );
+
+  const { stats } = await buildCorpusStats(reportsDir);
+  assert.equal(stats.sampleSize, 2);
+  assert.equal(stats.coverageSiteCount, 2);
+  assert.equal(stats.metrics.thirdPartyRequests?.max, 40, "the newest marked MIT report wins");
+});
+
 test("a loaded v2 site stays covered even though its metrics are never measured", async () => {
   await writeReport(
     "20260701-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",

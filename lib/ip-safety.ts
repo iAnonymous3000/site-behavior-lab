@@ -79,7 +79,10 @@ function isPublicIpv6(address: string): boolean {
   if (first === 0) return false;
   if (first >= 0xfc00 && first <= 0xfdff) return false;
   if (first >= 0xff00 && first <= 0xffff) return false;
-  if (first >= 0xfe80 && first <= 0xfebf) return false;
+  // FE80::/10 is link-local and the adjacent deprecated FEC0::/10 block is
+  // site-local. Some private networks still route the latter, so treating it
+  // as public would reopen the scanner's internal-network boundary.
+  if (first >= 0xfe80 && first <= 0xfeff) return false;
   if (first === 0x0100 && second === 0) return false;
   if (first === 0x0064 && second === 0xff9b) return false;
   if (first === 0x2001 && (second === 0 || second === 0x0002 || second === 0x0db8)) return false;

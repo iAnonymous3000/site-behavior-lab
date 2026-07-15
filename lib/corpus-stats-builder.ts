@@ -1,4 +1,5 @@
 import { runRequestEvidenceCapped } from "./comparison-eligibility";
+import { corpusSiteDomainKey } from "./corpus-site-domain";
 import type { CorpusMetricKey, CorpusStats, MetricDistribution } from "./corpus-stats";
 import { isReservedReportDomain } from "./reserved-report-domains";
 import {
@@ -65,7 +66,7 @@ export async function buildCorpusStats(reportsDir: string, now = new Date()): Pr
       // the corpus with v2 evidence.
       const lead = read.stored.report.reportType === "single" ? read.stored.report.run : read.stored.report.baseline;
       if (typeof lead.summary.status === "number" && lead.summary.status < 400) {
-        const v2Domain = normalizeDomain(lead.subject.observed.registrableDomain);
+        const v2Domain = corpusSiteDomainKey(lead.subject.observed.registrableDomain);
         if (v2Domain && !isReservedReportDomain(v2Domain)) coverageDomains.add(v2Domain);
       }
       warnings.push(`Skipping corpus report ${file}: schemaVersion 2 metrics are not comparable to the v1 distribution.`);
@@ -87,7 +88,7 @@ export async function buildCorpusStats(reportsDir: string, now = new Date()): Pr
     // already disclose these as failed loads.
     if (typeof result.summary.status !== "number" || result.summary.status >= 400) continue;
 
-    const domain = normalizeDomain(result.summary.firstPartyDomain);
+    const domain = corpusSiteDomainKey(result.summary.firstPartyDomain);
     if (!domain || isReservedReportDomain(domain)) continue;
     coverageDomains.add(domain);
 
@@ -152,8 +153,4 @@ function percentile(sorted: number[], p: number): number {
   if (sorted.length === 0) return 0;
   const index = Math.min(sorted.length - 1, Math.max(0, Math.ceil((p / 100) * sorted.length) - 1));
   return sorted[index];
-}
-
-function normalizeDomain(value: string): string {
-  return value.trim().toLowerCase().replace(/\.$/, "").replace(/^www\./, "");
 }

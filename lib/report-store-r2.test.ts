@@ -1,10 +1,13 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
+  R2_LIST_HEAD_CONCURRENCY,
+  R2_UNCOMMITTED_HEAD_GRACE_MS,
   ReportStoreWriteConflictError,
   createR2ReportStoreBackend,
   parseListResult,
-  type R2ReportStoreConfig
+  type R2ReportStoreConfig,
+  type R2ReportStoreDeps
 } from "./report-store-r2";
 
 const CONFIG: R2ReportStoreConfig = {
@@ -54,7 +57,7 @@ function recordingFetch(responses: (Response | Error)[]): { fetch: typeof fetch;
   return { fetch: fetchImpl, requests };
 }
 
-function backendWith(responses: (Response | Error)[]) {
+function backendWith(responses: (Response | Error)[], overrides: Partial<R2ReportStoreDeps> = {}) {
   const recorder = recordingFetch(responses);
   const sleeps: number[] = [];
   const backend = createR2ReportStoreBackend(CONFIG, {
@@ -63,14 +66,15 @@ function backendWith(responses: (Response | Error)[]) {
     fetch: recorder.fetch,
     sleep: async (ms) => {
       sleeps.push(ms);
-    }
+    },
+    ...overrides
   });
   return { backend, requests: recorder.requests, sleeps };
 }
 
 test("R2 write issues a create-only PUT to the prefixed key", async () => {
   const { backend, requests } = backendWith([new Response(null, { status: 200 })]);
-  await backend.write(VALID_ID, "{}\n", RETENTION);
+  assert.deepEqual(await backend.write(VALID_ID, "{}\n", RETENTION), { ownership: "certain" });
 
   assert.equal(requests.length, 1);
   assert.equal(requests[0].method, "PUT");
@@ -134,7 +138,7 @@ test("R2 write retries a dropped connection and succeeds", async () => {
   assert.equal(requests.length, 2);
 });
 
-test("R2 write treats a 412 after a lost response as success when the object matches", async () => {
+test("R2 matching read-back after an outcome-unknown write reports ambiguous ownership", async () => {
   // First PUT lands server-side but the response is lost; the retried
   // create-only PUT then 412s. The read-back proves our write succeeded.
   const { backend, requests } = backendWith([
@@ -145,7 +149,7 @@ test("R2 write treats a 412 after a lost response as success when the object mat
       headers: retentionHeaders({ "last-modified": "Fri, 20 Jun 2026 12:00:00 GMT" })
     })
   ]);
-  await backend.write(VALID_ID, "{}\n", RETENTION);
+  assert.deepEqual(await backend.write(VALID_ID, "{}\n", RETENTION), { ownership: "ambiguous" });
 
   assert.equal(requests.length, 3);
   assert.equal(requests[2].method, "GET");
@@ -181,6 +185,49 @@ test("R2 write gives up after exhausting retries", async () => {
   await assert.rejects(() => backend.write(VALID_ID, "{}\n"), /HTTP 500/);
   assert.equal(requests.length, 3);
   assert.deepEqual(sleeps, [250, 750]);
+});
+
+test("R2 aborts and retries each never-settling request attempt at the configured deadline", async () => {
+  const signals: AbortSignal[] = [];
+  let attempts = 0;
+  const backend = createR2ReportStoreBackend(CONFIG, {
+    sign: async (input, init) => new Request(input, init),
+    fetch: ((input: Request) => {
+      attempts += 1;
+      signals.push(input.signal);
+      return new Promise<Response>(() => undefined);
+    }) as unknown as typeof fetch,
+    sleep: async () => undefined,
+    requestTimeoutMs: 5
+  });
+
+  await assert.rejects(() => backend.read(VALID_ID), /timed out after 5 ms/);
+  assert.equal(attempts, 3);
+  assert.equal(signals.every((signal) => signal.aborted), true);
+});
+
+test("R2 aborts and retries when headers arrive but the response body never completes", async () => {
+  const signals: AbortSignal[] = [];
+  let attempts = 0;
+  const backend = createR2ReportStoreBackend(CONFIG, {
+    sign: async (input, init) => new Request(input, init),
+    fetch: ((input: Request) => {
+      attempts += 1;
+      signals.push(input.signal);
+      const body = new ReadableStream<Uint8Array>({
+        start(controller) {
+          controller.enqueue(new TextEncoder().encode("partial"));
+        }
+      });
+      return Promise.resolve(new Response(body, { status: 200 }));
+    }) as unknown as typeof fetch,
+    sleep: async () => undefined,
+    requestTimeoutMs: 5
+  });
+
+  await assert.rejects(() => backend.read(VALID_ID), /timed out after 5 ms/);
+  assert.equal(attempts, 3);
+  assert.equal(signals.every((signal) => signal.aborted), true);
 });
 
 test("R2 write does not retry a non-retryable client error", async () => {
@@ -249,6 +296,7 @@ test("R2 list paginates, keeps valid ids, and reads retention independently of r
   const page1 = `<?xml version="1.0"?>
     <ListBucketResult>
       <Contents><Key>reports/${VALID_ID}.json</Key><LastModified>2030-01-01T00:00:00.000Z</LastModified></Contents>
+      <Contents><Key>reports/${otherId}.json.provenance.json</Key><LastModified>2026-06-19T08:00:01.000Z</LastModified></Contents>
       <Contents><Key>reports/not-a-report.txt</Key><LastModified>2026-06-20T12:00:00.000Z</LastModified></Contents>
       <IsTruncated>true</IsTruncated>
       <NextContinuationToken>TOKEN123</NextContinuationToken>
@@ -256,13 +304,14 @@ test("R2 list paginates, keeps valid ids, and reads retention independently of r
   const page2 = `<?xml version="1.0"?>
     <ListBucketResult>
       <Contents><Key>reports/${otherId}.json</Key><LastModified>2026-06-19T08:00:00.000Z</LastModified></Contents>
+      <Contents><Key>reports/${VALID_ID}.json.provenance.json</Key><LastModified>2026-06-20T12:00:01.000Z</LastModified></Contents>
       <IsTruncated>false</IsTruncated>
     </ListBucketResult>`;
 
   const { backend, requests } = backendWith([
     new Response(page1, { status: 200 }),
-    new Response(null, { status: 200, headers: retentionHeaders() }),
     new Response(page2, { status: 200 }),
+    new Response(null, { status: 200, headers: retentionHeaders() }),
     new Response(null, {
       status: 200,
       headers: {
@@ -278,10 +327,133 @@ test("R2 list paginates, keeps valid ids, and reads retention independently of r
     [VALID_ID, otherId]
   );
   assert.deepEqual(entries[0].retention, RETENTION);
+  assert.equal(entries.every((entry) => entry.committed), true);
   assert.equal(entries[0].lastModifiedMs, Date.parse("2030-01-01T00:00:00.000Z"));
-  assert.equal(requests[1].method, "HEAD");
-  assert.ok(requests[2].url.includes("continuation-token=TOKEN123"));
+  assert.ok(requests[1].url.includes("continuation-token=TOKEN123"));
+  assert.equal(requests[2].method, "HEAD");
   assert.equal(requests[3].method, "HEAD");
+});
+
+test("R2 list exposes reports without sidecars as uncommitted bundles without issuing HEAD", async () => {
+  const now = Date.parse("2026-07-14T12:00:00.000Z");
+  const recent = new Date(now - R2_UNCOMMITTED_HEAD_GRACE_MS + 1_000).toISOString();
+  const page = `<?xml version="1.0"?>
+    <ListBucketResult>
+      <Contents><Key>reports/${VALID_ID}.json</Key><LastModified>${recent}</LastModified></Contents>
+      <IsTruncated>false</IsTruncated>
+    </ListBucketResult>`;
+  const { backend, requests } = backendWith([new Response(page, { status: 200 })], { now: () => now });
+
+  const entries = await backend.list();
+  assert.equal(entries.length, 1);
+  assert.equal(entries[0].committed, false);
+  assert.equal(entries[0].reportPresent, true);
+  assert.equal(entries[0].sidecarPresent, false);
+  assert.deepEqual(requests.map((request) => request.method), ["GET"]);
+});
+
+test("R2 bounded-HEADs old report-only bundles so immutable expiry can be reconciled", async () => {
+  const now = Date.parse("2026-07-14T12:00:00.000Z");
+  const old = new Date(now - R2_UNCOMMITTED_HEAD_GRACE_MS - 1).toISOString();
+  const page = `<?xml version="1.0"?>
+    <ListBucketResult>
+      <Contents><Key>reports/${VALID_ID}.json</Key><LastModified>${old}</LastModified></Contents>
+      <IsTruncated>false</IsTruncated>
+    </ListBucketResult>`;
+  const { backend, requests } = backendWith([
+    new Response(page, { status: 200 }),
+    new Response(null, { status: 200, headers: retentionHeaders() })
+  ], { now: () => now });
+
+  const entries = await backend.list();
+  assert.equal(entries.length, 1);
+  assert.equal(entries[0].committed, false);
+  assert.deepEqual(entries[0].retention, RETENTION);
+  assert.deepEqual(requests.map((request) => request.method), ["GET", "HEAD"]);
+});
+
+test("R2 list fails loudly when a report-and-sidecar candidate HEAD fails", async () => {
+  const page = `<?xml version="1.0"?>
+    <ListBucketResult>
+      <Contents><Key>reports/${VALID_ID}.json</Key><LastModified>2026-06-20T12:00:00.000Z</LastModified></Contents>
+      <Contents><Key>reports/${VALID_ID}.json.provenance.json</Key><LastModified>2026-06-20T12:00:01.000Z</LastModified></Contents>
+      <IsTruncated>false</IsTruncated>
+    </ListBucketResult>`;
+  const { backend, requests } = backendWith([
+    new Response(page, { status: 200 }),
+    new Response("denied", { status: 403 })
+  ]);
+
+  await assert.rejects(() => backend.list(), /Failed to read report metadata \(HTTP 403\)/);
+  assert.deepEqual(requests.map((request) => request.method), ["GET", "HEAD"]);
+});
+
+test("R2 list bounds concurrent retention HEAD requests", async () => {
+  const ids = Array.from(
+    { length: R2_LIST_HEAD_CONCURRENCY * 2 + 3 },
+    (_, index) => `20260620-${index.toString(16).padStart(32, "0")}`
+  );
+  const page = `<ListBucketResult>${ids
+    .flatMap((id) => [
+      `<Contents><Key>reports/${id}.json</Key><LastModified>2026-06-20T12:00:00.000Z</LastModified></Contents>`,
+      `<Contents><Key>reports/${id}.json.provenance.json</Key><LastModified>2026-06-20T12:00:01.000Z</LastModified></Contents>`
+    ])
+    .join("")}<IsTruncated>false</IsTruncated></ListBucketResult>`;
+  let activeHeads = 0;
+  let maxActiveHeads = 0;
+  let headCalls = 0;
+  const backend = createR2ReportStoreBackend(CONFIG, {
+    sign: async (input, init) => new Request(input, init),
+    fetch: (async (input: Request): Promise<Response> => {
+      if (input.method === "GET") return new Response(page, { status: 200 });
+      if (input.method !== "HEAD") throw new Error(`Unexpected ${input.method} request.`);
+      headCalls += 1;
+      activeHeads += 1;
+      maxActiveHeads = Math.max(maxActiveHeads, activeHeads);
+      await new Promise<void>((resolve) => setTimeout(resolve, 5));
+      activeHeads -= 1;
+      return new Response(null, { status: 200, headers: retentionHeaders() });
+    }) as unknown as typeof fetch,
+    sleep: async () => undefined
+  });
+
+  const entries = await backend.list();
+  assert.equal(entries.length, ids.length);
+  assert.equal(headCalls, ids.length);
+  assert.ok(maxActiveHeads > 1);
+  assert.ok(maxActiveHeads <= R2_LIST_HEAD_CONCURRENCY);
+});
+
+test("R2 surfaces a sidecar-only deletion orphan and permits a later retry", async () => {
+  const page = `<?xml version="1.0"?>
+    <ListBucketResult>
+      <Contents><Key>reports/${VALID_ID}.json.provenance.json</Key><LastModified>2026-06-20T12:00:01.000Z</LastModified></Contents>
+      <IsTruncated>false</IsTruncated>
+    </ListBucketResult>`;
+  const { backend, requests } = backendWith([
+    new Response(page, { status: 200 }),
+    new Response("denied", { status: 403 }),
+    new Response(page, { status: 200 }),
+    new Response(null, { status: 204 })
+  ]);
+
+  const first = await backend.list();
+  assert.deepEqual(first, [
+    {
+      id: VALID_ID,
+      lastModifiedMs: Date.parse("2026-06-20T12:00:01.000Z"),
+      retention: null,
+      reportPresent: false,
+      sidecarPresent: true,
+      committed: false
+    }
+  ]);
+  await assert.rejects(() => backend.removeSidecar(VALID_ID), /HTTP 403/);
+
+  assert.equal((await backend.list())[0].reportPresent, false);
+  await backend.removeSidecar(VALID_ID);
+  assert.deepEqual(requests.map((request) => request.method), ["GET", "DELETE", "GET", "DELETE"]);
+  assert.equal(requests.some((request) => request.method === "HEAD"), false);
 });
 
 test("parseListResult ignores keys outside the prefix", () => {

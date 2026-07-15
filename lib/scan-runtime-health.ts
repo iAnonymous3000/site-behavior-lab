@@ -53,6 +53,7 @@ export type ScanRuntimeHealth = {
     };
     chromiumSandbox?: "enabled" | "disabled";
     scanAccess?: "configured" | "open" | "refused";
+    scannerEgressRegion?: "configured" | "unrecorded" | "misconfigured";
     consentVerification?: "enabled" | "disabled" | "misconfigured";
     publicR2Reports?: {
       status: "enabled" | "disabled" | "misconfigured";
@@ -123,6 +124,14 @@ function isChecks(value: unknown): value is NonNullable<ScanRuntimeHealth["check
     value.consentVerification !== "enabled" &&
     value.consentVerification !== "disabled" &&
     value.consentVerification !== "misconfigured"
+  ) {
+    return false;
+  }
+  if (
+    value.scannerEgressRegion !== undefined &&
+    value.scannerEgressRegion !== "configured" &&
+    value.scannerEgressRegion !== "unrecorded" &&
+    value.scannerEgressRegion !== "misconfigured"
   ) {
     return false;
   }

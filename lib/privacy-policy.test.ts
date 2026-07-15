@@ -4,11 +4,20 @@ import {
   buildPrivacyPolicySummary,
   classifyEntityMentions,
   extractPolicyClaims,
+  isAllowedPrivacyPolicyUrl,
   MIN_POLICY_TEXT_LENGTH,
   pickPrivacyPolicyLink
 } from "./privacy-policy";
 
 const PAD = " Lorem ipsum privacy boilerplate.".repeat(30);
+
+test("isAllowedPrivacyPolicyUrl keeps redirects within the site or an approved policy host", () => {
+  assert.equal(isAllowedPrivacyPolicyUrl("https://legal.shop.example/privacy", "www.shop.example"), true);
+  assert.equal(isAllowedPrivacyPolicyUrl("https://app.termly.io/document/privacy-policy/abc", "shop.example"), true);
+  assert.equal(isAllowedPrivacyPolicyUrl("https://policies.other.example/privacy", "shop.example"), false);
+  assert.equal(isAllowedPrivacyPolicyUrl("javascript:alert(1)", "shop.example"), false);
+  assert.equal(isAllowedPrivacyPolicyUrl("not a url", "shop.example"), false);
+});
 
 test("pickPrivacyPolicyLink prefers a same-site privacy policy link", () => {
   const url = pickPrivacyPolicyLink(

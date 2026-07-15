@@ -5,7 +5,7 @@ import type { ReactNode } from "react";
 import { comparisonArmViews, comparisonDiffView, type ReportView } from "@/lib/scan-report-views";
 import { provenanceChangeText } from "@/lib/report-findings";
 import { pixelFieldLabel } from "@/lib/report-insights";
-import { displayHost, plural } from "@/lib/text-format";
+import { comparisonDeltaHeading, displayHost, plural } from "@/lib/text-format";
 import type {
   ComparisonMetricDelta,
   CookieChange,
@@ -67,6 +67,7 @@ function ComparisonPanel({ view }: { view: ReportView }) {
       ? [{ label: "Matched Shields lists", metric: diff.shieldsBlockedRequests }]
       : [])
   ].filter((item): item is { label: string; metric: ComparisonMetricDelta } => Boolean(item.metric));
+  const hasComparableDelta = metrics.length > 0;
 
   // Families whose deltas are not comparable across these two visits, from
   // the single reason-bearing decision: the FULL reason list (never just the
@@ -97,9 +98,9 @@ function ComparisonPanel({ view }: { view: ReportView }) {
       <div className="comparison-heading">
         <div>
           <p className="eyebrow">{comparisonEyebrow(view)}</p>
-          {/* An ineligible pair has no delta to head: the heading says what
-              the section holds in each state. */}
-          <h2>{pairAllowed ? `${labels.baseline} → ${labels.variant} delta` : `${labels.baseline} and ${labels.variant}: two visits, no comparable delta`}</h2>
+          {/* Pair validity is necessary but not sufficient: every metric
+              family can still default-deny, leaving no delta to headline. */}
+          <h2>{comparisonDeltaHeading(labels, pairAllowed && hasComparableDelta)}</h2>
         </div>
         <div className="comparison-runs">
           <span>
@@ -126,7 +127,11 @@ function ComparisonPanel({ view }: { view: ReportView }) {
       )}
       {familyNotes.length > 0 && (
         <div className="comparison-ineligible" role="note">
-          <strong>Some deltas are not comparable across these two visits and are not shown.</strong>
+          <strong>
+            {hasComparableDelta
+              ? "Some deltas are not comparable across these two visits and are not shown."
+              : "No metric deltas are comparable across these two visits, so none are shown."}
+          </strong>
           <ul>
             {familyNotes.map((item) => (
               <li key={item.label}>

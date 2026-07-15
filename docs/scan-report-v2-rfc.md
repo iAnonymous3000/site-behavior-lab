@@ -7,6 +7,11 @@
 > pinned at `SCAN_REPORT_SCHEMA_VERSION = 1` ([lib/types.ts](../lib/types.ts)). The
 > durable job queue ([scan-job-model.md](scan-job-model.md)) and domain watchlists are
 > explicitly out of scope and sequenced after this contract.
+>
+> **Implementation receipt, 2026-07-13:** r2 dual-read, validation, redaction,
+> comparability gates, stable-schema alias, controlled Node production emission,
+> and public R2 persistence are live. Section 14 is retained as the executed
+> sequence, not a current to-do list.
 
 ## Goal
 
@@ -1104,7 +1109,8 @@ Two arbitrary report files uploaded through the "Open report file" UI, paired ad
 
 The r1 foundation (freeze, types, schemas, fixtures, union reader, projectors,
 integrity evaluators, exhaustive v1 guard, executable schema freeze) **executed
-2026-07-09** through commit 0619050. The remaining order:
+2026-07-09** through commit 0619050. Steps 1-12 below subsequently executed and
+are retained as the implementation receipt and ordering invariant:
 
 1. **Normative r2 addendum** (section 15) reviewed and accepted, plus the
    hard-coded r1 hash gate (10.2). No r2 implementation before acceptance.
@@ -1134,10 +1140,11 @@ integrity evaluators, exhaustive v1 guard, executable schema freeze) **executed
     structured facts; emitting them earlier would mint r2 reports whose mandatory
     semantics nothing can satisfy.
 
-Then the larger phases:
+Larger follow-on phases:
 
-13. Durable queue (inheriting 9.7's constraints).
-14. Registrable-domain profiles and watches (opaque watch IDs, encrypted targets).
+13. Durable jobs (inheriting 9.7's constraints): the IDs-only recovery registry
+    is implemented; execution leases/replay remain pending.
+14. Registrable-domain profiles are implemented; opaque encrypted watches remain pending.
 
 ---
 

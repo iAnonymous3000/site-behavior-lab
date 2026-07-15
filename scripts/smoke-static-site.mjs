@@ -5,6 +5,7 @@ import { readFile, stat } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
+import { resolveExactStaticDeploymentCommit } from "./static-deployment-provenance.mjs";
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const outDir = path.join(rootDir, "out");
@@ -17,6 +18,7 @@ const liveScanApiBase = process.env.NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SCAN_API_BASE?
 const openAccessScanner = process.env.NEXT_PUBLIC_SITE_BEHAVIOR_LAB_OPEN_ACCESS === "1";
 const archivePageSize = 24;
 const maxReportHtmlBytes = 4 * 1024 * 1024;
+const fullCommitPattern = /^[0-9a-f]{40}$/;
 
 function pass(message) {
   console.log(`PASS ${message}`);
@@ -82,6 +84,18 @@ async function main() {
       fail("stable schema alias still serves historical r1");
     }
     pass("scan-report v2 schemas published (r1 + r2 revisioned files, stable alias on r2)");
+
+    const deploymentResponse = await fetch(`${baseUrl}/deployment.json`);
+    if (!deploymentResponse.ok) fail(`static deployment provenance not served (${deploymentResponse.status})`);
+    const deployment = await deploymentResponse.json();
+    if (deployment?.schemaVersion !== 1 || !fullCommitPattern.test(deployment?.deployment)) {
+      fail("static deployment provenance does not contain a full source commit");
+    }
+    const expectedDeployment = expectedBuildCommit();
+    if (expectedDeployment && deployment.deployment !== expectedDeployment) {
+      fail(`static deployment provenance is ${deployment.deployment}, expected ${expectedDeployment}`);
+    }
+    pass(`static deployment provenance identifies ${deployment.deployment}`);
 
     if (liveScanApiBase) {
       await expectText(page.locator(".status-pill"), "Live");
@@ -350,6 +364,10 @@ function inferredGithubPagesBasePath() {
   const repository = process.env.GITHUB_REPOSITORY?.split("/")[1];
   if (!repository || repository.endsWith(".github.io")) return "";
   return `/${repository}`;
+}
+
+function expectedBuildCommit() {
+  return resolveExactStaticDeploymentCommit({ cwd: rootDir });
 }
 
 main().catch((error) => {

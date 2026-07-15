@@ -966,7 +966,10 @@
               },
               "atMs": {
                 "type": "number",
-                "description": "Must lie inside the referenced phase's span; strictly before < after (< reload)."
+                "description": "Must lie inside the referenced phase's span; strictly before < after (< reload).",
+                "minimum": 0,
+                "maximum": 9007199254740991,
+                "multipleOf": 1
               },
               "visible": {
                 "type": "boolean"
@@ -1014,7 +1017,10 @@
           "$ref": "#/definitions/PhaseId"
         },
         "id": {
-          "type": "number"
+          "type": "number",
+          "minimum": 1,
+          "maximum": 9007199254740991,
+          "multipleOf": 1
         },
         "url": {
           "type": "string"
@@ -1032,7 +1038,10 @@
           "type": [
             "number",
             "null"
-          ]
+          ],
+          "minimum": 100,
+          "maximum": 599,
+          "multipleOf": 1
         },
         "thirdParty": {
           "type": "boolean"
@@ -1054,7 +1063,10 @@
           "$ref": "#/definitions/NetworkRequestProvenance"
         },
         "startedAtMs": {
-          "type": "number"
+          "type": "number",
+          "minimum": 0,
+          "maximum": 9007199254740991,
+          "multipleOf": 1
         }
       },
       "required": [
@@ -1820,7 +1832,10 @@
           "type": [
             "number",
             "null"
-          ]
+          ],
+          "minimum": 100,
+          "maximum": 599,
+          "multipleOf": 1
         },
         "botWallTitleMatched": {
           "type": "boolean"
@@ -2315,10 +2330,16 @@
           "$ref": "#/definitions/PhaseKind"
         },
         "startedAtMs": {
-          "type": "number"
+          "type": "number",
+          "minimum": 0,
+          "maximum": 9007199254740991,
+          "multipleOf": 1
         },
         "endedAtMs": {
-          "type": "number"
+          "type": "number",
+          "minimum": 0,
+          "maximum": 9007199254740991,
+          "multipleOf": 1
         }
       },
       "required": [
@@ -2349,10 +2370,16 @@
           "type": [
             "number",
             "null"
-          ]
+          ],
+          "minimum": 100,
+          "maximum": 599,
+          "multipleOf": 1
         },
         "durationMs": {
-          "type": "number"
+          "type": "number",
+          "minimum": 0,
+          "maximum": 9007199254740991,
+          "multipleOf": 1
         },
         "counts": {
           "type": "object",

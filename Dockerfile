@@ -56,10 +56,11 @@ COPY --from=build /app/lib/adblock-wasm ./lib/adblock-wasm
 COPY --from=build /app/public ./public
 COPY --from=build /app/next.config.mjs ./next.config.mjs
 
-# Scans open attacker-controlled pages, so the runtime must not be root: a
-# renderer escape then lands in an unprivileged user, not in a root process
-# holding the R2 credentials' environment. pwuser ships with the Playwright
-# base image; .next needs ownership because `next start` writes .next/cache.
+# Scans open attacker-controlled pages, so the runtime must not be root. The
+# scanner also launches Chromium with an explicit environment allowlist, so its
+# child processes do not inherit R2, Turnstile, or access-token secrets from the
+# Next process. pwuser ships with the Playwright base image; .next needs
+# ownership because `next start` writes .next/cache.
 RUN mkdir -p /var/lib/site-behavior-lab/reports \
   && chown -R pwuser:pwuser /var/lib/site-behavior-lab/reports /app/.next
 VOLUME ["/var/lib/site-behavior-lab/reports"]

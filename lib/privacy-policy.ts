@@ -75,6 +75,25 @@ const NON_POLICY_PRIVACY_PAGE =
   /privacy[-_ ]?(feature|update|day|month|week|matter|blog|news|tip|principle|promise|commitment|glossary)/;
 
 /**
+ * Whether a policy document URL can still be attributed to the scanned site.
+ * Keep this gate shared by link selection and the scanner's post-navigation
+ * checks: redirects and client-side navigation must not turn an eligible link
+ * into another organization's policy after selection.
+ */
+export function isAllowedPrivacyPolicyUrl(url: string | URL, firstPartyHostname: string): boolean {
+  let parsed: URL;
+  try {
+    parsed = typeof url === "string" ? new URL(url) : url;
+  } catch {
+    return false;
+  }
+  if (parsed.protocol !== "http:" && parsed.protocol !== "https:") return false;
+
+  const linkParty = partyKey(parsed.hostname);
+  return linkParty === partyKey(firstPartyHostname) || POLICY_HOSTING_SERVICES.includes(linkParty);
+}
+
+/**
  * Pick the most plausible privacy-policy URL from a page's links. The decision
  * is driven primarily by the URL PATH (a segment that IS a privacy-policy id),
  * then by link text explicitly naming a policy; a bare "privacy" mention is too
@@ -93,12 +112,10 @@ export function pickPrivacyPolicyLink(links: PolicyLinkCandidate[], firstPartyHo
     } catch {
       continue;
     }
-    if (parsed.protocol !== "http:" && parsed.protocol !== "https:") continue;
+    if (!isAllowedPrivacyPolicyUrl(parsed, firstPartyHostname)) continue;
 
     const linkParty = partyKey(parsed.hostname);
     const sameParty = linkParty === firstParty;
-    const policyHost = POLICY_HOSTING_SERVICES.includes(linkParty);
-    if (!sameParty && !policyHost) continue;
 
     const text = link.text.trim().toLowerCase();
     const path = parsed.pathname.toLowerCase();

@@ -36,21 +36,29 @@ as quickly as is practical for a volunteer-maintained project.
   exports, or logs. Values are intentionally redacted to byte counts, and report
   URLs omit credentials and fragments. Third-party request logs preserve query
   parameter names as evidence, but redact parameter values. Shareable
-  reports are persisted as JSON under the configured filesystem report store,
-  with inline screenshots stripped from the stored copy. Report links use random
-  IDs and report reads are rate-limited, but protect or replace that store for
-  public or horizontally scaled deployments.
+  reports are persisted as screenshot-stripped JSON under the configured
+  filesystem or R2 report store. Report links use random IDs and report reads are
+  rate-limited. Public and horizontally scaled deployments should use a protected
+  shared store such as R2; the reference deployment does.
 - **Resource exhaustion.** Crashing or hanging the server via a hostile target.
   The app includes basic request-size, rate, concurrency, scan-duration, and
-  per-scan request-count guardrails. GPC comparisons consume two rate-limit
-  tokens but still occupy one scan slot until both sequential visits finish. The
-  local report store prunes by age and count. Limits are in-memory per Node
-  process. Public or horizontally scaled deployments may still need external
-  limits.
-- **Unauthorized scanner use.** Public deployments should set
-  `SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN` or enforce an equivalent upstream access
-  control before `/api/scan`. The token gate is a deployment control, not a full
-  abuse-prevention system; pair it with proxy, firewall, and monitoring limits.
+  per-scan request-count guardrails. The Node scanner also blocks Service
+  Workers and independently caps proxy transactions, unique network targets,
+  response bytes, and upload bytes; an HTTPS CONNECT tunnel is one opaque proxy
+  transaction, so the byte caps remain the bound inside a reused tunnel. GPC,
+  Shields, and consent comparisons each
+  consume two rate-limit tokens but occupy one scan slot until both sequential
+  visits finish. The local report store prunes by age and count. Node keeps a
+  per-process defense; the reference Containers deployment additionally charges
+  its minute and day quotas atomically in Durable Object SQLite and uses edge WAF
+  controls. Other public or horizontally scaled deployments still need an
+  equivalent external limit.
+- **Unauthorized scanner use.** Operator-only deployments should set
+  `SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN` or enforce equivalent upstream access.
+  An intentionally open Containers deployment must instead use Turnstile plus
+  atomic quotas and edge abuse controls. A token or human check is a deployment
+  control, not a complete abuse-prevention system; pair it with proxy, firewall,
+  and monitoring limits.
   Cloudflare Worker deployments stay gated unless operators explicitly set both
   `SITE_BEHAVIOR_LAB_ALLOW_UNAUTHENTICATED_SCANS=1` and
   `SITE_BEHAVIOR_LAB_ACCEPT_BROWSER_RUN_DNS_REBINDING_RISK=1`, acknowledging
@@ -65,4 +73,7 @@ brute-forcing, or scanning systems you do not own or have permission to test.
 Operators of public deployments are responsible for rate limiting and abuse
 prevention. Production hosts should also enforce outbound network policy outside
 the Node process so private, metadata, and internal networks remain unreachable
-even if an application-layer SSRF bypass is discovered.
+even if an application-layer SSRF bypass is discovered. The reference Cloudflare
+Containers deployment currently relies on its connect-time pinning proxy because
+the platform's internet-disable mode also blocks that proxy's pinned raw-TCP
+connections; a compatible platform egress backstop remains defense-in-depth work.

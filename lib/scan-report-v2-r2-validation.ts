@@ -71,7 +71,7 @@ const AXIS_STATES = new Set([
 ]);
 
 function isCount(value: unknown): value is number {
-  return typeof value === "number" && Number.isFinite(value) && Number.isInteger(value) && value >= 0;
+  return typeof value === "number" && Number.isSafeInteger(value) && value >= 0;
 }
 
 function isPhaseId(value: unknown, phaseCount: number): value is number {
@@ -105,8 +105,7 @@ function isBannerTransition(value: unknown, phaseCount: number): value is Banner
         typeof entry.moment === "string" &&
         BANNER_MOMENTS.has(entry.moment) &&
         isPhaseId(entry.phaseId, phaseCount) &&
-        typeof entry.atMs === "number" &&
-        Number.isFinite(entry.atMs) &&
+        isCount(entry.atMs) &&
         typeof entry.visible === "boolean"
     )
   );

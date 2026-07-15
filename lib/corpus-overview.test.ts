@@ -1,7 +1,12 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { createConsentComparisonReport } from "./compare-reports";
-import { consentClicksForView, preferAsSiteDataPoint, type DirectoryEntry } from "./corpus-overview";
+import {
+  consentClicksForView,
+  entryEligibleForCorpusRollups,
+  preferAsSiteDataPoint,
+  type DirectoryEntry
+} from "./corpus-overview";
 import { SCAN_REPORT_SCHEMA_VERSION, type ConsentInteractionSummary, type ScanResult } from "./types";
 import { viewFromV1Report } from "./scan-report-views";
 
@@ -123,4 +128,19 @@ test("preferAsSiteDataPoint picks the newest scan within a kind, not the heavies
 
   assert.equal(preferAsSiteDataPoint(lightNew, heavyOld), true);
   assert.equal(preferAsSiteDataPoint(heavyOld, lightNew), false);
+});
+
+test("corpus rollups require an uncensored passive lead run", () => {
+  assert.equal(entryEligibleForCorpusRollups(makeEntry({ id: "passive" })), true);
+  assert.equal(entryEligibleForCorpusRollups(makeEntry({ id: "failed", status: 403 })), false);
+  assert.equal(entryEligibleForCorpusRollups(makeEntry({ id: "no-response", status: null })), false);
+  assert.equal(entryEligibleForCorpusRollups(makeEntry({ id: "capped", capped: true })), false);
+  assert.equal(
+    entryEligibleForCorpusRollups(makeEntry({ id: "consent-accept", consentMode: "accept-all", comparisonType: "consent" })),
+    false
+  );
+  assert.equal(
+    entryEligibleForCorpusRollups(makeEntry({ id: "consent-reject", consentMode: "reject-all", comparisonType: "consent" })),
+    false
+  );
 });

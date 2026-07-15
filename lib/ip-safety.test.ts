@@ -45,6 +45,8 @@ test("isPublicIpAddress blocks private and reserved IPv6 addresses", () => {
     "fd00::1",
     "fe80::1",
     "febf::1",
+    "fec0::1",
+    "feff::1",
     "ff02::1",
     "100::1",
     "64:ff9b::1",

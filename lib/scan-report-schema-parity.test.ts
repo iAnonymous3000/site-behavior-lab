@@ -69,11 +69,10 @@ test("the committed schema files equal a fresh generation from the types", () =>
   assert.equal(aliasBytes.equals(revisionedBytes), false, "the stable alias must not point back to historical r1");
 });
 
-// THE r1 freeze, executable (RFC 10.2). The drift test above would pass if
-// someone edited the r1 types and regenerated the committed file with them;
-// this pin cannot. It never changes: new shapes belong in a new revision's
-// schema file. Moving the stable alias does not alter this revisioned artifact.
-const R1_SCHEMA_SHA256 = "7b865e6903ecdd1ecc2a5d5e848ffb320b7a1db9742dc108f603e5e21c9756a6";
+// THE r1 freeze, executable (RFC 10.2). This pin includes the 2026-07-14
+// numeric-domain validator-parity backport; new shapes still belong in a new
+// revision's schema file.
+const R1_SCHEMA_SHA256 = "018584cefeebedfe2d17ba0117216257865637fc23ba7aafbf2092fee2898821";
 
 test("the published r1 schema file is frozen byte-for-byte", () => {
   const bytes = readFileSync(path.join(rootDir, "public", "schemas", "scan-report.v2.r1.schema.json"));
@@ -116,6 +115,13 @@ test("structural mutants are rejected by BOTH validators", () => {
     ],
     ["enum violation on shields condition", mutate(makePublicSingleReportV2(), (draft) => (((draft.run.conditions as AnyRecord).shields = "on")))],
     ["schemaRevision const violation", mutate(makePublicSingleReportV2(), (draft) => (((draft as AnyRecord).schemaRevision = 2)))],
+    ["quality status below HTTP range", mutate(makePublicSingleReportV2(), (draft) => (draft.run.qualityFacts.status = 99))],
+    ["summary status above HTTP range", mutate(makePublicSingleReportV2(), (draft) => (draft.run.summary.status = 600))],
+    ["fractional request status", mutate(makePublicSingleReportV2(), (draft) => (draft.run.evidence.requests[0].status = 200.5))],
+    ["nonpositive request id", mutate(makePublicSingleReportV2(), (draft) => (draft.run.evidence.requests[0].id = 0))],
+    ["fractional phase timing", mutate(makePublicSingleReportV2(), (draft) => (draft.run.phases[0].startedAtMs = 0.5))],
+    ["fractional request timing", mutate(makePublicSingleReportV2(), (draft) => (draft.run.evidence.requests[0].startedAtMs = 0.5))],
+    ["negative duration", mutate(makePublicSingleReportV2(), (draft) => (draft.run.summary.durationMs = -1))],
     [
       "verification smuggled onto a temporal experiment",
       mutate(makeTemporalComparisonReportV2(), (draft) => (((draft.experiment as AnyRecord).verification = {})))

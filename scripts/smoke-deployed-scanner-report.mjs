@@ -49,7 +49,38 @@ export function isShieldsComparisonReport(value) {
 export function hasShieldsComparisonDiff(value) {
   if (!isShieldsComparisonReport(value)) return false;
   if (value.schemaVersion === 1) return isRecord(value.diff?.thirdPartyRequests);
-  return isRecord(value.diff?.families?.["raw-counts"]?.metrics?.thirdPartyRequests);
+  const family = value.diff?.families?.["raw-counts"];
+  const metricGate = value.comparability?.perMetric?.["raw-counts"];
+  const baselineRegion = nonemptyString(value.baseline?.conditions?.egress?.region);
+  const variantRegion = nonemptyString(value.variant?.conditions?.egress?.region);
+  return (
+    family?.eligible === true &&
+    metricGate?.eligible === true &&
+    isRecord(family.metrics) &&
+    Object.keys(family.metrics).length > 0 &&
+    isRecord(family.metrics.thirdPartyRequests) &&
+    baselineRegion !== null &&
+    baselineRegion === variantRegion
+  );
+}
+
+/** The deployed smoke defaults to R2, but self-hosts can explicitly expect a
+ * filesystem store. R2 additionally needs a constructible configured path. */
+export function healthMatchesExpectedReportStore(value, expectedKind) {
+  if (!isRecord(value) || (expectedKind !== "r2" && expectedKind !== "filesystem")) return false;
+  const reportStore = value.checks?.reportStore;
+  if (value.storage !== expectedKind || reportStore?.kind !== expectedKind) return false;
+  return expectedKind !== "r2" || reportStore.configuredPath === true;
+}
+
+/** Return the concrete URL-safety refusal reason, never a generic job error. */
+export function ssrfGuardRefusalReason(value) {
+  if (!isRecord(value) || value.status !== "failed") return null;
+  const reason = nonemptyString(value.error);
+  if (!reason) return null;
+  return /private network|public address|verified as public|not be resolved|loopback|link-local|reserved/i.test(reason)
+    ? reason
+    : null;
 }
 
 export function shieldsEngineActive(value) {
@@ -115,4 +146,8 @@ export function savedReportRetainsScreenshot(value) {
 
 function numberOrNull(value) {
   return typeof value === "number" && Number.isFinite(value) ? value : null;
+}
+
+function nonemptyString(value) {
+  return typeof value === "string" && value.trim() ? value.trim() : null;
 }

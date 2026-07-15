@@ -6,9 +6,14 @@ import { afterEach, beforeEach, test } from "node:test";
 import { createGpcComparisonReport } from "./compare-reports";
 import { buildProvenanceEntry, committedSidecarFilename } from "./redaction-provenance";
 import { redactScanReportV1 } from "./redact-scan-report-v1";
+import { REDACTION_VERSION } from "./redaction-v2";
+import { buildStaticReportShare } from "./report-locator";
 import { buildStaticReportManifest } from "./static-report-manifest";
+import { evaluateQuality } from "./scan-report-v2-evaluators";
+import { makePublicSingleReportV2R2 } from "./scan-report-v2-r2-fixtures";
 import { makeScanReportV1 } from "./scan-report-v2-fixtures";
 import { NODE_SHIELDS_REQUEST_CONTEXT_VERSION } from "./legacy-methodology";
+import { aggregateByteBudgetWarning } from "./scan-runtime";
 import type { ScanReport, ScanResult } from "./types";
 
 let reportsDir = "";
@@ -73,8 +78,8 @@ async function writeReportAndSidecar(id: string, report: unknown): Promise<void>
 }
 
 function reportCreationTime(report: unknown): string {
-  const value = report as { scannedAt?: unknown; conditions?: { scannedAt?: unknown } };
-  const scannedAt = value.scannedAt ?? value.conditions?.scannedAt;
+  const value = report as { scannedAt?: unknown; conditions?: { scannedAt?: unknown }; run?: { startedAt?: unknown } };
+  const scannedAt = value.scannedAt ?? value.conditions?.scannedAt ?? value.run?.startedAt;
   if (typeof scannedAt !== "string") throw new Error("fixture needs a recorded scan time");
   return scannedAt;
 }
@@ -156,6 +161,35 @@ test("comparison history excludes failed, capped, and block-simulation visits", 
   const { manifest } = await buildStaticReportManifest(reportsDir);
   assert.equal(manifest.reports.length, 3);
   assert.equal(manifest.reports.every((entry) => entry.comparisonHistoryKey === undefined), true);
+});
+
+test("manifest requestCapped marks the request-count cap, not generic request-family truncation", async () => {
+  const requestCapped = makeResult({ totalRequests: 1_000 });
+  const responseBytesCapped = makeResult();
+  responseBytesCapped.warnings.push(aggregateByteBudgetWarning("response", 64 * 1024 * 1024));
+  const v2Incomplete = makePublicSingleReportV2R2();
+  const v2Id = "20260703-99999999999999999999999999999999";
+  v2Incomplete.share = buildStaticReportShare(v2Id);
+  v2Incomplete.run.privacy.redactionVersion = REDACTION_VERSION;
+  v2Incomplete.run.qualityFacts.captureLoss.push({
+    family: "requests",
+    phaseId: 0,
+    kind: "timeout",
+    count: 1,
+    detail: "network-observer"
+  });
+  v2Incomplete.run.quality = evaluateQuality(v2Incomplete.run.qualityFacts, {
+    observedRequests: v2Incomplete.run.evidence.requests.length
+  });
+  await writeReport("20260701-77777777777777777777777777777777", requestCapped);
+  await writeReport("20260702-88888888888888888888888888888888", responseBytesCapped);
+  await writeRawManagedReport(v2Id, v2Incomplete);
+
+  const { manifest } = await buildStaticReportManifest(reportsDir);
+  const byId = new Map(manifest.reports.map((entry) => [entry.id, entry]));
+  assert.equal(byId.get("20260701-77777777777777777777777777777777")?.requestCapped, true);
+  assert.equal(byId.get("20260702-88888888888888888888888888888888")?.requestCapped, undefined);
+  assert.equal(byId.get(v2Id)?.requestCapped, undefined);
 });
 
 test("manifest headlines preserve failed-load evidence instead of inferring calm from counts", async () => {

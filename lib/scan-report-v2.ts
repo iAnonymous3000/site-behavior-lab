@@ -183,6 +183,11 @@ export type CaptureLossEntry = {
 
 /** Recorded facts; producers never declare quality directly (RFC 5.3). */
 export type QualityFacts = {
+  /**
+   * @minimum 100
+   * @maximum 599
+   * @multipleOf 1
+   */
   status: number | null;
   botWallTitleMatched: boolean;
   navigationSettled: boolean;
@@ -266,7 +271,17 @@ export const PHASE_KINDS: readonly PhaseKind[] = [
 export type PhaseSpan = {
   phaseId: PhaseId;
   kind: PhaseKind;
+  /**
+   * @minimum 0
+   * @maximum 9007199254740991
+   * @multipleOf 1
+   */
   startedAtMs: number;
+  /**
+   * @minimum 0
+   * @maximum 9007199254740991
+   * @multipleOf 1
+   */
   endedAtMs: number;
 };
 
@@ -360,7 +375,17 @@ export type RunEvidence = {
 
 export type RunSummary = {
   pageTitle: string;
+  /**
+   * @minimum 100
+   * @maximum 599
+   * @multipleOf 1
+   */
   status: number | null;
+  /**
+   * @minimum 0
+   * @maximum 9007199254740991
+   * @multipleOf 1
+   */
   durationMs: number;
   counts: {
     totalRequests: number;

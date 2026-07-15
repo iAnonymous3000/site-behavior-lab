@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { spawn } from "node:child_process";
+import { execFileSync, spawn } from "node:child_process";
 import {
   copyFile,
   lstat,
@@ -14,6 +14,7 @@ import {
 import { existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { resolveExactStaticDeploymentCommit } from "./static-deployment-provenance.mjs";
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const workDir = path.join(rootDir, ".next-pages-work");
@@ -78,6 +79,25 @@ async function copyTree(sourcePath, destinationPath) {
   }
 }
 
+async function copyTrackedTree(sourceRoot, destinationRoot) {
+  // A clean status proves tracked/untracked Git inputs, but ignored local files
+  // (including secret-shaped operator files) are intentionally absent from
+  // that status. Stage only the files named by Git so the build tree is exactly
+  // attributable to HEAD and cannot inherit ignored local state.
+  const output = execFileSync("git", ["ls-files", "-z"], {
+    cwd: sourceRoot,
+    stdio: ["ignore", "pipe", "pipe"]
+  });
+  const relativePaths = output.toString("utf8").split("\0").filter(Boolean);
+  for (const relativePath of relativePaths) {
+    const sourcePath = path.resolve(sourceRoot, relativePath);
+    if (!isInside(sourcePath, sourceRoot)) {
+      throw new Error(`Git returned an unsafe tracked path: ${relativePath}`);
+    }
+    await copyTree(sourcePath, path.resolve(destinationRoot, relativePath));
+  }
+}
+
 function runCommand(command, args, options) {
   return new Promise((resolve, reject) => {
     const child = spawn(command, args, {
@@ -111,13 +131,18 @@ async function staticReportCount(root) {
 }
 
 async function main() {
+  // Resolve before deleting or copying anything. A commit SHA is exact source
+  // provenance only when it matches this checkout and every copied Git input is
+  // clean; dirty local builds must fail instead of publishing HEAD as a lie.
+  const deployment = resolveExactStaticDeploymentCommit({ cwd: rootDir });
+
   if (!existsSync(nodeModulesDir)) {
     throw new Error("node_modules is missing. Run npm ci or npm install before npm run build:pages.");
   }
 
   await rm(workDir, { recursive: true, force: true });
   await rm(outDir, { recursive: true, force: true });
-  await copyTree(rootDir, workDir);
+  await copyTrackedTree(rootDir, workDir);
   await symlink(nodeModulesDir, path.join(workDir, "node_modules"), "dir");
 
   const nextBin = path.join(workDir, "node_modules", ".bin", process.platform === "win32" ? "next.cmd" : "next");
@@ -161,6 +186,14 @@ async function main() {
       NEXT_TELEMETRY_DISABLED: "1"
     }
   });
+
+  // Static Pages has no runtime health route, so publish the same exact source
+  // provenance the container exposes. Production monitoring compares this
+  // file and scanner health with the CI-gated `production` branch.
+  await writeFile(
+    path.join(workDir, "public", "deployment.json"),
+    `${JSON.stringify({ schemaVersion: 1, deployment }, null, 2)}\n`
+  );
 
   if ((await staticReportCount(workDir)) === 0) {
     await rm(path.join(workDir, "app", "reports"), { recursive: true, force: true });

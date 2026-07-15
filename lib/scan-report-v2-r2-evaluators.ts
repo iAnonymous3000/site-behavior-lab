@@ -394,7 +394,9 @@ function factsViolationsR2(run: ScanRunV2R2, label: string): string[] {
     if (phaseKindAt(run, shields.phaseId) !== "passive-load") {
       violations.push(`${label}: shields facts are tagged to a non-passive-load phase`);
     }
-    const flagged = run.evidence.requests.filter((request) => request.blockedByShields === true).length;
+    const flagged = run.evidence.requests.filter(
+      (request) => request.phaseId === shields.phaseId && request.blockedByShields === true
+    ).length;
     if (run.conditions.shields === "block-simulation" && flagged !== 0) {
       violations.push(`${label}: a block-simulation run retains blockedByShields flags in evidence`);
     }
@@ -523,6 +525,17 @@ function supportingPairViolations(
   const runIds = new Set<string>([primaryBaseline.runId, primaryVariant.runId]);
   const primaryBaselineInterpreters = attemptedStrongInterpreters(primaryBaseline);
   const primaryVariantInterpreters = attemptedStrongInterpreters(primaryVariant);
+
+  // Supporting evidence is meaningful only when the primary pair itself passes
+  // the same environment-equality gate. Comparing every supporting run solely
+  // with primaryBaseline left primaryVariant free to differ while the report
+  // still counted the embedded pair as support.
+  if (
+    pairs.length > 0 &&
+    primaryBaseline.fingerprints.measurementEnvironment !== primaryVariant.fingerprints.measurementEnvironment
+  ) {
+    violations.push("supporting pairs: primary pair measurement environments do not match");
+  }
 
   for (const [index, pair] of pairs.entries()) {
     const label = `supporting pair ${index}`;

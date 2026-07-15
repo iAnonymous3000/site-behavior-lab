@@ -2,8 +2,9 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { createGpcComparisonReport } from "./compare-reports";
 import { buildReportDataset } from "./report-jsonld";
+import { makePublicSingleReportV2R2 } from "./scan-report-v2-r2-fixtures";
 import { SCAN_REPORT_SCHEMA_VERSION, type DomainSummary, type ScanResult } from "./types";
-import { viewFromV1Report } from "./scan-report-views";
+import { viewFromV1Report, viewFromV2 } from "./scan-report-views";
 
 test("builds a Dataset with metrics, download link, and the scanned site", () => {
   const result = makeResult({
@@ -42,6 +43,14 @@ test("builds a Dataset with metrics, download link, and the scanned site", () =>
 test("omits the download link when no JSON URL is provided", () => {
   const dataset = buildReportDataset(viewFromV1Report(makeResult({})), { url: "https://example.org/reports/abc/" });
   assert.equal(dataset.distribution, undefined);
+});
+
+test("does not publish a privacy-generalized route shape as a WebSite URL", () => {
+  const report = makePublicSingleReportV2R2();
+  assert.match(report.run.subject.requested.routeShape, /\{/);
+
+  const dataset = buildReportDataset(viewFromV2(report, 2), { url: "https://example.org/reports/r2/" });
+  assert.deepEqual(dataset.about, { "@type": "WebSite", name: "example.com" });
 });
 
 test("measures both labeled runs and top-level dates for comparison reports", () => {

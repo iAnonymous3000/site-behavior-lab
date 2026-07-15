@@ -21,7 +21,8 @@ export function buildReportDataset(view: ReportView, options: { url: string; jso
   const arms = comparisonArmViews(view);
   // A v1 comparison's top-level requestedUrl/scannedAt were the variant run's
   // (see createComparisonReport); the view preserves both.
-  const requestedUrl = arms ? arms.variant.conditions.requestedUrl : run.conditions.requestedUrl;
+  const subjectRun = arms ? arms.variant : run;
+  const requestedUrl = subjectRun.conditions.requestedUrl;
   const scannedAt = view.scannedAt;
   const labels = view.comparison?.runLabels;
   const variableMeasured = arms
@@ -44,7 +45,14 @@ export function buildReportDataset(view: ReportView, options: { url: string; jso
     datePublished: scannedAt,
     measurementTechnique: "Automated Chromium visit",
     keywords: ["web tracking", "third-party trackers", "cookies", "browser fingerprinting", headline.domain],
-    about: { "@type": "WebSite", name: headline.domain, url: requestedUrl },
+    // v2 route shapes deliberately contain privacy placeholders such as
+    // `{seg}`. They describe the measured subject but are not navigable URLs,
+    // so do not publish them as schema.org WebSite.url values.
+    about: {
+      "@type": "WebSite",
+      name: headline.domain,
+      ...(!subjectRun.conditions.urlsAreRouteShapes ? { url: requestedUrl } : {})
+    },
     variableMeasured
   };
 

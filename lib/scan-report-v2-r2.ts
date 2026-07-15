@@ -62,7 +62,13 @@ export type BannerTransitionR2 = {
   observations: Array<{
     moment: BannerTransitionMomentR2;
     phaseId: PhaseId;
-    /** Must lie inside the referenced phase's span; strictly before < after (< reload). */
+    /**
+     * Must lie inside the referenced phase's span; strictly before < after (< reload).
+     *
+     * @minimum 0
+     * @maximum 9007199254740991
+     * @multipleOf 1
+     */
     atMs: number;
     visible: boolean;
   }>;

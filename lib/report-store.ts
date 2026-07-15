@@ -18,8 +18,18 @@ import type { ReportShare, ScanReport } from "./types";
 
 const DEFAULT_REPORT_MAX_AGE_DAYS = 7;
 const DEFAULT_REPORT_MAX_COUNT = 500;
+const DEFAULT_REPORT_MIN_SURVIVAL_MS = 60_000;
+const MAX_REPORT_MIN_SURVIVAL_MS = 5 * 60_000;
 const REPORT_MAX_AGE_DAYS_ENV = "SITE_BEHAVIOR_LAB_REPORT_MAX_AGE_DAYS";
 const REPORT_MAX_COUNT_ENV = "SITE_BEHAVIOR_LAB_REPORT_MAX_COUNT";
+const REPORT_MIN_SURVIVAL_MS_ENV = "SITE_BEHAVIOR_LAB_REPORT_MIN_SURVIVAL_MS";
+
+// Report creation is a three-object bundle on the filesystem and a two-object
+// bundle in R2. Keep local mutations in one FIFO. Across processes, backends
+// expose the provenance sidecar as the bundle's commit marker, so count-based
+// pruning ignores a report still between its report and sidecar writes.
+let reportStoreMutationTail: Promise<void> = Promise.resolve();
+const PARTIAL_SAVE_CLEANUP_ATTEMPTS = 2;
 
 export type ReportStoreStatus = ReportStoreBackendStatus & {
   maxAgeDays: number;
@@ -82,13 +92,31 @@ export async function saveScanReport<T extends RuntimeScanReport>(
     throw new Error(`Refusing to persist an unreadable managed report (${managed.reason}).`);
   }
   const backend = resolveReportStoreBackend();
-  // Deliberately non-atomic and ordered: a crash/failure after the report PUT
-  // leaves no matching sidecar, so reads fail closed rather than trusting an
-  // unattested object. The share operation itself does not succeed until both
-  // writes do.
-  await backend.write(share.id, reportWire, retention);
-  await backend.writeSidecar(share.id, sidecarWire);
-  await pruneStoredReportsSafely(share.id);
+  await withReportStoreMutationLock(async () => {
+    // Deliberately non-atomic and ordered: a crash/failure after the report PUT
+    // leaves no matching sidecar, so reads fail closed rather than trusting an
+    // unattested object. The local mutation lock prevents another in-process
+    // save/prune from mistaking this deliberately partial interval for an old
+    // bundle. The share operation itself does not succeed until both writes do.
+    let reportCertainlyCreatedByThisSave = false;
+    try {
+      const write = await backend.write(share.id, reportWire, retention);
+      reportCertainlyCreatedByThisSave = write.ownership === "certain";
+      await backend.writeSidecar(share.id, sidecarWire);
+    } catch (error) {
+      // Only the backend's certain create result proves ownership. A fulfilled
+      // ambiguous R2 replay may instead have read back an identical concurrent
+      // writer's object; cleanup could delete that writer's delayed bundle.
+      // Once ownership is certain, make a small bounded number of idempotent
+      // attempts to remove every partial bundle object.
+      if (reportCertainlyCreatedByThisSave) {
+        await cleanupOwnedPartialBundle(backend, share.id);
+      }
+      throw error;
+    }
+    await pruneStoredReportsSafely(backend);
+    await assertSavedBundleSurvived(backend, share.id, reportWire, sidecarWire, retention);
+  });
   return saved as T;
 }
 
@@ -136,12 +164,39 @@ export async function readStoredScanReportById(id: string): Promise<StoredReport
   return { outcome: "found", stored: managed.stored, wire: managed.wire };
 }
 
-export async function pruneStoredReports(now = Date.now(), preserveId?: string): Promise<void> {
-  const backend = resolveReportStoreBackend();
+export function pruneStoredReports(now = Date.now()): Promise<void> {
+  return withReportStoreMutationLock(() => pruneStoredReportsUnlocked(resolveReportStoreBackend(), now));
+}
+
+async function pruneStoredReportsUnlocked(
+  backend: ReturnType<typeof resolveReportStoreBackend>,
+  now: number
+): Promise<void> {
   const entries = await backend.list();
   const kept: StoredReportEntry[] = [];
 
   for (const entry of entries) {
+    if (!entry.reportPresent) {
+      // The create protocol always writes the report before its sidecar, so a
+      // listed sidecar without a report is a deletion orphan, not an in-flight
+      // save. Remove only the sidecar: a new report may have appeared after
+      // the listing snapshot and must not be deleted by stale reconciliation.
+      if (entry.sidecarPresent) {
+        await backend.removeSidecar(entry.id).catch(() => undefined);
+      }
+      continue;
+    }
+    if (!entry.committed) {
+      // Another process may be between the create-only report and sidecar
+      // writes. LastModified cannot distinguish a crashed save from a delayed
+      // cross-process write, so it is never an age-based cleanup clock. Once a
+      // valid immutable expiresAt is reached, however, even a writer that later
+      // commits would be publishing an already-expired share and removal is safe.
+      if (entry.retention && now >= Date.parse(entry.retention.expiresAt)) {
+        await backend.remove(entry.id).catch(() => undefined);
+      }
+      continue;
+    }
     // Legacy/malformed objects have no trustworthy immutable clock. Never
     // fall back to LastModified: a remediation rewrite would restart it and
     // silently extend retention. Delete such runtime shares fail-closed.
@@ -153,12 +208,20 @@ export async function pruneStoredReports(now = Date.now(), preserveId?: string):
   }
 
   const maxCount = reportMaxCount();
-  const preserved = preserveId ? kept.find((entry) => entry.id === preserveId) : undefined;
-  const candidates = kept
-    .filter((entry) => entry.id !== preserveId)
-    .sort((a, b) => Date.parse(b.retention!.createdAt) - Date.parse(a.retention!.createdAt));
-  const candidateLimit = preserved ? Math.max(0, maxCount - 1) : maxCount;
-  await Promise.all(candidates.slice(candidateLimit).map((entry) => backend.remove(entry.id).catch(() => undefined)));
+  // Every concurrent pruner must choose the same winners. Per-save
+  // "preserveId" sets let two maxCount=1 saves preserve themselves and delete
+  // each other; immutable creation time plus ID gives all processes one total
+  // order instead.
+  const ordered = kept.sort(
+    (a, b) =>
+      Date.parse(b.retention!.createdAt) - Date.parse(a.retention!.createdAt) ||
+      b.id.localeCompare(a.id)
+  );
+  const minimumSurvivalMs = reportMinimumSurvivalMs();
+  const removable = ordered
+    .slice(maxCount)
+    .filter((entry) => now - Date.parse(entry.retention!.createdAt) >= minimumSurvivalMs);
+  await Promise.all(removable.map((entry) => backend.remove(entry.id).catch(() => undefined)));
 }
 
 export function reportStoreStatus(): ReportStoreStatus {
@@ -204,12 +267,66 @@ function dateSlug(date: Date): string {
   return date.toISOString().slice(0, 10).replaceAll("-", "");
 }
 
-async function pruneStoredReportsSafely(preserveId: string): Promise<void> {
+async function pruneStoredReportsSafely(backend: ReturnType<typeof resolveReportStoreBackend>): Promise<void> {
   try {
-    await pruneStoredReports(Date.now(), preserveId);
+    await pruneStoredReportsUnlocked(backend, Date.now());
   } catch (error) {
     console.warn("Failed to prune stored reports.", error);
   }
+}
+
+async function cleanupOwnedPartialBundle(
+  backend: ReturnType<typeof resolveReportStoreBackend>,
+  id: string
+): Promise<void> {
+  let lastError: unknown;
+  for (let attempt = 0; attempt < PARTIAL_SAVE_CLEANUP_ATTEMPTS; attempt += 1) {
+    try {
+      await backend.remove(id);
+      return;
+    } catch (error) {
+      lastError = error;
+    }
+  }
+  console.warn("Failed to clean up a partially saved report bundle after bounded retries.", lastError);
+}
+
+async function assertSavedBundleSurvived(
+  backend: ReturnType<typeof resolveReportStoreBackend>,
+  id: string,
+  reportContents: string,
+  sidecarContents: string,
+  retention: ReportRetentionMetadata
+): Promise<void> {
+  const stored = await backend.read(id);
+  const storedSidecar = await backend.readSidecar(id);
+  if (
+    !stored ||
+    stored.contents !== reportContents ||
+    storedSidecar !== sidecarContents ||
+    stored.retention?.createdAt !== retention.createdAt ||
+    stored.retention.expiresAt !== retention.expiresAt
+  ) {
+    throw new Error("Saved report bundle did not survive retention pruning as a readable committed share.");
+  }
+  const managed = readManagedReport({
+    reportId: id,
+    reportContents: stored.contents,
+    sidecarContents: storedSidecar,
+    retention: stored.retention
+  });
+  if (!managed.ok) {
+    throw new Error("Saved report bundle did not survive retention pruning as a readable committed share.");
+  }
+}
+
+function withReportStoreMutationLock<T>(operation: () => Promise<T>): Promise<T> {
+  const result = reportStoreMutationTail.then(operation, operation);
+  reportStoreMutationTail = result.then(
+    () => undefined,
+    () => undefined
+  );
+  return result;
 }
 
 function isExpired(retention: ReportRetentionMetadata): boolean {
@@ -226,6 +343,14 @@ function reportMaxAgeDays(): number {
 
 function reportMaxCount(): number {
   return Math.max(1, Math.floor(positiveNumberFromEnv(REPORT_MAX_COUNT_ENV, DEFAULT_REPORT_MAX_COUNT)));
+}
+
+function reportMinimumSurvivalMs(): number {
+  const raw = process.env[REPORT_MIN_SURVIVAL_MS_ENV]?.trim();
+  if (raw === undefined || raw === "") return DEFAULT_REPORT_MIN_SURVIVAL_MS;
+  const value = Number(raw);
+  if (!Number.isFinite(value) || value < 0) return DEFAULT_REPORT_MIN_SURVIVAL_MS;
+  return Math.min(Math.floor(value), MAX_REPORT_MIN_SURVIVAL_MS);
 }
 
 function positiveNumberFromEnv(name: string, fallback: number): number {

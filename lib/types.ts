@@ -139,16 +139,31 @@ export type ConsentInteractionSummary = {
 };
 
 export type NetworkRequestRecord = {
+  /**
+   * @minimum 1
+   * @maximum 9007199254740991
+   * @multipleOf 1
+   */
   id: number;
   url: string;
   domain: string;
   method: string;
   resourceType: string;
+  /**
+   * @minimum 100
+   * @maximum 599
+   * @multipleOf 1
+   */
   status: number | null;
   thirdParty: boolean;
   tracker: TrackerMatch | null;
   blockedByShields?: boolean;
   provenance?: NetworkRequestProvenance;
+  /**
+   * @minimum 0
+   * @maximum 9007199254740991
+   * @multipleOf 1
+   */
   startedAtMs: number;
 };
 

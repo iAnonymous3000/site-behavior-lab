@@ -21,6 +21,8 @@ import {
   familyCensoredOnRun,
   publicWireForExportOrPersistence,
   readScanTransportPayload,
+  requestEvidenceState,
+  runHitRequestRecordingCap,
   runQualitySummary,
   schemaProvenanceLabel,
   toReportView,
@@ -382,6 +384,8 @@ test("family censoring reads from recorded v2 quality and the derived v1 cap", (
   v1Capped.summary.totalRequests = 1200;
   const cappedRun = viewFromV1Report(v1Capped).runs[0];
   assert.equal(familyCensoredOnRun(cappedRun, "requests"), true);
+  assert.equal(runHitRequestRecordingCap(cappedRun), true);
+  assert.equal(requestEvidenceState(cappedRun), "capped");
   // The cap aborts subsequent loads, which also suppresses the scripts that
   // would have set cookies, written storage, or fired detectors: every
   // family is censored on a capped v1 run.
@@ -398,10 +402,12 @@ test("family censoring reads from recorded v2 quality and the derived v1 cap", (
       ...run,
       quality: {
         ...run.quality,
-        byFamily: { ...run.quality.byFamily, requests: { outcome: "censored" as const, reasons: ["budget-exhausted:request-cap"] } }
+        byFamily: { ...run.quality.byFamily, requests: { outcome: "censored" as const, reasons: ["capture-loss:timeout"] } }
       }
     };
     assert.equal(familyCensoredOnRun(censored, "requests"), true);
+    assert.equal(runHitRequestRecordingCap(censored), false);
+    assert.equal(requestEvidenceState(censored), "incomplete");
   }
 });
 

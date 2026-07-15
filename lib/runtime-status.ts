@@ -16,6 +16,7 @@ import {
   V2_SHADOW_EMISSION_ENV,
   v2ShadowStoreStatus
 } from "./scan-report-v2-shadow-store";
+import { resolveScannerEgressRegion, SCANNER_EGRESS_REGION_ENV } from "./scanner-egress";
 
 const SCANNER_EGRESS_ENV = "SITE_BEHAVIOR_LAB_SCANNER_EGRESS";
 
@@ -48,6 +49,7 @@ export type RuntimeStatus = {
     dnsRebindingGuard: "connect-time-proxy";
     reportStore: PublicReportStoreStatus;
     scannerEgress: "configured" | "default";
+    scannerEgressRegion: "configured" | "unrecorded" | "misconfigured";
     consentVerification: "enabled" | "disabled" | "misconfigured";
     publicR2Reports: Pick<PublicR2ReportsReadiness, "status">;
     v2ShadowEmission: {
@@ -81,6 +83,16 @@ export async function runtimeStatus(
     publicR2Status = "misconfigured";
     warnings.push("Public r2 reports are not ready because required report persistence is unavailable.");
   }
+  const egressRegion = resolveScannerEgressRegion();
+  if (egressRegion.status === "misconfigured") {
+    warnings.push(
+      `${SCANNER_EGRESS_REGION_ENV} must be an r2-safe stable region, or Cloudflare must provide the full region/location/country placement tuple.`
+    );
+  } else if (publicR2Config.status === "enabled" && egressRegion.status === "unrecorded") {
+    warnings.push(
+      "Public r2 comparisons cannot emit comparable deltas because the scanner egress region is unrecorded."
+    );
+  }
   const reportStore = store.public;
   if (store.error !== null) {
     warnings.push(`The report store backend is misconfigured and unavailable: ${store.error}`);
@@ -113,6 +125,7 @@ export async function runtimeStatus(
       dnsRebindingGuard: "connect-time-proxy",
       reportStore,
       scannerEgress: process.env[SCANNER_EGRESS_ENV]?.trim() ? "configured" : "default",
+      scannerEgressRegion: egressRegion.status,
       consentVerification: shadow.consentVerification,
       publicR2Reports: { status: publicR2Status },
       v2ShadowEmission: shadow.emission

@@ -12,7 +12,9 @@
 > preflight-only DNS check cannot pin the browser's eventual connection, so its
 > deployment was deleted from Cloudflare on 2026-07-09. The code stays in-repo for
 > self-hosting and ships gated with no `workers.dev` alias. The analysis below is the
-> decision record that led to Option B, keep it.
+> decision record that led to Option B, keep it. Production currently routes to
+> one warm singleton container; `max_instances = 3` is a ceiling, not active
+> three-way sharding.
 
 ## Context
 
@@ -79,10 +81,10 @@ Worker stays available as an optional gated/edge fallback, not the primary path.
 - **Cons:** an always-on container to run, patch, and autoscale (vs. the Worker's
   zero-server model). Egress firewall rules at the host/VPC layer are still the
   required defense-in-depth boundary, as the README already states.
-- **Unlocks:** P2 collapses to "reuse the existing Node rate limits + put R2/WAF in
-  front"; the Durable Object work is **not needed** for launch. P5 (durable queue)
-  is the only remaining scale item, and [docs/scan-job-model.md](scan-job-model.md)
-  already sketches its seam.
+- **Unlocks:** P2 collapsed to R2 plus layered limits. Since launch, the front
+  Worker has added an atomic Durable Object SQLite quota and a bounded durable
+  IDs-only recovery registry. Full execution replay and horizontal sharding
+  remain the scale items documented in [scan-job-model.md](scan-job-model.md).
 
 ### Option C, Wait for Browser Run connect-time pinning
 
@@ -108,7 +110,9 @@ Turnstile wall on every scan and budget P2 + P4 as new Worker work.
 Once Option B is chosen, the roadmap re-collapses (**executed 2026-06-21:** P1 container
 deploy + P2 R2 store; P3 corpus active; P4 Shields runs live on the container.
 **Executed 2026-06-22:** live Shields on the public front door at scan.sitebehavior.org,
-open access behind edge WAF/Turnstile. **Remaining:** P5 durable queue):
+open access behind edge WAF/Turnstile. **Executed by 2026-07-13:** atomic Durable
+Object quotas and the Phase-1 IDs-only job recovery registry. **Remaining:**
+Phase-2 execution leases/replay and sharding beyond the singleton container):
 
 1. **Container + edge wiring (P1 execution).** Build/ship the Node scanner container
    ([Dockerfile](../Dockerfile) exists; validate with `npm run test:smoke:docker`),
@@ -118,18 +122,19 @@ open access behind edge WAF/Turnstile. **Remaining:** P5 durable queue):
 2. **Durable report store (P2, reduced).** The Node container now ships an R2
    report-store backend ([lib/report-store-r2.ts](../lib/report-store-r2.ts), enabled
    with `SITE_BEHAVIOR_LAB_REPORT_STORE_BACKEND=r2`), so this is **provisioning, not
-   code**: create the bucket + scoped API token and set the R2 env. Keep filesystem
-   for local-dev. Atomic per-client quotas come from the edge (WAF rate rules) plus
-   the existing in-process Node limits; the Durable Object counter is deferred unless
-   Option A is chosen.
+   code** and is complete in production: the bucket, scoped token, and R2 env are
+   provisioned. Keep filesystem for local development. Atomic per-client quotas
+   come from the front Worker's Durable Object SQLite transaction, backed by WAF
+   and the existing in-process Node limits.
 3. **Corpus activation (P3).** Independent of topology, expand
-   [public/featured-sites.json](../public/featured-sites.json) (done: 58 sites) and
-   run the featured-scan workflow until `public/reports/` clears
-   `CORPUS_MIN_SAMPLE = 50` so corpus-relative percentiles switch on.
+   [public/featured-sites.json](../public/featured-sites.json) (81 curated sites)
+   and run the featured-scan workflow. The committed corpus has cleared
+   `CORPUS_MIN_SAMPLE = 50`, so corpus-relative percentiles are active.
 4. **Shields diff (P4).** Already in the Node path under Option B, surface it as a
    first-class public comparison mode; no Worker port needed.
-5. **Durable async queue (P5).** Only when connection-holding scans become the wall;
-   follow [docs/scan-job-model.md](scan-job-model.md).
+5. **Durable async jobs (P5).** Phase 1 recovers completed R2 reports after a
+   process restart. Phase 2, durable payloads plus fenced leases and replay, is
+   still pending; follow [scan-job-model.md](scan-job-model.md).
 
 If Option A is chosen instead, steps 2 and 4 become net-new Worker engineering and a
 Durable Object replaces the best-effort KV quota counters.

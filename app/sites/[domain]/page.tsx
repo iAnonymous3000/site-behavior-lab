@@ -7,6 +7,7 @@ import { siteProfileKey, siteProfilePath } from "@/lib/site-profile";
 import { formatDelta } from "@/lib/temporal-deltas";
 import { safeNavigableHttpUrl } from "@/lib/report-url";
 import { sitePagesBasePath } from "@/lib/site-url";
+import { reportKindLabel } from "@/lib/text-format";
 
 export const dynamic = "force-static";
 
@@ -75,8 +76,8 @@ export default async function SiteProfilePage({ params }: { params: Promise<{ do
           <p className="eyebrow">Latest controlled visit</p>
           <h2 id="current-title">{latest.headline}</h2>
           <p>
-            {formatReportKind(latest)} · {formatDate(latest.scannedAt)} · {latest.device}
-            {latest.capped && <> · <CappedChip /></>}
+            {reportKindLabel(latest)} · {formatDate(latest.scannedAt)} · {latest.device}
+            {latest.capped && <> · <IncompleteEvidenceChip /></>}
           </p>
         </div>
         <dl className="site-profile-metrics">
@@ -115,11 +116,11 @@ export default async function SiteProfilePage({ params }: { params: Promise<{ do
           {profile.entries.map((entry) => (
             <li key={entry.id}>
               <Link href={`${reportPagePath(entry.id)}/`}>
-                <span><strong>{formatDate(entry.scannedAt)}</strong> · {formatReportKind(entry)} · {entry.device}</span>
+                <span><strong>{formatDate(entry.scannedAt)}</strong> · {reportKindLabel(entry)} · {entry.device}</span>
                 <span>{entry.headline}</span>
                 <small>
                   {entry.thirdPartyRequests.toLocaleString()} third-party · {entry.trackerRequests.toLocaleString()} catalogued tracking · schema {entry.schemaVersion}{entry.schemaRevision ? `.r${entry.schemaRevision}` : ""}
-                  {entry.capped && <> · <CappedChip /></>}
+                  {entry.capped && <> · <IncompleteEvidenceChip /></>}
                 </small>
               </Link>
             </li>
@@ -140,13 +141,13 @@ async function loadProfile(rawDomain: string): Promise<{ domain: string; entries
   return matches.length > 0 ? { domain: key, entries: matches } : null;
 }
 
-function CappedChip() {
+function IncompleteEvidenceChip() {
   return (
     <span
       className="capped-chip"
-      title="This visit hit the 1,000-request recording cap: its counts are truncated, and it is excluded from the medians, leaderboard, and since-last-scan deltas."
+      title="This visit did not finish collecting request evidence: its counts are lower bounds, and it is excluded from the medians, leaderboard, and since-last-scan deltas."
     >
-      recording capped
+      request evidence incomplete
     </span>
   );
 }
@@ -201,15 +202,6 @@ function HistorySparkline({ entries }: { entries: DirectoryEntry[] }) {
 function formatDate(value: string): string {
   const date = new Date(value);
   return Number.isNaN(date.getTime()) ? value : date.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
-}
-
-function formatReportKind(entry: DirectoryEntry): string {
-  if (entry.reportType === "single") return "single scan";
-  if (entry.comparisonType === "shields") return "Brave-list blocking comparison";
-  if (entry.comparisonType === "gpc") return "GPC comparison";
-  if (entry.comparisonType === "consent") return "consent comparison";
-  if (entry.comparisonType === "temporal") return "temporal comparison";
-  return "comparison";
 }
 
 function formatSince(entry: DirectoryEntry): string {

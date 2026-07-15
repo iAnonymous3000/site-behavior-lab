@@ -643,7 +643,8 @@ Steps 2 through 5 of the user-sequenced measurement kernel rollout landed:
   operator lock was removed. Historical v1 reports remain legacy-derived; fresh
   GPC, Shields, and consent r2 reports now flow through the mixed-version corpus
   pipeline. Final health proved open access, Turnstile enabled, shadow disabled,
-  and no warnings; the deployment config pins capacity at three instances.
+  and no warnings. The deployment config allows at most three instances, while
+  current routing intentionally uses one warm singleton; sharding is pending.
 - **Step 5 repeat evidence complete.** On feature build
   `13e4449444ad3eed12fcb3d2e9dd48d5e233a438`, two preselected GPC pairs were captured;
   both were AB, both were eligible and intervention-verified, and all four
@@ -664,8 +665,10 @@ lifecycles for `reports/` after 7 days and `v2-shadow/` after 1 day; Pages uses
 the `production` branch with previews disabled; the scanner build also uses
 `production` with non-production builds disabled; and Cloudflare Insights is
 disabled with no live beacon, matching the privacy disclosure. Still pending
-outside the repo are container-observability retention/query verification and
-WAF ceiling verification. The scheduled Brave-list refresh rerun succeeded.
+  outside the repo are container-observability retention/query verification,
+  WAF ceiling verification, and a scoped synthetic R2 write/read/delete monitor;
+  health currently proves storage configuration only. The scheduled Brave-list
+  refresh rerun succeeded.
 Chromium sandbox is opt-in via SITE_BEHAVIOR_LAB_CHROMIUM_SANDBOX=1 after a
 verified deployed scan.
 

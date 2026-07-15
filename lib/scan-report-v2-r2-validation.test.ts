@@ -15,7 +15,13 @@ import {
   evaluateComparabilityR2,
   scanReportV2R2SemanticViolations
 } from "./scan-report-v2-r2-evaluators";
-import { CONSENT_VERIFICATION_UNAVAILABLE_METHOD, type PublicScanReportV2R2 } from "./scan-report-v2-r2";
+import { buildComparisonDiffV2 } from "./scan-report-v2-evaluators";
+import { buildFingerprints } from "./scan-report-v2-fingerprints";
+import {
+  CONSENT_VERIFICATION_UNAVAILABLE_METHOD,
+  type PublicScanReportV2R2,
+  type PublicSingleReportV2R2
+} from "./scan-report-v2-r2";
 import {
   makeConsentInterventionReportV2R2,
   makeConsentRunR2,
@@ -51,8 +57,8 @@ function mutate<T>(fixture: T, apply: (draft: T) => void): T {
   return draft;
 }
 
-function singleWith(run: AnyRecord): PublicScanReportV2R2 {
-  return { schemaVersion: 2, schemaRevision: 2, reportType: "single", run } as PublicScanReportV2R2;
+function singleWith(run: AnyRecord): PublicSingleReportV2R2 {
+  return { schemaVersion: 2, schemaRevision: 2, reportType: "single", run } as PublicSingleReportV2R2;
 }
 
 function violationsOf(report: PublicScanReportV2R2): string[] {
@@ -318,6 +324,38 @@ test("Shields facts enforce nonzero exercise, toolchain agreement, and summary d
   );
 });
 
+test("Shields verification facts reconcile only against their declared passive phase", () => {
+  const laterPhaseFlag = mutate(singleWith(makeShieldsInterventionReportV2R2().baseline), (draft) => {
+    const run = draft.run;
+    run.phases.push({ phaseId: 1, kind: "active-probe", startedAtMs: 5000, endedAtMs: 5500 });
+    run.evidence.requests.push({
+      id: 2,
+      url: "https://tracker.example.net/pixel",
+      domain: "tracker.example.net",
+      method: "GET",
+      resourceType: "image",
+      status: 200,
+      thirdParty: true,
+      tracker: null,
+      startedAtMs: 5100,
+      phaseId: 1,
+      blockedByShields: true
+    });
+    run.summary.counts.totalRequests = 2;
+    run.summary.counts.thirdPartyRequests = 1;
+    run.summary.counts.thirdPartyDomains = 1;
+    run.summary.countsByPhase.push({
+      phaseId: 1,
+      totalRequests: 1,
+      thirdPartyRequests: 1,
+      knownTrackerRequests: 0
+    });
+    run.summary.durationMs = 5500;
+  });
+
+  assert.deepEqual(violationsOf(laterPhaseFlag), []);
+});
+
 test("supporting-pair gates: chronology, identity, fingerprints, and evidence derivation", () => {
   const base = makeSupportingPairInterventionReportV2R2;
 
@@ -367,6 +405,25 @@ test("supporting-pair gates: chronology, identity, fingerprints, and evidence de
     violationsOf(forgedStrength).some((entry) => entry.includes("evidence does not derive from the embedded pairs")),
     true,
     "strength stays observed-difference unconditionally in r2"
+  );
+
+  const primaryEnvironmentMismatch = mutate(base(), (draft) => {
+    if (draft.experiment.kind !== "intervention") throw new Error("expected intervention fixture");
+    draft.variant.provenance.methodologyVersion = "different-methodology";
+    draft.variant.fingerprints = buildFingerprints({
+      conditions: draft.variant.conditions,
+      provenance: draft.variant.provenance,
+      toolchain: draft.variant.toolchain,
+      detectors: draft.variant.detectors
+    });
+    const { supportingPairs: _supportingPairs, ...primaryExperiment } = draft.experiment;
+    draft.comparability = evaluateComparabilityR2(primaryExperiment, draft.baseline, draft.variant);
+    draft.diff = buildComparisonDiffV2(draft.baseline, draft.variant, draft.comparability.perMetric);
+  });
+  assertSingleViolationPath(
+    violationsOf(primaryEnvironmentMismatch),
+    "primary pair measurement environments do not match",
+    "primary environment mismatch with supporting evidence"
   );
 });
 

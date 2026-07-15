@@ -14,6 +14,7 @@ import type { EphemeralComparisonReportR2, EphemeralSingleReportR2 } from "./sca
 import { SCAN_REPORT_SCHEMA_VERSION, type ScanRequestPayload, type ScanResult } from "./types";
 
 const REPORT_MAX_COUNT_ENV = "SITE_BEHAVIOR_LAB_REPORT_MAX_COUNT";
+const REPORT_MIN_SURVIVAL_MS_ENV = "SITE_BEHAVIOR_LAB_REPORT_MIN_SURVIVAL_MS";
 const REPORT_STORE_DIR_ENV = "SITE_BEHAVIOR_LAB_REPORT_STORE_DIR";
 
 // Every test runs against its own temp directory via the store-dir env var.
@@ -29,6 +30,7 @@ beforeEach(async () => {
 
 afterEach(async () => {
   delete process.env[REPORT_MAX_COUNT_ENV];
+  delete process.env[REPORT_MIN_SURVIVAL_MS_ENV];
   delete process.env[REPORT_STORE_DIR_ENV];
   await rm(reportDir, { recursive: true, force: true });
 });
@@ -136,14 +138,23 @@ test("saveScanReport writes a matched report, sidecar, and immutable retention c
   assert.equal(Date.parse(retention.expiresAt) - Date.parse(retention.createdAt), 7 * 24 * 60 * 60 * 1_000);
 });
 
-test("saveScanReport writes report first and fails the share when sidecar creation fails", async () => {
-  const shareId = "20260712-" + "c".repeat(32);
-  await writeFile(path.join(reportDir, `${shareId}.provenance.json`), "{}\n");
+test("failed report or sidecar creation cleans up owned partial bundles without accumulation", async () => {
+  for (const suffix of ["c", "d", "e"]) {
+    const shareId = `20260712-${suffix.repeat(32)}`;
+    await writeFile(path.join(reportDir, `${shareId}.provenance.json`), "{}\n");
 
-  await assert.rejects(() => saveScanReport(makeScanResult(), { shareId }), /EEXIST/);
-  await access(path.join(reportDir, `${shareId}.json`));
-  await access(path.join(reportDir, `${shareId}.retention.json`));
-  assert.deepEqual(await readStoredScanReportById(shareId), { outcome: "unreadable", error: "invalid" });
+    await assert.rejects(() => saveScanReport(makeScanResult(), { shareId }), /EEXIST/);
+    assert.deepEqual(await readStoredScanReportById(shareId), { outcome: "not-found" });
+    assert.deepEqual(await readdir(reportDir), []);
+  }
+
+  // A filesystem report write is itself two create-only files. If the report
+  // lands but retention creation conflicts, the backend owns and rolls back
+  // that report rather than leaving a permanently uncommitted object.
+  const retentionConflictId = `20260712-${"f".repeat(32)}`;
+  await writeFile(path.join(reportDir, `${retentionConflictId}.retention.json`), "{}\n");
+  await assert.rejects(() => saveScanReport(makeScanResult(), { shareId: retentionConflictId }), /EEXIST/);
+  assert.deepEqual(await readdir(reportDir), []);
 });
 
 test("missing provenance or retention metadata makes an existing report unreadable", async () => {
@@ -288,6 +299,7 @@ test("the stored-report read accepts non-GPC comparison reports", async () => {
 
 test("saveScanReport prunes persisted reports by max count", async () => {
   process.env[REPORT_MAX_COUNT_ENV] = "2";
+  process.env[REPORT_MIN_SURVIVAL_MS_ENV] = "0";
 
   const saved = [
     await saveScanReport(makeScanResult()),
@@ -315,6 +327,119 @@ test("saveScanReport prunes persisted reports by max count", async () => {
   }
   assert.equal(completeBundles, 2);
   assert.equal(removedBundles, 1);
+});
+
+test("concurrent successful saves remain live through a bounded max-count survival grace", async () => {
+  process.env[REPORT_MAX_COUNT_ENV] = "1";
+  const firstId = `20260714-${"a".repeat(32)}`;
+  const secondId = `20260714-${"b".repeat(32)}`;
+
+  const [first, second] = await Promise.all([
+    saveScanReport(makeScanResult(), { shareId: firstId }),
+    saveScanReport(makeScanResult(), { shareId: secondId })
+  ]);
+
+  assert.equal(first.share?.id, firstId);
+  assert.equal(second.share?.id, secondId);
+  assert.equal((await readStoredScanReportById(firstId)).outcome, "found");
+  assert.equal((await readStoredScanReportById(secondId)).outcome, "found");
+  assert.deepEqual((await readdir(reportDir)).sort(), [
+    `${firstId}.json`,
+    `${firstId}.provenance.json`,
+    `${firstId}.retention.json`,
+    `${secondId}.json`,
+    `${secondId}.provenance.json`,
+    `${secondId}.retention.json`
+  ]);
+
+  // The max-count cap converges after the short return-safety window.
+  await pruneStoredReports(Date.now() + 10 * 60 * 1_000);
+  assert.equal((await readStoredScanReportById(firstId)).outcome, "not-found");
+  assert.equal((await readStoredScanReportById(secondId)).outcome, "found");
+});
+
+test("count pruning never age-deletes a report while another process delays its sidecar", async () => {
+  process.env[REPORT_MAX_COUNT_ENV] = "1";
+  const existing = await saveScanReport(makeScanResult());
+  const existingId = existing.share?.id || "";
+  const retention = JSON.parse(await readFile(path.join(reportDir, `${existingId}.retention.json`), "utf8")) as {
+    createdAt: string;
+    expiresAt: string;
+  };
+  const inFlightId = `20260714-${"f".repeat(32)}`;
+  const existingPublicReport = JSON.parse(
+    await readFile(path.join(reportDir, `${existingId}.json`), "utf8")
+  ) as Record<string, unknown>;
+  const inFlightReport = {
+    ...existingPublicReport,
+    share: {
+      id: inFlightId,
+      path: `/reports/${inFlightId}`,
+      jsonPath: `/api/reports/${inFlightId}`
+    }
+  };
+  await writeFile(path.join(reportDir, `${inFlightId}.json`), `${JSON.stringify(inFlightReport, null, 2)}\n`);
+  await writeFile(path.join(reportDir, `${inFlightId}.retention.json`), `${JSON.stringify(retention)}\n`);
+
+  // A competing process that loses the create-only report race must not run
+  // owned cleanup against the winner while its sidecar is deliberately held.
+  await assert.rejects(() => saveScanReport(makeScanResult(), { shareId: inFlightId }), /EEXIST/);
+  await access(path.join(reportDir, `${inFlightId}.json`));
+  await access(path.join(reportDir, `${inFlightId}.retention.json`));
+
+  // This is well beyond the old 15-minute foreground cleanup grace. Wall-clock
+  // age cannot prove that another process crashed, so the report must survive.
+  const now = Date.parse(retention.createdAt) + 24 * 60 * 60 * 1_000;
+  await pruneStoredReports(now);
+  assert.equal((await readStoredScanReportById(existingId)).outcome, "found");
+  await access(path.join(reportDir, `${inFlightId}.json`));
+
+  await writeFile(
+    path.join(reportDir, `${inFlightId}.provenance.json`),
+    `${JSON.stringify(
+      buildProvenanceEntry({
+        reportId: inFlightId,
+        publicReport: inFlightReport,
+        writtenAt: retention.createdAt,
+        createdAt: retention.createdAt,
+        expiresAt: retention.expiresAt
+      })
+    )}\n`
+  );
+  await pruneStoredReports(now);
+
+  assert.equal((await readStoredScanReportById(existingId)).outcome, "not-found");
+  assert.equal((await readStoredScanReportById(inFlightId)).outcome, "found");
+});
+
+test("report-only bundles are retained while delayed and removed at immutable expiry", async () => {
+  const saved = await saveScanReport(makeScanResult());
+  const id = saved.share?.id || "";
+  const reportPath = path.join(reportDir, `${id}.json`);
+  const retentionPath = path.join(reportDir, `${id}.retention.json`);
+  const retention = JSON.parse(await readFile(retentionPath, "utf8")) as {
+    createdAt: string;
+    expiresAt: string;
+  };
+  await unlink(path.join(reportDir, `${id}.provenance.json`));
+
+  await pruneStoredReports(Date.parse(retention.createdAt) + 24 * 60 * 60 * 1_000);
+  await access(reportPath);
+  await access(retentionPath);
+
+  await pruneStoredReports(Date.parse(retention.expiresAt));
+  await assert.rejects(() => access(reportPath), /ENOENT/);
+  await assert.rejects(() => access(retentionPath), /ENOENT/);
+});
+
+test("pruning surfaces and reconciles a sidecar-only deletion orphan", async () => {
+  const orphanId = `20260714-${"e".repeat(32)}`;
+  const orphanPath = path.join(reportDir, `${orphanId}.provenance.json`);
+  await writeFile(orphanPath, "{}\n");
+
+  await pruneStoredReports();
+  await assert.rejects(() => access(orphanPath), /ENOENT/);
+  assert.deepEqual(await readdir(reportDir), []);
 });
 
 test("pruning uses immutable expiry metadata, never a rewritten report mtime", async () => {

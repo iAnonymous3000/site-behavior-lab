@@ -99,8 +99,9 @@ export type CorpusOverview = {
   rollups: CategoryRollup[];
   heaviest: DirectoryEntry[];
   /**
-   * Distinct sites in the measured sample (loaded, uncapped): the basis of
-   * the rollups, leaderboard, and since-last-scan pairing.
+   * Distinct sites in the cross-version passive sample (loaded, uncapped, no
+   * post-choice consent lead): the basis of the rollups, leaderboard, and
+   * since-last-scan pairing.
    */
   siteCount: number;
   /**
@@ -112,9 +113,19 @@ export type CorpusOverview = {
 
 type CatalogEntry = { domain: string; id: string; label: string };
 
-/** Same rule as lib/report-insights scanLoadFailureStatus: HTTP >= 400 = error/block page. */
+/** A missing main-document response or HTTP >= 400 is not a successful site load. */
 function entryLoadFailed(entry: DirectoryEntry): boolean {
-  return typeof entry.status === "number" && entry.status >= 400;
+  return typeof entry.status !== "number" || entry.status >= 400;
+}
+
+/** Consent interaction arms are post-choice states, not passive site visits. */
+export function entryEligibleForCorpusRollups(entry: DirectoryEntry): boolean {
+  return (
+    !entryLoadFailed(entry) &&
+    !entry.capped &&
+    entry.consentMode !== "accept-all" &&
+    entry.consentMode !== "reject-all"
+  );
 }
 
 let corpusOverviewPromise: Promise<CorpusOverview> | null = null;
@@ -130,13 +141,11 @@ async function buildCorpusOverview(): Promise<CorpusOverview> {
   const loadedEntries = await loadDirectoryEntries(catalog);
   const entries = loadedEntries.map(({ entry }) => entry);
 
-  // Failed loads (HTTP >= 400: bot walls, outages) and request-capped runs
-  // stay listed with their honest headlines, but neither is measured site
-  // behavior (an error page, or a recording cut off mid-collection), so they must
-  // not feed the statistics: no since-last-scan pairing (a delta between two
-  // truncated floors reads as a site change), no category medians, no
-  // leaderboard.
-  const measuredLoaded = loadedEntries.filter(({ entry }) => !entryLoadFailed(entry) && !entry.capped);
+  // Failed loads, request-capped runs, and consent-interaction arms stay listed
+  // with their honest headlines, but none describes an uncensored passive
+  // visit. Keep them out of since-last-scan pairing, category medians, and the
+  // leaderboard just as the percentile builder does.
+  const measuredLoaded = loadedEntries.filter(({ entry }) => entryEligibleForCorpusRollups(entry));
   const measured = measuredLoaded.map(({ entry }) => entry);
 
   // "Since last comparable visit": each site's newest report is paired only
@@ -282,7 +291,8 @@ async function loadDirectoryEntries(catalog: CatalogEntry[]): Promise<LoadedDire
       shieldsThirdPartyChange,
       category,
       categoryLabel,
-      // Non-null on every v1 report (the loop is v1-gated above).
+      // Recorded by both supported wire generations; malformed timestamps are
+      // ignored by temporal pairing rather than silently treated as current.
       scannedAt: view.scannedAt ?? "",
       reportType: view.reportType,
       device: run.conditions.viewport.isMobile ? "mobile" : "desktop",

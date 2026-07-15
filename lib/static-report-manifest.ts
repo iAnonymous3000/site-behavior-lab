@@ -1,6 +1,6 @@
 import { isReservedReportDomain } from "./reserved-report-domains";
 import { buildReportHeadline } from "./report-headline";
-import { familyCensoredOnRun, displayRunView, toReportView, type ReportView } from "./scan-report-views";
+import { displayRunView, runHitRequestRecordingCap, toReportView, type ReportView } from "./scan-report-views";
 import {
   listDanglingStaticSidecarIds,
   listStaticReportCandidateIds,
@@ -112,7 +112,7 @@ function toManifestEntry(id: string, stored: StoredScanReport, view: ReportView)
       : {}),
     device: (comparison ? tail : lead).conditions.viewport.isMobile ? "mobile" : "desktop",
     gpcEnabled: comparison ? "comparison" : lead.conditions.gpcEnabled,
-    ...(familyCensoredOnRun(lead, "requests") ? { requestCapped: true } : {}),
+    ...(runHitRequestRecordingCap(lead) ? { requestCapped: true } : {}),
     ...(historyKey ? { historyKey } : {}),
     ...(comparisonHistoryKey ? { comparisonHistoryKey } : {}),
     metrics: {

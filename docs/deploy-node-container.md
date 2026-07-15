@@ -119,6 +119,9 @@ NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SITE_URL=https://example.org \
 npm run build:pages
 ```
 
+The static build fails closed unless the checkout is clean and any declared
+build SHA matches `HEAD`, because `deployment.json` is exact source provenance.
+
 - The UI reads `GET /api/health` and enables the **GPC** and **Shields**
   comparison toggles from `capabilities.gpcComparison` / `capabilities.shieldsComparison`.
   The Node health now advertises both (Shields only when the Brave ad-block engine

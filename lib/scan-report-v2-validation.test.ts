@@ -137,6 +137,68 @@ test("phase references must point into the run's phase table", () => {
   assert.equal(isPublicSingleReportV2(emptyPhases), false);
 });
 
+test("HTTP statuses, request IDs, and timing fields use the producer's bounded integer vocabulary", () => {
+  for (const status of [-1, 99, 600, 200.5]) {
+    const badRunStatus = mutate(makePublicSingleReportV2(), (draft) => {
+      draft.run.qualityFacts.status = status;
+      draft.run.summary.status = status;
+    });
+    assert.equal(isPublicSingleReportV2(badRunStatus), false, `run status ${status}`);
+
+    const badRequestStatus = mutate(makePublicSingleReportV2(), (draft) => {
+      draft.run.evidence.requests[0].status = status;
+    });
+    assert.equal(isPublicSingleReportV2(badRequestStatus), false, `request status ${status}`);
+  }
+
+  for (const id of [-1, 0, 1.5, Number.MAX_SAFE_INTEGER + 1]) {
+    const badId = mutate(makePublicSingleReportV2(), (draft) => {
+      draft.run.evidence.requests[0].id = id;
+    });
+    assert.equal(isPublicSingleReportV2(badId), false, `request id ${id}`);
+  }
+
+  const negativePhase = mutate(makePublicSingleReportV2(), (draft) => {
+    draft.run.phases[0].startedAtMs = -1;
+  });
+  assert.equal(isPublicSingleReportV2(negativePhase), false);
+
+  const fractionalPhase = mutate(makePublicSingleReportV2(), (draft) => {
+    draft.run.phases[0].endedAtMs = 4999.5;
+  });
+  assert.equal(isPublicSingleReportV2(fractionalPhase), false);
+
+  const fractionalRequestTime = mutate(makePublicSingleReportV2(), (draft) => {
+    draft.run.evidence.requests[0].startedAtMs = 12.5;
+  });
+  assert.equal(isPublicSingleReportV2(fractionalRequestTime), false);
+
+  const fractionalDuration = mutate(makePublicSingleReportV2(), (draft) => {
+    draft.run.summary.durationMs = 5000.5;
+  });
+  assert.equal(isPublicSingleReportV2(fractionalDuration), false);
+});
+
+test("reader rejects duplicate request IDs and a duration shorter than its phase plan", () => {
+  const duplicateId = mutate(makePublicSingleReportV2(), (draft) => {
+    draft.run.evidence.requests.push(structuredClone(draft.run.evidence.requests[0]));
+  });
+  const duplicateRead = readStoredScanReport(duplicateId);
+  assert.equal(duplicateRead.ok, false);
+  if (!duplicateRead.ok) {
+    assert.equal(duplicateRead.violations?.some((entry) => entry.includes("request id 1 is duplicated")), true);
+  }
+
+  const shortDuration = mutate(makePublicSingleReportV2(), (draft) => {
+    draft.run.summary.durationMs = draft.run.phases[0].endedAtMs - 1;
+  });
+  const durationRead = readStoredScanReport(shortDuration);
+  assert.equal(durationRead.ok, false);
+  if (!durationRead.ok) {
+    assert.equal(durationRead.violations?.some((entry) => entry.includes("ends before the final measurement phase")), true);
+  }
+});
+
 test("enum mutants are rejected", () => {
   const badOutcome = mutate(makePublicSingleReportV2(), (draft) => {
     (draft.run.quality.run as unknown as Record<string, unknown>).outcome = "censored"; // run-level has no censored

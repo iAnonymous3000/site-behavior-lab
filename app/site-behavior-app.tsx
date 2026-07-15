@@ -75,7 +75,7 @@ import { recoverSavedReport } from "@/lib/saved-report-recovery";
 import {
   comparisonArmViews,
   displayRunView,
-  familyCensoredOnRun,
+  requestEvidenceState,
   runQualitySummary,
   schemaProvenanceLabel,
   viewFromV1Report,
@@ -88,6 +88,7 @@ import type { LoadedReport } from "@/lib/scan-report-view";
 import { REPORT_ID_PATTERN } from "@/lib/report-validation";
 import { safeNavigableHttpUrl } from "@/lib/report-url";
 import type { RuntimeScanApiResponse, RuntimeScanJobApiResponse } from "@/lib/runtime-scan-report";
+import { normalizeScanUrl, scannerHealthPending } from "./scan-form";
 import type {
   ComparisonScanResult,
   ReportShare,
@@ -342,7 +343,15 @@ export function SiteBehaviorApp({
   const turnstileSiteKeyConfigured = Boolean(LIVE_SCAN_TURNSTILE_SITE_KEY);
   const turnstileUnsupported = turnstileRequired && !turnstileSiteKeyConfigured;
   const awaitingTurnstile = turnstileRequired && turnstileSiteKeyConfigured && !turnstileToken;
-  const scanBlocked = scannerUnavailable || turnstileUnsupported || awaitingTurnstile;
+  // Health is the authority for access, capability, and Turnstile posture. Do
+  // not let a fast submit race the initial fetch and omit a required token.
+  const awaitingScannerHealth = scannerHealthPending({
+    liveScanEnabled: LIVE_SCAN_ENABLED,
+    reportPage,
+    healthResolved: scannerHealth !== null,
+    healthError: scannerHealthError
+  });
+  const scanBlocked = awaitingScannerHealth || scannerUnavailable || turnstileUnsupported || awaitingTurnstile;
 
   useEffect(() => {
     setForm((current) => ({
@@ -358,6 +367,12 @@ export function SiteBehaviorApp({
       setLoading(false);
       setLoaded(null);
       setError("This published build cannot run live scans. Use an Actions-generated report, upload JSON, or run the Node app locally.");
+      return;
+    }
+    if (awaitingScannerHealth) {
+      setLoading(false);
+      setLoaded(null);
+      setError("Checking public scanner status. Try again in a moment.");
       return;
     }
     if (scannerUnavailable) {
@@ -481,6 +496,11 @@ export function SiteBehaviorApp({
       return;
     }
     const normalized = normalizeScanUrl(trimmed);
+    if (!normalized) {
+      setUrlNotice("");
+      setError("Enter a valid public URL, for example https://example.com.");
+      return;
+    }
     setForm((current) => ({ ...current, url: normalized }));
     setUrlNotice(
       /[?#]/.test(trimmed)
@@ -923,6 +943,7 @@ export function SiteBehaviorApp({
                   share={loaded.wire.share ?? null}
                   view={reportView}
                   run={primaryRun}
+                  evidenceRun={displayedRun}
                   csvArmLabel={arms ? armDisplayLabel(reportView, displayedArmLabel) : null}
                   onDownload={() => void downloadReport()}
                   onDownloadCsv={downloadCsv}
@@ -1392,25 +1413,6 @@ function isAbortError(error: unknown): boolean {
 
 
 
-function normalizeScanUrl(value: string): string {
-  const trimmed = value.trim();
-  if (!trimmed) return "";
-  // Accept bare domains (e.g. "fidelity.com") by assuming https://. If the user
-  // already typed any scheme, keep it and let the scanner validate it.
-  const withScheme = /^[a-zA-Z][a-zA-Z\d+.-]*:\/\//.test(trimmed) ? trimmed : `https://${trimmed}`;
-  // Drop the query string and fragment before the URL ever leaves the browser.
-  // Those carry the most PII (tracking ids, tokens, emails); the scan reports a
-  // page by origin + path anyway. The path is kept so specific pages still scan.
-  try {
-    const parsed = new URL(withScheme);
-    parsed.search = "";
-    parsed.hash = "";
-    return parsed.toString();
-  } catch {
-    return withScheme;
-  }
-}
-
 function isStaticReportManifest(value: unknown): value is { reports: StaticReportManifestEntry[] } {
   if (!value || typeof value !== "object" || !Array.isArray((value as { reports?: unknown }).reports)) {
     return false;
@@ -1697,6 +1699,7 @@ function ReportHeader({
   share,
   view,
   run,
+  evidenceRun,
   csvArmLabel,
   onDownload,
   onDownloadCsv,
@@ -1705,6 +1708,8 @@ function ReportHeader({
   /** The wire report's share pointer, needed only to resolve the permalink. */
   share: ReportShare | null;
   view: ReportView;
+  /** The arm selected by the evidence switcher; quality chips follow it. */
+  evidenceRun: RunView;
   run: RunView;
   /** Names the visit the CSV exports on comparisons; null on single reports. */
   csvArmLabel: string | null;
@@ -1724,6 +1729,7 @@ function ReportHeader({
   // but point nowhere real, so they render as text, never as a link.
   const finalUrl = run.conditions.urlsAreRouteShapes ? null : safeNavigableHttpUrl(run.conditions.finalUrl);
   const title = view.title || run.pageTitle;
+  const selectedRequestEvidence = requestEvidenceState(evidenceRun);
 
   const [shareCopied, setShareCopied] = useState(false);
   async function handleShare(event: MouseEvent<HTMLAnchorElement>) {
@@ -1760,12 +1766,16 @@ function ReportHeader({
           {/* Provenance is always visible, not buried in the sidebar: a
               legacy-derived or limited report says so where the title is. */}
           <span className="report-provenance">{schemaProvenanceLabel(view)}</span>
-          {familyCensoredOnRun(run, "requests") && (
+          {selectedRequestEvidence !== "complete" && (
             <span
               className="capped-chip"
-              title="This visit hit the request-recording cap: its activity counts are floors cut off mid-collection, and cookie and storage figures are end-state snapshots of an interrupted visit."
+              title={
+                selectedRequestEvidence === "capped"
+                  ? "The selected visit hit the request-recording cap: its activity counts are floors cut off mid-collection, and cookie and storage figures are end-state snapshots of an interrupted visit."
+                  : "The selected visit did not finish collecting request evidence. Its request counts are lower bounds; see Run quality for the recorded reason."
+              }
             >
-              recording capped
+              {selectedRequestEvidence === "capped" ? "recording capped" : "request evidence incomplete"}
             </span>
           )}
         </p>

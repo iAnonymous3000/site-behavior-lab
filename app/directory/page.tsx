@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { loadCorpusOverview, type DirectoryEntry } from "@/lib/corpus-overview";
+import { loadCorpusOverview } from "@/lib/corpus-overview";
 import { reportPagePath } from "@/lib/report-locator";
 import { sitePagesBasePath } from "@/lib/site-url";
 import { siteProfilePath } from "@/lib/site-profile";
 import { formatDelta, type SinceLastScan } from "@/lib/temporal-deltas";
+import { reportKindLabel } from "@/lib/text-format";
 
 export const dynamic = "force-static";
 
@@ -37,23 +38,6 @@ function formatScanDate(value: string): string {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
   return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
-}
-
-function reportTypeLabel(entry: DirectoryEntry): string {
-  if (entry.reportType !== "comparison") return "single scan";
-  if (entry.comparisonType === "shields") return "Brave-list blocking comparison";
-  // A consent comparison only compared choices if the scanner dispatched
-  // clicks on both banner buttons; otherwise the label must say what actually
-  // happened, because an unclicked run observed the pre-consent state.
-  if (entry.comparisonType === "consent") {
-    if (entry.consentClicks === "accept-and-reject") return "consent comparison";
-    if (entry.consentClicks === "accept-only") return "consent comparison (Reject not clicked)";
-    if (entry.consentClicks === "reject-only") return "consent comparison (Accept not clicked)";
-    return "consent comparison (no banner clicked)";
-  }
-  if (entry.comparisonType === "temporal") return "temporal comparison";
-  if (entry.comparisonType === "gpc") return "GPC comparison";
-  return "comparison";
 }
 
 /**
@@ -205,12 +189,12 @@ export default async function DirectoryPage() {
                   {entry.capped && (
                     <span
                       className="capped-chip"
-                      title="This visit hit the 1,000-request recording cap: its counts are truncated, and it is excluded from the medians, leaderboard, and since-last-scan deltas."
+                      title="This visit did not finish collecting request evidence: its counts are lower bounds, and it is excluded from the medians, leaderboard, and since-last-scan deltas."
                     >
-                      recording capped
+                      request evidence incomplete
                     </span>
                   )}
-                  <span className="directory-type">{reportTypeLabel(entry)}</span>
+                  <span className="directory-type">{reportKindLabel(entry)}</span>
                 </span>
                 <span className="directory-headline">{entry.headline}</span>
                 <span className="directory-metrics">
@@ -218,7 +202,7 @@ export default async function DirectoryPage() {
                     <b>{entry.thirdPartyRequests.toLocaleString()}</b> third-party
                   </span>
                   <span>
-                    <b>{entry.trackerRequests.toLocaleString()}</b> tracker
+                    <b>{entry.trackerRequests.toLocaleString()}</b> catalogued tracking {entry.trackerRequests === 1 ? "request" : "requests"}
                   </span>
                   <span>
                     <b>{entry.thirdPartyCookies.toLocaleString()}</b> {entry.thirdPartyCookies === 1 ? "cookie" : "cookies"}

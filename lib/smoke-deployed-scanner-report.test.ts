@@ -11,9 +11,11 @@ type SmokeReportHelpers = {
   singleReportTotalRequests(value: unknown): number | null;
   isShieldsComparisonReport(value: unknown): boolean;
   hasShieldsComparisonDiff(value: unknown): boolean;
+  healthMatchesExpectedReportStore(value: unknown, expectedKind: string): boolean;
   shieldsEngineActive(value: unknown): boolean;
   shieldsBlockedCounts(value: unknown): { baseline: number | null; variant: number | null };
   savedReportRetainsScreenshot(value: unknown): boolean;
+  ssrfGuardRefusalReason(value: unknown): string | null;
 };
 
 // Preserve native import() after CommonJS test compilation so this exercises
@@ -106,6 +108,28 @@ test("deployed smoke helpers read Shields diff, engine, and counts from both wir
     false,
     "the r2 verification arm must report that the intervention passed"
   );
+
+  const r2WithIneligibleRawCounts = structuredClone(r2);
+  r2WithIneligibleRawCounts.diff.families["raw-counts"].eligible = false;
+  r2WithIneligibleRawCounts.comparability.perMetric["raw-counts"].eligible = false;
+  assert.equal(
+    adapter.hasShieldsComparisonDiff(r2WithIneligibleRawCounts),
+    false,
+    "an ineligible r2 metric object is not a usable Shields diff"
+  );
+
+  const r2WithoutEgressRegion = structuredClone(r2);
+  delete r2WithoutEgressRegion.baseline.conditions.egress.region;
+  delete r2WithoutEgressRegion.variant.conditions.egress.region;
+  assert.equal(
+    adapter.hasShieldsComparisonDiff(r2WithoutEgressRegion),
+    false,
+    "unknown egress cannot pass a paired-diff smoke assertion"
+  );
+
+  const r2WithMismatchedEgress = structuredClone(r2);
+  r2WithMismatchedEgress.variant.conditions.egress.region = "eu";
+  assert.equal(adapter.hasShieldsComparisonDiff(r2WithMismatchedEgress), false);
 });
 
 test("deployed smoke helpers reject persisted screenshot material for each generation", async () => {
@@ -128,4 +152,33 @@ test("deployed smoke helpers reject persisted screenshot material for each gener
     true,
     "the r2 ephemeral shell itself is never persistable"
   );
+});
+
+test("deployed smoke helpers prove the configured store instead of trusting capabilities", async () => {
+  const adapter = await helpers;
+  const r2 = { storage: "r2", checks: { reportStore: { kind: "r2", configuredPath: true } } };
+  assert.equal(adapter.healthMatchesExpectedReportStore(r2, "r2"), true);
+  assert.equal(adapter.healthMatchesExpectedReportStore({ ...r2, storage: "filesystem" }, "r2"), false);
+  assert.equal(
+    adapter.healthMatchesExpectedReportStore({ storage: "r2", checks: { reportStore: { kind: "r2" } } }, "r2"),
+    false
+  );
+  assert.equal(
+    adapter.healthMatchesExpectedReportStore(
+      { storage: "filesystem", checks: { reportStore: { kind: "filesystem", configuredPath: true } } },
+      "filesystem"
+    ),
+    true
+  );
+});
+
+test("deployed smoke helpers accept only a concrete failed URL-safety job", async () => {
+  const adapter = await helpers;
+  assert.equal(
+    adapter.ssrfGuardRefusalReason({ status: "failed", error: "Target resolves to a private network address." }),
+    "Target resolves to a private network address."
+  );
+  assert.equal(adapter.ssrfGuardRefusalReason({ status: "failed", error: "Browser crashed" }), null);
+  assert.equal(adapter.ssrfGuardRefusalReason({ status: "expired", error: "Lost after restart" }), null);
+  assert.equal(adapter.ssrfGuardRefusalReason({ status: "cancelled", error: "Cancelled" }), null);
 });

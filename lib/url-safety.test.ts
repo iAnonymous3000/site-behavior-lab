@@ -80,6 +80,8 @@ test("assertPublicHttpUrl blocks private and reserved IPv6 literals", async () =
     "http://[fd00::1]/",
     "http://[fe80::1]/",
     "http://[febf::1]/",
+    "http://[fec0::1]/",
+    "http://[feff::1]/",
     "http://[ff02::1]/",
     "http://[2001::1]/",
     "http://[2001:2::1]/",

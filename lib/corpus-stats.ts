@@ -35,9 +35,10 @@ export type CorpusStats = {
   version: number;
   generatedAt: string;
   /**
-   * Distinct sites in the measured sample: newest lead run loaded (HTTP < 400)
-   * and was not cut off by the request-recording cap. This is the percentile
-   * basis and is smaller than the corpus's coverage.
+   * Distinct sites in the current legacy-v1 percentile sample: newest eligible
+   * lead run loaded (HTTP < 400), was not cut off by the request-recording cap,
+   * and remained in the passive observe consent state. This is smaller than
+   * the corpus's coverage.
    */
   sampleSize: number;
   /**

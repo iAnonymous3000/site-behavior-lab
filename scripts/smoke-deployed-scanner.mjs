@@ -10,6 +10,7 @@
 //   SCAN_BASE_URL=https://scan.sitebehavior.org \
 //   [SMOKE_SCAN_ACCESS_TOKEN=<token>] \
 //   [SMOKE_SHIELDS_URL=https://example.com] \
+//   [SMOKE_EXPECTED_STORAGE=r2|filesystem] \
 //   npm run test:smoke:scanner
 //
 // Turnstile note: an OPEN scanner that enforces Turnstile cannot be smoked
@@ -27,22 +28,28 @@
 
 import {
   hasShieldsComparisonDiff,
+  healthMatchesExpectedReportStore,
   isShieldsComparisonReport,
   isSupportedDeployedReport,
   savedReportRetainsScreenshot,
   shieldsBlockedCounts,
   shieldsEngineActive,
-  singleReportTotalRequests
+  singleReportTotalRequests,
+  ssrfGuardRefusalReason
 } from "./smoke-deployed-scanner-report.mjs";
 
 const baseUrl = (process.env.SCAN_BASE_URL || "").trim().replace(/\/+$/, "");
 const token = (process.env.SMOKE_SCAN_ACCESS_TOKEN || process.env.SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN || "").trim();
 const shieldsUrl = (process.env.SMOKE_SHIELDS_URL || "https://example.com").trim();
+const expectedStorage = (process.env.SMOKE_EXPECTED_STORAGE || "r2").trim();
 const POLL_INTERVAL_MS = 2000;
 const MAX_POLLS = 120; // ~4 min ceiling for a Shields comparison (two visits)
 
 if (!baseUrl) {
   fail("Set SCAN_BASE_URL to the deployed scanner origin, e.g. https://scan.sitebehavior.org");
+}
+if (expectedStorage !== "r2" && expectedStorage !== "filesystem") {
+  fail("SMOKE_EXPECTED_STORAGE must be r2 or filesystem");
 }
 
 function pass(message) {
@@ -152,11 +159,14 @@ async function checkHealth() {
   if (!capabilities.savedReportPages) {
     fail("health does not advertise savedReportPages, this origin cannot serve human-shareable /reports/:id pages");
   }
+  if (!healthMatchesExpectedReportStore(health, expectedStorage)) {
+    fail(`health does not prove the expected ${expectedStorage} report store is configured`);
+  }
   if (!health.checks?.adblock?.active) fail("Brave ad-block engine is not active on this deployment");
   if (health.checks?.chromiumSandbox !== "enabled") {
     fail("Chromium sandbox is not enabled on this deployment");
   }
-  pass(`health advertises live Shields (storage: ${health.storage || health.checks?.reportStore?.kind || "unknown"})`);
+  pass(`health advertises live Shields with the expected ${expectedStorage} report store`);
 }
 
 async function checkSingleScan() {
@@ -239,7 +249,7 @@ async function checkSsrfRefusal() {
     }
     // Require the refusal to actually name an unsafe-address reason from the URL
     // guard, so an unrelated 4xx cannot be mistaken for SSRF coverage.
-    if (!/private network|public address|verified as public|not be resolved|loopback|link-local|reserved/i.test(reason)) {
+    if (!ssrfGuardRefusalReason({ status: "failed", error: reason })) {
       fail(`link-local target refused, but not by the URL-safety guard (${reason || "no reason given"})`);
     }
     pass(`link-local SSRF target refused by the URL-safety guard (${reason})`);
@@ -249,9 +259,14 @@ async function checkSsrfRefusal() {
     const url = /^https?:\/\//i.test(payload.statusPath) ? payload.statusPath : `${baseUrl}${payload.statusPath}`;
     for (let attempt = 0; attempt < MAX_POLLS; attempt += 1) {
       const data = await readJson(await fetch(url, { headers: authHeaders(), cache: "no-store" }), "/api/scans/:id");
-      if (data.status === "failed" || data.status === "expired" || data.status === "cancelled") {
-        pass("link-local SSRF target refused by the scan job");
+      if (data.status === "failed") {
+        const reason = ssrfGuardRefusalReason(data);
+        if (!reason) fail(`link-local scan job failed, but not at the URL-safety guard (${data.error || "no reason given"})`);
+        pass(`link-local SSRF target refused by the scan job URL-safety guard (${reason})`);
         return;
+      }
+      if (data.status === "expired" || data.status === "cancelled") {
+        fail(`SSRF check inconclusive: link-local scan job ${data.status} (${data.error || "no reason given"})`);
       }
       if (data.status === "succeeded") fail("link-local SSRF target was scanned successfully, guard failed");
       await sleep(POLL_INTERVAL_MS);

@@ -26,7 +26,7 @@
  */
 
 import { spawn } from "node:child_process";
-import { readFile } from "node:fs/promises";
+import { appendFile, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -84,6 +84,10 @@ async function main() {
     }
   }
 
+  const minSuccessRate = successRateEnv("FEATURED_MIN_SUCCESS_RATE", 0.9);
+  const successRate = succeeded / sites.length;
+  await publishRunDiagnostics({ sites, succeeded, failures, minSuccessRate, successRate });
+
   console.log("\nVerifying report redaction and provenance...");
   await run(process.platform === "win32" ? "npm.cmd" : "npm", ["run", "reports:remediate", "--", "--check"], {
     SITE_BEHAVIOR_LAB_SCHEMA_DIST_READY: "1"
@@ -100,8 +104,6 @@ async function main() {
   // A green run must mean a meaningful refresh. Individual bot walls and
   // outages are tolerated up to the threshold; beyond it the run fails so the
   // workflow never commits and publishes a mostly-stale corpus as fresh.
-  const minSuccessRate = successRateEnv("FEATURED_MIN_SUCCESS_RATE", 0.9);
-  const successRate = succeeded / sites.length;
   if (succeeded === 0 || successRate < minSuccessRate) {
     console.error(
       `Refusing to treat this as a successful refresh: ${succeeded}/${sites.length} sites succeeded (${Math.round(
@@ -110,6 +112,37 @@ async function main() {
     );
     process.exit(1);
   }
+}
+
+async function publishRunDiagnostics({ sites, succeeded, failures, minSuccessRate, successRate }) {
+  const summary = {
+    generatedAt: new Date().toISOString(),
+    total: sites.length,
+    succeeded,
+    failed: failures.length,
+    successRate,
+    requiredSuccessRate: minSuccessRate,
+    failures
+  };
+  const outputPath = process.env.FEATURED_SUMMARY_PATH?.trim();
+  if (outputPath) {
+    await writeFile(outputPath, `${JSON.stringify(summary, null, 2)}\n`, "utf8");
+  }
+
+  const githubSummary = process.env.GITHUB_STEP_SUMMARY?.trim();
+  if (!githubSummary) return;
+  const lines = [
+    "## Featured scan result",
+    "",
+    `- Succeeded: **${succeeded}/${sites.length}** (${Math.round(successRate * 100)}%)`,
+    `- Required success rate: **${Math.round(minSuccessRate * 100)}%**`,
+    `- Failed: **${failures.length}**`
+  ];
+  if (failures.length > 0) {
+    lines.push("", "### Failed targets", "");
+    for (const failure of failures) lines.push(`- **${failure.site}:** ${failure.message}`);
+  }
+  await appendFile(githubSummary, `${lines.join("\n")}\n`, "utf8");
 }
 
 function successRateEnv(name, fallback) {

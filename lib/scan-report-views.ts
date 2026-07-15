@@ -1039,6 +1039,26 @@ export function familyCensoredOnRun(run: RunView, family: string): boolean {
   return run.quality.reasons.includes("budget-exhausted:request-cap");
 }
 
+const REQUEST_RECORDING_CAP_WARNING_FRAGMENT = "stopped recording or loading additional requests";
+
+/**
+ * The specific 1,000-request recording cap, not generic request-family loss.
+ * V1 derives this from the legacy cap rule; v2 retains the producer's explicit
+ * warning alongside its broader capture-loss ledger.
+ */
+export function runHitRequestRecordingCap(run: RunView): boolean {
+  if (run.quality.origin === "legacy-derived") {
+    return run.quality.reasons.includes("budget-exhausted:request-cap");
+  }
+  return run.warnings.some((warning) => warning.includes(REQUEST_RECORDING_CAP_WARNING_FRAGMENT));
+}
+
+/** Reader-facing state for the request evidence without conflating censoring with a cap. */
+export function requestEvidenceState(run: RunView): "complete" | "capped" | "incomplete" {
+  if (runHitRequestRecordingCap(run)) return "capped";
+  return familyCensoredOnRun(run, "requests") ? "incomplete" : "complete";
+}
+
 /**
  * Short human label for the report's schema provenance, shown beside the
  * report header and in the methodology block: names the wire generation,

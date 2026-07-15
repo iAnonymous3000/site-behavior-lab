@@ -102,7 +102,7 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
-          node-version: 22
+          node-version: 24
           cache: npm
 
       - name: Install dependencies
@@ -139,6 +139,17 @@ jobs:
         run: npm run scan:featured
         env:
           BASE_URL: http://127.0.0.1:3100
+          FEATURED_SUMMARY_PATH: ${{ runner.temp }}/featured-scan-summary.json
+
+      - name: Upload failed-run diagnostics
+        if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: featured-scan-failure-diagnostics
+          path: |
+            ${{ runner.temp }}/featured-scan-summary.json
+            /tmp/site-behavior-lab-featured.log
+          if-no-files-found: warn
 
       - name: Prune retained static reports
         run: npm run reports:prune
@@ -162,7 +173,7 @@ jobs:
             echo "- Listed reports in manifest: **$REPORTS**"
             echo "- Distinct sites in corpus (sampleSize): **$SAMPLE**"
             echo "- Corpus-relative percentile findings activate at 50 distinct sites (CORPUS_MIN_SAMPLE)."
-            echo "- Branch \`${GITHUB_REF_NAME}\`: reports were committed here. Review the Cloudflare Pages preview for this branch, then merge to the production branch to publish."
+            echo "- Branch \`${GITHUB_REF_NAME}\`: reports were committed here. Merge an ordinary feature branch to \`main\`; after CI passes, automation alone fast-forwards the protected \`production\` branch and publishes Pages. Never move \`production\` by hand."
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload report artifacts

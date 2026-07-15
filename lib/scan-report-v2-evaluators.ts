@@ -68,6 +68,7 @@ const ARM_METHODS: Record<InterventionAxis, Set<string>> = {
 export const BUDGET_FAMILIES: Readonly<Record<string, EvidenceFamily>> = Object.freeze({
   "request-capture": "requests",
   "request-upload": "requests",
+  "proxy-traffic": "requests",
   "cookie-snapshot": "cookies",
   "storage-snapshot": "storage",
   "fingerprint-observer": "fingerprinting",
@@ -743,9 +744,18 @@ function phaseAndTimingViolations(run: ScanRunV2, label: string): string[] {
       violations.push(`${label}: phase ${span.phaseId} starts before phase ${index - 1} ends`);
     }
   }
+  const lastPhaseEnd = Math.max(0, ...run.phases.map((span) => span.endedAtMs));
+  if (run.summary.durationMs < lastPhaseEnd) {
+    violations.push(`${label}: summary.durationMs ends before the final measurement phase`);
+  }
   // Requests attribute by start phase (RFC 7); a timestamp outside its
   // declared phase span is a mis-tagged observation.
+  const requestIds = new Set<number>();
   for (const request of run.evidence.requests) {
+    if (requestIds.has(request.id)) {
+      violations.push(`${label}: request id ${request.id} is duplicated`);
+    }
+    requestIds.add(request.id);
     const span = run.phases[request.phaseId];
     if (span !== undefined && (request.startedAtMs < span.startedAtMs || request.startedAtMs > span.endedAtMs)) {
       violations.push(`${label}: request ${request.id} starts outside its declared phase span`);

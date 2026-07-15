@@ -33,19 +33,21 @@ const R2_REVISIONED_PATH = path.join(rootDir, "public", "schemas", "scan-report.
 const ALIAS_PATH = path.join(rootDir, "public", "scan-report.schema.json");
 
 /**
- * THE r1 freeze (RFC 10.2), executable: the published r1 schema is immutable.
+ * THE r1 freeze (RFC 10.2), executable: the published r1 schema is immutable
+ * apart from validator-parity correctness backports that do not change shape.
  * The drift test alone would pass if the r1 types were edited and both files
  * regenerated together; this pin makes that path fail at build time instead.
- * It never changes. New shapes go into a new revision's types and schema file
- * (scan-report.v2.r2.schema.json), never into r1.
+ * This pin includes the 2026-07-14 numeric-domain correctness backport. New
+ * shapes still go into a new revision's types and schema file.
  */
-export const R1_SCHEMA_SHA256 = "7b865e6903ecdd1ecc2a5d5e848ffb320b7a1db9742dc108f603e5e21c9756a6";
+export const R1_SCHEMA_SHA256 = "018584cefeebedfe2d17ba0117216257865637fc23ba7aafbf2092fee2898821";
 
 /**
  * THE r2 freeze: pinned at publication (2026-07-10) with the same discipline
- * as r1. It never changes; new shapes belong in a future revision's file.
+ * as r1, including its 2026-07-14 numeric-domain correctness backport. New
+ * shapes belong in a future revision's file.
  */
-export const R2_SCHEMA_SHA256 = "539a0fbdcf2e06c41fa4e8662209d275a4e59364153137ab7c4a9f41c5b7c0c7";
+export const R2_SCHEMA_SHA256 = "37775a2692dba7ef247cea6047d9da0f355d7084483fda328e5beaca5d2e3df1";
 
 export function generateScanReportV2Schema() {
   const schema = createGenerator({

@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { AlertTriangle, CheckCircle2, ChevronDown, Database, Fingerprint, Radar } from "lucide-react";
 import { requestProvenanceSearchText, requestProvenanceSummary } from "@/lib/report-findings";
-import { displayHost, plural } from "@/lib/text-format";
+import { displayHost, hostMatchesQuery, plural } from "@/lib/text-format";
 import { detectionEvidence, detectionLabel, pixelFieldLabel } from "@/lib/report-insights";
 import type {
   CookieRecord,
@@ -41,7 +41,7 @@ function roleTag(domain: DomainSummary) {
 function DomainTable({ domains }: { domains: DomainSummary[] }) {
   const [query, setQuery] = useState("");
   const filtered = useMemo(
-    () => domains.filter((domain) => domain.domain.toLowerCase().includes(query.toLowerCase())),
+    () => domains.filter((domain) => hostMatchesQuery(domain.domain, query)),
     [domains, query]
   );
   const shown = filtered.slice(0, 100);
@@ -115,7 +115,7 @@ function RequestTable({ requests }: { requests: NetworkRequestRecord[] }) {
       if (resourceFilter !== "all" && request.resourceType !== resourceFilter) return false;
       if (!q) return true;
       return (
-        request.domain.toLowerCase().includes(q) ||
+        hostMatchesQuery(request.domain, q) ||
         request.url.toLowerCase().includes(q) ||
         request.method.toLowerCase().includes(q) ||
         request.resourceType.toLowerCase().includes(q) ||
