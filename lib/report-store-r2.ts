@@ -2,6 +2,7 @@ import { AwsClient } from "aws4fetch";
 import type {
   ReportRetentionMetadata,
   ReportStoreBackend,
+  ReportStoreOperationOptions,
   ReportWriteResult,
   StoredReportBlob,
   StoredReportEntry
@@ -87,59 +88,116 @@ export function createR2ReportStoreBackend(
     input: string,
     init: RequestInit
   ): Promise<{ response: Response; body: string; outcomeUnknown: boolean }> {
+    init.signal?.throwIfAborted();
     let outcomeUnknown = false;
     for (let attempt = 0; ; attempt += 1) {
+      init.signal?.throwIfAborted();
       let dispatched: { response: Response; body: string };
       try {
         dispatched = await dispatchWithTimeout(input, init);
       } catch (error) {
+        // A durable execution fence is authoritative. Retrying after it fires
+        // can let a stale publication outlive its coordinator lease.
+        if (init.signal?.aborted) throw init.signal.reason;
         outcomeUnknown = true;
         if (attempt >= RETRY_DELAYS_MS.length) throw error;
-        await sleep(RETRY_DELAYS_MS[attempt]);
+        await waitForRetry(RETRY_DELAYS_MS[attempt], init.signal);
         continue;
       }
       const { response, body } = dispatched;
       if (RETRYABLE_STATUSES.has(response.status) && attempt < RETRY_DELAYS_MS.length) {
         outcomeUnknown = true;
-        await sleep(RETRY_DELAYS_MS[attempt]);
+        await waitForRetry(RETRY_DELAYS_MS[attempt], init.signal);
         continue;
       }
       return { response, body, outcomeUnknown };
     }
   }
 
+  async function waitForRetry(delayMs: number, signal: AbortSignal | null | undefined): Promise<void> {
+    signal?.throwIfAborted();
+    if (!signal) {
+      await sleep(delayMs);
+      return;
+    }
+    await new Promise<void>((resolve, reject) => {
+      let settled = false;
+      const settle = (callback: () => void) => {
+        if (settled) return;
+        settled = true;
+        signal.removeEventListener("abort", onAbort);
+        callback();
+      };
+      const onAbort = () => settle(() => reject(signal.reason));
+      signal.addEventListener("abort", onAbort, { once: true });
+      // Abort may have raced the pre-registration throwIfAborted check.
+      if (signal.aborted) {
+        onAbort();
+        return;
+      }
+      void sleep(delayMs).then(
+        () => settle(resolve),
+        (error) => settle(() => reject(error))
+      );
+    });
+    signal.throwIfAborted();
+  }
+
   async function dispatchWithTimeout(
     input: string,
     init: RequestInit
   ): Promise<{ response: Response; body: string }> {
+    init.signal?.throwIfAborted();
     const controller = new AbortController();
     const signal = init.signal
       ? AbortSignal.any([init.signal, controller.signal])
       : controller.signal;
     let timeout: ReturnType<typeof setTimeout> | undefined;
+    let abortListener: (() => void) | undefined;
     const deadline = new Promise<never>((_resolve, reject) => {
       timeout = setTimeout(() => {
         controller.abort();
         reject(new ReportStoreRequestTimeoutError(`R2 request attempt timed out after ${requestTimeoutMs} ms.`));
       }, requestTimeoutMs);
     });
+    const executionAbort = init.signal
+      ? new Promise<never>((_resolve, reject) => {
+          abortListener = () => reject(init.signal?.reason);
+          init.signal?.addEventListener("abort", abortListener, { once: true });
+          if (init.signal?.aborted) abortListener();
+        })
+      : undefined;
     try {
       const dispatch = (async () => {
-        const response = await doFetch(await sign(input, { ...init, signal }));
+        const signed = await sign(input, { ...init, signal });
+        // A signer may not itself observe AbortSignal. Never dispatch the
+        // signed request if the execution was fenced while signing.
+        signal.throwIfAborted();
+        // Override even if a custom signer accidentally dropped the signal
+        // while rebuilding the Request; cancellation is a persistence-layer
+        // invariant, not a signer convention.
+        const response = await doFetch(signed, { signal });
+        signal.throwIfAborted();
         // Keep the same attempt deadline active through body consumption. A
         // server can return headers and then stall its body; clearing the
         // deadline at headers would still freeze the report-store FIFO.
         const body = await response.text();
+        signal.throwIfAborted();
         return { response, body };
       })();
-      return await Promise.race([dispatch, deadline]);
+      return await Promise.race(executionAbort ? [dispatch, deadline, executionAbort] : [dispatch, deadline]);
     } finally {
       if (timeout !== undefined) clearTimeout(timeout);
+      if (abortListener) init.signal?.removeEventListener("abort", abortListener);
     }
   }
 
-  async function readObject(input: string, action: string): Promise<{ contents: string; headers: Headers; lastModifiedMs: number } | null> {
-    const { response, body } = await send(input, { method: "GET" });
+  async function readObject(
+    input: string,
+    action: string,
+    signal?: AbortSignal
+  ): Promise<{ contents: string; headers: Headers; lastModifiedMs: number } | null> {
+    const { response, body } = await send(input, { method: "GET", signal });
     if (response.status === 404) {
       return null;
     }
@@ -147,8 +205,8 @@ export function createR2ReportStoreBackend(
     return { contents: body, headers: response.headers, lastModifiedMs: parseLastModified(response.headers) };
   }
 
-  async function readBlob(id: string): Promise<StoredReportBlob | null> {
-    const stored = await readObject(reportObjectUrl(id), "read report");
+  async function readBlob(id: string, options?: ReportStoreOperationOptions): Promise<StoredReportBlob | null> {
+    const stored = await readObject(reportObjectUrl(id), "read report", options?.signal);
     if (!stored) return null;
     return {
       contents: stored.contents,
@@ -162,7 +220,8 @@ export function createR2ReportStoreBackend(
     input: string,
     contents: string,
     label: "report" | "report sidecar",
-    retention?: ReportRetentionMetadata
+    retention?: ReportRetentionMetadata,
+    options?: ReportStoreOperationOptions
   ): Promise<ReportWriteResult> {
     if (retention !== undefined && !isRetentionMetadata(retention)) {
       throw new Error("Invalid report retention metadata.");
@@ -177,13 +236,23 @@ export function createR2ReportStoreBackend(
       headers[EXPIRES_AT_METADATA_HEADER] = retention.expiresAt;
     }
 
-    const { response, body, outcomeUnknown } = await send(input, { method: "PUT", body: contents, headers });
+    const { response, body, outcomeUnknown } = await send(input, {
+      method: "PUT",
+      body: contents,
+      headers,
+      signal: options?.signal
+    });
     if (response.status === 412 || response.status === 409) {
       // A 412 after an attempt whose outcome was unknown can be this call's
       // own earlier PUT having landed. Exact contents AND retention metadata
       // must match before treating the replay as success.
       if (outcomeUnknown) {
-        const stored = await readObject(input, `read ${label}`).catch(() => null);
+        let stored: Awaited<ReturnType<typeof readObject>> = null;
+        try {
+          stored = await readObject(input, `read ${label}`, options?.signal);
+        } catch {
+          if (options?.signal?.aborted) throw options.signal.reason;
+        }
         const storedRetention = stored ? parseRetentionMetadata(stored.headers) : null;
         if (
           stored?.contents === contents &&
@@ -201,13 +270,16 @@ export function createR2ReportStoreBackend(
     return { ownership: "certain" };
   }
 
-  async function deleteObject(input: string, action: string): Promise<void> {
-    const { response, body } = await send(input, { method: "DELETE" });
+  async function deleteObject(input: string, action: string, signal?: AbortSignal): Promise<void> {
+    const { response, body } = await send(input, { method: "DELETE", signal });
     if (response.status !== 404) assertOk(response, body, action);
   }
 
-  async function headRetention(id: string): Promise<{ exists: boolean; retention: ReportRetentionMetadata | null }> {
-    const { response, body } = await send(reportObjectUrl(id), { method: "HEAD" });
+  async function headRetention(
+    id: string,
+    signal?: AbortSignal
+  ): Promise<{ exists: boolean; retention: ReportRetentionMetadata | null }> {
+    const { response, body } = await send(reportObjectUrl(id), { method: "HEAD", signal });
     if (response.status === 404) {
       return { exists: false, retention: null };
     }
@@ -218,48 +290,52 @@ export function createR2ReportStoreBackend(
 
   return {
     kind: "r2",
-    write(id, contents, retention) {
-      return writeCreateOnly(id, reportObjectUrl(id), contents, "report", retention);
+    write(id, contents, retention, options) {
+      return writeCreateOnly(id, reportObjectUrl(id), contents, "report", retention, options);
     },
-    async writeSidecar(id, contents) {
-      await writeCreateOnly(id, sidecarObjectUrl(id), contents, "report sidecar");
+    async writeSidecar(id, contents, options) {
+      await writeCreateOnly(id, sidecarObjectUrl(id), contents, "report sidecar", undefined, options);
     },
-    read(id) {
-      return readBlob(id);
+    read(id, options) {
+      return readBlob(id, options);
     },
-    async readSidecar(id) {
-      const stored = await readObject(sidecarObjectUrl(id), "read report sidecar");
+    async readSidecar(id, options) {
+      const stored = await readObject(sidecarObjectUrl(id), "read report sidecar", options?.signal);
       return stored?.contents ?? null;
     },
-    async remove(id) {
+    async remove(id, options) {
       // Sidecar first: interruption leaves a report that fails provenance
       // closed, never a sidecar-vouched report that pruning meant to remove.
       // Still attempt both deletes if one errors so a transient/permission
       // problem on one half cannot prevent cleanup of the other half.
       let firstError: unknown;
       try {
-        await deleteObject(sidecarObjectUrl(id), "delete report sidecar");
+        await deleteObject(sidecarObjectUrl(id), "delete report sidecar", options?.signal);
       } catch (error) {
         firstError = error;
       }
       try {
-        await deleteObject(reportObjectUrl(id), "delete report");
+        await deleteObject(reportObjectUrl(id), "delete report", options?.signal);
       } catch (error) {
         firstError ??= error;
       }
       if (firstError !== undefined) throw firstError;
     },
-    async removeSidecar(id) {
+    async removeSidecar(id, options) {
       // Orphan reconciliation must not delete a report that appeared after the
       // LIST snapshot. Removing only the stale commit marker is idempotent.
-      await deleteObject(sidecarObjectUrl(id), "delete orphaned report sidecar");
+      await deleteObject(sidecarObjectUrl(id), "delete orphaned report sidecar", options?.signal);
     },
-    async list() {
+    async list(options) {
+      options?.signal?.throwIfAborted();
       const listedEntries: StoredReportEntry[] = [];
       const listedSidecars = new Map<string, number>();
       let continuationToken: string | null = null;
       do {
-        const { response, body } = await send(listUrl(config, continuationToken), { method: "GET" });
+        const { response, body } = await send(listUrl(config, continuationToken), {
+          method: "GET",
+          signal: options?.signal
+        });
         assertOk(response, body, "list reports");
         const page = parseListResult(body, config.prefix);
         listedEntries.push(...page.entries);
@@ -285,7 +361,7 @@ export function createR2ReportStoreBackend(
           if (!sidecarPresent && !shouldReadUncommittedRetention) return entry;
 
           try {
-            const metadata = await headRetention(entry.id);
+            const metadata = await headRetention(entry.id, options?.signal);
             if (!metadata.exists) {
               return sidecarPresent ? sidecarOnlyEntry(entry.id, sidecarLastModifiedMs) : null;
             }
@@ -296,6 +372,7 @@ export function createR2ReportStoreBackend(
               committed: sidecarPresent
             };
           } catch (error) {
+            if (options?.signal?.aborted) throw options.signal.reason;
             // A listed report+sidecar is a committed candidate. Silently
             // downgrading it on HEAD failure would hide an operational outage
             // and change count/retention decisions, so fail the list/prune.

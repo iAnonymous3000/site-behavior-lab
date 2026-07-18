@@ -2,34 +2,40 @@
 
 ## Context
 
-The scanner supports both the original synchronous response and an in-process
-async queue. The production container enables async mode: `POST /api/scan`
-returns a capability-scoped job ID, while the front Worker keeps a bounded
-IDs-only recovery registry in Durable Object SQLite. A restart can recover a
-completed report that reached R2, but queued/running execution is not replayed.
+The scanner supports both the original synchronous response and an asynchronous
+job response. The production container enables async mode: `POST /api/scan`
+returns a capability-scoped job ID. With durable jobs disabled, execution remains
+in one Node process while the front Worker keeps a bounded IDs-only recovery
+registry in Durable Object SQLite. A restart can recover a completed report that
+reached R2, but cannot replay queued/running work.
 
-This note records the implemented Phase-1 seam and the still-pending Phase-2
-durable execution protocol. The detailed status is pinned under Current
-Implementation below.
+Phase 2 adds an opt-in restart-safe execution path in that same Durable Object,
+behind `SITE_BEHAVIOR_LAB_DURABLE_JOBS=1`. The committed deployment configuration
+keeps the flag at `0`; the path is not shipped live until its encryption key,
+private coordinator channel, privacy disclosure, and no-polling lease-expiry test
+all pass. This note pins both the current flag-off behavior and the gated Phase-2
+contract.
 
 ## Goals
 
 - Decouple scan work from the client connection lifetime.
 - Preserve the existing validation, access-control, SSRF, rate-limit, scanner, comparison, and report-store modules.
-- Keep a single-process implementation possible before introducing Redis/Postgres/worker infrastructure.
+- Preserve the single-process implementation when durable execution is disabled.
 - Make future progress reporting real rather than UI-only.
 - Keep report permalinks and JSON export behavior compatible.
 
 ## Non-Goals
 
 - Multi-user auth or billing.
-- A full distributed queue implementation in this step.
+- A general-purpose or multi-region distributed queue.
 - Replacing the report store in the same change.
 - Changing scanner evidence semantics or the `ScanReport` shape.
 
-## Proposed Types
+## Public and process-local types
 
-Add job types beside the current scan/report types, probably in `lib/types.ts` or a new `lib/scan-jobs.ts`.
+The public job types live beside the scan/report types. Lease, encryption, and
+reconciliation states are internal and must map onto this existing wire contract;
+they are never new public status strings.
 
 ```ts
 export type ScanJobStatus = "queued" | "running" | "succeeded" | "failed" | "expired" | "cancelled";
@@ -77,7 +83,11 @@ export type ScanJobMetadata = {
 };
 ```
 
-The interface is deliberately storage-agnostic. A first implementation can be an in-memory Map plus the current in-process worker loop. A production implementation can back the same shape with SQLite, Postgres, Redis, or a managed queue.
+The interface is deliberately storage-agnostic. `clientKey` is process-local
+admission data and MUST NOT be copied into a durable payload: in production it can
+be the caller's proxy-derived IP. Durable replay is already admitted and charged,
+so its encrypted DTO contains only the normalized target and scan options plus a
+non-identifying already-charged marker.
 
 ## Request Lifecycle
 
@@ -92,15 +102,15 @@ flowchart LR
   E --> F["return ScanReport"]
 ```
 
-Proposed asynchronous path:
+Asynchronous compatibility path:
 
 ```mermaid
 flowchart LR
   A["POST /api/scan"] --> B["access, body, URL, rate-limit, DNS checks"]
-  B --> C["enqueue job"]
+  B --> C["commit or enqueue job"]
   C --> D["return 202 with job id"]
   D --> E["client polls /api/scans/:id"]
-  C --> W["worker claims job"]
+  C --> W["worker claims job (process-local or fenced DO lease)"]
   W --> X["acquire scan slot"]
   X --> Y["run Playwright scan(s)"]
   Y --> Z["save report and mark succeeded"]
@@ -111,7 +121,9 @@ Important placement decisions:
 - Keep `assertScanAccess` before body parsing and rate-limit charging.
 - Keep URL normalization, structural URL checks, rate-limit charging, and DNS public-address checks before enqueueing.
 - Move `acquireScanSlot` from the HTTP handler to the worker so scan slots model actual scanner work, not waiting HTTP requests.
-- Keep report persistence best-effort behavior at the worker boundary: a failed share save should still produce a completed job with a warning, matching current behavior.
+- Keep v1 compatibility persistence behavior at the worker boundary. Public r2
+  production requires a committed report; durable execution fails or reconciles
+  explicitly rather than claiming success without the R2 bundle.
 
 ## API Shape
 
@@ -201,21 +213,26 @@ Then:
 
 That split keeps tests cheap: `prepareScanRequest` can be tested without Playwright, and `executePreparedScan` can keep the existing `ScanRunner` and `ReportSaver` injection seams.
 
-## Worker Model
+## Worker model
 
-Single-process worker:
+Flag-off single-process worker:
 
 - Starts once per Node process.
 - Polls the queue in a loop.
 - Uses the existing `MAX_CONCURRENT_SCANS` slot logic.
-- Stores job records in memory, optionally persisted to disk for crash recovery.
+- Stores queued/running job records in memory. The edge registry stores IDs only
+  and can recover a completed R2 report, but does not replay execution.
 
-Production worker:
+Flag-on durable worker:
 
-- Runs as a separate process/container.
-- Uses shared queue and shared report store.
-- Uses the same `executePreparedScan` function.
-- Emits structured logs and metrics for job lifecycle events.
+- Keeps the queue authority, encrypted payload, lease state, and terminal metadata
+  in the existing singleton `ScannerContainer` Durable Object.
+- Uses the Containers library's persistent `schedule()` callback to drain work and
+  reconcile deadlines independently of HTTP, health, or polling traffic. It never
+  overrides the base Container alarm handler.
+- Cold-starts or calls the Node container through a private coordinator channel,
+  then reuses the same `executePreparedScan` function.
+- Uses shared R2 report storage and emits structured lifecycle logs.
 
 ## UI Migration
 
@@ -238,25 +255,51 @@ The job model does not require replacing the report store immediately, but it ma
 - Completed jobs should either embed the completed `ScanReport` or point at the saved report ID.
 - History and monitoring features should not query JSON files directly. If those features are planned, move report metadata into SQLite or Postgres before adding them.
 
-Recommended single-node progression:
+Deployed progression:
 
-1. In-memory queue and current filesystem report store.
-2. SQLite job/report metadata plus filesystem report body or JSON column.
-3. Postgres/Redis-backed queue plus durable shared report storage for multi-node hosting.
+1. In-memory queue plus the configured report store (flag off).
+2. IDs-only Durable Object registry plus R2 completed-report recovery (Phase 1,
+   flag off).
+3. Encrypted Durable Object admission, scheduled fenced leases, and R2
+   reconciliation (Phase 2, opt-in and gated).
 
-## Open Decisions
+## Compatibility decisions
 
 - Async mode is currently opt-in with `SITE_BEHAVIOR_LAB_ASYNC_SCANS=1`.
 - Completed job status currently includes the completed report, preserving the existing UI render path.
-- Terminal in-process records and the edge recovery registry retain a job capability for at most 75 minutes from admission; running work remains until its bounded scan finishes.
-- Should client disconnect cancellation exist, or should queued/running jobs be detached from clients once accepted?
-- Should GPC comparison expose two sub-run progress events?
+- Terminal job metadata and capability linkage are retained for at most 75 minutes
+  from admission. Sensitive active payload ciphertext is deleted on every terminal
+  outcome and is also hard-bounded by that window.
+- Accepted work is detached from the client connection. A disconnect only stops
+  local polling; explicit authenticated `DELETE /api/scans/:id` is the cancellation
+  operation.
+- Public statuses remain `queued`, `running`, `succeeded`, `failed`, `expired`, or
+  `cancelled`. Lease/replay/publication/reconciliation states map into them.
+- Comparison progress remains aggregate and preserves the existing response shape.
 
 ## Current Implementation
 
-The first implementation keeps synchronous scans as the default behavior. When `SITE_BEHAVIOR_LAB_ASYNC_SCANS=1` is set, `POST /api/scan` prepares and validates the request, enqueues it in an in-memory single-process queue, and returns `202 { jobId, status, statusPath, reportId }`. Job status is ephemeral process memory: a Node restart drops queued, running, and recently completed job records. Completed async reports are saved under the submission's separate `reportId`, never the job ID: the status channel (`/api/scans/:jobId`) can carry the screenshot and is a capability held only by the submitter, so the job ID must never be derivable from a shared report link. (The reverse direction is not a secrecy boundary: the submitter intentionally receives both IDs in the `202` response.) The submitter can recover from a lost status record by reading `/api/reports/:reportId` when persistence succeeded. The worker path calls `executePreparedScan`, so slot acquisition, Playwright execution, comparison scans, and report persistence stay behind the same tested execution path.
+The synchronous path remains the default. With `SITE_BEHAVIOR_LAB_ASYNC_SCANS=1`
+and `SITE_BEHAVIOR_LAB_DURABLE_JOBS=0`, `POST /api/scan` prepares and validates
+the request, enqueues it in an in-memory single-process queue, and returns
+`202 { jobId, status, statusPath, reportId }`. A Node restart drops queued,
+running, and recently completed process records. Completed async reports are saved
+under the submission's separate `reportId`, never the job ID: the status channel
+(`/api/scans/:jobId`) can carry the screenshot and is a capability held only by
+the submitter, so the job ID must never be derivable from a shared report link.
+The submitter can recover from a lost status record by reading
+`/api/reports/:reportId` when persistence succeeded. The worker path calls
+`executePreparedScan`, so slot acquisition, Playwright execution, comparison
+scans, and report persistence stay behind the same tested execution path.
 
-`GET /api/scans/:id` returns queued/running/succeeded/failed status, progress metadata, and the completed report when available. The Cloudflare Containers front Worker additionally keeps the job ID, separate report ID, run count, and admission timestamp in its existing Durable Object SQLite for 75 minutes. If the Node process has restarted and now returns 404, the Worker either embeds the persisted R2 report in a recovered `succeeded` response or returns an explicit restart `expired` response when the report is genuinely absent. The registry contains no target URL or client identifier. Queued/running execution is still in-process and is not replayed, so multi-node hosting or fully restart-resilient execution still needs the phase-2 protocol below.
+`GET /api/scans/:id` returns queued/running/succeeded/failed status, progress
+metadata, and the completed report when available. In the current flag-off path,
+the front Worker keeps the job ID, separate report ID, run count, and admission
+timestamp in Durable Object SQLite for 75 minutes. After a Node restart it can
+embed a persisted R2 report in a recovered `succeeded` response or return an
+explicit restart `expired` response when the report is genuinely absent. The
+Phase-1 registry contains no target URL or client identifier. Queued/running
+execution remains in-process while the Phase-2 flag is `0`.
 
 ## Durable Job State Design (accepted 2026-07-13)
 
@@ -288,42 +331,94 @@ retention), pruned on write, hard row cap with oldest-first eviction. The
 best-effort write runs in `waitUntil`; failures are logged and never replace
 the container's already-accepted `202` response.
 
-### Phase 2: durable execution (leases and replay; protocol pending)
+### Phase 2: durable execution (disabled and unshipped behind a gate)
 
-Queued jobs additionally persist their PREPARED payload so a restarted
-container can resume work it accepted. Design constraints, in force:
+When `SITE_BEHAVIOR_LAB_DURABLE_JOBS=1`, queued jobs persist a dedicated
+encrypted execution DTO so a restarted container can resume accepted work. This
+does not reuse `PreparedScanRequest` verbatim.
 
-- **Privacy.** The payload row stores the normalized target (scheme + host +
-  path, exactly what the scanner receives today), device, mode flags, and the
-  admission-time rate-limit charge record. It is deleted on terminal state and
-  expires with the job TTL either way. This is the first time a target URL
-  rests at the edge, so the row is encrypted with a Worker secret
-  (AES-GCM via WebCrypto) and the privacy page discloses transient queue
-  storage alongside the existing IP/rate-limit disclosure BEFORE the phase
-  ships.
-- **Leases.** The container claims work through the Worker
-  (`claimNextScanJob(leaseSeconds)`): the DO marks the row leased with an
-  expiry; completion/failure reports back through the Worker
-  (`resolveScanJob`); an expired lease returns the job to the queue with a
-  bounded attempt counter (2 attempts, then terminal `failed` with a restart
-  note). Turnstile is NOT re-verified on replay: admission consumed the
-  human check and the charge; replay is the same admitted work.
-- **Ordering and bounds.** The DO enforces the same aggregate admission cap
-  the process queue enforces today (`MAX_QUEUED_JOBS`); claims are
-  oldest-first; the poll loop rides the container's existing request cycle
-  (the Worker pings a claim endpoint when the container reports idle
-  capacity on health), never a busy timer in the DO.
-- **Idempotent persistence.** Replayed jobs save under the SAME reportId
-  minted at admission (create-only R2 writes make a duplicate save a no-op
-  conflict), so a lease that expired mid-save cannot publish twice.
-- **Deadlines.** A job unclaimed or unresolved past the job max age is marked
-  terminal `expired` by the next registry write (no alarms needed); the
-  client's existing recovery path covers the completed-but-unresolved case.
+#### Synchronous admission and privacy
 
-Phase 1 is implemented without changing the container image. Phase 2 changes
-the container's queue seam (`scan-jobs.ts` gains a DO-backed intake alongside
-the in-process queue behind `SITE_BEHAVIOR_LAB_DURABLE_JOBS=1`) and MUST land
-with a privacy-page disclosure and a live lease-expiry test before the flag is
-enabled in production. Before implementation, its protocol still needs a
-fenced lease token, explicit cancellation semantics, request-cycle-independent
-liveness, and readback/reconciliation rules for every R2 save crash window.
+- The Worker returns the existing `202` response only after the IDs-only linkage,
+  execution state, application-encrypted payload, and request-independent drain
+  schedule have all been accepted. A storage, encryption, scheduling, or private
+  coordinator failure refuses admission; Phase-2 durability is never a
+  best-effort post-response write.
+- The AES-256-GCM payload contains only a version, scheme + host + path (no query
+  or fragment), desktop/mobile choice, GPC and comparison-mode flags,
+  non-identifying already-charged metadata, admission time, and required report
+  mode. Its 32-byte base64url key remains Worker-only. The payload excludes IP and
+  client hash, Turnstile and access tokens, all request/authorization headers,
+  cookies, screenshots, observations, and results.
+- Opaque IDs, timestamps, public status/progress, attempt count, lease generation
+  and token hash, deadlines, and reconciliation state are non-content operational
+  metadata and are stored without application encryption. They contain neither
+  the target nor a client identifier.
+- Active ciphertext is deleted on `succeeded`, `failed`, `expired`, or `cancelled`
+  and is hard-bounded to 75 minutes. Cloudflare platform recovery snapshots may
+  retain application-encrypted copies until their own retention window expires.
+
+#### Scheduled liveness and fenced leases
+
+- The Durable Object enforces the aggregate queue cap and claims oldest-first.
+  Its inherited persistent `schedule()` facility drains queued work, expires
+  leases, and reconciles publication independently of health requests, status
+  polls, or any other HTTP traffic. It does not override the Containers library's
+  alarm handler and does not store target data in a schedule payload.
+- Each claim increments the attempt and lease generation and mints a random fenced
+  token. Claim, heartbeat, progress, begin-publication, and resolution mutations
+  require the current generation and token. A late first worker cannot mutate or
+  publish for a re-leased job.
+- A job gets at most two execution attempts. Only an expired `leased` attempt that
+  never crossed begin-publication may be requeued. Replay does not repeat Turnstile
+  or charge either edge or Node quotas: it is the same admitted work. Once the
+  Durable Object accepts begin-publication, that report capability is a no-requeue
+  point because an aborted conditional R2 PUT can still have an unknown outcome.
+
+#### Cancellation and publication fencing
+
+- The Durable Object is authoritative for status in Phase 2. `DELETE` can atomically
+  cancel queued or leased work before publication, delete its ciphertext, fence
+  the lease, and best-effort abort the local scanner. Repeated cancellation is
+  idempotent and remains a control-only response with no report or `reportId`.
+- Begin-publication and cancellation race in one fenced Durable Object transition.
+  If cancellation wins, the stale worker cannot invoke R2 persistence. If
+  publication wins, `DELETE` preserves the existing `409` contract instead of
+  falsely claiming the externally visible write was cancelled.
+- Begin-publication atomically renews the publishing lease, but only when the
+  60-second Node publication bound, 30-second settlement window, and 30-second
+  final reconciliation bound fit before the job deadline. Publishing heartbeats
+  preserve that deadline reserve. The same
+  AbortSignal covers the in-process mutation FIFO, every report/sidecar operation,
+  R2 retry backoff, signing, fetch, and response-body consumption; an external
+  abort stops retries and prevents any later backend dispatch.
+
+#### Publication manifest and R2 reconciliation
+
+- Before R2 publication, the job records a small non-content manifest: `reportId`,
+  the exact stored-report wire SHA-256 and byte length, the public canonical
+  digest, the exact provenance-sidecar wire (including canonicalization and
+  redaction versions), and immutable creation/expiry clocks. It contains no report
+  body, screenshot, or target URL.
+- Reuse of the admission-minted `reportId` is necessary but not sufficient for
+  idempotence: ordinary create-only R2 conflicts are not success. Reconciliation
+  reads and validates the bundle against the manifest. A complete exact bundle is
+  marked `succeeded` and returned without another site visit. A primary-only exact
+  bundle can have its exact sidecar repaired from the manifest; mismatched or
+  invalid bytes fail closed and are never overwritten or blindly deleted. An exact
+  sidecar without a primary is preserved and fails terminally rather than poisoning
+  a same-ID rescan or deleting a marker that a concurrent writer may have committed.
+- After the publishing lease and settlement fence, an exact committed bundle whose
+  Durable Object resolution was lost reconciles to success. Integrity failures and
+  a still-missing bundle fail terminally; neither result admits another generation.
+  This single-writer rule prevents a late old-generation PUT from racing a rescan
+  under the same `reportId`. Private reconciliation has its own 30-second storage
+  bound so a stalled R2 read cannot accumulate overlapping Worker-to-Node work.
+
+The committed deployment keeps `SITE_BEHAVIOR_LAB_DURABLE_JOBS=0`. Enabling it
+requires `SITE_BEHAVIOR_LAB_DURABLE_JOBS_KEY`, a distinct
+`SITE_BEHAVIOR_LAB_DURABLE_JOBS_INTERNAL_TOKEN`, the non-secret fixed
+`SITE_BEHAVIOR_LAB_DURABLE_JOBS_COORDINATOR_URL`, R2/public-r2 readiness, the live
+privacy disclosure, and a live test that abandons the first lease and observes the
+scheduled second attempt complete under the same `reportId` without polling or
+health traffic. Only after that gate may production turn the flag on.

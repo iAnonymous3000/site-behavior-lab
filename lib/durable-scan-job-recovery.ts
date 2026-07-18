@@ -1,6 +1,27 @@
 import type { DurableScanJobRegistration } from "./durable-scan-job-registry";
 import { readStoredScanReport } from "./scan-report-reader";
 
+export type DurableScanJobInternalState =
+  | "queued"
+  | "leased"
+  | "publishing"
+  | "succeeded"
+  | "failed"
+  | "expired"
+  | "cancelled";
+
+export type DurableScanJobRecoverySnapshot = Readonly<{
+  jobId: string;
+  reportId: string;
+  state: DurableScanJobInternalState;
+  totalRuns: number;
+}>;
+
+type SnapshotRecoveryDependencies = {
+  fetchReport: (reportId: string) => Promise<Response>;
+  onReportError?: (error: unknown) => void;
+};
+
 type RecoveryDependencies = {
   findRegistration: (jobId: string) => Promise<DurableScanJobRegistration | null>;
   fetchReport: (reportId: string) => Promise<Response>;
@@ -9,6 +30,104 @@ type RecoveryDependencies = {
 };
 
 type CancellationRecoveryDependencies = Pick<RecoveryDependencies, "findRegistration" | "onRegistryError">;
+
+/** Collapse the internal lease/publication vocabulary onto the public API. */
+export function publicDurableScanJobStatus(state: DurableScanJobInternalState):
+  | "queued"
+  | "running"
+  | "succeeded"
+  | "failed"
+  | "expired"
+  | "cancelled" {
+  if (state === "leased" || state === "publishing") return "running";
+  return state;
+}
+
+/**
+ * Render the Durable Object's authoritative Phase-2 status. Lease credentials,
+ * attempts, manifests, report capabilities, and ciphertext never cross this
+ * boundary. A succeeded status is returned only with the exact saved report.
+ */
+export async function recoverDurableScanJobSnapshotResponse(
+  snapshot: DurableScanJobRecoverySnapshot,
+  source: Response,
+  dependencies: SnapshotRecoveryDependencies
+): Promise<Response> {
+  const status = publicDurableScanJobStatus(snapshot.state);
+  const totalRuns = snapshot.totalRuns === 2 ? 2 : 1;
+  const progress =
+    snapshot.state === "queued"
+      ? { phase: "queued", completedRuns: 0, totalRuns }
+      : snapshot.state === "publishing" || snapshot.state === "succeeded"
+        ? { phase: "saving", completedRuns: totalRuns, totalRuns }
+        : { phase: "waiting", completedRuns: 0, totalRuns };
+
+  if (snapshot.state === "succeeded") {
+    let reportResponse: Response;
+    try {
+      reportResponse = await dependencies.fetchReport(snapshot.reportId);
+    } catch (error) {
+      dependencies.onReportError?.(error);
+      return recoveryJson(
+        { ok: false, error: "The saved scan report could not be read during durable recovery." },
+        source,
+        503
+      );
+    }
+    if (reportResponse.status === 404) {
+      return recoveryJson(
+        { ok: false, error: "The saved scan report is temporarily unavailable during durable recovery." },
+        source,
+        502
+      );
+    }
+    if (!reportResponse.ok) return reportResponse;
+
+    let report: unknown;
+    try {
+      report = await reportResponse.json();
+    } catch {
+      return recoveryJson(
+        { ok: false, error: "The saved scan report could not be read during durable recovery." },
+        source,
+        502
+      );
+    }
+    if (!readStoredScanReport(report).ok) {
+      return recoveryJson(
+        { ok: false, error: "The saved scan report was invalid during durable recovery." },
+        source,
+        502
+      );
+    }
+    return recoveryJson({ ok: true, jobId: snapshot.jobId, status, progress, report }, source);
+  }
+
+  const payload: Record<string, unknown> = { ok: true, jobId: snapshot.jobId, status, progress };
+  if (snapshot.state === "failed") payload.error = "This scan job could not be completed.";
+  if (snapshot.state === "expired") {
+    payload.error = "This scan job expired because durable completion could not be confirmed.";
+  }
+  if (snapshot.state === "cancelled") payload.error = "This scan job was cancelled.";
+  return recoveryJson(payload, source);
+}
+
+/** Idempotent, control-only response after the DO has atomically cancelled. */
+export function durableScanJobCancellationResponse(
+  snapshot: DurableScanJobRecoverySnapshot,
+  source: Response
+): Response {
+  return recoveryJson(
+    {
+      ok: true,
+      jobId: snapshot.jobId,
+      status: "cancelled",
+      progress: { phase: "waiting", completedRuns: 0, totalRuns: snapshot.totalRuns === 2 ? 2 : 1 },
+      error: "This scan job was cancelled."
+    },
+    source
+  );
+}
 
 /**
  * Turn an in-memory 404 into an evidence-backed terminal answer when the edge

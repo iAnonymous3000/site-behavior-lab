@@ -63,6 +63,12 @@ export default function PrivacyPage() {
           site sees a visit from the scanner&rsquo;s infrastructure, not from your IP address.
         </p>
         <p>
+          When optional restart-safe execution is enabled, a scanner or coordinator failure can abandon an attempt and
+          retry it once. The scanned site may therefore see an extra automated visit: it may have loaded only partly,
+          or it may have completed before publication or status was lost. A finished report still uses exactly one
+          completed attempt per condition; evidence from an abandoned attempt is never merged into the report.
+        </p>
+        <p>
           Two parts of a visit are active rather than passive, and neither involves your data: the scanner types a
           <strong> synthetic, throwaway string</strong> into a few visible form fields to test whether keystrokes are
           captured and sent off the page (it never types anything about you), and in Consent mode it clicks the
@@ -92,6 +98,25 @@ export default function PrivacyPage() {
             reports are committed as permanent site artifacts with provenance sidecars; they do not use the
             live-share expiry policy.
           </li>
+          <li>
+            <strong>Optional restart-safe queue state is separate from a report.</strong> This mode remains disabled
+            unless the deployment explicitly enables its durable-jobs flag, supplies the application encryption key
+            and private scanner-coordinator credential, and passes the live lease-expiry recovery gate. When enabled,
+            the application encrypts a job record before committing it to Cloudflare Durable Object storage and
+            before returning the scan&rsquo;s acceptance response. The encrypted record contains only the address&rsquo;s
+            scheme, host, and path (no query string or fragment) plus the selected device and run-mode options. It is
+            kept for at most 75 minutes and removed from the active database as soon as the job succeeds, fails,
+            expires, or is cancelled.
+          </li>
+          <li>
+            The encrypted queue record never contains your IP address or client hash, Turnstile or access tokens,
+            authorization or other request headers, cookies, screenshots, page evidence, or scan results. Bounded
+            operational metadata&mdash;opaque job and report IDs, timestamps, status and progress, attempt count, and
+            lease/fencing fields&mdash;is stored separately without application encryption and contains neither the
+            target address nor a client identifier. After the active encrypted record is deleted, copies of its
+            ciphertext may remain temporarily in Cloudflare&rsquo;s platform recovery snapshots until Cloudflare&rsquo;s
+            own backup-retention window expires; those copies remain application-encrypted.
+          </li>
           <li>No report is linked to your identity, and reports do not record your IP address.</li>
         </ul>
       </section>
@@ -101,7 +126,9 @@ export default function PrivacyPage() {
         <p>
           To keep the public scanner available, requests are rate-limited per client. Your IP address is used
           transiently for that limit and for the Turnstile bot check. It is not attached to stored reports and
-          is not used to profile or track you across visits.
+          is not used to profile or track you across visits. The optional restart-safe job record does not copy or
+          link either the IP address or its rate-limit client hash; a replay is the same admitted job, so it does not
+          repeat the Turnstile check or charge the scan quota again.
         </p>
       </section>
 
@@ -110,7 +137,9 @@ export default function PrivacyPage() {
         <ul>
           <li>
             <strong>Cloudflare</strong> provides hosting, network protection, and the Turnstile check. The Turnstile
-            token (and, for that check, your IP) is processed by Cloudflare under its own terms.
+            token (and, for that check, your IP) is processed by Cloudflare under its own terms. If restart-safe jobs
+            are enabled, Cloudflare also hosts the application-encrypted active queue record and may retain encrypted
+            copies in platform recovery snapshots for its backup-retention window.
           </li>
           <li>
             <strong>The site you scan</strong> receives the automated visit and may log it like any other request,

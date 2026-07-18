@@ -68,10 +68,10 @@ import { displayableScreenshot } from "@/lib/report-insights";
 import { buildReportHeadline, reportPageTitle } from "@/lib/report-headline";
 import { committedReportLocation } from "@/lib/report-locator";
 import { isScanRuntimeHealth, type ScanRuntimeHealth } from "@/lib/scan-runtime-health";
+import { pollAcceptedScanJob, ScanJobEndedError } from "@/lib/scan-job-polling";
 import { RUN_MODE_LABELS, RUN_MODE_TITLES, runModeHint, type RunMode } from "@/lib/run-mode-copy";
 import { plural } from "@/lib/text-format";
 import { readLoadedReport } from "@/lib/client-report-reader";
-import { recoverSavedReport } from "@/lib/saved-report-recovery";
 import {
   comparisonArmViews,
   displayRunView,
@@ -85,7 +85,6 @@ import {
 // Type-only: the deep reader module stays lazy-loaded (client-report-reader);
 // a type import is erased at build time and adds nothing to the bundle.
 import type { LoadedReport } from "@/lib/scan-report-view";
-import { REPORT_ID_PATTERN } from "@/lib/report-validation";
 import { safeNavigableHttpUrl } from "@/lib/report-url";
 import type { RuntimeScanApiResponse, RuntimeScanJobApiResponse } from "@/lib/runtime-scan-report";
 import { normalizeScanUrl, scannerHealthPending } from "./scan-form";
@@ -111,6 +110,7 @@ type ScanFormState = {
 type ActiveScanJob = {
   statusPath: string;
   accessKey: string;
+  reportId: string;
 };
 
 const initialForm: ScanFormState = {
@@ -144,8 +144,6 @@ const EXAMPLES: { url: string; hint: string }[] = [
   { url: "weather.com", hint: "tracker-dense" },
   { url: "wikipedia.org", hint: "minimal" }
 ];
-const SCAN_JOB_POLL_INTERVAL_MS = 1000;
-const SCAN_JOB_MAX_POLLS = 180;
 const TURNSTILE_SCRIPT_SRC = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
 
 type TurnstileRenderOptions = {
@@ -363,6 +361,10 @@ export function SiteBehaviorApp({
   }, [consentComparisonEnabled, gpcComparisonEnabled, shieldsComparisonEnabled]);
 
   async function runScan(targetUrl: string) {
+    if (activeScanJob) {
+      setError("This accepted scan is still available. Resume its status checks or cancel it before starting another scan.");
+      return;
+    }
     if (!LIVE_SCAN_ENABLED) {
       setLoading(false);
       setLoaded(null);
@@ -427,10 +429,22 @@ export function SiteBehaviorApp({
       if ("ok" in payload && payload.ok === false) throw new Error(payload.error);
       if (isScanJobSubmissionResponse(payload)) {
         const jobAccessKey = scannerRequiresAccessKey ? accessKey : "";
+        const acceptedJob: ActiveScanJob = {
+          statusPath: payload.statusPath,
+          accessKey: jobAccessKey,
+          reportId: payload.reportId
+        };
         const pollController = new AbortController();
         scanPollControllerRef.current = pollController;
-        setActiveScanJob({ statusPath: payload.statusPath, accessKey: jobAccessKey });
-        setLoaded(await pollScanJob(payload.statusPath, jobAccessKey, payload.reportId, pollController.signal));
+        setActiveScanJob(acceptedJob);
+        setLoaded(
+          await pollAcceptedScanJob({
+            ...acceptedJob,
+            signal: pollController.signal,
+            resolveApiUrl: scannerApiUrl
+          })
+        );
+        setActiveScanJob(null);
         return;
       }
       // A synchronous scan result is untrusted wire data like every other
@@ -440,10 +454,10 @@ export function SiteBehaviorApp({
       setLoaded(read.loaded);
     } catch (scanError) {
       if (isAbortError(scanError)) return;
+      if (scanError instanceof ScanJobEndedError) setActiveScanJob(null);
       setError(scanError instanceof Error ? friendlyError(scanError.message) : "Scan failed.");
     } finally {
       scanPollControllerRef.current = null;
-      setActiveScanJob(null);
       setCancellingScan(false);
       setLoading(false);
       setScanning(false);
@@ -452,6 +466,38 @@ export function SiteBehaviorApp({
         setTurnstileToken("");
         setTurnstileResetNonce((nonce) => nonce + 1);
       }
+    }
+  }
+
+  async function resumeActiveScan() {
+    if (!activeScanJob || loading) return;
+    const job = activeScanJob;
+    const pollController = new AbortController();
+    scanPollControllerRef.current = pollController;
+    setLoading(true);
+    setScanning(true);
+    setLoaded(null);
+    setError(null);
+    setCancelScanError(null);
+
+    try {
+      setLoaded(
+        await pollAcceptedScanJob({
+          ...job,
+          signal: pollController.signal,
+          resolveApiUrl: scannerApiUrl
+        })
+      );
+      setActiveScanJob(null);
+    } catch (scanError) {
+      if (isAbortError(scanError)) return;
+      if (scanError instanceof ScanJobEndedError) setActiveScanJob(null);
+      setError(scanError instanceof Error ? friendlyError(scanError.message) : "Scan status checks failed.");
+    } finally {
+      scanPollControllerRef.current = null;
+      setCancellingScan(false);
+      setLoading(false);
+      setScanning(false);
     }
   }
 
@@ -649,7 +695,11 @@ export function SiteBehaviorApp({
           }}
           placeholder="https://example.com"
         />
-        <button className={`primary-button${loading ? " is-loading" : ""}`} type="submit" disabled={loading || scanBlocked}>
+        <button
+          className={`primary-button${loading ? " is-loading" : ""}`}
+          type="submit"
+          disabled={loading || scanBlocked || Boolean(activeScanJob)}
+        >
           {loading ? <Loader2 className="spin" size={18} aria-hidden="true" /> : <Search size={18} aria-hidden="true" />}
           {isComparisonMode(form) ? "Compare" : "Scan"}
         </button>
@@ -888,7 +938,28 @@ export function SiteBehaviorApp({
         {error && (
           <section className="error-banner" role="alert">
             <AlertTriangle size={18} aria-hidden="true" />
-            <span>{error}</span>
+            <div className="error-banner-copy">
+              <span>{error}</span>
+              {activeScanJob && !loading && (
+                <div className="scan-recovery-controls">
+                  <p>The accepted job is retained; you can safely resume status checks or cancel it.</p>
+                  <div className="scan-recovery-actions">
+                    <button className="secondary-button" type="button" onClick={() => void resumeActiveScan()}>
+                      Resume status checks
+                    </button>
+                    <button
+                      className="ghost-button"
+                      type="button"
+                      onClick={() => void cancelActiveScan()}
+                      disabled={cancellingScan}
+                    >
+                      {cancellingScan ? "Cancelling…" : "Cancel scan"}
+                    </button>
+                  </div>
+                  {cancelScanError && <p>{cancelScanError} The accepted job is still retained.</p>}
+                </div>
+              )}
+            </div>
           </section>
         )}
 
@@ -1137,7 +1208,10 @@ export function SiteBehaviorApp({
               Privacy
             </a>
           </span>
-          <span>One automated visit per condition (comparisons pair two). Reproducible for this configuration, not a universal claim.</span>
+          <span>
+            Reports use one completed automated visit per condition. On restart-safe deployments, an interrupted visit
+            may be retried; attempts are never merged. Reproducible for this configuration, not a universal claim.
+          </span>
         </footer>
       </main>
     </>
@@ -1302,82 +1376,6 @@ function friendlyError(message: string): string {
   return message;
 }
 
-async function pollScanJob(
-  statusPath: string,
-  accessKey = "",
-  reportId?: string,
-  signal?: AbortSignal
-): Promise<LoadedReport> {
-  // The saved report lives under its own ID (distinct from the job ID) so share
-  // links can't derive the screenshot-bearing status URL. Older scanners saved
-  // under the job ID itself and their submissions carry no reportId, so fall
-  // back to the ID parsed from the status path for recovery against them.
-  const savedReportId =
-    reportId && REPORT_ID_PATTERN.test(reportId) ? reportId : scanJobIdFromStatusPath(statusPath);
-
-  for (let attempt = 0; attempt < SCAN_JOB_MAX_POLLS; attempt += 1) {
-    const headers: Record<string, string> = {};
-    if (accessKey) {
-      headers.Authorization = `Bearer ${accessKey}`;
-    }
-
-    const response = await fetch(scannerApiUrl(statusPath), { cache: "no-store", headers, signal });
-    const payload = (await response.json()) as RuntimeScanJobApiResponse;
-    if (!payload.ok) {
-      if (response.status === 404 && savedReportId) {
-        const recovered = await readSavedReport(savedReportId);
-        if (recovered) return recovered;
-      }
-      throw new Error(payload.error);
-    }
-
-    if (payload.status === "succeeded") {
-      if (payload.report) {
-        const read = await readLoadedReport(payload.report, "The completed scan's report");
-        if (read.ok) return read.loaded;
-        throw new Error(read.message);
-      }
-      throw new Error("Completed scan did not include a report.");
-    }
-
-    if (payload.status === "failed" || payload.status === "expired" || payload.status === "cancelled") {
-      throw new Error(payload.error || "Scan job did not complete.");
-    }
-
-    await sleep(SCAN_JOB_POLL_INTERVAL_MS, signal);
-  }
-
-  if (savedReportId) {
-    const recovered = await readSavedReport(savedReportId);
-    if (recovered) return recovered;
-  }
-
-  throw new Error("Scan is still running. Try opening the saved report again shortly.");
-}
-
-/**
- * Recovery read of a saved report. The 404-versus-everything-else semantics
- * live in lib/saved-report-recovery.ts (unit-tested there): `null` only for a
- * genuine 404, a thrown named reason for unreadable or unservable reports.
- */
-async function readSavedReport(reportId: string): Promise<LoadedReport | null> {
-  return recoverSavedReport(await fetch(scannerApiUrl(`/api/reports/${reportId}`), { cache: "no-store" }));
-}
-
-function scanJobIdFromStatusPath(statusPath: string): string | null {
-  let pathname = statusPath;
-  if (/^https?:\/\//i.test(statusPath)) {
-    try {
-      pathname = new URL(statusPath).pathname;
-    } catch {
-      return null;
-    }
-  }
-  const match = pathname.match(/^\/api\/scans\/([^/]+)$/);
-  const id = match?.[1] || "";
-  return REPORT_ID_PATTERN.test(id) ? id : null;
-}
-
 function isScanJobSubmissionResponse(value: RuntimeScanApiResponse): value is ScanJobSubmissionResponse {
   return (
     "ok" in value &&
@@ -1386,25 +1384,6 @@ function isScanJobSubmissionResponse(value: RuntimeScanApiResponse): value is Sc
     value.status === "queued" &&
     typeof value.statusPath === "string"
   );
-}
-
-function sleep(ms: number, signal?: AbortSignal): Promise<void> {
-  return new Promise((resolve, reject) => {
-    if (signal?.aborted) {
-      reject(signal.reason);
-      return;
-    }
-    const timer = window.setTimeout(() => {
-      signal?.removeEventListener("abort", onAbort);
-      resolve();
-    }, ms);
-    const onAbort = () => {
-      window.clearTimeout(timer);
-      signal?.removeEventListener("abort", onAbort);
-      reject(signal?.reason ?? new DOMException("The scan was cancelled.", "AbortError"));
-    };
-    signal?.addEventListener("abort", onAbort, { once: true });
-  });
 }
 
 function isAbortError(error: unknown): boolean {
@@ -1650,7 +1629,7 @@ function LoadingState({
   return (
     <section className="loading-state" role="status">
       <span className="pulse-dot" />
-      <h2>{isComparison ? "Running two controlled browser visits" : "Running controlled browser visit"}</h2>
+      <h2>{isComparison ? "Preparing two controlled browser visits" : "Preparing a controlled browser visit"}</h2>
       <p>
         {mode === "gpc"
           ? "Comparing GPC off and on runs for requests, cookies, storage, and browser API observations."
@@ -1664,7 +1643,10 @@ function LoadingState({
         <div className="progress-fill" />
       </div>
       <p className="loading-elapsed">
-        {elapsed}s elapsed{isComparison ? " · two visits, up to ~90s" : " · up to ~45s"}
+        {elapsed}s elapsed
+        {isComparison
+          ? " · usually two visits, up to ~90s; queueing can take longer, as can one retry on restart-safe deployments"
+          : " · usually up to ~45s; queueing can take longer, as can one retry on restart-safe deployments"}
       </p>
       {onCancel && (
         <button className="secondary-button" type="button" onClick={onCancel} disabled={cancelling}>

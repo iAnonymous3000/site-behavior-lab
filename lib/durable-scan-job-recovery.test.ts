@@ -1,8 +1,12 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
+  durableScanJobCancellationResponse,
+  publicDurableScanJobStatus,
   recoverDurableScanJobCancellationResponse,
-  recoverDurableScanJobResponse
+  recoverDurableScanJobResponse,
+  recoverDurableScanJobSnapshotResponse,
+  type DurableScanJobInternalState
 } from "./durable-scan-job-recovery";
 import type { DurableScanJobRegistration } from "./durable-scan-job-registry";
 import { makeShieldsInterventionReportV2R2 } from "./scan-report-v2-r2-fixtures";
@@ -132,6 +136,86 @@ test("DELETE for an unknown job preserves the original 404", async () => {
     findRegistration: async () => null
   });
   assert.equal(response, original);
+});
+
+test("internal durable states collapse to the existing public status vocabulary", () => {
+  const expected: Record<DurableScanJobInternalState, string> = {
+    queued: "queued",
+    leased: "running",
+    publishing: "running",
+    succeeded: "succeeded",
+    failed: "failed",
+    expired: "expired",
+    cancelled: "cancelled"
+  };
+  for (const [state, status] of Object.entries(expected) as Array<[DurableScanJobInternalState, string]>) {
+    assert.equal(publicDurableScanJobStatus(state), status);
+  }
+});
+
+test("authoritative durable status never leaks internal state or storage metadata", async () => {
+  for (const state of ["queued", "leased", "publishing", "failed", "expired", "cancelled"] as const) {
+    const response = await recoverDurableScanJobSnapshotResponse(
+      {
+        jobId: JOB_ID,
+        reportId: REPORT_ID,
+        state,
+        totalRuns: 2,
+        leaseToken: "secret",
+        ciphertext: "secret",
+        publicationManifest: "secret"
+      } as any,
+      missingResponse(),
+      { fetchReport: async () => assert.fail("non-succeeded states must not probe the report store") }
+    );
+    const wire = await response.text();
+    assert.equal(response.status, 200);
+    assert.doesNotMatch(wire, /leased|publishing|leaseToken|ciphertext|publicationManifest|reportId|secret/);
+    const parsed = JSON.parse(wire);
+    assert.equal(parsed.status, publicDurableScanJobStatus(state));
+    if (state === "expired") {
+      assert.match(parsed.error, /completion could not be confirmed/i);
+      assert.doesNotMatch(parsed.error, /no report|never landed/i);
+    }
+  }
+});
+
+test("authoritative durable success embeds the exact saved report", async () => {
+  for (const report of [makeScanReportV1(), makeShieldsInterventionReportV2R2()]) {
+    const response = await recoverDurableScanJobSnapshotResponse(
+      { jobId: JOB_ID, reportId: REPORT_ID, state: "succeeded", totalRuns: 2 },
+      missingResponse(),
+      {
+        fetchReport: async (reportId) => {
+          assert.equal(reportId, REPORT_ID);
+          return Response.json(report);
+        }
+      }
+    );
+    assert.deepEqual(await response.json(), {
+      ok: true,
+      jobId: JOB_ID,
+      status: "succeeded",
+      progress: { phase: "saving", completedRuns: 2, totalRuns: 2 },
+      report
+    });
+  }
+});
+
+test("authoritative durable cancellation is control-only and idempotent", async () => {
+  const response = durableScanJobCancellationResponse(
+    { jobId: JOB_ID, reportId: REPORT_ID, state: "cancelled", totalRuns: 1 },
+    missingResponse()
+  );
+  const wire = await response.text();
+  assert.doesNotMatch(wire, new RegExp(REPORT_ID));
+  assert.deepEqual(JSON.parse(wire), {
+    ok: true,
+    jobId: JOB_ID,
+    status: "cancelled",
+    progress: { phase: "waiting", completedRuns: 0, totalRuns: 1 },
+    error: "This scan job was cancelled."
+  });
 });
 
 function missingResponse(): Response {

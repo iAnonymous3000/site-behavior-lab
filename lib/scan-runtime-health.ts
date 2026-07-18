@@ -16,6 +16,8 @@ import { isRecord } from "./guards";
 
 export type ScanRuntimeStatus = "ok" | "degraded" | "error";
 
+export type DurableScanJobsReadiness = "disabled" | "node-ready" | "ready" | "misconfigured";
+
 export type ScanRuntimeCapabilities = {
   singleScan?: boolean;
   gpcComparison?: boolean;
@@ -57,6 +59,17 @@ export type ScanRuntimeHealth = {
     consentVerification?: "enabled" | "disabled" | "misconfigured";
     publicR2Reports?: {
       status: "enabled" | "disabled" | "misconfigured";
+    };
+    /**
+     * `node-ready` proves only the container-side prerequisites. The edge must
+     * still verify its Worker-only encryption key and Durable Object wiring
+     * before upgrading the effective posture to `ready`.
+     */
+    durableJobs?: {
+      requested: boolean;
+      enabled: boolean;
+      readiness: DurableScanJobsReadiness;
+      reasons?: string[];
     };
     v2ShadowEmission?: {
       status: "enabled" | "disabled" | "misconfigured";
@@ -141,6 +154,27 @@ function isChecks(value: unknown): value is NonNullable<ScanRuntimeHealth["check
       value.publicR2Reports.status !== "enabled" &&
       value.publicR2Reports.status !== "disabled" &&
       value.publicR2Reports.status !== "misconfigured"
+    ) {
+      return false;
+    }
+  }
+  if (value.durableJobs !== undefined) {
+    if (!isRecord(value.durableJobs)) return false;
+    if (typeof value.durableJobs.requested !== "boolean" || typeof value.durableJobs.enabled !== "boolean") {
+      return false;
+    }
+    if (
+      value.durableJobs.readiness !== "disabled" &&
+      value.durableJobs.readiness !== "node-ready" &&
+      value.durableJobs.readiness !== "ready" &&
+      value.durableJobs.readiness !== "misconfigured"
+    ) {
+      return false;
+    }
+    if (
+      value.durableJobs.reasons !== undefined &&
+      (!Array.isArray(value.durableJobs.reasons) ||
+        !value.durableJobs.reasons.every((reason) => typeof reason === "string"))
     ) {
       return false;
     }

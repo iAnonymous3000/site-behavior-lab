@@ -51,6 +51,123 @@ The front Worker chooses one of three postures from its config:
 2. Confirm `GET /api/health` returns `ok: true` and advertises the Shields
    comparison capability.
 
+## Durable-job ship gate (committed off)
+
+The production config deliberately keeps `SITE_BEHAVIOR_LAB_DURABLE_JOBS=0`.
+Do not flip it merely because the unit suite is green. Durable execution adds an
+encrypted Durable Object queue and scheduled, fenced lease recovery; it requires
+both edge and Node prerequisites plus two live failure canaries on a gated
+staging deployment.
+
+The committed non-secret coordinator origin is
+`SITE_BEHAVIOR_LAB_DURABLE_JOBS_COORDINATOR_URL=https://scan.sitebehavior.org`.
+The container also keeps reports recoverable for the full 75-minute job window
+with `SITE_BEHAVIOR_LAB_REPORT_MIN_SURVIVAL_MS=4500000`. Configure these two
+distinct Worker secrets interactively; never reuse the public scan-access token:
+
+```bash
+# Generate one value, then paste it into the first secret prompt. The output is
+# canonical unpadded base64url for exactly 32 random bytes.
+node -e 'console.log(require("node:crypto").randomBytes(32).toString("base64url"))'
+npx wrangler secret put SITE_BEHAVIOR_LAB_DURABLE_JOBS_KEY -c wrangler.container.jsonc
+
+# Generate a different value for the private Node-to-Worker coordinator channel.
+node -e 'console.log(require("node:crypto").randomBytes(32).toString("base64url"))'
+npx wrangler secret put SITE_BEHAVIOR_LAB_DURABLE_JOBS_INTERNAL_TOKEN -c wrangler.container.jsonc
+```
+
+`SITE_BEHAVIOR_LAB_DURABLE_JOBS_KEY` is Worker-only and must never enter the
+container environment. Only the separate internal token and non-secret
+coordinator origin are forwarded. Node health may report `node-ready` after it
+has R2, public-r2, internal-token, and coordinator readiness; only the front
+Worker may upgrade that to `checks.durableJobs.readiness: "ready"` after it also
+verifies the encryption key and Durable Object side.
+
+### Required live replay canaries
+
+Run both canaries against a temporary **access-token-gated staging deployment**,
+not the open Turnstile production front door. A safe staging-only fault hook must
+advertise this health extension:
+
+```json
+{
+  "checks": {
+    "durableJobs": {
+      "requested": true,
+      "enabled": true,
+      "readiness": "ready",
+      "faultInjection": {
+        "environment": "staging",
+        "enabled": true,
+        "modes": ["lease-expiry", "lost-resolve"],
+        "modeHeaderName": "x-staging-fault-mode",
+        "tokenHeaderName": "x-staging-fault-token",
+        "minimumNoPollMs": 240000
+      }
+    }
+  }
+}
+```
+
+The example header names and timing are illustrative; the staging hook owns the
+actual values. Use a separate staging Worker/configuration, and override
+`SITE_BEHAVIOR_LAB_DURABLE_JOBS_COORDINATOR_URL=https://<gated-staging-scanner>`
+so Node callbacks return to that exact staging origin rather than the committed
+production origin. Configure a staging-only key and internal token that are
+distinct from each other and from every production secret. Do not reuse the
+production Durable Object namespace, internal token, encryption key, scan-access
+token, R2 bucket, or R2 credentials for fault-injection testing.
+
+The production Worker intentionally advertises no fault hook. The script has no
+production bypass: it requires both the health response's exact
+`faultInjection.environment: "staging"` attestation and an independent operator
+staging confirmation, in addition to the selected mode, valid header names, a
+minimum lease/replay wait, fully ready durable jobs, and gated access. It also
+unconditionally refuses the canonical production hostname as defense in depth.
+If no safe staging hook exists, the canary fails as a prerequisite and the
+production flag remains off.
+
+For the lease-expiry canary, arm the staging hook so the first claimed worker is
+abandoned before resolution. Set `DURABLE_REPLAY_NO_POLL_MS` at or above the
+deployment-advertised lease-expiry plus scheduled-replay margin:
+
+```bash
+DURABLE_REPLAY_BASE_URL=https://<gated-staging-scanner> \
+DURABLE_REPLAY_ACCESS_TOKEN=<staging-access-token> \
+DURABLE_REPLAY_TARGET_URL=https://example.com/ \
+DURABLE_REPLAY_FAULT_TOKEN=<staging-fault-token> \
+DURABLE_REPLAY_FAULT_MODE=lease-expiry \
+DURABLE_REPLAY_NO_POLL_MS=<lease-plus-replay-margin-ms> \
+DURABLE_REPLAY_CONFIRM=I_ACKNOWLEDGE_THIS_SUBMITS_A_LIVE_SCAN \
+DURABLE_REPLAY_STAGING_CONFIRM=I_ACKNOWLEDGE_THIS_IS_A_GATED_STAGING_DEPLOYMENT \
+npm run test:smoke:durable-job-replay
+```
+
+Then run the same command with `DURABLE_REPLAY_FAULT_MODE=lost-resolve`, arming
+the hook to drop the first successful coordinator resolution after the report is
+committed. The script deliberately sends no status, report, or health request
+during the wait. Afterward it requires terminal success and R2 readback under the
+same admission-minted `reportId`; when the status endpoint exposes attempt
+metadata, lease expiry must show a second attempt while lost-resolve must show one
+site visit reconciled to success.
+
+Before changing the production flag to `1`, record evidence that:
+
+- the committed production flag is still `0` while both staging tests run;
+- staging health is `ready` at both Node and edge layers, with distinct secrets,
+  and its coordinator URL resolves to that exact staging origin;
+- the lease-expiry canary succeeds under the same `reportId` after a true no-poll
+  window and, when exposed, reports two attempts;
+- the lost-resolve canary reconciles the committed report under the same
+  `reportId` without a repeated visit and, when exposed, reports one attempt;
+- the staging-only fault hook is removed and health no longer advertises it; and
+- the privacy disclosure and 75-minute report-survival setting match the shipped
+  behavior.
+
+Only after every item passes may a separate reviewed production change set
+`SITE_BEHAVIOR_LAB_DURABLE_JOBS=1`. This runbook does not authorize that flip or
+a deployment by itself.
+
 ## Open it to the public
 
 1. **Create a Turnstile site** in the Cloudflare dashboard (Turnstile → Add site,

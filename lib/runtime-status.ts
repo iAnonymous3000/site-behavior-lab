@@ -3,7 +3,17 @@ import { recordedBuildCommit } from "./build-provenance";
 import { scanAccessTokenConfigured } from "./access-control";
 import { chromiumSandboxEnabled } from "./chromium-sandbox";
 import { CONSENT_VERIFICATION_ENV } from "./consent-verification";
-import { reportStoreStatus } from "./report-store";
+import {
+  DURABLE_SCAN_JOB_COORDINATOR_URL_ENV,
+  DURABLE_SCAN_JOB_INTERNAL_TOKEN_ENV,
+  DURABLE_SCAN_JOBS_ENV
+} from "./durable-scan-job-contract";
+import {
+  DURABLE_SCAN_JOB_REPORT_MIN_SURVIVAL_MS,
+  REPORT_MAX_AGE_DAYS_ENV,
+  REPORT_MIN_SURVIVAL_MS_ENV,
+  reportStoreStatus
+} from "./report-store";
 import type { ReportStoreKind } from "./report-store-backend";
 import { producerCapability } from "./report-producers";
 import {
@@ -29,6 +39,7 @@ type PublicReportStoreStatus = {
   configuredPath: boolean;
   maxAgeDays: number;
   maxCount: number;
+  minSurvivalMs: number;
 };
 type RuntimeStatusAdblockCheck = AdblockEngineStatus;
 
@@ -52,6 +63,12 @@ export type RuntimeStatus = {
     scannerEgressRegion: "configured" | "unrecorded" | "misconfigured";
     consentVerification: "enabled" | "disabled" | "misconfigured";
     publicR2Reports: Pick<PublicR2ReportsReadiness, "status">;
+    durableJobs: {
+      requested: boolean;
+      enabled: boolean;
+      readiness: "disabled" | "node-ready" | "ready" | "misconfigured";
+      reasons?: string[];
+    };
     v2ShadowEmission: {
       status: "enabled" | "disabled" | "misconfigured";
       backend: "filesystem" | "r2" | "none";
@@ -83,6 +100,8 @@ export async function runtimeStatus(
     publicR2Status = "misconfigured";
     warnings.push("Public r2 reports are not ready because required report persistence is unavailable.");
   }
+  const durableJobs = durableJobsRuntimeCheck(store.public, publicR2Status);
+  warnings.push(...durableJobs.warnings);
   const egressRegion = resolveScannerEgressRegion();
   if (egressRegion.status === "misconfigured") {
     warnings.push(
@@ -113,7 +132,7 @@ export async function runtimeStatus(
     authenticated,
     openAccess: !authenticated,
     turnstile: false,
-    scansAvailable: publicR2Status !== "misconfigured",
+    scansAvailable: publicR2Status !== "misconfigured" && durableJobs.check.readiness !== "misconfigured",
     // Top-level `storage` is the shared-contract field the client status text
     // reads; the Browser Run worker already emits it, and without it here the
     // Node scanner's status line never says where reports live.
@@ -128,6 +147,7 @@ export async function runtimeStatus(
       scannerEgressRegion: egressRegion.status,
       consentVerification: shadow.consentVerification,
       publicR2Reports: { status: publicR2Status },
+      durableJobs: durableJobs.check,
       v2ShadowEmission: shadow.emission
     },
     capabilities: {
@@ -147,6 +167,94 @@ export async function runtimeStatus(
     },
     warnings
   });
+}
+
+function durableJobsRuntimeCheck(
+  reportStore: PublicReportStoreStatus,
+  publicR2Status: PublicR2ReportsReadiness["status"]
+): {
+  check: RuntimeStatus["checks"]["durableJobs"];
+  warnings: string[];
+} {
+  const rawFlag = process.env[DURABLE_SCAN_JOBS_ENV];
+  const flag = binaryFlagStatus(rawFlag);
+  const requested = rawFlag !== undefined && rawFlag !== "" && rawFlag !== "0";
+  if (flag === "disabled") {
+    return {
+      check: { requested: false, enabled: false, readiness: "disabled" },
+      warnings: []
+    };
+  }
+
+  const reasons: string[] = [];
+  if (flag === "misconfigured") {
+    reasons.push(`${DURABLE_SCAN_JOBS_ENV} must be 0, 1, or unset.`);
+  } else {
+    if (reportStore.kind !== "r2") {
+      reasons.push("Durable scan jobs require the r2 report-store backend.");
+    }
+    if (reportStore.minSurvivalMs < DURABLE_SCAN_JOB_REPORT_MIN_SURVIVAL_MS) {
+      reasons.push(
+        `${REPORT_MIN_SURVIVAL_MS_ENV} must resolve to at least ${DURABLE_SCAN_JOB_REPORT_MIN_SURVIVAL_MS} ms for durable report recovery.`
+      );
+    }
+    if (reportStore.maxAgeDays * 24 * 60 * 60 * 1_000 < DURABLE_SCAN_JOB_REPORT_MIN_SURVIVAL_MS) {
+      reasons.push(`${REPORT_MAX_AGE_DAYS_ENV} must retain durable reports for at least 75 minutes.`);
+    }
+    if (publicR2Status !== "enabled") {
+      reasons.push("Durable scan jobs require public r2 reports to be enabled and ready.");
+    }
+    if (!validDurableInternalToken(process.env[DURABLE_SCAN_JOB_INTERNAL_TOKEN_ENV])) {
+      reasons.push(`${DURABLE_SCAN_JOB_INTERNAL_TOKEN_ENV} must contain a private coordinator token of at least 32 characters.`);
+    }
+    if (!validDurableCoordinatorUrl(process.env[DURABLE_SCAN_JOB_COORDINATOR_URL_ENV])) {
+      reasons.push(`${DURABLE_SCAN_JOB_COORDINATOR_URL_ENV} must contain an HTTPS origin (loopback HTTP is allowed for local testing).`);
+    }
+  }
+
+  if (reasons.length > 0) {
+    return {
+      check: {
+        requested,
+        enabled: false,
+        readiness: "misconfigured",
+        reasons
+      },
+      warnings: reasons.map((reason) => `Durable scan jobs are not ready: ${reason}`)
+    };
+  }
+
+  return {
+    // This is intentionally not `ready`: only the edge can verify the
+    // Worker-only encryption key and Durable Object coordinator wiring.
+    check: { requested: true, enabled: true, readiness: "node-ready" },
+    warnings: []
+  };
+}
+
+function validDurableInternalToken(value: string | undefined): boolean {
+  const token = value?.trim() ?? "";
+  return token.length >= 32 && token.length <= 4_096 && !/[\r\n]/.test(token);
+}
+
+function validDurableCoordinatorUrl(value: string | undefined): boolean {
+  if (!value?.trim()) return false;
+  try {
+    const url = new URL(value);
+    const localHttp =
+      url.protocol === "http:" &&
+      (url.hostname === "127.0.0.1" || url.hostname === "localhost" || url.hostname === "[::1]");
+    return (
+      (url.protocol === "https:" || localHttp) &&
+      !url.username &&
+      !url.password &&
+      url.pathname === "/" &&
+      !url.search &&
+      !url.hash
+    );
+  } catch {
+    return false;
+  }
 }
 
 function shadowRuntimeCheck(): {
@@ -216,14 +324,15 @@ function safeReportStoreStatus(): SafeReportStoreStatus {
         kind: status.kind,
         configuredPath: status.configuredPath,
         maxAgeDays: status.maxAgeDays,
-        maxCount: status.maxCount
+        maxCount: status.maxCount,
+        minSurvivalMs: status.minSurvivalMs
       },
       error: null
     };
   } catch (error) {
     return {
       status: null,
-      public: { kind: "unavailable", configuredPath: false, maxAgeDays: 0, maxCount: 0 },
+      public: { kind: "unavailable", configuredPath: false, maxAgeDays: 0, maxCount: 0, minSurvivalMs: 0 },
       error: error instanceof Error ? error.message : "unknown configuration error"
     };
   }

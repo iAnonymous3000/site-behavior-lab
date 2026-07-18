@@ -230,6 +230,130 @@ test("R2 aborts and retries when headers arrive but the response body never comp
   assert.equal(signals.every((signal) => signal.aborted), true);
 });
 
+test("R2 never dispatches or retries an operation whose execution signal is already aborted", async () => {
+  let signCalls = 0;
+  let fetchCalls = 0;
+  let sleepCalls = 0;
+  const backend = createR2ReportStoreBackend(CONFIG, {
+    sign: async (input, init) => {
+      signCalls += 1;
+      return new Request(input, init);
+    },
+    fetch: (async () => {
+      fetchCalls += 1;
+      return new Response(null, { status: 200 });
+    }) as typeof fetch,
+    sleep: async () => {
+      sleepCalls += 1;
+    }
+  });
+  const controller = new AbortController();
+  const reason = new DOMException("stale publication", "AbortError");
+  controller.abort(reason);
+
+  await assert.rejects(() => backend.read(VALID_ID, { signal: controller.signal }), (error) => error === reason);
+  assert.equal(signCalls, 0);
+  assert.equal(fetchCalls, 0);
+  assert.equal(sleepCalls, 0);
+});
+
+test("R2 external abort interrupts retry backoff and prevents a second dispatch", async () => {
+  let fetchCalls = 0;
+  let releaseSleep: () => void = () => undefined;
+  let announceSleep: () => void = () => undefined;
+  const sleepStarted = new Promise<void>((resolve) => {
+    announceSleep = resolve;
+  });
+  const heldSleep = new Promise<void>((resolve) => {
+    releaseSleep = resolve;
+  });
+  const backend = createR2ReportStoreBackend(CONFIG, {
+    sign: async (input, init) => new Request(input, init),
+    fetch: (async () => {
+      fetchCalls += 1;
+      return new Response("busy", { status: 503 });
+    }) as typeof fetch,
+    sleep: async () => {
+      announceSleep();
+      await heldSleep;
+    }
+  });
+  const controller = new AbortController();
+  const reason = new DOMException("lease fenced", "AbortError");
+  const reading = backend.read(VALID_ID, { signal: controller.signal });
+  await sleepStarted;
+  controller.abort(reason);
+
+  await assert.rejects(() => reading, (error) => error === reason);
+  assert.equal(fetchCalls, 1);
+  releaseSleep();
+});
+
+test("R2 abort while signing rejects promptly and never dispatches the late signed request", async () => {
+  let resolveSigner: (request: Request) => void = () => undefined;
+  let announceSigner: () => void = () => undefined;
+  const signerStarted = new Promise<void>((resolve) => {
+    announceSigner = resolve;
+  });
+  let fetchCalls = 0;
+  const backend = createR2ReportStoreBackend(CONFIG, {
+    sign: async (input, init) => {
+      announceSigner();
+      return new Promise<Request>((resolve) => {
+        resolveSigner = () => resolve(new Request(input, init));
+      });
+    },
+    fetch: (async () => {
+      fetchCalls += 1;
+      return new Response(null, { status: 200 });
+    }) as typeof fetch
+  });
+  const controller = new AbortController();
+  const reason = new DOMException("publication deadline", "TimeoutError");
+  const reading = backend.read(VALID_ID, { signal: controller.signal });
+  await signerStarted;
+  controller.abort(reason);
+
+  await assert.rejects(() => reading, (error) => error === reason);
+  resolveSigner(new Request(`${CONFIG.endpoint}/unused`));
+  await new Promise<void>((resolve) => setImmediate(resolve));
+  assert.equal(fetchCalls, 0);
+});
+
+test("R2 explicitly gives fetch the execution signal even when a custom signer drops it", async () => {
+  let observedSignal: AbortSignal | undefined;
+  let announceFetch: () => void = () => undefined;
+  const fetchStarted = new Promise<void>((resolve) => {
+    announceFetch = resolve;
+  });
+  let fetchCalls = 0;
+  const backend = createR2ReportStoreBackend(CONFIG, {
+    // Deliberately discard init to model a faulty/custom signer.
+    sign: async (input) => new Request(input),
+    fetch: ((_input: RequestInfo | URL, init?: RequestInit) => {
+      fetchCalls += 1;
+      observedSignal = init?.signal ?? undefined;
+      announceFetch();
+      return new Promise<Response>((_resolve, reject) => {
+        const signal = init?.signal;
+        if (!signal) return reject(new Error("missing execution signal"));
+        const onAbort = () => reject(signal.reason);
+        signal.addEventListener("abort", onAbort, { once: true });
+        if (signal.aborted) onAbort();
+      });
+    }) as typeof fetch
+  });
+  const controller = new AbortController();
+  const reason = new DOMException("stale generation", "AbortError");
+  const reading = backend.read(VALID_ID, { signal: controller.signal });
+  await fetchStarted;
+  controller.abort(reason);
+
+  await assert.rejects(() => reading, (error) => error === reason);
+  assert.equal(fetchCalls, 1);
+  assert.equal(observedSignal?.aborted, true);
+});
+
 test("R2 write does not retry a non-retryable client error", async () => {
   const { backend, requests } = backendWith([new Response(null, { status: 403 })]);
   await assert.rejects(() => backend.write(VALID_ID, "{}\n"), /HTTP 403/);

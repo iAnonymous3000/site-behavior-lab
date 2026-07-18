@@ -43,6 +43,14 @@ export default function MethodologyPage() {
           reported as failed loads rather than being scanned through evasion, because a report gathered under a
           disguised identity would misdescribe its own conditions.
         </p>
+        <p>
+          Optional restart-safe execution uses a fenced lease with at most two attempts. If scanner execution,
+          publication, or status coordination is lost, the first attempt can be abandoned and the same admitted job
+          retried once. The site may therefore receive an extra automated visit that was partial or that completed
+          before its result was lost. A report is built from one completed attempt per condition and never combines
+          requests or other evidence across attempts. If a complete report had already reached storage before status
+          was lost, the scanner reconciles that exact report instead of visiting the site again.
+        </p>
       </section>
 
       <section className="legal-section">
@@ -123,6 +131,16 @@ export default function MethodologyPage() {
           everything else. Report warnings come from a closed scanner vocabulary, so page-controlled text cannot
           impersonate the scanner. Shared reports live behind unguessable IDs and expire; reports published into
           the public corpus are deliberately permanent evidence.
+        </p>
+        <p>
+          Restart-safe queue data, when explicitly enabled, is infrastructure state rather than report evidence. The
+          application encrypts only the normalized scheme, host, and path plus scan options before committing the job;
+          the active ciphertext is bounded to 75 minutes and deleted on every terminal outcome. It excludes client
+          identifiers, verification and access tokens, headers, cookies, screenshots, observations, and results.
+          Unencrypted scheduling metadata contains no target or client identity. Cloudflare recovery snapshots may
+          retain application-encrypted copies after active deletion until their own retention window expires. This
+          path stays disabled until its flag, encryption key, private coordinator authentication, privacy disclosure,
+          and live lease-expiry test are all in place.
         </p>
       </section>
 

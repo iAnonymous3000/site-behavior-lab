@@ -33,6 +33,7 @@ test("isScanRuntimeHealth accepts the private shadow readiness projection", () =
         consentVerification: "enabled",
         scannerEgressRegion: "configured",
         publicR2Reports: { status: "enabled" },
+        durableJobs: { requested: true, enabled: true, readiness: "node-ready" },
         v2ShadowEmission: { status: "enabled", backend: "r2" }
       }
     }),
@@ -54,6 +55,25 @@ test("isScanRuntimeHealth rejects malformed payloads", () => {
   assert.equal(isScanRuntimeHealth({ ok: true, checks: { consentVerification: "sometimes" } }), false);
   assert.equal(isScanRuntimeHealth({ ok: true, checks: { scannerEgressRegion: "unknown" } }), false);
   assert.equal(isScanRuntimeHealth({ ok: true, checks: { publicR2Reports: { status: "sometimes" } } }), false);
+  assert.equal(
+    isScanRuntimeHealth({ ok: true, checks: { durableJobs: { requested: true, enabled: true, readiness: "ready" } } }),
+    true
+  );
+  assert.equal(
+    isScanRuntimeHealth({ ok: true, checks: { durableJobs: { requested: "yes", enabled: true, readiness: "ready" } } }),
+    false
+  );
+  assert.equal(
+    isScanRuntimeHealth({ ok: true, checks: { durableJobs: { requested: true, enabled: true, readiness: "warming" } } }),
+    false
+  );
+  assert.equal(
+    isScanRuntimeHealth({
+      ok: true,
+      checks: { durableJobs: { requested: true, enabled: false, readiness: "misconfigured", reasons: [42] } }
+    }),
+    false
+  );
   assert.equal(
     isScanRuntimeHealth({ ok: true, checks: { v2ShadowEmission: { status: "enabled", backend: "public" } } }),
     false

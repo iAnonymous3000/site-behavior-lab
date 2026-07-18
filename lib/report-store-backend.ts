@@ -43,6 +43,11 @@ export type ReportWriteResult = {
   ownership: "certain" | "ambiguous";
 };
 
+export type ReportStoreOperationOptions = {
+  /** Cancels queued work and any backend request that is still in flight. */
+  signal?: AbortSignal;
+};
+
 export type ReportStoreBackendStatus =
   | { kind: "filesystem"; path: string; configuredPath: boolean }
   | { kind: "r2"; bucket: string; prefix: string; configuredPath: boolean };
@@ -57,16 +62,21 @@ export type ReportStoreBackendStatus =
 export interface ReportStoreBackend {
   readonly kind: ReportStoreKind;
   /** Create-only: must reject if `id` already exists (preserves the `wx` guarantee). */
-  write(id: string, contents: string, retention?: ReportRetentionMetadata): Promise<ReportWriteResult>;
+  write(
+    id: string,
+    contents: string,
+    retention?: ReportRetentionMetadata,
+    options?: ReportStoreOperationOptions
+  ): Promise<ReportWriteResult>;
   /** Create-only sidecar write, deliberately after the report write. */
-  writeSidecar(id: string, contents: string): Promise<void>;
-  read(id: string): Promise<StoredReportBlob | null>;
-  readSidecar(id: string): Promise<string | null>;
+  writeSidecar(id: string, contents: string, options?: ReportStoreOperationOptions): Promise<void>;
+  read(id: string, options?: ReportStoreOperationOptions): Promise<StoredReportBlob | null>;
+  readSidecar(id: string, options?: ReportStoreOperationOptions): Promise<string | null>;
   /** Idempotently removes report, retention metadata, and provenance sidecar. */
-  remove(id: string): Promise<void>;
+  remove(id: string, options?: ReportStoreOperationOptions): Promise<void>;
   /** Idempotently removes only an orphaned provenance sidecar, never the report. */
-  removeSidecar(id: string): Promise<void>;
-  list(): Promise<StoredReportEntry[]>;
+  removeSidecar(id: string, options?: ReportStoreOperationOptions): Promise<void>;
+  list(options?: ReportStoreOperationOptions): Promise<StoredReportEntry[]>;
   status(): ReportStoreBackendStatus;
 }
 
@@ -98,21 +108,25 @@ export function createFilesystemReportStoreBackend(): ReportStoreBackend {
 
   return {
     kind: "filesystem",
-    async write(id, contents, retention) {
+    async write(id, contents, retention, options) {
+      options?.signal?.throwIfAborted();
       if (retention !== undefined && !isReportRetentionMetadata(retention)) {
         throw new Error("Invalid report retention metadata.");
       }
       await mkdir(dir, { recursive: true });
+      options?.signal?.throwIfAborted();
       let reportCreated = false;
       try {
         await writeFile(filePath(id), contents, { flag: "wx" });
         reportCreated = true;
+        options?.signal?.throwIfAborted();
         if (retention) {
           // Filesystems have no portable object custom-metadata API. Keep the
           // immutable clock in a companion outside the report-file pattern;
           // the facade treats a missing/malformed companion exactly like
           // missing R2 custom metadata and never falls back to mtime.
           await writeFile(retentionPath(id), `${JSON.stringify(retention)}\n`, { flag: "wx" });
+          options?.signal?.throwIfAborted();
         }
       } catch (error) {
         // Roll back only after this call's create-only report write succeeded.
@@ -125,43 +139,57 @@ export function createFilesystemReportStoreBackend(): ReportStoreBackend {
       }
       return { ownership: "certain" };
     },
-    async writeSidecar(id, contents) {
+    async writeSidecar(id, contents, options) {
+      options?.signal?.throwIfAborted();
       await mkdir(dir, { recursive: true });
+      options?.signal?.throwIfAborted();
       await writeFile(sidecarPath(id), contents, { flag: "wx" });
+      options?.signal?.throwIfAborted();
     },
-    async read(id) {
+    async read(id, options) {
+      options?.signal?.throwIfAborted();
       try {
         const stats = await stat(filePath(id));
+        options?.signal?.throwIfAborted();
         const contents = await readFile(filePath(id), "utf8");
+        options?.signal?.throwIfAborted();
         const retention = await readRetentionFile(retentionPath(id));
+        options?.signal?.throwIfAborted();
         return { contents, lastModifiedMs: stats.mtimeMs, retention };
       } catch (error) {
         if (isErrno(error, "ENOENT")) return null;
         throw error;
       }
     },
-    async readSidecar(id) {
+    async readSidecar(id, options) {
+      options?.signal?.throwIfAborted();
       try {
-        return await readFile(sidecarPath(id), "utf8");
+        const contents = await readFile(sidecarPath(id), "utf8");
+        options?.signal?.throwIfAborted();
+        return contents;
       } catch (error) {
         if (isErrno(error, "ENOENT")) return null;
         throw error;
       }
     },
-    async remove(id) {
+    async remove(id, options) {
+      options?.signal?.throwIfAborted();
       // Sidecar first: if deletion is interrupted, any surviving report fails
       // provenance closed instead of remaining publicly readable.
-      await removeFiles([sidecarPath(id), retentionPath(id), filePath(id)]);
+      await removeFiles([sidecarPath(id), retentionPath(id), filePath(id)], options);
     },
-    async removeSidecar(id) {
+    async removeSidecar(id, options) {
+      options?.signal?.throwIfAborted();
       // Reconciliation deliberately touches only the commit marker. A report
       // may have appeared after the listing snapshot in another process.
-      await removeFiles([sidecarPath(id)]);
+      await removeFiles([sidecarPath(id)], options);
     },
-    async list() {
+    async list(options) {
+      options?.signal?.throwIfAborted();
       let entries;
       try {
         entries = await readdir(dir, { withFileTypes: true });
+        options?.signal?.throwIfAborted();
       } catch (error) {
         if (isErrno(error, "ENOENT")) return [];
         throw error;
@@ -179,11 +207,13 @@ export function createFilesystemReportStoreBackend(): ReportStoreBackend {
       }
       const files: StoredReportEntry[] = [];
       for (const id of new Set([...reportIds, ...sidecarIds])) {
+        options?.signal?.throwIfAborted();
         const reportPresent = reportIds.has(id);
         const sidecarPresent = sidecarIds.has(id);
         const diagnosticPath = reportPresent ? filePath(id) : sidecarPath(id);
         try {
           const stats = await stat(diagnosticPath);
+          options?.signal?.throwIfAborted();
           files.push({
             id,
             lastModifiedMs: stats.mtimeMs,
@@ -225,9 +255,10 @@ async function readRetentionFile(file: string): Promise<ReportRetentionMetadata 
   }
 }
 
-async function removeFiles(files: string[]): Promise<void> {
+async function removeFiles(files: string[], options?: ReportStoreOperationOptions): Promise<void> {
   let firstError: unknown;
   for (const file of files) {
+    options?.signal?.throwIfAborted();
     try {
       await unlink(file);
     } catch (error) {

@@ -38,11 +38,12 @@ export type ReportSaver = RuntimeReportSaver;
 export type ScanExecutionControl = {
   signal?: AbortSignal;
   /**
-   * Synchronous publication boundary. Once this callback returns, the report
-   * saver is invoked without another await, so a job controller can stop
-   * accepting cancellation before any public write starts.
+   * Publication boundary. The callback is invoked synchronously, then awaited,
+   * before the report saver starts. Local job controllers therefore set their
+   * in-process publication fence before returning a promise, while a durable
+   * controller can additionally negotiate its fenced publishing transition.
    */
-  beforeSave?: () => void;
+  beforeSave?: (report: RuntimeScanReport) => void | Promise<void>;
   /** Deterministic counterbalancing draw for tests; production draws randomly. */
   drawComparisonFirstArm?: () => ComparisonExecutedFirst;
   /**
@@ -300,10 +301,10 @@ async function saveScanReportBestEffort<T extends ScanReport>(
   control: ScanExecutionControl
 ): Promise<T> {
   throwIfCancelled(control.signal);
-  control.beforeSave?.();
-  // beforeSave is synchronous and the saver starts in this same turn. A
-  // cancellation endpoint therefore cannot interleave after accepting a
-  // cancellation but before publication begins.
+  await control.beforeSave?.(report);
+  // The callback is invoked before the await yields. Local controllers set
+  // their publication fence synchronously; durable controllers await the
+  // coordinator's fenced publishing transition before persistence begins.
   throwIfCancelled(control.signal);
   try {
     const saved = await saveReport(report);
@@ -327,7 +328,7 @@ async function saveScanReportRequired<T extends RuntimeScanReport>(
   control: ScanExecutionControl
 ): Promise<T> {
   throwIfCancelled(control.signal);
-  control.beforeSave?.();
+  await control.beforeSave?.(report);
   throwIfCancelled(control.signal);
   const saved = await saveReport(report);
   throwIfCancelled(control.signal);

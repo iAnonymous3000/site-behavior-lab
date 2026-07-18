@@ -740,6 +740,46 @@ test("runScanRequest returns scan results when report persistence fails", async 
   assert.equal(v1Result.warnings.includes("Shareable report could not be saved on this host; JSON export is still available."), true);
 });
 
+test("executePreparedScan awaits the publication fence before invoking the saver", async () => {
+  const prepared: PreparedScanRequest = {
+    clientKey: "already-charged",
+    url: "https://1.1.1.1/",
+    device: "desktop",
+    gpcEnabled: true,
+    compareGpc: false,
+    compareShields: false,
+    compareConsent: false,
+    rateLimitCost: 1
+  };
+  let releaseFence: () => void = () => undefined;
+  const fence = new Promise<void>((resolve) => {
+    releaseFence = resolve;
+  });
+  const events: string[] = [];
+  const execution = executePreparedScan(
+    prepared,
+    async (payload) => makeScanResult(payload),
+    async (report) => {
+      events.push("save");
+      return report;
+    },
+    undefined,
+    false,
+    {
+      beforeSave: (report) => {
+        events.push(`fence:${report.schemaVersion}`);
+        return fence;
+      }
+    }
+  );
+
+  await new Promise<void>((resolve) => setImmediate(resolve));
+  assert.deepEqual(events, ["fence:1"]);
+  releaseFence();
+  await execution;
+  assert.deepEqual(events, ["fence:1", "save"]);
+});
+
 function expectV1Report(report: RuntimeScanReport): ScanReport {
   assert.equal(report.schemaVersion, 1);
   if (report.schemaVersion !== 1) throw new Error("expected frozen v1 report");

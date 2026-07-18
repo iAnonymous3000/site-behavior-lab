@@ -72,10 +72,17 @@ Start from [.env.example](../.env.example). For a public-but-safe deployment:
 | `SITE_BEHAVIOR_LAB_R2_*` | bucket, endpoint, key id, secret, prefix | Required when `REPORT_STORE_BACKEND=r2`. Use an R2 API token scoped to the bucket (Object Read & Write). See [.env.example](../.env.example). |
 | `SITE_BEHAVIOR_LAB_SCANNER_EGRESS` | a region/network label | Shown in report methodology and JSON export. |
 | `SITE_BEHAVIOR_LAB_TRUST_PROXY_HEADERS` | `1` | **Only** once Cloudflare fronts the origin and you block direct origin access (step 3). Without a trusted proxy this lets clients spoof their rate-limit identity. |
-| `SITE_BEHAVIOR_LAB_ASYNC_SCANS` | `0` (or `1`) | `1` returns `202 + jobId` so long scans do not hold the HTTP connection. Still single-process/in-memory, fine for one node. |
+| `SITE_BEHAVIOR_LAB_ASYNC_SCANS` | `0` (or `1`) | `1` returns `202 + jobId` so long scans do not hold the HTTP connection. With durable jobs off, execution remains single-process/in-memory and is suitable for one node. |
+| `SITE_BEHAVIOR_LAB_DURABLE_JOBS` | `0` | Cloudflare Containers only. `1` makes the Durable Object the restart-safe queue authority. Its encrypted payload, execution state, and persistent drain schedule commit before `202`; work uses oldest-first fenced leases with at most two attempts. Requires async scans, R2/public-r2 readiness, every setting below, the live privacy disclosure, and the no-polling lease-expiry gate. The committed deployment config stays `0` until those checks pass. |
+| `SITE_BEHAVIOR_LAB_DURABLE_JOBS_KEY` | unset | **Worker-only secret:** canonical base64url encoding of exactly 32 random bytes for application AES-256-GCM encryption. Never expose it publicly or forward it into Node. Drain the 75-minute active-job window before rotating unless the deployed code explicitly supports both key versions. |
+| `SITE_BEHAVIOR_LAB_DURABLE_JOBS_INTERNAL_TOKEN` | unset | **Separate Worker-to-Node secret**, forwarded only to authenticate the private prepare/execute/heartbeat/publication/reconciliation channel. Never reuse the public scan token, Turnstile secret, R2 credentials, or encryption key. |
+| `SITE_BEHAVIOR_LAB_DURABLE_JOBS_COORDINATOR_URL` | unset | Non-secret fixed HTTPS scanner origin used for Node callbacks to the Durable Object coordinator. Supply an origin only: no path, query, credentials, or fragment. |
 
 `/api/health` reports `degraded` until the token, store dir, and egress label are
-all set; drive it from your load balancer and alert on `degraded`.
+all set; drive it from your load balancer and alert on `degraded`. A requested
+durable-jobs mode is also unavailable unless encryption, private coordinator auth,
+R2/public-r2 persistence, and scheduled execution are all ready; do not treat a
+flag-on degraded response as permission to fall back to the in-memory queue.
 
 ## 3. Put Cloudflare in front
 
@@ -157,10 +164,46 @@ Then confirm against the live edge: `/api/health` is `ok`, a scan of a known
 tracker-heavy site returns Shields-blocked counts, and a request to a private
 target is refused at connection time.
 
-## 7. When one node is not enough (deferred)
+## 7. Roll out durable execution (Cloudflare Containers only)
+
+The generic single-host topology does not have the Durable Object coordinator; keep
+`SITE_BEHAVIOR_LAB_DURABLE_JOBS=0` there. For the Cloudflare Containers topology:
+
+1. Keep the public scanner token-gated and the durable flag at `0`. Publish the
+   privacy/methodology disclosure before any target address rests in the queue.
+2. Set `SITE_BEHAVIOR_LAB_DURABLE_JOBS_KEY` as a Worker-only secret. Set the
+   distinct `SITE_BEHAVIOR_LAB_DURABLE_JOBS_INTERNAL_TOKEN` on the Worker and Node
+   sides, and set `SITE_BEHAVIOR_LAB_DURABLE_JOBS_COORDINATOR_URL` to the fixed
+   scanner origin. Confirm public R2 reports and the report store are healthy.
+3. Deploy with `SITE_BEHAVIOR_LAB_DURABLE_JOBS=1` while public ingress remains
+   locked. A missing key, internal token, coordinator URL, R2 dependency, or drain
+   schedule is a failed readiness gate; it must not silently use the in-memory
+   queue.
+4. Run the live lease-expiry canary without polling, health requests, or report
+   reads driving progress: abandon attempt 1, wait past its lease, and verify the
+   Durable Object schedule cold-starts attempt 2 under the same `reportId`.
+5. Verify the final status is `succeeded`, exactly one valid report/provenance
+   bundle exists, the encrypted active payload is gone, the two attempts used
+   distinct fences, and no third attempt exists. Run a second canary that commits
+   R2 but loses status resolution; it must reconcile the exact stored bundle to
+   success without another site visit.
+6. Run the ordinary authenticated scanner smoke and exact deployment-SHA checks.
+   Remove any fault-injection setting before reopening public ingress.
+
+The queue record contains only application-encrypted scheme + host + path and scan
+options for at most 75 minutes. It excludes IP/client hash, Turnstile and access
+tokens, headers, cookies, screenshots, evidence, and results. Active ciphertext is
+deleted on every terminal outcome, although Cloudflare recovery snapshots may keep
+application-encrypted copies through their own retention window. See
+[scan-job-model.md](scan-job-model.md) for the publication-manifest and R2
+reconciliation contract.
+
+## 8. When one node is not enough
 
 Single-node filesystem + in-memory queue is fine to launch. Before horizontal
-scaling, replace the report store with shared durable storage (R2/S3) and the
-in-process queue with a shared queue, per
-[scan-job-model.md](scan-job-model.md). Those are the next *code* items on this
-path; everything above is configuration of components that already exist.
+scaling, use shared durable report storage (R2) and an execution authority that all
+workers share. With the durable flag off, queued/running work remains process-local.
+The gated Cloudflare Containers Phase-2 path uses the singleton Durable Object for
+admission, scheduled fenced leases, terminal status, and R2 reconciliation; it is
+not live merely because its code is present. Follow the rollout gate above and
+[scan-job-model.md](scan-job-model.md) before enabling it.

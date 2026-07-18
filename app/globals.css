@@ -1246,6 +1246,27 @@ a {
   flex: 0 0 auto;
 }
 
+.error-banner-copy,
+.scan-recovery-controls {
+  display: grid;
+  gap: 10px;
+}
+
+.error-banner-copy {
+  min-width: 0;
+}
+
+.scan-recovery-controls p {
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.scan-recovery-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
 /* ---- Report layout ---- */
 .report-grid {
   align-items: start;

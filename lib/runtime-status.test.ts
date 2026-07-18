@@ -8,12 +8,17 @@ const SCANNER_EGRESS_ENV = "SITE_BEHAVIOR_LAB_SCANNER_EGRESS";
 const SCANNER_EGRESS_REGION_ENV = "SITE_BEHAVIOR_LAB_SCANNER_EGRESS_REGION";
 const ALLOW_UNAUTHENTICATED_SCANS_ENV = "SITE_BEHAVIOR_LAB_ALLOW_UNAUTHENTICATED_SCANS";
 const REPORT_STORE_BACKEND_ENV = "SITE_BEHAVIOR_LAB_REPORT_STORE_BACKEND";
+const REPORT_MAX_AGE_DAYS_ENV = "SITE_BEHAVIOR_LAB_REPORT_MAX_AGE_DAYS";
+const REPORT_MIN_SURVIVAL_MS_ENV = "SITE_BEHAVIOR_LAB_REPORT_MIN_SURVIVAL_MS";
 const CHROMIUM_SANDBOX_ENV = "SITE_BEHAVIOR_LAB_CHROMIUM_SANDBOX";
 const BUILD_COMMIT_ENV = "SITE_BEHAVIOR_LAB_BUILD_COMMIT";
 const CONSENT_VERIFICATION_ENV = "SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION";
 const PUBLIC_R2_REPORTS_ENV = "SITE_BEHAVIOR_LAB_PUBLIC_R2_REPORTS";
 const V2_SHADOW_EMISSION_ENV = "SITE_BEHAVIOR_LAB_V2_SHADOW_EMISSION";
 const V2_SHADOW_BACKEND_ENV = "SITE_BEHAVIOR_LAB_V2_SHADOW_BACKEND";
+const DURABLE_JOBS_ENV = "SITE_BEHAVIOR_LAB_DURABLE_JOBS";
+const DURABLE_JOBS_INTERNAL_TOKEN_ENV = "SITE_BEHAVIOR_LAB_DURABLE_JOBS_INTERNAL_TOKEN";
+const DURABLE_JOBS_COORDINATOR_URL_ENV = "SITE_BEHAVIOR_LAB_DURABLE_JOBS_COORDINATOR_URL";
 const R2_ENVS = [
   "SITE_BEHAVIOR_LAB_R2_BUCKET",
   "SITE_BEHAVIOR_LAB_R2_ENDPOINT",
@@ -31,12 +36,17 @@ afterEach(() => {
   delete process.env.CLOUDFLARE_COUNTRY_A2;
   delete process.env[ALLOW_UNAUTHENTICATED_SCANS_ENV];
   delete process.env[REPORT_STORE_BACKEND_ENV];
+  delete process.env[REPORT_MAX_AGE_DAYS_ENV];
+  delete process.env[REPORT_MIN_SURVIVAL_MS_ENV];
   delete process.env[CHROMIUM_SANDBOX_ENV];
   delete process.env[BUILD_COMMIT_ENV];
   delete process.env[CONSENT_VERIFICATION_ENV];
   delete process.env[PUBLIC_R2_REPORTS_ENV];
   delete process.env[V2_SHADOW_EMISSION_ENV];
   delete process.env[V2_SHADOW_BACKEND_ENV];
+  delete process.env[DURABLE_JOBS_ENV];
+  delete process.env[DURABLE_JOBS_INTERNAL_TOKEN_ENV];
+  delete process.env[DURABLE_JOBS_COORDINATOR_URL_ENV];
   for (const name of R2_ENVS) delete process.env[name];
 });
 
@@ -94,6 +104,7 @@ test("runtimeStatus reports degraded status for open local defaults", async () =
   assert.equal(status.checks.chromiumSandbox, "disabled");
   assert.equal(status.checks.consentVerification, "disabled");
   assert.deepEqual(status.checks.publicR2Reports, { status: "disabled" });
+  assert.deepEqual(status.checks.durableJobs, { requested: false, enabled: false, readiness: "disabled" });
   assert.deepEqual(status.checks.v2ShadowEmission, { status: "disabled", backend: "filesystem" });
   assert.equal(status.warnings.length, 3);
 });
@@ -118,7 +129,8 @@ test("runtimeStatus reports ok status when production controls are configured", 
     kind: "filesystem",
     configuredPath: true,
     maxAgeDays: 7,
-    maxCount: 500
+    maxCount: 500,
+    minSurvivalMs: 60_000
   });
   assert.equal(status.checks.scannerEgress, "configured");
   assert.equal(status.checks.scannerEgressRegion, "unrecorded");
@@ -171,6 +183,122 @@ test("runtimeStatus makes public-r2 rollout readiness explicit and refuses misco
   assert.equal(ready.scansAvailable, true);
   assert.deepEqual(ready.checks.publicR2Reports, { status: "enabled" });
   assert.deepEqual(ready.warnings, []);
+});
+
+test("runtimeStatus exposes Node-only durable-job readiness without claiming edge readiness", async () => {
+  process.env[SCAN_ACCESS_TOKEN_ENV] = "secret-key";
+  process.env[SCANNER_EGRESS_ENV] = "iad-lab-egress";
+  process.env[SCANNER_EGRESS_REGION_ENV] = "us-west";
+  process.env[REPORT_STORE_BACKEND_ENV] = "r2";
+  process.env.SITE_BEHAVIOR_LAB_R2_BUCKET = "reports";
+  process.env.SITE_BEHAVIOR_LAB_R2_ENDPOINT = "https://acct.r2.cloudflarestorage.com";
+  process.env.SITE_BEHAVIOR_LAB_R2_ACCESS_KEY_ID = "ak";
+  process.env.SITE_BEHAVIOR_LAB_R2_SECRET_ACCESS_KEY = "sk";
+  process.env[PUBLIC_R2_REPORTS_ENV] = "1";
+  process.env[BUILD_COMMIT_ENV] = "a".repeat(40);
+  process.env[CONSENT_VERIFICATION_ENV] = "1";
+  process.env[DURABLE_JOBS_ENV] = "1";
+  process.env[DURABLE_JOBS_INTERNAL_TOKEN_ENV] = "separate-private-coordinator-token";
+  process.env[DURABLE_JOBS_COORDINATOR_URL_ENV] = "https://scan.sitebehavior.org";
+
+  const shortCountSurvival = await runtimeStatus(loadedAdblock);
+  assert.equal(shortCountSurvival.status, "degraded");
+  assert.equal(shortCountSurvival.scansAvailable, false);
+  assert.equal(
+    shortCountSurvival.checks.durableJobs.reasons?.some(
+      (reason) => reason.includes(REPORT_MIN_SURVIVAL_MS_ENV) && reason.includes("4500000")
+    ),
+    true
+  );
+
+  process.env[REPORT_MIN_SURVIVAL_MS_ENV] = "4500000";
+  process.env[REPORT_MAX_AGE_DAYS_ENV] = "0.01";
+  const shortAgeSurvival = await runtimeStatus(loadedAdblock);
+  assert.equal(shortAgeSurvival.status, "degraded");
+  assert.equal(shortAgeSurvival.scansAvailable, false);
+  assert.equal(
+    shortAgeSurvival.checks.durableJobs.reasons?.some((reason) => reason.includes(REPORT_MAX_AGE_DAYS_ENV)),
+    true
+  );
+
+  delete process.env[REPORT_MAX_AGE_DAYS_ENV];
+  const status = await runtimeStatus(loadedAdblock);
+
+  assert.equal(status.status, "ok");
+  assert.equal(status.scansAvailable, true);
+  assert.deepEqual(status.checks.durableJobs, {
+    requested: true,
+    enabled: true,
+    readiness: "node-ready"
+  });
+  assert.deepEqual(status.warnings, []);
+
+  process.env[DURABLE_JOBS_INTERNAL_TOKEN_ENV] = "short";
+  const shortToken = await runtimeStatus(loadedAdblock);
+  assert.equal(shortToken.checks.durableJobs.readiness, "misconfigured");
+  assert.equal(
+    shortToken.checks.durableJobs.reasons?.some((reason) => reason.includes(DURABLE_JOBS_INTERNAL_TOKEN_ENV)),
+    true
+  );
+
+  process.env[DURABLE_JOBS_INTERNAL_TOKEN_ENV] = "separate-private-coordinator-token";
+  process.env[DURABLE_JOBS_COORDINATOR_URL_ENV] = "http://scan.sitebehavior.org";
+  const insecureCoordinator = await runtimeStatus(loadedAdblock);
+  assert.equal(insecureCoordinator.checks.durableJobs.readiness, "misconfigured");
+  assert.equal(
+    insecureCoordinator.checks.durableJobs.reasons?.some(
+      (reason) => reason.includes(DURABLE_JOBS_COORDINATOR_URL_ENV)
+    ),
+    true
+  );
+
+  process.env[DURABLE_JOBS_COORDINATOR_URL_ENV] = "https://scan.sitebehavior.org/private";
+  const coordinatorWithPath = await runtimeStatus(loadedAdblock);
+  assert.equal(coordinatorWithPath.checks.durableJobs.readiness, "misconfigured");
+
+  process.env[DURABLE_JOBS_COORDINATOR_URL_ENV] = "http://127.0.0.1:8787";
+  const loopbackCoordinator = await runtimeStatus(loadedAdblock);
+  assert.equal(loopbackCoordinator.checks.durableJobs.readiness, "node-ready");
+
+  process.env[DURABLE_JOBS_COORDINATOR_URL_ENV] = "http://[::1]:8787";
+  const ipv6LoopbackCoordinator = await runtimeStatus(loadedAdblock);
+  assert.equal(ipv6LoopbackCoordinator.checks.durableJobs.readiness, "node-ready");
+});
+
+test("runtimeStatus fails durable-job readiness closed when requested prerequisites are absent", async () => {
+  process.env[SCAN_ACCESS_TOKEN_ENV] = "secret-key";
+  process.env[REPORT_STORE_DIR_ENV] = "/var/lib/site-behavior-lab/reports";
+  process.env[SCANNER_EGRESS_ENV] = "iad-lab-egress";
+  process.env[DURABLE_JOBS_ENV] = "1";
+  process.env[DURABLE_JOBS_COORDINATOR_URL_ENV] = "https://user@scan.sitebehavior.org";
+
+  const status = await runtimeStatus(loadedAdblock);
+
+  assert.equal(status.status, "degraded");
+  assert.equal(status.scansAvailable, false);
+  assert.equal(status.checks.durableJobs.requested, true);
+  assert.equal(status.checks.durableJobs.enabled, false);
+  assert.equal(status.checks.durableJobs.readiness, "misconfigured");
+  assert.equal(status.checks.durableJobs.reasons?.some((reason) => reason.includes("r2 report-store")), true);
+  assert.equal(status.checks.durableJobs.reasons?.some((reason) => reason.includes(DURABLE_JOBS_INTERNAL_TOKEN_ENV)), true);
+  assert.equal(status.checks.durableJobs.reasons?.some((reason) => reason.includes(DURABLE_JOBS_COORDINATOR_URL_ENV)), true);
+});
+
+test("runtimeStatus reports an invalid durable-job flag as misconfigured, not enabled", async () => {
+  process.env[SCAN_ACCESS_TOKEN_ENV] = "secret-key";
+  process.env[REPORT_STORE_DIR_ENV] = "/var/lib/site-behavior-lab/reports";
+  process.env[SCANNER_EGRESS_ENV] = "iad-lab-egress";
+  process.env[DURABLE_JOBS_ENV] = "yes";
+
+  const status = await runtimeStatus(loadedAdblock);
+
+  assert.equal(status.scansAvailable, false);
+  assert.deepEqual(status.checks.durableJobs, {
+    requested: true,
+    enabled: false,
+    readiness: "misconfigured",
+    reasons: [`${DURABLE_JOBS_ENV} must be 0, 1, or unset.`]
+  });
 });
 
 test("runtimeStatus makes an unrecorded public-r2 egress region observable", async () => {

@@ -42,6 +42,19 @@
     "SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION": "1",
     "SITE_BEHAVIOR_LAB_PUBLIC_R2_REPORTS": "1",
 
+    // Disabled ship gate. Before changing this to "1", configure the distinct
+    // SITE_BEHAVIOR_LAB_DURABLE_JOBS_KEY (Worker-only, canonical 32-byte
+    // base64url) and SITE_BEHAVIOR_LAB_DURABLE_JOBS_INTERNAL_TOKEN secrets, then
+    // pass both live replay canaries in docs/go-live-public-scanner.md. The
+    // coordinator origin is non-secret and is forwarded into the container.
+    "SITE_BEHAVIOR_LAB_DURABLE_JOBS": "0",
+    "SITE_BEHAVIOR_LAB_DURABLE_JOBS_COORDINATOR_URL": "https://scan.sitebehavior.org",
+
+    // Durable job/status metadata lives for 75 minutes. Keep the public report
+    // alive for at least the same interval so a lost status response can recover
+    // the committed report instead of fabricating expiry.
+    "SITE_BEHAVIOR_LAB_REPORT_MIN_SURVIVAL_MS": "4500000",
+
     // Forwarded into the Node container. The deployed smoke test requires the
     // effective launch state to be "enabled" in /api/health.
     "SITE_BEHAVIOR_LAB_CHROMIUM_SANDBOX": "1"

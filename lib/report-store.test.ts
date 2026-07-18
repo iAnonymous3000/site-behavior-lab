@@ -6,7 +6,18 @@ import { afterEach, beforeEach, test } from "node:test";
 import { createComparisonReport, createGpcComparisonReport } from "./compare-reports";
 import { buildProvenanceEntry, matchProvenance } from "./redaction-provenance";
 import { REDACTION_VERSION } from "./redaction-v2";
-import { pruneStoredReports, readStoredScanReportById, reportStoreStatus, saveScanReport } from "./report-store";
+import {
+  DURABLE_SCAN_JOB_REPORT_MIN_SURVIVAL_MS,
+  REPORT_MIN_SURVIVAL_MS_ENV,
+  commitPreparedScanReportBundle,
+  isScanReportPublicationManifest,
+  prepareScanReportBundle,
+  pruneStoredReports,
+  readStoredScanReportById,
+  reconcilePreparedScanReportBundle,
+  reportStoreStatus,
+  saveScanReport
+} from "./report-store";
 import { makeGpcInterventionReportV2R2, makePublicSingleReportV2R2 } from "./scan-report-v2-r2-fixtures";
 import { NODE_SCAN_REPORT_V2_R2_MAX_PUBLIC_BYTES } from "./scan-report-v2-r2-limits";
 import { toPublicScanReportR2 } from "./scan-report-v2-r2-projection";
@@ -14,8 +25,16 @@ import type { EphemeralComparisonReportR2, EphemeralSingleReportR2 } from "./sca
 import { SCAN_REPORT_SCHEMA_VERSION, type ScanRequestPayload, type ScanResult } from "./types";
 
 const REPORT_MAX_COUNT_ENV = "SITE_BEHAVIOR_LAB_REPORT_MAX_COUNT";
-const REPORT_MIN_SURVIVAL_MS_ENV = "SITE_BEHAVIOR_LAB_REPORT_MIN_SURVIVAL_MS";
+const REPORT_STORE_BACKEND_ENV = "SITE_BEHAVIOR_LAB_REPORT_STORE_BACKEND";
 const REPORT_STORE_DIR_ENV = "SITE_BEHAVIOR_LAB_REPORT_STORE_DIR";
+const R2_ENV_NAMES = [
+  "SITE_BEHAVIOR_LAB_R2_BUCKET",
+  "SITE_BEHAVIOR_LAB_R2_ENDPOINT",
+  "SITE_BEHAVIOR_LAB_R2_ACCESS_KEY_ID",
+  "SITE_BEHAVIOR_LAB_R2_SECRET_ACCESS_KEY",
+  "SITE_BEHAVIOR_LAB_R2_PREFIX"
+] as const;
+const originalFetch = globalThis.fetch;
 
 // Every test runs against its own temp directory via the store-dir env var.
 // Never write to (or worse, delete) the repo's real `.site-behavior-lab`
@@ -31,7 +50,10 @@ beforeEach(async () => {
 afterEach(async () => {
   delete process.env[REPORT_MAX_COUNT_ENV];
   delete process.env[REPORT_MIN_SURVIVAL_MS_ENV];
+  delete process.env[REPORT_STORE_BACKEND_ENV];
   delete process.env[REPORT_STORE_DIR_ENV];
+  for (const name of R2_ENV_NAMES) delete process.env[name];
+  globalThis.fetch = originalFetch;
   await rm(reportDir, { recursive: true, force: true });
 });
 
@@ -138,16 +160,362 @@ test("saveScanReport writes a matched report, sidecar, and immutable retention c
   assert.equal(Date.parse(retention.expiresAt) - Date.parse(retention.createdAt), 7 * 24 * 60 * 60 * 1_000);
 });
 
-test("failed report or sidecar creation cleans up owned partial bundles without accumulation", async () => {
-  for (const suffix of ["c", "d", "e"]) {
-    const shareId = `20260712-${suffix.repeat(32)}`;
-    await writeFile(path.join(reportDir, `${shareId}.provenance.json`), "{}\n");
+test("prepareScanReportBundle freezes a strict content-free manifest and exact public wires", () => {
+  const shareId = `20260718-${"1".repeat(32)}`;
+  const prepared = prepareScanReportBundle(
+    makeScanResult({ screenshot: "data:image/png;base64,PRIVATE_SCREENSHOT" }),
+    { shareId, now: new Date("2026-07-18T12:34:56.789Z") }
+  );
+  const roundTripped = JSON.parse(JSON.stringify(prepared.manifest)) as unknown;
 
-    await assert.rejects(() => saveScanReport(makeScanResult(), { shareId }), /EEXIST/);
-    assert.deepEqual(await readStoredScanReportById(shareId), { outcome: "not-found" });
-    assert.deepEqual(await readdir(reportDir), []);
-  }
+  assert.equal(isScanReportPublicationManifest(roundTripped), true);
+  assert.deepEqual(roundTripped, prepared.manifest);
+  assert.equal(prepared.report.share?.id, shareId);
+  assert.equal(prepared.report.screenshot, "data:image/png;base64,PRIVATE_SCREENSHOT");
+  assert.equal(prepared.reportWire.includes("PRIVATE_SCREENSHOT"), false);
+  assert.equal(prepared.sidecarWire, prepared.manifest.sidecarWire);
+  assert.deepEqual(prepared.retention, prepared.manifest.retention);
+  assert.equal(prepared.manifest.reportBytes, Buffer.byteLength(prepared.reportWire, "utf8"));
+  assert.match(prepared.manifest.reportWireSha256, /^[0-9a-f]{64}$/);
+  assert.equal(JSON.stringify(prepared.manifest).includes("example.com"), false);
+  assert.deepEqual(Object.keys(prepared.manifest).sort(), [
+    "canonicalizationVersion",
+    "manifestVersion",
+    "publicDigest",
+    "redactionVersion",
+    "reportBytes",
+    "reportId",
+    "reportWireSha256",
+    "retention",
+    "sidecarWire"
+  ]);
+  assert.equal(
+    isScanReportPublicationManifest({ ...prepared.manifest, target: "https://example.com/" }),
+    false
+  );
+  assert.equal(
+    isScanReportPublicationManifest({ ...prepared.manifest, sidecarWire: "{}\n" }),
+    false
+  );
+});
 
+test("commit and reconcile preserve the exact prepared report bundle", async () => {
+  const prepared = prepareScanReportBundle(makeScanResult(), {
+    shareId: `20260718-${"2".repeat(32)}`,
+    now: new Date("2026-07-18T12:00:00.000Z")
+  });
+
+  const saved = await commitPreparedScanReportBundle(prepared);
+  const reconciled = await reconcilePreparedScanReportBundle(prepared.manifest);
+
+  assert.equal(saved.share?.id, prepared.manifest.reportId);
+  assert.equal(reconciled.outcome, "found");
+  if (reconciled.outcome !== "found") throw new Error("expected found");
+  assert.equal(reconciled.wire, prepared.reportWire);
+  assert.deepEqual(reconciled.report, JSON.parse(prepared.reportWire));
+  assert.equal(
+    await readFile(path.join(reportDir, `${prepared.manifest.reportId}.provenance.json`), "utf8"),
+    prepared.sidecarWire
+  );
+});
+
+test("reconciliation completes an exact report-only crash window", async () => {
+  const prepared = prepareScanReportBundle(makeScanResult(), {
+    shareId: `20260718-${"3".repeat(32)}`,
+    now: new Date("2026-07-18T12:00:00.000Z")
+  });
+  await writePrimaryOnly(prepared.manifest.reportId, prepared.reportWire, prepared.retention);
+
+  const reconciled = await reconcilePreparedScanReportBundle(prepared.manifest);
+
+  assert.equal(reconciled.outcome, "found");
+  if (reconciled.outcome !== "found") throw new Error("expected found");
+  assert.equal(reconciled.wire, prepared.reportWire);
+  assert.equal(
+    await readFile(path.join(reportDir, `${prepared.manifest.reportId}.provenance.json`), "utf8"),
+    prepared.sidecarWire
+  );
+});
+
+test("reconciliation distinguishes missing storage and fails a stable exact sidecar orphan closed", async () => {
+  const missing = prepareScanReportBundle(makeScanResult(), {
+    shareId: `20260718-${"4".repeat(32)}`,
+    now: new Date("2026-07-18T12:00:00.000Z")
+  });
+  assert.deepEqual(await reconcilePreparedScanReportBundle(missing.manifest), { outcome: "missing" });
+
+  const orphan = prepareScanReportBundle(makeScanResult(), {
+    shareId: `20260718-${"5".repeat(32)}`,
+    now: new Date("2026-07-18T12:00:00.000Z")
+  });
+  const orphanPath = path.join(reportDir, `${orphan.manifest.reportId}.provenance.json`);
+  await writeFile(orphanPath, orphan.sidecarWire);
+
+  assert.deepEqual(await reconcilePreparedScanReportBundle(orphan.manifest), {
+    outcome: "integrity-error",
+    reason: "sidecar-without-report"
+  });
+  assert.equal(await readFile(orphanPath, "utf8"), orphan.sidecarWire);
+});
+
+test("commit adopts an exact preexisting sidecar only after the primary makes the full bundle valid", async () => {
+  const prepared = prepareScanReportBundle(makeScanResult(), {
+    shareId: `20260718-${"d".repeat(32)}`,
+    now: new Date("2026-07-18T12:00:00.000Z")
+  });
+  await writeFile(
+    path.join(reportDir, `${prepared.manifest.reportId}.provenance.json`),
+    prepared.sidecarWire
+  );
+
+  const saved = await commitPreparedScanReportBundle(prepared);
+
+  assert.equal(saved.share?.id, prepared.manifest.reportId);
+  const stored = await readStoredScanReportById(prepared.manifest.reportId);
+  assert.equal(stored.outcome, "found");
+  if (stored.outcome !== "found") throw new Error("expected adopted report");
+  assert.equal(stored.wire, prepared.reportWire);
+});
+
+test("R2 reconciliation never deletes a concurrent exact commit after a missing-primary snapshot", async () => {
+  const prepared = prepareScanReportBundle(makeScanResult(), {
+    shareId: `20260718-${"e".repeat(32)}`,
+    now: new Date("2026-07-18T12:00:00.000Z")
+  });
+  let reportPresent = false;
+  let sidecarPresent = false;
+  let primaryReads = 0;
+  const methods: string[] = [];
+  configureFakeR2(async (request) => {
+    methods.push(request.method);
+    const isSidecar = request.url.endsWith(".json.provenance.json");
+    if (request.method === "GET" && !isSidecar) {
+      primaryReads += 1;
+      if (primaryReads === 1) {
+        // The GET observed 404, then another container completed both PUTs
+        // before reconciliation could read the sidecar.
+        reportPresent = true;
+        sidecarPresent = true;
+        return new Response(null, { status: 404 });
+      }
+      return reportPresent ? r2ReportResponse(prepared) : new Response(null, { status: 404 });
+    }
+    if (request.method === "GET" && isSidecar) {
+      return sidecarPresent
+        ? new Response(prepared.sidecarWire, { status: 200 })
+        : new Response(null, { status: 404 });
+    }
+    if (request.method === "DELETE" && isSidecar) {
+      sidecarPresent = false;
+      return new Response(null, { status: 204 });
+    }
+    throw new Error(`Unexpected fake R2 request: ${request.method} ${request.url}`);
+  });
+
+  const reconciled = await reconcilePreparedScanReportBundle(prepared.manifest);
+
+  assert.equal(reconciled.outcome, "found");
+  assert.equal(reportPresent, true);
+  assert.equal(sidecarPresent, true);
+  assert.equal(methods.includes("DELETE"), false);
+});
+
+test("commit adopts an exact R2 sidecar whose successful PUT response was lost", async () => {
+  const prepared = prepareScanReportBundle(makeScanResult(), {
+    shareId: `20260718-${"f".repeat(32)}`,
+    now: new Date("2026-07-18T12:00:00.000Z")
+  });
+  let reportPresent = false;
+  let sidecarPresent = false;
+  let sidecarPuts = 0;
+  const methods: string[] = [];
+  configureFakeR2(async (request) => {
+    methods.push(request.method);
+    const isSidecar = request.url.endsWith(".json.provenance.json");
+    const isList = request.url.includes("list-type=2");
+    if (request.method === "PUT" && !isSidecar) {
+      reportPresent = true;
+      return new Response(null, { status: 200 });
+    }
+    if (request.method === "PUT" && isSidecar) {
+      sidecarPuts += 1;
+      if (sidecarPuts === 1) {
+        sidecarPresent = true;
+        throw new Error("response lost after sidecar commit");
+      }
+      return new Response("denied", { status: 403 });
+    }
+    if (request.method === "GET" && isList) {
+      return new Response("<ListBucketResult><IsTruncated>false</IsTruncated></ListBucketResult>", {
+        status: 200
+      });
+    }
+    if (request.method === "GET" && isSidecar) {
+      return sidecarPresent
+        ? new Response(prepared.sidecarWire, { status: 200 })
+        : new Response(null, { status: 404 });
+    }
+    if (request.method === "GET" && !isSidecar) {
+      return reportPresent ? r2ReportResponse(prepared) : new Response(null, { status: 404 });
+    }
+    if (request.method === "DELETE") {
+      throw new Error("An outcome-unknown sidecar write must never trigger cleanup.");
+    }
+    throw new Error(`Unexpected fake R2 request: ${request.method} ${request.url}`);
+  });
+
+  const saved = await commitPreparedScanReportBundle(prepared);
+
+  assert.equal(saved.share?.id, prepared.manifest.reportId);
+  assert.equal(reportPresent, true);
+  assert.equal(sidecarPresent, true);
+  assert.equal(methods.includes("DELETE"), false);
+});
+
+test("an aborted publication waiting on the mutation lock rejects promptly and never reaches R2", async () => {
+  const blocking = prepareScanReportBundle(makeScanResult(), {
+    shareId: `20260718-${"a".repeat(32)}`,
+    now: new Date("2026-07-18T12:00:00.000Z")
+  });
+  const queued = prepareScanReportBundle(makeScanResult(), {
+    shareId: `20260718-${"b".repeat(32)}`,
+    now: new Date("2026-07-18T12:00:00.000Z")
+  });
+  let releaseFirstRead: () => void = () => undefined;
+  let announceFirstRead: () => void = () => undefined;
+  const firstReadStarted = new Promise<void>((resolve) => {
+    announceFirstRead = resolve;
+  });
+  const heldFirstRead = new Promise<void>((resolve) => {
+    releaseFirstRead = resolve;
+  });
+  const requestedIds: string[] = [];
+  configureFakeR2(async (request) => {
+    const id = request.url.includes(blocking.manifest.reportId)
+      ? blocking.manifest.reportId
+      : queued.manifest.reportId;
+    requestedIds.push(id);
+    if (id === queued.manifest.reportId) {
+      throw new Error("An aborted queued publication must never reach R2.");
+    }
+    if (request.method !== "GET") throw new Error(`Unexpected ${request.method} while holding the lock.`);
+    if (!request.url.endsWith(".json.provenance.json")) {
+      announceFirstRead();
+      await heldFirstRead;
+    }
+    return new Response(null, { status: 404 });
+  });
+
+  const holder = reconcilePreparedScanReportBundle(blocking.manifest);
+  await firstReadStarted;
+  const controller = new AbortController();
+  const reason = new DOMException("publication deadline", "TimeoutError");
+  const waiting = commitPreparedScanReportBundle(queued, { signal: controller.signal });
+  controller.abort(reason);
+
+  await assert.rejects(() => waiting, (error) => error === reason);
+  releaseFirstRead();
+  assert.deepEqual(await holder, { outcome: "missing" });
+  await new Promise<void>((resolve) => setImmediate(resolve));
+  assert.deepEqual(requestedIds, [blocking.manifest.reportId, blocking.manifest.reportId]);
+});
+
+test("reconciliation never mutates contradictory report, retention, or sidecar state", async (t) => {
+  await t.test("report digest mismatch", async () => {
+    const prepared = prepareScanReportBundle(makeScanResult(), {
+      shareId: `20260718-${"6".repeat(32)}`,
+      now: new Date("2026-07-18T12:00:00.000Z")
+    });
+    const contradictoryWire = prepared.reportWire.replace("example.com", "example.net");
+    assert.equal(Buffer.byteLength(contradictoryWire), prepared.manifest.reportBytes);
+    await writePrimaryOnly(prepared.manifest.reportId, contradictoryWire, prepared.retention);
+
+    assert.deepEqual(await reconcilePreparedScanReportBundle(prepared.manifest), {
+      outcome: "integrity-error",
+      reason: "report-digest-mismatch"
+    });
+    assert.equal(
+      await readFile(path.join(reportDir, `${prepared.manifest.reportId}.json`), "utf8"),
+      contradictoryWire
+    );
+    await assert.rejects(
+      () => access(path.join(reportDir, `${prepared.manifest.reportId}.provenance.json`)),
+      /ENOENT/
+    );
+  });
+
+  await t.test("retention mismatch", async () => {
+    const prepared = prepareScanReportBundle(makeScanResult(), {
+      shareId: `20260718-${"7".repeat(32)}`,
+      now: new Date("2026-07-18T12:00:00.000Z")
+    });
+    const contradictoryRetention = {
+      createdAt: "2026-07-18T12:00:01.000Z",
+      expiresAt: "2026-07-25T12:00:01.000Z"
+    };
+    await writePrimaryOnly(prepared.manifest.reportId, prepared.reportWire, contradictoryRetention);
+
+    assert.deepEqual(await reconcilePreparedScanReportBundle(prepared.manifest), {
+      outcome: "integrity-error",
+      reason: "retention-mismatch"
+    });
+    assert.deepEqual(
+      JSON.parse(await readFile(path.join(reportDir, `${prepared.manifest.reportId}.retention.json`), "utf8")),
+      contradictoryRetention
+    );
+    await assert.rejects(
+      () => access(path.join(reportDir, `${prepared.manifest.reportId}.provenance.json`)),
+      /ENOENT/
+    );
+  });
+
+  await t.test("malformed sidecar", async () => {
+    const prepared = prepareScanReportBundle(makeScanResult(), {
+      shareId: `20260718-${"8".repeat(32)}`,
+      now: new Date("2026-07-18T12:00:00.000Z")
+    });
+    await writePrimaryOnly(prepared.manifest.reportId, prepared.reportWire, prepared.retention);
+    const sidecarPath = path.join(reportDir, `${prepared.manifest.reportId}.provenance.json`);
+    await writeFile(sidecarPath, "{}\n");
+
+    assert.deepEqual(await reconcilePreparedScanReportBundle(prepared.manifest), {
+      outcome: "integrity-error",
+      reason: "sidecar-mismatch"
+    });
+    assert.equal(await readFile(sidecarPath, "utf8"), "{}\n");
+    assert.equal(
+      await readFile(path.join(reportDir, `${prepared.manifest.reportId}.json`), "utf8"),
+      prepared.reportWire
+    );
+  });
+});
+
+test("reconciliation propagates backend transport faults", async () => {
+  const prepared = prepareScanReportBundle(makeScanResult(), {
+    shareId: `20260718-${"9".repeat(32)}`,
+    now: new Date("2026-07-18T12:00:00.000Z")
+  });
+  await mkdir(path.join(reportDir, `${prepared.manifest.reportId}.provenance.json`));
+
+  await assert.rejects(() => reconcilePreparedScanReportBundle(prepared.manifest), /EISDIR/);
+});
+
+test("a contradictory sidecar conflict never deletes bytes this save did not create", async () => {
+  const shareId = `20260712-${"c".repeat(32)}`;
+  const sidecarPath = path.join(reportDir, `${shareId}.provenance.json`);
+  await writeFile(sidecarPath, "{}\n");
+
+  await assert.rejects(() => saveScanReport(makeScanResult(), { shareId }), /EEXIST/);
+  assert.equal(await readFile(sidecarPath, "utf8"), "{}\n");
+  assert.equal((await readStoredScanReportById(shareId)).outcome, "unreadable");
+  assert.deepEqual((await readdir(reportDir)).sort(), [
+    `${shareId}.json`,
+    `${shareId}.provenance.json`,
+    `${shareId}.retention.json`
+  ]);
+});
+
+test("a retention-file conflict rolls back the filesystem primary it created", async () => {
   // A filesystem report write is itself two create-only files. If the report
   // lands but retention creation conflicts, the backend owns and rolls back
   // that report rather than leaving a permanently uncommitted object.
@@ -358,6 +726,30 @@ test("concurrent successful saves remain live through a bounded max-count surviv
   assert.equal((await readStoredScanReportById(secondId)).outcome, "found");
 });
 
+test("count pruning honors a configured 75-minute durable-job recovery window", async () => {
+  process.env[REPORT_MAX_COUNT_ENV] = "1";
+  process.env[REPORT_MIN_SURVIVAL_MS_ENV] = String(DURABLE_SCAN_JOB_REPORT_MIN_SURVIVAL_MS);
+  const base = Date.now();
+  const first = prepareScanReportBundle(makeScanResult(), {
+    shareId: `20260718-${"a".repeat(32)}`,
+    now: base
+  });
+  const second = prepareScanReportBundle(makeScanResult(), {
+    shareId: `20260718-${"b".repeat(32)}`,
+    now: base
+  });
+  await commitPreparedScanReportBundle(first);
+  await commitPreparedScanReportBundle(second);
+
+  await pruneStoredReports(base + DURABLE_SCAN_JOB_REPORT_MIN_SURVIVAL_MS - 1);
+  assert.equal((await readStoredScanReportById(first.manifest.reportId)).outcome, "found");
+  assert.equal((await readStoredScanReportById(second.manifest.reportId)).outcome, "found");
+
+  await pruneStoredReports(base + DURABLE_SCAN_JOB_REPORT_MIN_SURVIVAL_MS);
+  assert.equal((await readStoredScanReportById(first.manifest.reportId)).outcome, "not-found");
+  assert.equal((await readStoredScanReportById(second.manifest.reportId)).outcome, "found");
+});
+
 test("count pruning never age-deletes a report while another process delays its sidecar", async () => {
   process.env[REPORT_MAX_COUNT_ENV] = "1";
   const existing = await saveScanReport(makeScanResult());
@@ -434,14 +826,28 @@ test("report-only bundles are retained while delayed and removed at immutable ex
   await assert.rejects(() => access(retentionPath), /ENOENT/);
 });
 
-test("pruning surfaces and reconciles a sidecar-only deletion orphan", async () => {
-  const orphanId = `20260714-${"e".repeat(32)}`;
+test("pruning preserves a sidecar-only marker until its exact immutable expiry", async () => {
+  const prepared = prepareScanReportBundle(makeScanResult(), {
+    shareId: `20260714-${"e".repeat(32)}`,
+    now: new Date("2026-07-14T12:00:00.000Z")
+  });
+  const orphanPath = path.join(reportDir, `${prepared.manifest.reportId}.provenance.json`);
+  await writeFile(orphanPath, prepared.sidecarWire);
+
+  await pruneStoredReports(Date.parse(prepared.retention.expiresAt) - 1);
+  assert.equal(await readFile(orphanPath, "utf8"), prepared.sidecarWire);
+
+  await pruneStoredReports(Date.parse(prepared.retention.expiresAt));
+  await assert.rejects(() => access(orphanPath), /ENOENT/);
+});
+
+test("pruning preserves malformed sidecar-only state without inventing a deletion clock", async () => {
+  const orphanId = `20260714-${"f".repeat(32)}`;
   const orphanPath = path.join(reportDir, `${orphanId}.provenance.json`);
   await writeFile(orphanPath, "{}\n");
 
-  await pruneStoredReports();
-  await assert.rejects(() => access(orphanPath), /ENOENT/);
-  assert.deepEqual(await readdir(reportDir), []);
+  await pruneStoredReports(Date.parse("2036-07-14T12:00:00.000Z"));
+  assert.equal(await readFile(orphanPath, "utf8"), "{}\n");
 });
 
 test("pruning uses immutable expiry metadata, never a rewritten report mtime", async () => {
@@ -486,12 +892,54 @@ test("saveScanReport reports the configured report store directory in its status
     path: reportDir,
     configuredPath: true,
     maxAgeDays: 7,
-    maxCount: 500
+    maxCount: 500,
+    minSurvivalMs: 60_000
   });
+});
+
+test("reportStoreStatus exposes the effective count-pruning survival and its two-hour cap", () => {
+  process.env[REPORT_MIN_SURVIVAL_MS_ENV] = String(DURABLE_SCAN_JOB_REPORT_MIN_SURVIVAL_MS);
+  assert.equal(reportStoreStatus().minSurvivalMs, DURABLE_SCAN_JOB_REPORT_MIN_SURVIVAL_MS);
+
+  process.env[REPORT_MIN_SURVIVAL_MS_ENV] = String(24 * 60 * 60 * 1_000);
+  assert.equal(reportStoreStatus().minSurvivalMs, 2 * 60 * 60_000);
 });
 
 function isReportFile(file: string): boolean {
   return /^[0-9]{8}-[0-9a-f]{32}\.json$/.test(file);
+}
+
+function configureFakeR2(handler: (request: Request) => Promise<Response>): void {
+  process.env[REPORT_STORE_BACKEND_ENV] = "r2";
+  process.env.SITE_BEHAVIOR_LAB_R2_BUCKET = "test-reports";
+  process.env.SITE_BEHAVIOR_LAB_R2_ENDPOINT = "https://r2.example.test";
+  process.env.SITE_BEHAVIOR_LAB_R2_ACCESS_KEY_ID = "test-access-key";
+  process.env.SITE_BEHAVIOR_LAB_R2_SECRET_ACCESS_KEY = "test-secret-key";
+  process.env.SITE_BEHAVIOR_LAB_R2_PREFIX = "reports/";
+  globalThis.fetch = (async (input, init) => {
+    const request = input instanceof Request ? input : new Request(input, init);
+    return handler(request);
+  }) as typeof fetch;
+}
+
+function r2ReportResponse(prepared: ReturnType<typeof prepareScanReportBundle>): Response {
+  return new Response(prepared.reportWire, {
+    status: 200,
+    headers: {
+      "last-modified": "Sat, 18 Jul 2026 12:00:00 GMT",
+      "x-amz-meta-created-at": prepared.retention.createdAt,
+      "x-amz-meta-expires-at": prepared.retention.expiresAt
+    }
+  });
+}
+
+async function writePrimaryOnly(
+  id: string,
+  reportWire: string,
+  retention: { createdAt: string; expiresAt: string }
+): Promise<void> {
+  await writeFile(path.join(reportDir, `${id}.json`), reportWire);
+  await writeFile(path.join(reportDir, `${id}.retention.json`), `${JSON.stringify(retention)}\n`);
 }
 
 function makeScanResult(options: { gpcEnabled?: boolean; screenshot?: string | null } = {}): ScanResult {
