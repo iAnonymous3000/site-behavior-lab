@@ -3,8 +3,9 @@
 import { useMemo, useState } from "react";
 import { AlertTriangle, CheckCircle2, ChevronDown, Database, Fingerprint, Radar } from "lucide-react";
 import { requestProvenanceSearchText, requestProvenanceSummary } from "@/lib/report-findings";
-import { displayHost, hostMatchesQuery, plural } from "@/lib/text-format";
+import { displayEvidenceName, displayHost, hostMatchesQuery, plural } from "@/lib/text-format";
 import { detectionEvidence, detectionLabel, pixelFieldLabel } from "@/lib/report-insights";
+import { isReviewedCookieName, isReviewedStorageKey } from "@/lib/public-name-policy";
 import type {
   CookieRecord,
   DomainSummary,
@@ -374,6 +375,7 @@ function CookieList({ cookies }: { cookies: CookieRecord[] }) {
   if (cookies.length === 0) return <p className="muted">No cookies were visible to the scan context.</p>;
 
   const shown = Math.min(cookies.length, 12);
+  const hiddenNames = cookies.filter((cookie) => !isReviewedCookieName(cookie.name)).length;
   return (
     <div className="compact-list">
       {/* Redaction can generalize many names to the same marker, so content
@@ -386,13 +388,18 @@ function CookieList({ cookies }: { cookies: CookieRecord[] }) {
             <CheckCircle2 className="ico-first" size={14} aria-hidden="true" />
           )}
           <span>
-            {cookie.name}
+            {displayEvidenceName(cookie.name, "cookie", index + 1)}
             <small>
               {displayHost(cookie.domain)} · {cookie.session ? "session" : "persistent"} · {cookie.thirdParty ? "third-party" : "first-party"}
             </small>
           </span>
         </div>
       ))}
+      {hiddenNames > 0 && (
+        <p className="muted privacy-filter-note">
+          {plural(hiddenNames, "cookie name")} hidden because unreviewed names can contain identifiers. Cookie values are never recorded.
+        </p>
+      )}
       <ListOverflowNote total={cookies.length} shown={shown} where="the JSON export" />
     </div>
   );
@@ -402,19 +409,25 @@ function StorageList({ storage }: { storage: StorageRecord[] }) {
   if (storage.length === 0) return <p className="muted">No local or session storage keys observed on the final page.</p>;
 
   const shown = Math.min(storage.length, 12);
+  const hiddenKeys = storage.filter((item) => !isReviewedStorageKey(item.key)).length;
   return (
     <div className="compact-list">
       {storage.slice(0, 12).map((item, index) => (
         <div key={`${index}:${item.area}:${item.key}`}>
           <Database className="ico-neutral" size={14} aria-hidden="true" />
           <span>
-            {item.key}
+            {displayEvidenceName(item.key, "storage", index + 1)}
             <small>
               {item.area} · {item.valueBytes} bytes
             </small>
           </span>
         </div>
       ))}
+      {hiddenKeys > 0 && (
+        <p className="muted privacy-filter-note">
+          {plural(hiddenKeys, "storage key")} hidden because unreviewed keys can contain identifiers. Values are not stored; only byte counts are kept.
+        </p>
+      )}
       <ListOverflowNote total={storage.length} shown={shown} where="the JSON export" />
     </div>
   );

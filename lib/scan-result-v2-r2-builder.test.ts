@@ -524,6 +524,40 @@ test("the builder sanitizes every raw evidence and consent string at its own bou
   assert.equal(JSON.stringify(consent).includes("Alice"), false);
 });
 
+test("the builder publishes reviewed GitHub names but still omits cookie and storage values", () => {
+  const input = baseInput();
+  const cookie = {
+    name: "_octo",
+    domain: ".example.com",
+    path: "/",
+    sameSite: "Lax",
+    secure: true,
+    httpOnly: false,
+    session: false,
+    thirdParty: false,
+    value: "must-not-serialize"
+  };
+  const storage = {
+    area: "sessionStorage" as const,
+    key: "soft-nav:marker",
+    valueBytes: 1,
+    value: "must-not-serialize"
+  };
+  input.evidence.cookiesFinal.push(cookie);
+  input.evidence.cookieMutations.push({ phaseId: 0, op: "added", cookie });
+  input.evidence.storageFinal.push(storage);
+  input.evidence.storageMutations.push({ phaseId: 0, op: "added", entry: storage });
+
+  const report = buildNodeScanReportV2R2(input);
+  assert.equal(report.run.evidence.cookiesFinal[0].name, "_octo");
+  assert.equal(report.run.evidence.cookieMutations[0].cookie.name, "_octo");
+  assert.equal(report.run.evidence.storageFinal[0].key, "soft-nav:marker");
+  assert.equal(report.run.evidence.storageMutations[0].entry.key, "soft-nav:marker");
+  assert.equal(report.run.privacy.redaction.cookieNamesRedacted, 0);
+  assert.equal(report.run.privacy.redaction.storageKeysRedacted, 0);
+  assert.equal(JSON.stringify(report).includes("must-not-serialize"), false);
+});
+
 test("Playwright's closed network resource vocabulary survives without loss", () => {
   for (const resourceType of ["ping", "cspreport", "beacon"]) {
     const input = baseInput();

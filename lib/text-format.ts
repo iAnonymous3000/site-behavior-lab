@@ -9,6 +9,7 @@
 
 import type { ConsentClicks } from "./temporal-report-identity";
 import type { ComparisonType } from "./types";
+import { isReviewedCookieName, isReviewedStorageKey } from "./public-name-policy";
 
 export function formatCount(value: number): string {
   return value.toLocaleString("en-US");
@@ -47,6 +48,23 @@ export function hostMatchesQuery(host: string, query: string): boolean {
   const needle = query.trim().toLowerCase();
   if (!needle) return true;
   return host.toLowerCase().includes(needle) || displayHost(host).toLowerCase().includes(needle);
+}
+
+/**
+ * Reader-facing label for an exact reviewed cookie name/storage key. Managed
+ * reports carry canonical privacy markers, while local imports can contain
+ * arbitrary strings; the UI hides both and numbers rows so several distinct
+ * observations never look like one duplicated identity.
+ */
+export function displayEvidenceName(
+  value: string,
+  kind: "cookie" | "storage",
+  ordinal: number
+): string {
+  const reviewed = kind === "cookie" ? isReviewedCookieName(value) : isReviewedStorageKey(value);
+  if (reviewed) return value;
+  const subject = kind === "cookie" ? "Cookie" : "Storage key";
+  return `${subject} ${ordinal} · name hidden for privacy`;
 }
 
 export function comparisonDeltaHeading(

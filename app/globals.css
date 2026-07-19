@@ -3054,7 +3054,8 @@ td .mono {
 /* "+N more" footer under truncated sidebar lists; overrides the list's
    card styling so it reads as a note, not another entry. */
 .domain-stack .list-overflow-note,
-.compact-list .list-overflow-note {
+.compact-list .list-overflow-note,
+.compact-list .privacy-filter-note {
   background: none;
   border: 0;
   font-size: 12px;

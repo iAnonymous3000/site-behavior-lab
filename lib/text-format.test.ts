@@ -1,12 +1,47 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { comparisonDeltaHeading, displayHost, hostMatchesQuery, reportKindLabel } from "./text-format";
+import {
+  comparisonDeltaHeading,
+  displayEvidenceName,
+  displayHost,
+  hostMatchesQuery,
+  reportKindLabel
+} from "./text-format";
 
 test("host search accepts the wildcard form displayed to readers", () => {
   assert.equal(displayHost("{label}.metrics.example"), "*.metrics.example");
   assert.equal(hostMatchesQuery("{label}.metrics.example", "*.metrics.example"), true);
   assert.equal(hostMatchesQuery("{label}.metrics.example", "{label}.metrics"), true);
   assert.equal(hostMatchesQuery("{label}.metrics.example", "unrelated"), false);
+});
+
+test("privacy markers render as explained, distinct evidence rows while reviewed names stay exact", () => {
+  assert.equal(displayEvidenceName("_octo", "cookie", 1), "_octo");
+  assert.equal(displayEvidenceName("_ga", "cookie", 2), "_ga");
+  assert.equal(displayEvidenceName("soft-nav:marker", "storage", 1), "soft-nav:marker");
+  assert.equal(displayEvidenceName("theme", "storage", 2), "theme");
+
+  const markers = [
+    "[redacted]",
+    "[redacted:uuid-like]",
+    "[redacted:numeric]",
+    "[redacted:hex-like]",
+    "[redacted:long-token]"
+  ];
+  for (const [index, marker] of markers.entries()) {
+    const cookieLabel = displayEvidenceName(marker, "cookie", index + 1);
+    const storageLabel = displayEvidenceName(marker, "storage", index + 1);
+    assert.equal(cookieLabel, `Cookie ${index + 1} · name hidden for privacy`);
+    assert.equal(storageLabel, `Storage key ${index + 1} · name hidden for privacy`);
+    assert.equal(cookieLabel.includes("[redacted"), false);
+    assert.equal(storageLabel.includes("[redacted"), false);
+  }
+
+  assert.equal(displayEvidenceName("[redacted]", "cookie", 1), "Cookie 1 · name hidden for privacy");
+  assert.equal(displayEvidenceName("[redacted]", "cookie", 2), "Cookie 2 · name hidden for privacy");
+  assert.equal(displayEvidenceName("alice_private_session", "cookie", 3), "Cookie 3 · name hidden for privacy");
+  assert.equal(displayEvidenceName("alice@example.com", "storage", 4), "Storage key 4 · name hidden for privacy");
+  assert.equal(displayEvidenceName("[redacted:invented]", "cookie", 5), "Cookie 5 · name hidden for privacy");
 });
 
 test("report kind labels distinguish consent comparisons from incomplete attempts", () => {

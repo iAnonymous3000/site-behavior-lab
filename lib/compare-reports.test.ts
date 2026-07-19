@@ -82,6 +82,22 @@ test("compareScanResults reports cookie, storage, and fingerprinting deltas", ()
   assert.deepEqual(diff.removedFingerprinting, []);
 });
 
+test("legacy v1 diffs retain terminal markers for frozen wire compatibility", () => {
+  const before = makeScanResult([]);
+  const after = makeScanResult([], {
+    cookies: [makeCookie("[redacted:long-token]", "example.com", false)],
+    storage: [makeStorage("localStorage", "[redacted:uuid-like]")]
+  });
+
+  const diff = compareScanResults(before, after);
+  assert.deepEqual(diff.cookies, { before: 0, after: 1, delta: 1 });
+  assert.deepEqual(diff.storageEntries, { before: 0, after: 1, delta: 1 });
+  assert.deepEqual(diff.addedCookies, [
+    { name: "[redacted:long-token]", domain: "example.com", thirdParty: false }
+  ]);
+  assert.deepEqual(diff.addedStorageKeys, [{ area: "localStorage", key: "[redacted:uuid-like]" }]);
+});
+
 test("compareScanResults includes a shields-blocked delta only when measured", () => {
   const plain = compareScanResults(makeScanResult([]), makeScanResult([]));
   assert.equal(plain.shieldsBlockedRequests, undefined);

@@ -26,6 +26,7 @@ import { buildReportHeadline } from "@/lib/report-headline";
 import { committedReportLocation, locateReport, type ReportRuntime } from "@/lib/report-locator";
 import { displayRunView, type ReportView, type RunView } from "@/lib/scan-report-views";
 import { plural } from "@/lib/text-format";
+import { isReviewedStorageKey } from "@/lib/public-name-policy";
 import type { NetworkRequestRecord, ReportShare } from "@/lib/types";
 
 /**
@@ -246,6 +247,7 @@ export function MetricGrid({ run }: { run: RunView }) {
   // family can contribute a row per phase.
   const apiFamilies = new Set(run.evidence.fingerprintEvents.map((event) => event.api)).size;
   const detectionCount = run.evidence.fingerprintDetections.reduce((total, detection) => total + detection.count, 0);
+  const privacyFilteredStorageKeys = run.evidence.storage.filter((entry) => !isReviewedStorageKey(entry.key)).length;
   const metrics = [
     {
       label: "Requests",
@@ -282,7 +284,15 @@ export function MetricGrid({ run }: { run: RunView }) {
       detail: `${run.counts.thirdPartyCookies.toLocaleString("en-US")} third-party`,
       icon: Cookie
     },
-    { label: "Storage keys", value: run.counts.storageEntries, detail: "values redacted", icon: Database },
+    {
+      label: "Storage keys",
+      value: run.counts.storageEntries,
+      detail:
+        privacyFilteredStorageKeys > 0
+          ? `${privacyFilteredStorageKeys.toLocaleString("en-US")} ${privacyFilteredStorageKeys === 1 ? "key" : "keys"} privacy-filtered; values omitted`
+          : "values omitted",
+      icon: Database
+    },
     {
       label: "Fingerprint-like calls",
       value: run.counts.fingerprintEvents,

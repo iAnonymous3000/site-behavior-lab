@@ -175,7 +175,22 @@ async function main() {
     await page.locator(".static-compare-upload input").nth(1).setInputFiles(singleReportFixture);
     await page.getByRole("button", { name: "Compare files" }).click();
     await page.waitForSelector(".comparison-card", { timeout: 10_000 });
-    await expectText(page.locator(".comparison-card"), "Temporal Comparison");
+    const comparisonCard = page.locator(".comparison-card");
+    const comparisonLists = page.locator(".comparison-lists");
+    await expectText(comparisonCard, "Temporal Comparison");
+    await expectText(comparisonCard, "Cookie and storage count deltas include every observation");
+    await expectText(comparisonCard, "Name-level lists show only reviewed names");
+    await expectText(comparisonLists, "logged_in");
+    await expectText(comparisonLists, "No visible storage-key changes to show; privacy-filtered keys are not itemized.");
+    const cookieDelta = page.locator(".delta-tile").filter({ has: page.getByText("Cookies", { exact: true }) });
+    await expectText(cookieDelta, "+2");
+    await expectText(cookieDelta, "3 → 5");
+    const storageDelta = page.locator(".delta-tile", { hasText: "Storage keys" });
+    await expectText(storageDelta, "+1");
+    await expectText(storageDelta, "3 → 4");
+    if ((await comparisonCard.innerHTML()).includes("[redacted")) {
+      fail("comparison card exposes a privacy marker as an exact name");
+    }
     pass("static archive compares uploaded reports");
 
     await page.goto(`${baseUrl}/`, { waitUntil: "networkidle" });
@@ -225,6 +240,23 @@ async function main() {
       .locator('input[type="file"]')
       .setInputFiles(singleReportFixture);
     await page.waitForSelector(".report-header", { timeout: 10_000 });
+    const cookieCard = page.locator(".report-sidebar .side-card", {
+      has: page.getByRole("heading", { name: "Cookies", exact: true })
+    });
+    const storageCard = page.locator(".report-sidebar .side-card", {
+      has: page.getByRole("heading", { name: "Storage", exact: true })
+    });
+    await expectText(cookieCard, "_octo");
+    await expectText(cookieCard, "Cookie 2 · name hidden for privacy");
+    await expectText(cookieCard, "Cookie 3 · name hidden for privacy");
+    await expectText(cookieCard, "2 cookie names hidden");
+    await expectText(storageCard, "soft-nav:marker");
+    await expectText(storageCard, "Storage key 2 · name hidden for privacy");
+    await expectText(storageCard, "Storage key 3 · name hidden for privacy");
+    await expectText(storageCard, "2 storage keys hidden");
+    const privacyCardsHtml = `${await cookieCard.innerHTML()}${await storageCard.innerHTML()}`;
+    if (privacyCardsHtml.includes("[redacted")) fail("report cards expose raw redaction markers");
+    pass("static report explains privacy-filtered cookie and storage names without changing reviewed names");
     await page.locator("details.data-section", { hasText: "Request log" }).locator("summary").click();
     await page.getByRole("button", { name: "Third-party" }).click();
     await expectRequestRowCount(page, 2);

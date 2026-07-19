@@ -6,6 +6,11 @@ import { comparisonArmViews, comparisonDiffView, type ReportView } from "@/lib/s
 import { provenanceChangeText } from "@/lib/report-findings";
 import { pixelFieldLabel } from "@/lib/report-insights";
 import { comparisonDeltaHeading, displayHost, plural } from "@/lib/text-format";
+import {
+  isReviewedCookieName,
+  isReviewedStorageKey,
+  omitUnreviewedNames
+} from "@/lib/public-name-policy";
 import type {
   ComparisonMetricDelta,
   CookieChange,
@@ -40,10 +45,17 @@ function ComparisonPanel({ view }: { view: ReportView }) {
   const classificationAllowed = pairAllowed && families?.["tracker-classification"]?.allowed === true;
   const detectorAllowed = pairAllowed && families?.["detector-findings"]?.allowed === true;
   const shieldsSimAllowed = pairAllowed && families?.["shields-simulation"]?.allowed === true;
-  const addedCookies = diff.addedCookies ?? [];
-  const removedCookies = diff.removedCookies ?? [];
-  const addedStorageKeys = diff.addedStorageKeys ?? [];
-  const removedStorageKeys = diff.removedStorageKeys ?? [];
+  // Keep the persisted v1 diff contract untouched for historical-report
+  // compatibility, but never present an unreviewed name as an exact identity.
+  // Aggregate deltas above still include every observation.
+  const addedCookieNames = omitUnreviewedNames(diff.addedCookies ?? [], (change) => change.name, "cookie");
+  const removedCookieNames = omitUnreviewedNames(diff.removedCookies ?? [], (change) => change.name, "cookie");
+  const addedStorageNames = omitUnreviewedNames(diff.addedStorageKeys ?? [], (change) => change.key, "storage");
+  const removedStorageNames = omitUnreviewedNames(diff.removedStorageKeys ?? [], (change) => change.key, "storage");
+  const addedCookies = addedCookieNames.entries;
+  const removedCookies = removedCookieNames.entries;
+  const addedStorageKeys = addedStorageNames.entries;
+  const removedStorageKeys = removedStorageNames.entries;
   const addedFingerprinting = diff.addedFingerprinting ?? [];
   const removedFingerprinting = diff.removedFingerprinting ?? [];
   const addedPixelEvents = diff.addedPixelEvents ?? [];
@@ -68,6 +80,16 @@ function ComparisonPanel({ view }: { view: ReportView }) {
       : [])
   ].filter((item): item is { label: string; metric: ComparisonMetricDelta } => Boolean(item.metric));
   const hasComparableDelta = metrics.length > 0;
+  // Inspect the arms, not only the derived name-change arrays: two unrelated
+  // raw names can collapse to the same marker and cancel in the canonical v1
+  // diff even while aggregate counts changed.
+  const cookieNamesPrivacyFiltered = [arms.baseline, arms.variant].some((arm) =>
+    arm.evidence.cookies.some((cookie) => !isReviewedCookieName(cookie.name))
+  );
+  const storageNamesPrivacyFiltered = [arms.baseline, arms.variant].some((arm) =>
+    arm.evidence.storage.some((entry) => !isReviewedStorageKey(entry.key))
+  );
+  const hasPrivacyFilteredNames = cookieNamesPrivacyFiltered || storageNamesPrivacyFiltered;
 
   // Families whose deltas are not comparable across these two visits, from
   // the single reason-bearing decision: the FULL reason list (never just the
@@ -150,15 +172,40 @@ function ComparisonPanel({ view }: { view: ReportView }) {
               <DeltaTile key={item.label} label={item.label} metric={item.metric} />
             ))}
           </div>
+          {rawCountsAllowed && hasPrivacyFilteredNames && (
+            <p className="muted comparison-privacy-note">
+              Cookie and storage count deltas include every observation. Name-level lists show only reviewed names; unreviewed names are not itemized because they can contain identifiers.
+            </p>
+          )}
           <div className="comparison-lists">
             {rawCountsAllowed && (
               <>
                 <ChangeList title={`Domains only with ${labels.variant}`} changes={diff.addedDomains} tone="added" />
                 <ChangeList title={`Domains only with ${labels.baseline}`} changes={diff.removedDomains} tone="removed" />
-                <CookieChangeList title={`Cookies only with ${labels.variant}`} changes={addedCookies} tone="added" />
-                <CookieChangeList title={`Cookies only with ${labels.baseline}`} changes={removedCookies} tone="removed" />
-                <StorageChangeList title={`Storage keys only with ${labels.variant}`} changes={addedStorageKeys} tone="added" />
-                <StorageChangeList title={`Storage keys only with ${labels.baseline}`} changes={removedStorageKeys} tone="removed" />
+                <CookieChangeList
+                  title={`${cookieNamesPrivacyFiltered ? "Visible cookie names" : "Cookies"} only with ${labels.variant}`}
+                  changes={addedCookies}
+                  tone="added"
+                  privacyFiltered={cookieNamesPrivacyFiltered}
+                />
+                <CookieChangeList
+                  title={`${cookieNamesPrivacyFiltered ? "Visible cookie names" : "Cookies"} only with ${labels.baseline}`}
+                  changes={removedCookies}
+                  tone="removed"
+                  privacyFiltered={cookieNamesPrivacyFiltered}
+                />
+                <StorageChangeList
+                  title={`${storageNamesPrivacyFiltered ? "Visible storage keys" : "Storage keys"} only with ${labels.variant}`}
+                  changes={addedStorageKeys}
+                  tone="added"
+                  privacyFiltered={storageNamesPrivacyFiltered}
+                />
+                <StorageChangeList
+                  title={`${storageNamesPrivacyFiltered ? "Visible storage keys" : "Storage keys"} only with ${labels.baseline}`}
+                  changes={removedStorageKeys}
+                  tone="removed"
+                  privacyFiltered={storageNamesPrivacyFiltered}
+                />
               </>
             )}
             {classificationAllowed && (
@@ -300,11 +347,25 @@ function EntityChangeList({ title, changes, tone }: { title: string; changes: En
   );
 }
 
-function CookieChangeList({ title, changes, tone }: { title: string; changes: CookieChange[]; tone: "added" | "removed" }) {
+function CookieChangeList({
+  title,
+  changes,
+  tone,
+  privacyFiltered = false
+}: {
+  title: string;
+  changes: CookieChange[];
+  tone: "added" | "removed";
+  privacyFiltered?: boolean;
+}) {
   return (
     <DiffList
       title={title}
-      emptyText="No cookie changes observed."
+      emptyText={
+        privacyFiltered
+          ? "No visible cookie-name changes to show; privacy-filtered names are not itemized."
+          : "No cookie changes observed."
+      }
       items={changes}
       renderItem={(change, index) => (
         <div className={`change-row change-${tone}`} key={`${change.name}:${change.domain}:${index}`}>
@@ -319,11 +380,25 @@ function CookieChangeList({ title, changes, tone }: { title: string; changes: Co
   );
 }
 
-function StorageChangeList({ title, changes, tone }: { title: string; changes: StorageKeyChange[]; tone: "added" | "removed" }) {
+function StorageChangeList({
+  title,
+  changes,
+  tone,
+  privacyFiltered = false
+}: {
+  title: string;
+  changes: StorageKeyChange[];
+  tone: "added" | "removed";
+  privacyFiltered?: boolean;
+}) {
   return (
     <DiffList
       title={title}
-      emptyText="No storage key changes observed."
+      emptyText={
+        privacyFiltered
+          ? "No visible storage-key changes to show; privacy-filtered keys are not itemized."
+          : "No storage key changes observed."
+      }
       items={changes}
       renderItem={(change, index) => (
         <div className={`change-row change-${tone}`} key={`${change.area}:${change.key}:${index}`}>

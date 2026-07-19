@@ -145,8 +145,12 @@ test("subdomain labels are reviewed-literal only; tenant and token labels genera
 test("cookie names and storage keys are allowlist-or-marker with shape classes", () => {
   const counters = emptyRedactionCounters();
   assert.deepEqual(redactCookieName("_ga", counters), { value: "_ga", preserved: true });
+  for (const githubCookie of ["_octo", "logged_in", "cpu_bucket", "preferred_color_mode", "tz", "_gh_sess"]) {
+    assert.deepEqual(redactCookieName(githubCookie, counters), { value: githubCookie, preserved: true });
+  }
   assert.equal(redactCookieName("8f14e45fceea167a5a36dedd4bea2543", counters).value, "[redacted:hex-like]");
   assert.deepEqual(redactStorageKey("theme", counters), { value: "theme", preserved: true });
+  assert.deepEqual(redactStorageKey("soft-nav:marker", counters), { value: "soft-nav:marker", preserved: true });
   assert.equal(redactStorageKey("user_anna_schmidt", counters).value, "[redacted]");
   assert.equal(counters.cookieNamesRedacted, 1);
   assert.equal(counters.storageKeysRedacted, 1);

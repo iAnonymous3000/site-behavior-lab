@@ -1,5 +1,5 @@
 {
-  "version": "allowlists-v2",
+  "version": "allowlists-v3",
   "subdomainLabels": {
     "version": "subdomain-v1",
     "literals": [
@@ -38,25 +38,26 @@
     ]
   },
   "cookieNames": {
-    "version": "cookie-v1",
+    "version": "cookie-v2",
     "literals": [
       "AEC", "AMP_TOKEN", "APISID", "AWSALB", "AWSALBCORS", "DSID", "HSID",
       "IDE", "JSESSIONID", "MUID", "NID", "OptanonAlertBoxClosed",
       "OptanonConsent", "PHPSESSID", "SAPISID", "SID", "SSID", "TapAd_DID",
       "TapAd_TS", "XSRF-TOKEN", "__cf_bm", "__cfruid", "_abck", "_dc_gtm_UA",
-      "_fbp", "_ga", "_gat", "_gcl_au", "_gid", "_hjSession", "_hjSessionUser",
+      "_fbp", "_ga", "_gat", "_gcl_au", "_gh_sess", "_gid", "_hjSession", "_hjSessionUser",
+      "_octo",
       "_pinterest_ct_ua", "_scid", "_ttp", "_uetsid", "_uetvid", "ajs_anonymous_id",
-      "bku", "bkdc", "cf_clearance", "cto_bundle", "datadome", "euconsent-v2",
-      "li_gc", "li_sugr", "lidc", "receive-cookie-deprecation", "s_cc", "s_sq",
-      "test_cookie", "uuid2", "usprivacy"
+      "bku", "bkdc", "cf_clearance", "cpu_bucket", "cto_bundle", "datadome", "euconsent-v2",
+      "li_gc", "li_sugr", "lidc", "logged_in", "preferred_color_mode",
+      "receive-cookie-deprecation", "s_cc", "s_sq", "test_cookie", "tz", "uuid2", "usprivacy"
     ]
   },
   "storageKeys": {
-    "version": "storage-v1",
+    "version": "storage-v2",
     "literals": [
       "OptanonConsent", "ajs_anonymous_id", "amplitude_id", "consent",
       "cookieConsent", "darkMode", "gpc", "i18n", "language", "locale", "theme",
-      "usprivacy"
+      "soft-nav:marker", "usprivacy"
     ]
   }
 }

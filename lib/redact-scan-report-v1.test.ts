@@ -289,6 +289,28 @@ test("the full report transform is byte-idempotent and rebuilds comparison diffs
   assert.equal(readStoredScanReport(first.report).ok, true);
 });
 
+test("v1 comparison redaction preserves marker-backed diff entries at its fixed point", () => {
+  const baseline = sensitiveSingle();
+  baseline.conditions.gpcEnabled = false;
+  baseline.cookies = [];
+  baseline.storage = [];
+  const variant = sensitiveSingle();
+  variant.conditions.gpcEnabled = true;
+  const comparison = createGpcComparisonReport(baseline, variant);
+
+  const first = redactScanReportV1(comparison).report;
+  const second = redactScanReportV1(first).report;
+  assert.equal(JSON.stringify(first), JSON.stringify(second));
+  assert.deepEqual(first.diff.addedCookies, [
+    {
+      name: "[redacted:long-token]",
+      domain: ".{label}.google-analytics.com",
+      thirdParty: true
+    }
+  ]);
+  assert.deepEqual(first.diff.addedStorageKeys, [{ area: "localStorage", key: "[redacted]" }]);
+});
+
 test("subdomain-specific curated tracker matches survive an idempotent public boundary", () => {
   const input = sensitiveSingle();
   const tracker = findTrackerMatch("connect.facebook.net");

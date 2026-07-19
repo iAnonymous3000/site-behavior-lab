@@ -2,6 +2,11 @@ import { parse } from "tldts";
 import allowlists from "./redaction-allowlists.json";
 import type { PrivacyStats } from "./scan-report-v2";
 import { sha256Hex } from "./sha256";
+import {
+  isRedactedNameMarker,
+  isReviewedCookieName,
+  isReviewedStorageKey
+} from "./public-name-policy";
 
 /**
  * Redaction v2: the default-deny sanitizer (RFC scan-report-v2 section 9).
@@ -40,13 +45,6 @@ const GENERALIZED_LABEL = "{label}";
 const GENERALIZED_SEGMENT = "{seg}";
 const GENERALIZED_NUMERIC_SEGMENT = "{n}";
 const REDACTED_KEY = "[redacted]";
-const TERMINAL_NAME_MARKERS = new Set([
-  REDACTED_KEY,
-  "[redacted:uuid-like]",
-  "[redacted:numeric]",
-  "[redacted:hex-like]",
-  "[redacted:long-token]"
-]);
 
 /** RFC 9.1 path cap ("proposal: 6"). */
 const MAX_PATH_SEGMENTS = 6;
@@ -79,8 +77,6 @@ export function addRedactionCounters(target: RedactionCounters, source: Redactio
 const routeLiterals = new Set(allowlists.routeLiterals.literals.map((literal) => literal.toLowerCase()));
 const subdomainLabelLiterals = new Set(allowlists.subdomainLabels.literals.map((literal) => literal.toLowerCase()));
 const queryKeyLiterals = new Set(allowlists.queryKeys.literals.map((literal) => literal.toLowerCase()));
-const cookieNameLiterals = new Set(allowlists.cookieNames.literals);
-const storageKeyLiterals = new Set(allowlists.storageKeys.literals);
 
 // ---------------------------------------------------------------------------
 // Shape classification: picks the marker for a value being redacted. Never a
@@ -96,7 +92,7 @@ export function tokenShapeMarker(value: string): string {
   // A report can cross multiple public boundaries (producer, store, export,
   // remediation). Markers are terminal public values: a later pass must not
   // collapse a classed marker back to the generic marker.
-  if (TERMINAL_NAME_MARKERS.has(value)) return value;
+  if (isRedactedNameMarker(value)) return value;
   if (value.length > MAX_RAW_NAME_CHARS) return "[redacted:long-token]";
   if (UUID_SHAPE.test(value)) return "[redacted:uuid-like]";
   // Numeric before hex: a digit-only string is valid hex too, and "numeric"
@@ -353,15 +349,13 @@ export type RedactedName = {
 };
 
 export function redactCookieName(name: string, counters: RedactionCounters): RedactedName {
-  if (TERMINAL_NAME_MARKERS.has(name)) return { value: name, preserved: true };
-  if (cookieNameLiterals.has(name)) return { value: name, preserved: true };
+  if (isRedactedNameMarker(name) || isReviewedCookieName(name)) return { value: name, preserved: true };
   counters.cookieNamesRedacted += 1;
   return { value: tokenShapeMarker(name), preserved: false };
 }
 
 export function redactStorageKey(key: string, counters: RedactionCounters): RedactedName {
-  if (TERMINAL_NAME_MARKERS.has(key)) return { value: key, preserved: true };
-  if (storageKeyLiterals.has(key)) return { value: key, preserved: true };
+  if (isRedactedNameMarker(key) || isReviewedStorageKey(key)) return { value: key, preserved: true };
   counters.storageKeysRedacted += 1;
   return { value: tokenShapeMarker(key), preserved: false };
 }

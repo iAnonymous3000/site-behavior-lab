@@ -11,9 +11,9 @@
     "thirdPartyRequests": 2,
     "knownTrackerRequests": 1,
     "thirdPartyDomains": 2,
-    "cookies": 1,
-    "thirdPartyCookies": 1,
-    "storageEntries": 1,
+    "cookies": 5,
+    "thirdPartyCookies": 3,
+    "storageEntries": 4,
     "fingerprintEvents": 1
   },
   "conditions": {
@@ -130,7 +130,17 @@
   ],
   "cookies": [
     {
-      "name": "fixture_id",
+      "name": "_octo",
+      "domain": ".example.com",
+      "path": "/",
+      "sameSite": "Lax",
+      "secure": true,
+      "httpOnly": false,
+      "session": false,
+      "thirdParty": false
+    },
+    {
+      "name": "[redacted]",
       "domain": ".analytics.brave.test",
       "path": "/",
       "sameSite": "None",
@@ -138,13 +148,58 @@
       "httpOnly": false,
       "session": false,
       "thirdParty": true
+    },
+    {
+      "name": "[redacted:long-token]",
+      "domain": ".metrics.brave.test",
+      "path": "/",
+      "sameSite": "Lax",
+      "secure": true,
+      "httpOnly": true,
+      "session": true,
+      "thirdParty": true
+    },
+    {
+      "name": "logged_in",
+      "domain": ".example.com",
+      "path": "/",
+      "sameSite": "Lax",
+      "secure": true,
+      "httpOnly": true,
+      "session": true,
+      "thirdParty": false
+    },
+    {
+      "name": "[redacted]",
+      "domain": ".analytics.brave.test",
+      "path": "/secondary",
+      "sameSite": "Lax",
+      "secure": true,
+      "httpOnly": false,
+      "session": true,
+      "thirdParty": true
     }
   ],
   "storage": [
     {
+      "area": "sessionStorage",
+      "key": "soft-nav:marker",
+      "valueBytes": 1
+    },
+    {
       "area": "localStorage",
-      "key": "seen-banner",
+      "key": "[redacted]",
       "valueBytes": 4
+    },
+    {
+      "area": "localStorage",
+      "key": "[redacted:uuid-like]",
+      "valueBytes": 36
+    },
+    {
+      "area": "localStorage",
+      "key": "[redacted]",
+      "valueBytes": 16
     }
   ],
   "fingerprintEvents": [

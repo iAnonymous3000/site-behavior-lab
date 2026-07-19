@@ -40,6 +40,10 @@ function rawSingle(): ScanResult {
     }
   ];
   report.storage = [{ area: "localStorage", key: "anna_private_key", valueBytes: 4 }];
+  (report.cookies[0] as unknown as Record<string, unknown>).value = "COOKIE_VALUE_SECRET";
+  (report.cookies[0] as unknown as Record<string, unknown>).rawValue = "COOKIE_RAW_VALUE_SECRET";
+  (report.storage[0] as unknown as Record<string, unknown>).value = "STORAGE_VALUE_SECRET";
+  (report.storage[0] as unknown as Record<string, unknown>).rawValue = "STORAGE_RAW_VALUE_SECRET";
   report.summary = {
     ...report.summary,
     totalRequests: 1,
