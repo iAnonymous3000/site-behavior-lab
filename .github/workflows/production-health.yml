@@ -26,8 +26,29 @@ jobs:
           ref: production
           fetch-depth: 1
 
-      - name: Record expected production revision
-        run: echo "EXPECTED_PRODUCTION_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+      - name: Record expected production revision and durable-jobs state
+        env:
+          PRODUCTION_CONFIG_FILE: ${{ github.workspace }}/wrangler.container.jsonc
+        run: |
+          set -euo pipefail
+          echo "EXPECTED_PRODUCTION_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+          node <<'NODE'
+          const fs = require("node:fs");
+
+          const source = fs.readFileSync(process.env.PRODUCTION_CONFIG_FILE, "utf8");
+          const matches = [
+            ...source.matchAll(/"SITE_BEHAVIOR_LAB_DURABLE_JOBS"\s*:\s*"([^"]*)"/g)
+          ];
+          if (matches.length !== 1 || (matches[0][1] !== "0" && matches[0][1] !== "1")) {
+            console.error(
+              "::error title=Invalid production durable-jobs expectation::" +
+                "wrangler.container.jsonc must declare SITE_BEHAVIOR_LAB_DURABLE_JOBS exactly once as \"0\" or \"1\"."
+            );
+            process.exit(1);
+          }
+
+          fs.appendFileSync(process.env.GITHUB_ENV, `EXPECTED_DURABLE_JOBS=${matches[0][1]}\n`);
+          NODE
 
       - name: Wait for exact scanner and Pages revisions
         env:
@@ -93,6 +114,7 @@ jobs:
           const pagesDeployment = readJson(process.env.PAGES_DEPLOYMENT_FILE, "Pages deployment provenance");
           const schema = readJson(process.env.SCHEMA_FILE, "Pages report schema");
           const expectedDeployment = process.env.EXPECTED_PRODUCTION_SHA;
+          const expectedDurableJobs = process.env.EXPECTED_DURABLE_JOBS;
           const failures = [];
           const assertPosture = (condition, message) => {
             if (!condition) failures.push(message);
@@ -125,6 +147,27 @@ jobs:
             "public ScanReport v2/r2 production must be enabled");
           assertPosture(health?.checks?.v2ShadowEmission?.status === "disabled",
             "private v2 shadow emission must be disabled during normal public operation");
+          assertPosture(health?.checks?.durableJobs?.faultInjection === undefined,
+            "production must never advertise the staging replay-fault hook");
+          if (expectedDurableJobs === "1") {
+            assertPosture(health?.checks?.durableJobs?.requested === true,
+              "durable jobs must report requested when enabled in production config");
+            assertPosture(health?.checks?.durableJobs?.enabled === true,
+              "durable jobs must report enabled when enabled in production config");
+            assertPosture(health?.checks?.durableJobs?.readiness === "ready",
+              "durable jobs must report ready when enabled in production config");
+            assertPosture(health?.checks?.durableJobs?.coordinatorOrigin === "https://scan.sitebehavior.org",
+              "durable jobs must use the exact production coordinator origin");
+          } else if (expectedDurableJobs === "0") {
+            assertPosture(health?.checks?.durableJobs?.requested === false,
+              "durable jobs must not report requested while disabled in production config");
+            assertPosture(health?.checks?.durableJobs?.enabled === false,
+              "durable jobs must not report enabled while disabled in production config");
+            assertPosture(health?.checks?.durableJobs?.readiness === "disabled",
+              "durable jobs must report disabled while disabled in production config");
+          } else {
+            failures.push(`production durable-jobs expectation must be 0 or 1 (received ${JSON.stringify(expectedDurableJobs)})`);
+          }
           assertPosture(schema?.$id === "https://sitebehavior.org/schemas/scan-report.v2.r2.schema.json",
             "live Pages must advertise the ScanReport v2/r2 contract");
           assertPosture(Number.isFinite(health?.limits?.publicScanRateLimitPerMinute) && health.limits.publicScanRateLimitPerMinute > 0,
@@ -162,6 +205,7 @@ jobs:
             "- Public report contract: **ScanReport v2/r2**",
             "- Scanner egress region: **configured**",
             "- Consent registration verification: **enabled**",
+            `- Durable jobs: **${expectedDurableJobs === "1" ? "ready" : "disabled"}** (matches production config)`,
             "- Pages report contract: **v2/r2**",
             "- Report storage: **R2**, seven-day retention",
             `- Scanner deployment: \`${health.deployment}\``,

@@ -1,0 +1,96 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  // Temporary, token-gated staging scanner used only for the durable replay
+  // canaries in docs/go-live-public-scanner.md. It must never be opened to the
+  // public or pointed at production resources.
+  "name": "site-behavior-lab-scanner-staging",
+  "main": "cloudflare/container-worker.ts",
+  "compatibility_date": "2026-06-19",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 1
+  },
+
+  // Document the complete staging-only secret contract for tooling and local
+  // warnings. The runbook's exact remote secret-list gate is authoritative.
+  "secrets": {
+    "required": [
+      "SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN",
+      "SITE_BEHAVIOR_LAB_DURABLE_JOBS_KEY",
+      "SITE_BEHAVIOR_LAB_DURABLE_JOBS_INTERNAL_TOKEN",
+      "SITE_BEHAVIOR_LAB_DURABLE_REPLAY_FAULT_TOKEN",
+      "SITE_BEHAVIOR_LAB_R2_ENDPOINT",
+      "SITE_BEHAVIOR_LAB_R2_ACCESS_KEY_ID",
+      "SITE_BEHAVIOR_LAB_R2_SECRET_ACCESS_KEY"
+    ]
+  },
+
+  // Use one known custom-domain origin for both ingress and coordinator
+  // callbacks. A workers.dev alias would create bootstrap ambiguity and another
+  // path around the temporary staging controls.
+  "workers_dev": false,
+  "preview_urls": false,
+  "routes": [
+    {
+      "pattern": "scan-staging.sitebehavior.org",
+      "custom_domain": true,
+      "previews_enabled": false
+    }
+  ],
+
+  "vars": {
+    "SITE_BEHAVIOR_LAB_ALLOWED_ORIGIN": "https://sitebehavior.org",
+
+    // The staging scan-access-token secret is mandatory. Public access and its
+    // Turnstile path remain off for both replay canaries.
+    "SITE_BEHAVIOR_LAB_ALLOW_UNAUTHENTICATED_SCANS": "0",
+
+    "SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION": "1",
+    "SITE_BEHAVIOR_LAB_PUBLIC_R2_REPORTS": "1",
+
+    // These two staging-only markers are a fail-closed prerequisite for the
+    // replay hook and its health attestation. Production never sets them.
+    "SITE_BEHAVIOR_LAB_DEPLOYMENT_ENVIRONMENT": "staging",
+    "SITE_BEHAVIOR_LAB_DURABLE_REPLAY_FAULTS": "1",
+
+    // Durable jobs are enabled here because this deployment exists solely to
+    // exercise lease-expiry and lost-resolve recovery. The callback origin is
+    // exact and known before first deploy because the custom-domain route is
+    // committed above.
+    "SITE_BEHAVIOR_LAB_DURABLE_JOBS": "1",
+    "SITE_BEHAVIOR_LAB_DURABLE_JOBS_COORDINATOR_URL": "https://scan-staging.sitebehavior.org",
+    "SITE_BEHAVIOR_LAB_REPORT_MIN_SURVIVAL_MS": "4500000",
+
+    // Bucket isolation is explicit. Provision this bucket and staging-scoped R2
+    // credentials before deploying; never reuse the production credentials.
+    "SITE_BEHAVIOR_LAB_R2_BUCKET": "site-behavior-lab-reports-staging",
+    "SITE_BEHAVIOR_LAB_R2_PREFIX": "reports/",
+
+    "SITE_BEHAVIOR_LAB_CHROMIUM_SANDBOX": "1"
+  },
+
+  "containers": [
+    {
+      // Wrangler supports an explicit container application name. Keep it
+      // distinct from production even though both apps use the exported
+      // ScannerContainer class.
+      "name": "site-behavior-lab-scanner-staging-container",
+      "class_name": "ScannerContainer",
+      "image": "./Dockerfile",
+      "image_vars": {
+        "SITE_BEHAVIOR_LAB_BUILD_COMMIT": "__SITE_BEHAVIOR_LAB_BUILD_COMMIT__"
+      },
+      "instance_type": "standard-2",
+      "max_instances": 1
+    }
+  ],
+
+  "durable_objects": {
+    // The source binding/class identifiers must stay SCANNER/ScannerContainer.
+    // Cloudflare keys the Durable Object namespace to this distinct Worker
+    // script, so staging does not share production Durable Object storage.
+    "bindings": [{ "name": "SCANNER", "class_name": "ScannerContainer" }]
+  },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["ScannerContainer"] }]
+}

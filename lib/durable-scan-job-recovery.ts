@@ -20,6 +20,15 @@ export type DurableScanJobRecoverySnapshot = Readonly<{
 type SnapshotRecoveryDependencies = {
   fetchReport: (reportId: string) => Promise<Response>;
   onReportError?: (error: unknown) => void;
+  // Emitted only by the separately attested, token-gated staging fault hook.
+  // Production callers never provide it, preserving the public status wire.
+  stagingFaultEvidence?: {
+    faultMode: "lease-expiry" | "lost-resolve";
+    attempts: number;
+    triggered: boolean;
+    triggeredGeneration: number | null;
+    finishedBeforeStatusRequest: boolean;
+  };
 };
 
 type RecoveryDependencies = {
@@ -45,8 +54,10 @@ export function publicDurableScanJobStatus(state: DurableScanJobInternalState):
 
 /**
  * Render the Durable Object's authoritative Phase-2 status. Lease credentials,
- * attempts, manifests, report capabilities, and ciphertext never cross this
- * boundary. A succeeded status is returned only with the exact saved report.
+ * manifests, report capabilities, and ciphertext never cross this boundary.
+ * Production also omits attempts; the separately attested staging replay hook
+ * may add bounded attempt/fault evidence for its two operator canaries. A
+ * succeeded status is returned only with the exact saved report.
  */
 export async function recoverDurableScanJobSnapshotResponse(
   snapshot: DurableScanJobRecoverySnapshot,
@@ -100,7 +111,13 @@ export async function recoverDurableScanJobSnapshotResponse(
         502
       );
     }
-    return recoveryJson({ ok: true, jobId: snapshot.jobId, status, progress, report }, source);
+    return recoveryJson(
+      withStagingFaultEvidence(
+        { ok: true, jobId: snapshot.jobId, status, progress, report },
+        dependencies.stagingFaultEvidence
+      ),
+      source
+    );
   }
 
   const payload: Record<string, unknown> = { ok: true, jobId: snapshot.jobId, status, progress };
@@ -109,7 +126,24 @@ export async function recoverDurableScanJobSnapshotResponse(
     payload.error = "This scan job expired because durable completion could not be confirmed.";
   }
   if (snapshot.state === "cancelled") payload.error = "This scan job was cancelled.";
-  return recoveryJson(payload, source);
+  return recoveryJson(withStagingFaultEvidence(payload, dependencies.stagingFaultEvidence), source);
+}
+
+function withStagingFaultEvidence(
+  payload: Record<string, unknown>,
+  evidence: SnapshotRecoveryDependencies["stagingFaultEvidence"]
+): Record<string, unknown> {
+  if (!evidence) return payload;
+  return {
+    ...payload,
+    durable: {
+      faultMode: evidence.faultMode,
+      attempts: evidence.attempts,
+      triggered: evidence.triggered,
+      triggeredGeneration: evidence.triggeredGeneration,
+      finishedBeforeStatusRequest: evidence.finishedBeforeStatusRequest
+    }
+  };
 }
 
 /** Idempotent, control-only response after the DO has atomically cancelled. */

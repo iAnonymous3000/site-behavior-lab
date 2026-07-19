@@ -96,25 +96,180 @@ advertise this health extension:
       "requested": true,
       "enabled": true,
       "readiness": "ready",
+      "coordinatorOrigin": "https://scan-staging.sitebehavior.org",
       "faultInjection": {
         "environment": "staging",
         "enabled": true,
         "modes": ["lease-expiry", "lost-resolve"],
         "modeHeaderName": "x-staging-fault-mode",
         "tokenHeaderName": "x-staging-fault-token",
-        "minimumNoPollMs": 240000
+        "minimumNoPollMs": 240000,
+        "attemptEvidence": true,
+        "completionBeforeStatusRequestEvidence": true,
+        "wholeOriginAccessGate": true
       }
     }
   }
 }
 ```
 
-The example header names and timing are illustrative; the staging hook owns the
-actual values. Use a separate staging Worker/configuration, and override
+The repository's staging scaffold is
+[`wrangler.container.staging.jsonc`](../wrangler.container.staging.jsonc). It is
+fail-closed and deliberately separate from production:
+
+- Worker `site-behavior-lab-scanner-staging` serves only the exact custom-domain
+  route `https://scan-staging.sitebehavior.org`; `workers_dev`, version preview
+  URLs, and per-route previews are all disabled. While the hook is enabled, the
+  scan-access token gates the entire public origin—including health, reports,
+  and assets—before any request can touch the singleton Durable Object;
+  authenticated private coordinator callbacks remain separate.
+- The staging container application has its own name and a one-instance ceiling.
+  The source binding/class remain `SCANNER`/`ScannerContainer`, but Cloudflare
+  keys that Durable Object namespace to the distinct staging Worker script, so
+  its SQLite state is separate from production.
+- The config selects the dedicated `site-behavior-lab-reports-staging` bucket,
+  disables unauthenticated scans, and enables durable jobs plus the staging-only
+  replay hook. Do not deploy it until every isolated resource and secret below
+  exists.
+
+Before the first Cloudflare mutation, pin the reviewed source revision, require
+a completely clean worktree (including staged and untracked files), and verify
+that the deployment wrapper can inject that revision. Do not create a bucket,
+token, secret, or draft Worker if this gate fails:
+
+```bash
+set -euo pipefail
+DURABLE_REPLAY_EXPECTED_SHA="$(git rev-parse HEAD)"
+export DURABLE_REPLAY_EXPECTED_SHA
+test -z "$(git status --porcelain --untracked-files=all)"
+npm run cf:container:staging:verify
+```
+
+Immediately before provisioning, run a same-session collision preflight. It
+must prove that the exact Worker returns Cloudflare's absent-script code 10007,
+the app and bucket names are absent, and DNS has no A, AAAA, or CNAME answer.
+Any network/API error other than that named absent-script result is a failed
+preflight, not evidence of absence:
+
+```bash
+set -euo pipefail
+STAGING_PREFLIGHT_DIR="$(mktemp -d)"
+export STAGING_PREFLIGHT_DIR
+
+if npx wrangler deployments list --name site-behavior-lab-scanner-staging \
+  --json -c wrangler.container.staging.jsonc \
+  > "$STAGING_PREFLIGHT_DIR/worker.json" 2> "$STAGING_PREFLIGHT_DIR/worker.err"; then
+  echo "Refusing to adopt an existing staging Worker." >&2
+  exit 1
+fi
+grep -q '10007' "$STAGING_PREFLIGHT_DIR/worker.err"
+
+if npx wrangler r2 bucket info site-behavior-lab-reports-staging --json \
+  -c wrangler.container.staging.jsonc \
+  > "$STAGING_PREFLIGHT_DIR/bucket.json" 2> "$STAGING_PREFLIGHT_DIR/bucket.err"; then
+  echo "Refusing to adopt an existing staging bucket." >&2
+  exit 1
+fi
+grep -q '10006' "$STAGING_PREFLIGHT_DIR/bucket.err"
+
+for record_type in A AAAA CNAME; do
+  dns_answers="$(dig +short scan-staging.sitebehavior.org "$record_type")"
+  test -z "$dns_answers"
+done
+```
+
+Wrangler 4.103's JSON container listing is not cursor-complete. In the Cloudflare
+Containers dashboard (or a fully paginated API client), search the complete
+account-wide application list and confirm that
+`site-behavior-lab-scanner-staging-container` is absent. Capture that full-list
+receipt; a page-one CLI result is not an absence proof.
+
+Provision the bucket, immediately add a one-day whole-bucket lifecycle as an
+interrupted-cleanup backstop, then set every required staging secret. Create a
+dedicated R2 API token with object read/write access to only this bucket in the
+Cloudflare dashboard; record its token ID (not its value) in the activation
+receipt so that exact credential can be revoked later. The R2 access key and
+secret must come from that token and must not reuse production credentials. The
+internal, scan, and fault tokens must each be 32-4096
+characters, distinct from their production counterparts, and distinct from one
+another; generate the durable encryption key in the exact 32-byte base64url
+format shown above. The account-scoped R2 endpoint is configuration rather than
+an isolation boundary and may be the same endpoint used by production:
+
+```bash
+npx wrangler r2 bucket create site-behavior-lab-reports-staging \
+  -c wrangler.container.staging.jsonc
+npx wrangler r2 bucket lifecycle add site-behavior-lab-reports-staging \
+  durable-replay-staging-cleanup --expire-days 1 --abort-multipart-days 1 \
+  --force -c wrangler.container.staging.jsonc
+npx wrangler r2 bucket lifecycle list site-behavior-lab-reports-staging \
+  -c wrangler.container.staging.jsonc
+
+npx wrangler secret put SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN \
+  -c wrangler.container.staging.jsonc
+npx wrangler secret put SITE_BEHAVIOR_LAB_DURABLE_JOBS_KEY \
+  -c wrangler.container.staging.jsonc
+npx wrangler secret put SITE_BEHAVIOR_LAB_DURABLE_JOBS_INTERNAL_TOKEN \
+  -c wrangler.container.staging.jsonc
+npx wrangler secret put SITE_BEHAVIOR_LAB_DURABLE_REPLAY_FAULT_TOKEN \
+  -c wrangler.container.staging.jsonc
+npx wrangler secret put SITE_BEHAVIOR_LAB_R2_ENDPOINT \
+  -c wrangler.container.staging.jsonc
+npx wrangler secret put SITE_BEHAVIOR_LAB_R2_ACCESS_KEY_ID \
+  -c wrangler.container.staging.jsonc
+npx wrangler secret put SITE_BEHAVIOR_LAB_R2_SECRET_ACCESS_KEY \
+  -c wrangler.container.staging.jsonc
+
+STAGING_SECRET_LIST="$(mktemp)"
+npx wrangler secret list --format json -c wrangler.container.staging.jsonc \
+  > "$STAGING_SECRET_LIST"
+jq -e \
+  '[.[].name] | sort == [
+    "SITE_BEHAVIOR_LAB_DURABLE_JOBS_INTERNAL_TOKEN",
+    "SITE_BEHAVIOR_LAB_DURABLE_JOBS_KEY",
+    "SITE_BEHAVIOR_LAB_DURABLE_REPLAY_FAULT_TOKEN",
+    "SITE_BEHAVIOR_LAB_R2_ACCESS_KEY_ID",
+    "SITE_BEHAVIOR_LAB_R2_ENDPOINT",
+    "SITE_BEHAVIOR_LAB_R2_SECRET_ACCESS_KEY",
+    "SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN"
+  ]' "$STAGING_SECRET_LIST" > /dev/null
+```
+
+`wrangler.container.staging.jsonc` declares all seven names under
+`secrets.required` for tooling and local warnings. The explicit name-only
+remote readback above is the deployment gate: it catches a partial secret-put
+sequence without exposing values. Verify the
+lifecycle readback covers the whole bucket, expires objects after one day, and
+aborts incomplete multipart uploads after one day before submitting a scan.
+
+The staging config commits the exact coordinator origin
+`https://scan-staging.sitebehavior.org`; there is no first-deploy placeholder to
+patch. Verify provenance injection before the real deployment:
+
+```bash
+test "$(git rev-parse HEAD)" = "$DURABLE_REPLAY_EXPECTED_SHA"
+test -z "$(git status --porcelain --untracked-files=all)"
+npm run cf:container:staging:verify
+npm run cf:container:staging:deploy
+```
+
+Wait until authenticated staging health reports that exact 40-character SHA in
+`deployment`, with `status: "ok"`, no warnings, ready durable jobs, the exact
+staging coordinator origin, and the fault-injection block above. The canary also
+requires `DURABLE_REPLAY_EXPECTED_SHA` and refuses stale staging code. After the
+custom domain becomes active, record the ID and exact hostname set of any
+dedicated Advanced Certificate pack created only for this staging hostname; the
+teardown must use that ID, never a shared certificate.
+
+The canary reads the header names and minimum timing from authenticated health;
+the committed hook currently advertises the values shown above. The general
+rule for any separate staging configuration is
 `SITE_BEHAVIOR_LAB_DURABLE_JOBS_COORDINATOR_URL=https://<gated-staging-scanner>`
 so Node callbacks return to that exact staging origin rather than the committed
-production origin. Configure a staging-only key and internal token that are
-distinct from each other and from every production secret. Do not reuse the
+production origin. The committed scaffold resolves that template to
+`https://scan-staging.sitebehavior.org`. Configure a
+staging-only key and internal token that are distinct from each other and from
+every production secret. Do not reuse the
 production Durable Object namespace, internal token, encryption key, scan-access
 token, R2 bucket, or R2 credentials for fault-injection testing.
 
@@ -137,32 +292,246 @@ DURABLE_REPLAY_ACCESS_TOKEN=<staging-access-token> \
 DURABLE_REPLAY_TARGET_URL=https://example.com/ \
 DURABLE_REPLAY_FAULT_TOKEN=<staging-fault-token> \
 DURABLE_REPLAY_FAULT_MODE=lease-expiry \
-DURABLE_REPLAY_NO_POLL_MS=<lease-plus-replay-margin-ms> \
+DURABLE_REPLAY_NO_POLL_MS=600000 \
+DURABLE_REPLAY_EXPECTED_SHA="$DURABLE_REPLAY_EXPECTED_SHA" \
 DURABLE_REPLAY_CONFIRM=I_ACKNOWLEDGE_THIS_SUBMITS_A_LIVE_SCAN \
 DURABLE_REPLAY_STAGING_CONFIRM=I_ACKNOWLEDGE_THIS_IS_A_GATED_STAGING_DEPLOYMENT \
 npm run test:smoke:durable-job-replay
 ```
 
-Then run the same command with `DURABLE_REPLAY_FAULT_MODE=lost-resolve`, arming
-the hook to drop the first successful coordinator resolution after the report is
-committed. The script deliberately sends no status, report, or health request
-during the wait. Afterward it requires terminal success and R2 readback under the
-same admission-minted `reportId`; when the status endpoint exposes attempt
-metadata, lease expiry must show a second attempt while lost-resolve must show one
-site visit reconciled to success.
+Then run the same command with `DURABLE_REPLAY_FAULT_MODE=lost-resolve`, keeping
+the same `DURABLE_REPLAY_EXPECTED_SHA`. The hook drops every successful callback
+from the exact first-generation owner after the report is committed, so a retry
+cannot bypass scheduled reconciliation. The script deliberately sends no
+status, report, or health request during the wait. Its first post-window status
+request must already return terminal success; it never polls a nonterminal row.
+That response must also set `durable.finishedBeforeStatusRequest: true`, derived
+from an ingress timestamp sampled before authentication or any rate-limit/status
+Durable Object RPC, so the status request itself cannot earn the receipt.
+It then requires exact triggered fault evidence, attempt metadata only from the
+staging `durable` evidence envelope, and R2 readback under the same
+admission-minted `reportId`. Lease expiry must show exactly two fenced claims
+(generation one is abandoned before Node activation); lost resolve must show
+exactly one fenced execution claim reconciled to success.
 
 Before changing the production flag to `1`, record evidence that:
 
 - the committed production flag is still `0` while both staging tests run;
+- staging health `deployment` exactly matches the reviewed commit supplied as
+  `DURABLE_REPLAY_EXPECTED_SHA`;
 - staging health is `ready` at both Node and edge layers, with distinct secrets,
   and its coordinator URL resolves to that exact staging origin;
 - the lease-expiry canary succeeds under the same `reportId` after a true no-poll
-  window and, when exposed, reports two attempts;
+  window and reports exactly two fenced attempts;
 - the lost-resolve canary reconciles the committed report under the same
-  `reportId` without a repeated visit and, when exposed, reports one attempt;
-- the staging-only fault hook is removed and health no longer advertises it; and
+  `reportId` with exactly one fenced execution claim;
+- the fault-enabled staging deployment and every isolated resource/credential
+  below are deleted, and the canonical production health response still omits
+  `faultInjection`; and
 - the privacy disclosure and 75-minute report-survival setting match the shipped
   behavior.
+
+### Abort teardown after a partial staging attempt
+
+Any failure after the first staging mutation—bucket/token creation, a secret
+put, deployment, or either canary—starts teardown immediately. Keep the
+production durable-jobs flag at `0`; do not retry provisioning on top of the
+partial attempt. This abort path accepts zero, one, or two known report IDs and
+does not assume that the Worker, container app, or bucket reached creation.
+
+First close ingress. If the exact staging Worker exists, delete it
+noninteractively; otherwise accept only Cloudflare's exact absent-script code.
+Then require the same code on a fresh readback:
+
+```bash
+set -euo pipefail
+ABORT_DIR="$(mktemp -d)"
+export ABORT_DIR
+
+if npx wrangler deployments list --name site-behavior-lab-scanner-staging \
+  --json -c wrangler.container.staging.jsonc \
+  > "$ABORT_DIR/worker-before.json" 2> "$ABORT_DIR/worker-before.err"; then
+  npx wrangler delete site-behavior-lab-scanner-staging --force \
+    -c wrangler.container.staging.jsonc
+else
+  grep -q '10007' "$ABORT_DIR/worker-before.err"
+fi
+
+if npx wrangler deployments list --name site-behavior-lab-scanner-staging \
+  --json -c wrangler.container.staging.jsonc \
+  > /dev/null 2> "$ABORT_DIR/worker-after.err"; then
+  echo "Staging Worker still exists after abort deletion." >&2
+  exit 1
+fi
+grep -q '10007' "$ABORT_DIR/worker-after.err"
+```
+
+Next refresh the complete account-wide Containers dashboard/API list. If the
+exact staging app exists, record and validate its exact ID/name pair, delete
+only that ID with `CI=1 npx wrangler containers delete <exact-id> -c
+wrangler.container.staging.jsonc`, then refresh the complete list and require
+both ID and name to be absent. If it never existed or Worker deletion already
+removed it, record that full-list absence instead.
+
+Put only report IDs actually printed by an accepted canary into the array
+below; an empty array is valid. If the dedicated bucket exists, delete both
+possible bundle members for every recorded ID, then delete the bucket. R2
+object deletion is safe when a partially published bundle member is absent.
+Bucket deletion must fail closed on any unrecorded object. If that happens,
+enumerate the complete contents of this exact, preflight-created staging-only
+bucket in the R2 dashboard/API, record the unexpected keys in the abort receipt,
+delete only those keys, and retry the bucket deletion—never substitute a
+production bucket name or credential.
+
+```bash
+KNOWN_ABORT_REPORT_IDS=(
+  # <optional-exact-reportId>
+)
+
+if (( ${#KNOWN_ABORT_REPORT_IDS[@]} > 0 )); then
+  for report_id in "${KNOWN_ABORT_REPORT_IDS[@]}"; do
+    [[ "$report_id" =~ ^[0-9]{8}-[0-9a-f]{32}$ ]] || {
+      echo "Refusing abort cleanup with an invalid report ID." >&2
+      exit 1
+    }
+  done
+fi
+
+if npx wrangler r2 bucket info site-behavior-lab-reports-staging --json \
+  -c wrangler.container.staging.jsonc \
+  > "$ABORT_DIR/bucket-before.json" 2> "$ABORT_DIR/bucket-before.err"; then
+  if (( ${#KNOWN_ABORT_REPORT_IDS[@]} > 0 )); then
+    for report_id in "${KNOWN_ABORT_REPORT_IDS[@]}"; do
+      npx wrangler r2 object delete \
+        "site-behavior-lab-reports-staging/reports/${report_id}.json" \
+        --remote --force -c wrangler.container.staging.jsonc
+      npx wrangler r2 object delete \
+        "site-behavior-lab-reports-staging/reports/${report_id}.json.provenance.json" \
+        --remote --force -c wrangler.container.staging.jsonc
+    done
+  fi
+  npx wrangler r2 bucket delete site-behavior-lab-reports-staging \
+    -c wrangler.container.staging.jsonc
+else
+  grep -q '10006' "$ABORT_DIR/bucket-before.err"
+fi
+
+if npx wrangler r2 bucket info site-behavior-lab-reports-staging --json \
+  -c wrangler.container.staging.jsonc \
+  > /dev/null 2> "$ABORT_DIR/bucket-after.err"; then
+  echo "Staging bucket still exists after abort deletion." >&2
+  exit 1
+fi
+grep -q '10006' "$ABORT_DIR/bucket-after.err"
+```
+
+Finally revoke the recorded dedicated staging R2 API-token ID and remove only a
+certificate pack proven to contain exclusively
+`scan-staging.sitebehavior.org`. Require empty A, AAAA, and CNAME lookups, an
+unreachable staging health endpoint, and canonical production health still
+green with durable jobs disabled and no `faultInjection` block. Those same
+exact absence receipts complete a partial-attempt abort.
+
+After both canary receipts are captured, perform this name- and ID-pinned
+teardown. Substitute only the two exact `reportId` values printed by the
+canaries. Each R2 runtime report is a two-object bundle; an unexpected third
+object makes bucket deletion fail closed:
+
+```bash
+set -euo pipefail
+export LEASE_EXPIRY_REPORT_ID=<exact-lease-expiry-reportId>
+export LOST_RESOLVE_REPORT_ID=<exact-lost-resolve-reportId>
+export STAGING_CONTAINER_ID=<exact-ID-from-the-full-Cloudflare-Containers-dashboard>
+
+for report_id in "$LEASE_EXPIRY_REPORT_ID" "$LOST_RESOLVE_REPORT_ID"; do
+  [[ "$report_id" =~ ^[0-9]{8}-[0-9a-f]{32}$ ]] || {
+    echo "Refusing teardown with an invalid canary report ID." >&2
+    exit 1
+  }
+done
+[[ "$STAGING_CONTAINER_ID" =~ ^[0-9a-fA-F-]{36}$ ]]
+
+npx wrangler delete site-behavior-lab-scanner-staging --force \
+  -c wrangler.container.staging.jsonc
+WORKER_ABSENCE_RECEIPT="$(mktemp)"
+if npx wrangler deployments list --name site-behavior-lab-scanner-staging \
+  --json -c wrangler.container.staging.jsonc \
+  > /dev/null 2> "$WORKER_ABSENCE_RECEIPT"; then
+  echo "Staging Worker still exists after deletion." >&2
+  exit 1
+fi
+grep -q '10007' "$WORKER_ABSENCE_RECEIPT"
+
+npx wrangler r2 object delete \
+  "site-behavior-lab-reports-staging/reports/${LEASE_EXPIRY_REPORT_ID}.json" \
+  --remote --force -c wrangler.container.staging.jsonc
+npx wrangler r2 object delete \
+  "site-behavior-lab-reports-staging/reports/${LEASE_EXPIRY_REPORT_ID}.json.provenance.json" \
+  --remote --force -c wrangler.container.staging.jsonc
+npx wrangler r2 object delete \
+  "site-behavior-lab-reports-staging/reports/${LOST_RESOLVE_REPORT_ID}.json" \
+  --remote --force -c wrangler.container.staging.jsonc
+npx wrangler r2 object delete \
+  "site-behavior-lab-reports-staging/reports/${LOST_RESOLVE_REPORT_ID}.json.provenance.json" \
+  --remote --force -c wrangler.container.staging.jsonc
+```
+
+Refresh the complete Containers dashboard/API list. Set
+`STAGING_CONTAINER_PRESENT=1` only if that exact recorded ID still has the exact
+name `site-behavior-lab-scanner-staging-container`; set it to `0` if the Worker
+deletion already removed it. Any other state is a stop. Delete only the pinned
+ID when present, using `CI=1` to make Wrangler noninteractive, then refresh the
+complete list and require both the ID and name to be absent. Finally delete the
+now-empty bucket and require exact-name `bucket info` to return code 10006:
+
+```bash
+export STAGING_CONTAINER_PRESENT=<0-or-1-from-the-full-list>
+if [[ "$STAGING_CONTAINER_PRESENT" == "1" ]]; then
+  CI=1 npx wrangler containers delete "$STAGING_CONTAINER_ID" \
+    -c wrangler.container.staging.jsonc
+elif [[ "$STAGING_CONTAINER_PRESENT" != "0" ]]; then
+  echo "Invalid staging container presence receipt." >&2
+  exit 1
+fi
+
+npx wrangler r2 bucket delete site-behavior-lab-reports-staging \
+  -c wrangler.container.staging.jsonc
+BUCKET_ABSENCE_RECEIPT="$(mktemp)"
+if npx wrangler r2 bucket info site-behavior-lab-reports-staging --json \
+  -c wrangler.container.staging.jsonc \
+  > /dev/null 2> "$BUCKET_ABSENCE_RECEIPT"; then
+  echo "Staging bucket still exists after deletion." >&2
+  exit 1
+fi
+grep -q '10006' "$BUCKET_ABSENCE_RECEIPT"
+```
+
+The bucket-delete command is the machine gate: it fails if any unexpected
+object remains. The exact-info absence receipt proves the named bucket is gone.
+
+In the Cloudflare dashboard, revoke the previously recorded staging R2 API-token
+ID and confirm it is absent. Remove only a dedicated Advanced Certificate pack
+whose recorded ID and hostname set belong exclusively to
+`scan-staging.sitebehavior.org`; never remove a shared or wildcard certificate.
+Deleting a Custom Domain does not itself remove that certificate pack.
+
+The teardown receipt is complete only when all of these readbacks pass:
+
+- `https://scan-staging.sitebehavior.org/api/health` is unreachable;
+- Worker `site-behavior-lab-scanner-staging`, its custom domain, and its Durable
+  Object namespace are absent;
+- the captured staging container ID/name pair is absent;
+- bucket `site-behavior-lab-reports-staging` and its one-day lifecycle are absent;
+- the recorded staging R2 API-token ID and any dedicated staging-only
+  certificate pack are absent;
+- DNS A, AAAA, and CNAME lookups for `scan-staging.sitebehavior.org` are empty;
+  and
+- canonical production health is still healthy on the committed production SHA
+  and `checks.durableJobs.faultInjection` is absent.
+
+Deletion is the reviewed hook-off transition. Do not create an ad hoc dirty
+hook-disabled deployment: the committed scaffold remains reproducible, while no
+fault-enabled staging surface remains reachable between activation exercises.
 
 Only after every item passes may a separate reviewed production change set
 `SITE_BEHAVIOR_LAB_DURABLE_JOBS=1`. This runbook does not authorize that flip or

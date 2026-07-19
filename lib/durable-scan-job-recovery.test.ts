@@ -202,6 +202,43 @@ test("authoritative durable success embeds the exact saved report", async () => 
   }
 });
 
+test("authoritative status emits attempt evidence only when the staging hook supplies it", async () => {
+  const response = await recoverDurableScanJobSnapshotResponse(
+    { jobId: JOB_ID, reportId: REPORT_ID, state: "queued", totalRuns: 1 },
+    missingResponse(),
+    {
+      fetchReport: async () => assert.fail("queued states must not probe the report store"),
+      stagingFaultEvidence: {
+        faultMode: "lease-expiry",
+        attempts: 2,
+        triggered: true,
+        triggeredGeneration: 1,
+        finishedBeforeStatusRequest: false
+      }
+    }
+  );
+  assert.deepEqual(await response.json(), {
+    ok: true,
+    jobId: JOB_ID,
+    status: "queued",
+    progress: { phase: "queued", completedRuns: 0, totalRuns: 1 },
+    durable: {
+      faultMode: "lease-expiry",
+      attempts: 2,
+      triggered: true,
+      triggeredGeneration: 1,
+      finishedBeforeStatusRequest: false
+    }
+  });
+
+  const production = await recoverDurableScanJobSnapshotResponse(
+    { jobId: JOB_ID, reportId: REPORT_ID, state: "queued", totalRuns: 1 },
+    missingResponse(),
+    { fetchReport: async () => assert.fail("queued states must not probe the report store") }
+  );
+  assert.equal("durable" in (await production.json()), false);
+});
+
 test("authoritative durable cancellation is control-only and idempotent", async () => {
   const response = durableScanJobCancellationResponse(
     { jobId: JOB_ID, reportId: REPORT_ID, state: "cancelled", totalRuns: 1 },

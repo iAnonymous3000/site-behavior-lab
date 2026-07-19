@@ -1,0 +1,115 @@
+import assert from "node:assert/strict";
+import { readFileSync, readdirSync } from "node:fs";
+import path from "node:path";
+import { spawnSync } from "node:child_process";
+import { execFileSync } from "node:child_process";
+import test from "node:test";
+import ts from "typescript";
+
+const ROOT = process.cwd();
+const SCRIPT = path.join(ROOT, "scripts/deploy-container.mjs");
+const COMMIT = execFileSync("git", ["rev-parse", "HEAD"], { cwd: ROOT, encoding: "utf8" }).trim();
+
+function run(args: string[]) {
+  return spawnSync(process.execPath, [SCRIPT, ...args], {
+    cwd: ROOT,
+    encoding: "utf8",
+    env: { ...process.env, WORKERS_CI_COMMIT_SHA: COMMIT }
+  });
+}
+
+function generatedConfigs() {
+  return readdirSync(ROOT).filter((entry) => /^wrangler\.container(?:\.[A-Za-z0-9._-]+)?\.generated\.\d+\.jsonc$/.test(entry));
+}
+
+test("container deploy check preserves the production default", () => {
+  const result = run(["--check"]);
+
+  assert.equal(result.status, 0, result.stderr);
+  assert.equal(result.stdout.trim(), `Container deploy config pins ${COMMIT}.`);
+  assert.deepEqual(generatedConfigs(), []);
+});
+
+test("container deploy check accepts a safe repo-root staging config", () => {
+  const result = run(["--config", "wrangler.container.staging.jsonc", "--check"]);
+
+  assert.equal(result.status, 0, result.stderr);
+  assert.match(result.stdout, new RegExp(`wrangler\\.container\\.staging\\.jsonc pins ${COMMIT}`));
+  assert.deepEqual(generatedConfigs(), []);
+});
+
+test("staging config is isolated, gated, and pinned to its exact coordinator origin", () => {
+  const configPath = path.join(ROOT, "wrangler.container.staging.jsonc");
+  const source = readFileSync(configPath, "utf8");
+  const parsed = ts.parseConfigFileTextToJson(configPath, source);
+
+  assert.equal(parsed.error, undefined);
+  const config = parsed.config;
+  assert.equal(config.name, "site-behavior-lab-scanner-staging");
+  assert.equal(config.workers_dev, false);
+  assert.equal(config.preview_urls, false);
+  assert.deepEqual(config.routes, [
+    {
+      pattern: "scan-staging.sitebehavior.org",
+      custom_domain: true,
+      previews_enabled: false
+    }
+  ]);
+  assert.equal(config.vars.SITE_BEHAVIOR_LAB_ALLOWED_ORIGIN, "https://sitebehavior.org");
+  assert.equal(config.vars.SITE_BEHAVIOR_LAB_ALLOW_UNAUTHENTICATED_SCANS, "0");
+  assert.equal(config.vars.SITE_BEHAVIOR_LAB_DEPLOYMENT_ENVIRONMENT, "staging");
+  assert.equal(config.vars.SITE_BEHAVIOR_LAB_DURABLE_REPLAY_FAULTS, "1");
+  assert.equal(config.vars.SITE_BEHAVIOR_LAB_DURABLE_JOBS, "1");
+  assert.equal(
+    config.vars.SITE_BEHAVIOR_LAB_DURABLE_JOBS_COORDINATOR_URL,
+    "https://scan-staging.sitebehavior.org"
+  );
+  assert.equal(config.vars.SITE_BEHAVIOR_LAB_R2_BUCKET, "site-behavior-lab-reports-staging");
+  assert.equal(config.containers[0].name, "site-behavior-lab-scanner-staging-container");
+  assert.equal(config.containers[0].class_name, "ScannerContainer");
+  assert.equal(config.containers[0].max_instances, 1);
+  assert.deepEqual(config.durable_objects.bindings, [{ name: "SCANNER", class_name: "ScannerContainer" }]);
+  assert.equal(source.split("__SITE_BEHAVIOR_LAB_BUILD_COMMIT__").length - 1, 1);
+  const requiredSecrets = [
+    "SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN",
+    "SITE_BEHAVIOR_LAB_DURABLE_JOBS_KEY",
+    "SITE_BEHAVIOR_LAB_DURABLE_JOBS_INTERNAL_TOKEN",
+    "SITE_BEHAVIOR_LAB_DURABLE_REPLAY_FAULT_TOKEN",
+    "SITE_BEHAVIOR_LAB_R2_ENDPOINT",
+    "SITE_BEHAVIOR_LAB_R2_ACCESS_KEY_ID",
+    "SITE_BEHAVIOR_LAB_R2_SECRET_ACCESS_KEY"
+  ];
+  assert.deepEqual(config.secrets.required, requiredSecrets);
+  for (const secret of requiredSecrets) {
+    assert.equal(Object.hasOwn(config.vars, secret), false, `${secret} must remain an operator-set secret`);
+  }
+
+  const packageJson = JSON.parse(readFileSync(path.join(ROOT, "package.json"), "utf8"));
+  assert.equal(
+    packageJson.scripts["cf:container:staging:deploy"],
+    "node scripts/deploy-container.mjs --config wrangler.container.staging.jsonc"
+  );
+  assert.equal(
+    packageJson.scripts["cf:container:staging:verify"],
+    "node scripts/deploy-container.mjs --check --config wrangler.container.staging.jsonc"
+  );
+});
+
+test("container deploy rejects config paths and unknown arguments", () => {
+  const escaped = run(["--check", "--config", "../wrangler.container.jsonc"]);
+  assert.notEqual(escaped.status, 0);
+  assert.match(escaped.stderr, /safe \.jsonc filename located directly in the repository root/);
+
+  const unknown = run(["--check", "--dry-run"]);
+  assert.notEqual(unknown.status, 0);
+  assert.match(unknown.stderr, /Unknown argument: --dry-run/);
+  assert.deepEqual(generatedConfigs(), []);
+});
+
+test("local container deployment rejects dirty provenance while CI pins an explicit commit", () => {
+  const source = readFileSync(SCRIPT, "utf8");
+  assert.match(source, /git", \["status", "--porcelain", "--untracked-files=all"\]/);
+  assert.match(source, /Container deployment provenance requires a clean Git worktree/);
+  assert.match(source, /workersCommit !== localCommit/);
+  assert.match(source, /resolveBuildCommit\(\{ requireClean: !check \}\)/);
+});

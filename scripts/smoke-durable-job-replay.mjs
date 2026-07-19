@@ -10,9 +10,9 @@
 const CONFIRMATION = "I_ACKNOWLEDGE_THIS_SUBMITS_A_LIVE_SCAN";
 const STAGING_CONFIRMATION = "I_ACKNOWLEDGE_THIS_IS_A_GATED_STAGING_DEPLOYMENT";
 const REPORT_ID_PATTERN = /^[0-9]{8}-[0-9a-f]{32}$/;
+const COMMIT_SHA_PATTERN = /^[0-9a-f]{40}$/;
 const HEADER_NAME_PATTERN = /^x-[a-z0-9-]{1,100}$/;
-const POLL_INTERVAL_MS = positiveIntegerEnv("DURABLE_REPLAY_POLL_INTERVAL_MS", 2_000);
-const MAX_POLLS = positiveIntegerEnv("DURABLE_REPLAY_MAX_POLLS", 180);
+const REQUEST_TIMEOUT_MS = positiveIntegerEnv("DURABLE_REPLAY_REQUEST_TIMEOUT_MS", 30_000);
 
 const baseUrl = requiredOrigin("DURABLE_REPLAY_BASE_URL");
 const accessToken = requiredHeaderValue("DURABLE_REPLAY_ACCESS_TOKEN");
@@ -20,6 +20,7 @@ const targetUrl = requiredTargetUrl("DURABLE_REPLAY_TARGET_URL");
 const faultToken = requiredHeaderValue("DURABLE_REPLAY_FAULT_TOKEN");
 const faultMode = requiredFaultMode();
 const noPollMs = positiveIntegerEnv("DURABLE_REPLAY_NO_POLL_MS");
+const expectedDeployment = requiredCommitSha("DURABLE_REPLAY_EXPECTED_SHA");
 
 if (process.env.DURABLE_REPLAY_CONFIRM !== CONFIRMATION) {
   fail(`Set DURABLE_REPLAY_CONFIRM=${CONFIRMATION} to acknowledge that this submits a real scan.`);
@@ -34,11 +35,7 @@ if (normalizedHostname(baseUrl) === "scan.sitebehavior.org") {
   fail("The production scanner is never a valid durable replay canary target; use a separate gated staging deployment.");
 }
 
-const health = await readJson(
-  await fetch(`${baseUrl}/api/health`, { headers: authHeaders(), cache: "no-store", redirect: "error" }),
-  "/api/health"
-);
-const hook = assertSafeFaultInjectionPrerequisites(health);
+const { hook } = await readAttestedStagingHealth("pre-submission");
 const minimumNoPollMs = Number(hook.minimumNoPollMs);
 if (!Number.isSafeInteger(minimumNoPollMs) || minimumNoPollMs <= 0) {
   fail("The advertised fault hook does not publish a positive minimumNoPollMs lease/replay margin; no scan was submitted.");
@@ -53,7 +50,7 @@ if (noPollMs < minimumNoPollMs) {
 console.log(
   `Submitting ${faultMode} durable replay canary to ${baseUrl}; no status, health, or report request will be sent for ${noPollMs} ms.`
 );
-const submissionResponse = await fetch(`${baseUrl}/api/scan`, {
+const submissionResponse = await guardedFetch(`${baseUrl}/api/scan`, {
   method: "POST",
   headers: authHeaders({
     "content-type": "application/json; charset=utf-8",
@@ -80,17 +77,26 @@ if (submissionResponse.status !== 202 || !isDurableSubmission(submission)) {
 const { jobId, reportId, statusPath } = submission;
 console.log(`Accepted job ${jobId} with report ${reportId}. Entering the deliberate no-poll window.`);
 await sleep(noPollMs);
-console.log("No-poll window complete; beginning bounded status polling.");
+console.log("No-poll window complete; reading exactly one terminal status snapshot.");
 
-const terminal = await pollTerminalStatus(statusPath);
+const terminal = await readFirstPostIdleStatus(statusPath);
 if (terminal.status !== "succeeded") {
-  fail(`Durable job became ${terminal.status} (${publicError(terminal)}).`);
+  fail(
+    `The first post-idle status snapshot was ${String(terminal.status)} instead of succeeded; ` +
+      "recovery must complete before any status request can wake the Durable Object."
+  );
+}
+if (terminal?.durable?.finishedBeforeStatusRequest !== true) {
+  fail(
+    "Status did not prove that durable completion predated the first status request; " +
+      "a request-woken recovery is not a valid replay receipt."
+  );
 }
 if (terminal.report !== undefined) {
   assertReportIdentity(terminal.report, reportId, "terminal job response");
 }
 
-const reportResponse = await fetch(`${baseUrl}/api/reports/${reportId}`, {
+const reportResponse = await guardedFetch(`${baseUrl}/api/reports/${reportId}`, {
   headers: authHeaders(),
   cache: "no-store",
   redirect: "error"
@@ -101,27 +107,73 @@ if (!reportResponse.ok) {
 }
 assertReportIdentity(savedReport, reportId, "saved report endpoint");
 
+const evidence = exposedFaultEvidence(terminal);
+if (!evidence || evidence.mode !== faultMode || evidence.triggered !== true || evidence.triggeredGeneration !== 1) {
+  fail(`Status did not expose the exact triggered ${faultMode} staging-fault evidence.`);
+}
 const attempts = exposedAttemptCount(terminal);
 if (attempts === null) {
-  console.warn("WARN The status endpoint does not expose an attempt count; report identity and terminal recovery passed.");
-} else if (faultMode === "lease-expiry" && attempts < 2) {
-  fail(`Status exposed ${attempts} attempt(s); lease-expiry replay requires evidence of a second attempt.`);
+  fail("Status did not expose mandatory staging-only attempt evidence.");
+} else if (faultMode === "lease-expiry" && attempts !== 2) {
+  fail(`Status exposed ${attempts} attempt(s); lease-expiry replay requires exactly two fenced attempts.`);
 } else if (faultMode === "lost-resolve" && attempts !== 1) {
   fail(`Status exposed ${attempts} attempt(s); lost-resolve reconciliation must not repeat the site visit.`);
 } else {
   console.log(`PASS Status exposed the expected attempt evidence (${attempts} attempt(s)).`);
 }
 
+// Refuse a mixed-version receipt if staging was redeployed during the blind
+// window. Re-run the complete attestation, not just the SHA comparison.
+await readAttestedStagingHealth("post-recovery");
+
 console.log(`PASS ${faultMode} recovered the same reportId (${reportId}) after an idle lease/replay window.`);
+
+async function readAttestedStagingHealth(phase) {
+  const health = await readJson(
+    await guardedFetch(`${baseUrl}/api/health`, {
+      headers: authHeaders(),
+      cache: "no-store",
+      redirect: "error"
+    }),
+    "/api/health"
+  );
+  const hook = assertSafeFaultInjectionPrerequisites(health);
+  if (health.deployment !== expectedDeployment) {
+    fail(
+      `The ${phase} staging deployment (${String(health.deployment)}) does not match the reviewed commit ` +
+        `(${expectedDeployment}).`
+    );
+  }
+  return { health, hook };
+}
 
 function assertSafeFaultInjectionPrerequisites(value) {
   if (!value || value.ok !== true) fail(`/api/health is not healthy (${publicError(value)}).`);
+  if (value.status !== "ok" || !Array.isArray(value.warnings) || value.warnings.length !== 0) {
+    fail("The replay canary requires status=ok with an explicitly empty warnings array; no scan was submitted.");
+  }
+  if (value.scansAvailable !== true) {
+    fail("The replay canary requires scansAvailable=true; no scan was submitted.");
+  }
   if (value.authenticated !== true || value.openAccess !== false) {
     fail("The replay canary requires a gated staging deployment (authenticated=true, openAccess=false); no scan was submitted.");
   }
   const durable = value.checks?.durableJobs;
+  if (
+    value.checks?.chromiumSandbox !== "enabled" ||
+    value.checks?.publicR2Reports?.status !== "enabled" ||
+    value.checks?.reportStore?.kind !== "r2"
+  ) {
+    fail("The replay canary requires the Chromium sandbox and the dedicated R2 report path to be ready; no scan was submitted.");
+  }
   if (!durable || durable.requested !== true || durable.enabled !== true || durable.readiness !== "ready") {
     fail("The deployment does not advertise fully ready durable jobs; no scan was submitted.");
+  }
+  if (durable.coordinatorOrigin !== baseUrl) {
+    fail(
+      `The deployment coordinator origin (${String(durable.coordinatorOrigin)}) does not exactly match ` +
+        `the configured staging origin (${baseUrl}); no scan was submitted.`
+    );
   }
 
   const injection = durable.faultInjection;
@@ -136,6 +188,17 @@ function assertSafeFaultInjectionPrerequisites(value) {
         "checks.durableJobs.faultInjection; no scan was submitted. Production intentionally omits this hook."
     );
   }
+  if (injection.attemptEvidence !== true) {
+    fail("The staging fault hook does not promise mandatory attempt evidence; no scan was submitted.");
+  }
+  if (injection.completionBeforeStatusRequestEvidence !== true) {
+    fail(
+      "The staging fault hook does not promise pre-request completion evidence; no scan was submitted."
+    );
+  }
+  if (injection.wholeOriginAccessGate !== true) {
+    fail("The staging fault hook does not attest a whole-origin access gate; no scan was submitted.");
+  }
   if (!validHeaderName(injection.modeHeaderName) || !validHeaderName(injection.tokenHeaderName)) {
     fail("The advertised fault hook does not provide valid mode/token header names; no scan was submitted.");
   }
@@ -145,21 +208,21 @@ function assertSafeFaultInjectionPrerequisites(value) {
   return injection;
 }
 
-async function pollTerminalStatus(statusPath) {
+async function readFirstPostIdleStatus(statusPath) {
   const statusUrl = new URL(statusPath, `${baseUrl}/`);
   if (statusUrl.origin !== new URL(baseUrl).origin) {
     fail("The submitted job status path escaped the configured scanner origin.");
   }
-  for (let attempt = 0; attempt < MAX_POLLS; attempt += 1) {
-    const response = await fetch(statusUrl, { headers: authHeaders(), cache: "no-store", redirect: "error" });
-    const status = await readJson(response, "/api/scans/:id");
-    if (!response.ok || status?.ok !== true) {
-      fail(`Job polling failed with HTTP ${response.status} (${publicError(status)}).`);
-    }
-    if (["succeeded", "failed", "expired", "cancelled"].includes(status.status)) return status;
-    await sleep(POLL_INTERVAL_MS);
+  const response = await guardedFetch(statusUrl, {
+    headers: authHeaders(),
+    cache: "no-store",
+    redirect: "error"
+  });
+  const status = await readJson(response, "/api/scans/:id");
+  if (!response.ok || status?.ok !== true) {
+    fail(`The first post-idle status read failed with HTTP ${response.status} (${publicError(status)}).`);
   }
-  fail(`Job did not reach a terminal state within ${(MAX_POLLS * POLL_INTERVAL_MS) / 1000} seconds after the no-poll window.`);
+  return status;
 }
 
 function isDurableSubmission(value) {
@@ -180,21 +243,27 @@ function assertReportIdentity(report, reportId, label) {
 }
 
 function exposedAttemptCount(status) {
-  const candidates = [
-    status?.attempts,
-    status?.attempt,
-    status?.attemptCount,
-    status?.progress?.attempts,
-    status?.progress?.attempt,
-    status?.progress?.attemptCount,
-    status?.durable?.attempts,
-    status?.durable?.attempt,
-    status?.durable?.attemptCount
-  ];
-  for (const value of candidates) {
-    if (Number.isSafeInteger(value) && value >= 0) return value;
+  const value = status?.durable?.attempts;
+  return Number.isSafeInteger(value) && value >= 0 ? value : null;
+}
+
+function exposedFaultEvidence(status) {
+  const durable = status?.durable;
+  if (!durable || typeof durable !== "object" || Array.isArray(durable)) return null;
+  return {
+    mode: durable.faultMode,
+    triggered: durable.triggered,
+    triggeredGeneration: durable.triggeredGeneration,
+    finishedBeforeStatusRequest: durable.finishedBeforeStatusRequest
+  };
+}
+
+async function guardedFetch(input, init) {
+  try {
+    return await fetch(input, { ...init, signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS) });
+  } catch (error) {
+    fail(`Request failed before a valid scanner response was received (${publicException(error)}).`);
   }
-  return null;
 }
 
 function authHeaders(extra = {}) {
@@ -278,6 +347,12 @@ function requiredHeaderValue(name) {
   return value;
 }
 
+function requiredCommitSha(name) {
+  const value = requiredEnv(name);
+  if (!COMMIT_SHA_PATTERN.test(value)) fail(`${name} must be the exact reviewed 40-character lowercase commit SHA.`);
+  return value;
+}
+
 function positiveIntegerEnv(name, fallback) {
   const raw = process.env[name]?.trim();
   if (!raw && fallback !== undefined) return fallback;
@@ -292,6 +367,10 @@ function validHeaderName(value) {
 
 function publicError(value) {
   return typeof value?.error === "string" && value.error.trim() ? value.error : "no public error detail";
+}
+
+function publicException(error) {
+  return error instanceof Error && error.name ? error.name : "network error";
 }
 
 function sleep(ms) {

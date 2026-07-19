@@ -13,6 +13,8 @@
     "build:schema": "node scripts/build-schema.mjs",
     "cf:bucket:create": "wrangler r2 bucket create site-behavior-lab-reports",
     "cf:container:deploy": "node scripts/deploy-container.mjs",
+    "cf:container:staging:deploy": "node scripts/deploy-container.mjs --config wrangler.container.staging.jsonc",
+    "cf:container:staging:verify": "node scripts/deploy-container.mjs --check --config wrangler.container.staging.jsonc",
     "cf:container:verify": "node scripts/deploy-container.mjs --check",
     "cf:deploy": "wrangler deploy -c wrangler.browser-run.jsonc",
     "cf:dev": "wrangler dev -c wrangler.browser-run.jsonc",

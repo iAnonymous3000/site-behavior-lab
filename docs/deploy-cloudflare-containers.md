@@ -232,9 +232,13 @@ preserved across Workers Builds deploys. The deploy command must stay explicit: 
 retired Browser Run worker's name, and failed the build. The retired config is therefore
 named `wrangler.browser-run.jsonc` (no root `wrangler.jsonc` exists), so a defaulted
 command now fails with "no config file found" instead of silently targeting the wrong
-Worker; this scanner always deploys through the wrapper with `-c wrangler.container.jsonc`.
-Workers Builds supplies `WORKERS_CI_COMMIT_SHA`; local deployments fall back to
-the exact local `HEAD`. The Dockerfile rejects an empty or placeholder SHA, and
+Worker. The production scanner always deploys through the wrapper, which defaults to
+the repo-root `wrangler.container.jsonc`. Its bounded `--config <filename>` override
+accepts only a regular `.jsonc` file directly in the repository root and exists for the
+separate `wrangler.container.staging.jsonc` replay-canary deployment; the production
+Workers Builds command must not select that override.
+Workers Builds supplies `WORKERS_CI_COMMIT_SHA`; local deployments require a
+clean worktree and then fall back to the exact local `HEAD`. The Dockerfile rejects an empty or placeholder SHA, and
 `/api/health` exposes the deployed revision for rollout verification.
 
 ## 5. Point the existing Pages site at it

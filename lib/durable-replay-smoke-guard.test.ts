@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
-import { spawnSync } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
 import { readFile } from "node:fs/promises";
+import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
 import path from "node:path";
 import { test } from "node:test";
 
@@ -12,6 +13,7 @@ const SAFE_BASE_ENV = {
   DURABLE_REPLAY_FAULT_TOKEN: "test-fault-token",
   DURABLE_REPLAY_FAULT_MODE: "lease-expiry",
   DURABLE_REPLAY_NO_POLL_MS: "240000",
+  DURABLE_REPLAY_EXPECTED_SHA: "a".repeat(40),
   DURABLE_REPLAY_CONFIRM: "I_ACKNOWLEDGE_THIS_SUBMITS_A_LIVE_SCAN"
 };
 
@@ -22,7 +24,26 @@ test("durable replay smoke is positively staging-gated with no production overri
   assert.match(source, /faultInjection\.environment=staging/);
   assert.match(source, /injection\.environment !== "staging"/);
   assert.match(source, /production scanner is never a valid durable replay canary target/i);
-  assert.match(source, /fetch\(`\$\{baseUrl\}\/api\/health`[\s\S]*redirect: "error"/);
+  assert.match(source, /guardedFetch\(`\$\{baseUrl\}\/api\/health`[\s\S]*redirect: "error"/);
+  assert.match(source, /durable\.coordinatorOrigin !== baseUrl/);
+  assert.match(source, /injection\.attemptEvidence !== true/);
+  assert.match(source, /injection\.completionBeforeStatusRequestEvidence !== true/);
+  assert.match(source, /injection\.wholeOriginAccessGate !== true/);
+  assert.match(source, /value\.status !== "ok"/);
+  assert.match(source, /value\.warnings\.length !== 0/);
+  assert.match(source, /value\.scansAvailable !== true/);
+  assert.match(source, /value\.checks\?\.chromiumSandbox !== "enabled"/);
+  assert.match(source, /value\.checks\?\.publicR2Reports\?\.status !== "enabled"/);
+  assert.match(source, /value\.checks\?\.reportStore\?\.kind !== "r2"/);
+  assert.match(source, /finishedBeforeStatusRequest !== true/);
+  assert.match(source, /health\.deployment !== expectedDeployment/);
+  assert.match(source, /readAttestedStagingHealth\("post-recovery"\)/);
+  assert.match(source, /AbortSignal\.timeout\(REQUEST_TIMEOUT_MS\)/);
+  assert.match(source, /reading exactly one terminal status snapshot/i);
+  assert.match(source, /const value = status\?\.durable\?\.attempts/);
+  assert.match(source, /lease-expiry replay requires exactly two fenced attempts/);
+  assert.doesNotMatch(source, /MAX_POLLS|POLL_INTERVAL_MS|pollTerminalStatus/);
+  assert.doesNotMatch(source, /WARN The status endpoint does not expose an attempt count/);
   assert.doesNotMatch(source, /DURABLE_REPLAY_ALLOW_PRODUCTION/);
   assert.doesNotMatch(source, /I_ACKNOWLEDGE_THIS_IS_PRODUCTION/);
 });
@@ -68,3 +89,197 @@ test("durable replay runbook binds coordinator and secrets to staging", async ()
   assert.match(source, /staging-only key and internal token/i);
   assert.match(source, /production Durable Object namespace[\s\S]*R2 bucket/);
 });
+
+test("durable replay refuses a nonterminal first post-idle snapshot without polling again", async () => {
+  let statusReads = 0;
+  const result = await runLocalCanary((request, response, baseUrl) => {
+    if (request.url === "/api/scans/20260719-11111111111111111111111111111111") {
+      statusReads += 1;
+      return sendJson(response, 200, {
+        ok: true,
+        status: "queued",
+        durable: { attempts: 2, faultMode: "lease-expiry", triggered: true, triggeredGeneration: 1 }
+      });
+    }
+    return standardCanaryRoute(request, response, baseUrl);
+  });
+
+  assert.equal(result.status, 1);
+  assert.equal(statusReads, 1);
+  assert.match(result.stderr, /first post-idle status snapshot was queued/i);
+});
+
+test("durable replay ignores contradictory attempt fields outside durable evidence", async () => {
+  const result = await runLocalCanary((request, response, baseUrl) => {
+    if (request.url === "/api/scans/20260719-11111111111111111111111111111111") {
+      return sendJson(response, 200, {
+        ok: true,
+        status: "succeeded",
+        attempts: 2,
+        progress: { attempts: 2 },
+        durable: {
+          attempts: 1,
+          faultMode: "lease-expiry",
+          triggered: true,
+          triggeredGeneration: 1,
+          finishedBeforeStatusRequest: true
+        }
+      });
+    }
+    return standardCanaryRoute(request, response, baseUrl);
+  });
+
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /lease-expiry replay requires exactly two fenced attempts/i);
+});
+
+test("durable replay re-attests the exact staging deployment after recovery", async () => {
+  let healthReads = 0;
+  const result = await runLocalCanary((request, response, baseUrl) => {
+    if (request.url === "/api/health") healthReads += 1;
+    if (request.url === `/api/scans/${JOB_ID}`) {
+      return sendJson(response, 200, {
+        ok: true,
+        status: "succeeded",
+        durable: {
+          attempts: 2,
+          faultMode: "lease-expiry",
+          triggered: true,
+          triggeredGeneration: 1,
+          finishedBeforeStatusRequest: true
+        }
+      });
+    }
+    return standardCanaryRoute(request, response, baseUrl);
+  });
+
+  assert.equal(result.status, 0, result.stderr);
+  assert.equal(healthReads, 2);
+  assert.match(result.stdout, /PASS lease-expiry recovered the same reportId/);
+});
+
+test("durable replay refuses degraded staging before submitting a scan", async () => {
+  let scanSubmissions = 0;
+  const result = await runLocalCanary((request, response, baseUrl) => {
+    if (request.url === "/api/health") {
+      const health = standardCanaryHealth(baseUrl);
+      health.status = "degraded";
+      health.warnings = ["sandbox unavailable"];
+      return sendJson(response, 200, health);
+    }
+    if (request.url === "/api/scan") scanSubmissions += 1;
+    return standardCanaryRoute(request, response, baseUrl);
+  });
+
+  assert.equal(result.status, 1);
+  assert.equal(scanSubmissions, 0);
+  assert.match(result.stderr, /status=ok with an explicitly empty warnings array/i);
+});
+
+type CanaryHandler = (
+  request: IncomingMessage,
+  response: ServerResponse,
+  baseUrl: string
+) => void;
+
+const JOB_ID = "20260719-11111111111111111111111111111111";
+const REPORT_ID = "20260719-22222222222222222222222222222222";
+
+async function runLocalCanary(handler: CanaryHandler): Promise<{ status: number | null; stdout: string; stderr: string }> {
+  let baseUrl = "";
+  const server = createServer((request, response) => handler(request, response, baseUrl));
+  await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", resolve));
+  const address = server.address();
+  if (!address || typeof address === "string") throw new Error("Could not bind local canary server.");
+  baseUrl = `http://127.0.0.1:${address.port}`;
+
+  try {
+    return await new Promise((resolve, reject) => {
+      const child = spawn(process.execPath, [SCRIPT], {
+        env: {
+          ...SAFE_BASE_ENV,
+          DURABLE_REPLAY_BASE_URL: baseUrl,
+          DURABLE_REPLAY_NO_POLL_MS: "1",
+          DURABLE_REPLAY_REQUEST_TIMEOUT_MS: "2000",
+          DURABLE_REPLAY_STAGING_CONFIRM: "I_ACKNOWLEDGE_THIS_IS_A_GATED_STAGING_DEPLOYMENT"
+        }
+      });
+      let stdout = "";
+      let stderr = "";
+      child.stdout.setEncoding("utf8").on("data", (chunk) => {
+        stdout += chunk;
+      });
+      child.stderr.setEncoding("utf8").on("data", (chunk) => {
+        stderr += chunk;
+      });
+      child.once("error", reject);
+      child.once("close", (status) => resolve({ status, stdout, stderr }));
+    });
+  } finally {
+    await new Promise<void>((resolve, reject) =>
+      server.close((error) => (error ? reject(error) : resolve()))
+    );
+  }
+}
+
+function standardCanaryRoute(
+  request: IncomingMessage,
+  response: ServerResponse,
+  baseUrl: string
+): void {
+  if (request.url === "/api/health") {
+    return sendJson(response, 200, standardCanaryHealth(baseUrl));
+  }
+  if (request.url === "/api/scan" && request.method === "POST") {
+    return sendJson(response, 202, {
+      ok: true,
+      jobId: JOB_ID,
+      reportId: REPORT_ID,
+      status: "queued",
+      statusPath: `/api/scans/${JOB_ID}`
+    });
+  }
+  if (request.url === `/api/reports/${REPORT_ID}`) {
+    return sendJson(response, 200, { share: { id: REPORT_ID } });
+  }
+  sendJson(response, 404, { error: "not found" });
+}
+
+function standardCanaryHealth(baseUrl: string): Record<string, unknown> {
+  return {
+    ok: true,
+    status: "ok",
+    warnings: [],
+    scansAvailable: true,
+    authenticated: true,
+    openAccess: false,
+    deployment: SAFE_BASE_ENV.DURABLE_REPLAY_EXPECTED_SHA,
+    checks: {
+      chromiumSandbox: "enabled",
+      publicR2Reports: { status: "enabled" },
+      reportStore: { kind: "r2" },
+      durableJobs: {
+        requested: true,
+        enabled: true,
+        readiness: "ready",
+        coordinatorOrigin: baseUrl,
+        faultInjection: {
+          environment: "staging",
+          enabled: true,
+          modes: ["lease-expiry", "lost-resolve"],
+          modeHeaderName: "x-staging-fault-mode",
+          tokenHeaderName: "x-staging-fault-token",
+          minimumNoPollMs: 1,
+          attemptEvidence: true,
+          completionBeforeStatusRequestEvidence: true,
+          wholeOriginAccessGate: true
+        }
+      }
+    }
+  };
+}
+
+function sendJson(response: ServerResponse, status: number, value: unknown): void {
+  response.writeHead(status, { "content-type": "application/json; charset=utf-8" });
+  response.end(JSON.stringify(value));
+}

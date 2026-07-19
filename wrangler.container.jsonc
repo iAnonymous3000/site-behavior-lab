@@ -41,6 +41,8 @@
     // shadow emission remains off during normal public operation.
     "SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION": "1",
     "SITE_BEHAVIOR_LAB_PUBLIC_R2_REPORTS": "1",
+    "SITE_BEHAVIOR_LAB_R2_BUCKET": "site-behavior-lab-reports",
+    "SITE_BEHAVIOR_LAB_R2_PREFIX": "reports/",
 
     // Disabled ship gate. Before changing this to "1", configure the distinct
     // SITE_BEHAVIOR_LAB_DURABLE_JOBS_KEY (Worker-only, canonical 32-byte

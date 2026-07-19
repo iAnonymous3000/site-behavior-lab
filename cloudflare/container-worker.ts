@@ -102,6 +102,22 @@ import {
   durableScanJobsFlagState,
   finalizeDurableScanJobAdmission
 } from "../lib/durable-scan-job-edge-wiring";
+import {
+  DURABLE_REPLAY_FAULT_MODE_HEADER,
+  DURABLE_REPLAY_FAULT_MODES,
+  DURABLE_REPLAY_FAULT_TOKEN_HEADER,
+  DURABLE_REPLAY_MINIMUM_NO_POLL_MS,
+  armDurableReplayFault,
+  dropLostResolveDurableReplayFault,
+  durableReplayFaultConfig,
+  durableReplayFaultIngressIntent,
+  findDurableReplayFault as readDurableReplayFault,
+  purgeDurableReplayFaults,
+  triggerLeaseExpiryDurableReplayFault,
+  type DurableReplayFault,
+  type DurableReplayLostResolveDrop,
+  type DurableReplayFaultMode
+} from "../lib/durable-replay-fault";
 
 type Env = {
   SCANNER: DurableObjectNamespace<ScannerContainer>;
@@ -122,6 +138,9 @@ type Env = {
   SITE_BEHAVIOR_LAB_DURABLE_JOBS_KEY?: string;
   SITE_BEHAVIOR_LAB_DURABLE_JOBS_INTERNAL_TOKEN?: string;
   SITE_BEHAVIOR_LAB_DURABLE_JOBS_COORDINATOR_URL?: string;
+  SITE_BEHAVIOR_LAB_DEPLOYMENT_ENVIRONMENT?: string;
+  SITE_BEHAVIOR_LAB_DURABLE_REPLAY_FAULTS?: string;
+  SITE_BEHAVIOR_LAB_DURABLE_REPLAY_FAULT_TOKEN?: string;
   SITE_BEHAVIOR_LAB_REPORT_MIN_SURVIVAL_MS?: string;
   // "1" waives the Turnstile requirement for open access (atomic rate limit only).
   // Without it, open access with no TURNSTILE_SECRET_KEY fails closed.
@@ -130,6 +149,8 @@ type Env = {
   // and forwarded into the container via envVars below.
   SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN?: string;
   TURNSTILE_SECRET_KEY?: string;
+  SITE_BEHAVIOR_LAB_R2_BUCKET?: string;
+  SITE_BEHAVIOR_LAB_R2_PREFIX?: string;
   SITE_BEHAVIOR_LAB_R2_ENDPOINT?: string;
   SITE_BEHAVIOR_LAB_R2_ACCESS_KEY_ID?: string;
   SITE_BEHAVIOR_LAB_R2_SECRET_ACCESS_KEY?: string;
@@ -187,8 +208,8 @@ export class ScannerContainer extends Container<Env> {
   // container process. Reports go to R2 because container disk is ephemeral.
   envVars = {
     SITE_BEHAVIOR_LAB_REPORT_STORE_BACKEND: "r2",
-    SITE_BEHAVIOR_LAB_R2_BUCKET: "site-behavior-lab-reports",
-    SITE_BEHAVIOR_LAB_R2_PREFIX: "reports/",
+    SITE_BEHAVIOR_LAB_R2_BUCKET: this.env.SITE_BEHAVIOR_LAB_R2_BUCKET ?? "site-behavior-lab-reports",
+    SITE_BEHAVIOR_LAB_R2_PREFIX: this.env.SITE_BEHAVIOR_LAB_R2_PREFIX ?? "reports/",
     SITE_BEHAVIOR_LAB_SCANNER_EGRESS: "cloudflare-containers",
     // This Worker is the only ingress and rewrites x-real-ip from the trusted
     // cf-connecting-ip on every forward (see forwardToContainer), so the container
@@ -360,8 +381,14 @@ export class ScannerContainer extends Container<Env> {
   }
 
   /** Encrypt, schedule, and atomically admit before the edge may expose 202. */
-  async admitDurablePreparation(preparation: DurableScanJobPreparation): Promise<DurableScanJobAdmissionResult> {
+  async admitDurablePreparation(
+    preparation: DurableScanJobPreparation,
+    replayFaultMode: DurableReplayFaultMode | null = null
+  ): Promise<DurableScanJobAdmissionResult> {
     requireDurableScanJobConfig(this.env);
+    if (replayFaultMode !== null && durableReplayFaultConfig(this.env).status !== "ready") {
+      throw new Error("The staging durable replay fault hook is not ready.");
+    }
     const key = await this.durableEncryptionKey();
     const admission = await createDurableScanJobAdmission(key, {
       jobId: preparation.submission.jobId,
@@ -389,9 +416,17 @@ export class ScannerContainer extends Container<Env> {
     }
     await this.ensureImmediateDurablePumpWake();
     try {
-      const snapshot = this.ctx.storage.transactionSync(() =>
-        admitDurableScanJob(this.ctx.storage.sql, admission)
-      );
+      const snapshot = this.ctx.storage.transactionSync(() => {
+        const admitted = admitDurableScanJob(this.ctx.storage.sql, admission);
+        if (replayFaultMode !== null) {
+          armDurableReplayFault(this.ctx.storage.sql, {
+            jobId: admitted.jobId,
+            mode: replayFaultMode,
+            now: Date.now()
+          });
+        }
+        return admitted;
+      });
       return { status: "success", snapshot };
     } catch (error) {
       if (error instanceof DurableScanJobCapacityError || error instanceof DurableScanJobStateError) {
@@ -408,6 +443,46 @@ export class ScannerContainer extends Container<Env> {
       this.purgeDurableScanJobState(now);
       return findDurableScanJobSnapshot(this.ctx.storage.sql, jobId);
     });
+  }
+
+  findStagingDurableReplayFault(jobId: string): DurableReplayFault | null {
+    if (durableReplayFaultConfig(this.env).status !== "ready") return null;
+    const now = Date.now();
+    return this.ctx.storage.transactionSync(() =>
+      readDurableReplayFault(this.ctx.storage.sql, jobId, now)
+    );
+  }
+
+  async triggerStagingLeaseExpiryFault(
+    owner: DurableScanJobExecutionOwner
+  ): Promise<DurableReplayFault | null> {
+    if (durableReplayFaultConfig(this.env).status !== "ready") return null;
+    const tokenHash = await hashDurableScanJobLeaseToken(owner.leaseToken);
+    const now = Date.now();
+    return this.ctx.storage.transactionSync(() =>
+      triggerLeaseExpiryDurableReplayFault(this.ctx.storage.sql, {
+        jobId: owner.jobId,
+        generation: owner.generation,
+        tokenHash,
+        now
+      })
+    );
+  }
+
+  async dropStagingLostResolveFault(
+    owner: DurableScanJobExecutionOwner
+  ): Promise<DurableReplayLostResolveDrop | null> {
+    if (durableReplayFaultConfig(this.env).status !== "ready") return null;
+    const tokenHash = await hashDurableScanJobLeaseToken(owner.leaseToken);
+    const now = Date.now();
+    return this.ctx.storage.transactionSync(() =>
+      dropLostResolveDurableReplayFault(this.ctx.storage.sql, {
+        jobId: owner.jobId,
+        generation: owner.generation,
+        tokenHash,
+        now
+      })
+    );
   }
 
   async cancelDurableJob(jobId: string): Promise<DurableScanJobCancellationResult> {
@@ -660,7 +735,26 @@ export class ScannerContainer extends Container<Env> {
       const activations: Array<{ claim: DurableScanJobClaim; preparation: DurableScanJobPreparation["payload"] }> = [];
       for (const claim of claims) {
         try {
-          activations.push({ claim, preparation: await decryptDurableScanJobClaim(key, claim) });
+          const preparation = await decryptDurableScanJobClaim(key, claim);
+          const abandoned = await this.triggerStagingLeaseExpiryFault({
+            jobId: claim.jobId,
+            generation: claim.leaseGeneration,
+            leaseToken: claim.leaseToken
+          });
+          if (abandoned) {
+            console.log(
+              JSON.stringify({
+                event: "durable-replay-fault-triggered",
+                mode: abandoned.mode,
+                jobId: abandoned.jobId,
+                generation: abandoned.triggeredGeneration
+              })
+            );
+            // Leave generation one leased and untouched. The persistent pump's
+            // scheduled expiry is the canary under test; no request/poll drives it.
+            continue;
+          }
+          activations.push({ claim, preparation });
         } catch (error) {
           console.error("Could not decrypt an admitted durable scan job; failing the fenced lease.", error);
           try {
@@ -1260,6 +1354,10 @@ export class ScannerContainer extends Container<Env> {
     // migrations must tolerate the pre-feature schema. Couple every purge to
     // explicit orphan pruning so disabled/status-only traffic cannot retain it.
     this.pruneDurableReconciliationBackoff();
+    // Fault receipts inherit the authoritative job purge horizon. Couple their
+    // cleanup to every normal maintenance pass so a completed canary cannot
+    // leave staging-only rows behind until another fault-specific request.
+    purgeDurableReplayFaults(this.ctx.storage.sql, now);
     return purged;
   }
 
@@ -1455,6 +1553,21 @@ export default {
       return privateRouteNotFound();
     }
 
+    // A fault-enabled staging origin is gated as one unit, not merely at scan
+    // and status routes. Reject untrusted health/report/asset traffic before
+    // any getContainer call so outside requests cannot wake a past-due alarm
+    // during the canary's deliberate no-request window. Private coordinator
+    // callbacks were authenticated above and never use this public token.
+    if (durableReplayFaultIngressIntent(env)) {
+      if (durableReplayFaultConfig(env).status !== "ready") {
+        return durableUnavailableResponse(request, env);
+      }
+      const expectedToken = env.SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN?.trim() ?? "";
+      if (!(await scanAccessTokenMatches(request.headers, expectedToken))) {
+        return gateErrorResponse(new EdgeScanGateError("Unauthorized staging request.", 401), request, env);
+      }
+    }
+
     // This origin is the scan API + report-page backend, not a front door. Send
     // anyone landing on its root to the public site so they never hit the
     // container's own scan form (which has no Turnstile site key for this host
@@ -1476,7 +1589,10 @@ export default {
     }
 
     const isScan = request.method === "POST" && url.pathname === "/api/scan";
-    if (isScan && durableScanJobsFlagMisconfigured(env)) {
+    if (
+      isScan &&
+      (durableScanJobsFlagMisconfigured(env) || durableReplayFaultConfig(env).status === "misconfigured")
+    ) {
       return durableUnavailableResponse(request, env);
     }
     const scanJobId =
@@ -1513,9 +1629,20 @@ export default {
       return gateErrorResponse(error, request, env);
     }
 
-    const forwarded = new Request(request.url, { method: "POST", headers: request.headers, body });
+    let replayFaultMode: DurableReplayFaultMode | null;
+    try {
+      replayFaultMode = await readStagingDurableReplayFaultRequest(request, env);
+    } catch (error) {
+      return gateErrorResponse(error, request, env);
+    }
+    const forwardedHeaders = new Headers(request.headers);
+    // These credentials and controls are edge-only even on staging. Never let
+    // them reach Node request logs, preparation code, or report material.
+    forwardedHeaders.delete(DURABLE_REPLAY_FAULT_MODE_HEADER);
+    forwardedHeaders.delete(DURABLE_REPLAY_FAULT_TOKEN_HEADER);
+    const forwarded = new Request(request.url, { method: "POST", headers: forwardedHeaders, body });
     if (durableScanJobsEnabled(env)) {
-      return submitDurableScanJob(forwarded, env);
+      return submitDurableScanJob(forwarded, env, replayFaultMode);
     }
     const response = await forwardToContainer(forwarded, env);
     ctx.waitUntil(
@@ -1600,7 +1727,32 @@ function requireDurableScanJobInternalToken(env: Env): string {
   return internalToken;
 }
 
-async function submitDurableScanJob(request: Request, env: Env): Promise<Response> {
+async function readStagingDurableReplayFaultRequest(
+  request: Request,
+  env: Env
+): Promise<DurableReplayFaultMode | null> {
+  const mode = request.headers.get(DURABLE_REPLAY_FAULT_MODE_HEADER);
+  const presentedToken = request.headers.get(DURABLE_REPLAY_FAULT_TOKEN_HEADER);
+  if (mode === null && presentedToken === null) return null;
+
+  const config = durableReplayFaultConfig(env);
+  const expectedToken = env.SITE_BEHAVIOR_LAB_DURABLE_REPLAY_FAULT_TOKEN ?? "";
+  if (
+    config.status !== "ready" ||
+    !DURABLE_REPLAY_FAULT_MODES.some((candidate) => candidate === mode) ||
+    !presentedToken ||
+    !(await constantTimeEqual(presentedToken, expectedToken))
+  ) {
+    throw new EdgeScanGateError("Invalid staging replay-fault authorization.", 401);
+  }
+  return mode as DurableReplayFaultMode;
+}
+
+async function submitDurableScanJob(
+  request: Request,
+  env: Env,
+  replayFaultMode: DurableReplayFaultMode | null
+): Promise<Response> {
   let config: DurableScanJobConfig;
   try {
     config = requireDurableScanJobConfig(env);
@@ -1658,7 +1810,7 @@ async function submitDurableScanJob(request: Request, env: Env): Promise<Respons
   const admission = await finalizeDurableScanJobAdmission(
     preparation,
     async (value) => {
-      const result = await getContainer(env.SCANNER).admitDurablePreparation(value);
+      const result = await getContainer(env.SCANNER).admitDurablePreparation(value, replayFaultMode);
       // Expected full/collision control flow crossed RPC as a plain envelope;
       // throw only here, in the edge isolate, so exact readback can still
       // recover a response-lost idempotent commit without resetting the DO.
@@ -1695,13 +1847,18 @@ async function handleDurableScanJobRequest(
   env: Env,
   jobId: string
 ): Promise<Response | null> {
+  // Sample before authentication/rate-limit RPCs can wake the singleton. The
+  // staging canary uses only a derived boolean to prove terminalization
+  // preceded the very first status request; no internal timestamp is exposed.
+  const statusRequestStartedAt = Date.now();
   // Authenticate and bound capability probes before even a read-only DO RPC;
   // otherwise guessed IDs become an existence oracle and unbounded work source.
   const accessFailure = await gateDurableScanJobControlRequest(request, env);
   if (accessFailure) return accessFailure;
+  const scanner = getContainer(env.SCANNER);
   let snapshot: DurableScanJobSnapshot | null;
   try {
-    snapshot = await getContainer(env.SCANNER).findDurableJob(jobId);
+    snapshot = await scanner.findDurableJob(jobId);
   } catch (error) {
     console.error("Could not read authoritative durable scan-job status.", error);
     return durableUnavailableResponse(request, env);
@@ -1718,11 +1875,21 @@ async function handleDurableScanJobRequest(
 
   if (request.method === "DELETE") {
     try {
-      const cancelled = await getContainer(env.SCANNER).cancelDurableJob(jobId);
+      const cancelled = await scanner.cancelDurableJob(jobId);
       if (cancelled.status === "conflict") return publicJobConflictResponse(request, env);
       return durableScanJobCancellationResponse(cancelled.snapshot, source);
     } catch (error) {
       console.error("Could not cancel an authoritative durable scan job.", error);
+      return durableUnavailableResponse(request, env);
+    }
+  }
+
+  let stagingFault: DurableReplayFault | null = null;
+  if (durableReplayFaultConfig(env).status === "ready") {
+    try {
+      stagingFault = await scanner.findStagingDurableReplayFault(jobId);
+    } catch (error) {
+      console.error("Could not read staging durable replay evidence.", error);
       return durableUnavailableResponse(request, env);
     }
   }
@@ -1737,7 +1904,19 @@ async function handleDurableScanJobRequest(
       headers.delete("content-type");
       return forwardToContainer(new Request(reportUrl, { method: "GET", headers }), env);
     },
-    onReportError: (error) => console.error("Could not read a durable scan-job report.", error)
+    onReportError: (error) => console.error("Could not read a durable scan-job report.", error),
+    ...(stagingFault
+      ? {
+          stagingFaultEvidence: {
+            faultMode: stagingFault.mode,
+            attempts: snapshot.attemptCount,
+            triggered: stagingFault.triggeredAt !== null,
+            triggeredGeneration: stagingFault.triggeredGeneration,
+            finishedBeforeStatusRequest:
+              snapshot.finishedAt !== null && snapshot.finishedAt < statusRequestStartedAt
+          }
+        }
+      : {})
   });
 }
 
@@ -1807,6 +1986,26 @@ async function handleDurableScanJobCoordinatorRequest(
       if (result.status === "conflict") return privateControlResponse(409);
     } else {
       if (!isDurableResolutionBody(body)) return privateControlResponse(400);
+      if (body.outcome === "succeeded") {
+        const dropped = await scanner.dropStagingLostResolveFault(owner);
+        if (dropped) {
+          if (dropped.firstTrigger) {
+            console.log(
+              JSON.stringify({
+                event: "durable-replay-fault-triggered",
+                mode: dropped.fault.mode,
+                jobId: dropped.fault.jobId,
+                generation: dropped.fault.triggeredGeneration
+              })
+            );
+          }
+          // Acknowledge Node's already-committed report while deliberately not
+          // resolving the DO row. Drop retries from the same fenced owner too;
+          // scheduled exact-bundle reconciliation must be the only path that
+          // recovers this publishing generation without another site visit.
+          return privateControlResponse(204);
+        }
+      }
       const result = await scanner.resolveDurableJob(owner, { outcome: body.outcome });
       if (result.status === "conflict") return privateControlResponse(409);
     }
@@ -1948,6 +2147,11 @@ function forwardToContainer(request: Request, env: Env, trustedInternalToken?: s
   // from Cloudflare's cf-connecting-ip. Without this, report/status reads and the
   // container's own scan limiter collapse to one shared bucket for all clients.
   const headers = stripDurableScanJobInternalHeaders(request.headers);
+  // Staging fault controls are edge-only credentials. Strip them centrally on
+  // every route so they can never reach Node health, report, asset, or fallback
+  // handlers even if a caller supplies them outside POST /api/scan.
+  headers.delete(DURABLE_REPLAY_FAULT_MODE_HEADER);
+  headers.delete(DURABLE_REPLAY_FAULT_TOKEN_HEADER);
   headers.delete("x-real-ip");
   headers.delete("x-forwarded-for");
   const clientIp = request.headers.get("cf-connecting-ip")?.trim();
@@ -2050,8 +2254,13 @@ export async function durableJobsEdgeHealthCheck(
     | "SITE_BEHAVIOR_LAB_DURABLE_JOBS_KEY"
     | "SITE_BEHAVIOR_LAB_DURABLE_JOBS_INTERNAL_TOKEN"
     | "SITE_BEHAVIOR_LAB_DURABLE_JOBS_COORDINATOR_URL"
+    | "SITE_BEHAVIOR_LAB_DEPLOYMENT_ENVIRONMENT"
+    | "SITE_BEHAVIOR_LAB_DURABLE_REPLAY_FAULTS"
+    | "SITE_BEHAVIOR_LAB_DURABLE_REPLAY_FAULT_TOKEN"
+    | "SITE_BEHAVIOR_LAB_ALLOW_UNAUTHENTICATED_SCANS"
     | "SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN"
     | "TURNSTILE_SECRET_KEY"
+    | "SITE_BEHAVIOR_LAB_R2_BUCKET"
     | "SITE_BEHAVIOR_LAB_R2_ACCESS_KEY_ID"
     | "SITE_BEHAVIOR_LAB_R2_SECRET_ACCESS_KEY"
   >
@@ -2060,17 +2269,32 @@ export async function durableJobsEdgeHealthCheck(
     requested: boolean;
     enabled: boolean;
     readiness: "disabled" | "ready" | "misconfigured";
+    coordinatorOrigin?: string;
+    faultInjection?: {
+      environment: "staging";
+      enabled: true;
+      modes: DurableReplayFaultMode[];
+      modeHeaderName: string;
+      tokenHeaderName: string;
+      minimumNoPollMs: number;
+      attemptEvidence: true;
+      completionBeforeStatusRequestEvidence: true;
+      wholeOriginAccessGate: true;
+    };
     reasons?: string[];
   };
   reasons: string[];
 }> {
   const flag = durableScanJobsFlagState(env.SITE_BEHAVIOR_LAB_DURABLE_JOBS);
   const node = durableScanJobNodeHealthState(checks);
+  const replayFault = durableReplayFaultConfig(env as Env);
   if (flag === "disabled") {
+    const reasons: string[] = [];
     if (node.requested) {
-      const reasons = [
-        "Durable scan jobs are enabled in the Node scanner but disabled at the edge."
-      ];
+      reasons.push("Durable scan jobs are enabled in the Node scanner but disabled at the edge.");
+    }
+    if (replayFault.status === "misconfigured") reasons.push(...replayFault.reasons);
+    if (reasons.length > 0) {
       return {
         check: { requested: false, enabled: false, readiness: "misconfigured", reasons },
         reasons
@@ -2090,11 +2314,20 @@ export async function durableJobsEdgeHealthCheck(
   const reasons: string[] = [];
   if (!node.ready) reasons.push("Durable scan jobs are not ready in the Node scanner.");
 
+  let coordinatorOrigin: string | null = null;
   try {
     const config = requireDurableScanJobConfig(env as Env);
     await importDurableScanJobEncryptionKey(config.encryptionKey);
+    coordinatorOrigin = config.coordinatorUrl;
   } catch {
     reasons.push("Durable scan jobs are not ready at the edge.");
+  }
+  if (replayFault.status === "misconfigured") reasons.push(...replayFault.reasons);
+  if (
+    replayFault.status === "ready" &&
+    (!coordinatorOrigin || replayFault.coordinatorOrigin !== coordinatorOrigin)
+  ) {
+    reasons.push("The staging replay-fault coordinator origin does not match the durable-job coordinator.");
   }
 
   if (reasons.length > 0) {
@@ -2103,7 +2336,30 @@ export async function durableJobsEdgeHealthCheck(
       reasons
     };
   }
-  return { check: { requested: true, enabled: true, readiness: "ready" }, reasons: [] };
+  return {
+    check: {
+      requested: true,
+      enabled: true,
+      readiness: "ready",
+      coordinatorOrigin: coordinatorOrigin!,
+      ...(replayFault.status === "ready"
+        ? {
+            faultInjection: {
+              environment: "staging" as const,
+              enabled: true as const,
+              modes: [...DURABLE_REPLAY_FAULT_MODES],
+              modeHeaderName: DURABLE_REPLAY_FAULT_MODE_HEADER,
+              tokenHeaderName: DURABLE_REPLAY_FAULT_TOKEN_HEADER,
+              minimumNoPollMs: DURABLE_REPLAY_MINIMUM_NO_POLL_MS,
+              attemptEvidence: true as const,
+              completionBeforeStatusRequestEvidence: true as const,
+              wholeOriginAccessGate: true as const
+            }
+          }
+        : {})
+    },
+    reasons: []
+  };
 }
 
 /**

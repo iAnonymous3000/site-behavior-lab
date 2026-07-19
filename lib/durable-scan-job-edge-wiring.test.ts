@@ -226,11 +226,13 @@ test("due driver reuse kicks the existing alarm instead of postponing it", () =>
 test("Worker wiring preserves Phase 1 while closing durable private boundaries", async () => {
   const source = await readFile(path.join(process.cwd(), "cloudflare/container-worker.ts"), "utf8");
   assert.match(source, /ctx\.waitUntil\(\s*recordAcceptedScanJob\(/);
-  assert.match(source, /return submitDurableScanJob\(forwarded, env\)/);
-  assert.match(source, /isScan && durableScanJobsFlagMisconfigured\(env\)/);
+  assert.match(source, /return submitDurableScanJob\(forwarded, env, replayFaultMode\)/);
+  assert.match(source, /isScan &&\s*\(\s*durableScanJobsFlagMisconfigured\(env\)/);
   assert.match(source, /await finalizeDurableScanJobAdmission\(/);
   assert.match(source, /isDurableScanJobNodePrivatePath\(url\.pathname\)/);
   assert.match(source, /stripDurableScanJobInternalHeaders\(request\.headers\)/);
+  assert.match(source, /forwardedHeaders\.delete\(DURABLE_REPLAY_FAULT_MODE_HEADER\)/);
+  assert.match(source, /forwardedHeaders\.delete\(DURABLE_REPLAY_FAULT_TOKEN_HEADER\)/);
   assert.match(source, /timeoutMs = 60_000/);
   assert.match(source, /AbortSignal\.timeout\(timeoutMs\)/);
   assert.match(source, /DURABLE_SCAN_JOB_RECONCILIATION_TIMEOUT_MS/);
@@ -302,6 +304,14 @@ test("Worker wiring preserves Phase 1 while closing durable private boundaries",
   assert.match(jobRouting, /handleDurableScanJobRequest\(request, env, scanJobId\)/);
   assert.doesNotMatch(jobRouting, /if \(durableScanJobsEnabled\(env\)\)/);
   assert.match(source, /before\?\.state === "queued" && before\.leaseGeneration > 0/);
+  assert.match(
+    source,
+    /triggerStagingLeaseExpiryFault\(\{[\s\S]*jobId: claim\.jobId,[\s\S]*generation: claim\.leaseGeneration,[\s\S]*leaseToken: claim\.leaseToken/
+  );
+  assert.match(source, /dropStagingLostResolveFault\(owner\)/);
+  assert.match(source, /dropLostResolveDurableReplayFault\(this\.ctx\.storage\.sql/);
+  assert.match(source, /armDurableReplayFault\(this\.ctx\.storage\.sql/);
+  assert.match(source, /findStagingDurableReplayFault\(jobId\)/);
 });
 
 test("Durable Object RPC mutations own time and return plain conflict envelopes", async () => {
@@ -414,4 +424,44 @@ test("Worker health performs the edge key upgrade and fail-closed downgrade", as
     /SITE_BEHAVIOR_LAB_DURABLE_JOBS_KEY:\s*this\.env\.SITE_BEHAVIOR_LAB_DURABLE_JOBS_KEY/
   );
   assert.match(source, /coordinator\.hostname === "\[::1\]"/);
+  assert.match(source, /coordinatorOrigin: coordinatorOrigin!/);
+  assert.match(source, /faultInjection:/);
+  assert.match(source, /attemptEvidence: true as const/);
+  assert.match(source, /completionBeforeStatusRequestEvidence: true as const/);
+  assert.match(source, /wholeOriginAccessGate: true as const/);
+  assert.match(source, /durableReplayFaultConfig\(env as Env\)/);
+  const fetchHandler = source.slice(
+    source.indexOf("export default"),
+    source.indexOf("type DurableScanJobConfig")
+  );
+  assert.ok(
+    fetchHandler.indexOf("durableReplayFaultIngressIntent(env)") <
+      fetchHandler.indexOf('url.pathname === "/api/health"'),
+    "the staging whole-origin token gate must run before health can touch the container"
+  );
+  assert.match(
+    fetchHandler,
+    /durableReplayFaultIngressIntent\(env\)[\s\S]*durableReplayFaultConfig\(env\)\.status !== "ready"[\s\S]*scanAccessTokenMatches\(request\.headers, expectedToken\)/
+  );
+  const healthCheck = source.slice(
+    source.indexOf("export async function durableJobsEdgeHealthCheck"),
+    source.indexOf("async function gateScanRequest")
+  );
+  assert.ok(
+    healthCheck.indexOf("const replayFault = durableReplayFaultConfig") <
+      healthCheck.indexOf('if (flag === "disabled")'),
+    "health must evaluate replay-fault misconfiguration before the disabled early return"
+  );
+  assert.match(healthCheck, /if \(replayFault\.status === "misconfigured"\) reasons\.push/);
+
+  const forwarder = source.slice(
+    source.indexOf("function forwardToContainer"),
+    source.indexOf("function frontDoorOrigin")
+  );
+  assert.match(forwarder, /headers\.delete\(DURABLE_REPLAY_FAULT_MODE_HEADER\)/);
+  assert.match(forwarder, /headers\.delete\(DURABLE_REPLAY_FAULT_TOKEN_HEADER\)/);
+
+  const purgeStart = source.indexOf("private purgeDurableScanJobState");
+  const purge = source.slice(purgeStart, source.indexOf("private durableEncryptionKey", purgeStart));
+  assert.match(purge, /purgeDurableReplayFaults\(this\.ctx\.storage\.sql, now\)/);
 });
