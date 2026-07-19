@@ -306,8 +306,8 @@ function delta(before: number, after: number): ComparisonMetricDelta {
 }
 
 function optionalDelta(before: number | undefined, after: number | undefined): ComparisonMetricDelta | undefined {
-  if (before === undefined && after === undefined) return undefined;
-  return delta(before ?? 0, after ?? 0);
+  if (before === undefined || after === undefined) return undefined;
+  return delta(before, after);
 }
 
 function domainChanges(before: DomainSummary[], after: DomainSummary[]): DomainChange[] {

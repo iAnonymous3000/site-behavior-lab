@@ -92,6 +92,16 @@ import {
   type DurableScanJobSnapshot
 } from "../lib/durable-scan-job-store";
 import {
+  AUTHENTICATED_SCAN_RATE_LIMIT_PER_MINUTE,
+  assertPublicScanRateLimitCharge,
+  chargePublicScanRateLimit as chargePublicScanRateLimitInStore,
+  commitPublicScanRateLimitedOperation,
+  peekPublicScanRateLimit as peekPublicScanRateLimitInStore,
+  publicScanRateLimitChargeMatchesCost,
+  type PublicScanRateLimitCharge,
+  type PublicScanRateLimitResult
+} from "../lib/public-scan-rate-limit-store";
+import {
   chooseDurableScanJobPumpWakeAt,
   durablePumpReuseNeedsAlarmKick,
   durableReconciliationTimeoutMs,
@@ -172,10 +182,6 @@ const DURABLE_SCAN_JOB_EXECUTION_CAPACITY = 2;
 type DurablePumpSchedulePayload = { epoch: string };
 type DurablePumpScheduleContext = { taskId: string };
 
-type AtomicRateLimitResult =
-  | { allowed: true }
-  | { allowed: false; retryAfterSeconds: number };
-
 type DurableScanJobMutationResult =
   | { status: "success" }
   | { status: "conflict" };
@@ -190,7 +196,27 @@ type DurableScanJobCancellationResult =
 
 type DurableScanJobAdmissionResult =
   | { status: "success"; snapshot: DurableScanJobSnapshot }
+  | { status: "rate-limited"; retryAfterSeconds: number }
   | { status: "refused" };
+
+class DurableScanJobRateLimitError extends EdgeScanGateError {
+  constructor(scope: PublicScanRateLimitCharge["scope"], retryAfterSeconds: number) {
+    super(
+      scope === "public"
+        ? `Too many public scans. Try again in about ${formatPublicScanRetryAfter(retryAfterSeconds)}.`
+        : "Too many scan requests. Try again shortly.",
+      429
+    );
+    this.name = "DurableScanJobRateLimitError";
+  }
+}
+
+class DurableScanJobRefusedError extends Error {
+  constructor() {
+    super("The authoritative durable scan-job admission was refused.");
+    this.name = "DurableScanJobRefusedError";
+  }
+}
 
 export class ScannerContainer extends Container<Env> {
   // The Dockerfile serves Next.js on :3000.
@@ -260,75 +286,21 @@ export class ScannerContainer extends Container<Env> {
    * cannot overshoot the configured token budget as they could with KV
    * read-then-write counters.
    */
-  chargePublicScanRateLimit(input: {
-    clientHash: string;
-    cost: 1 | 2;
-    perMinute: number;
-    perDay: number;
-  }): AtomicRateLimitResult {
-    if (!/^[a-f0-9]{64}$/.test(input.clientHash)) {
-      throw new Error("Invalid public-scan client hash.");
-    }
-    if (input.cost !== 1 && input.cost !== 2) {
-      throw new Error("Invalid public-scan rate-limit charge.");
-    }
-    if (
-      !Number.isSafeInteger(input.perMinute) ||
-      input.perMinute <= 0 ||
-      !Number.isSafeInteger(input.perDay) ||
-      input.perDay <= 0
-    ) {
-      throw new Error("Invalid public-scan rate-limit configuration.");
-    }
-
+  chargePublicScanRateLimit(input: PublicScanRateLimitCharge): PublicScanRateLimitResult {
     const now = Date.now();
-    return this.ctx.storage.transactionSync(() => {
-      const sql = this.ctx.storage.sql;
-      sql.exec(
-        "CREATE TABLE IF NOT EXISTS public_scan_rate_limits (bucket TEXT PRIMARY KEY, used INTEGER NOT NULL, expires_at INTEGER NOT NULL)"
-      );
-      sql.exec("DELETE FROM public_scan_rate_limits WHERE expires_at <= ?", now);
-
-      const windows = [
-        atomicRateLimitWindow("minute", 60_000, input.perMinute, { ...input, now }),
-        atomicRateLimitWindow("day", 86_400_000, input.perDay, { ...input, now })
-      ];
-      const exceeded: number[] = [];
-      const charges: Array<{ bucket: string; used: number; expiresAt: number }> = [];
-
-      for (const window of windows) {
-        const row = sql
-          .exec<{ used: number }>(
-            "SELECT used FROM public_scan_rate_limits WHERE bucket = ? AND expires_at > ?",
-            window.bucket,
-            now
-          )
-          .toArray()[0];
-        const used = row?.used ?? 0;
-        if (used + input.cost > window.limit) {
-          exceeded.push(window.retryAfterSeconds);
-        } else {
-          charges.push({ bucket: window.bucket, used: used + input.cost, expiresAt: window.expiresAt });
-        }
-      }
-
-      if (exceeded.length > 0) {
-        return { allowed: false, retryAfterSeconds: Math.max(...exceeded) };
-      }
-
-      for (const charge of charges) {
-        sql.exec(
-          "INSERT INTO public_scan_rate_limits (bucket, used, expires_at) VALUES (?, ?, ?) ON CONFLICT(bucket) DO UPDATE SET used = excluded.used, expires_at = excluded.expires_at",
-          charge.bucket,
-          charge.used,
-          charge.expiresAt
-        );
-      }
-      return { allowed: true };
-    });
+    return this.ctx.storage.transactionSync(() =>
+      chargePublicScanRateLimitInStore(this.ctx.storage.sql, input, now)
+    );
   }
 
-  chargeDurableJobReadRateLimit(input: { clientHash: string }): AtomicRateLimitResult {
+  peekPublicScanRateLimit(input: PublicScanRateLimitCharge): PublicScanRateLimitResult {
+    const now = Date.now();
+    return this.ctx.storage.transactionSync(() =>
+      peekPublicScanRateLimitInStore(this.ctx.storage.sql, input, now)
+    );
+  }
+
+  chargeDurableJobReadRateLimit(input: { clientHash: string }): PublicScanRateLimitResult {
     if (!/^[a-f0-9]{64}$/.test(input.clientHash)) {
       throw new Error("Invalid durable scan-job read-rate-limit charge.");
     }
@@ -383,8 +355,13 @@ export class ScannerContainer extends Container<Env> {
   /** Encrypt, schedule, and atomically admit before the edge may expose 202. */
   async admitDurablePreparation(
     preparation: DurableScanJobPreparation,
-    replayFaultMode: DurableReplayFaultMode | null = null
+    replayFaultMode: DurableReplayFaultMode | null,
+    rateLimit: PublicScanRateLimitCharge
   ): Promise<DurableScanJobAdmissionResult> {
+    assertPublicScanRateLimitCharge(rateLimit);
+    if (!publicScanRateLimitChargeMatchesCost(rateLimit, preparation.payload.rateLimitCost)) {
+      throw new Error("The durable scan-job quota cost does not match its prepared payload.");
+    }
     requireDurableScanJobConfig(this.env);
     if (replayFaultMode !== null && durableReplayFaultConfig(this.env).status !== "ready") {
       throw new Error("The staging durable replay fault hook is not ready.");
@@ -397,16 +374,19 @@ export class ScannerContainer extends Container<Env> {
       payload: preparation.payload
     });
 
-    // Reject full/colliding admissions before calling Container.schedule(),
-    // whose singleton alarm write would otherwise be remotely postponable by
-    // a stream of refused requests. The insert repeats this check after an
-    // imminent, coalesced wake is durably present.
+    // Reject full/colliding or quota-exhausted admissions before calling
+    // Container.schedule(), whose singleton alarm write would otherwise be
+    // remotely postponable by a stream of refused requests. The final
+    // transaction repeats both checks after an imminent, coalesced wake is
+    // durably present.
+    let rateLimitPreflight: PublicScanRateLimitResult;
     try {
       const now = Date.now();
-      this.ctx.storage.transactionSync(() => {
+      rateLimitPreflight = this.ctx.storage.transactionSync(() => {
         ensureDurableScanJobStore(this.ctx.storage.sql);
         this.purgeDurableScanJobState(now);
         preflightDurableScanJobAdmission(this.ctx.storage.sql, admission);
+        return peekPublicScanRateLimitInStore(this.ctx.storage.sql, rateLimit, now);
       });
     } catch (error) {
       if (error instanceof DurableScanJobCapacityError || error instanceof DurableScanJobStateError) {
@@ -414,20 +394,34 @@ export class ScannerContainer extends Container<Env> {
       }
       throw error;
     }
+    if (!rateLimitPreflight.allowed) {
+      return { status: "rate-limited", retryAfterSeconds: rateLimitPreflight.retryAfterSeconds };
+    }
     await this.ensureImmediateDurablePumpWake();
     try {
-      const snapshot = this.ctx.storage.transactionSync(() => {
-        const admitted = admitDurableScanJob(this.ctx.storage.sql, admission);
-        if (replayFaultMode !== null) {
-          armDurableReplayFault(this.ctx.storage.sql, {
-            jobId: admitted.jobId,
-            mode: replayFaultMode,
-            now: Date.now()
-          });
+      return this.ctx.storage.transactionSync(() => {
+        const now = Date.now();
+        const committed = commitPublicScanRateLimitedOperation(
+          this.ctx.storage.sql,
+          rateLimit,
+          now,
+          () => {
+            const admitted = admitDurableScanJob(this.ctx.storage.sql, admission);
+            if (replayFaultMode !== null) {
+              armDurableReplayFault(this.ctx.storage.sql, {
+                jobId: admitted.jobId,
+                mode: replayFaultMode,
+                now
+              });
+            }
+            return admitted;
+          }
+        );
+        if (committed.status === "rate-limited") {
+          return committed;
         }
-        return admitted;
+        return { status: "success" as const, snapshot: committed.value };
       });
-      return { status: "success", snapshot };
     } catch (error) {
       if (error instanceof DurableScanJobCapacityError || error instanceof DurableScanJobStateError) {
         return { status: "refused" };
@@ -1516,22 +1510,6 @@ export class ScannerContainer extends Container<Env> {
   }
 }
 
-function atomicRateLimitWindow(
-  name: "minute" | "day",
-  durationMs: number,
-  limit: number,
-  input: { clientHash: string; now: number }
-): { bucket: string; expiresAt: number; limit: number; retryAfterSeconds: number } {
-  const windowId = Math.floor(input.now / durationMs);
-  const expiresAt = (windowId + 1) * durationMs;
-  return {
-    bucket: `${name}/${windowId}/${input.clientHash}`,
-    expiresAt,
-    limit,
-    retryAfterSeconds: Math.max(1, Math.ceil((expiresAt - input.now) / 1_000))
-  };
-}
-
 export default {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const url = new URL(request.url);
@@ -1623,8 +1601,15 @@ export default {
       return gateErrorResponse(new EdgeScanGateError("The scan request is too large.", 413), request, env);
     }
 
+    const durableAdmission = durableScanJobsEnabled(env);
+    let deferredRateLimit: PublicScanRateLimitCharge | null;
     try {
-      await gateScanRequest(request, body, env);
+      deferredRateLimit = await gateScanRequest(
+        request,
+        body,
+        env,
+        durableAdmission ? "defer" : "charge"
+      );
     } catch (error) {
       return gateErrorResponse(error, request, env);
     }
@@ -1641,8 +1626,9 @@ export default {
     forwardedHeaders.delete(DURABLE_REPLAY_FAULT_MODE_HEADER);
     forwardedHeaders.delete(DURABLE_REPLAY_FAULT_TOKEN_HEADER);
     const forwarded = new Request(request.url, { method: "POST", headers: forwardedHeaders, body });
-    if (durableScanJobsEnabled(env)) {
-      return submitDurableScanJob(forwarded, env, replayFaultMode);
+    if (durableAdmission) {
+      if (!deferredRateLimit) return durableUnavailableResponse(request, env);
+      return submitDurableScanJob(forwarded, env, replayFaultMode, deferredRateLimit);
     }
     const response = await forwardToContainer(forwarded, env);
     ctx.waitUntil(
@@ -1751,7 +1737,8 @@ async function readStagingDurableReplayFaultRequest(
 async function submitDurableScanJob(
   request: Request,
   env: Env,
-  replayFaultMode: DurableReplayFaultMode | null
+  replayFaultMode: DurableReplayFaultMode | null,
+  rateLimit: PublicScanRateLimitCharge
 ): Promise<Response> {
   let config: DurableScanJobConfig;
   try {
@@ -1807,32 +1794,51 @@ async function submitDurableScanJob(
     return durableUnavailableResponse(request, env);
   }
 
+  let admissionError: unknown;
   const admission = await finalizeDurableScanJobAdmission(
     preparation,
     async (value) => {
-      const result = await getContainer(env.SCANNER).admitDurablePreparation(value, replayFaultMode);
+      const result = await getContainer(env.SCANNER).admitDurablePreparation(
+        value,
+        replayFaultMode,
+        rateLimit
+      );
       // Expected full/collision control flow crossed RPC as a plain envelope;
       // throw only here, in the edge isolate, so exact readback can still
       // recover a response-lost idempotent commit without resetting the DO.
-      if (
-        result.status !== "success" ||
-        !durableScanJobAdmissionProofMatches(result.snapshot, value)
-      ) {
+      if (result.status === "rate-limited") {
+        throw new DurableScanJobRateLimitError(rateLimit.scope, result.retryAfterSeconds);
+      }
+      if (result.status === "refused") {
+        throw new DurableScanJobRefusedError();
+      }
+      if (!durableScanJobAdmissionProofMatches(result.snapshot, value)) {
         throw new DurableScanJobCapacityError();
       }
       return result.snapshot;
     },
     (error) => {
-      if (!(error instanceof DurableScanJobCapacityError)) {
+      admissionError = error;
+      if (
+        !(error instanceof DurableScanJobCapacityError) &&
+        !(error instanceof DurableScanJobRefusedError) &&
+        !(error instanceof DurableScanJobRateLimitError)
+      ) {
         console.error("Could not commit durable scan-job admission.", error);
       }
     },
     async (value) => {
       const snapshot = await getContainer(env.SCANNER).findDurableJob(value.submission.jobId);
       return durableScanJobAdmissionProofMatches(snapshot, value);
-    }
+    },
+    (error, attempt) =>
+      error instanceof DurableScanJobRateLimitError ||
+      (attempt === 1 && error instanceof DurableScanJobRefusedError)
   );
   if (!admission.accepted) {
+    if (admissionError instanceof DurableScanJobRateLimitError) {
+      return gateErrorResponse(admissionError, request, env);
+    }
     // No store/schedule failure detail and no private header reaches the caller.
     return durableUnavailableResponse(request, env);
   }
@@ -2374,13 +2380,37 @@ export async function durableJobsEdgeHealthCheck(
  * Unlike the Browser Run worker, the Node container pins DNS at connect time, so
  * opening it does not require the Browser Run DNS-rebinding risk acknowledgement.
  */
-async function gateScanRequest(request: Request, body: string, env: Env): Promise<void> {
+async function gateScanRequest(
+  request: Request,
+  body: string,
+  env: Env,
+  chargeMode: "charge" | "defer"
+): Promise<PublicScanRateLimitCharge | null> {
+  const payload = parseScanGatePayload(body);
+  const clientHash = await publicClientHash(request.headers);
+  const cost = scanTokenCost({
+    compareGpc: payload.compareGpc === true,
+    compareShields: payload.compareShields === true,
+    compareConsent: payload.compareConsent === true
+  });
   const expectedToken = env.SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN?.trim();
   if (expectedToken) {
     if (!(await scanAccessTokenMatches(request.headers, expectedToken))) {
       throw new EdgeScanGateError("Unauthorized scan request.", 401);
     }
-    return;
+    if (chargeMode === "charge") return null;
+    // The non-durable token path continues to use Node's process-local limiter.
+    // Durable admission needs the equivalent policy inside the authoritative DO
+    // transaction, with no daily window (matching the prior Node semantics).
+    const rateLimit: PublicScanRateLimitCharge = {
+      scope: "authenticated",
+      clientHash,
+      cost,
+      perMinute: AUTHENTICATED_SCAN_RATE_LIMIT_PER_MINUTE,
+      perDay: null
+    };
+    await assertDeferredScanRateLimitAvailable(rateLimit, env);
+    return rateLimit;
   }
 
   if (env.SITE_BEHAVIOR_LAB_ALLOW_UNAUTHENTICATED_SCANS !== "1") {
@@ -2389,8 +2419,6 @@ async function gateScanRequest(request: Request, body: string, env: Env): Promis
       503
     );
   }
-
-  const payload = parseScanGatePayload(body);
 
   const secret = env.TURNSTILE_SECRET_KEY?.trim();
   if (secret) {
@@ -2409,21 +2437,41 @@ async function gateScanRequest(request: Request, body: string, env: Env): Promis
     );
   }
 
-  const charge = await getContainer(env.SCANNER).chargePublicScanRateLimit({
-    clientHash: await publicClientHash(request.headers),
-    cost: scanTokenCost({
-      compareGpc: payload.compareGpc === true,
-      compareShields: payload.compareShields === true,
-      compareConsent: payload.compareConsent === true
-    }),
+  const rateLimit: PublicScanRateLimitCharge = {
+    scope: "public",
+    clientHash,
+    cost,
     perMinute: publicScanRateLimit(env.SITE_BEHAVIOR_LAB_PUBLIC_SCAN_RATE_LIMIT_PER_MINUTE, DEFAULT_PUBLIC_SCAN_RATE_LIMIT_PER_MINUTE),
     perDay: publicScanRateLimit(env.SITE_BEHAVIOR_LAB_PUBLIC_SCAN_RATE_LIMIT_PER_DAY, DEFAULT_PUBLIC_SCAN_RATE_LIMIT_PER_DAY)
-  });
+  };
+  if (chargeMode === "defer") {
+    await assertDeferredScanRateLimitAvailable(rateLimit, env);
+    return rateLimit;
+  }
+
+  const charge = await getContainer(env.SCANNER).chargePublicScanRateLimit(rateLimit);
   if (!charge.allowed) {
     throw new EdgeScanGateError(
       `Too many public scans. Try again in about ${formatPublicScanRetryAfter(charge.retryAfterSeconds)}.`,
       429
     );
+  }
+  return null;
+}
+
+async function assertDeferredScanRateLimitAvailable(
+  rateLimit: PublicScanRateLimitCharge,
+  env: Env
+): Promise<void> {
+  let decision: PublicScanRateLimitResult;
+  try {
+    decision = await getContainer(env.SCANNER).peekPublicScanRateLimit(rateLimit);
+  } catch (error) {
+    console.error("Could not preflight durable scan-job quota.", error);
+    throw new EdgeScanGateError("Durable scan jobs are temporarily unavailable.", 503);
+  }
+  if (!decision.allowed) {
+    throw new DurableScanJobRateLimitError(rateLimit.scope, decision.retryAfterSeconds);
   }
 }
 

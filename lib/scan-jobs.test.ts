@@ -357,6 +357,56 @@ test("stale queued scan jobs return expired status", () => {
   assert.equal(status?.error, "This scan job expired before it finished.");
 });
 
+test("the queue expiry clock never rewrites terminal job statuses", async () => {
+  const succeeded = enqueuePreparedScanJob(makePreparedScanRequest({ clientKey: "terminal-success" }), {
+    scan: async (payload) => makeScanResult(payload),
+    saveReport: async (report) => report
+  });
+  const failed = enqueuePreparedScanJob(makePreparedScanRequest({ clientKey: "terminal-failure" }), {
+    scan: async () => {
+      throw new PublicScanError("The terminal failure remains visible.", 400);
+    }
+  });
+  await Promise.all([
+    waitForScanJobForTests(succeeded.jobId),
+    waitForScanJobForTests(failed.jobId)
+  ]);
+
+  const hang: ScanRunner = () => new Promise(() => {});
+  enqueuePreparedScanJob(makePreparedScanRequest({ clientKey: "terminal-worker-a" }), { scan: hang });
+  enqueuePreparedScanJob(makePreparedScanRequest({ clientKey: "terminal-worker-b" }), { scan: hang });
+  const cancelled = enqueuePreparedScanJob(
+    makePreparedScanRequest({ clientKey: "terminal-cancelled" }),
+    { scan: hang }
+  );
+  assert.equal(cancelScanJob(cancelled.jobId)?.status, "cancelled");
+
+  const oldCreatedAt = Date.now() - 61 * 60 * 1_000;
+  for (const id of [succeeded.jobId, failed.jobId, cancelled.jobId]) {
+    setScanJobCreatedAtForTests(id, oldCreatedAt);
+  }
+  advanceScanJobClockForTests(Date.now());
+
+  const succeededStatus = getScanJobStatus(succeeded.jobId);
+  assert.equal(succeededStatus?.status, "succeeded");
+  assert.equal(succeededStatus?.report?.schemaVersion, 1);
+  assert.equal(getScanJobStatus(failed.jobId)?.status, "failed");
+  assert.equal(
+    getScanJobStatus(failed.jobId)?.error,
+    "The terminal failure remains visible."
+  );
+  assert.equal(getScanJobStatus(cancelled.jobId)?.status, "cancelled");
+  assert.equal(
+    getScanJobStatus(cancelled.jobId)?.error,
+    "This scan job was cancelled."
+  );
+
+  advanceScanJobClockForTests(oldCreatedAt + 76 * 60 * 1_000);
+  assert.equal(getScanJobStatus(succeeded.jobId), null);
+  assert.equal(getScanJobStatus(failed.jobId), null);
+  assert.equal(getScanJobStatus(cancelled.jobId), null);
+});
+
 test("retention pressure never evicts accepted queued jobs", async () => {
   const instant: ScanRunner = async (payload) => makeScanResult(payload);
   const hang: ScanRunner = () => new Promise(() => {});

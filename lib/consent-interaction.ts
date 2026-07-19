@@ -107,6 +107,94 @@ export const CONSENT_CMP_SELECTORS: ConsentCmpSelectors[] = [
 export const CONSENT_SHADOW_HOSTS = ["#usercentrics-root", "#usercentrics-cmp-ui", "#cmpwrapper"];
 
 /**
+ * A symbol-backed, page-local registry populated before site scripts run.
+ * Closed roots are not exposed through `host.shadowRoot`, so the interaction
+ * probes need this narrow browser-init seam to retain roots for known CMP
+ * hosts without changing their open/closed mode.
+ */
+export const CONSENT_SHADOW_ROOT_REGISTRY_KEY = "site-behavior-lab/consent-shadow-root-registry/v1";
+
+export type ConsentShadowRootCaptureArgs = {
+  capability: string;
+  shadowHosts: string[];
+  registryKey: string;
+};
+
+/** Serializable arguments for {@link installConsentShadowRootCapture}. */
+export function consentShadowRootCaptureArgs(capability: string): ConsentShadowRootCaptureArgs {
+  assertConsentShadowRootCapability(capability);
+  return {
+    capability,
+    shadowHosts: CONSENT_SHADOW_HOSTS,
+    registryKey: CONSENT_SHADOW_ROOT_REGISTRY_KEY
+  };
+}
+
+/**
+ * Runs as a BrowserContext init script, before target-page scripts. Native DOM
+ * APIs intentionally hide a closed shadow root even from Playwright's normal
+ * page evaluation and locators. Retain closed roots weakly as they are created,
+ * but only disclose one when its current host matches the bounded CMP-host
+ * catalog. Open roots keep their native behavior and are read via shadowRoot.
+ *
+ * Self-contained for Playwright serialization: do not close over module scope.
+ */
+export function installConsentShadowRootCapture(args: ConsentShadowRootCaptureArgs): void {
+  if (!/^[a-f0-9]{64}$/.test(args.capability)) return;
+  const registrySymbol = Symbol.for(args.registryKey);
+  if (Object.prototype.hasOwnProperty.call(globalThis, registrySymbol)) return;
+
+  const closedRoots = new WeakMap<Element, ShadowRoot>();
+  const nativeReflectApply = Reflect.apply;
+  const nativeAttachShadow = Element.prototype.attachShadow;
+  const nativeMatches = Element.prototype.matches;
+  const nativeWeakMapGet = WeakMap.prototype.get;
+  const nativeWeakMapSet = WeakMap.prototype.set;
+  const nativeShadowRootMode = Object.getOwnPropertyDescriptor(ShadowRoot.prototype, "mode")?.get;
+  const isKnownConsentHost = (host: Element): boolean => {
+    for (const selector of args.shadowHosts) {
+      try {
+        if (nativeReflectApply(nativeMatches, host, [selector]) as boolean) return true;
+      } catch {
+        // Ignore one invalid or hostile selector evaluation and keep the
+        // bounded known-host search deterministic.
+      }
+    }
+    return false;
+  };
+
+  const registry = Object.freeze({
+    rootFor(host: Element, capability: string): ShadowRoot | null {
+      if (capability !== args.capability) return null;
+      return isKnownConsentHost(host)
+        ? (nativeReflectApply(nativeWeakMapGet, closedRoots, [host]) as ShadowRoot | undefined) ?? null
+        : null;
+    }
+  });
+  Object.defineProperty(globalThis, registrySymbol, {
+    configurable: false,
+    enumerable: false,
+    value: registry,
+    writable: false
+  });
+
+  const attachShadow = function (this: Element, init: ShadowRootInit): ShadowRoot {
+    const root = nativeReflectApply(nativeAttachShadow, this, [init]) as ShadowRoot;
+    const mode =
+      typeof nativeShadowRootMode === "function"
+        ? (nativeReflectApply(nativeShadowRootMode, root, []) as ShadowRootMode)
+        : null;
+    if (mode === "closed") nativeReflectApply(nativeWeakMapSet, closedRoots, [this, root]);
+    return root;
+  };
+  const descriptor = Object.getOwnPropertyDescriptor(Element.prototype, "attachShadow");
+  Object.defineProperty(Element.prototype, "attachShadow", {
+    ...descriptor,
+    value: attachShadow
+  });
+}
+
+/**
  * Whole-label phrases for the generic tier. Matching is against the FULL
  * normalized label (trimmed, whitespace collapsed, trailing punctuation
  * stripped, lowercased), so partial matches can never fire. The reject list
@@ -115,7 +203,7 @@ export const CONSENT_SHADOW_HOSTS = ["#usercentrics-root", "#usercentrics-cmp-ui
  */
 export const CONSENT_TEXT_PATTERNS: Record<ConsentChoice, RegExp> = {
   "accept-all":
-    /^(accept|accept all|accept all cookies|accept cookies|allow all|allow all cookies|agree|i agree|i accept|agree and close|accept and close|yes, i agree|consent|accepter tout|alle akzeptieren|aceptar todo)$/,
+    /^(accept|accept all|accept all cookies|accept cookies|allow all|allow all cookies|i agree|i accept|agree and close|accept and close|yes, i agree|accepter tout|alle akzeptieren|aceptar todo)$/,
   "reject-all":
     /^(reject|reject all|reject all cookies|decline|decline all|decline all cookies|refuse|refuse all|deny|deny all|disagree|i do not accept|do not accept|no thanks|reject non-essential|reject non-essential cookies|reject optional cookies|necessary only|necessary cookies only|only necessary|only necessary cookies|use necessary cookies only|essential only|essential cookies only|only essential|only essential cookies|strictly necessary only|continue without accepting|continue without agreeing|tout refuser|alle ablehnen|rechazar todo)$/
 };
@@ -147,6 +235,8 @@ export function cmpSelectorsForChoice(choice: ConsentChoice): { cmp: string; sel
 export type ConsentClickArgs = {
   selectors: { cmp: string; selector: string }[];
   shadowHosts: string[];
+  shadowRootCapability: string;
+  shadowRootRegistryKey: string;
   /** Source of the whole-label regex for the generic tier (page-serializable). */
   textPatternSource: string;
 };
@@ -156,10 +246,13 @@ export type ConsentClickOutcome =
   | { clicked: false };
 
 /** Serializable arguments for {@link findAndClickConsentControl} in one frame. */
-export function consentClickArgs(choice: ConsentChoice): ConsentClickArgs {
+export function consentClickArgs(choice: ConsentChoice, shadowRootCapability: string): ConsentClickArgs {
+  assertConsentShadowRootCapability(shadowRootCapability);
   return {
     selectors: cmpSelectorsForChoice(choice),
     shadowHosts: CONSENT_SHADOW_HOSTS,
+    shadowRootCapability,
+    shadowRootRegistryKey: CONSENT_SHADOW_ROOT_REGISTRY_KEY,
     textPatternSource: CONSENT_TEXT_PATTERNS[choice].source
   };
 }
@@ -173,9 +266,21 @@ export function consentClickArgs(choice: ConsentChoice): ConsentClickArgs {
  */
 export function findAndClickConsentControl(args: ConsentClickArgs): ConsentClickOutcome {
   const roots: (Document | ShadowRoot)[] = [document];
+  const registry = Reflect.get(globalThis, Symbol.for(args.shadowRootRegistryKey)) as
+    | { rootFor?: (host: Element, capability: string) => ShadowRoot | null }
+    | undefined;
   for (const hostSelector of args.shadowHosts) {
     const host = document.querySelector(hostSelector);
-    if (host?.shadowRoot) roots.push(host.shadowRoot);
+    if (!host) continue;
+    let shadowRoot = host.shadowRoot;
+    if (!shadowRoot && typeof registry?.rootFor === "function") {
+      try {
+        shadowRoot = registry.rootFor(host, args.shadowRootCapability);
+      } catch {
+        shadowRoot = null;
+      }
+    }
+    if (shadowRoot && !roots.includes(shadowRoot)) roots.push(shadowRoot);
   }
 
   const isVisible = (element: Element): boolean => {
@@ -183,6 +288,28 @@ export function findAndClickConsentControl(args: ConsentClickArgs): ConsentClick
     if (rect.width < 2 || rect.height < 2) return false;
     const style = window.getComputedStyle(element);
     return style.visibility !== "hidden" && style.display !== "none" && Number(style.opacity || "1") > 0.05;
+  };
+  const isActionable = (element: HTMLElement): boolean => {
+    if (element.matches(":disabled")) return false;
+    if (element.getAttribute("aria-disabled")?.trim().toLowerCase() === "true") return false;
+    if (element.closest("[inert]")) return false;
+    return true;
+  };
+  const dispatchClick = (element: HTMLElement): boolean => {
+    let dispatched = false;
+    const observeDispatch = () => {
+      dispatched = true;
+    };
+    try {
+      element.addEventListener("click", observeDispatch, { capture: true, once: true });
+      element.click();
+    } catch {
+      // A page-provided click override can fail. Report no activation and let
+      // the bounded retry loop try a later actionable state.
+    } finally {
+      element.removeEventListener("click", observeDispatch, { capture: true });
+    }
+    return dispatched;
   };
 
   for (const { cmp, selector } of args.selectors) {
@@ -193,8 +320,7 @@ export function findAndClickConsentControl(args: ConsentClickArgs): ConsentClick
       } catch {
         continue;
       }
-      if (element instanceof HTMLElement && isVisible(element)) {
-        element.click();
+      if (element instanceof HTMLElement && isVisible(element) && isActionable(element) && dispatchClick(element)) {
         return { clicked: true, cmp, selector };
       }
     }
@@ -212,12 +338,12 @@ export function findAndClickConsentControl(args: ConsentClickArgs): ConsentClick
   for (const root of roots) {
     const candidates = root.querySelectorAll("button, a, [role=button], input[type=button], input[type=submit]");
     for (const candidate of Array.from(candidates).slice(0, 1_500)) {
-      if (!(candidate instanceof HTMLElement) || !isVisible(candidate)) continue;
+      if (!(candidate instanceof HTMLElement) || !isVisible(candidate) || !isActionable(candidate)) continue;
       const label =
         candidate instanceof HTMLInputElement ? candidate.value : candidate.textContent ?? "";
       const normalized = normalize(label);
       if (!normalized || normalized.length > 48 || !pattern.test(normalized)) continue;
-      candidate.click();
+      if (!dispatchClick(candidate)) continue;
       return { clicked: true, matchedText: normalized };
     }
   }
@@ -228,15 +354,20 @@ export function findAndClickConsentControl(args: ConsentClickArgs): ConsentClick
 export type ConsentVisibilityArgs = {
   selectors: { cmp: string; selector: string }[];
   shadowHosts: string[];
+  shadowRootCapability: string;
+  shadowRootRegistryKey: string;
   /** Sources of BOTH whole-label regexes; visibility is choice-agnostic. */
   textPatternSources: string[];
 };
 
 /** Serializable arguments for {@link findVisibleConsentControl} in one frame. */
-export function consentVisibilityArgs(): ConsentVisibilityArgs {
+export function consentVisibilityArgs(shadowRootCapability: string): ConsentVisibilityArgs {
+  assertConsentShadowRootCapability(shadowRootCapability);
   return {
     selectors: [...cmpSelectorsForChoice("accept-all"), ...cmpSelectorsForChoice("reject-all")],
     shadowHosts: CONSENT_SHADOW_HOSTS,
+    shadowRootCapability,
+    shadowRootRegistryKey: CONSENT_SHADOW_ROOT_REGISTRY_KEY,
     textPatternSources: [CONSENT_TEXT_PATTERNS["accept-all"].source, CONSENT_TEXT_PATTERNS["reject-all"].source]
   };
 }
@@ -249,9 +380,21 @@ export function consentVisibilityArgs(): ConsentVisibilityArgs {
  */
 export function findVisibleConsentControl(args: ConsentVisibilityArgs): boolean {
   const roots: (Document | ShadowRoot)[] = [document];
+  const registry = Reflect.get(globalThis, Symbol.for(args.shadowRootRegistryKey)) as
+    | { rootFor?: (host: Element, capability: string) => ShadowRoot | null }
+    | undefined;
   for (const hostSelector of args.shadowHosts) {
     const host = document.querySelector(hostSelector);
-    if (host?.shadowRoot) roots.push(host.shadowRoot);
+    if (!host) continue;
+    let shadowRoot = host.shadowRoot;
+    if (!shadowRoot && typeof registry?.rootFor === "function") {
+      try {
+        shadowRoot = registry.rootFor(host, args.shadowRootCapability);
+      } catch {
+        shadowRoot = null;
+      }
+    }
+    if (shadowRoot && !roots.includes(shadowRoot)) roots.push(shadowRoot);
   }
 
   const isVisible = (element: Element): boolean => {
@@ -294,6 +437,12 @@ export function findVisibleConsentControl(args: ConsentVisibilityArgs): boolean 
   }
 
   return false;
+}
+
+function assertConsentShadowRootCapability(capability: string): void {
+  if (!/^[a-f0-9]{64}$/.test(capability)) {
+    throw new Error("Invalid consent shadow-root capability.");
+  }
 }
 
 /** The human label for a consent choice, as report copy should print it. */

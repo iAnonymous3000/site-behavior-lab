@@ -13,7 +13,7 @@ test("public-facing errors share one status-carrying base class", () => {
   assert.deepEqual(toPublicError(edgeError), { message: "Blocked.", status: 400 });
 });
 
-test("toPublicError scrubs unexpected errors to a generic message and logs them server-side", () => {
+test("toPublicError scrubs unexpected errors without blaming the target URL and logs them server-side", () => {
   // A non-public error can carry internal detail, hostnames, private IPs, file
   // paths, stack frames. The client response must never echo it; the operator log
   // must still receive the original. This pins the no-leak guarantee for the
@@ -29,8 +29,12 @@ test("toPublicError scrubs unexpected errors to a generic message and logs them 
     const leaky = new Error("connect ECONNREFUSED 10.0.0.7:5432 at /srv/internal/db.ts:42");
     const result = toPublicError(leaky);
 
-    assert.deepEqual(result, { message: "Scan failed. Check the target URL and try again.", status: 500 });
+    assert.deepEqual(result, {
+      message: "The service could not complete this request. Try again later.",
+      status: 500
+    });
     assert.doesNotMatch(result.message, /ECONNREFUSED|10\.0\.0\.7|internal|db\.ts/);
+    assert.doesNotMatch(result.message, /target URL|check.*URL/i);
     // The original error is preserved for operators, not leaked to the client.
     assert.deepEqual(logged, [leaky]);
   } finally {

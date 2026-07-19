@@ -559,7 +559,22 @@ test("surfaces pre-consent tracking when a consent-management platform is presen
   assert.equal(card.level, "warn");
   assert.match(card.title, /trackers had already loaded/);
   assert.match(card.lead, /OneTrust/);
-  assert.match(card.detail, /GDPR\/ePrivacy/);
+  assert.match(card.lead, /before the scanner made any consent choice/);
+  assert.match(card.detail, /records what loaded before the scanner made a consent choice/);
+  assert.match(card.detail, /does not determine whether any request required consent/);
+  assert.match(card.detail, /whether the site's behavior complied with applicable law/);
+  assert.doesNotMatch(card.detail, /not permitted under GDPR\/ePrivacy/);
+
+  const cmpOnly = makeResult({
+    domains: [cmpDomain],
+    thirdPartyRequests: 2,
+    thirdPartyDomains: 1
+  });
+  const informational = byId(buildFindings(viewFromV1Report(cmpOnly), null), "consent-banner");
+  assert.equal(informational.level, "info");
+  assert.equal(informational.title, "A consent management platform loaded");
+  assert.match(informational.lead, /no catalogued tracking company loaded/);
+  assert.match(informational.lead, /before the scanner made any consent choice/);
 
   const noCmp = makeResult({
     domains: [makeTrackerDomain("google-analytics.com", 5, "Google", "analytics")],

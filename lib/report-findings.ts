@@ -258,10 +258,10 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
               preConsentTrackers,
               "tracking company",
               "tracking companies"
-            )} already loaded before any consent was given.`
-          : `${run.domain} loaded ${consentPlatform.name}, a consent management platform (the tooling that shows cookie banners); no catalogued tracking company loaded before consent in this visit.`,
+            )} already loaded before the scanner made any consent choice.`
+          : `${run.domain} loaded ${consentPlatform.name}, a consent management platform (the tooling that shows cookie banners); no catalogued tracking company loaded before the scanner made any consent choice in this visit.`,
       detail:
-        'A request to the platform\'s loader proves the consent tooling loaded, not that a banner was visibly shown to this scanner (many banners appear only in regions where the law requires them). The scanner never clicks a banner in this mode, so this is the pre-consent state: loading trackers before the visitor accepts is often not permitted under GDPR/ePrivacy, and more trackers can load after "Accept" that this report does not capture. Tracker counts here are a lower bound for users who consent.',
+        'A request to the platform\'s loader proves the consent tooling loaded, not that a banner was visibly shown to this scanner; banner display can vary by region and visit context. The scanner never clicks a banner in this mode, so this report records what loaded before the scanner made a consent choice. It does not determine whether any request required consent or whether the site\'s behavior complied with applicable law. More trackers may load after "Accept" than this report captures, so tracker counts here are a lower bound for users who consent.',
       evidence: `Consent platform detected via a request to ${consentPlatform.domain}.`
     });
   }

@@ -28,7 +28,7 @@ import {
   scanJobStateForTests,
   waitForScanJobForTests
 } from "./scan-jobs";
-import { resetScanLimitStateForTests } from "./scan-limits";
+import { resetScanLimitStateForTests, scanLimitStateForTests } from "./scan-limits";
 import type { PreparedScanRequest, ScanRunner } from "./scan-api";
 import { makePublicSingleReportV2R2 } from "./scan-report-v2-r2-fixtures";
 import { scanResultWithStagedR2Run } from "./scan-report-v2-runtime-fixtures";
@@ -72,8 +72,7 @@ afterEach(() => {
   resetScanLimitStateForTests();
 });
 
-test("durable preparation charges once, strips query data, and starts no work", async () => {
-  let charges = 0;
+test("durable preparation defers charging, strips query data, and starts no work", async () => {
   const preparation = await prepareDurableScanJobRequest(new Request("https://scanner.invalid/api/scan"), {
     prepare: async () =>
       preparedRequest({
@@ -81,17 +80,11 @@ test("durable preparation charges once, strips query data, and starts no work", 
         url: "https://example.com/private/path?access_token=secret#account"
       }),
     requireReady: () => undefined,
-    charge: (clientKey, now, cost) => {
-      charges += 1;
-      assert.equal(clientKey, "203.0.113.42");
-      assert.equal(now, 1_721_260_800_000);
-      assert.equal(cost, 1);
-    },
     now: () => 1_721_260_800_000,
     createId: sequentialIds(JOB_ID, REPORT_ID)
   });
 
-  assert.equal(charges, 1);
+  assert.equal(scanLimitStateForTests().trackedClients, 0);
   assert.deepEqual(scanJobStateForTests(), { queuedJobs: 0, activeJobWorkers: 0, retainedJobs: 0 });
   assert.deepEqual(preparation.submission, {
     ok: true,
@@ -124,7 +117,6 @@ test("durable preparation refuses report retention shorter than the 75-minute re
   const prepare = () =>
     prepareDurableScanJobRequest(new Request("https://scanner.invalid/api/scan"), {
       prepare: async () => preparedRequest(),
-      charge: () => undefined,
       now: () => 1_721_260_800_000,
       createId: sequentialIds(JOB_ID, REPORT_ID)
     });
@@ -140,21 +132,23 @@ test("durable preparation refuses report retention shorter than the 75-minute re
   assert.equal((await prepare()).submission.reportId, REPORT_ID);
 });
 
-test("durable preparation requires the shared r2 report store before charging", async () => {
+test("durable preparation requires the shared r2 report store before minting capabilities", async () => {
   delete process.env.SITE_BEHAVIOR_LAB_REPORT_STORE_BACKEND;
-  let charges = 0;
+  let mintedCapabilities = 0;
 
   await assert.rejects(
     () =>
       prepareDurableScanJobRequest(new Request("https://scanner.invalid/api/scan"), {
         prepare: async () => preparedRequest(),
-        charge: () => {
-          charges += 1;
+        createId: () => {
+          mintedCapabilities += 1;
+          return mintedCapabilities === 1 ? JOB_ID : REPORT_ID;
         }
       }),
     /require public r2 report persistence/i
   );
-  assert.equal(charges, 0);
+  assert.equal(mintedCapabilities, 0);
+  assert.equal(scanLimitStateForTests().trackedClients, 0);
   assert.deepEqual(scanJobStateForTests(), { queuedJobs: 0, activeJobWorkers: 0, retainedJobs: 0 });
 });
 
@@ -166,7 +160,7 @@ test("an invalid durable mode flag fails closed instead of falling back to local
 });
 
 test("activation awaits an immediate lease heartbeat before starting target work", async () => {
-  const preparation = await preparationWithCharge(() => undefined);
+  const preparation = await durablePreparation();
   const heartbeatReached = deferred<void>();
   const releaseHeartbeat = deferred<void>();
   let scans = 0;
@@ -198,7 +192,7 @@ test("activation awaits an immediate lease heartbeat before starting target work
 });
 
 test("a stale activation is refused before creating a record or visiting the target", async () => {
-  const preparation = await preparationWithCharge(() => undefined);
+  const preparation = await durablePreparation();
   let scans = 0;
   await assert.rejects(
     () =>
@@ -223,7 +217,7 @@ test("a stale activation is refused before creating a record or visiting the tar
 });
 
 test("activation reserves at most the two local execution slots", async () => {
-  const first = await preparationWithCharge(() => undefined);
+  const first = await durablePreparation();
   const second = preparationWithCapabilities(first, JOB_ID_TWO, REPORT_ID_TWO);
   const third = preparationWithCapabilities(first, JOB_ID_THREE, REPORT_ID_THREE);
   const twoHeartbeatsReached = deferred<void>();
@@ -273,7 +267,7 @@ test("activation reserves at most the two local execution slots", async () => {
 });
 
 test("a newer generation renews while waiting for its superseded full-capacity slot", async () => {
-  const first = await preparationWithCharge(() => undefined);
+  const first = await durablePreparation();
   const second = preparationWithCapabilities(first, JOB_ID_TWO, REPORT_ID_TWO);
   const firstStarted = deferred<void>();
   const secondStarted = deferred<void>();
@@ -331,7 +325,7 @@ test("a newer generation renews while waiting for its superseded full-capacity s
 });
 
 test("a superseded generation cleanup deadline cannot delete its replacement", async () => {
-  const preparation = await preparationWithCharge(() => undefined);
+  const preparation = await durablePreparation();
   const firstStarted = deferred<void>();
   await activateDurableScanJob(activation(preparation, 1, LEASE_ONE), {
     coordinator: recordingCoordinator([]),
@@ -358,12 +352,9 @@ test("a superseded generation cleanup deadline cannot delete its replacement", a
   assert.equal(getOwnedDurableScanJobStatus(owner(2, LEASE_TWO))?.status, "succeeded");
 });
 
-test("activation is idempotent and executes an admitted payload without another charge", async () => {
-  let charges = 0;
+test("activation is idempotent and never charges the Node limiter", async () => {
   let scans = 0;
-  const preparation = await preparationWithCharge(() => {
-    charges += 1;
-  });
+  const preparation = await durablePreparation();
   const events: string[] = [];
   const coordinator = recordingCoordinator(events);
 
@@ -387,14 +378,14 @@ test("activation is idempotent and executes an admitted payload without another 
   assert.equal(first.status, "activated");
   assert.equal(duplicate.status, "already-active");
   await waitForScanJobForTests(JOB_ID);
-  assert.equal(charges, 1);
+  assert.equal(scanLimitStateForTests().trackedClients, 0);
   assert.equal(scans, 1);
   assert.deepEqual(events, ["heartbeat:1", "begin:1", "resolve:succeeded:1"]);
   assert.equal(getOwnedDurableScanJobStatus(owner(1, LEASE_ONE))?.status, "succeeded");
 });
 
 test("a newer generation aborts and replaces a stale nonpublishing activation", async () => {
-  const preparation = await preparationWithCharge(() => undefined);
+  const preparation = await durablePreparation();
   const firstStarted = deferred<void>();
   let firstAborted = false;
   let secondScans = 0;
@@ -438,7 +429,7 @@ test("a newer generation aborts and replaces a stale nonpublishing activation", 
 });
 
 test("a definitive heartbeat conflict aborts stale execution without resolving it", async () => {
-  const preparation = await preparationWithCharge(() => undefined);
+  const preparation = await durablePreparation();
   let resolveCalls = 0;
   let heartbeatCalls = 0;
   const coordinator: DurableScanJobCoordinator = {
@@ -469,7 +460,7 @@ test("a definitive heartbeat conflict aborts stale execution without resolving i
 });
 
 test("a missing post-commit reconciliation detaches without inventing a terminal result", async () => {
-  const preparation = await preparationWithCharge(() => undefined);
+  const preparation = await durablePreparation();
   const firstEvents: string[] = [];
   let scans = 0;
   const missingPublication = {
@@ -496,7 +487,7 @@ test("a missing post-commit reconciliation detaches without inventing a terminal
 });
 
 test("durable publication timeout settles even when commit ignores its bounded signal", async () => {
-  const preparation = await preparationWithCharge(() => undefined);
+  const preparation = await durablePreparation();
   const events: string[] = [];
   const lateCommit = deferred<RuntimeScanReport>();
   let commitSignal: AbortSignal | undefined;
@@ -559,7 +550,7 @@ test("private publication reconciliation settles and observes a late adapter rej
 });
 
 test("a reconciliation transport failure never resolves publishing as failed", async () => {
-  const preparation = await preparationWithCharge(() => undefined);
+  const preparation = await durablePreparation();
   const events: string[] = [];
   await activateDurableScanJob(activation(preparation, 1, LEASE_ONE), {
     coordinator: recordingCoordinator(events),
@@ -581,7 +572,7 @@ test("a reconciliation transport failure never resolves publishing as failed", a
 });
 
 test("an in-flight heartbeat cannot rearm after publication becomes outcome-unknown", async () => {
-  const preparation = await preparationWithCharge(() => undefined);
+  const preparation = await durablePreparation();
   const secondHeartbeatReached = deferred<void>();
   const releaseSecondHeartbeat = deferred<void>();
   let heartbeatCalls = 0;
@@ -622,7 +613,7 @@ test("an in-flight heartbeat cannot rearm after publication becomes outcome-unkn
 });
 
 test("an outcome-unknown begin-publishing call never starts R2 or resolves failed", async () => {
-  const preparation = await preparationWithCharge(() => undefined);
+  const preparation = await durablePreparation();
   let commits = 0;
   let resolves = 0;
   const coordinator: DurableScanJobCoordinator = {
@@ -662,7 +653,7 @@ test("an outcome-unknown begin-publishing call never starts R2 or resolves faile
 });
 
 test("trusted generation-only cancellation refuses an older control and cancels the current generation", async () => {
-  const preparation = await preparationWithCharge(() => undefined);
+  const preparation = await durablePreparation();
   const scanStarted = deferred<void>();
   const events: string[] = [];
   const scan: ScanRunner = (_payload, options) =>
@@ -703,7 +694,7 @@ test("trusted generation-only cancellation refuses an older control and cancels 
 });
 
 test("authoritative generation-two cancellation aborts a still-running generation one", async () => {
-  const preparation = await preparationWithCharge(() => undefined);
+  const preparation = await durablePreparation();
   const scanStarted = deferred<void>();
   let commits = 0;
   await activateDurableScanJob(activation(preparation, 1, LEASE_ONE), {
@@ -731,7 +722,7 @@ test("authoritative generation-two cancellation aborts a still-running generatio
 });
 
 test("authoritative cancellation without a local record blocks a later activation", async () => {
-  const preparation = await preparationWithCharge(() => undefined);
+  const preparation = await durablePreparation();
   let heartbeatCalls = 0;
   let scans = 0;
 
@@ -761,7 +752,7 @@ test("authoritative cancellation without a local record blocks a later activatio
 });
 
 test("authoritative cancellation wins after heartbeat success but before activation resumes", async () => {
-  const preparation = await preparationWithCharge(() => undefined);
+  const preparation = await durablePreparation();
   const firstStarted = deferred<void>();
   const heartbeatSucceeded = deferred<void>();
   const releaseHeartbeatResponse = deferred<void>();
@@ -814,7 +805,7 @@ test("authoritative cancellation wins after heartbeat success but before activat
 });
 
 test("authoritative cancellation aborts a pending local publication CAS despite the local fence", async () => {
-  const preparation = await preparationWithCharge(() => undefined);
+  const preparation = await durablePreparation();
   const beginReached = deferred<void>();
   let commits = 0;
   const coordinator: DurableScanJobCoordinator = {
@@ -844,7 +835,7 @@ test("authoritative cancellation aborts a pending local publication CAS despite 
 });
 
 test("durable publication sets the local fence synchronously and awaits coordinator approval", async () => {
-  const preparation = await preparationWithCharge(() => undefined);
+  const preparation = await durablePreparation();
   const beginReached = deferred<void>();
   const releaseBegin = deferred<void>();
   let commits = 0;
@@ -876,7 +867,7 @@ test("durable publication sets the local fence synchronously and awaits coordina
 });
 
 test("terminal durable records are dropped from local memory without rewriting DO state", async () => {
-  const preparation = await preparationWithCharge(() => undefined);
+  const preparation = await durablePreparation();
   await activateDurableScanJob(activation(preparation, 1, LEASE_ONE), {
     coordinator: recordingCoordinator([]),
     scan: async () => r2ScanResult(),
@@ -998,11 +989,10 @@ function preparedRequest(overrides: Partial<PreparedScanRequest> = {}): Prepared
   };
 }
 
-async function preparationWithCharge(onCharge: () => void): Promise<DurableScanJobPreparation> {
+async function durablePreparation(): Promise<DurableScanJobPreparation> {
   return prepareDurableScanJobRequest(new Request("https://scanner.invalid/api/scan"), {
     prepare: async () => preparedRequest(),
     requireReady: () => undefined,
-    charge: () => onCharge(),
     now: () => 1_721_260_800_000,
     createId: sequentialIds(JOB_ID, REPORT_ID)
   });

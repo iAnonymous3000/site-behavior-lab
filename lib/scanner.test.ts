@@ -643,7 +643,7 @@ test("decideRoutedRequest aborts requests that fail public host verification", a
   assert.deepEqual(warnings.list, ["Blocked a request that could not be verified as public: https://{label}.example.com/{seg}"]);
 });
 
-test("decideRoutedRequest memoizes public host checks by scheme, host, and port", async () => {
+test("decideRoutedRequest retries a public host check after a transient failure", async () => {
   const warnings = new ScanWarningCollector();
   const requestBudget = new ScanRequestBudget(warnings);
   const publicHostChecks = new Map<string, Promise<void>>();
@@ -657,6 +657,7 @@ test("decideRoutedRequest memoizes public host checks by scheme, host, and port"
     publicHostChecks,
     verifyPublicUrl: async () => {
       verifierCalls += 1;
+      if (verifierCalls === 1) throw new Error("transient DNS failure");
     }
   };
 
@@ -665,8 +666,10 @@ test("decideRoutedRequest memoizes public host checks by scheme, host, and port"
       ...options,
       request: routeRequest({ url: "https://cdn.example.com/app.js" })
     }),
-    { action: "continue", blockedByShields: false }
+    { action: "abort", blockedByShields: false }
   );
+  assert.equal(publicHostChecks.size, 0);
+
   assert.deepEqual(
     await decideRoutedRequest({
       ...options,
@@ -674,8 +677,94 @@ test("decideRoutedRequest memoizes public host checks by scheme, host, and port"
     }),
     { action: "continue", blockedByShields: false }
   );
+  assert.equal(verifierCalls, 2);
+  assert.equal(publicHostChecks.size, 1);
+});
+
+test("decideRoutedRequest deduplicates in-flight checks and retains successful checks", async () => {
+  const warnings = new ScanWarningCollector();
+  const requestBudget = new ScanRequestBudget(warnings);
+  const publicHostChecks = new Map<string, Promise<void>>();
+  let verifierCalls = 0;
+  let releaseVerifier: () => void = () => {
+    assert.fail("host verification did not start");
+  };
+  const verifierBlocked = new Promise<void>((resolve) => {
+    releaseVerifier = resolve;
+  });
+
+  const options = {
+    page: routePage,
+    targetUrl: new URL("https://example.com/"),
+    warnings,
+    requestBudget,
+    publicHostChecks,
+    verifyPublicUrl: async () => {
+      verifierCalls += 1;
+      await verifierBlocked;
+    }
+  };
+
+  const scriptDecision = decideRoutedRequest({
+    ...options,
+    request: routeRequest({ url: "https://cdn.example.com/app.js" })
+  });
+  const styleDecision = decideRoutedRequest({
+    ...options,
+    request: routeRequest({ url: "https://cdn.example.com/style.css", resourceType: "stylesheet" })
+  });
 
   assert.equal(verifierCalls, 1);
+  assert.equal(publicHostChecks.size, 1);
+  releaseVerifier();
+
+  assert.deepEqual(
+    await Promise.all([scriptDecision, styleDecision]),
+    [
+      { action: "continue", blockedByShields: false },
+      { action: "continue", blockedByShields: false }
+    ]
+  );
+  assert.deepEqual(
+    await decideRoutedRequest({
+      ...options,
+      request: routeRequest({ url: "https://cdn.example.com/image.png", resourceType: "image" })
+    }),
+    { action: "continue", blockedByShields: false }
+  );
+
+  assert.equal(verifierCalls, 1);
+  assert.equal(publicHostChecks.size, 1);
+});
+
+test("decideRoutedRequest bounds repeated verification work for a permanently failing host", async () => {
+  const warnings = new ScanWarningCollector();
+  const requestBudget = new ScanRequestBudget(warnings);
+  const publicHostChecks = new Map<string, Promise<void>>();
+  let verifierCalls = 0;
+  const options = {
+    page: routePage,
+    targetUrl: new URL("https://example.com/"),
+    warnings,
+    requestBudget,
+    publicHostChecks,
+    verifyPublicUrl: async () => {
+      verifierCalls += 1;
+      throw new Error("permanent DNS failure");
+    }
+  };
+
+  for (let request = 0; request < 10; request += 1) {
+    assert.deepEqual(
+      await decideRoutedRequest({
+        ...options,
+        request: routeRequest({ url: `https://dead.example.com/asset-${request}.js` })
+      }),
+      { action: "abort", blockedByShields: false }
+    );
+  }
+
+  assert.equal(verifierCalls, 2);
   assert.equal(publicHostChecks.size, 1);
 });
 
@@ -1027,7 +1116,7 @@ test("scanSite stages live phase-aware readbacks while returning only v1", { tim
   }
 });
 
-test("failed passive storage collection cannot manufacture consent-phase mutations", { timeout: 20_000 }, async () => {
+test("a closed Usercentrics root remains clickable after a failed passive storage collection", { timeout: 20_000 }, async () => {
   let receivedGpcHeader: string | string[] | undefined;
   const upstream = createServer((request, response) => {
     if (request.headers.host?.startsWith("ads.")) {
@@ -1039,6 +1128,8 @@ test("failed passive storage collection cannot manufacture consent-phase mutatio
     response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
     response.end(`<!doctype html>
       <title>Consent boundary fixture</title>
+      <body>
+      <div id="usercentrics-root"></div>
       <script>
         const realLocalStorage = window.localStorage;
         let localStorageReads = 0;
@@ -1050,9 +1141,15 @@ test("failed passive storage collection cannot manufacture consent-phase mutatio
             return realLocalStorage;
           }
         });
+        const consentRoot = document.getElementById("usercentrics-root").attachShadow({ mode: "closed" });
+        const accept = document.createElement("button");
+        accept.dataset.testid = "uc-accept-all-button";
+        accept.textContent = "Accept all";
+        accept.addEventListener("click", () => localStorage.setItem("consent-state", "accepted"));
+        consentRoot.append(accept);
       </script>
       <script src="http://ads.example/pixel.js"></script>
-      <button onclick="localStorage.setItem('consent-state', 'accepted')">Accept all</button>`);
+      </body>`);
   });
   await new Promise<void>((resolve, reject) => {
     upstream.once("error", reject);
@@ -1080,6 +1177,12 @@ test("failed passive storage collection cannot manufacture consent-phase mutatio
     );
 
     assert.equal(result.schemaVersion, 1);
+    assert.deepEqual(result.consentInteraction, {
+      mode: "accept-all",
+      clicked: true,
+      cmp: "Usercentrics",
+      selector: "[data-testid=uc-accept-all-button]"
+    });
     assert.equal(receivedGpcHeader, undefined);
     const staged = stagedSingleVisitMeasurement(result);
     assert.notEqual(staged, null);
@@ -1095,7 +1198,8 @@ test("failed passive storage collection cannot manufacture consent-phase mutatio
       interactionAttempted: true,
       controlActivated: true,
       verificationObservations: [],
-      matchedText: "accept all"
+      cmp: "Usercentrics",
+      selector: "[data-testid=uc-accept-all-button]"
     });
     assert.equal(staged!.measurement.phases.some((phase) => phase.kind === "post-choice-reload"), false);
     assert.equal(staged!.measurement.detectors["consent-banner"].status, "complete");
@@ -1114,6 +1218,76 @@ test("failed passive storage collection cannot manufacture consent-phase mutatio
     assert.ok(shields.requestsMatched <= shields.requestsEvaluated);
     assert.equal(staged!.evidence.requests.some((request) => request.blockedByShields === true), false);
   } finally {
+    await closeSharedBrowserForTests();
+    await new Promise<void>((resolve) => upstream.close(() => resolve()));
+  }
+});
+
+test("observe-mode verification can see a closed Usercentrics root without clicking it", { timeout: 20_000 }, async () => {
+  let closedRootProbeRequests = 0;
+  let clickRequests = 0;
+  const upstream = createServer((request, response) => {
+    if (request.url === "/closed-root-probed") {
+      closedRootProbeRequests += 1;
+      response.writeHead(204);
+      response.end();
+      return;
+    }
+    if (request.url === "/must-not-click") {
+      clickRequests += 1;
+      response.writeHead(204);
+      response.end();
+      return;
+    }
+    response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+    response.end(`<!doctype html>
+      <title>Closed consent observation fixture</title>
+      <div id="usercentrics-root"></div>
+      <script>
+        const root = document.getElementById("usercentrics-root").attachShadow({ mode: "closed" });
+        const accept = document.createElement("button");
+        accept.dataset.testid = "uc-accept-all-button";
+        accept.textContent = "Accept all";
+        accept.getBoundingClientRect = () => {
+          fetch("/closed-root-probed").catch(() => {});
+          return { x: 0, y: 0, top: 0, left: 0, right: 120, bottom: 24, width: 120, height: 24, toJSON() {} };
+        };
+        accept.addEventListener("click", () => fetch("/must-not-click").catch(() => {}));
+        root.append(accept);
+      </script>`);
+  });
+  await new Promise<void>((resolve, reject) => {
+    upstream.once("error", reject);
+    upstream.listen(0, "127.0.0.1", resolve);
+  });
+  const address = upstream.address();
+  assert.ok(address && typeof address === "object");
+
+  process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION = "1";
+  try {
+    const result = await scanSite(
+      {
+        url: "http://closed-consent-observe.test/",
+        device: "desktop",
+        gpcEnabled: false,
+        consentMode: "observe"
+      },
+      {
+        publicUrlAlreadyVerified: true,
+        verifyPublicUrl: async () => undefined,
+        resolvePublicHost: async () => [{ address: "93.184.216.34", family: 4 }],
+        connectProxyUpstreamForTests: () => connect(address.port, "127.0.0.1"),
+        resolveCnameChain: async () => []
+      }
+    );
+
+    assert.equal(result.consentInteraction, undefined);
+    assert.ok(closedRootProbeRequests > 0);
+    assert.equal(clickRequests, 0);
+    const staged = stagedSingleVisitMeasurement(result);
+    assert.equal(staged?.measurement.detectors["consent-banner"].status, "complete");
+  } finally {
+    delete process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION;
     await closeSharedBrowserForTests();
     await new Promise<void>((resolve) => upstream.close(() => resolve()));
   }

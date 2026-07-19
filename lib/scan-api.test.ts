@@ -720,8 +720,8 @@ test("executePreparedScan does not charge rate limits when the scan slot queue t
   });
 });
 
-test("runScanRequest returns scan results when report persistence fails", async () => {
-  const scan: ScanRunner = async (payload) => makeScanResult(payload);
+test("runScanRequest returns a redacted v1 result when report persistence fails", async () => {
+  const scan: ScanRunner = async (payload) => makeSensitiveScanResult(payload);
   const warn = console.warn;
   console.warn = () => undefined;
   let result: Awaited<ReturnType<typeof runScanRequest>> | undefined;
@@ -735,9 +735,29 @@ test("runScanRequest returns scan results when report persistence fails", async 
 
   assert.ok(result);
   const v1Result = expectV1Report(result);
+  if (v1Result.reportType === "comparison") throw new Error("expected single report");
   assert.equal(v1Result.ok, true);
   assert.equal(v1Result.share, undefined);
+  assert.equal(v1Result.summary.pageTitle, "Private customer dashboard");
+  assert.equal(v1Result.cookies[0].name, "[redacted]");
+  assert.equal(v1Result.storage[0].key, "[redacted]");
+  assert.equal(JSON.stringify(v1Result).includes("patient_session_secret"), false);
+  assert.equal(JSON.stringify(v1Result).includes("patient_private_record"), false);
   assert.equal(v1Result.warnings.includes("Shareable report could not be saved on this host; JSON export is still available."), true);
+});
+
+test("runScanRequest keeps the normal sanitized share when v1 persistence succeeds", async () => {
+  const result = expectV1Report(
+    await runScanRequest(makeScanRequest("https://1.1.1.1/"), async (payload) => makeSensitiveScanResult(payload))
+  );
+  if (result.reportType === "comparison") throw new Error("expected single report");
+
+  assert.equal(result.summary.pageTitle, "Private customer dashboard");
+  assert.equal(result.cookies[0].name, "[redacted]");
+  assert.equal(result.storage[0].key, "[redacted]");
+  assert.equal(result.warnings.includes("Shareable report could not be saved on this host; JSON export is still available."), false);
+  assert.equal(result.share?.path.startsWith("/reports/"), true);
+  assert.deepEqual(await readV1Report(result.share?.id || ""), result);
 });
 
 test("executePreparedScan awaits the publication fence before invoking the saver", async () => {
@@ -880,4 +900,23 @@ function makeScanResult(payload: ScanRequestPayload, totalRequests = 0): ScanRes
     screenshot: null,
     warnings: []
   };
+}
+
+function makeSensitiveScanResult(payload: ScanRequestPayload): ScanResult {
+  const result = makeScanResult(payload);
+  result.summary.pageTitle = "  Private\u0000 customer dashboard  ";
+  result.cookies = [
+    {
+      name: "patient_session_secret",
+      domain: ".1.1.1.1",
+      path: "/account/patient-name",
+      sameSite: "Lax",
+      secure: true,
+      httpOnly: true,
+      session: true,
+      thirdParty: false
+    }
+  ];
+  result.storage = [{ area: "localStorage", key: "patient_private_record", valueBytes: 24 }];
+  return result;
 }

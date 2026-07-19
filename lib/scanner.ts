@@ -31,9 +31,11 @@ import {
 import {
   consentClickArgs,
   consentInteractionWarning,
+  consentShadowRootCaptureArgs,
   consentVisibilityArgs,
   findAndClickConsentControl,
   findVisibleConsentControl,
+  installConsentShadowRootCapture,
   type ConsentClickOutcome,
   type ConsentChoice,
   type ConsentInteractionSummary
@@ -322,6 +324,8 @@ type ConsentChoiceProbeOutcome = {
 };
 
 const stagedSingleVisitMeasurements = new WeakMap<ScanResult, StagedSingleVisitMeasurement>();
+const publicHostCheckFailures = new WeakMap<Map<string, Promise<void>>, Map<string, number>>();
+const MAX_PUBLIC_HOST_CHECK_ATTEMPTS = 2;
 
 /**
  * Read the process-local phase-aware facts attached to a live v1 result.
@@ -376,6 +380,8 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
   if (options.shieldsBlockingEnabled) {
     warnings.add("Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.");
   }
+  const verificationFlagOn = consentVerificationEnabled();
+  const consentShadowRootCapability = randomBytes(32).toString("hex");
   let context: BrowserContext | null = null;
   const scanProxy = await startPublicScanProxy({
     resolveHost: options.resolvePublicHost,
@@ -394,6 +400,12 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
     throwIfScanAborted(options.signal);
     context = await browser.newContext(createContextOptions(payload, scanProxy.server));
     throwIfScanAborted(options.signal);
+    if (payload.consentMode !== "observe" || verificationFlagOn) {
+      await context.addInitScript(
+        installConsentShadowRootCapture,
+        consentShadowRootCaptureArgs(consentShadowRootCapability)
+      );
+    }
     if (payload.gpcEnabled) {
       await context.addInitScript(() => {
         Object.defineProperty(navigator, "globalPrivacyControl", {
@@ -508,7 +520,6 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
     // Kernel step 3 state (flag-gated): registered consent-state readback.
     // Everything recorded here is staged r2 fact material. It remains private
     // until an r2 builder sanitizes and projects it onto a report wire.
-    const verificationFlagOn = consentVerificationEnabled();
     const verificationEnabled = payload.consentMode !== "observe" && verificationFlagOn;
     const consentObservations: ConsentObservationFactsR2[] = [];
     const bannerObservations: BannerTransitionR2["observations"][number][] = [];
@@ -624,7 +635,7 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
     // retained; raw CMP payloads never leave the read. Best-effort: a failed
     // read records its structured failure outcome and the scan continues.
     const probeConsentBannerVisibility = async (): Promise<boolean | null> => {
-      const args = consentVisibilityArgs();
+      const args = consentVisibilityArgs(consentShadowRootCapability);
       let readableFrames = 0;
       for (const frame of page.frames()) {
         try {
@@ -836,7 +847,10 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
               summary: { mode: payload.consentMode as ConsentChoice, clicked: false },
               readableFrames: 0
             }
-          : await withScanTimeout(applyConsentChoice(page, payload.consentMode, started), started).catch(
+          : await withScanTimeout(
+              applyConsentChoice(page, payload.consentMode, started, consentShadowRootCapability),
+              started
+            ).catch(
               (error): ConsentChoiceProbeOutcome => {
                 consentProbeState.failure = isScanBudgetError(error) ? "budget-unavailable" : "scan-failed";
                 return {
@@ -1844,7 +1858,29 @@ export async function decideRoutedRequest({
         hostCheck = verifyPublicUrl(parsed);
         publicHostChecks.set(hostCheckKey, hostCheck);
       }
-      await hostCheck;
+      try {
+        await hostCheck;
+        publicHostCheckFailures.get(publicHostChecks)?.delete(hostCheckKey);
+      } catch (error) {
+        // A transient DNS failure must not poison every later request to this
+        // host for the rest of the visit. Retry once, while keeping a repeated
+        // rejection cached so one dead host cannot trigger up to the full route
+        // budget in DNS work. Only the owner of the exact rejected promise may
+        // update this state; concurrent waiters share its result.
+        if (publicHostChecks.get(hostCheckKey) === hostCheck) {
+          let failures = publicHostCheckFailures.get(publicHostChecks);
+          if (!failures) {
+            failures = new Map();
+            publicHostCheckFailures.set(publicHostChecks, failures);
+          }
+          const attempts = (failures.get(hostCheckKey) ?? 0) + 1;
+          failures.set(hostCheckKey, attempts);
+          if (attempts < MAX_PUBLIC_HOST_CHECK_ATTEMPTS) {
+            publicHostChecks.delete(hostCheckKey);
+          }
+        }
+        throw error;
+      }
     }
   });
   if (decision.action === "abort") {
@@ -2109,14 +2145,19 @@ async function capturePassiveBoundary<T>(operation: Promise<T>): Promise<Passive
  * only, and honest on failure: `clicked: false` means the visit stays
  * pre-consent, and the caller discloses exactly that.
  */
-async function applyConsentChoice(page: Page, choice: ConsentChoice, started: number): Promise<ConsentChoiceProbeOutcome> {
+async function applyConsentChoice(
+  page: Page,
+  choice: ConsentChoice,
+  started: number,
+  shadowRootCapability: string
+): Promise<ConsentChoiceProbeOutcome> {
   const summary: ConsentInteractionSummary = { mode: choice, clicked: false };
   let readableFrames = 0;
   if (MAX_SCAN_DURATION_MS - (Date.now() - started) < CONSENT_CLICK_MIN_BUDGET_MS) {
     return { summary, readableFrames };
   }
 
-  const args = consentClickArgs(choice);
+  const args = consentClickArgs(choice, shadowRootCapability);
   for (let attempt = 0; attempt < CONSENT_BANNER_RETRIES && !summary.clicked; attempt += 1) {
     // Main frame first; consent iframes (Sourcepoint and similar) after it.
     for (const frame of page.frames()) {

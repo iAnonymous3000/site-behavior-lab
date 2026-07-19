@@ -160,7 +160,6 @@ export type DurableScanJobPublicationReconciliationResponse = {
 export type DurableScanJobAdmissionDependencies = {
   prepare?: (request: Request) => Promise<PreparedScanRequest>;
   requireReady?: () => void;
-  charge?: (clientKey: string, now: number, cost: 1 | 2) => void;
   now?: () => number;
   createId?: (now: Date) => string;
 };
@@ -221,8 +220,9 @@ export function durableScanJobsEnabled(env: NodeJS.ProcessEnv = process.env): bo
 
 /**
  * Run the ordinary authenticated/DNS-safe prepare gate, then freeze only the
- * privacy-minimized payload that the edge may encrypt. Admission charges the
- * Node limiter exactly once but deliberately creates no local job or worker.
+ * privacy-minimized payload that the edge may encrypt. Preparation deliberately
+ * does not charge: the edge passes an ephemeral client hash to the Durable
+ * Object, which commits the quota charge and job row in one transaction.
  */
 export async function prepareDurableScanJobRequest(
   request: Request,
@@ -235,7 +235,6 @@ export async function prepareDurableScanJobRequest(
   if (!Number.isSafeInteger(nowMs) || nowMs < 0) {
     throw new Error("Invalid durable scan-job admission timestamp.");
   }
-  (dependencies.charge ?? assertRateLimit)(prepared.clientKey, nowMs, prepared.rateLimitCost);
 
   const now = new Date(nowMs);
   const createId = dependencies.createId ?? createJobId;
@@ -259,6 +258,8 @@ export async function prepareDurableScanJobRequest(
     rateLimitCost: prepared.rateLimitCost,
     admittedAt: nowMs,
     reportMode: "r2",
+    // This is an execution invariant, not a claim that preparation charged.
+    // The DO stores this payload only in the transaction that consumes quota.
     alreadyCharged: true
   };
 
@@ -1125,7 +1126,7 @@ function cancellationResponse(record: InternalScanJobRecord): RuntimeScanJobStat
 }
 
 function markExpired(record: InternalScanJobRecord): void {
-  if (record.status === "expired") return;
+  if (record.status !== "queued") return;
 
   const now = new Date().toISOString();
   record.status = "expired";
@@ -1338,12 +1339,22 @@ function pruneScanJobs(nowMs = Date.now()): void {
       continue;
     }
 
-    if (nowMs - record.createdAtMs > JOB_MAX_AGE_MS) {
+    if (record.status === "queued" && nowMs - record.createdAtMs > JOB_MAX_AGE_MS) {
       markExpired(record);
       // An expired queued job must also leave the admission queue: workers
       // already skip it, but its id would otherwise keep counting against the
       // aggregate admission cap until the record itself is deleted.
       removeQueuedJobId(id);
+      continue;
+    }
+
+    if (isTerminalStatus(record.status) && nowMs - record.createdAtMs > JOB_MAX_AGE_MS + JOB_EXPIRED_RETENTION_MS) {
+      // Keep the real succeeded/failed/cancelled story through the former
+      // expiry grace window, then delete the bearer-capability record instead
+      // of relabeling it as an expiry. This also bounds screenshot retention
+      // when traffic stays below the pressure-eviction ceiling.
+      removeQueuedJobId(id);
+      jobs.delete(id);
     }
   }
 

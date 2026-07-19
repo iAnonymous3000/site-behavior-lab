@@ -6,6 +6,7 @@ import { requestProvenanceSearchText, requestProvenanceSummary } from "@/lib/rep
 import { displayEvidenceName, displayHost, hostMatchesQuery, plural } from "@/lib/text-format";
 import { detectionEvidence, detectionLabel, pixelFieldLabel } from "@/lib/report-insights";
 import { isReviewedCookieName, isReviewedStorageKey } from "@/lib/public-name-policy";
+import { listOverflowCopy } from "@/lib/report-table-copy";
 import type {
   CookieRecord,
   DomainSummary,
@@ -362,11 +363,12 @@ function TopThirdParties({ domains }: { domains: DomainSummary[] }) {
 }
 
 // Shared "+N more" footer so truncated sidebar lists never look complete.
-function ListOverflowNote({ total, shown, where }: { total: number; shown: number; where: string }) {
-  if (total <= shown) return null;
+function ListOverflowNote({ total, shown, where }: { total: number; shown: number; where?: string }) {
+  const copy = listOverflowCopy(total, shown, where);
+  if (!copy) return null;
   return (
     <p className="muted list-overflow-note">
-      +{(total - shown).toLocaleString("en-US")} more in {where}.
+      {copy}
     </p>
   );
 }
@@ -400,7 +402,7 @@ function CookieList({ cookies }: { cookies: CookieRecord[] }) {
           {plural(hiddenNames, "cookie name")} hidden because unreviewed names can contain identifiers. Cookie values are never recorded.
         </p>
       )}
-      <ListOverflowNote total={cookies.length} shown={shown} where="the JSON export" />
+      <ListOverflowNote total={cookies.length} shown={shown} />
     </div>
   );
 }
@@ -428,7 +430,7 @@ function StorageList({ storage }: { storage: StorageRecord[] }) {
           {plural(hiddenKeys, "storage key")} hidden because unreviewed keys can contain identifiers. Values are not stored; only byte counts are kept.
         </p>
       )}
-      <ListOverflowNote total={storage.length} shown={shown} where="the JSON export" />
+      <ListOverflowNote total={storage.length} shown={shown} />
     </div>
   );
 }

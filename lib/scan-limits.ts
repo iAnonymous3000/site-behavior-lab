@@ -1,4 +1,5 @@
 import { PublicScanError } from "./public-errors";
+import { AUTHENTICATED_SCAN_RATE_LIMIT_PER_MINUTE } from "./public-scan-rate-limit-store";
 
 export const MAX_BODY_BYTES = 4096;
 export const MAX_CONCURRENT_SCANS = 2;
@@ -14,7 +15,7 @@ export const MAX_QUEUED_SCANS = MAX_CONCURRENT_SCANS * 4;
 export const MAX_QUEUED_JOBS = 32;
 export const QUEUE_TIMEOUT_MS = 15_000;
 export const RATE_LIMIT_WINDOW_MS = 60_000;
-export const RATE_LIMIT_MAX = 20;
+export const RATE_LIMIT_MAX = AUTHENTICATED_SCAN_RATE_LIMIT_PER_MINUTE;
 export const REPORT_READ_RATE_LIMIT_WINDOW_MS = 60_000;
 export const REPORT_READ_RATE_LIMIT_MAX = 120;
 

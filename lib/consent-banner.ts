@@ -1,12 +1,12 @@
 /**
  * Consent Management Platform (CMP) detection.
  *
- * A request to a known CMP loader host means the page showed a cookie/consent
- * banner. Because the scanner never clicks the banner, everything it observed is
- * the *pre-consent* state: any tracker seen loaded before consent was given
- * (often not permitted under GDPR/ePrivacy), and more trackers may load after
- * "Accept" that this report does not capture. This module just names the CMP
- * from the request log; the finding layer turns that into the pre-consent story.
+ * A request to a known CMP loader host proves only that consent tooling loaded;
+ * it does not prove a banner was visibly shown. In observe mode the scanner
+ * makes no consent choice, so this module can identify tooling and the finding
+ * layer can describe what loaded before that choice boundary. Neither layer
+ * decides whether a request required consent or whether behavior complied with
+ * applicable law, and more trackers may load after an "Accept" interaction.
  *
  * Pure (types only) so it runs anywhere. The list is curated and unambiguous:
  * each host is a dedicated consent platform, not a dual-use analytics domain.

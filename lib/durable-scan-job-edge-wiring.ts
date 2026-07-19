@@ -87,7 +87,8 @@ export async function finalizeDurableScanJobAdmission(
   preparation: DurableScanJobPreparation,
   commit: (preparation: DurableScanJobPreparation) => Promise<unknown>,
   onFailure?: (error: unknown) => void,
-  recoverCommitted?: (preparation: DurableScanJobPreparation, error: unknown) => Promise<boolean>
+  recoverCommitted?: (preparation: DurableScanJobPreparation, error: unknown) => Promise<boolean>,
+  isDefinitiveRejection?: (error: unknown, attempt: 1 | 2) => boolean
 ): Promise<DurableScanJobAdmissionOutcome> {
   let finalError: unknown;
   // One bounded retry closes the commit-response-lost + transient-readback
@@ -100,6 +101,14 @@ export async function finalizeDurableScanJobAdmission(
       return { accepted: true, status: 202, submission: preparation.submission };
     } catch (error) {
       finalError = error;
+    }
+    // A typed refusal returned by the authoritative DO proves that this
+    // attempt did not commit. In particular, quota rejection must not be
+    // retried as a second admission attempt. Transport/store failures remain
+    // outcome-unknown and still use exact readback plus one idempotent retry.
+    if (isDefinitiveRejection?.(finalError, attempt === 0 ? 1 : 2)) {
+      onFailure?.(finalError);
+      return { accepted: false, status: 503 };
     }
     try {
       if (recoverCommitted && (await recoverCommitted(preparation, finalError))) {

@@ -154,6 +154,13 @@ const PAGEGRAPH_INITIATOR_TYPES = new Set([
 ]);
 
 const KNOWN_CMP_NAMES = new Set(CONSENT_CMP_SELECTORS.map((entry) => entry.cmp));
+const LEGACY_PUBLIC_CONSENT_MATCHED_TEXT: Record<
+  ConsentInteractionSummary["mode"],
+  readonly string[]
+> = {
+  "accept-all": ["agree", "consent"],
+  "reject-all": []
+};
 const KNOWN_PIXEL_MATCH_FIELDS = new Set([
   "email",
   "phone",
@@ -304,6 +311,7 @@ export const PUBLIC_STRING_POLICY_DIGEST = sha256Hex(
     consentTextPatterns: Object.fromEntries(
       Object.entries(CONSENT_TEXT_PATTERNS).map(([key, value]) => [key, value.source])
     ),
+    legacyConsentMatchedText: LEGACY_PUBLIC_CONSENT_MATCHED_TEXT,
     pixelMatchFields: [...KNOWN_PIXEL_MATCH_FIELDS].sort(),
     pixelProducts: Object.fromEntries(
       Object.entries(PIXEL_PRODUCTS).map(([key, value]) => [key, { product: value.product, events: [...value.events].sort() }])
@@ -900,7 +908,17 @@ function redactConsentMatchedText(
 ): string {
   if (value === REDACTED_PUBLIC_STRING) return value;
   const normalized = normalizeConsentLabel(value);
-  return matchesConsentChoice(mode, normalized) ? normalized : REDACTED_PUBLIC_STRING;
+  return isPublicConsentMatchedText(mode, normalized) ? normalized : REDACTED_PUBLIC_STRING;
+}
+
+function isPublicConsentMatchedText(
+  mode: ConsentInteractionSummary["mode"],
+  normalized: string
+): boolean {
+  return (
+    matchesConsentChoice(mode, normalized) ||
+    LEGACY_PUBLIC_CONSENT_MATCHED_TEXT[mode].includes(normalized)
+  );
 }
 
 export function redactCookieSameSite(value: string): string {
@@ -1065,7 +1083,7 @@ function isGeneratedConsentWarning(warning: string): boolean {
     if (!matched) continue;
     const label = normalizeConsentLabel(matched[1]);
     if (
-      matchesConsentChoice(mode, label) &&
+      isPublicConsentMatchedText(mode, label) &&
       warning === consentInteractionWarning({ mode, clicked: true, matchedText: label })
     ) {
       return true;

@@ -21,5 +21,5 @@ export function toPublicError(error: unknown): { message: string; status: number
   }
 
   console.error(error);
-  return { message: "Scan failed. Check the target URL and try again.", status: 500 };
+  return { message: "The service could not complete this request. Try again later.", status: 500 };
 }

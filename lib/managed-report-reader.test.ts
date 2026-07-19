@@ -2,10 +2,12 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { readManagedReport } from "./managed-report-reader";
 import { buildProvenanceEntry } from "./redaction-provenance";
+import { redactScanReportV1 } from "./redact-scan-report-v1";
 import { REDACTION_VERSION } from "./redaction-v2";
 import { buildReportShare, buildStaticReportShare } from "./report-locator";
 import { makeSupportingPairInterventionReportV2R2 } from "./scan-report-v2-r2-fixtures";
 import { makePublicSingleReportV2, makeScanReportV1 } from "./scan-report-v2-fixtures";
+import { consentInteractionWarning } from "./consent-interaction";
 
 const REPORT_ID = "20260712-" + "a".repeat(32);
 const RETENTION = {
@@ -227,4 +229,31 @@ test("a current sidecar cannot bless unredacted v1 bytes or a foreign embedded s
     }),
     { ok: false, error: "invalid", reason: "share-id-mismatch" }
   );
+});
+
+test("managed v1 reports retain historical bare consent labels without reopening click matching", () => {
+  for (const matchedText of ["agree", "consent"]) {
+    const report = redactScanReportV1(makeScanReportV1()).report;
+    if (report.reportType === "comparison") throw new Error("expected single report fixture");
+    report.conditions.consentMode = "accept-all";
+    report.consentInteraction = { mode: "accept-all", clicked: true, matchedText };
+    report.warnings = [
+      consentInteractionWarning({ mode: "accept-all", clicked: true, matchedText })
+    ];
+    const sidecar = buildProvenanceEntry({
+      reportId: REPORT_ID,
+      publicReport: report,
+      writtenAt: RETENTION.createdAt,
+      createdAt: RETENTION.createdAt,
+      expiresAt: RETENTION.expiresAt
+    });
+
+    const read = readManagedReport({
+      reportId: REPORT_ID,
+      reportContents: JSON.stringify(report),
+      sidecarContents: JSON.stringify(sidecar),
+      retention: RETENTION
+    });
+    assert.equal(read.ok, true, `legacy label ${matchedText} should remain a managed fixed point`);
+  }
 });

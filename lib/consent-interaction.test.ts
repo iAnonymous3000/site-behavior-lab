@@ -1,13 +1,21 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import { chromium } from "playwright";
 import {
   cmpSelectorsForChoice,
   consentChoiceLabel,
   consentClickArgs,
   consentInteractionWarning,
+  consentShadowRootCaptureArgs,
+  consentVisibilityArgs,
+  findAndClickConsentControl,
+  findVisibleConsentControl,
+  installConsentShadowRootCapture,
   matchesConsentChoice,
   normalizeConsentLabel
 } from "./consent-interaction";
+
+const SHADOW_ROOT_CAPABILITY = "c".repeat(64);
 
 test("whole-label matching accepts the known accept/reject phrases", () => {
   assert.equal(matchesConsentChoice("accept-all", "Accept all"), true);
@@ -29,6 +37,14 @@ test("whole-label matching rejects partial and page-authored phrases", () => {
   // An opposite-choice label never matches.
   assert.equal(matchesConsentChoice("accept-all", "Reject all"), false);
   assert.equal(matchesConsentChoice("reject-all", "Accept all"), false);
+});
+
+test("generic matching does not mistake ambiguous preference labels for Accept all", () => {
+  assert.equal(matchesConsentChoice("accept-all", "Consent"), false);
+  assert.equal(matchesConsentChoice("accept-all", "Agree"), false);
+  // Explicit choice phrases remain supported.
+  assert.equal(matchesConsentChoice("accept-all", "I agree"), true);
+  assert.equal(matchesConsentChoice("accept-all", "Agree and close"), true);
 });
 
 test("label normalization collapses whitespace and trailing punctuation", () => {
@@ -53,12 +69,201 @@ test("the CMP selector catalog covers both choices for every platform", () => {
 });
 
 test("consentClickArgs serializes the regex source for the page function", () => {
-  const args = consentClickArgs("reject-all");
+  const args = consentClickArgs("reject-all", SHADOW_ROOT_CAPABILITY);
   const pattern = new RegExp(args.textPatternSource);
   assert.equal(pattern.test("reject all"), true);
   assert.equal(pattern.test("accept all"), false);
   assert.ok(args.selectors.length > 0);
   assert.ok(args.shadowHosts.includes("#usercentrics-root"));
+});
+
+test("the browser probes reach closed known CMP roots while leaving unrelated roots closed", { timeout: 20_000 }, async () => {
+  const browser = await chromium.launch({ headless: true });
+  try {
+    const context = await browser.newContext();
+    await context.addInitScript(
+      installConsentShadowRootCapture,
+      consentShadowRootCaptureArgs(SHADOW_ROOT_CAPABILITY)
+    );
+    const page = await context.newPage();
+    const pageErrors: string[] = [];
+    page.on("pageerror", (error) => pageErrors.push(error.message));
+    await page.setContent(`<!doctype html><body>
+      <script>
+        const pageNativeWeakMapGet = WeakMap.prototype.get;
+        const pageNativeWeakMapSet = WeakMap.prototype.set;
+        window.pageWeakMapGets = 0;
+        window.pageWeakMapSets = 0;
+        window.pageLeakedClosedRoot = false;
+        WeakMap.prototype.get = function(key) {
+          window.pageWeakMapGets += 1;
+          const value = Reflect.apply(pageNativeWeakMapGet, this, [key]);
+          if (value instanceof ShadowRoot) window.pageLeakedClosedRoot = true;
+          return value;
+        };
+        WeakMap.prototype.set = function(key, value) {
+          window.pageWeakMapSets += 1;
+          if (value instanceof ShadowRoot) window.pageLeakedClosedRoot = true;
+          return Reflect.apply(pageNativeWeakMapSet, this, [key, value]);
+        };
+
+        const knownHost = document.createElement("div");
+        let closedModeReads = 0;
+        const knownRoot = knownHost.attachShadow({
+          get mode() {
+            closedModeReads += 1;
+            return "closed";
+          }
+        });
+        window.closedModeReads = closedModeReads;
+        knownHost.id = "usercentrics-root";
+        const accept = document.createElement("button");
+        accept.dataset.testid = "uc-accept-all-button";
+        accept.textContent = "Accept all";
+        accept.disabled = true;
+        window.enableKnownAccept = () => { accept.disabled = false; };
+        accept.addEventListener("click", () => {
+          window.knownAcceptClicks = (window.knownAcceptClicks || 0) + 1;
+          accept.remove();
+        });
+        knownRoot.append(accept);
+        document.body.append(knownHost);
+
+        const unrelatedHost = document.createElement("div");
+        const unrelatedRoot = unrelatedHost.attachShadow({ mode: "closed" });
+        unrelatedHost.id = "unrelated-root";
+        const unrelatedAccept = document.createElement("button");
+        unrelatedAccept.textContent = "Accept all";
+        unrelatedAccept.addEventListener("click", () => {
+          window.unrelatedClicks = (window.unrelatedClicks || 0) + 1;
+        });
+        unrelatedRoot.append(unrelatedAccept);
+        document.body.append(unrelatedHost);
+      </script>
+    </body>`);
+
+    assert.deepEqual(pageErrors, []);
+    assert.deepEqual(
+      await page.evaluate(() => ({
+        modeReads: Reflect.get(window, "closedModeReads"),
+        weakMapGets: Reflect.get(window, "pageWeakMapGets"),
+        weakMapSets: Reflect.get(window, "pageWeakMapSets"),
+        leaked: Reflect.get(window, "pageLeakedClosedRoot")
+      })),
+      { modeReads: 1, weakMapGets: 0, weakMapSets: 0, leaked: false },
+      "page-patched intrinsics must not observe the private registry or duplicate the mode getter"
+    );
+    assert.equal(await page.locator("#usercentrics-root").count(), 1);
+    assert.equal(
+      await page.evaluate(() => document.querySelector("#usercentrics-root")?.shadowRoot === null),
+      true,
+      "capture must not convert a closed root to open"
+    );
+    assert.deepEqual(
+      await page.evaluate(() => {
+        const host = document.querySelector("#usercentrics-root");
+        const registry = Object.getOwnPropertySymbols(globalThis)
+          .map((symbol) => Reflect.get(globalThis, symbol) as unknown)
+          .find(
+            (value): value is { rootFor: (...args: unknown[]) => unknown } =>
+              typeof value === "object" &&
+              value !== null &&
+              typeof Reflect.get(value, "rootFor") === "function"
+          );
+        if (!host || !registry) return { found: false, withoutCapability: false, wrongCapability: false };
+        return {
+          found: true,
+          withoutCapability: Reflect.apply(registry.rootFor, registry, [host]) instanceof ShadowRoot,
+          wrongCapability:
+            Reflect.apply(registry.rootFor, registry, [host, "0".repeat(64)]) instanceof ShadowRoot
+        };
+      }),
+      { found: true, withoutCapability: false, wrongCapability: false },
+      "page-authored code must not recover a captured closed root"
+    );
+    assert.equal(
+      await page.evaluate(
+        findVisibleConsentControl,
+        consentVisibilityArgs(SHADOW_ROOT_CAPABILITY)
+      ),
+      true
+    );
+    assert.deepEqual(await page.evaluate(
+      findAndClickConsentControl,
+      consentClickArgs("accept-all", SHADOW_ROOT_CAPABILITY)
+    ), {
+      clicked: false
+    });
+    assert.equal(await page.evaluate(() => Reflect.get(window, "knownAcceptClicks") ?? 0), 0);
+    await page.evaluate(() => (Reflect.get(window, "enableKnownAccept") as () => void)());
+    assert.deepEqual(await page.evaluate(
+      findAndClickConsentControl,
+      consentClickArgs("accept-all", SHADOW_ROOT_CAPABILITY)
+    ), {
+      clicked: true,
+      cmp: "Usercentrics",
+      selector: "[data-testid=uc-accept-all-button]"
+    });
+    assert.equal(await page.evaluate(() => Reflect.get(window, "knownAcceptClicks")), 1);
+    assert.deepEqual(
+      await page.evaluate(() => ({
+        weakMapGets: Reflect.get(window, "pageWeakMapGets"),
+        weakMapSets: Reflect.get(window, "pageWeakMapSets"),
+        leaked: Reflect.get(window, "pageLeakedClosedRoot")
+      })),
+      { weakMapGets: 0, weakMapSets: 0, leaked: false }
+    );
+
+    // Once the known control is gone, the same label in an unrelated closed
+    // root is neither reported nor clicked.
+    assert.equal(
+      await page.evaluate(
+        findVisibleConsentControl,
+        consentVisibilityArgs(SHADOW_ROOT_CAPABILITY)
+      ),
+      false
+    );
+    assert.deepEqual(await page.evaluate(
+      findAndClickConsentControl,
+      consentClickArgs("accept-all", SHADOW_ROOT_CAPABILITY)
+    ), {
+      clicked: false
+    });
+    assert.equal(await page.evaluate(() => Reflect.get(window, "unrelatedClicks") ?? 0), 0);
+
+    // Existing open-shadow behavior remains intact.
+    await page.evaluate(() => {
+      const host = document.createElement("div");
+      host.id = "cmpwrapper";
+      const root = host.attachShadow({ mode: "open" });
+      const reject = document.createElement("button");
+      reject.dataset.testid = "uc-deny-all-button";
+      reject.textContent = "Reject all";
+      reject.addEventListener("click", () => {
+        Reflect.set(window, "openRejectClicks", (Reflect.get(window, "openRejectClicks") ?? 0) + 1);
+      });
+      root.append(reject);
+      document.body.append(host);
+    });
+    assert.equal(
+      await page.evaluate(
+        findVisibleConsentControl,
+        consentVisibilityArgs(SHADOW_ROOT_CAPABILITY)
+      ),
+      true
+    );
+    assert.deepEqual(await page.evaluate(
+      findAndClickConsentControl,
+      consentClickArgs("reject-all", SHADOW_ROOT_CAPABILITY)
+    ), {
+      clicked: true,
+      cmp: "Usercentrics",
+      selector: "[data-testid=uc-deny-all-button]"
+    });
+    assert.equal(await page.evaluate(() => Reflect.get(window, "openRejectClicks")), 1);
+  } finally {
+    await browser.close();
+  }
 });
 
 test("interaction warnings disclose the click or the honest failure", () => {

@@ -5,6 +5,7 @@ import {
   QUEUE_TIMEOUT_MS
 } from "./scan-limits";
 import { PublicScanError } from "./public-errors";
+import { redactScanReportV1 } from "./redact-scan-report-v1";
 import {
   createConsentComparisonReport,
   createGpcComparisonReport,
@@ -313,7 +314,7 @@ async function saveScanReportBestEffort<T extends ScanReport>(
   } catch (error) {
     throwIfCancelled(control.signal);
     console.warn("Failed to save shareable scan report.", error);
-    return appendWarning(report, SHARE_SAVE_WARNING);
+    return appendWarning(redactScanReportV1(report).report, SHARE_SAVE_WARNING);
   }
 }
 

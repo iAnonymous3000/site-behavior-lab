@@ -54,6 +54,56 @@ test("durable store or scheduling failure can never produce a public 202", async
   assert.equal(seen.length, 1);
 });
 
+test("a definitive durable quota refusal is terminal and never retried as admission", async () => {
+  class QuotaRefusal extends Error {}
+  let commits = 0;
+  let readbacks = 0;
+  const seen: unknown[] = [];
+
+  const outcome = await finalizeDurableScanJobAdmission(
+    PREPARATION,
+    async () => {
+      commits += 1;
+      throw new QuotaRefusal("quota exhausted");
+    },
+    (error) => seen.push(error),
+    async () => {
+      readbacks += 1;
+      return false;
+    },
+    (error) => error instanceof QuotaRefusal
+  );
+
+  assert.deepEqual(outcome, { accepted: false, status: 503 });
+  assert.equal(commits, 1);
+  assert.equal(readbacks, 0);
+  assert.equal(seen.length, 1);
+});
+
+test("a plain first-attempt DO refusal is terminal without speculative readback or retry", async () => {
+  class AdmissionRefusal extends Error {}
+  let commits = 0;
+  let readbacks = 0;
+
+  const outcome = await finalizeDurableScanJobAdmission(
+    PREPARATION,
+    async () => {
+      commits += 1;
+      throw new AdmissionRefusal("capacity refused");
+    },
+    undefined,
+    async () => {
+      readbacks += 1;
+      return false;
+    },
+    (error, attempt) => error instanceof AdmissionRefusal && attempt === 1
+  );
+
+  assert.deepEqual(outcome, { accepted: false, status: 503 });
+  assert.equal(commits, 1);
+  assert.equal(readbacks, 0);
+});
+
 test("durable acceptance awaits the commit before exposing the submission", async () => {
   let release: () => void = () => undefined;
   const blocked = new Promise<void>((resolve) => {
@@ -102,24 +152,34 @@ test("an outcome-unknown admission recovers only from an exact authoritative rea
 });
 
 test("admission retries once when both the commit response and first exact readback are lost", async () => {
+  class DuplicateRefusal extends Error {}
   let commits = 0;
   let readbacks = 0;
+  let quotaCharges = 0;
+  let committed = false;
   const recovered = await finalizeDurableScanJobAdmission(
     PREPARATION,
     async () => {
       commits += 1;
-      throw new Error(commits === 1 ? "commit response lost" : "duplicate refused");
+      if (!committed) {
+        committed = true;
+        quotaCharges += 1;
+      }
+      if (commits === 1) throw new Error("commit response lost");
+      throw new DuplicateRefusal("duplicate refused");
     },
     undefined,
     async () => {
       readbacks += 1;
       if (readbacks === 1) throw new Error("transient readback reset");
       return true;
-    }
+    },
+    (error, attempt) => error instanceof DuplicateRefusal && attempt === 1
   );
   assert.deepEqual(recovered, { accepted: true, status: 202, submission: PREPARATION.submission });
   assert.equal(commits, 2);
   assert.equal(readbacks, 2);
+  assert.equal(quotaCharges, 1, "an idempotent duplicate admission must not consume quota again");
 });
 
 test("publishing backoff never delays an independent due lease, deadline, or purge", () => {
@@ -226,7 +286,7 @@ test("due driver reuse kicks the existing alarm instead of postponing it", () =>
 test("Worker wiring preserves Phase 1 while closing durable private boundaries", async () => {
   const source = await readFile(path.join(process.cwd(), "cloudflare/container-worker.ts"), "utf8");
   assert.match(source, /ctx\.waitUntil\(\s*recordAcceptedScanJob\(/);
-  assert.match(source, /return submitDurableScanJob\(forwarded, env, replayFaultMode\)/);
+  assert.match(source, /return submitDurableScanJob\(forwarded, env, replayFaultMode, deferredRateLimit\)/);
   assert.match(source, /isScan &&\s*\(\s*durableScanJobsFlagMisconfigured\(env\)/);
   assert.match(source, /await finalizeDurableScanJobAdmission\(/);
   assert.match(source, /isDurableScanJobNodePrivatePath\(url\.pathname\)/);
@@ -314,11 +374,66 @@ test("Worker wiring preserves Phase 1 while closing durable private boundaries",
   assert.match(source, /findStagingDurableReplayFault\(jobId\)/);
 });
 
+test("durable quota is deferred into admission while Phase 1 keeps immediate edge charging", async () => {
+  const source = await readFile(path.join(process.cwd(), "cloudflare/container-worker.ts"), "utf8");
+  const fetchHandler = source.slice(
+    source.indexOf("export default"),
+    source.indexOf("type DurableScanJobConfig")
+  );
+  const gate = source.slice(
+    source.indexOf("async function gateScanRequest"),
+    source.indexOf("function parseScanGatePayload")
+  );
+  const submit = source.slice(
+    source.indexOf("async function submitDurableScanJob"),
+    source.indexOf("async function handleDurableScanJobRequest")
+  );
+
+  assert.match(fetchHandler, /durableAdmission \? "defer" : "charge"/);
+  assert.match(fetchHandler, /if \(durableAdmission\)[\s\S]*submitDurableScanJob\([\s\S]*deferredRateLimit/);
+  assert.match(fetchHandler, /const response = await forwardToContainer\(forwarded, env\)/);
+  assert.match(gate, /if \(chargeMode === "charge"\) return null/);
+  assert.match(
+    gate,
+    /scope: "authenticated",[\s\S]*cost,[\s\S]*perMinute: AUTHENTICATED_SCAN_RATE_LIMIT_PER_MINUTE,[\s\S]*perDay: null/
+  );
+  assert.match(
+    gate,
+    /scope: "public"[\s\S]*if \(chargeMode === "defer"\) \{[\s\S]*await assertDeferredScanRateLimitAvailable\(rateLimit, env\);[\s\S]*return rateLimit/
+  );
+  assert.ok(
+    gate.indexOf("await assertDeferredScanRateLimitAvailable(rateLimit, env)") <
+      gate.indexOf("chargePublicScanRateLimit(rateLimit)"),
+    "durable mode must preflight quota without consuming it before the Phase-1 charge"
+  );
+  assert.match(
+    gate,
+    /scope: "authenticated"[\s\S]*await assertDeferredScanRateLimitAvailable\(rateLimit, env\);[\s\S]*return rateLimit/
+  );
+  assert.ok(
+    fetchHandler.indexOf("deferredRateLimit = await gateScanRequest") <
+      fetchHandler.indexOf("return submitDurableScanJob"),
+    "the non-consuming DO quota check must finish before Node preparation starts"
+  );
+  assert.match(
+    gate,
+    /async function assertDeferredScanRateLimitAvailable[\s\S]*try \{[\s\S]*peekPublicScanRateLimit\(rateLimit\)[\s\S]*catch \(error\)[\s\S]*Could not preflight durable scan-job quota[\s\S]*Durable scan jobs are temporarily unavailable\.[\s\S]*503/
+  );
+  assert.doesNotMatch(
+    gate,
+    /catch \(error\)[\s\S]*throw error/,
+    "DO quota preflight failures must never expose raw storage or RPC errors"
+  );
+  assert.match(submit, /result\.status === "rate-limited"/);
+  assert.match(submit, /error instanceof DurableScanJobRateLimitError/);
+  assert.match(submit, /return gateErrorResponse\(admissionError, request, env\)/);
+});
+
 test("Durable Object RPC mutations own time and return plain conflict envelopes", async () => {
   const source = await readFile(path.join(process.cwd(), "cloudflare/container-worker.ts"), "utf8");
   const container = source.slice(
     source.indexOf("export class ScannerContainer"),
-    source.indexOf("function atomicRateLimitWindow")
+    source.indexOf("export default")
   );
   const coordinator = source.slice(
     source.indexOf("async function handleDurableScanJobCoordinatorRequest"),
@@ -332,7 +447,7 @@ test("Durable Object RPC mutations own time and return plain conflict envelopes"
   assert.match(source, /type DurableScanJobMutationResult\s*=\s*\| \{ status: "success" \}\s*\| \{ status: "conflict" \}/);
   assert.match(
     source,
-    /type DurableScanJobAdmissionResult\s*=\s*\| \{ status: "success"; snapshot: DurableScanJobSnapshot \}\s*\| \{ status: "refused" \}/
+    /type DurableScanJobAdmissionResult\s*=\s*\| \{ status: "success"; snapshot: DurableScanJobSnapshot \}\s*\| \{ status: "rate-limited"; retryAfterSeconds: number \}\s*\| \{ status: "refused" \}/
   );
   assert.match(
     source,
@@ -346,6 +461,7 @@ test("Durable Object RPC mutations own time and return plain conflict envelopes"
   assert.match(container, /findDurableJob\(jobId: string\): DurableScanJobSnapshot \| null/);
   assert.match(container, /findRegisteredScanJob\(jobId: string\): DurableScanJobRegistration \| null/);
   assert.match(container, /chargeDurableJobReadRateLimit\(input: \{ clientHash: string \}\)/);
+  assert.match(container, /peekPublicScanRateLimit\(input: PublicScanRateLimitCharge\)/);
 
   for (const method of ["heartbeatDurableJob", "beginPublishingDurableJob", "resolveDurableJob"] as const) {
     const start = container.indexOf(`async ${method}`);
@@ -383,9 +499,38 @@ test("Durable Object RPC mutations own time and return plain conflict envelopes"
     container.indexOf("async admitDurablePreparation"),
     container.indexOf("findDurableJob", container.indexOf("async admitDurablePreparation"))
   );
+  assert.ok(
+    admission.indexOf("publicScanRateLimitChargeMatchesCost") <
+      admission.indexOf("createDurableScanJobAdmission"),
+    "cost drift must fail before encryption, scheduling, quota, or row mutation"
+  );
   assert.match(admission, /instanceof DurableScanJobCapacityError \|\| error instanceof DurableScanJobStateError/);
   assert.match(admission, /return \{ status: "refused" \}/);
-  assert.match(source, /result\.status !== "success" \|\|[\s\S]*durableScanJobAdmissionProofMatches\(result\.snapshot, value\)/);
+  assert.match(admission, /peekPublicScanRateLimitInStore\(this\.ctx\.storage\.sql, rateLimit, now\)/);
+  assert.match(admission, /commitPublicScanRateLimitedOperation\(/);
+  assert.ok(
+    admission.indexOf("await this.ensureImmediateDurablePumpWake()") <
+      admission.indexOf("commitPublicScanRateLimitedOperation"),
+    "durable quota must not be consumed before the admission wake is durable"
+  );
+  assert.ok(
+    admission.indexOf("commitPublicScanRateLimitedOperation") <
+      admission.indexOf("admitDurableScanJob(this.ctx.storage.sql, admission)"),
+    "quota and row admission must execute in one final transaction"
+  );
+  const finalAdmissionTransaction = admission.slice(
+    admission.lastIndexOf("this.ctx.storage.transactionSync"),
+    admission.indexOf("} catch (error)", admission.lastIndexOf("this.ctx.storage.transactionSync"))
+  );
+  assert.match(finalAdmissionTransaction, /commitPublicScanRateLimitedOperation/);
+  assert.match(finalAdmissionTransaction, /admitDurableScanJob/);
+  assert.match(finalAdmissionTransaction, /armDurableReplayFault/);
+  assert.match(source, /result\.status === "refused"[\s\S]*throw new DurableScanJobRefusedError/);
+  assert.match(source, /!durableScanJobAdmissionProofMatches\(result\.snapshot, value\)/);
+  assert.match(
+    source,
+    /\(error, attempt\) =>[\s\S]*error instanceof DurableScanJobRateLimitError[\s\S]*attempt === 1 && error instanceof DurableScanJobRefusedError/
+  );
 
   assert.match(coordinator, /result\.status === "conflict"\) return privateControlResponse\(409\)/);
   assert.doesNotMatch(coordinator, /instanceof DurableScanJobStateError/);

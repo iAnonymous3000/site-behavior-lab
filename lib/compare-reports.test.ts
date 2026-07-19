@@ -98,9 +98,21 @@ test("legacy v1 diffs retain terminal markers for frozen wire compatibility", ()
   assert.deepEqual(diff.addedStorageKeys, [{ area: "localStorage", key: "[redacted:uuid-like]" }]);
 });
 
-test("compareScanResults includes a shields-blocked delta only when measured", () => {
+test("compareScanResults includes a shields-blocked delta only when both runs measured it", () => {
   const plain = compareScanResults(makeScanResult([]), makeScanResult([]));
   assert.equal(plain.shieldsBlockedRequests, undefined);
+
+  const beforeOnly = compareScanResults(
+    makeScanResult([], { shieldsBlockedRequests: 4 }),
+    makeScanResult([])
+  );
+  assert.equal("shieldsBlockedRequests" in beforeOnly, false);
+
+  const afterOnly = compareScanResults(
+    makeScanResult([]),
+    makeScanResult([], { shieldsBlockedRequests: 7 })
+  );
+  assert.equal("shieldsBlockedRequests" in afterOnly, false);
 
   const before = makeScanResult([], { shieldsBlockedRequests: 0 });
   const after = makeScanResult([], { shieldsBlockedRequests: 7 });
