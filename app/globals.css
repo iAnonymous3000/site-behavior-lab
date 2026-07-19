@@ -2658,6 +2658,194 @@ a {
   overflow: hidden;
 }
 
+/* ---- Recorded v2 visit phases and snapshot changes ---- */
+.visit-phase-heading {
+  align-items: flex-end;
+}
+
+.visit-phase-heading .eyebrow {
+  margin: 0 0 3px;
+}
+
+.visit-phase-intro,
+.state-change-caveat,
+.state-change-note,
+.state-change-disclosure > .disclosure-lazy-note {
+  color: var(--text-subtle);
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.visit-phase-intro {
+  margin: 0;
+  padding: 13px 16px;
+}
+
+.visit-phase-table {
+  border-top: 1px solid var(--border);
+}
+
+.visit-phase-table table {
+  min-width: 1080px;
+}
+
+.visit-phase-table td {
+  font-variant-numeric: tabular-nums;
+}
+
+.visit-phase-table td > strong,
+.visit-phase-table .phase-code,
+.visit-phase-table .phase-incomplete {
+  display: block;
+}
+
+.visit-phase-table .phase-code,
+.visit-phase-table .phase-incomplete {
+  color: var(--text-subtle);
+  font-size: 11px;
+  line-height: 1.45;
+  margin-top: 3px;
+}
+
+.visit-phase-table .phase-code {
+  font-family: var(--font-mono);
+  overflow-wrap: anywhere;
+}
+
+.visit-phase-table .phase-incomplete {
+  color: var(--sig-warn);
+  font-family: var(--font-sans);
+}
+
+.state-change-disclosure {
+  border-top: 1px solid var(--border);
+}
+
+.state-change-disclosure > summary.section-heading {
+  border-bottom: 1px solid transparent;
+}
+
+.state-change-disclosure[open] > summary.section-heading {
+  border-bottom-color: var(--border);
+}
+
+.state-change-disclosure h3 {
+  font-size: 14px;
+  margin: 0;
+}
+
+.state-change-disclosure > .disclosure-lazy-note {
+  margin: 0;
+  padding: 14px 16px;
+}
+
+.state-change-content {
+  display: grid;
+}
+
+.state-change-caveat,
+.state-change-note {
+  margin: 0;
+  padding: 13px 16px;
+}
+
+.state-change-warning {
+  align-items: flex-start;
+  background: var(--sig-warn-soft);
+  color: var(--sig-warn);
+  display: flex;
+  font-size: 12px;
+  gap: 8px;
+  line-height: 1.5;
+  margin: 0 16px 13px;
+  padding: 9px 11px;
+}
+
+.state-change-warning svg {
+  flex: 0 0 auto;
+  margin-top: 1px;
+}
+
+.state-change-list {
+  display: grid;
+  gap: 8px;
+  list-style: none;
+  margin: 0;
+  padding: 0 16px 14px;
+}
+
+.state-change-row {
+  align-items: flex-start;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  display: grid;
+  gap: 10px;
+  grid-template-columns: auto minmax(0, 1fr);
+  padding: 11px 12px;
+}
+
+.state-change-row > svg {
+  color: var(--accent);
+  margin-top: 2px;
+}
+
+.state-change-row > div,
+.state-change-row strong,
+.state-change-row small {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.state-change-row strong {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  margin-top: 7px;
+}
+
+.state-change-row small {
+  color: var(--text-subtle);
+  display: block;
+  font-size: 12px;
+  margin-top: 3px;
+}
+
+.state-change-meta {
+  align-items: center;
+  color: var(--text-muted);
+  display: flex;
+  flex-wrap: wrap;
+  font-size: 11px;
+  gap: 6px 10px;
+  justify-content: space-between;
+}
+
+.state-change-op {
+  border-radius: 999px;
+  font-weight: 650;
+  padding: 2px 8px;
+}
+
+.state-change-op.op-added {
+  background: var(--sig-quiet-soft);
+  color: var(--sig-quiet);
+}
+
+.state-change-op.op-changed {
+  background: var(--sig-info-soft);
+  color: var(--sig-info);
+}
+
+.state-change-op.op-removed {
+  background: var(--sig-warn-soft);
+  color: var(--sig-warn);
+}
+
+.state-change-note {
+  border-top: 1px solid var(--border);
+}
+
 /* ---- Causal map (PageGraph provenance graph) ---- */
 .causal-graph-scroll {
   overflow-x: auto;
@@ -2942,6 +3130,54 @@ td .mono {
 
   .request-table th:nth-child(5) {
     width: 168px;
+  }
+
+  /* A recorded phase column sits between Time and Status on v2 rows. */
+  .request-table.has-phase-column table {
+    min-width: 1040px;
+  }
+
+  .request-table.has-phase-column th:nth-child(2) {
+    width: 158px;
+  }
+
+  .request-table.has-phase-column th:nth-child(3) {
+    width: 66px;
+  }
+
+  .request-table.has-phase-column th:nth-child(4) {
+    width: 94px;
+  }
+
+  .request-table.has-phase-column th:nth-child(5) {
+    width: 158px;
+  }
+
+  .request-table.has-phase-column th:nth-child(6) {
+    width: 168px;
+  }
+
+  /* Visit phases: Phase | Span | Requests | Third-party | Known service |
+     Cookie records | Storage records. This overrides the generic domain-table
+     widths above; the two snapshot columns share the remaining space. */
+  .table-wrap.visit-phase-table th:nth-child(1) {
+    width: 170px;
+  }
+
+  .table-wrap.visit-phase-table th:nth-child(2) {
+    width: 170px;
+  }
+
+  .table-wrap.visit-phase-table th:nth-child(3) {
+    width: 126px;
+  }
+
+  .table-wrap.visit-phase-table th:nth-child(4) {
+    width: 94px;
+  }
+
+  .table-wrap.visit-phase-table th:nth-child(5) {
+    width: 106px;
   }
 }
 

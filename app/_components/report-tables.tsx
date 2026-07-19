@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { AlertTriangle, CheckCircle2, ChevronDown, Database, Fingerprint, Radar } from "lucide-react";
 import { requestProvenanceSearchText, requestProvenanceSummary } from "@/lib/report-findings";
+import { visitPhaseLabel } from "@/lib/report-phase-evidence";
 import { displayEvidenceName, displayHost, hostMatchesQuery, plural } from "@/lib/text-format";
 import { detectionEvidence, detectionLabel, pixelFieldLabel } from "@/lib/report-insights";
 import { isReviewedCookieName, isReviewedStorageKey } from "@/lib/public-name-policy";
@@ -16,6 +17,7 @@ import type {
   PixelEventSummary,
   StorageRecord
 } from "@/lib/types";
+import type { PhaseSpan } from "@/lib/scan-report-v2";
 
 function Warnings({ warnings }: { warnings: string[] }) {
   // Reports saved before the collector deduped can carry exact-duplicate
@@ -97,7 +99,7 @@ function DomainTable({ domains }: { domains: DomainSummary[] }) {
   );
 }
 
-function RequestTable({ requests }: { requests: NetworkRequestRecord[] }) {
+function RequestTable({ requests, phases }: { requests: NetworkRequestRecord[]; phases: PhaseSpan[] | null }) {
   const [opened, setOpened] = useState(false);
   const [query, setQuery] = useState("");
   const [signalFilter, setSignalFilter] = useState<RequestSignalFilter>("all");
@@ -139,6 +141,10 @@ function RequestTable({ requests }: { requests: NetworkRequestRecord[] }) {
   // v2 evidence rows are phase-tagged; the column renders only when at least
   // one row carries a phase, so v1 tables stay unchanged.
   const hasPhases = useMemo(() => requests.some((request) => typeof (request as { phaseId?: unknown }).phaseId === "number"), [requests]);
+  const phaseLabels = useMemo(
+    () => new Map((phases ?? []).map((phase) => [phase.phaseId, visitPhaseLabel(phase.kind)])),
+    [phases]
+  );
 
   return (
     <details
@@ -204,12 +210,12 @@ function RequestTable({ requests }: { requests: NetworkRequestRecord[] }) {
           </select>
         </label>
       </div>
-      <div className="table-wrap request-table">
+      <div className={`table-wrap request-table${hasPhases ? " has-phase-column" : ""}`}>
         <table>
           <thead>
             <tr>
               <th>Time</th>
-              {hasPhases && <th title="The recorded visit phase this request belongs to (see the methodology block for phase spans)">Phase</th>}
+              {hasPhases && <th title="The recorded visit phase this request belongs to; the phase table above shows its span">Phase</th>}
               <th>Status</th>
               <th>Type</th>
               <th>Domain</th>
@@ -224,8 +230,8 @@ function RequestTable({ requests }: { requests: NetworkRequestRecord[] }) {
               <tr key={`${request.id}:${index}`}>
                 <td className="mono" data-label="Time">{request.startedAtMs.toLocaleString("en-US")}ms</td>
                 {hasPhases && (
-                  <td className="mono" data-label="Phase">
-                    {requestPhaseId(request) ?? ""}
+                  <td data-label="Phase">
+                    {requestPhaseLabel(request, phaseLabels)}
                   </td>
                 )}
                 <td data-label="Status">
@@ -272,6 +278,13 @@ function RequestTable({ requests }: { requests: NetworkRequestRecord[] }) {
 function requestPhaseId(request: NetworkRequestRecord): number | null {
   const phaseId = (request as NetworkRequestRecord & { phaseId?: unknown }).phaseId;
   return typeof phaseId === "number" ? phaseId : null;
+}
+
+function requestPhaseLabel(request: NetworkRequestRecord, labels: ReadonlyMap<number, string>): string {
+  const phaseId = requestPhaseId(request);
+  if (phaseId === null) return "—";
+  const label = labels.get(phaseId);
+  return label ? `P${phaseId} · ${label}` : `P${phaseId}`;
 }
 
 type RequestSignalFilter = "all" | "third-party" | "known-service" | "shields-blocked" | "fingerprinting" | "provenance";

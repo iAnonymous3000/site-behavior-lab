@@ -8,7 +8,7 @@ import { comparableSubjectHosts, comparisonEligibility } from "@/lib/comparison-
 import { legacyComparisonDecision } from "@/lib/comparison-decision";
 import { createTemporalComparisonReport, orderTemporalPair } from "@/lib/compare-reports";
 import { domainsMatch, isFeaturedSiteConfig, type FeaturedSite, type FeaturedSiteConfig } from "@/lib/featured-sites";
-import { committedReportLocation } from "@/lib/report-locator";
+import { committedReportLocation, withoutReportShare } from "@/lib/report-locator";
 import { readLoadedReport } from "@/lib/client-report-reader";
 import { plural } from "@/lib/text-format";
 import type { ComparisonScanResult, ScanDevice, ScanResult, StaticReportManifestEntry } from "@/lib/types";
@@ -560,7 +560,7 @@ async function loadStaticTemporalRun(entry: StaticReportManifestEntry): Promise<
   // archive identity suggests passive cohorts, then legacyComparisonDecision
   // rechecks the loaded pair. Shields remains strict to the exact snapshot.
   const run = wire.reportType === "comparison" ? (wire.comparisonType === "temporal" ? wire.variant : wire.baseline) : wire;
-  return stripShare(run);
+  return withoutReportShare(run);
 }
 
 async function readCompareUpload(file: File | null, slot: "before" | "after"): Promise<UploadedCompareReport> {
@@ -580,13 +580,8 @@ async function readCompareUpload(file: File | null, slot: "before" | "after"): P
 
   return {
     name: file.name,
-    report: stripShare(read.loaded.wire)
+    report: withoutReportShare(read.loaded.wire)
   };
-}
-
-// A run pulled into a temporal comparison has no servable permalink of its own.
-function stripShare(report: ScanResult): ScanResult {
-  return { ...report, share: undefined };
 }
 
 function staticReportOptionLabel(report: StaticReportManifestEntry): string {

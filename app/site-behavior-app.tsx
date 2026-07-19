@@ -51,6 +51,7 @@ import {
   Warnings
 } from "./_components/report-tables";
 import { StaticReportGallery } from "./_components/static-gallery";
+import { VisitPhasesAndStateChanges } from "./_components/visit-phases-and-state-changes";
 import {
   LIVE_SCAN_ENABLED,
   LIVE_SCAN_TURNSTILE_SITE_KEY,
@@ -71,7 +72,7 @@ import { isScanRuntimeHealth, type ScanRuntimeHealth } from "@/lib/scan-runtime-
 import { pollAcceptedScanJob, ScanJobEndedError } from "@/lib/scan-job-polling";
 import { RUN_MODE_LABELS, RUN_MODE_TITLES, runModeHint, type RunMode } from "@/lib/run-mode-copy";
 import { plural } from "@/lib/text-format";
-import { readLoadedReport } from "@/lib/client-report-reader";
+import { readLoadedReport, withoutLoadedReportShare } from "@/lib/client-report-reader";
 import {
   comparisonArmViews,
   displayRunView,
@@ -588,7 +589,7 @@ export function SiteBehaviorApp({
       if (!read.ok) {
         throw new Error(read.message);
       }
-      setLoaded(stripShareFromLoaded(read.loaded));
+      setLoaded(withoutLoadedReportShare(read.loaded));
     } catch (readError) {
       setError(readError instanceof Error ? readError.message : "Report JSON could not be opened.");
     }
@@ -1052,9 +1053,10 @@ export function SiteBehaviorApp({
                 <CausalityGraph requests={displayedRun.evidence.requests} />
                 <MetricGrid run={displayedRun} />
                 <TrafficViz run={displayedRun} />
+                <VisitPhasesAndStateChanges run={displayedRun} />
                 <Warnings warnings={reportView.warnings} />
                 <DomainTable domains={displayedRun.evidence.domains} />
-                <RequestTable requests={displayedRun.evidence.requests} />
+                <RequestTable requests={displayedRun.evidence.requests} phases={displayedRun.phases} />
               </div>
 
               <aside className="report-sidebar">
@@ -1434,26 +1436,6 @@ function armDisplayLabel(view: ReportView | null, arm: "baseline" | "variant"): 
  */
 function loadedFromV1Wire(report: ScanReport): LoadedReport {
   return { source: "v1", wire: report, view: viewFromV1Report(report) };
-}
-
-// A locally opened file has no servable permalink on this origin, so drop any
-// stored share pointer from the retained wire (every generation carries the
-// optional share block in the same place); the view carries no share at all.
-function stripShareFromLoaded(loaded: LoadedReport): LoadedReport {
-  if (loaded.source === "v1") {
-    const wire = { ...loaded.wire, share: undefined };
-    return { ...loaded, wire, view: viewFromV1Report(wire) };
-  }
-  if (loaded.source === "v2-public") {
-    return { ...loaded, wire: { ...loaded.wire, share: undefined } };
-  }
-  if (loaded.source === "v2-r2-public") {
-    return { ...loaded, wire: { ...loaded.wire, share: undefined } };
-  }
-  if (loaded.source === "v2-ephemeral") {
-    return { ...loaded, wire: { ...loaded.wire, share: undefined }, public: { ...loaded.public, share: undefined } };
-  }
-  return { ...loaded, wire: { ...loaded.wire, share: undefined }, public: { ...loaded.public, share: undefined } };
 }
 
 function ThemeToggle() {

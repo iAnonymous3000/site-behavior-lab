@@ -117,6 +117,20 @@ export function isCanonicalReportShare(share: ReportShare, expectedId = share.id
 }
 
 /**
+ * Return an immutable copy of a report-like value without its persisted share
+ * capability. Locally opened reports and runs embedded into a new comparison
+ * do not have a permalink on the current origin, so retaining an imported
+ * share would advertise a link this app cannot prove it serves.
+ *
+ * Keep this beside the canonical share builders/validator: every report wire
+ * generation has the same optional root `share`, and UI consumers should not
+ * each grow their own copy of this policy.
+ */
+export function withoutReportShare<T extends { share?: ReportShare }>(report: T): T {
+  return { ...report, share: undefined };
+}
+
+/**
  * Resolve a report that is known to exist as a committed/served artifact: the
  * static gallery and directory entries, the prerendered permalink, and Node FS
  * reports. Unlike `locateReport`, these always have a servable page, because a

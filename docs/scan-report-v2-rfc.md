@@ -600,9 +600,20 @@ inconclusive.
 5. `policy-analysis`: the bounded policy-page visit (already excluded from counts).
 
 Claims gate on phases and state: "trackers that survived rejection" reads
-`post-choice-reload` traffic with `choiceState === "verified"`. The public corpus is
-regenerated after this lands; the export gains `consent_choice_state` beside
-`consent_clicks`.
+`post-choice-reload` traffic with `choiceState === "verified"`. The flattened
+corpus export keeps click dispatch separate from verification:
+`consent_choice_state` is the lead run's state (the accept-all arm on consent
+comparisons), and `variant_consent_choice_state` is the comparison's variant
+arm (reject-all on consent comparisons). Both are null/blank when that arm has
+no recorded verifier state; v1 therefore never acquires a derived state.
+
+Comparison rows also carry the pair-level `comparison_decision_mode`,
+`compatibility_fingerprint_origin`, and tri-state
+`compatibility_fingerprint_matched` verdict. Pair-level comparability never
+substitutes for the per-family gates in the linked report. The flattened corpus
+deliberately omits the raw baseline/variant digests: the linked full report
+already carries them, and repeating stable digests in the corpus adds
+linkability and noise without a documented consumer.
 
 ---
 

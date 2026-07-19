@@ -499,6 +499,33 @@ already lead with the variant; picking a focus arm for the other headline
 branches needs the headline engine to declare which arm its lead finding
 describes, an engine change deferred to the exports/emission work.
 
+## Researcher export metadata (2026-07-19): cross-generation decision context
+
+DONE. The append-only `/corpus.json` and `/corpus.csv` contract now carries
+the lead and variant consent verification states separately, the pair-level
+comparison decision mode, and the compatibility fingerprint's origin plus
+tri-state match verdict. v1 consent states stay null; its fingerprint verdict
+is explicitly legacy-derived. v2 r1 and r2 values come from the
+recorded/evaluator-backed view. The pair mode is documented as distinct from
+per-family and causal gates.
+
+Raw baseline/variant fingerprint digests are deliberately not duplicated in
+the flattened corpus. They remain in the linked full reports; no corpus
+consumer currently needs them, and repeating stable digests would add
+linkability and noise. The five CSV fields were appended after the existing
+header, preserving every older column position.
+
+## Phase and state-change evidence (2026-07-19): report UI completion
+
+DONE. The report now renders v2 phase spans and sparse retained-request counts,
+plus a bounded, privacy-filtered cookie/storage snapshot-change ledger. Legacy
+v1 reports render no substitute because they never recorded these fields; an
+empty v2 ledger remains a recorded empty ledger. Missing per-phase counts read
+only as no retained rows, never as proof that no traffic occurred or as an
+inferred producer exclusion. Phase-scoped capture loss and global public-ledger
+clipping visibly qualify the affected tallies, and snapshot differences are
+explicitly distinguished from instrumented browser write events.
+
 ## Redaction v2 foundation (2026-07-11): sanitizer, digests, sidecars, audit
 
 RFC step 9 began as repo-only groundwork. It is now wired at every v1 public

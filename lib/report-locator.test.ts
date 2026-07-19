@@ -5,7 +5,8 @@ import {
   buildStaticReportShare,
   committedReportLocation,
   isCanonicalReportShare,
-  locateReport
+  locateReport,
+  withoutReportShare
 } from "./report-locator";
 
 const VALID_ID = "20260619-1cae9eb5a7b2fae0d49af5acda78031b";
@@ -34,6 +35,14 @@ test("canonical share validation accepts exact runtime and static pairs only", (
     false
   );
   assert.equal(isCanonicalReportShare(buildReportShare(VALID_ID), `20260619-${"a".repeat(32)}`), false);
+});
+
+test("withoutReportShare removes a capability immutably", () => {
+  const report = { reportType: "single" as const, share: buildReportShare(VALID_ID) };
+  const stripped = withoutReportShare(report);
+  assert.equal(stripped.share, undefined);
+  assert.deepEqual(report.share, buildReportShare(VALID_ID));
+  assert.notEqual(stripped, report);
 });
 
 test("locateReport serves Node reports from the API route with a permalink", () => {

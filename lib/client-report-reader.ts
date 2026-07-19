@@ -1,4 +1,5 @@
 import type { LoadedReport } from "./scan-report-view";
+import { withoutReportShare } from "./report-locator";
 
 /**
  * The client surfaces' seam onto the canonical version-aware reader (RFC
@@ -55,4 +56,20 @@ export async function readLoadedReport(payload: unknown, subject = "This file"):
     return { ok: false, message: `${subject} contains derived conclusions that do not match its recorded evidence.` };
   }
   return { ok: false, message: `${subject} is not a Site Behavior Lab report (or its data is damaged).` };
+}
+
+/**
+ * Drop an imported report's untrusted/unservable share capability without
+ * changing its evidence view. Ephemeral generations carry both a display wire
+ * and a persistable public projection, so both copies must lose the share.
+ */
+export function withoutLoadedReportShare(loaded: LoadedReport): LoadedReport {
+  if (loaded.source === "v1" || loaded.source === "v2-public" || loaded.source === "v2-r2-public") {
+    return { ...loaded, wire: withoutReportShare(loaded.wire) } as LoadedReport;
+  }
+  return {
+    ...loaded,
+    wire: withoutReportShare(loaded.wire),
+    public: withoutReportShare(loaded.public)
+  } as LoadedReport;
 }

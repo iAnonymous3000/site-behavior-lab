@@ -1,6 +1,7 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { buildCategoryRollups, type CategoryRollup } from "./category-rollups";
+import type { CompatibilityFingerprint, ComparisonDecision } from "./comparison-decision";
 import { domainsMatch } from "./featured-sites";
 import { buildReportHeadline, type HeadlineTone } from "./report-headline";
 import { trackingServiceRequests } from "./report-insights";
@@ -18,6 +19,7 @@ import {
   consentClicksForView,
   type ConsentClicks
 } from "./temporal-report-identity";
+import type { RunConsentView } from "./scan-report-views";
 import type { ComparisonType } from "./types";
 
 export { consentClicksForView } from "./temporal-report-identity";
@@ -88,11 +90,58 @@ export type DirectoryEntry = {
   /** RFC 15.7 limited/descriptive marker (true for every v1 and v2 r1 report). */
   limited: boolean;
   /**
+   * Evaluator-derived consent state of the lead run. null means no verifier
+   * state was recorded (including every v1 run), never that consent succeeded.
+   */
+  consentChoiceState: RunConsentView["choiceState"];
+  /**
+   * Evaluator-derived consent state of the comparison's variant arm. This is
+   * kept separate from the lead state so accept/reject pairs are unambiguous;
+   * null on singles and arms with no recorded verifier state.
+   */
+  variantConsentChoiceState: RunConsentView["choiceState"];
+  /** Pair-level comparison ruling; null on singles. Per-family gates remain in the linked report. */
+  comparisonDecisionMode: ComparisonDecision["mode"] | null;
+  /** Whether the pair's compatibility fingerprint was recorded or legacy-derived; null on singles. */
+  compatibilityFingerprintOrigin: CompatibilityFingerprint["origin"] | null;
+  /**
+   * Tri-state equality verdict for the two measurement-environment digests.
+   * null means equality was unprovable (or there is no pair), never a match.
+   */
+  compatibilityFingerprintMatched: CompatibilityFingerprint["matched"];
+  /**
    * Set only when an earlier report shares the versioned passive-history key.
    * The filter-list snapshot date may differ; this is a descriptive raw/catalog delta, never a Shields delta.
    */
   sinceLastScan?: SinceLastScan;
 };
+
+type CorpusExportMetadata = Pick<
+  DirectoryEntry,
+  | "consentChoiceState"
+  | "variantConsentChoiceState"
+  | "comparisonDecisionMode"
+  | "compatibilityFingerprintOrigin"
+  | "compatibilityFingerprintMatched"
+>;
+
+/**
+ * Cross-generation metadata for the flattened researcher export. Read only
+ * from the version-independent view so v1 stays explicitly legacy-derived and
+ * v2 uses the evaluator-backed facts already consumed by the report UI.
+ */
+export function corpusExportMetadataForView(view: ReportView): CorpusExportMetadata {
+  const lead = displayRunView(view);
+  const arms = comparisonArmViews(view);
+  const decision = view.claims.decision;
+  return {
+    consentChoiceState: lead.consent?.choiceState ?? null,
+    variantConsentChoiceState: arms?.variant.consent?.choiceState ?? null,
+    comparisonDecisionMode: decision?.mode ?? null,
+    compatibilityFingerprintOrigin: decision?.compatibility.origin ?? null,
+    compatibilityFingerprintMatched: decision?.compatibility.matched ?? null
+  };
+}
 
 export type CorpusOverview = {
   entries: DirectoryEntry[];
@@ -307,6 +356,7 @@ async function loadDirectoryEntries(catalog: CatalogEntry[]): Promise<LoadedDire
       schemaRevision: view.revision,
       schemaOrigin: view.origin,
       limited: view.limited,
+      ...corpusExportMetadataForView(view),
       ...(view.comparison
         ? { comparisonType: view.comparison.axis ?? (view.comparison.temporalPair ? ("temporal" as const) : ("custom" as const)) }
         : {})

@@ -1,10 +1,13 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { readLoadedReport } from "./client-report-reader";
+import { readLoadedReport, withoutLoadedReportShare } from "./client-report-reader";
+import { buildReportShare } from "./report-locator";
 import { loadedReportFromStored } from "./scan-report-view";
 import { readStoredScanReport } from "./scan-report-reader";
-import { makePublicSingleReportV2, makeScanReportV1 } from "./scan-report-v2-fixtures";
+import { makeEphemeralSingleReport, makePublicSingleReportV2, makeScanReportV1 } from "./scan-report-v2-fixtures";
 import { makePublicSingleReportV2R2 } from "./scan-report-v2-r2-fixtures";
+
+const SHARE_ID = "20260619-1cae9eb5a7b2fae0d49af5acda78031b";
 
 test("readLoadedReport accepts a valid v1 report", async () => {
   const read = await readLoadedReport(makeScanReportV1(), "The upload");
@@ -70,4 +73,29 @@ test("job envelopes and API errors are refusals with their own messages, never '
   const apiError = await readLoadedReport({ ok: false, error: "Unauthorized scan request." }, "This file");
   assert.equal(apiError.ok, false);
   if (!apiError.ok) assert.match(apiError.message, /Unauthorized/);
+});
+
+test("withoutLoadedReportShare strips every generation and both ephemeral projections", async () => {
+  const share = buildReportShare(SHARE_ID);
+  const payloads = [
+    { ...makeScanReportV1(), share },
+    { ...makePublicSingleReportV2(), share },
+    { ...makePublicSingleReportV2R2(), share },
+    { ...makeEphemeralSingleReport(), share },
+    { ...makePublicSingleReportV2R2(), share, ephemeral: { screenshot: null } }
+  ];
+
+  for (const payload of payloads) {
+    const read = await readLoadedReport(payload, "This report");
+    assert.equal(read.ok, true);
+    if (!read.ok) continue;
+    const originalView = read.loaded.view;
+    const stripped = withoutLoadedReportShare(read.loaded);
+    assert.equal(stripped.wire.share, undefined);
+    assert.equal(stripped.view, originalView);
+    if (stripped.source === "v2-ephemeral" || stripped.source === "v2-r2-ephemeral") {
+      assert.equal(stripped.public.share, undefined);
+    }
+    assert.deepEqual(read.loaded.wire.share, share);
+  }
 });

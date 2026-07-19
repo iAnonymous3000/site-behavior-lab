@@ -58,7 +58,11 @@ export default function MethodologyPage() {
         <ul>
           <li>Network requests (URL, domain, method, resource type, status), classified first/third party.</li>
           <li>Curated service labels from a hand-maintained, US-biased catalog of recognizable services.</li>
-          <li>Cookies and local/session storage keys as an end-of-visit snapshot (unreviewed names are privacy-filtered; values are omitted).</li>
+          <li>
+            Cookies and local/session storage keys as privacy-filtered snapshots. Current reports also retain changes
+            between visit-phase boundaries; those are snapshot differences, not direct observations of browser write
+            events. Unreviewed names are hidden and values are omitted.
+          </li>
           <li>
             High-entropy browser API calls and behavioral fingerprinting heuristics (canvas, WebGL, audio, WebRTC,
             listener coverage).

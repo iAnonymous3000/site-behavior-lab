@@ -3,12 +3,14 @@ import { test } from "node:test";
 import { createConsentComparisonReport } from "./compare-reports";
 import {
   consentClicksForView,
+  corpusExportMetadataForView,
   entryEligibleForCorpusRollups,
   preferAsSiteDataPoint,
   type DirectoryEntry
 } from "./corpus-overview";
+import { makeConsentInterventionReportV2R2, makeConsentSingleReportV2R2 } from "./scan-report-v2-r2-fixtures";
 import { SCAN_REPORT_SCHEMA_VERSION, type ConsentInteractionSummary, type ScanResult } from "./types";
-import { viewFromV1Report } from "./scan-report-views";
+import { viewFromV1Report, viewFromV2 } from "./scan-report-views";
 
 function makeResult(overrides: { consentInteraction?: ConsentInteractionSummary } = {}): ScanResult {
   return {
@@ -82,6 +84,29 @@ test("consentClicksForView classifies single consent-mode runs", () => {
   assert.equal(consentClicksForView(viewFromV1Report(makeResult({ consentInteraction: { mode: "reject-all", clicked: false } }))), "none");
 });
 
+test("researcher-export metadata keeps v1 derivation and r2 recorded states distinct", () => {
+  const v1 = corpusExportMetadataForView(viewFromV1Report(consentComparison(true, true)));
+  assert.equal(v1.consentChoiceState, null, "v1 click dispatch was never a verified consent state");
+  assert.equal(v1.variantConsentChoiceState, null);
+  assert.equal(v1.comparisonDecisionMode, "raw-only");
+  assert.equal(v1.compatibilityFingerprintOrigin, "legacy-derived");
+  assert.equal(v1.compatibilityFingerprintMatched, true);
+
+  const r2Pair = corpusExportMetadataForView(viewFromV2(makeConsentInterventionReportV2R2(), 2));
+  assert.equal(r2Pair.consentChoiceState, "verified", "consent comparison leads with accept-all");
+  assert.equal(r2Pair.variantConsentChoiceState, "verified", "the variant is the reject-all arm");
+  assert.equal(r2Pair.comparisonDecisionMode, "comparable");
+  assert.equal(r2Pair.compatibilityFingerprintOrigin, "recorded");
+  assert.equal(r2Pair.compatibilityFingerprintMatched, true);
+
+  const r2Single = corpusExportMetadataForView(viewFromV2(makeConsentSingleReportV2R2(), 2));
+  assert.equal(r2Single.consentChoiceState, "verified");
+  assert.equal(r2Single.variantConsentChoiceState, null);
+  assert.equal(r2Single.comparisonDecisionMode, null);
+  assert.equal(r2Single.compatibilityFingerprintOrigin, null);
+  assert.equal(r2Single.compatibilityFingerprintMatched, null);
+});
+
 function makeEntry(overrides: Partial<DirectoryEntry> & { id: string }): DirectoryEntry {
   return {
     domain: "shop.example",
@@ -108,6 +133,11 @@ function makeEntry(overrides: Partial<DirectoryEntry> & { id: string }): Directo
     schemaRevision: null,
     schemaOrigin: "legacy-derived",
     limited: true,
+    consentChoiceState: null,
+    variantConsentChoiceState: null,
+    comparisonDecisionMode: "comparable",
+    compatibilityFingerprintOrigin: "legacy-derived",
+    compatibilityFingerprintMatched: true,
     ...overrides
   };
 }

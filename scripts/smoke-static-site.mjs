@@ -19,6 +19,21 @@ const openAccessScanner = process.env.NEXT_PUBLIC_SITE_BEHAVIOR_LAB_OPEN_ACCESS 
 const archivePageSize = 24;
 const maxReportHtmlBytes = 4 * 1024 * 1024;
 const fullCommitPattern = /^[0-9a-f]{40}$/;
+const corpusJsonDecisionFields = [
+  "consentChoiceState",
+  "variantConsentChoiceState",
+  "comparisonDecisionMode",
+  "compatibilityFingerprintOrigin",
+  "compatibilityFingerprintMatched"
+];
+const corpusCsvDecisionColumns = [
+  "consent_choice_state",
+  "variant_consent_choice_state",
+  "comparison_decision_mode",
+  "compatibility_fingerprint_origin",
+  "compatibility_fingerprint_matched"
+];
+const recordedConsentChoiceStates = ["verified", "contradicted", "weak-signal", "unavailable", "failed"];
 
 function pass(message) {
   console.log(`PASS ${message}`);
@@ -44,6 +59,7 @@ async function scannerAdvertisesShields(apiBase) {
 
 async function main() {
   const manifest = await readManifest();
+  const phaseReport = await findR2PhaseSmokeReport(manifest);
   const server = createStaticServer();
   await listen(server);
   const address = server.address();
@@ -96,6 +112,41 @@ async function main() {
       fail(`static deployment provenance is ${deployment.deployment}, expected ${expectedDeployment}`);
     }
     pass(`static deployment provenance identifies ${deployment.deployment}`);
+
+    const corpusJsonResponse = await fetch(`${baseUrl}/corpus.json`);
+    if (!corpusJsonResponse.ok) fail(`researcher JSON export not served (${corpusJsonResponse.status})`);
+    const corpus = await corpusJsonResponse.json();
+    if (!Array.isArray(corpus?.reports) || corpus.reportCount !== corpus.reports.length) {
+      fail("researcher JSON export does not contain its declared report rows");
+    }
+    const phaseReportExportRow = corpus.reports.find((report) => report?.id === phaseReport.id);
+    if (!phaseReportExportRow) fail("researcher JSON export omits the committed r2 phase smoke report");
+    for (const field of corpusJsonDecisionFields) {
+      if (!Object.prototype.hasOwnProperty.call(phaseReportExportRow, field)) {
+        fail(`researcher JSON export omits ${field}`);
+      }
+    }
+    if (
+      !recordedConsentChoiceStates.includes(phaseReportExportRow.consentChoiceState) ||
+      !recordedConsentChoiceStates.includes(phaseReportExportRow.variantConsentChoiceState) ||
+      !["comparable", "raw-only"].includes(phaseReportExportRow.comparisonDecisionMode) ||
+      phaseReportExportRow.compatibilityFingerprintOrigin !== "recorded" ||
+      typeof phaseReportExportRow.compatibilityFingerprintMatched !== "boolean"
+    ) {
+      fail("researcher JSON export flattened the committed r2 comparison metadata incorrectly");
+    }
+
+    const corpusCsvResponse = await fetch(`${baseUrl}/corpus.csv`);
+    if (!corpusCsvResponse.ok) fail(`researcher CSV export not served (${corpusCsvResponse.status})`);
+    const corpusCsvHeader = (await corpusCsvResponse.text()).split(/\r?\n/, 1)[0].split(",");
+    const legacyTailIndex = corpusCsvHeader.indexOf("limited");
+    if (
+      legacyTailIndex < 0 ||
+      corpusCsvHeader.slice(legacyTailIndex + 1).join(",") !== corpusCsvDecisionColumns.join(",")
+    ) {
+      fail("researcher CSV export did not append the five decision-context columns after the legacy contract");
+    }
+    pass("researcher exports publish the appended r2 decision context in JSON and CSV");
 
     if (liveScanApiBase) {
       await expectText(page.locator(".status-pill"), "Live");
@@ -214,8 +265,32 @@ async function main() {
     await noScriptPage.goto(`${baseUrl}/reports/${firstReport.id}/`, { waitUntil: "domcontentloaded" });
     await expectText(noScriptPage.locator(".report-header"), "https://");
     await expectText(noScriptPage.locator("h1"), firstReport.headline);
+
+    const phaseReportHtmlPath = path.join(outDir, "reports", phaseReport.id, "index.html");
+    const phaseReportHtml = await readFile(phaseReportHtmlPath, "utf8");
+    if (!phaseReportHtml.includes("visit-phase-evidence")) {
+      fail("generated r2 report HTML omits the recorded phase evidence section");
+    }
+    await noScriptPage.goto(`${baseUrl}/reports/${phaseReport.id}/`, { waitUntil: "domcontentloaded" });
+    await expectText(noScriptPage.locator(".visit-phase-evidence"), "Visit phases & state changes");
     await noScriptContext.close();
     pass("static report permalink ships bounded evidence in initial HTML without JavaScript");
+
+    await page.goto(`${baseUrl}/reports/${phaseReport.id}/`, { waitUntil: "networkidle" });
+    const phaseEvidence = page.locator(".visit-phase-evidence");
+    await expectText(phaseEvidence, "Visit phases & state changes");
+    await expectText(phaseEvidence, "P0 · passive-load");
+    await expectText(phaseEvidence, "No retained rows");
+    const stateChangeDisclosure = phaseEvidence.locator("details.state-change-disclosure");
+    await stateChangeDisclosure.locator("summary").click();
+    await stateChangeDisclosure.locator(".state-change-row").first().waitFor({ state: "visible" });
+    await expectText(stateChangeDisclosure, "P0 · Initial page load");
+
+    const r2RequestLog = page.locator("details.data-section", { hasText: "Request log" });
+    await r2RequestLog.locator("summary").click();
+    await r2RequestLog.locator('td[data-label="Phase"]').first().waitFor({ state: "visible" });
+    await expectText(r2RequestLog, "P0 · Initial page load");
+    pass("committed r2 report renders phase spans, snapshot changes, and request phase labels");
 
     const profileKey = firstReport.domain.toLowerCase().replace(/\.$/, "").replace(/^www\./, "");
     await page.goto(`${baseUrl}/sites/${encodeURIComponent(profileKey)}/`, { waitUntil: "networkidle" });
@@ -240,6 +315,16 @@ async function main() {
       .locator('input[type="file"]')
       .setInputFiles(singleReportFixture);
     await page.waitForSelector(".report-header", { timeout: 10_000 });
+    if ((await page.locator(".visit-phase-evidence").count()) !== 0) {
+      fail("legacy v1 upload rendered v2-only phase evidence");
+    }
+    if (
+      (await page.getByRole("link", { name: "Share", exact: true }).count()) !== 0 ||
+      (await page.getByRole("button", { name: "Copy share link", exact: true }).count()) !== 0
+    ) {
+      fail("locally opened report retained an imported share capability");
+    }
+    pass("legacy v1 upload stays phase-absent and drops imported share controls");
     const cookieCard = page.locator(".report-sidebar .side-card", {
       has: page.getByRole("heading", { name: "Cookies", exact: true })
     });
@@ -273,6 +358,10 @@ async function main() {
     await page.goto(`${baseUrl}/sites/${encodeURIComponent(profileKey)}/`, { waitUntil: "networkidle" });
     if (await hasHorizontalOverflow(page)) fail("static mobile site profile has page-level horizontal overflow");
     pass("static mobile site profile fits viewport");
+    await page.goto(`${baseUrl}/reports/${phaseReport.id}/`, { waitUntil: "networkidle" });
+    await page.waitForSelector(".visit-phase-evidence", { timeout: 10_000 });
+    if (await hasHorizontalOverflow(page)) fail("static mobile r2 report has page-level horizontal overflow");
+    pass("static mobile r2 phase report fits viewport");
   } finally {
     await browser.close();
     await new Promise((resolve, reject) => server.close((error) => (error ? reject(error) : resolve())));
@@ -285,6 +374,50 @@ async function readManifest() {
     fail("static report manifest is missing reports");
   }
   return payload;
+}
+
+/**
+ * Select a real committed r2 consent report whose lead (accept-all baseline)
+ * exercises every new phase surface. Validating the fixture shape here keeps
+ * the browser assertions independent of manifest sort order and fails with a
+ * useful message if the committed corpus no longer carries the needed proof.
+ */
+async function findR2PhaseSmokeReport(manifest) {
+  for (const entry of manifest.reports) {
+    if (entry.reportType !== "comparison" || entry.comparisonType !== "consent") continue;
+
+    let report;
+    try {
+      report = JSON.parse(await readFile(path.join(outDir, "reports", `${entry.id}.json`), "utf8"));
+    } catch {
+      continue;
+    }
+    if (report?.schemaVersion !== 2 || report?.schemaRevision !== 2 || report.reportType !== "comparison") continue;
+
+    const run = report.baseline;
+    const phases = Array.isArray(run?.phases) ? run.phases : [];
+    const countsByPhase = Array.isArray(run?.summary?.countsByPhase) ? run.summary.countsByPhase : [];
+    const requests = Array.isArray(run?.evidence?.requests) ? run.evidence.requests : [];
+    const mutations = [
+      ...(Array.isArray(run?.evidence?.cookieMutations) ? run.evidence.cookieMutations : []),
+      ...(Array.isArray(run?.evidence?.storageMutations) ? run.evidence.storageMutations : [])
+    ];
+    const hasSparsePhase = phases.some(
+      (phase) =>
+        (phase?.kind === "post-choice-reload" || phase?.kind === "policy-analysis") &&
+        !countsByPhase.some((counts) => counts?.phaseId === phase.phaseId)
+    );
+    if (
+      phases.some((phase) => phase?.phaseId === 0 && phase.kind === "passive-load") &&
+      hasSparsePhase &&
+      requests.some((request) => request?.phaseId === 0) &&
+      mutations.some((mutation) => mutation?.phaseId === 0)
+    ) {
+      return entry;
+    }
+  }
+
+  fail("committed corpus has no r2 consent report with phase counts, request labels, and snapshot changes");
 }
 
 function createStaticServer() {
