@@ -1,25 +1,47 @@
 import assert from "node:assert/strict";
-import { readFileSync, readdirSync } from "node:fs";
+import { copyFileSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { execFileSync } from "node:child_process";
-import test from "node:test";
+import test, { after } from "node:test";
 import ts from "typescript";
 
 const ROOT = process.cwd();
-const SCRIPT = path.join(ROOT, "scripts/deploy-container.mjs");
-const COMMIT = execFileSync("git", ["rev-parse", "HEAD"], { cwd: ROOT, encoding: "utf8" }).trim();
+const FIXTURE_ROOT = mkdtempSync(path.join(tmpdir(), "site-behavior-lab-container-deploy-"));
+const SCRIPT = path.join(FIXTURE_ROOT, "scripts/deploy-container.mjs");
+
+after(() => rmSync(FIXTURE_ROOT, { recursive: true, force: true }));
+mkdirSync(path.dirname(SCRIPT), { recursive: true });
+copyFileSync(path.join(ROOT, "scripts/deploy-container.mjs"), SCRIPT);
+for (const config of ["wrangler.container.jsonc", "wrangler.container.staging.jsonc"]) {
+  copyFileSync(path.join(ROOT, config), path.join(FIXTURE_ROOT, config));
+}
+execFileSync("git", ["init", "--quiet"], { cwd: FIXTURE_ROOT });
+execFileSync("git", ["config", "user.email", "container-deploy-test@sitebehavior.invalid"], {
+  cwd: FIXTURE_ROOT
+});
+execFileSync("git", ["config", "user.name", "Container deploy test"], { cwd: FIXTURE_ROOT });
+execFileSync("git", ["config", "commit.gpgsign", "false"], { cwd: FIXTURE_ROOT });
+execFileSync("git", ["add", "."], { cwd: FIXTURE_ROOT });
+execFileSync("git", ["commit", "--quiet", "-m", "fixture"], { cwd: FIXTURE_ROOT });
+const COMMIT = execFileSync("git", ["rev-parse", "HEAD"], {
+  cwd: FIXTURE_ROOT,
+  encoding: "utf8"
+}).trim();
 
 function run(args: string[]) {
   return spawnSync(process.execPath, [SCRIPT, ...args], {
-    cwd: ROOT,
+    cwd: FIXTURE_ROOT,
     encoding: "utf8",
     env: { ...process.env, WORKERS_CI_COMMIT_SHA: COMMIT }
   });
 }
 
 function generatedConfigs() {
-  return readdirSync(ROOT).filter((entry) => /^wrangler\.container(?:\.[A-Za-z0-9._-]+)?\.generated\.\d+\.jsonc$/.test(entry));
+  return readdirSync(FIXTURE_ROOT).filter((entry) =>
+    /^wrangler\.container(?:\.[A-Za-z0-9._-]+)?\.generated\.\d+\.jsonc$/.test(entry)
+  );
 }
 
 test("container deploy check preserves the production default", () => {
@@ -112,4 +134,9 @@ test("local container deployment rejects dirty provenance while CI pins an expli
   assert.match(source, /Container deployment provenance requires a clean Git worktree/);
   assert.match(source, /workersCommit !== localCommit/);
   assert.match(source, /resolveBuildCommit\(\{ requireClean: !check \}\)/);
+});
+
+test("container images exclude the transient generated deployment config", () => {
+  const dockerignore = readFileSync(path.join(ROOT, ".dockerignore"), "utf8");
+  assert.match(dockerignore, /^wrangler\.container\.generated\.\*\.jsonc$/m);
 });

@@ -13,6 +13,7 @@ blob-report
 *.log
 *.tmp
 *.temp
+wrangler.container.generated.*.jsonc
 .DS_Store
 
 # Local operator secrets and assistant state must never enter the build
