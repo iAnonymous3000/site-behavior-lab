@@ -3,6 +3,7 @@ import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, test } from "node:test";
+import { createComparisonReport } from "./compare-reports";
 import { buildCorpusStats } from "./corpus-stats-builder";
 import { buildProvenanceEntry, committedSidecarFilename } from "./redaction-provenance";
 import { redactScanReportV1 } from "./redact-scan-report-v1";
@@ -260,6 +261,28 @@ test("request-capped runs stay out of the distribution: their counts are floors,
   // mid-collection and would clamp the distribution's tail to the cap.
   assert.equal(stats.sampleSize, 1);
   assert.equal(stats.metrics.thirdPartyRequests?.max, 20);
+  assert.equal(stats.cappedSiteCount, 1);
+});
+
+test("comparison coverage and cap totals consider a successful variant when the lead arm failed", async () => {
+  const baseline = makeResult({ firstPartyDomain: "paired-fixture.dev", status: 403 });
+  const variant = makeResult({ firstPartyDomain: "paired-fixture.dev", thirdPartyRequests: 900 });
+  variant.summary.totalRequests = 1200;
+  variant.warnings = ["The scan stopped recording or loading additional requests after 1000 requests."];
+  const comparison = createComparisonReport({
+    comparisonType: "custom",
+    title: "Two-arm coverage fixture",
+    runLabels: { baseline: "Failed lead", variant: "Loaded capped variant" },
+    baseline,
+    variant,
+    warningPrefix: "Sequential fixture."
+  });
+  await writeReport("20260701-cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd", comparison);
+
+  const { stats } = await buildCorpusStats(reportsDir);
+  assert.equal(stats.sampleSize, 0, "the failed lead still cannot enter the percentile cohort");
+  assert.equal(stats.coverageSiteCount, 1, "the successful variant covers the site");
+  assert.equal(stats.cappedSiteCount, 1, "the successful capped variant contributes to the cap total");
 });
 
 test("a missing reports directory yields an empty distribution", async () => {

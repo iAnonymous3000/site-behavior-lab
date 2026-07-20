@@ -44,6 +44,8 @@ export type CorpusExportRow = {
   status: number | null;
   /** Lead run hit the request-recording cap: every count is a floor, not measured behavior. */
   requestCapped: boolean;
+  /** Whether the lead run's request family is complete enough for aggregation. */
+  requestEvidenceComplete: boolean;
   headline: string;
   thirdPartyRequests: number;
   trackerRequests: number;
@@ -89,11 +91,11 @@ export const CORPUS_EXPORT_NOTE = [
   "comparison_decision_mode is the pair-level comparable or raw-only ruling and is null/blank on singles. It is never a metric-family or causal gate: a pair can be comparable while a particular metric family remains raw-only, so use the linked report's per-family decisions before interpreting a delta.",
   "compatibility_fingerprint_origin says whether the comparison's measurement-environment fingerprints were recorded or legacy-derived. compatibility_fingerprint_matched is true or false only when equality is provable and null/blank otherwise; two unknown fingerprints never match.",
   "The flattened corpus deliberately omits the raw baseline and variant fingerprint digests: they remain available in the linked full reports, while repeating stable digests here would add linkability and noise without a documented corpus consumer.",
-  "Rows with a status of 400 or higher reflect an error or block page (the site refusing the automated visit), not the site's normal behavior, and rows with request_capped true hit the scanner's 1,000-request recording cap, so their activity counts are floors cut off mid-collection and their cookie and storage figures are end-state snapshots of an interrupted visit.",
-  "Those rows, plus post-choice consent lead runs, stay out of this project's percentiles, category medians, leaderboards, and since-last-scan deltas.",
-  "siteCount counts distinct sites with at least one successful load, including request-capped recordings. measuredSampleSize is the exact current percentile cohort: distinct sites whose newest eligible legacy-v1 lead run loaded successfully, was not capped, and remained in the passive observe consent state.",
+  "Rows with a status of 400 or higher reflect an error or block page (the site refusing the automated visit), not the site's normal behavior. request_capped is the exact 1,000-request recording-cap flag; those activity counts are floors cut off mid-collection. request_evidence_complete is the broader request-family completeness flag, so it can be false for other bounded capture loss while request_capped remains false.",
+  "Rows with request_evidence_complete false have lower-bound request counts and stay out of this project's percentiles, category medians, leaderboards, and since-last-scan deltas, as do failed loads and post-choice consent lead runs. A request-capped row also has cookie and storage figures that are end-state snapshots of an interrupted visit.",
+  "siteCount counts distinct sites with a successful single run or primary comparison arm, including request-capped recordings; two successful primary arms do not count a site twice. measuredSampleSize is the exact current percentile cohort: distinct sites whose newest eligible legacy-v1 lead run loaded successfully, had complete request evidence, and remained in the passive observe consent state.",
   "Category medians and leaderboards apply the same passive-run exclusions across every supported schema generation, so their cross-version cohort can differ from measuredSampleSize.",
-  "Delta fields compare a site's newest report against its previous successfully loaded, uncapped report only when kind, requested/final subject, schema revision, methodology, browser environment, device/viewport, intervention state, filter snapshot, and tracker-catalog identity are compatible; an unknown setup never matches another unknown. The deltas can still reflect run-to-run variance as well as real site changes.",
+  "Delta fields compare a site's newest report against its previous successfully loaded, request-complete report only when kind, requested/final subject, schema revision, methodology, browser environment, device/viewport, intervention state, filter snapshot, and tracker-catalog identity are compatible; an unknown setup never matches another unknown. The deltas can still reflect run-to-run variance as well as real site changes.",
   "schema_version/schema_revision record the report's wire generation, schema_origin marks legacy-derived (v1) rows whose derived facts were never recorded as v2 fact, and limited marks rows whose schema revision supports only descriptive (never causal) claims.",
   "Historical v1 rows are legacy-derived and limited; r2 rows carry recorded facts and may be non-limited. Filter by these columns before aggregation: this project's current percentile distributions remain v1-only and never mix r2 metrics into the legacy cohort.",
   "shields_third_party_change is the SIGNED third-party request change of an eligible Brave-list blocking pair: the blocking visit's count minus the unblocked baseline's (Brave's ad-block engine and default Shields lists, simulated in this scanner's browser, not a live Brave-browser visit), so a negative value means fewer requests with blocking on and a positive value means more; increases are real paired-visit observations (ad rotation, fallback loading) and are reported signed, not clamped to zero.",
@@ -119,6 +121,7 @@ export function buildCorpusExportRows(entries: DirectoryEntry[], origin: string)
     consentClicks: entry.consentClicks,
     status: entry.status,
     requestCapped: entry.capped,
+    requestEvidenceComplete: entry.requestEvidenceComplete,
     headline: entry.headline,
     thirdPartyRequests: entry.thirdPartyRequests,
     trackerRequests: entry.trackerRequests,
@@ -208,6 +211,7 @@ const CSV_HEADER = [
   "consent_clicks",
   "status",
   "request_capped",
+  "request_evidence_complete",
   "headline",
   "third_party_requests",
   "tracker_requests",
@@ -245,6 +249,7 @@ export function corpusExportToCsv(rows: CorpusExportRow[]): string {
     row.consentClicks ?? "",
     row.status ?? "",
     row.requestCapped ? "true" : "false",
+    row.requestEvidenceComplete ? "true" : "false",
     row.headline,
     row.thirdPartyRequests,
     row.trackerRequests,

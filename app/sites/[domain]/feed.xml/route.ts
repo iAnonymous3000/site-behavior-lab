@@ -67,9 +67,11 @@ ${feedEntries}
 }
 
 function entrySummary(entry: DirectoryEntry): string {
-  return `${entry.thirdPartyRequests.toLocaleString("en-US")} third-party requests, ${entry.trackerRequests.toLocaleString(
+  const metrics = `${entry.thirdPartyRequests.toLocaleString("en-US")} third-party requests, ${entry.trackerRequests.toLocaleString(
     "en-US"
   )} catalogued tracking requests, ${entry.thirdPartyCookies.toLocaleString("en-US")} third-party cookies.`;
+  if (entry.requestEvidenceComplete) return metrics;
+  return `${metrics} Request evidence incomplete${entry.capped ? " (recording capped)" : ""}; counts are lower bounds.`;
 }
 
 function feedTimestamp(entry: DirectoryEntry): string {

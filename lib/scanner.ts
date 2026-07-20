@@ -1311,7 +1311,8 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
 
     // Decode pixel-level events from the raw (pre-redaction) request and POST
     // body while it is still available here; the public record's URL is scrubbed.
-    // Event names are kept; identifier values are detected by key presence only.
+    // Event names are kept; an identifier category is recorded only when its
+    // recognized key has a non-empty value. Identifier values are never retained.
     const pixelEventInputs: PixelEventInput[] = [];
     const pixelEventInputsByPhase = new Map<number, PixelEventInput[]>();
     const phaseAwareRequests: Array<NetworkRequestRecord & { phaseId: number }> = [];

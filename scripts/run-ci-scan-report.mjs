@@ -18,19 +18,19 @@ export function isPublishableScanReport(response) {
 }
 
 /**
- * Fail closed when ANY run embedded in a report looks like a bot wall or a
- * failed navigation. Comparisons are evidence bundles: checking only the lead
- * baseline would allow a blocked primary variant or supporting replication arm
- * into the corpus and make the resulting comparison misleading.
+ * Fail closed when ANY run embedded in a report is a failed observation or
+ * looks like a bot wall. Comparisons are evidence bundles: checking only the
+ * lead baseline would allow a blocked primary variant or supporting
+ * replication arm into the corpus and make the resulting comparison
+ * misleading.
  */
 export function botBlockReason(report) {
   for (const run of reportRuns(report)) {
+    const recordedFailure = runFailureReason(run);
+    if (recordedFailure) return recordedFailure;
+
     const title = String(run.summary?.pageTitle || "").trim();
-    const totalRequests = Number(
-      report.schemaVersion === 2
-        ? run.summary?.counts?.totalRequests
-        : run.summary?.totalRequests
-    ) || 0;
+    const totalRequests = Number(run.summary?.counts?.totalRequests ?? run.summary?.totalRequests) || 0;
     if (title && BLOCK_TITLE_PATTERN.test(title)) {
       return `${run.label}: landing page title matches a bot-block/challenge page`;
     }
@@ -41,21 +41,46 @@ export function botBlockReason(report) {
   return null;
 }
 
+/**
+ * Prefer the report's recorded/evaluator-derived quality facts to an English
+ * title heuristic. A generic HTTP error page can make several requests and
+ * use a title such as "Forbidden", while a v2/r2 run can fail quality for a
+ * navigation reason that is not visible in its request count.
+ */
+function runFailureReason(run) {
+  const status = run.summary?.status;
+  if (typeof status !== "number") {
+    return `${run.label}: main navigation produced no HTTP response`;
+  }
+  if (status >= 400) {
+    return `${run.label}: main navigation returned HTTP ${status}`;
+  }
+  if (run.qualityFacts?.navigationSettled === false) {
+    return `${run.label}: main navigation did not settle`;
+  }
+  if (run.quality?.run?.outcome === "failed") {
+    return `${run.label}: report quality evaluator marked the run failed`;
+  }
+  return null;
+}
+
 function reportRuns(report) {
   if (!isRecord(report)) return [];
 
   if (report.reportType === "single") {
     const run = report.schemaVersion === 2 ? report.run : report;
-    return isRecord(run) ? [{ label: "single run", summary: run.summary }] : [];
+    return isRecord(run)
+      ? [{ label: "single run", summary: run.summary, qualityFacts: run.qualityFacts, quality: run.quality }]
+      : [];
   }
   if (report.reportType !== "comparison") return [];
 
   const runs = [];
   if (isRecord(report.baseline)) {
-    runs.push({ label: "primary baseline arm", summary: report.baseline.summary });
+    runs.push(reportRun("primary baseline arm", report.baseline));
   }
   if (isRecord(report.variant)) {
-    runs.push({ label: "primary variant arm", summary: report.variant.summary });
+    runs.push(reportRun("primary variant arm", report.variant));
   }
   if (
     report.schemaVersion === 2 &&
@@ -67,14 +92,18 @@ function reportRuns(report) {
     for (const [index, pair] of report.experiment.supportingPairs.entries()) {
       if (!isRecord(pair)) continue;
       if (isRecord(pair.baseline)) {
-        runs.push({ label: `supporting pair ${index + 1} baseline arm`, summary: pair.baseline.summary });
+        runs.push(reportRun(`supporting pair ${index + 1} baseline arm`, pair.baseline));
       }
       if (isRecord(pair.variant)) {
-        runs.push({ label: `supporting pair ${index + 1} variant arm`, summary: pair.variant.summary });
+        runs.push(reportRun(`supporting pair ${index + 1} variant arm`, pair.variant));
       }
     }
   }
   return runs;
+}
+
+function reportRun(label, run) {
+  return { label, summary: run.summary, qualityFacts: run.qualityFacts, quality: run.quality };
 }
 
 function isRecord(value) {

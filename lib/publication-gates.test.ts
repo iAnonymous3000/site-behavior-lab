@@ -77,3 +77,21 @@ test("automation logs do not print raw scan URLs, page titles, rules, or local i
   assert.equal(pageGraph.includes("path.basename(file)"), false);
   assert.equal(pageGraph.includes("JSON.stringify(options.rule)"), false);
 });
+
+test("featured refresh failures stay unpublished, loud, and canonically tracked", () => {
+  const workflow = source(".github/workflows/scan-featured.yml");
+  const runner = source("scripts/run-featured-scans.mjs");
+
+  assert.match(runner, /successRateEnv\("FEATURED_MIN_SUCCESS_RATE", 0\.9\)/);
+  assert.match(workflow, /permissions:[\s\S]*?issues: write/);
+  assert.match(workflow, /id: featured_scan\n\s+continue-on-error: true/);
+  assert.match(workflow, /if: steps\.featured_scan\.outcome == 'success'\n\s+run: npm run reports:prune/);
+  assert.match(workflow, /steps\.refresh_alert\.outputs\.authoritative == 'true'/);
+  assert.match(workflow, /site-behavior-lab:featured-corpus-refresh/);
+  assert.match(workflow, /gh issue create/);
+  assert.match(workflow, /gh issue edit/);
+  assert.match(workflow, /gh issue reopen/);
+  assert.match(workflow, /gh issue close/);
+  assert.match(workflow, /::error title=Featured corpus refresh failed::/);
+  assert.match(workflow, /- name: Preserve featured-refresh failure[\s\S]*?exit 1/);
+});

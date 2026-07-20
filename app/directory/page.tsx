@@ -151,7 +151,7 @@ export default async function DirectoryPage() {
           </div>
           {heaviest.length > 0 && (
             <div className="rollup-leaderboard">
-              <h3>Heaviest sites by catalogued-service requests</h3>
+              <h3>Heaviest eligible sites by catalogued-service requests</h3>
               <ol>
                 {heaviest.map((site) => (
                   <li key={site.id}>
@@ -196,14 +196,7 @@ export default async function DirectoryPage() {
               <Link className="directory-report-link" href={`${reportPagePath(entry.id)}/`}>
                 <span className="directory-row-top">
                   <span className="directory-domain">{entry.domain}</span>
-                  {entry.capped && (
-                    <span
-                      className="capped-chip"
-                      title="This visit did not finish collecting request evidence: its counts are lower bounds, and it is excluded from the medians, leaderboard, and since-last-scan deltas."
-                    >
-                      request evidence incomplete
-                    </span>
-                  )}
+                  {!entry.requestEvidenceComplete && <RequestEvidenceChip capped={entry.capped} />}
                   <span className="directory-type">{reportKindLabel(entry)}</span>
                 </span>
                 <span className="directory-headline">{entry.headline}</span>
@@ -240,5 +233,20 @@ export default async function DirectoryPage() {
         </>
       )}
     </main>
+  );
+}
+
+function RequestEvidenceChip({ capped }: { capped: boolean }) {
+  return (
+    <span
+      className="capped-chip"
+      title={
+        capped
+          ? "This visit hit the exact request-recording cap: its counts are lower bounds, and it is excluded from the medians, leaderboard, and since-last-scan deltas."
+          : "This visit has incomplete request evidence from another bounded capture loss: its counts are lower bounds, and it is excluded from the medians, leaderboard, and since-last-scan deltas."
+      }
+    >
+      {capped ? "recording capped" : "request evidence incomplete"}
+    </span>
   );
 }

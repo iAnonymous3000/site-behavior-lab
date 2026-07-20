@@ -936,7 +936,7 @@ function toReportView(report: StoredScanReport): ReportView;
   v1 changes require a demonstrated leak, crash, documented legacy
   incompatibility, or corpus failure.
 - **The r1 freeze is executable**: the published r1 schema's SHA-256
-  (`7b865e6903ecdd1ecc2a5d5e848ffb320b7a1db9742dc108f603e5e21c9756a6`) is pinned in
+  (`018584cefeebedfe2d17ba0117216257865637fc23ba7aafbf2092fee2898821`) is pinned in
   `scripts/build-schema.mjs` (the build refuses to write a differing generation)
   and asserted byte-for-byte in the parity tests, so editing the r1 types and
   regenerating both files cannot pass.
@@ -1596,8 +1596,33 @@ only a content type, and a report write plus a sidecar write is NOT atomic):
   producer output also records methodology component `consent-r2-v2`, preventing any
   pre/post-change metric family from comparing as the same measurement instrument.
 
+- **E6 (2026-07-20, fixed by `tcf-api@3` and `consent-r2-v3`)**: `tcf-api@2`'s
+  conservative zero-grant rule avoided the fabricated reject-all result described in
+  E5, but also made a real reject-all registration unreachable and hid a reject click
+  that retained legitimate-interest grants. `tcf-api@3` projects both
+  `purpose.consents` and `purpose.legitimateInterests` for Purposes 1–11 without
+  retaining raw TCData. It classifies only settled, GDPR-applicable reads whose two
+  vectors expose the same multi-purpose key set: every purpose enabled under either
+  legal basis is `accepted-all`, every purpose disabled under both bases is
+  `rejected-all`, and any other complete pair is `partial`; absent, asymmetric,
+  unsettled, or single-purpose state remains `unknown`. Thus a legitimate-interest
+  grant retained after a reject click is detectable as a contradiction without
+  treating a consent/legitimate-interest split as a failed accept registration.
+  Readers retain `tcf-api@1` and `tcf-api@2` for historical validation, while the
+  exact attempted-interpreter-set compatibility key refuses cross-version consent
+  deltas. New producer output records methodology component `consent-r2-v3`, so the
+  projection change cannot compare as the same measurement instrument.
+
 ## Changelog
 
+- **r2-a5 addendum (2026-07-20, ACCEPTED)**: documents the complete TCF
+  dual-legal-basis projection introduced by `tcf-api@3`: identical multi-purpose
+  consent and legitimate-interest key sets are required before classification;
+  every purpose enabled under either legal basis maps to `accepted-all`, every
+  purpose disabled under both bases maps to `rejected-all`, other complete pairs
+  map to `partial`, and incomplete or ambiguous state stays `unknown`. Historical `tcf-api@1` and
+  `tcf-api@2` observations remain readable but cannot compare across interpreter
+  sets, and new output carries `consent-r2-v3` in its methodology identity.
 - **r2-a4 addendum (2026-07-10, ACCEPTED)**: four surgical corrections per the
   a3 review. Observation `sequence`/`outcome` moved into an optional
   discriminated `result` block so the r2 schema stays a structural superset

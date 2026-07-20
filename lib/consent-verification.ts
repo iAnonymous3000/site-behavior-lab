@@ -5,9 +5,9 @@ import type { ConsentObservedState } from "./scan-report-v2";
  * banner click (RFC 15.4). The interpreters here map raw CMP state into the
  * closed `ConsentObservedState` vocabulary before anything leaves the read;
  * raw CMP payloads are never retained. Method identifiers are the r2
- * evaluator's closed set (`tcf-api@2`, `onetrust-cookie@1`); readers retain
- * `tcf-api@1` only for historical validation. Nothing in this module touches
- * the frozen v1 wire.
+ * evaluator's closed set (`tcf-api@3`, `onetrust-cookie@1`); readers retain
+ * `tcf-api@1` and `tcf-api@2` only for historical validation. Nothing in this
+ * module touches the frozen v1 wire.
  *
  * Every mapping errs toward "unknown" (which derives a null consistency and
  * therefore neither verifies nor contradicts the click) whenever the state's
@@ -20,7 +20,7 @@ export function consentVerificationEnabled(env: NodeJS.ProcessEnv = process.env)
   return env[CONSENT_VERIFICATION_ENV] === "1";
 }
 
-export const TCF_API_METHOD = "tcf-api@2";
+export const TCF_API_METHOD = "tcf-api@3";
 export const ONETRUST_COOKIE_METHOD = "onetrust-cookie@1";
 export const ONETRUST_CONSENT_COOKIE = "OptanonConsent";
 
@@ -47,6 +47,8 @@ export type TcfApiReadOutcome =
       eventStatus: string | null;
       /** Purpose id -> consent flag, ids "1".."11" only; never the raw TCData. */
       purposeConsents: Record<string, boolean>;
+      /** Purpose id -> legitimate-interest flag, ids "1".."11" only. */
+      purposeLegitimateInterests: Record<string, boolean>;
     }
   | { status: "unavailable" }
   | { status: "timeout" }
@@ -86,21 +88,30 @@ export function readTcfApiState(timeoutMs: number): Promise<TcfApiReadOutcome> {
         const record = data as {
           gdprApplies?: unknown;
           eventStatus?: unknown;
-          purpose?: { consents?: unknown };
+          purpose?: { consents?: unknown; legitimateInterests?: unknown };
         };
         const consents: Record<string, boolean> = {};
+        const legitimateInterests: Record<string, boolean> = {};
         const rawConsents = record.purpose?.consents;
+        const rawLegitimateInterests = record.purpose?.legitimateInterests;
         if (rawConsents !== null && typeof rawConsents === "object") {
           for (const id of ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11"]) {
             const value = (rawConsents as Record<string, unknown>)[id];
             if (typeof value === "boolean") consents[id] = value;
           }
         }
+        if (rawLegitimateInterests !== null && typeof rawLegitimateInterests === "object") {
+          for (const id of ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11"]) {
+            const value = (rawLegitimateInterests as Record<string, unknown>)[id];
+            if (typeof value === "boolean") legitimateInterests[id] = value;
+          }
+        }
         finish({
           status: "read",
           gdprApplies: typeof record.gdprApplies === "boolean" ? record.gdprApplies : null,
           eventStatus: typeof record.eventStatus === "string" ? record.eventStatus : null,
-          purposeConsents: consents
+          purposeConsents: consents,
+          purposeLegitimateInterests: legitimateInterests
         });
       });
     } catch {
@@ -119,23 +130,33 @@ const TCF_SETTLED_EVENT_STATUSES = new Set(["useractioncomplete", "tcloaded"]);
 
 /**
  * Map a TCF read to the closed observed-state vocabulary. Classification runs
- * over the purposes the site actually requested (the keys present), never a
- * fixed purpose list: an accept-all click grants only what was asked for.
- * Only a multi-purpose unanimous grant classifies. A mixed, empty, or
- * zero-grant consent vector is incomplete without the separate
- * legitimate-interest state and publisher restrictions, and must stay
- * "unknown" so site-specific legal-basis configuration cannot fabricate a
- * contradiction. A single-purpose grant likewise stays "unknown" because
- * acceptance and necessity are indistinguishable there.
+ * over the purposes the site actually exposes (the keys present), never a
+ * fixed purpose list. Both TCF legal-basis vectors must be complete over the
+ * same multi-purpose key set; missing or asymmetric state stays `unknown`.
+ *
+ * A purpose remains enabled when either consent was granted or legitimate
+ * interest was established without an objection. Every purpose enabled is an
+ * unambiguous accept registration; every purpose disabled under both legal
+ * bases is an unambiguous reject registration. Any other complete pair is
+ * `partial`: in particular, a reject click that leaves legitimate interests
+ * enabled must remain detectable as a contradiction rather than being mistaken
+ * for rejection. Single-purpose state stays `unknown` because acceptance and
+ * necessity are indistinguishable there.
  */
 export function tcfObservedState(read: Extract<TcfApiReadOutcome, { status: "read" }>): ConsentObservedState {
-  if (read.gdprApplies === false) return "unknown";
+  if (read.gdprApplies !== true) return "unknown";
   if (read.eventStatus === null || !TCF_SETTLED_EVENT_STATUSES.has(read.eventStatus)) return "unknown";
-  const flags = Object.values(read.purposeConsents);
-  if (flags.length < 2) return "unknown";
-  const granted = flags.filter((flag) => flag).length;
-  if (granted === flags.length) return "accepted-all";
-  return "unknown";
+  const consentIds = Object.keys(read.purposeConsents).sort();
+  const legitimateInterestIds = Object.keys(read.purposeLegitimateInterests).sort();
+  if (consentIds.length < 2 || consentIds.length !== legitimateInterestIds.length) return "unknown";
+  if (consentIds.some((id, index) => id !== legitimateInterestIds[index])) return "unknown";
+
+  const enabledPurposes = consentIds.map(
+    (id) => read.purposeConsents[id] || read.purposeLegitimateInterests[id]
+  );
+  if (enabledPurposes.every(Boolean)) return "accepted-all";
+  if (enabledPurposes.every((flag) => !flag)) return "rejected-all";
+  return "partial";
 }
 
 export type OnetrustParseOutcome =

@@ -77,7 +77,7 @@ export default async function SiteProfilePage({ params }: { params: Promise<{ do
           <h2 id="current-title">{latest.headline}</h2>
           <p>
             {reportKindLabel(latest)} · {formatDate(latest.scannedAt)} · {latest.device}
-            {latest.capped && <> · <IncompleteEvidenceChip /></>}
+            {!latest.requestEvidenceComplete && <> · <IncompleteEvidenceChip capped={latest.capped} /></>}
           </p>
         </div>
         <dl className="site-profile-metrics">
@@ -120,7 +120,7 @@ export default async function SiteProfilePage({ params }: { params: Promise<{ do
                 <span>{entry.headline}</span>
                 <small>
                   {entry.thirdPartyRequests.toLocaleString()} third-party · {entry.trackerRequests.toLocaleString()} catalogued tracking · schema {entry.schemaVersion}{entry.schemaRevision ? `.r${entry.schemaRevision}` : ""}
-                  {entry.capped && <> · <IncompleteEvidenceChip /></>}
+                  {!entry.requestEvidenceComplete && <> · <IncompleteEvidenceChip capped={entry.capped} /></>}
                 </small>
               </Link>
             </li>
@@ -141,13 +141,17 @@ async function loadProfile(rawDomain: string): Promise<{ domain: string; entries
   return matches.length > 0 ? { domain: key, entries: matches } : null;
 }
 
-function IncompleteEvidenceChip() {
+function IncompleteEvidenceChip({ capped }: { capped: boolean }) {
   return (
     <span
       className="capped-chip"
-      title="This visit did not finish collecting request evidence: its counts are lower bounds, and it is excluded from the medians, leaderboard, and since-last-scan deltas."
+      title={
+        capped
+          ? "This visit hit the exact request-recording cap: its counts are lower bounds, and it is excluded from the medians, leaderboard, and since-last-scan deltas."
+          : "This visit has incomplete request evidence from another bounded capture loss: its counts are lower bounds, and it is excluded from the medians, leaderboard, and since-last-scan deltas."
+      }
     >
-      request evidence incomplete
+      {capped ? "recording capped" : "request evidence incomplete"}
     </span>
   );
 }

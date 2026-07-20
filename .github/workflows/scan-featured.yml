@@ -67,6 +67,8 @@ permissions:
   contents: write
   # Lets the post-push step dispatch CI (see 'Trigger CI on the pushed commit').
   actions: write
+  # The authoritative full refresh reconciles one canonical failure issue.
+  issues: write
 
 # Shared with scan.yml and update-brave-lists.yml: one writer at a time per ref.
 concurrency:
@@ -136,34 +138,31 @@ jobs:
           exit 1
 
       - name: Run featured scans
+        id: featured_scan
+        continue-on-error: true
         run: npm run scan:featured
         env:
           BASE_URL: http://127.0.0.1:3100
           FEATURED_SUMMARY_PATH: ${{ runner.temp }}/featured-scan-summary.json
 
-      - name: Upload failed-run diagnostics
-        if: failure()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          name: featured-scan-failure-diagnostics
-          path: |
-            ${{ runner.temp }}/featured-scan-summary.json
-            /tmp/site-behavior-lab-featured.log
-          if-no-files-found: warn
-
       - name: Prune retained static reports
+        if: steps.featured_scan.outcome == 'success'
         run: npm run reports:prune
 
       - name: Verify report redaction and provenance
+        if: steps.featured_scan.outcome == 'success'
         run: npm run reports:remediate -- --check
 
       - name: Build static report manifest
+        if: steps.featured_scan.outcome == 'success'
         run: npm run reports:manifest
 
       - name: Build corpus stats
+        if: steps.featured_scan.outcome == 'success'
         run: npm run corpus:stats
 
       - name: Summarize corpus
+        if: steps.featured_scan.outcome == 'success'
         run: |
           REPORTS=$(jq '.reports | length' public/reports/index.json 2>/dev/null || echo 0)
           SAMPLE=$(jq '.sampleSize' public/corpus-stats.json 2>/dev/null || echo 0)
@@ -177,6 +176,7 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload report artifacts
+        if: steps.featured_scan.outcome == 'success'
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: site-behavior-featured-reports
@@ -187,6 +187,7 @@ jobs:
 
       - name: Commit static reports
         id: commit
+        if: steps.featured_scan.outcome == 'success'
         run: |
           echo "pushed=false" >> "$GITHUB_OUTPUT"
           git config user.name "iAnonymous3000"
@@ -219,3 +220,113 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: gh workflow run ci.yml --ref main
+
+      - name: Prepare public-safe refresh alert
+        id: refresh_alert
+        if: always()
+        env:
+          FEATURED_ALERT_REPORT_PATH: ${{ runner.temp }}/featured-corpus-refresh.md
+          FEATURED_SUMMARY_PATH: ${{ runner.temp }}/featured-scan-summary.json
+          FEATURED_SCAN_OUTCOME: ${{ steps.featured_scan.outcome }}
+          FEATURED_JOB_STATUS: ${{ job.status }}
+          FEATURED_DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        run: node scripts/run-featured-scans-diagnostics.mjs --prepare-alert
+
+      - name: Upload failed-run diagnostics
+        if: >-
+          always() &&
+          (steps.refresh_alert.outcome != 'success' ||
+          steps.refresh_alert.outputs.failed == 'true')
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: featured-scan-failure-diagnostics
+          path: |
+            ${{ runner.temp }}/featured-scan-summary.json
+            ${{ runner.temp }}/featured-corpus-refresh.md
+            /tmp/site-behavior-lab-featured.log
+          if-no-files-found: warn
+
+      - name: Reconcile the featured-corpus refresh issue
+        # Only an unfiltered, default-mode full catalog run on the default
+        # branch is authoritative. Filtered or alternate-mode dispatches cannot
+        # open or close the repository-wide weekly-health issue.
+        if: >-
+          always() &&
+          steps.refresh_alert.outcome == 'success' &&
+          steps.refresh_alert.outputs.authoritative == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE_TITLE: Repair the weekly featured corpus refresh
+          REFRESH_REPORT_FILE: ${{ runner.temp }}/featured-corpus-refresh.md
+          REFRESH_FAILED: ${{ steps.refresh_alert.outputs.failed }}
+        run: |
+          set -euo pipefail
+
+          candidates=$(gh api \
+            --paginate \
+            --slurp \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "repos/${GITHUB_REPOSITORY}/issues?state=all&per_page=100")
+          match=$(printf '%s' "$candidates" | node -e '
+            let source = "";
+            process.stdin.on("data", (chunk) => { source += chunk; });
+            process.stdin.on("end", () => {
+              const marker = "<!-- site-behavior-lab:featured-corpus-refresh -->";
+              const matches = JSON.parse(source)
+                .flat()
+                .filter((issue) => !issue.pull_request && typeof issue.body === "string" && issue.body.includes(marker));
+              if (matches.length > 1) throw new Error(`Found ${matches.length} canonical refresh issues; expected at most one.`);
+              if (matches.length === 1) process.stdout.write(`${matches[0].number}|${matches[0].state}`);
+            });
+          ')
+
+          issue_number="${match%%|*}"
+          issue_state="${match#*|}"
+          if [[ -z "$match" ]]; then
+            issue_number=""
+            issue_state=""
+          fi
+
+          if [[ "$REFRESH_FAILED" == "true" ]]; then
+            if [[ -z "$issue_number" ]]; then
+              gh issue create \
+                --repo "$GITHUB_REPOSITORY" \
+                --title "$ISSUE_TITLE" \
+                --body-file "$REFRESH_REPORT_FILE"
+            else
+              gh issue edit "$issue_number" \
+                --repo "$GITHUB_REPOSITORY" \
+                --title "$ISSUE_TITLE" \
+                --body-file "$REFRESH_REPORT_FILE"
+              if [[ "$issue_state" == "closed" ]]; then
+                gh issue reopen "$issue_number" \
+                  --repo "$GITHUB_REPOSITORY" \
+                  --comment "The authoritative featured-corpus refresh is failing again; the issue body now links to the current run."
+              fi
+            fi
+          elif [[ "$REFRESH_FAILED" == "false" ]]; then
+            if [[ -n "$issue_number" && "$issue_state" == "open" ]]; then
+              gh issue edit "$issue_number" \
+                --repo "$GITHUB_REPOSITORY" \
+                --title "$ISSUE_TITLE" \
+                --body-file "$REFRESH_REPORT_FILE"
+              gh issue close "$issue_number" \
+                --repo "$GITHUB_REPOSITORY" \
+                --reason completed \
+                --comment "The authoritative featured-corpus refresh completed successfully."
+            fi
+          else
+            echo "::error title=Invalid featured refresh status::The alert preparer returned an invalid failure status."
+            exit 1
+          fi
+
+      - name: Preserve featured-refresh failure
+        if: >-
+          always() &&
+          (job.status != 'success' ||
+          steps.refresh_alert.outcome != 'success' ||
+          steps.refresh_alert.outputs.failed == 'true')
+        run: |
+          echo "::error title=Featured corpus refresh failed::The refresh or its required failure reconciliation did not complete. See the canonical issue for an authoritative full run and the failed-run diagnostics artifact for bounded details."
+          exit 1

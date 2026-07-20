@@ -132,6 +132,8 @@ function makeEntry(overrides: Partial<DirectoryEntry> & { id: string }): Directo
     finalUrl: "https://shop.example/",
     status: 200,
     runOutcome: "complete",
+    reportHasSuccessfulLoad: true,
+    reportHasRequestCappedLoad: false,
     requestEvidenceComplete: true,
     cookieEvidenceComplete: true,
     schemaVersion: 1,
@@ -213,15 +215,61 @@ test("corpus rollups require an uncensored passive lead run", () => {
 test("corpus site counts separate attempts, successful coverage, failures, and capped coverage", () => {
   const counts = summarizeCorpusSiteCounts([
     makeEntry({ id: "loaded", domain: "loaded.example" }),
-    makeEntry({ id: "loaded-old-failure", domain: "loaded.example", status: 403, runOutcome: "failed" }),
-    makeEntry({ id: "capped", domain: "capped.example", capped: true }),
-    makeEntry({ id: "failed", domain: "failed.example", status: 403, runOutcome: "failed" })
+    makeEntry({
+      id: "loaded-old-failure",
+      domain: "loaded.example",
+      status: 403,
+      runOutcome: "failed",
+      reportHasSuccessfulLoad: false
+    }),
+    makeEntry({
+      id: "capped",
+      domain: "capped.example",
+      capped: true,
+      reportHasRequestCappedLoad: true
+    }),
+    makeEntry({
+      id: "failed",
+      domain: "failed.example",
+      status: 403,
+      runOutcome: "failed",
+      reportHasSuccessfulLoad: false
+    })
   ]);
 
   assert.deepEqual(counts, {
     attemptedSiteCount: 3,
     coverageSiteCount: 2,
     failedSiteCount: 1,
+    cappedSiteCount: 1
+  });
+});
+
+test("comparison coverage and cap counts consider every arm without double counting the site", () => {
+  const counts = summarizeCorpusSiteCounts([
+    makeEntry({
+      id: "variant-loaded-and-capped",
+      domain: "pair.example",
+      // Lead/baseline failed and was not capped; report-wide facts record the
+      // successful capped variant separately.
+      status: 403,
+      runOutcome: "failed",
+      capped: false,
+      reportHasSuccessfulLoad: true,
+      reportHasRequestCappedLoad: true
+    }),
+    makeEntry({
+      id: "another-two-arm-report",
+      domain: "pair.example",
+      reportHasSuccessfulLoad: true,
+      reportHasRequestCappedLoad: false
+    })
+  ]);
+
+  assert.deepEqual(counts, {
+    attemptedSiteCount: 1,
+    coverageSiteCount: 1,
+    failedSiteCount: 0,
     cappedSiteCount: 1
   });
 });

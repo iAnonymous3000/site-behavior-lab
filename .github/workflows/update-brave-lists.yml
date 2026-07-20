@@ -4,7 +4,8 @@ name: Update Brave Shields Lists
 # tried-vs-blocked classification track Brave's real default lists:
 #   1. Weekly refresh of the default filter lists from Brave's own catalog,
 #      validated end to end (the WASM engine must load the new snapshot and
-#      still block known ad URLs) before the refresh is committed.
+#      still block known ad URLs) before the refresh is committed. Scheduled
+#      failures are tracked in a separate canonical issue and remain job-red.
 #   2. A measurement-toolchain drift check against crates.io, npm, and Chrome's
 #      consumer stable channel. Expected drift is tracked in one canonical issue;
 #      malformed local pins or unavailable upstream metadata fail the job.
@@ -32,6 +33,10 @@ jobs:
   refresh-lists:
     name: Refresh and validate filter lists
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
+      issues: write
     steps:
       - name: Checkout
         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
@@ -94,6 +99,128 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: gh workflow run ci.yml --ref main
+
+      - name: Prepare scheduled Brave-list refresh alert
+        id: brave_list_alert
+        if: always() && github.event_name == 'schedule'
+        env:
+          BRAVE_LIST_JOB_STATUS: ${{ job.status }}
+          BRAVE_LIST_REPORT_FILE: ${{ runner.temp }}/brave-list-refresh.md
+        run: |
+          set -euo pipefail
+
+          if [[ "$BRAVE_LIST_JOB_STATUS" == "success" ]]; then
+            failed=false
+            outcome=completed
+            summary="The scheduled fetch, engine validation, unit suite, commit step, and any required CI dispatch completed."
+          else
+            failed=true
+            outcome=failed
+            summary="The scheduled refresh did not complete every required fetch, validation, publication, and dispatch step."
+          fi
+
+          run_url="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+          printf '%s\n' \
+            '<!-- site-behavior-lab:brave-list-refresh -->' \
+            '# Scheduled Brave Shields list refresh' \
+            '' \
+            "$summary" \
+            '' \
+            "- Outcome: **${outcome}**" \
+            "- Workflow run: [run ${GITHUB_RUN_ID}, attempt ${GITHUB_RUN_ATTEMPT}](${run_url})" \
+            '' \
+            'This public issue intentionally contains only aggregate status. Use the linked workflow run for bounded diagnostics.' \
+            > "$BRAVE_LIST_REPORT_FILE"
+
+          echo "failed=${failed}" >> "$GITHUB_OUTPUT"
+
+      - name: Reconcile the scheduled Brave-list refresh issue
+        id: brave_list_issue
+        # Manual dispatches are diagnostic and must never open or close the
+        # repository-wide health issue. The sibling drift job is independent.
+        if: >-
+          always() &&
+          github.event_name == 'schedule' &&
+          steps.brave_list_alert.outcome == 'success'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE_TITLE: Repair the scheduled Brave Shields list refresh
+          BRAVE_LIST_REPORT_FILE: ${{ runner.temp }}/brave-list-refresh.md
+          REFRESH_FAILED: ${{ steps.brave_list_alert.outputs.failed }}
+        run: |
+          set -euo pipefail
+
+          candidates=$(gh api \
+            --paginate \
+            --slurp \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "repos/${GITHUB_REPOSITORY}/issues?state=all&per_page=100")
+          match=$(printf '%s' "$candidates" | node -e '
+            let source = "";
+            process.stdin.on("data", (chunk) => { source += chunk; });
+            process.stdin.on("end", () => {
+              const marker = "<!-- site-behavior-lab:brave-list-refresh -->";
+              const matches = JSON.parse(source)
+                .flat()
+                .filter((issue) => !issue.pull_request && typeof issue.body === "string" && issue.body.includes(marker));
+              if (matches.length > 1) throw new Error(`Found ${matches.length} canonical Brave-list refresh issues; expected at most one.`);
+              if (matches.length === 1) process.stdout.write(`${matches[0].number}|${matches[0].state}`);
+            });
+          ')
+
+          issue_number="${match%%|*}"
+          issue_state="${match#*|}"
+          if [[ -z "$match" ]]; then
+            issue_number=""
+            issue_state=""
+          fi
+
+          if [[ "$REFRESH_FAILED" == "true" ]]; then
+            if [[ -z "$issue_number" ]]; then
+              gh issue create \
+                --repo "$GITHUB_REPOSITORY" \
+                --title "$ISSUE_TITLE" \
+                --body-file "$BRAVE_LIST_REPORT_FILE"
+            else
+              gh issue edit "$issue_number" \
+                --repo "$GITHUB_REPOSITORY" \
+                --title "$ISSUE_TITLE" \
+                --body-file "$BRAVE_LIST_REPORT_FILE"
+              if [[ "$issue_state" == "closed" ]]; then
+                gh issue reopen "$issue_number" \
+                  --repo "$GITHUB_REPOSITORY" \
+                  --comment "The scheduled Brave Shields list refresh is failing again; the issue body links to the current run."
+              fi
+            fi
+          elif [[ "$REFRESH_FAILED" == "false" ]]; then
+            if [[ -n "$issue_number" && "$issue_state" == "open" ]]; then
+              gh issue edit "$issue_number" \
+                --repo "$GITHUB_REPOSITORY" \
+                --title "$ISSUE_TITLE" \
+                --body-file "$BRAVE_LIST_REPORT_FILE"
+              gh issue close "$issue_number" \
+                --repo "$GITHUB_REPOSITORY" \
+                --reason completed \
+                --comment "The scheduled Brave Shields list refresh completed successfully."
+            fi
+          else
+            echo "::error title=Invalid Brave-list refresh status::The alert preparer returned an invalid failure status."
+            exit 1
+          fi
+
+      - name: Preserve scheduled Brave-list refresh failure
+        if: >-
+          always() &&
+          github.event_name == 'schedule' &&
+          (steps.brave_list_alert.outcome != 'success' ||
+          steps.brave_list_issue.outcome != 'success' ||
+          steps.brave_list_alert.outputs.failed == 'true')
+        run: |
+          message="The scheduled refresh or its required issue reconciliation did not complete."
+          message+=" Inspect this workflow run; the canonical issue is updated when reconciliation succeeds."
+          echo "::error title=Brave Shields list refresh failed::${message}"
+          exit 1
 
   toolchain-drift-check:
     name: Check measurement toolchain drift

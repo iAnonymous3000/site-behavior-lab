@@ -49,7 +49,8 @@ test("the catalogued-service metric is never labeled as tracker requests", () =>
 });
 
 test("isCorpusStats validates shape", () => {
-  assert.equal(isCorpusStats(makeCorpus(100)), true);
+  assert.equal(isCorpusStats({ ...makeCorpus(100), coverageSiteCount: 120, cappedSiteCount: 3 }), true);
+  assert.equal(isCorpusStats({ ...makeCorpus(100), cappedSiteCount: "3" }), false);
   assert.equal(isCorpusStats({ version: 1, generatedAt: "x", sampleSize: 1, metrics: { thirdPartyDomains: { count: 1 } } }), false);
   assert.equal(isCorpusStats({ version: 1, sampleSize: 1 }), false);
   assert.equal(isCorpusStats(null), false);

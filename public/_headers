@@ -21,3 +21,14 @@
   X-Content-Type-Options: nosniff
   X-Frame-Options: DENY
   Permissions-Policy: camera=(), geolocation=(), microphone=(), payment=(), serial=(), usb=()
+
+# Frozen schema bytes cannot carry post-publication corrections. Publish a
+# machine-discoverable companion link on every current schema response instead.
+/scan-report.schema.json
+  Link: </methodology/#schema-errata>; rel="describedby"
+
+/schemas/scan-report.v2.r1.schema.json
+  Link: </methodology/#schema-errata>; rel="describedby"
+
+/schemas/scan-report.v2.r2.schema.json
+  Link: </methodology/#schema-errata>; rel="describedby"

@@ -23,6 +23,8 @@ function makeEntry(overrides: Partial<DirectoryEntry> & { id: string }): Directo
     consentClicks: null,
     status: 200,
     runOutcome: "complete",
+    reportHasSuccessfulLoad: true,
+    reportHasRequestCappedLoad: false,
     requestEvidenceComplete: true,
     cookieEvidenceComplete: true,
     capped: false,
@@ -117,6 +119,24 @@ test("rows expose the lead run's HTTP status so failed loads are filterable", ()
   );
   assert.equal(rows[0].status, 200);
   assert.equal(rows[1].status, 403);
+});
+
+test("generic request loss stays distinct from the exact request-cap flag", () => {
+  const [row] = buildCorpusExportRows(
+    [
+      makeEntry({
+        id: "20260706-" + "d".repeat(32),
+        requestEvidenceComplete: false,
+        capped: false
+      })
+    ],
+    "https://sitebehavior.org"
+  );
+
+  assert.equal(row.requestEvidenceComplete, false);
+  assert.equal(row.requestCapped, false);
+  assert.match(CORPUS_EXPORT_NOTE, /request_capped is the exact/);
+  assert.match(CORPUS_EXPORT_NOTE, /request_evidence_complete is the broader/);
 });
 
 test("consent rows expose the dispatched click state so unclicked runs are filterable", () => {
@@ -219,7 +239,7 @@ test("CSV pins the header and escapes commas and quotes in headlines", () => {
 
   assert.equal(
     header,
-    "id,domain,category,category_label,report_url,json_url,scanned_at,report_type,comparison_type,device,gpc_enabled,consent_mode,consent_clicks,status,request_capped,headline,third_party_requests,tracker_requests,third_party_cookies,shields_third_party_change,delta_third_party_requests,delta_tracker_requests,previous_report_id,previous_scanned_at,schema_version,schema_revision,schema_origin,limited,consent_choice_state,variant_consent_choice_state,comparison_decision_mode,compatibility_fingerprint_origin,compatibility_fingerprint_matched"
+    "id,domain,category,category_label,report_url,json_url,scanned_at,report_type,comparison_type,device,gpc_enabled,consent_mode,consent_clicks,status,request_capped,request_evidence_complete,headline,third_party_requests,tracker_requests,third_party_cookies,shields_third_party_change,delta_third_party_requests,delta_tracker_requests,previous_report_id,previous_scanned_at,schema_version,schema_revision,schema_origin,limited,consent_choice_state,variant_consent_choice_state,comparison_decision_mode,compatibility_fingerprint_origin,compatibility_fingerprint_matched"
   );
   assert.match(row, /"shop\.example told Google, Meta ""you were here""\."/);
   assert.match(row, /,desktop,yes,observe,,200,/);

@@ -44,6 +44,7 @@ test("Docker smoke preserves v1 and explicitly proves public v2/r2 bundles", () 
   assert.doesNotMatch(r2SmokeServer, /server\.listen\(0, "0\.0\.0\.0"/);
 
   const deployedSmoke = readFileSync(path.join(root, "scripts", "smoke-deployed-scanner.mjs"), "utf8");
-  assert.match(deployedSmoke, /https:\/\/www\.iana\.org\/domains\/reserved/);
+  assert.match(deployedSmoke, /https:\/\/sitebehavior\.org\//);
+  assert.doesNotMatch(deployedSmoke, /iana\.org/);
   assert.doesNotMatch(deployedSmoke, /SMOKE_SHIELDS_URL=https:\/\/example\.com/);
 });

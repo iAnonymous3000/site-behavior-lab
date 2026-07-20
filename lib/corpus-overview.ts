@@ -80,6 +80,10 @@ export type DirectoryEntry = {
   status: number | null;
   /** Evaluator-derived outcome; status 200 can still be a failed/bot-wall run. */
   runOutcome: "complete" | "failed";
+  /** Whether the single run or either primary comparison arm loaded successfully. */
+  reportHasSuccessfulLoad: boolean;
+  /** Whether any successfully loaded arm hit the exact request-recording cap. */
+  reportHasRequestCappedLoad: boolean;
   /** Whether request-derived counts are complete enough for aggregate use. */
   requestEvidenceComplete: boolean;
   /** Whether cookie counts are complete enough for a cookie-specific aggregate. */
@@ -167,15 +171,16 @@ export type CorpusOverview = {
    */
   siteCount: number;
   /**
-   * Distinct sites with at least one successful load, INCLUDING request-capped
-   * recordings: what the corpus covers, as opposed to what it measures.
+   * Distinct sites with a successful single run or primary comparison arm,
+   * INCLUDING request-capped recordings: what the corpus covers, as opposed
+   * to what it measures. Both arms of a comparison count the site once.
    */
   coverageSiteCount: number;
   /** Distinct real sites represented by any committed attempt, successful or failed. */
   attemptedSiteCount: number;
   /** Attempted sites with no successful load in the committed corpus. */
   failedSiteCount: number;
-  /** Successfully loaded sites with at least one request-capped recording. */
+  /** Successfully loaded sites with a request-capped primary recording. */
   cappedSiteCount: number;
 };
 
@@ -193,14 +198,14 @@ function entryLoadFailed(entry: DirectoryEntry): boolean {
 
 /**
  * Mutually distinguishes attempted sites from successful coverage. A site with
- * both failed and successful reports counts as covered, not failed; capped
+ * failed and successful reports or arms counts as covered, not failed; capped
  * coverage is a named subset of successful loads rather than a third total.
  */
 export function summarizeCorpusSiteCounts(entries: DirectoryEntry[]): CorpusSiteCounts {
   const attemptedDomains = new Set(entries.map((entry) => entry.domain));
-  const coverageDomains = new Set(entries.filter((entry) => !entryLoadFailed(entry)).map((entry) => entry.domain));
+  const coverageDomains = new Set(entries.filter((entry) => entry.reportHasSuccessfulLoad).map((entry) => entry.domain));
   const cappedDomains = new Set(
-    entries.filter((entry) => !entryLoadFailed(entry) && entry.capped).map((entry) => entry.domain)
+    entries.filter((entry) => entry.reportHasRequestCappedLoad).map((entry) => entry.domain)
   );
   const failedSiteCount = [...attemptedDomains].filter((domain) => !coverageDomains.has(domain)).length;
 
@@ -368,6 +373,12 @@ async function loadDirectoryEntries(catalog: CatalogEntry[]): Promise<LoadedDire
     // lists and ranks what each site actually did, not the protected residual.
     const run = displayRunView(view);
     const arms = comparisonArmViews(view);
+    const successfulRuns = view.runs.filter(
+      (candidate) =>
+        candidate.quality.outcome === "complete" &&
+        typeof candidate.status === "number" &&
+        candidate.status < 400
+    );
     // Keep reserved/test domains out of the public directory, mirroring the gallery
     // manifest exclusion (a reserved-domain report is reachable by permalink only).
     if (isReservedReportDomain(run.domain)) continue;
@@ -412,6 +423,11 @@ async function loadDirectoryEntries(catalog: CatalogEntry[]): Promise<LoadedDire
       consentClicks: consentClicksForView(view),
       status: run.status,
       runOutcome: run.quality.outcome,
+      // Coverage spans the primary pair: a comparison still covered its
+      // catalogued site when one primary arm failed but the other loaded. Sets
+      // in the count summarizer keep a two-arm report from counting it twice.
+      reportHasSuccessfulLoad: successfulRuns.length > 0,
+      reportHasRequestCappedLoad: successfulRuns.some(runHitRequestRecordingCap),
       requestEvidenceComplete: !familyCensoredOnRun(run, "requests"),
       cookieEvidenceComplete: !familyCensoredOnRun(run, "cookies"),
       capped: runHitRequestRecordingCap(run),

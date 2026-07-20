@@ -95,6 +95,60 @@ test("the CI bot-wall gate checks the variant of a legacy comparison too", async
   assert.match(botBlockReason(report) ?? "", /^primary variant arm: only 1 network request\(s\) observed/);
 });
 
+test("the CI report gate rejects HTTP error pages even with an unrecognized title and several requests", async () => {
+  const { botBlockReason } = await helpers;
+
+  const legacyHealthy = makeScanReportV1();
+  if (legacyHealthy.reportType === "comparison") throw new Error("expected single fixture");
+  legacyHealthy.summary.pageTitle = "Example Shop";
+  legacyHealthy.summary.status = 200;
+  legacyHealthy.summary.totalRequests = 5;
+  assert.equal(botBlockReason(legacyHealthy), null, "a healthy v1 run remains publishable");
+
+  const legacyForbidden = structuredClone(legacyHealthy);
+  legacyForbidden.summary.pageTitle = "Forbidden";
+  legacyForbidden.summary.status = 403;
+  assert.match(botBlockReason(legacyForbidden) ?? "", /^single run: main navigation returned HTTP 403$/);
+
+  const r2Healthy = makeHealthySupportingComparison();
+  assert.equal(botBlockReason(r2Healthy), null, "a healthy r2 report remains publishable");
+
+  const r2Forbidden = structuredClone(r2Healthy);
+  const forbiddenArm = supportingArms(r2Forbidden).supportingVariant;
+  forbiddenArm.summary.pageTitle = "Forbidden";
+  forbiddenArm.summary.status = 403;
+  forbiddenArm.qualityFacts.status = 403;
+  forbiddenArm.quality.run = { outcome: "failed", reasons: ["http-error-status"] };
+  assert.match(
+    botBlockReason(r2Forbidden) ?? "",
+    /^supporting pair 1 variant arm: main navigation returned HTTP 403$/
+  );
+});
+
+test("the CI report gate rejects recorded navigation and quality failures", async () => {
+  const { botBlockReason } = await helpers;
+
+  const noResponse = makeScanReportV1();
+  if (noResponse.reportType === "comparison") throw new Error("expected single fixture");
+  noResponse.summary.status = null;
+  noResponse.summary.totalRequests = 5;
+  assert.match(botBlockReason(noResponse) ?? "", /^single run: main navigation produced no HTTP response$/);
+
+  const navigationFailure = makeHealthySupportingComparison();
+  supportingArms(navigationFailure).primaryBaseline.qualityFacts.navigationSettled = false;
+  assert.match(botBlockReason(navigationFailure) ?? "", /^primary baseline arm: main navigation did not settle$/);
+
+  const qualityFailure = makeHealthySupportingComparison();
+  supportingArms(qualityFailure).primaryVariant.quality.run = {
+    outcome: "failed",
+    reasons: ["scan-slot-timeout"]
+  };
+  assert.match(
+    botBlockReason(qualityFailure) ?? "",
+    /^primary variant arm: report quality evaluator marked the run failed$/
+  );
+});
+
 function makeHealthySupportingComparison() {
   const report = makeSupportingPairInterventionReportV2R2();
   for (const run of Object.values(supportingArms(report))) {

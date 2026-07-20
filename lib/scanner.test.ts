@@ -1311,14 +1311,19 @@ test("scanSite verifies a consent click end to end when the verification flag is
         const tcData = {
           gdprApplies: true,
           eventStatus: rejected ? "tcloaded" : "cmpuishown",
-          purpose: { consents: rejected ? { "1": false, "2": false } : {} }
+          purpose: {
+            consents: rejected ? { "1": false, "2": false } : {},
+            legitimateInterests: rejected ? { "1": false, "2": false } : {}
+          }
         };
         window.__tcfapi = (command, version, callback) => callback(tcData, true);
         window.registerRejection = () => {
           localStorage.setItem("cmp-choice", "rejected");
-          document.cookie = "OptanonConsent=groups%3DC0001%3A1%2CC0002%3A0; path=/";
           tcData.eventStatus = "useractioncomplete";
-          tcData.purpose = { consents: { "1": false, "2": false } };
+          tcData.purpose = {
+            consents: { "1": false, "2": false },
+            legitimateInterests: { "1": false, "2": false }
+          };
           document.getElementById("consent-banner").style.display = "none";
         };
       </script>
@@ -1398,9 +1403,10 @@ test("scanSite verifies a consent click end to end when the verification flag is
     );
     assert.ok(moments[0].atMs < moments[1].atMs && moments[1].atMs < moments[2].atMs);
 
-    // Strong interpreter reads in BOTH consent phases. The consent-only TCF
-    // vector stays unknown without legitimate-interest configuration, while
-    // the OneTrust cookie proves the registered reject state.
+    // TCF alone proves the registered reject state in BOTH consent phases
+    // when consent and legitimate-interest vectors are complete and false.
+    // The normal OneTrust fallback remains recorded as unreadable; it neither
+    // supplies nor weakens the TCF verification.
     assert.deepEqual(
       consent!.verificationObservations.map((observation) => [
         observation.phaseId,
@@ -1409,20 +1415,20 @@ test("scanSite verifies a consent click end to end when the verification flag is
         observation.result.outcome
       ]),
       [
-        [consentPhaseId, TCF_API_METHOD, "unknown", "read"],
-        [consentPhaseId, "onetrust-cookie@1", "rejected-all", "read"],
-        [reloadPhaseId, TCF_API_METHOD, "unknown", "read"],
-        [reloadPhaseId, "onetrust-cookie@1", "rejected-all", "read"]
+        [consentPhaseId, TCF_API_METHOD, "rejected-all", "read"],
+        [consentPhaseId, "onetrust-cookie@1", null, "unreadable"],
+        [reloadPhaseId, TCF_API_METHOD, "rejected-all", "read"],
+        [reloadPhaseId, "onetrust-cookie@1", null, "unreadable"]
       ]
     );
     const sequences = consent!.verificationObservations.map((observation) => observation.result.sequence);
     assert.deepEqual([...sequences].sort((a, b) => a - b), sequences);
     assert.equal(new Set(sequences).size, sequences.length);
 
-    // The clicked cookie shows up as a consent-phase mutation in the ledger.
+    // The clicked choice shows up as a consent-phase storage mutation.
     assert.equal(
-      staged!.evidence.cookieMutations.some(
-        (mutation) => mutation.op === "added" && mutation.cookie.name === "OptanonConsent" && mutation.phaseId === consentPhaseId
+      staged!.evidence.storageMutations.some(
+        (mutation) => mutation.op === "added" && mutation.entry.key === "cmp-choice" && mutation.phaseId === consentPhaseId
       ),
       true
     );

@@ -533,11 +533,12 @@ test("the consent-verification family is unknown for pairs that attempted nothin
   assert.equal(consent.comparability.perMetric["consent-verification"].eligible, true);
 });
 
-test("historical TCF v1 remains valid while mixed TCF interpreter versions refuse consent comparability", () => {
+test("historical TCF readers remain valid while mixed TCF interpreter versions refuse consent comparability", () => {
+  type TcfMethod = "tcf-api@1" | "tcf-api@2" | "tcf-api@3";
   const setTcfMethod = (
     report: PublicScanReportV2R2,
     arm: "baseline" | "variant",
-    method: "tcf-api@1" | "tcf-api@2"
+    method: TcfMethod
   ): void => {
     if (report.reportType !== "comparison" || report.experiment.kind !== "intervention") {
       throw new Error("expected an intervention comparison fixture");
@@ -551,26 +552,28 @@ test("historical TCF v1 remains valid while mixed TCF interpreter versions refus
     report.experiment.verification[arm] = { ...report.experiment.verification[arm], method };
   };
 
-  const historical = makeConsentInterventionReportV2R2();
-  setTcfMethod(historical, "baseline", "tcf-api@1");
-  setTcfMethod(historical, "variant", "tcf-api@1");
-  historical.comparability = evaluateComparabilityR2(
-    historical.experiment,
-    historical.baseline,
-    historical.variant,
-    "1",
-    "1"
-  );
-  historical.diff = buildComparisonDiffV2(
-    historical.baseline,
-    historical.variant,
-    historical.comparability.perMetric
-  );
-  assert.deepEqual(violationsOf(historical), [], "published @1 reports remain readable under recorded evaluators");
+  for (const method of ["tcf-api@1", "tcf-api@2", "tcf-api@3"] as const) {
+    const sameVersion = makeConsentInterventionReportV2R2();
+    setTcfMethod(sameVersion, "baseline", method);
+    setTcfMethod(sameVersion, "variant", method);
+    sameVersion.comparability = evaluateComparabilityR2(
+      sameVersion.experiment,
+      sameVersion.baseline,
+      sameVersion.variant,
+      method === "tcf-api@1" ? "1" : undefined,
+      method === "tcf-api@1" ? "1" : undefined
+    );
+    sameVersion.diff = buildComparisonDiffV2(
+      sameVersion.baseline,
+      sameVersion.variant,
+      sameVersion.comparability.perMetric
+    );
+    assert.deepEqual(violationsOf(sameVersion), [], `${method} reports remain readable as same-version pairs`);
+  }
 
   const crossVersion = makeConsentInterventionReportV2R2();
-  setTcfMethod(crossVersion, "baseline", "tcf-api@1");
-  setTcfMethod(crossVersion, "variant", "tcf-api@2");
+  setTcfMethod(crossVersion, "baseline", "tcf-api@2");
+  setTcfMethod(crossVersion, "variant", "tcf-api@3");
   crossVersion.comparability = evaluateComparabilityR2(
     crossVersion.experiment,
     crossVersion.baseline,

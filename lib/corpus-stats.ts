@@ -47,6 +47,11 @@ export type CorpusStats = {
    * stats files generated before this field existed omit it.
    */
   coverageSiteCount?: number;
+  /**
+   * Distinct covered sites with an exact request-recording cap in at least
+   * one successfully loaded arm. Optional for older generated artifacts.
+   */
+  cappedSiteCount?: number;
   metrics: Partial<Record<CorpusMetricKey, MetricDistribution>>;
 };
 
@@ -112,6 +117,9 @@ export function isCorpusStats(value: unknown): value is CorpusStats {
     return false;
   }
   if (value.coverageSiteCount !== undefined && typeof value.coverageSiteCount !== "number") {
+    return false;
+  }
+  if (value.cappedSiteCount !== undefined && typeof value.cappedSiteCount !== "number") {
     return false;
   }
   if (!isRecord(value.metrics)) return false;

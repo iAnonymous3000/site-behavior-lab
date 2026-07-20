@@ -64,13 +64,15 @@ export function isSupportedMetricRegistryVersion(value: string): value is Metric
  * "weak-signal" (RFC 6.1).
  */
 // r1 is frozen to the interpreter vocabulary it shipped with. The r2 reader
-// accepts both TCF versions so historical `@1` reports remain valid while new
-// `@2` reports carry the conservative legal-basis-aware mapping. Exact method
-// sets are compared by the r2 evaluator, so an @1/@2 pair is ineligible.
+// accepts every shipped TCF version so historical `@1`/`@2` reports remain
+// valid while new `@3` reports carry the complete dual-legal-basis mapping.
+// Exact method sets are compared by the r2 evaluator, so cross-version pairs
+// are ineligible.
 const STRONG_CONSENT_INTERPRETERS_R1 = new Set(["tcf-api@1", "onetrust-cookie@1"]);
 export const STRONG_CONSENT_INTERPRETERS = new Set([
   ...STRONG_CONSENT_INTERPRETERS_R1,
-  "tcf-api@2"
+  "tcf-api@2",
+  "tcf-api@3"
 ]);
 export const WEAK_CONSENT_INTERPRETERS = new Set(["banner-visibility@1"]);
 export const CONSENT_INTERPRETER_METHODS = new Set([...STRONG_CONSENT_INTERPRETERS, ...WEAK_CONSENT_INTERPRETERS]);

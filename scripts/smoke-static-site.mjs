@@ -113,6 +113,23 @@ async function main() {
     }
     pass("scan-report v2 schemas published (r1 + r2 revisioned files, stable alias on r2)");
 
+    const methodologyResponse = await fetch(`${baseUrl}/methodology/`);
+    if (!methodologyResponse.ok) fail(`methodology page not served (${methodologyResponse.status})`);
+    const methodologyHtml = await methodologyResponse.text();
+    if (!methodologyHtml.includes('id="schema-errata"') || !methodologyHtml.includes("Published schema errata")) {
+      fail("methodology page omits the published schema errata pointer");
+    }
+    const pagesHeaders = await readFile(path.join(outDir, "_headers"), "utf8");
+    for (const schemaPath of [
+      "/scan-report.schema.json",
+      "/schemas/scan-report.v2.r1.schema.json",
+      "/schemas/scan-report.v2.r2.schema.json"
+    ]) {
+      const rule = `${schemaPath}\n  Link: </methodology/#schema-errata>; rel="describedby"`;
+      if (!pagesHeaders.includes(rule)) fail(`${schemaPath} omits its schema-errata companion link`);
+    }
+    pass("frozen schema responses point to the published errata without changing schema bytes");
+
     const deploymentResponse = await fetch(`${baseUrl}/deployment.json`);
     if (!deploymentResponse.ok) fail(`static deployment provenance not served (${deploymentResponse.status})`);
     const deployment = await deploymentResponse.json();

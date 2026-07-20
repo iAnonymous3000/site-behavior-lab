@@ -182,10 +182,11 @@ export default function MethodologyPage() {
         <p>
           Findings like &quot;at or above the 90th-percentile mark for third-party domains&quot; currently use a
           legacy-v1 cohort: one newest eligible passive lead run per distinct site. Failed or no-response loads,
-          request-capped runs, accept/reject consent arms, reserved domains, and every v2 run are excluded from that
-          distribution. Corpus coverage counts distinct sites with at least one successful load, including capped
-          recordings; a site represented only by failed or block-page visits was attempted but is outside that loaded
-          coverage count. The fully measured sample is narrower still. Percentile wording activates only after 50
+          request-incomplete runs, accept/reject consent arms, reserved domains, and every v2 run are excluded from that
+          distribution. Corpus coverage counts distinct sites with a successful single run or primary comparison arm,
+          including capped recordings; two successful primary arms still count the site once. A site
+          represented only by failed or block-page visits was attempted but is outside that loaded coverage count.
+          The fully measured sample is narrower still. Percentile wording activates only after 50
           fully measured sites; v2 reports use fixed reference thresholds until a matching-methodology cohort exists.
           The wording is anchored to the stored percentile mark, not the percentage of sites strictly below a value,
           because ties can make those different. The corpus is curated, not a random sample of the web. Site history
@@ -202,6 +203,22 @@ export default function MethodologyPage() {
           CSV. The public corpus, its percentile statistics, and the researcher export are regenerated from the
           same committed report files this site renders, so the numbers cannot disagree with the evidence behind
           them.
+        </p>
+      </section>
+
+      <section className="legal-section" id="schema-errata">
+        <h2>Published schema errata</h2>
+        <p>
+          ScanReport v2 revisions r1 and r2 are immutable, so two wording corrections are published here instead of
+          silently changing their JSON Schema bytes. E1: an advanced-matching identifier is recorded only when its
+          parameter carries a non-empty value; the scanner inspects that value transiently for emptiness but never
+          persists, exposes, interprets, or hash-validates it. E2: <code>AB</code> and <code>BA</code> describe which arm
+          ran first in one randomized pair; one pair is not counterbalanced. The complete, versioned errata log is in
+          the{" "}
+          <a href="https://github.com/iAnonymous3000/site-behavior-lab/blob/main/docs/scan-report-v2-rfc.md#errata">
+            ScanReport v2 RFC
+          </a>
+          .
         </p>
       </section>
     </main>
