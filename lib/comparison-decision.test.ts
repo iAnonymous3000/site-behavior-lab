@@ -16,7 +16,8 @@ import {
 import {
   LEGACY_V1_METHODOLOGY_UNSPECIFIED,
   legacyV1MethodologyIdentity,
-  NODE_SHIELDS_REQUEST_CONTEXT_VERSION
+  NODE_PLAYWRIGHT_VERSION,
+  NODE_SCANNER_METHODOLOGY_VERSION
 } from "./legacy-methodology";
 import {
   makeInterventionComparisonReportV2,
@@ -230,11 +231,11 @@ test("legacy temporal comparisons separate old and initiator-aware methodology c
   const currentRun = makeRun({});
   currentRun.conditions = {
     ...currentRun.conditions,
-    scannerDisclosure: `Automated Chromium scan under methodology ${NODE_SHIELDS_REQUEST_CONTEXT_VERSION}; initiating document context.`
+    scannerDisclosure: `Automated Chromium scan under methodology ${NODE_SCANNER_METHODOLOGY_VERSION}; initiating document context.`
   };
 
   assert.equal(legacyV1MethodologyIdentity(oldRun.conditions.scannerDisclosure), LEGACY_V1_METHODOLOGY_UNSPECIFIED);
-  assert.equal(legacyV1MethodologyIdentity(currentRun.conditions.scannerDisclosure), NODE_SHIELDS_REQUEST_CONTEXT_VERSION);
+  assert.equal(legacyV1MethodologyIdentity(currentRun.conditions.scannerDisclosure), NODE_SCANNER_METHODOLOGY_VERSION);
 
   const crossMethod = legacyComparisonDecision(orderedTemporalPair(oldRun, currentRun));
   assert.equal(crossMethod.mode, "raw-only");
@@ -252,13 +253,35 @@ test("legacy temporal comparisons separate old and initiator-aware methodology c
   assert.equal(sameMethod.families["raw-counts"].mode, "comparable");
 });
 
+test("legacy temporal comparisons separate Playwright patch cohorts even when Chromium is unchanged", () => {
+  const before = makeRun({});
+  const after = makeRun({});
+  const previousMethodology = NODE_SCANNER_METHODOLOGY_VERSION.replace(
+    `playwright-${NODE_PLAYWRIGHT_VERSION}`,
+    "playwright-1.61.0"
+  );
+  before.conditions = {
+    ...before.conditions,
+    scannerDisclosure: `Automated Chromium scan under methodology ${previousMethodology}.`
+  };
+  after.conditions = {
+    ...after.conditions,
+    scannerDisclosure: `Automated Chromium scan under methodology ${NODE_SCANNER_METHODOLOGY_VERSION}.`
+  };
+
+  const decision = legacyComparisonDecision(orderedTemporalPair(before, after));
+  assert.equal(decision.mode, "raw-only");
+  assert.equal(decision.compatibility.matched, false);
+  assert.match(decision.reasons.join(" "), /different scanner methodology generations/);
+});
+
 test("automatic v1 history cohorts include methodology, conditions, lists, and catalog identity", () => {
   const current = makeRun({});
   current.conditions = {
     ...current.conditions,
     shieldsMode: "classification",
     adblock: { active: true, source: "brave", lists: 31, fetchedAt: "2026-07-12T00:00:00.000Z" },
-    scannerDisclosure: `Automated Chromium scan under methodology ${NODE_SHIELDS_REQUEST_CONTEXT_VERSION}.`
+    scannerDisclosure: `Automated Chromium scan under methodology ${NODE_SCANNER_METHODOLOGY_VERSION}.`
   };
   const same = structuredClone(current);
   assert.equal(legacyTemporalCohortFingerprint(current), legacyTemporalCohortFingerprint(same));
@@ -288,7 +311,7 @@ test("passive comparison-history cohorts omit only the known snapshot date", () 
     ...before.conditions,
     shieldsMode: "classification",
     adblock: { active: true, source: "brave", lists: 31, fetchedAt: "2026-07-12T00:00:00.000Z" },
-    scannerDisclosure: `Automated Chromium scan under methodology ${NODE_SHIELDS_REQUEST_CONTEXT_VERSION}.`
+    scannerDisclosure: `Automated Chromium scan under methodology ${NODE_SCANNER_METHODOLOGY_VERSION}.`
   };
   const after = structuredClone(before);
   after.conditions.adblock!.fetchedAt = "2026-07-13T00:00:00.000Z";

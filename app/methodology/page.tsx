@@ -49,8 +49,9 @@ export default function MethodologyPage() {
           The controlled scanner loads the page in a headless Chromium browser with a fixed profile: en-US locale, UTC
           timezone, a desktop or mobile viewport, and a disclosed egress network. It does not scroll, click, or log
           in, with exactly two bounded exceptions described below. The visit ends after a capped duration, and the
-          report records the scan conditions (browser version, viewport, timezone, locale, GPC state, catalog
-          version, egress) so the result is reproducible for that configuration. Sites can behave differently for
+          current Node report records the scan conditions (Playwright and browser versions, viewport, timezone, locale,
+          GPC state, catalog version, egress) so the result is reproducible for that configuration. Historical reports
+          that predate exact Playwright provenance show it as not recorded. Sites can behave differently for
           real users, regions, accounts, or network locations, so results are evidence to check, not a verdict.
         </p>
         <p>

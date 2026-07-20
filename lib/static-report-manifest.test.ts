@@ -12,7 +12,7 @@ import { buildStaticReportManifest } from "./static-report-manifest";
 import { evaluateQuality } from "./scan-report-v2-evaluators";
 import { makePublicSingleReportV2R2 } from "./scan-report-v2-r2-fixtures";
 import { makeScanReportV1 } from "./scan-report-v2-fixtures";
-import { NODE_SHIELDS_REQUEST_CONTEXT_VERSION } from "./legacy-methodology";
+import { NODE_SCANNER_METHODOLOGY_VERSION } from "./legacy-methodology";
 import { aggregateByteBudgetWarning } from "./scan-runtime";
 import type { ScanReport, ScanResult } from "./types";
 
@@ -95,7 +95,7 @@ test("builds entries for valid v1 reports and ignores non-report files", async (
     lists: 31,
     fetchedAt: "2026-07-01T00:00:00.000Z"
   };
-  report.conditions.scannerDisclosure = `test scanner under methodology ${NODE_SHIELDS_REQUEST_CONTEXT_VERSION}`;
+  report.conditions.scannerDisclosure = `test scanner under methodology ${NODE_SCANNER_METHODOLOGY_VERSION}`;
   await writeReport("20260618-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", report);
   await writeFile(path.join(reportsDir, "index.json"), "{}\n");
   await writeFile(path.join(reportsDir, "notes.txt"), "not a report\n");
@@ -121,7 +121,7 @@ test("comparison history permits only snapshot-date drift in successful passive 
   before.conditions.finalUrl = before.conditions.requestedUrl;
   before.conditions.scannedAt = "2026-07-01T00:00:00.000Z";
   before.conditions.shieldsMode = "classification";
-  before.conditions.scannerDisclosure = `test scanner under methodology ${NODE_SHIELDS_REQUEST_CONTEXT_VERSION}`;
+  before.conditions.scannerDisclosure = `test scanner under methodology ${NODE_SCANNER_METHODOLOGY_VERSION}`;
   before.conditions.adblock = {
     active: true,
     source: "Brave default ad-block lists",

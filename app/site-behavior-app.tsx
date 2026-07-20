@@ -577,6 +577,12 @@ export function SiteBehaviorApp({
                       <dt>Scanner</dt>
                       <dd>{displayedRun.conditions.automation}</dd>
                     </div>
+                    {displayedRun.conditions.automation === "playwright-chromium" && (
+                      <div>
+                        <dt>Playwright</dt>
+                        <dd>{displayedRun.conditions.playwrightVersion ?? "not recorded"}</dd>
+                      </div>
+                    )}
                     <div>
                       <dt>Browser</dt>
                       <dd>{displayedRun.conditions.browserVersion ?? "not recorded"}</dd>

@@ -5,7 +5,7 @@ import { test } from "node:test";
 import playwrightPackage from "playwright/package.json";
 import playwrightCorePackage from "playwright-core/package.json";
 import tldtsPackage from "tldts/package.json";
-import { NODE_ADBLOCK_ENGINE_VERSION } from "./legacy-methodology";
+import { NODE_ADBLOCK_ENGINE_VERSION, NODE_PLAYWRIGHT_VERSION } from "./legacy-methodology";
 
 type PackageManifest = {
   dependencies?: Record<string, string>;
@@ -51,6 +51,7 @@ test("Playwright package, lockfile, installation, and container base use one exa
 
   assert.ok(declaredVersion, "package.json must declare Playwright");
   assert.match(declaredVersion, EXACT_VERSION, "package.json must pin Playwright to an exact version");
+  assert.equal(NODE_PLAYWRIGHT_VERSION, declaredVersion);
   assert.equal(lock.packages[""]?.dependencies?.playwright, declaredVersion);
   assert.equal(lock.packages["node_modules/playwright"]?.version, declaredVersion);
   assert.equal(lock.packages["node_modules/playwright"]?.dependencies?.["playwright-core"], declaredVersion);

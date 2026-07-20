@@ -2,7 +2,13 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { compareScanResults, createGpcComparisonReport } from "./compare-reports";
 import { runHitResponseByteCap, runHitUploadByteCap } from "./comparison-eligibility";
+import {
+  NODE_PLAYWRIGHT_VERSION,
+  NODE_SCANNER_METHODOLOGY_VERSION,
+  NODE_SHIELDS_REQUEST_CONTEXT_VERSION
+} from "./legacy-methodology";
 import { redactScanReportV1, redactScanResultV1 } from "./redact-scan-report-v1";
+import { scannerDisclosure } from "./scan-condition-disclosure";
 import { aggregateByteBudgetWarning } from "./scan-runtime";
 import { readStoredScanReport } from "./scan-report-reader";
 import { makeScanReportV1 } from "./scan-report-v2-fixtures";
@@ -149,6 +155,51 @@ function sensitiveSingle(): ScanResult {
   ];
   return report;
 }
+
+test("v1 redaction preserves exact current and historical canonical scanner disclosures only", () => {
+  const report = makeScanReportV1() as ScanResult;
+  report.conditions.scannerEgress = "this scanner instance";
+  report.conditions.shieldsMode = "classification";
+  const input = {
+    chromiumVersion: report.conditions.chromiumVersion,
+    locale: report.conditions.locale,
+    scannerEgress: report.conditions.scannerEgress,
+    shieldsMode: report.conditions.shieldsMode,
+    timezone: report.conditions.timezone
+  };
+  const current = scannerDisclosure("node-playwright", input);
+  report.conditions.scannerDisclosure = current;
+  assert.equal(redactScanResultV1(report).report.conditions.scannerDisclosure, current);
+
+  const historicalMethodology =
+    "shields-request-context-v2-adblock-rust-0.12.3-request-method-v1-playwright-1.61.0";
+  const historical = current
+    .replace(`Playwright ${NODE_PLAYWRIGHT_VERSION}`, "Playwright 1.61.0")
+    .replace(NODE_SCANNER_METHODOLOGY_VERSION, historicalMethodology);
+  report.conditions.scannerDisclosure = historical;
+  assert.equal(redactScanResultV1(report).report.conditions.scannerDisclosure, historical);
+
+  const previous = current
+    .replace(` using Playwright ${NODE_PLAYWRIGHT_VERSION}`, "")
+    .replace(
+      NODE_SCANNER_METHODOLOGY_VERSION,
+      NODE_SHIELDS_REQUEST_CONTEXT_VERSION.replace(
+        /adblock-rust-\d+\.\d+\.\d+/,
+        "adblock-rust-0.12.3"
+      )
+    );
+  report.conditions.scannerDisclosure = previous;
+  assert.equal(redactScanResultV1(report).report.conditions.scannerDisclosure, previous);
+
+  report.conditions.scannerDisclosure = historical.replace("using Playwright 1.61.0", "using Playwright 1.60.0");
+  assert.match(redactScanResultV1(report).report.conditions.scannerDisclosure, /invalid and was removed/);
+
+  report.conditions.scannerDisclosure = `${historical} untrusted suffix`;
+  assert.match(redactScanResultV1(report).report.conditions.scannerDisclosure, /invalid and was removed/);
+
+  report.conditions.scannerDisclosure = historical.replace("adblock-rust-0.12.3", "adblock-rust-00.12.3");
+  assert.match(redactScanResultV1(report).report.conditions.scannerDisclosure, /invalid and was removed/);
+});
 
 test("the v1 transform sanitizes every page-controlled field without mutating its input", () => {
   const input = sensitiveSingle();

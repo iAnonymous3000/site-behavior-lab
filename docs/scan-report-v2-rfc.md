@@ -453,7 +453,7 @@ type Provenance = {
   observer: "node-playwright" | "browser-run-worker" | "pagegraph-import";
   acquisition: "public-api" | "operator-cli" | "ci-workflow" | "upload";
   buildCommit: string;               // self-reported, machine-checkable metadata
-  methodologyVersion: string;        // meaning of the numbers; distinct from schemaVersion (shape)
+  methodologyVersion: string;        // meaning of the numbers; Node records its exact Playwright version here
   detectorRegistry: { version: string; digest: string };   // the known-detector set itself is versioned
   sourceArtifactDigest?: string;     // e.g. sha256 of an imported PageGraph GraphML
 };

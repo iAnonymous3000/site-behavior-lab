@@ -36,6 +36,11 @@ import {
 import { isCanonicalReportShare } from "./report-locator";
 import { MIN_POLICY_TEXT_LENGTH } from "./privacy-policy";
 import { scannerDisclosure, type ScanConditionsProfile } from "./scan-condition-disclosure";
+import {
+  NODE_PLAYWRIGHT_VERSION,
+  NODE_SCANNER_METHODOLOGY_VERSION,
+  NODE_SHIELDS_REQUEST_CONTEXT_VERSION
+} from "./legacy-methodology";
 import { canonicalJson } from "./scan-report-v2-fingerprints";
 import { sha256Hex } from "./sha256";
 import { canonicalTrackerCatalogContents, findTrackerMatch, trackerCatalogMetadata } from "./tracker-catalog";
@@ -519,9 +524,16 @@ function redactConditions(conditions: ScanConditions, pass: RedactionPass): Scan
     conditions.shieldsMode === "block-simulation" ? "block-simulation" : "classification";
   const disclosureInput = { chromiumVersion, locale, scannerEgress, shieldsMode, timezone };
   const currentDisclosure = scannerDisclosure(profile, disclosureInput);
+  const historicalDisclosure = historicalNodeScannerDisclosure(
+    profile,
+    disclosureInput,
+    conditions.scannerDisclosure
+  );
   const legacyDisclosure = legacyNodeScannerDisclosure(profile, disclosureInput);
   const scannerDisclosureValue =
-    conditions.scannerDisclosure === currentDisclosure || conditions.scannerDisclosure === legacyDisclosure
+    conditions.scannerDisclosure === currentDisclosure ||
+    conditions.scannerDisclosure === historicalDisclosure ||
+    conditions.scannerDisclosure === legacyDisclosure
       ? conditions.scannerDisclosure
       : INVALID_METHODOLOGY_DISCLOSURE;
   const adblock = conditions.adblock === undefined
@@ -605,6 +617,65 @@ function safeTrackerCatalog(profile: ScanConditionsProfile): ScanConditions["tra
     curatedOverrides: trackerCatalogMetadata.curatedOverrides,
     license: trackerCatalogMetadata.license
   };
+}
+
+function previousNodeScannerDisclosure(
+  profile: ScanConditionsProfile,
+  input: {
+    chromiumVersion: string;
+    locale: string;
+    scannerEgress: string;
+    shieldsMode?: ScanConditions["shieldsMode"];
+    timezone: string;
+  }
+): string | null {
+  if (profile !== "node-playwright") return null;
+  const shieldsDescription = input.shieldsMode === "block-simulation" ? "block simulation" : "classification only";
+  return `Automated Chromium scan from ${input.scannerEgress} with browser ${input.chromiumVersion}, timezone ${input.timezone}, locale ${input.locale}, the listed viewport, and Brave Shields ${shieldsDescription}. Brave-list matching uses each route-evaluated request's initiating document (the parent document for a subframe navigation), under methodology ${NODE_SHIELDS_REQUEST_CONTEXT_VERSION}; main-frame navigations are not blocked or counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.`;
+}
+
+const CANONICAL_VERSION = String.raw`(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)`;
+const HISTORICAL_NODE_METHOD_WITH_PLAYWRIGHT = new RegExp(
+  String.raw` methodology (shields-request-context-v2-adblock-rust-${CANONICAL_VERSION}-request-method-v1-playwright-(${CANONICAL_VERSION}));`
+);
+const HISTORICAL_NODE_METHOD_PRE_PLAYWRIGHT = new RegExp(
+  String.raw` methodology (shields-request-context-v2-adblock-rust-${CANONICAL_VERSION}-request-method-v1);`
+);
+
+function historicalNodeScannerDisclosure(
+  profile: ScanConditionsProfile,
+  input: {
+    chromiumVersion: string;
+    locale: string;
+    scannerEgress: string;
+    shieldsMode?: ScanConditions["shieldsMode"];
+    timezone: string;
+  },
+  disclosure: string
+): string | null {
+  if (profile !== "node-playwright") return null;
+
+  const withPlaywright = HISTORICAL_NODE_METHOD_WITH_PLAYWRIGHT.exec(disclosure);
+  if (withPlaywright) {
+    const methodologyVersion = withPlaywright[1];
+    const playwrightVersion = withPlaywright[2];
+    if (!methodologyVersion || !playwrightVersion) return null;
+    const expected = scannerDisclosure(profile, input)
+      .replace(`Playwright ${NODE_PLAYWRIGHT_VERSION}`, `Playwright ${playwrightVersion}`)
+      .replace(NODE_SCANNER_METHODOLOGY_VERSION, methodologyVersion);
+    return disclosure === expected ? disclosure : null;
+  }
+
+  const prePlaywright = HISTORICAL_NODE_METHOD_PRE_PLAYWRIGHT.exec(disclosure);
+  if (prePlaywright) {
+    const methodologyVersion = prePlaywright[1];
+    const template = previousNodeScannerDisclosure(profile, input);
+    if (!methodologyVersion || !template) return null;
+    const expected = template.replace(NODE_SHIELDS_REQUEST_CONTEXT_VERSION, methodologyVersion);
+    return disclosure === expected ? disclosure : null;
+  }
+
+  return null;
 }
 
 function legacyNodeScannerDisclosure(

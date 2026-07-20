@@ -17,6 +17,7 @@ const SHA40 = /^[0-9a-f]{40}$/;
 const SHA256 = /^[0-9a-f]{64}$/;
 const REPORT_ID = /^[0-9]{8}-[0-9a-f]{32}$/;
 const ADBLOCK_ENGINE_VERSION = /^adblock-rust-[0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z.-]+)?$/;
+const PLAYWRIGHT_VERSION_COMPONENT = /-playwright-[0-9]+\.[0-9]+\.[0-9]+(?=\+|$)/g;
 const TLDTS_VERSION_COMPONENT = /tldts@[0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z.-]+)?/g;
 const CATALOGS = new Set(["public/featured-sites.json", "public/corpus-seed-sites.json"]);
 
@@ -112,7 +113,7 @@ export function assertPanelCatalogMembership(panel, catalogs) {
   }
 }
 
-function assertCompleteRun(run, expectedBuild) {
+function assertCompleteRun(run, expectedBuild, { allowUnrecordedPlaywright = false } = {}) {
   requireValue(record(run) && run.provenance?.observer === "node-playwright" && run.provenance?.acquisition === "public-api" && run.provenance?.buildCommit === expectedBuild, "Saved report has invalid run provenance.");
   const toolchain = run.toolchain;
   requireValue(
@@ -126,7 +127,7 @@ function assertCompleteRun(run, expectedBuild) {
       ADBLOCK_ENGINE_VERSION.test(toolchain.adblock.engineVersion) && typeof toolchain.normalizationVersion === "string",
     "Saved report has incomplete measurement-toolchain provenance."
   );
-  methodologyTemplate(run.provenance.methodologyVersion, toolchain.adblock.engineVersion);
+  methodologyTemplate(run.provenance.methodologyVersion, toolchain.adblock.engineVersion, { allowUnrecordedPlaywright });
   normalizationTemplate(toolchain.normalizationVersion);
   const conditions = run.conditions;
   requireValue(
@@ -144,11 +145,12 @@ function assertCompleteRun(run, expectedBuild) {
   requireValue(record(run.summary?.counts) && METRICS.every((metric) => Number.isSafeInteger(run.summary.counts[metric]) && run.summary.counts[metric] >= 0), "Saved report is missing a canary count metric.");
 }
 
-export function extractCapturedRun(report, { reportId, expectedBuild, panelCase, sequence, repetition, reportWireSha256 }) {
+export function extractCapturedRun(report, { reportId, expectedBuild, order, panelCase, sequence, repetition, reportWireSha256 }) {
   requireValue(record(report) && report.schemaVersion === 2 && report.schemaRevision === 2 && report.reportType === "single" && !Object.hasOwn(report, "ephemeral"), "Saved report must be a public v2/r2 single.");
   requireValue(REPORT_ID.test(reportId) && report.share?.id === reportId && report.share?.path === `/reports/${reportId}` && report.share?.jsonPath === `/api/reports/${reportId}`, "Saved report does not match the admission-minted report id.");
   requireValue(SHA256.test(reportWireSha256), "Saved report wire digest is invalid.");
-  assertCompleteRun(report.run, expectedBuild);
+  requireValue(order === "forward" || order === "reverse", "Capture order is invalid.");
+  assertCompleteRun(report.run, expectedBuild, { allowUnrecordedPlaywright: order === "forward" });
   requireValue(report.run.subject?.requested?.origin === new URL(panelCase.url).origin, `Saved report requested subject does not match ${panelCase.id}.`);
   return {
     caseId: panelCase.id,
@@ -187,7 +189,7 @@ export function buildReceipt({ createdAt, expectedBuild, order, panel, panelDige
   };
 }
 
-function assertReceipt(receipt, expectedPanel, panelDigest) {
+function assertReceipt(receipt, expectedPanel, panelDigest, { allowUnrecordedPlaywright = false } = {}) {
   requireValue(record(receipt) && receipt.receiptVersion === RECEIPT_VERSION && receipt.kind === "site-behavior-toolchain-canary-capture", "Invalid canary receipt.");
   requireValue(receipt.origin === CANARY_ORIGIN && SHA40.test(receipt.expectedBuild) && SHA256.test(receipt.panelDigest), "Receipt origin/build/panel identity is invalid.");
   requireValue(receipt.panelDigest === panelDigest && same(receipt.panel, expectedPanel), "Receipt does not use the committed fixed panel.");
@@ -201,7 +203,11 @@ function assertReceipt(receipt, expectedPanel, panelDigest) {
     requireValue(record(run) && `${run.caseId}:${run.repetition}` === expectedCoverage[index] && run.sequence === index + 1, "Receipt run order or coverage is invalid.");
     requireValue(REPORT_ID.test(run.reportId) && !reportIds.has(run.reportId) && run.reportJsonPath === `/api/reports/${run.reportId}` && SHA256.test(run.reportWireSha256), "Receipt report identity is invalid.");
     reportIds.add(run.reportId);
-    assertCompleteRun({ ...run, summary: { counts: run.counts } }, receipt.expectedBuild);
+    assertCompleteRun(
+      { ...run, summary: { counts: run.counts } },
+      receipt.expectedBuild,
+      { allowUnrecordedPlaywright }
+    );
   }
   const first = receipt.runs[0];
   requireValue(receipt.runs.every((run) => same(run.conditions, first.conditions) && same(run.provenance, first.provenance) && same(run.toolchain, first.toolchain)), "Receipt mixes run conditions or toolchain provenance within one deployment.");
@@ -212,23 +218,33 @@ function assertReceipt(receipt, expectedPanel, panelDigest) {
   return receipt;
 }
 
-function withoutExpectedDifferences(run) {
+function withoutExpectedDifferences(run, { allowUnrecordedPlaywright = false } = {}) {
   const conditions = structuredClone(run.conditions);
   conditions.browser.version = "<browser-version>";
   const provenance = structuredClone(run.provenance);
   provenance.buildCommit = "<build>";
-  provenance.methodologyVersion = methodologyTemplate(provenance.methodologyVersion, run.toolchain.adblock.engineVersion);
+  provenance.methodologyVersion = methodologyTemplate(
+    provenance.methodologyVersion,
+    run.toolchain.adblock.engineVersion,
+    { allowUnrecordedPlaywright }
+  );
   const toolchain = structuredClone(run.toolchain);
   toolchain.adblock.engineVersion = "<adblock-engine-version>";
   toolchain.normalizationVersion = normalizationTemplate(toolchain.normalizationVersion);
   return { conditions, provenance, toolchain };
 }
 
-function methodologyTemplate(value, engineVersion) {
+function methodologyTemplate(value, engineVersion, { allowUnrecordedPlaywright = false } = {}) {
   requireValue(typeof value === "string" && ADBLOCK_ENGINE_VERSION.test(engineVersion), "Canary methodology/adblock provenance is malformed.");
   const pieces = value.split(engineVersion);
   requireValue(pieces.length === 2, "Canary methodology must contain its exact adblock engine version once.");
-  return pieces.join("<adblock-engine-version>");
+  const withoutEngine = pieces.join("<adblock-engine-version>");
+  const playwrightMatches = withoutEngine.match(PLAYWRIGHT_VERSION_COMPONENT) ?? [];
+  requireValue(
+    playwrightMatches.length === 1 || (allowUnrecordedPlaywright && playwrightMatches.length === 0),
+    "Canary methodology must contain one exact Playwright version."
+  );
+  return playwrightMatches.length === 0 ? withoutEngine : withoutEngine.replace(playwrightMatches[0], "");
 }
 
 function normalizationTemplate(value) {
@@ -244,7 +260,12 @@ function median(values) {
 }
 
 export function compareReceipts(baselineInput, candidateInput, expectedPanel, panelDigest) {
-  const baseline = assertReceipt(baselineInput, expectedPanel, panelDigest);
+  const baseline = assertReceipt(
+    baselineInput,
+    expectedPanel,
+    panelDigest,
+    { allowUnrecordedPlaywright: true }
+  );
   const candidate = assertReceipt(candidateInput, expectedPanel, panelDigest);
   requireValue(baseline.order === "forward" && candidate.order === "reverse", "Baseline must be forward and candidate must be reverse.");
   requireValue(baseline.expectedBuild !== candidate.expectedBuild, "Canary receipts must identify distinct exact builds.");
@@ -257,8 +278,11 @@ export function compareReceipts(baselineInput, candidateInput, expectedPanel, pa
     requireValue(right && same(left.subject, right.subject), `Observed subject mismatch for ${key}.`);
     requireValue(left.conditions.egress.region === right.conditions.egress.region, `Egress region mismatch for ${key}.`);
     requireValue(
-      same(withoutExpectedDifferences(left), withoutExpectedDifferences(right)),
-      `Conditions or provenance changed outside browser, adblock engine, tldts, and build for ${key}.`
+      same(
+        withoutExpectedDifferences(left, { allowUnrecordedPlaywright: true }),
+        withoutExpectedDifferences(right)
+      ),
+      `Conditions or provenance changed outside Playwright, browser, adblock engine, tldts, and build for ${key}.`
     );
   }
   const results = [];

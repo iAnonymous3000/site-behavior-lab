@@ -16,6 +16,7 @@ import {
 } from "./comparison-decision";
 import { runHitRequestCap, runHitResponseByteCap, runHitUploadByteCap } from "./comparison-eligibility";
 import { summarizeDomains } from "./domain-summaries";
+import { recordedPlaywrightVersion } from "./legacy-methodology";
 import type {
   CnameCloak,
   ComparisonDiff,
@@ -106,6 +107,8 @@ export type RunConditionsView = {
    */
   urlsAreRouteShapes: boolean;
   automation: string;
+  /** Exact package version recorded by this run's own methodology provenance. */
+  playwrightVersion: string | null;
   headless: boolean;
   scannerEgress: string;
   browserVersion: string | null;
@@ -460,6 +463,7 @@ function runViewFromV2(run: ScanRunV2 | ScanRunV2R2, label: RunView["label"]): R
       finalUrl: `${run.subject.observed.origin}${run.subject.observed.routeShape}`,
       urlsAreRouteShapes: true,
       automation: run.conditions.automation,
+      playwrightVersion: recordedPlaywrightVersion(run.provenance.methodologyVersion),
       headless: run.conditions.headless,
       scannerEgress: run.conditions.egress.label,
       browserVersion: run.conditions.browser.version,
@@ -585,6 +589,7 @@ function runViewFromV1(result: ScanResult, label: RunView["label"], scannedAt: s
       finalUrl: result.conditions.finalUrl,
       urlsAreRouteShapes: false,
       automation: result.conditions.automation,
+      playwrightVersion: recordedPlaywrightVersion(result.conditions.scannerDisclosure),
       headless: result.conditions.headless,
       scannerEgress: result.conditions.scannerEgress,
       browserVersion: result.conditions.chromiumVersion || null,

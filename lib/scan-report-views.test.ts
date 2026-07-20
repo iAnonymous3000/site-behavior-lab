@@ -14,6 +14,10 @@ import {
   makeSupportingPairInterventionReportV2R2,
   makeTemporalReportV2R2
 } from "./scan-report-v2-r2-fixtures";
+import {
+  NODE_PLAYWRIGHT_VERSION,
+  NODE_SCANNER_METHODOLOGY_VERSION
+} from "./legacy-methodology";
 import { viewFromV1Report, viewFromV2 } from "./scan-report-views";
 import type { ScanResult } from "./types";
 
@@ -49,6 +53,25 @@ test("v1 views null every never-recorded block, on singles and comparisons", () 
     assert.equal(arm.phases, null);
     assert.equal(arm.verificationFacts, null);
   }
+});
+
+test("methodology views expose only the Playwright version recorded by the report", () => {
+  const v1 = makeScanReportV1() as ScanResult;
+  v1.conditions.scannerDisclosure =
+    `Automated Chromium scan using Playwright ${NODE_PLAYWRIGHT_VERSION} under methodology ` +
+    `${NODE_SCANNER_METHODOLOGY_VERSION}.`;
+  assert.equal(viewFromV1Report(v1).runs[0].conditions.playwrightVersion, NODE_PLAYWRIGHT_VERSION);
+
+  const oldV1 = makeScanReportV1() as ScanResult;
+  oldV1.conditions.scannerDisclosure = "Automated Chromium scan with browser 149.0.7827.55.";
+  assert.equal(viewFromV1Report(oldV1).runs[0].conditions.playwrightVersion, null);
+
+  const v2 = makePublicSingleReportV2R2();
+  v2.run.provenance.methodologyVersion = `${NODE_SCANNER_METHODOLOGY_VERSION}+test-kernel-v1`;
+  assert.equal(viewFromV2(v2, 2).runs[0].conditions.playwrightVersion, NODE_PLAYWRIGHT_VERSION);
+
+  const unrecordedV2 = makePublicSingleReportV2();
+  assert.equal(viewFromV2(unrecordedV2, 1).runs[0].conditions.playwrightVersion, null);
 });
 
 test("v2 run views carry the recorded phases, ledgers, identity, and quality facts", () => {

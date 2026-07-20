@@ -2,7 +2,7 @@
 
 Use one reviewed toolchain epoch per month to keep measurements representative without severing temporal cohorts for every patch release. Batch the behavior-affecting inputs that intentionally create a new cohort:
 
-- Playwright, its bundled Chromium, and the matching Playwright container tag
+- Playwright, its disclosed `NODE_PLAYWRIGHT_VERSION`, bundled Chromium, and matching Playwright container tag
 - `adblock-rust`, the rebuilt committed WASM, and the disclosed engine version
 - `tldts` and the disclosed normalization version
 - the container base-image digest and lockfiles
@@ -12,6 +12,8 @@ Keep the weekly Brave-list refresh separate. It has its own provenance and valid
 ## Release record and boundaries
 
 Before changing pins, record the baseline commit and the exact old/new versions and digests for every item above. Build the candidate as a local commit in a clean checkout. Do not push it yet: pushing `main` starts CI and, if every gate passes, may fast-forward the exact tested commit to the deploy-only `production` branch. `main` is the release-candidate branch; `production` is the deployment boundary.
+
+Every Node report must carry the exact Playwright pin in its methodology provenance. The provenance guard ties that recorded constant to `package.json`, `package-lock.json`, the installed package, and the digest-pinned container base. The report UI renders Playwright separately from Chromium because a Playwright patch may intentionally keep the same browser build.
 
 The gate has two distinct checks:
 

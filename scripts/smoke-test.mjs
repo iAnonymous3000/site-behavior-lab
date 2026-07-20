@@ -1,4 +1,5 @@
 import { chromium } from "playwright";
+import playwrightPackage from "playwright/package.json" with { type: "json" };
 
 const baseUrl = process.env.BASE_URL || "http://127.0.0.1:3000";
 const scanAccessToken = process.env.SMOKE_SCAN_ACCESS_TOKEN || process.env.SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN || "";
@@ -215,6 +216,7 @@ async function uiChecks() {
     await waitForReportOrError(page, 30_000);
     await expectText(page.locator(".report-header"), "Example Domain");
     await expectText(page.locator(".warnings"), "one automated, headless Chromium visit");
+    await expectText(page.locator(".methodology"), `Playwright${playwrightPackage.version}`);
     await expectText(page.locator(".methodology"), "Browser");
     await expectText(page.locator(".methodology"), "UTC");
     pass("desktop UI renders scan report");

@@ -64,7 +64,7 @@ async function capture(flags) {
         const detail = (validateReport.errors ?? []).slice(0, 3).map((error) => `${error.instancePath || "/"} ${error.message}`).join("; ");
         throw new Error(`Saved report ${saved.reportId} failed the committed deep JSON Schema (${detail}).`);
       }
-      runs.push(extractCapturedRun(saved.report, { reportId: saved.reportId, expectedBuild, panelCase, sequence, repetition, reportWireSha256: sha256(saved.wire) }));
+      runs.push(extractCapturedRun(saved.report, { reportId: saved.reportId, expectedBuild, order, panelCase, sequence, repetition, reportWireSha256: sha256(saved.wire) }));
     }
   }
   await readHealth(baseUrl, token, expectedBuild);

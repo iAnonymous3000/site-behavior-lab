@@ -3,7 +3,12 @@ import { test } from "node:test";
 import { adblockListMeta } from "./adblock-engine";
 import { consentInteractionWarning } from "./consent-interaction";
 import { TCF_API_METHOD } from "./consent-verification";
-import { NODE_ADBLOCK_ENGINE_VERSION, NODE_SHIELDS_REQUEST_CONTEXT_VERSION } from "./legacy-methodology";
+import {
+  NODE_ADBLOCK_ENGINE_VERSION,
+  NODE_PLAYWRIGHT_VERSION,
+  NODE_SCANNER_METHODOLOGY_VERSION,
+  recordedPlaywrightVersion
+} from "./legacy-methodology";
 import {
   DETECTOR_REGISTRY_DIGEST,
   DETECTOR_REGISTRY_VERSION,
@@ -385,7 +390,8 @@ test("the Node builder emits a validator-clean r2 shell with current provenance 
   assert.equal(isEphemeralScanReportR2(report), true);
   assert.equal(report.run.provenance.observer, "node-playwright");
   assert.equal(report.run.provenance.methodologyVersion, NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION);
-  assert.match(report.run.provenance.methodologyVersion, new RegExp(NODE_SHIELDS_REQUEST_CONTEXT_VERSION));
+  assert.match(report.run.provenance.methodologyVersion, new RegExp(NODE_SCANNER_METHODOLOGY_VERSION));
+  assert.equal(recordedPlaywrightVersion(report.run.provenance.methodologyVersion), NODE_PLAYWRIGHT_VERSION);
   assert.match(report.run.provenance.methodologyVersion, /\+consent-r2-v3\+/);
   assert.deepEqual(report.run.provenance.detectorRegistry, {
     version: DETECTOR_REGISTRY_VERSION,

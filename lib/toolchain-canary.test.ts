@@ -15,10 +15,12 @@ type Helpers = {
   assertPanel(value: unknown): Panel;
   assertPanelCatalogMembership(panel: Panel, catalogs: Record<string, unknown>): void;
   buildReceipt(input: Record<string, unknown>): Receipt;
+  extractCapturedRun(report: unknown, input: Record<string, unknown>): Record<string, unknown>;
   compareReceipts(baseline: Receipt, candidate: Receipt, panel: Panel, digest: string): { pass: boolean; results: Array<{ pass: boolean }> };
 };
 type Panel = { panelVersion: number; panelId: string; repetitions: number; conditions: object; metricTolerances: Record<string, { absolute: number; relative: number }>; cases: Array<{ id: string; catalog: string; domain: string; url: string }> };
 type Receipt = Record<string, any>;
+type Versions = { playwright: string | null; adblock: string; tldts: string };
 
 const nativeImport = new Function("specifier", "return import(specifier)") as (specifier: string) => Promise<Helpers>;
 const helpers = nativeImport(pathToFileURL(path.join(process.cwd(), "scripts", "toolchain-canary-lib.mjs")).href);
@@ -43,9 +45,10 @@ function run(
   build: string,
   browser: string,
   count = 10,
-  versions = { adblock: "0.13.0", tldts: "7.4.3" }
+  versions: Versions = { playwright: "1.61.0", adblock: "0.13.0", tldts: "7.4.3" }
 ) {
   const engineVersion = `adblock-rust-${versions.adblock}`;
+  const playwrightComponent = versions.playwright ? `-playwright-${versions.playwright}` : "";
   return {
     caseId, repetition, sequence,
     reportId: `20260719-${sequence.toString(16).padStart(32, "0")}`,
@@ -57,7 +60,7 @@ function run(
       observer: "node-playwright",
       acquisition: "public-api",
       buildCommit: build,
-      methodologyVersion: `shields-request-context-v2-${engineVersion}-request-method-v1+phase-kernel-v2`,
+      methodologyVersion: `shields-request-context-v2-${engineVersion}-request-method-v1${playwrightComponent}+phase-kernel-v2`,
       detectorRegistry: { version: "1", digest: "e".repeat(64) }
     },
     toolchain: {
@@ -82,7 +85,7 @@ async function receipt(
   build: string,
   browser: string,
   count = 10,
-  versions = { adblock: "0.13.0", tldts: "7.4.3" }
+  versions: Versions = { playwright: "1.61.0", adblock: "0.13.0", tldts: "7.4.3" }
 ) {
   const h = await helpers;
   const ordered = order === "forward" ? panel.cases : [...panel.cases].reverse();
@@ -95,6 +98,35 @@ async function receipt(
   }
   const digest = createHash("sha256").update(h.canonicalJson(panel)).digest("hex");
   return h.buildReceipt({ createdAt: "2026-07-19T00:00:00.000Z", expectedBuild: build, order, panel, panelDigest: digest, runs });
+}
+
+function capturedReport(build: string, versions: Versions) {
+  const captured = run(panel.cases[0].id, 1, 1, build, "149.0", 10, versions);
+  captured.subject.requested.origin = new URL(panel.cases[0].url).origin;
+  return {
+    reportId: captured.reportId,
+    report: {
+      schemaVersion: 2,
+      schemaRevision: 2,
+      reportType: "single",
+      share: {
+        id: captured.reportId,
+        path: `/reports/${captured.reportId}`,
+        jsonPath: `/api/reports/${captured.reportId}`
+      },
+      run: {
+        runId: captured.runId,
+        startedAt: captured.startedAt,
+        subject: captured.subject,
+        conditions: captured.conditions,
+        provenance: captured.provenance,
+        toolchain: captured.toolchain,
+        qualityFacts: captured.qualityFacts,
+        quality: captured.quality,
+        summary: { counts: captured.counts }
+      }
+    }
+  };
 }
 
 test("staging origin, token, SHA, and whole-origin health gates fail closed", async () => {
@@ -125,18 +157,58 @@ test("fixed five-site panel is pinned to the existing catalogs", async () => {
   assert.throws(() => h.assertPanelCatalogMembership(changed, catalogs), /not pinned exactly/);
 });
 
+test("forward baseline capture accepts pre-provenance reports while reverse candidate capture refuses them", async () => {
+  const h = await helpers;
+  const build = "a".repeat(40);
+  const { reportId, report } = capturedReport(
+    build,
+    { playwright: null, adblock: "0.13.0", tldts: "7.4.3" }
+  );
+  const input = {
+    reportId,
+    expectedBuild: build,
+    panelCase: panel.cases[0],
+    sequence: 1,
+    repetition: 1,
+    reportWireSha256: "d".repeat(64)
+  };
+
+  assert.doesNotThrow(() => h.extractCapturedRun(report, { ...input, order: "forward" }));
+  assert.throws(
+    () => h.extractCapturedRun(report, { ...input, order: "reverse" }),
+    /one exact Playwright version/
+  );
+});
+
 test("receipt comparison permits only browser, toolchain, and build drift within explicit medians", async () => {
   const h = await helpers;
   const digest = createHash("sha256").update(h.canonicalJson(panel)).digest("hex");
-  const baseline = await receipt("forward", "a".repeat(40), "149.0", 10);
-  const candidate = await receipt(
+  const baselineVersions: Versions = { playwright: null, adblock: "0.13.0", tldts: "7.4.3" };
+  const candidateVersions: Versions = { playwright: "1.61.1", adblock: "0.13.2", tldts: "7.4.9" };
+  const baseline = await receipt("forward", "a".repeat(40), "149.0", 10, baselineVersions);
+  const candidate = await receipt("reverse", "b".repeat(40), "150.0", 11, candidateVersions);
+  assert.equal(h.compareReceipts(baseline, candidate, panel, digest).pass, true);
+
+  const missingCandidateVersion = await receipt(
     "reverse",
     "b".repeat(40),
     "150.0",
     11,
-    { adblock: "0.13.2", tldts: "7.4.9" }
+    { ...candidateVersions, playwright: null }
   );
-  assert.equal(h.compareReceipts(baseline, candidate, panel, digest).pass, true);
+  assert.throws(
+    () => h.compareReceipts(baseline, missingCandidateVersion, panel, digest),
+    /one exact Playwright version/
+  );
+
+  const duplicateCandidateVersion = structuredClone(candidate);
+  for (const entry of duplicateCandidateVersion.runs) {
+    entry.provenance.methodologyVersion += "-playwright-1.61.2";
+  }
+  assert.throws(
+    () => h.compareReceipts(baseline, duplicateCandidateVersion, panel, digest),
+    /one exact Playwright version/
+  );
 
   const wrongRegion = structuredClone(candidate);
   wrongRegion.runs[0].conditions.egress.region = "eu";
@@ -146,20 +218,20 @@ test("receipt comparison permits only browser, toolchain, and build drift within
   mixedSubject.runs[1].subject.observed.routeShape = "/redirected";
   assert.throws(() => h.compareReceipts(baseline, mixedSubject, panel, digest), /mixes requested or observed subjects/);
 
-  const outsideTolerance = await receipt("reverse", "b".repeat(40), "150.0", 100);
+  const outsideTolerance = await receipt("reverse", "b".repeat(40), "150.0", 100, candidateVersions);
   const result = h.compareReceipts(baseline, outsideTolerance, panel, digest);
   assert.equal(result.pass, false);
   assert.equal(result.results.some((entry) => !entry.pass), true);
 
   const catalogDrift = structuredClone(candidate);
   for (const entry of catalogDrift.runs) entry.toolchain.trackerCatalog.digest = "a".repeat(64);
-  assert.throws(() => h.compareReceipts(baseline, catalogDrift, panel, digest), /outside browser, adblock engine, tldts, and build/);
+  assert.throws(() => h.compareReceipts(baseline, catalogDrift, panel, digest), /outside Playwright, browser, adblock engine, tldts, and build/);
 
   const listDrift = structuredClone(candidate);
   for (const entry of listDrift.runs) entry.toolchain.adblock.manifestDigest = "b".repeat(64);
-  assert.throws(() => h.compareReceipts(baseline, listDrift, panel, digest), /outside browser, adblock engine, tldts, and build/);
+  assert.throws(() => h.compareReceipts(baseline, listDrift, panel, digest), /outside Playwright, browser, adblock engine, tldts, and build/);
 
   const unrelatedNormalizationDrift = structuredClone(candidate);
   for (const entry of unrelatedNormalizationDrift.runs) entry.toolchain.normalizationVersion += "+redaction-v3";
-  assert.throws(() => h.compareReceipts(baseline, unrelatedNormalizationDrift, panel, digest), /outside browser, adblock engine, tldts, and build/);
+  assert.throws(() => h.compareReceipts(baseline, unrelatedNormalizationDrift, panel, digest), /outside Playwright, browser, adblock engine, tldts, and build/);
 });
