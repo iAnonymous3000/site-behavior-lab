@@ -185,6 +185,8 @@ test("names major platforms and escalates the third-party card", () => {
 
   const services = byId(findings, "third-party-services");
   assert.equal(services.title, "Tracking and ad services responded during this visit");
+  assert.match(services.detail, /Catalog labels for those services include/);
+  assert.doesNotMatch(services.detail, /Observed categories/);
 });
 
 test("flags Google Analytics remarketing only when the DoubleClick sync is present", () => {
@@ -243,12 +245,12 @@ test("uses measured percentile wording when the corpus is usable, fixed threshol
   assert.match(byId(withCorpus, "third-party-services").benchmark ?? "", /90th-percentile mark for .* across the 60 fully measured sites/);
   assert.match(byId(withCorpus, "bottom-line").detail, /percentiles from the 60 fully measured sites/);
 
-  // A corpus that also records its coverage names both concepts: the
-  // measured sample and the larger set of sites scanned.
+  // A corpus that also records its coverage names both concepts without
+  // mislabeling loaded coverage as every attempted scan.
   const withCoverage = buildFindings(viewFromV1Report(result), { ...makeCorpus(60), coverageSiteCount: 62 });
   assert.match(
     byId(withCoverage, "bottom-line").detail,
-    /60 fully measured sites \(of 62 sites scanned; failed and request-capped visits are excluded from statistics\)/
+    /60 fully measured sites \(among 62 sites with a successful load; request-capped, post-choice consent, and v2 loads are included in that coverage but excluded from this legacy-v1 distribution, while failed or block-page attempts are outside it\)/
   );
 
   const withoutCorpus = buildFindings(viewFromV1Report(result), null);

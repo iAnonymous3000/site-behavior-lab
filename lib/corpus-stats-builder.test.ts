@@ -8,6 +8,7 @@ import { buildProvenanceEntry, committedSidecarFilename } from "./redaction-prov
 import { redactScanReportV1 } from "./redact-scan-report-v1";
 import { REDACTION_VERSION } from "./redaction-v2";
 import { buildStaticReportShare } from "./report-locator";
+import { evaluateQuality } from "./scan-report-v2-evaluators";
 import { makePublicSingleReportV2R2 } from "./scan-report-v2-r2-fixtures";
 import { makeScanReportV1 } from "./scan-report-v2-fixtures";
 import type { ScanReport, ScanResult } from "./types";
@@ -72,8 +73,12 @@ async function writeRawManagedReport(id: string, report: unknown): Promise<void>
 
 async function writeReportAndSidecar(id: string, report: unknown): Promise<void> {
   await writeFile(path.join(reportsDir, `${id}.json`), `${JSON.stringify(report)}\n`);
-  const value = report as { scannedAt?: unknown; conditions?: { scannedAt?: unknown } };
-  const createdAt = value.scannedAt ?? value.conditions?.scannedAt;
+  const value = report as {
+    scannedAt?: unknown;
+    conditions?: { scannedAt?: unknown };
+    run?: { startedAt?: unknown };
+  };
+  const createdAt = value.scannedAt ?? value.conditions?.scannedAt ?? value.run?.startedAt;
   if (typeof createdAt !== "string") throw new Error("fixture needs a recorded scan time");
   const sidecar = buildProvenanceEntry({
     reportId: id,
@@ -158,6 +163,23 @@ test("a loaded v2 site stays covered even though its metrics are never measured"
   // v2: the v2 site loaded, so it is covered; only measurement stays v1-only.
   assert.equal(stats.sampleSize, 1);
   assert.equal(stats.coverageSiteCount, 2);
+});
+
+test("a failed v2 run is not counted as successful coverage even with status 200", async () => {
+  const id = "20260710-efefefefefefefefefefefefefefefef";
+  const r2 = makePublicSingleReportV2R2();
+  const subject = { origin: "https://blocked-fixture.dev", registrableDomain: "blocked-fixture.dev", routeShape: "/" };
+  r2.run.subject = { requested: subject, observed: { ...subject } };
+  r2.run.summary.status = 200;
+  r2.run.qualityFacts = { ...r2.run.qualityFacts, botWallTitleMatched: true };
+  r2.run.quality = evaluateQuality(r2.run.qualityFacts, { observedRequests: r2.run.evidence.requests.length });
+  r2.run.privacy.redactionVersion = REDACTION_VERSION;
+  r2.share = buildStaticReportShare(id);
+  await writeRawManagedReport(id, r2);
+
+  const { stats } = await buildCorpusStats(reportsDir);
+  assert.equal(stats.sampleSize, 0);
+  assert.equal(stats.coverageSiteCount, 0);
 });
 
 test("r2 reports remain visible to the corpus but never enter the legacy v1 percentile cohort", async () => {

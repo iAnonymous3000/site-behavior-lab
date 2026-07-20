@@ -163,10 +163,13 @@ export default async function DirectoryPage() {
             </div>
           )}
           <p className="rollup-note">
-            Medians from one controlled visit per site, using the curated service catalog (a lower bound). Tracker counts
-            exclude operational-only services such as error monitoring. A 0 means no <em>catalogued third-party</em>{" "}
-            trackers were seen. Large platforms like Google, YouTube, and X serve much of their own tracking first-party,
-            which is not counted as third-party here. The Brave-list blocking figure is the median <em>signed</em>{" "}
+            Category medians and the heaviest-sites leaderboard use one newest successful, request-complete, uncapped
+            passive lead visit per site. Failed or incomplete visits and accept/reject consent arms are excluded; the
+            top-five leaderboard also omits sites with zero catalogued tracking-service requests. Metrics use the
+            curated service catalog (a lower bound). Tracker counts exclude operational-only services such as error
+            monitoring. A 0 means no <em>catalogued third-party</em> trackers were seen. Large platforms like Google,
+            YouTube, and X serve much of their own tracking first-party, which is not counted as third-party here. The
+            Brave-list blocking figure is the median <em>signed</em>{" "}
             difference in third-party requests between a normal visit and a paired visit with Brave&apos;s ad-block engine
             and default Shields lists actively blocking (a simulation in this scanner&apos;s browser, not a live
             Brave-browser visit): an observed paired-visit difference, not a count of individually blocked requests. Each

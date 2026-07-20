@@ -35,7 +35,13 @@ test("Docker smoke preserves v1 and explicitly proves public v2/r2 bundles", () 
   assert.match(smoke, /SITE_BEHAVIOR_LAB_REPORT_STORE_BACKEND=r2/);
   assert.match(smoke, /scripts\/smoke-deployed-scanner\.mjs/);
   assert.match(smoke, /report\.schemaVersion !== 2 \|\| report\.schemaRevision !== 2/);
+  assert.match(smoke, /savedReportRetainsScreenshot\(report\)/);
   assert.match(smoke, /missing its provenance sidecar/);
+  assert.match(smoke, /startSmokeR2Server\(\{ bucket, host: await dockerR2BindHost\(\) \}\)/);
+
+  const r2SmokeServer = readFileSync(path.join(root, "scripts", "smoke-r2-server.mjs"), "utf8");
+  assert.match(r2SmokeServer, /host = "127\.0\.0\.1"/);
+  assert.doesNotMatch(r2SmokeServer, /server\.listen\(0, "0\.0\.0\.0"/);
 
   const deployedSmoke = readFileSync(path.join(root, "scripts", "smoke-deployed-scanner.mjs"), "utf8");
   assert.match(deployedSmoke, /https:\/\/www\.iana\.org\/domains\/reserved/);

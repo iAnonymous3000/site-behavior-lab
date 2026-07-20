@@ -208,6 +208,20 @@ export const CONSENT_TEXT_PATTERNS: Record<ConsentChoice, RegExp> = {
     /^(reject|reject all|reject all cookies|decline|decline all|decline all cookies|refuse|refuse all|deny|deny all|disagree|i do not accept|do not accept|no thanks|reject non-essential|reject non-essential cookies|reject optional cookies|necessary only|necessary cookies only|only necessary|only necessary cookies|use necessary cookies only|essential only|essential cookies only|only essential|only essential cookies|strictly necessary only|continue without accepting|continue without agreeing|tout refuser|alle ablehnen|rechazar todo)$/
 };
 
+/**
+ * Context required in addition to a generic whole-label match. Bare privacy
+ * words are deliberately insufficient: newsletter and terms dialogs commonly
+ * link to a privacy policy next to an unrelated "I agree" / "No thanks"
+ * control. Localized alternatives therefore require an explicit choice,
+ * settings, or consent phrase (while "cookie" remains language-neutral).
+ * Sources are passed into the serialized page functions so click and visibility
+ * probes cannot drift onto different definitions of a recognized control.
+ */
+const CONSENT_CONTEXT_MARKER_PATTERN =
+  /cookie|cmp(?:[-_\s]|$)|gdpr|ccpa|consent[-_\s]?(banner|dialog|manager|notice|preferences?|settings?)|privacy[-_\s]?(banner|choices?|dialog|notice|preferences?|settings?)/i;
+const CONSENT_CONTEXT_TEXT_PATTERN =
+  /\bcookies?\b|tracking technolog(?:y|ies)|privacy (?:choices?|preferences?|settings?)|consent (?:choices?|preferences?|settings?)|(?:consent|agree) to (?:cookies?|tracking|data processing)|(?:choix|préférences|paramètres) (?:de confidentialité|de vie privée)|consentement (?:aux?|pour les?) (?:cookies?|traceurs?)|datenschutz(?:einstellungen|optionen|präferenzen)|einwilligung (?:in|zu|für) (?:cookies?|tracking|datenverarbeitung)|(?:preferencias|opciones|configuración) (?:de )?privacidad|consentimiento (?:de|para|al) (?:cookies?|seguimiento|tratamiento de datos)/i;
+
 /** Normalize a control label the way the generic matcher expects. */
 export function normalizeConsentLabel(text: string): string {
   return text
@@ -239,6 +253,9 @@ export type ConsentClickArgs = {
   shadowRootRegistryKey: string;
   /** Source of the whole-label regex for the generic tier (page-serializable). */
   textPatternSource: string;
+  /** Sources of the bounded generic-control context rules. */
+  contextMarkerPatternSource: string;
+  contextTextPatternSource: string;
 };
 
 export type ConsentClickOutcome =
@@ -253,7 +270,9 @@ export function consentClickArgs(choice: ConsentChoice, shadowRootCapability: st
     shadowHosts: CONSENT_SHADOW_HOSTS,
     shadowRootCapability,
     shadowRootRegistryKey: CONSENT_SHADOW_ROOT_REGISTRY_KEY,
-    textPatternSource: CONSENT_TEXT_PATTERNS[choice].source
+    textPatternSource: CONSENT_TEXT_PATTERNS[choice].source,
+    contextMarkerPatternSource: CONSENT_CONTEXT_MARKER_PATTERN.source,
+    contextTextPatternSource: CONSENT_CONTEXT_TEXT_PATTERN.source
   };
 }
 
@@ -265,7 +284,9 @@ export function consentClickArgs(choice: ConsentChoice, shadowRootCapability: st
  * closure over module scope, so it serializes cleanly into the browser.
  */
 export function findAndClickConsentControl(args: ConsentClickArgs): ConsentClickOutcome {
-  const roots: (Document | ShadowRoot)[] = [document];
+  const roots: { root: Document | ShadowRoot; knownConsentHost: boolean }[] = [
+    { root: document, knownConsentHost: false }
+  ];
   const registry = Reflect.get(globalThis, Symbol.for(args.shadowRootRegistryKey)) as
     | { rootFor?: (host: Element, capability: string) => ShadowRoot | null }
     | undefined;
@@ -280,7 +301,9 @@ export function findAndClickConsentControl(args: ConsentClickArgs): ConsentClick
         shadowRoot = null;
       }
     }
-    if (shadowRoot && !roots.includes(shadowRoot)) roots.push(shadowRoot);
+    if (shadowRoot && !roots.some((entry) => entry.root === shadowRoot)) {
+      roots.push({ root: shadowRoot, knownConsentHost: true });
+    }
   }
 
   const isVisible = (element: Element): boolean => {
@@ -313,7 +336,7 @@ export function findAndClickConsentControl(args: ConsentClickArgs): ConsentClick
   };
 
   for (const { cmp, selector } of args.selectors) {
-    for (const root of roots) {
+    for (const { root } of roots) {
       let element: Element | null = null;
       try {
         element = root.querySelector(selector);
@@ -335,14 +358,62 @@ export function findAndClickConsentControl(args: ConsentClickArgs): ConsentClick
       .trim()
       .toLowerCase();
 
-  for (const root of roots) {
-    const candidates = root.querySelectorAll("button, a, [role=button], input[type=button], input[type=submit]");
+  // Generic phrases such as "I agree" and "No thanks" occur in terms
+  // prompts, newsletters, age gates, and other unrelated UI. Known CMP
+  // selectors above are already specific enough to stand alone; the generic
+  // tier must additionally prove that its control belongs to a bounded
+  // cookie/privacy-choice context. Search only the control and its nearest few
+  // ancestors, never the whole page, so a privacy link elsewhere cannot turn
+  // an unrelated button into a consent control.
+  const consentMarkerPattern = new RegExp(args.contextMarkerPatternSource, "i");
+  const consentContextPattern = new RegExp(args.contextTextPatternSource, "i");
+  const controlSelector = "button, a, [role=button], input[type=button], input[type=submit]";
+  const contextMarker = (element: Element): string => {
+    const className = typeof element.className === "string" ? element.className : "";
+    return [
+      element.id,
+      className,
+      element.getAttribute("role") ?? "",
+      element.getAttribute("aria-label") ?? "",
+      element.getAttribute("data-testid") ?? "",
+      element.getAttribute("data-consent") ?? ""
+    ].join(" ");
+  };
+  const hasBoundedConsentContext = (element: HTMLElement, knownConsentHost: boolean): boolean => {
+    // The root itself was recovered only through the bounded CMP-host catalog;
+    // generic controls inside it do not need page-authored marker text too.
+    if (knownConsentHost) return true;
+    let current: Element | null = element;
+    for (let depth = 0; current && depth < 7; depth += 1, current = current.parentElement) {
+      if (current === document.body || current === document.documentElement) return false;
+      if (consentMarkerPattern.test(contextMarker(current))) return true;
+      // The control's own label is already checked by `pattern`; it is not
+      // contextual evidence. Ancestor copy can be, provided the candidate
+      // container is compact enough to be a banner/dialog rather than a page.
+      if (current !== element) {
+        const contextText = normalize(current.textContent ?? "");
+        if (
+          contextText.length > 0 &&
+          contextText.length <= 2_000 &&
+          current.querySelectorAll(controlSelector).length <= 24 &&
+          consentContextPattern.test(contextText)
+        ) {
+          return true;
+        }
+      }
+    }
+    return false;
+  };
+
+  for (const { root, knownConsentHost } of roots) {
+    const candidates = root.querySelectorAll(controlSelector);
     for (const candidate of Array.from(candidates).slice(0, 1_500)) {
       if (!(candidate instanceof HTMLElement) || !isVisible(candidate) || !isActionable(candidate)) continue;
       const label =
         candidate instanceof HTMLInputElement ? candidate.value : candidate.textContent ?? "";
       const normalized = normalize(label);
       if (!normalized || normalized.length > 48 || !pattern.test(normalized)) continue;
+      if (!hasBoundedConsentContext(candidate, knownConsentHost)) continue;
       if (!dispatchClick(candidate)) continue;
       return { clicked: true, matchedText: normalized };
     }
@@ -358,6 +429,9 @@ export type ConsentVisibilityArgs = {
   shadowRootRegistryKey: string;
   /** Sources of BOTH whole-label regexes; visibility is choice-agnostic. */
   textPatternSources: string[];
+  /** Sources of the bounded generic-control context rules. */
+  contextMarkerPatternSource: string;
+  contextTextPatternSource: string;
 };
 
 /** Serializable arguments for {@link findVisibleConsentControl} in one frame. */
@@ -368,7 +442,9 @@ export function consentVisibilityArgs(shadowRootCapability: string): ConsentVisi
     shadowHosts: CONSENT_SHADOW_HOSTS,
     shadowRootCapability,
     shadowRootRegistryKey: CONSENT_SHADOW_ROOT_REGISTRY_KEY,
-    textPatternSources: [CONSENT_TEXT_PATTERNS["accept-all"].source, CONSENT_TEXT_PATTERNS["reject-all"].source]
+    textPatternSources: [CONSENT_TEXT_PATTERNS["accept-all"].source, CONSENT_TEXT_PATTERNS["reject-all"].source],
+    contextMarkerPatternSource: CONSENT_CONTEXT_MARKER_PATTERN.source,
+    contextTextPatternSource: CONSENT_CONTEXT_TEXT_PATTERN.source
   };
 }
 
@@ -379,7 +455,9 @@ export function consentVisibilityArgs(shadowRootCapability: string): ConsentVisi
  * clicked and no page text is returned. Self-contained for serialization.
  */
 export function findVisibleConsentControl(args: ConsentVisibilityArgs): boolean {
-  const roots: (Document | ShadowRoot)[] = [document];
+  const roots: { root: Document | ShadowRoot; knownConsentHost: boolean }[] = [
+    { root: document, knownConsentHost: false }
+  ];
   const registry = Reflect.get(globalThis, Symbol.for(args.shadowRootRegistryKey)) as
     | { rootFor?: (host: Element, capability: string) => ShadowRoot | null }
     | undefined;
@@ -394,7 +472,9 @@ export function findVisibleConsentControl(args: ConsentVisibilityArgs): boolean 
         shadowRoot = null;
       }
     }
-    if (shadowRoot && !roots.includes(shadowRoot)) roots.push(shadowRoot);
+    if (shadowRoot && !roots.some((entry) => entry.root === shadowRoot)) {
+      roots.push({ root: shadowRoot, knownConsentHost: true });
+    }
   }
 
   const isVisible = (element: Element): boolean => {
@@ -405,7 +485,7 @@ export function findVisibleConsentControl(args: ConsentVisibilityArgs): boolean 
   };
 
   for (const { selector } of args.selectors) {
-    for (const root of roots) {
+    for (const { root } of roots) {
       let element: Element | null = null;
       try {
         element = root.querySelector(selector);
@@ -417,6 +497,8 @@ export function findVisibleConsentControl(args: ConsentVisibilityArgs): boolean 
   }
 
   const patterns = args.textPatternSources.map((source) => new RegExp(source));
+  const consentMarkerPattern = new RegExp(args.contextMarkerPatternSource, "i");
+  const consentContextPattern = new RegExp(args.contextTextPatternSource, "i");
   const normalize = (text: string): string =>
     text
       .replace(/\s+/g, " ")
@@ -425,14 +507,49 @@ export function findVisibleConsentControl(args: ConsentVisibilityArgs): boolean 
       .trim()
       .toLowerCase();
 
-  for (const root of roots) {
-    const candidates = root.querySelectorAll("button, a, [role=button], input[type=button], input[type=submit]");
+  const controlSelector = "button, a, [role=button], input[type=button], input[type=submit]";
+  const contextMarker = (element: Element): string => {
+    const className = typeof element.className === "string" ? element.className : "";
+    return [
+      element.id,
+      className,
+      element.getAttribute("role") ?? "",
+      element.getAttribute("aria-label") ?? "",
+      element.getAttribute("data-testid") ?? "",
+      element.getAttribute("data-consent") ?? ""
+    ].join(" ");
+  };
+  const hasBoundedConsentContext = (element: HTMLElement, knownConsentHost: boolean): boolean => {
+    if (knownConsentHost) return true;
+    let current: Element | null = element;
+    for (let depth = 0; current && depth < 7; depth += 1, current = current.parentElement) {
+      if (current === document.body || current === document.documentElement) return false;
+      if (consentMarkerPattern.test(contextMarker(current))) return true;
+      if (current !== element) {
+        const contextText = normalize(current.textContent ?? "");
+        if (
+          contextText.length > 0 &&
+          contextText.length <= 2_000 &&
+          current.querySelectorAll(controlSelector).length <= 24 &&
+          consentContextPattern.test(contextText)
+        ) {
+          return true;
+        }
+      }
+    }
+    return false;
+  };
+
+  for (const { root, knownConsentHost } of roots) {
+    const candidates = root.querySelectorAll(controlSelector);
     for (const candidate of Array.from(candidates).slice(0, 1_500)) {
       if (!(candidate instanceof HTMLElement) || !isVisible(candidate)) continue;
       const label = candidate instanceof HTMLInputElement ? candidate.value : candidate.textContent ?? "";
       const normalized = normalize(label);
       if (!normalized || normalized.length > 48) continue;
-      if (patterns.some((pattern) => pattern.test(normalized))) return true;
+      if (patterns.some((pattern) => pattern.test(normalized)) && hasBoundedConsentContext(candidate, knownConsentHost)) {
+        return true;
+      }
     }
   }
 

@@ -468,6 +468,9 @@ export type InterventionExperiment = {
   axis: InterventionAxis;
   /** Random id shared by both runs of the pair. */
   pairId: string;
+  // This docblock is byte-frozen into the published r1/r2 schemas and must not
+  // change (RFC errata E2: it conflates per-pair randomization with
+  // counterbalancing; the corrected semantics live in RFC sections 4.3/11).
   /** Counterbalanced across pairs from the first v2 release. */
   order: "AB" | "BA";
   /** Both arms, always (RFC 4.3). */

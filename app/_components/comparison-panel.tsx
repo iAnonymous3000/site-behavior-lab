@@ -32,12 +32,6 @@ function ComparisonPanel({ view }: { view: ReportView }) {
   // Labels come from the view (wire runLabels or the per-axis defaults), the
   // same source the JSON-LD dataset names its per-arm variables with.
   const labels = view.comparison?.runLabels ?? { baseline: "Baseline", variant: "Variant" };
-  // Every delta below is a pair-level claim, gated by the seam's default-deny
-  // ClaimPolicy (RFC 4.4): nothing renders without pair validity, and each
-  // tile and change list additionally requires its metric family's gate. The
-  // per-family gates subsume the old Shields special case (a Shields-axis
-  // pair measures filter matches on one arm and engine blocks on the other,
-  // so its shields-simulation family is denied at the seam).
   const pairGate = view.claims.pairComparison;
   const pairAllowed = pairGate?.allowed === true;
   const families = view.claims.familyDeltas;
@@ -45,6 +39,11 @@ function ComparisonPanel({ view }: { view: ReportView }) {
   const classificationAllowed = pairAllowed && families?.["tracker-classification"]?.allowed === true;
   const detectorAllowed = pairAllowed && families?.["detector-findings"]?.allowed === true;
   const shieldsSimAllowed = pairAllowed && families?.["shields-simulation"]?.allowed === true;
+  const shieldsMetricLabel = [arms.baseline, arms.variant].every(
+    (arm) => arm.conditions.shieldsMode === "block-simulation"
+  )
+    ? "Requests blocked by Shields simulation"
+    : "Requests matched by Shields lists";
   // Keep the persisted v1 diff contract untouched for historical-report
   // compatibility, but never present an unreviewed name as an exact identity.
   // Aggregate deltas above still include every observation.
@@ -76,7 +75,7 @@ function ComparisonPanel({ view }: { view: ReportView }) {
     ...(classificationAllowed ? [{ label: "Known-service requests", metric: diff.knownTrackerRequests }] : []),
     ...(detectorAllowed ? [{ label: "Fingerprint events", metric: diff.fingerprintEvents }] : []),
     ...(shieldsSimAllowed && diff.shieldsBlockedRequests
-      ? [{ label: "Matched Shields lists", metric: diff.shieldsBlockedRequests }]
+      ? [{ label: shieldsMetricLabel, metric: diff.shieldsBlockedRequests }]
       : [])
   ].filter((item): item is { label: string; metric: ComparisonMetricDelta } => Boolean(item.metric));
   const hasComparableDelta = metrics.length > 0;

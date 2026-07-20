@@ -2,11 +2,19 @@ import { loadCorpusOverview } from "@/lib/corpus-overview";
 import { SiteBehaviorApp } from "./site-behavior-app";
 
 export default async function Home() {
-  // The hero's "we open N real sites" is a coverage claim (every site that
-  // loaded, including capped recordings), not the measured-sample size.
-  const { rollups, coverageSiteCount } = await loadCorpusOverview();
+  const {
+    rollups,
+    coverageSiteCount,
+    attemptedSiteCount,
+    failedSiteCount,
+    cappedSiteCount
+  } = await loadCorpusOverview();
   const corpusHighlights = {
-    siteCount: coverageSiteCount,
+    attemptedSiteCount,
+    loadedSiteCount: coverageSiteCount,
+    failedSiteCount,
+    cappedSiteCount,
+    eligibleSiteCount: rollups.reduce((total, rollup) => total + rollup.siteCount, 0),
     topCategories: rollups.slice(0, 4).map((rollup) => ({ label: rollup.label, medianTrackers: rollup.medianTrackers }))
   };
 

@@ -8,9 +8,11 @@
  * a forged upload can smuggle conclusions the facts do not support.
  *
  * Version discipline (RFC 10.2): these constants are the definitions of
- * quality evaluator "1", comparability evaluator "1", and metric dependency
- * registry "1". These versions are frozen now that a public producer can emit
- * v2/r2; any behavior change after this rollout must bump them.
+ * quality evaluator "1", the current comparability evaluator, and the current
+ * metric dependency registry. Historical version "1" definitions remain
+ * available for exact validation of already-published reports. Comparability
+ * evaluator "2" refuses a consent pair where either requested control was not
+ * activated; metric registry "2" refuses unlike Shields measurements.
  */
 import {
   DETECTOR_IDS,
@@ -38,8 +40,18 @@ import {
 import { buildFingerprints, canonicalJson } from "./scan-report-v2-fingerprints";
 
 export const QUALITY_EVALUATOR_VERSION = "1";
-export const COMPARABILITY_EVALUATOR_VERSION = "1";
-export const METRIC_REGISTRY_VERSION = "1";
+export const COMPARABILITY_EVALUATOR_VERSION = "2";
+export const METRIC_REGISTRY_VERSION = "2";
+export type ComparabilityEvaluatorVersion = "1" | typeof COMPARABILITY_EVALUATOR_VERSION;
+export type MetricRegistryVersion = "1" | typeof METRIC_REGISTRY_VERSION;
+
+export function isSupportedComparabilityEvaluatorVersion(value: string): value is ComparabilityEvaluatorVersion {
+  return value === "1" || value === COMPARABILITY_EVALUATOR_VERSION;
+}
+
+export function isSupportedMetricRegistryVersion(value: string): value is MetricRegistryVersion {
+  return value === "1" || value === METRIC_REGISTRY_VERSION;
+}
 
 /**
  * Known verification interpreters (RFC 6.1, 9.4): versioned, scanner-owned
@@ -51,13 +63,25 @@ export const METRIC_REGISTRY_VERSION = "1";
  * can never claim a definite consent state, and cap the derivation at
  * "weak-signal" (RFC 6.1).
  */
-export const STRONG_CONSENT_INTERPRETERS = new Set(["tcf-api@1", "onetrust-cookie@1"]);
+// r1 is frozen to the interpreter vocabulary it shipped with. The r2 reader
+// accepts both TCF versions so historical `@1` reports remain valid while new
+// `@2` reports carry the conservative legal-basis-aware mapping. Exact method
+// sets are compared by the r2 evaluator, so an @1/@2 pair is ineligible.
+const STRONG_CONSENT_INTERPRETERS_R1 = new Set(["tcf-api@1", "onetrust-cookie@1"]);
+export const STRONG_CONSENT_INTERPRETERS = new Set([
+  ...STRONG_CONSENT_INTERPRETERS_R1,
+  "tcf-api@2"
+]);
 export const WEAK_CONSENT_INTERPRETERS = new Set(["banner-visibility@1"]);
 export const CONSENT_INTERPRETER_METHODS = new Set([...STRONG_CONSENT_INTERPRETERS, ...WEAK_CONSENT_INTERPRETERS]);
+const CONSENT_INTERPRETER_METHODS_R1 = new Set([
+  ...STRONG_CONSENT_INTERPRETERS_R1,
+  ...WEAK_CONSENT_INTERPRETERS
+]);
 const ARM_METHODS: Record<InterventionAxis, Set<string>> = {
   gpc: new Set(["gpc-header-readback@1"]),
   shields: new Set(["shields-engine-status@1"]),
-  consent: STRONG_CONSENT_INTERPRETERS
+  consent: STRONG_CONSENT_INTERPRETERS_R1
 };
 
 /**
@@ -209,8 +233,16 @@ function digestReason(name: string, left: string, right: string): ComparabilityR
   return null;
 }
 
-function metricDependencyReasons(family: MetricFamily, a: ScanRunV2, b: ScanRunV2): ComparabilityReason[] {
+function metricDependencyReasons(
+  family: MetricFamily,
+  a: ScanRunV2,
+  b: ScanRunV2,
+  metricRegistryVersion: MetricRegistryVersion
+): ComparabilityReason[] {
   const reasons: ComparabilityReason[] = [...environmentReasons(a, b)];
+  if (metricRegistryVersion === "2" && family === "shields-simulation" && a.conditions.shields !== b.conditions.shields) {
+    reasons.push("dependency-version-mismatch:shieldsMode");
+  }
   if (family === "tracker-classification" || family === "shields-simulation" || family === "detector-findings") {
     const catalog = digestReason("trackerCatalog", a.toolchain.trackerCatalog.digest, b.toolchain.trackerCatalog.digest);
     if (catalog !== null) reasons.push(catalog);
@@ -311,7 +343,9 @@ export function interventionAxisDelta(baseline: ScanRunV2, variant: ScanRunV2): 
 export function evaluateComparability(
   experiment: Experiment,
   baseline: ScanRunV2,
-  variant: ScanRunV2
+  variant: ScanRunV2,
+  metricRegistryVersion: MetricRegistryVersion = METRIC_REGISTRY_VERSION,
+  comparabilityEvaluatorVersion: ComparabilityEvaluatorVersion = COMPARABILITY_EVALUATOR_VERSION
 ): Comparability {
   const pairReasons: ComparabilityReason[] = [];
   if (!subjectsMatch(baseline, variant)) pairReasons.push("subject-mismatch");
@@ -320,7 +354,18 @@ export function evaluateComparability(
   // verified against recomputation per run before this evaluator's result is
   // trusted, so equality on the stored values is sound here.
   if (experiment.kind === "intervention") {
-    if (interventionAxisDelta(baseline, variant) !== experiment.axis) pairReasons.push("design-invalid");
+    const missingConsentActivation =
+      comparabilityEvaluatorVersion === "2" &&
+      experiment.axis === "consent" &&
+      (baseline.evidence.consent?.controlActivated !== true ||
+        variant.evidence.consent?.controlActivated !== true);
+    if (interventionAxisDelta(baseline, variant) !== experiment.axis || missingConsentActivation) {
+      // A consent visit that never activated its requested control remains
+      // valid per-run raw evidence, but it did not produce the declared
+      // accept-vs-reject pair. Pair-level ineligibility keeps every family
+      // delta raw-only while preserving both runs on the report.
+      pairReasons.push("design-invalid");
+    }
     if (baseline.fingerprints.measurementEnvironment !== variant.fingerprints.measurementEnvironment) {
       pairReasons.push("dependency-digest-mismatch:measurementEnvironment");
     }
@@ -338,7 +383,7 @@ export function evaluateComparability(
   const perMetric = Object.fromEntries(
     METRIC_FAMILIES.map((family) => {
       const reasons: ComparabilityReason[] = [...pairReasons];
-      reasons.push(...metricDependencyReasons(family, baseline, variant));
+      reasons.push(...metricDependencyReasons(family, baseline, variant, metricRegistryVersion));
       for (const evidenceFamily of METRIC_EVIDENCE_SOURCES[family]) {
         if (baseline.quality.byFamily[evidenceFamily].outcome !== "complete") reasons.push("family-censored:baseline");
         if (variant.quality.byFamily[evidenceFamily].outcome !== "complete") reasons.push("family-censored:variant");
@@ -357,8 +402,8 @@ export function evaluateComparability(
   ) as Comparability["perMetric"];
 
   return {
-    evaluatorVersion: COMPARABILITY_EVALUATOR_VERSION,
-    metricRegistryVersion: METRIC_REGISTRY_VERSION,
+    evaluatorVersion: comparabilityEvaluatorVersion,
+    metricRegistryVersion,
     pairValidity: { eligible: pairEligible, reasons: pairReasons },
     perMetric,
     ...(experiment.kind === "intervention"
@@ -654,7 +699,9 @@ export function deriveChoiceState(
   consent: Pick<ConsentEvidence, "controlActivated" | "verificationObservations">,
   phaseKindOf: (phaseId: number) => PhaseKind | null
 ): "verified" | "contradicted" | "weak-signal" | "unavailable" {
-  const strong = consent.verificationObservations.filter((observation) => STRONG_CONSENT_INTERPRETERS.has(observation.method));
+  const strong = consent.verificationObservations.filter((observation) =>
+    STRONG_CONSENT_INTERPRETERS_R1.has(observation.method)
+  );
   const weak = consent.verificationObservations.filter((observation) => WEAK_CONSENT_INTERPRETERS.has(observation.method));
   if (strong.some((observation) => observation.consistentWithChoice === false)) return "contradicted";
   const strongInInteraction = strong.some(
@@ -697,7 +744,7 @@ function consentViolations(run: ScanRunV2, label: string): string[] {
 
   const observations = consent.verificationObservations;
   for (const [index, observation] of observations.entries()) {
-    if (!CONSENT_INTERPRETER_METHODS.has(observation.method)) {
+    if (!CONSENT_INTERPRETER_METHODS_R1.has(observation.method)) {
       violations.push(`${label}: consent observation ${index} uses an unknown interpreter method`);
     }
     // Weak UI methods cannot read consent state; a definite state claim from
@@ -726,7 +773,7 @@ function consentViolations(run: ScanRunV2, label: string): string[] {
   }
   const strongInReload = observations.some(
     (observation) =>
-      STRONG_CONSENT_INTERPRETERS.has(observation.method) &&
+      STRONG_CONSENT_INTERPRETERS_R1.has(observation.method) &&
       observation.consistentWithChoice === true &&
       phaseKindAt(run, observation.phaseId) === "post-choice-reload"
   );
@@ -913,11 +960,33 @@ export function scanReportV2SemanticViolations(report: PublicScanReportV2): stri
     }
   }
 
-  // The whole comparability block must equal the shared evaluator's output:
-  // eligibility, reasons, interventionVerified, and versions alike.
-  const derived = evaluateComparability(experiment, report.baseline, report.variant);
-  if (!canonicallyEqual(report.comparability, derived)) {
-    violations.push("comparability: does not equal the shared evaluator's output");
+  // Validate historical reports with the metric registry they recorded. New
+  // producer output uses the current registry, while unknown future registry
+  // versions fail closed until this reader learns their semantics.
+  const evaluatorVersion = report.comparability.evaluatorVersion;
+  const metricRegistryVersion = report.comparability.metricRegistryVersion;
+  if (!isSupportedComparabilityEvaluatorVersion(evaluatorVersion)) {
+    violations.push(`comparability: unsupported evaluatorVersion ${evaluatorVersion}`);
+  }
+  if (!isSupportedMetricRegistryVersion(metricRegistryVersion)) {
+    violations.push(`comparability: unsupported metricRegistryVersion ${metricRegistryVersion}`);
+  }
+  if (
+    isSupportedComparabilityEvaluatorVersion(evaluatorVersion) &&
+    isSupportedMetricRegistryVersion(metricRegistryVersion)
+  ) {
+    // The whole comparability block must equal the matching shared evaluator's
+    // output: eligibility, reasons, interventionVerified, and versions alike.
+    const derived = evaluateComparability(
+      experiment,
+      report.baseline,
+      report.variant,
+      metricRegistryVersion,
+      evaluatorVersion
+    );
+    if (!canonicallyEqual(report.comparability, derived)) {
+      violations.push("comparability: does not equal the shared evaluator's output");
+    }
   }
 
   const rebuiltDiff = buildComparisonDiffV2(report.baseline, report.variant, report.comparability.perMetric);

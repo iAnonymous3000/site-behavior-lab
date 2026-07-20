@@ -65,7 +65,11 @@ export async function buildCorpusStats(reportsDir: string, now = new Date()): Pr
       // silently shrink as v1 reports prune away while their sites remain in
       // the corpus with v2 evidence.
       const lead = read.stored.report.reportType === "single" ? read.stored.report.run : read.stored.report.baseline;
-      if (typeof lead.summary.status === "number" && lead.summary.status < 400) {
+      if (
+        lead.quality.run.outcome === "complete" &&
+        typeof lead.summary.status === "number" &&
+        lead.summary.status < 400
+      ) {
         const v2Domain = corpusSiteDomainKey(lead.subject.observed.registrableDomain);
         if (v2Domain && !isReservedReportDomain(v2Domain)) coverageDomains.add(v2Domain);
       }

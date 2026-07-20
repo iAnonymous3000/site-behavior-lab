@@ -386,6 +386,7 @@ const COMPARABILITY_DIMENSION_NAMES: Record<string, string> = {
   adblock: "the filter-list engine",
   adblockEngine: "the filter-list engine version",
   adblockManifest: "the filter-list snapshot",
+  shieldsMode: "the Shields measurement mode",
   trackerCatalog: "the tracker-catalog snapshot",
   "consent-banner": "the consent-banner state",
   "consent-interpreter": "the consent-platform interpreter"
@@ -461,8 +462,11 @@ function describeComparabilityReasons(reasons: readonly string[]): string[] {
  * The decision a v2 comparison recorded: pair mode from
  * comparability.pairValidity, family modes from comparability.perMetric, and
  * the fingerprint from each run's RECORDED measurementEnvironment digest. v2
- * families stay comparable/raw-only: the evaluator recorded eligibility, and
- * this reader must not invent a suppression the evaluator did not record.
+ * families stay comparable/raw-only. Historical reports have two reader-side
+ * safety errata: metric registry 1 could compare mixed Shields quantities, and
+ * comparability evaluator 1 could keep a consent pair comparable after a
+ * requested control was not activated. The reader refuses those deltas
+ * without rewriting or rejecting the historical wire.
  * Reasons are translated to reader-facing sentences; the recorded tokens
  * remain on the wire for tooling.
  */
@@ -472,22 +476,61 @@ export function v2ComparisonDecision(
   const comparability = report.comparability;
   const baseline = report.baseline.fingerprints.measurementEnvironment;
   const variant = report.variant.fingerprints.measurementEnvironment;
+  const families = Object.fromEntries(
+    Object.entries(comparability.perMetric).map(([family, entry]) => [
+      family,
+      entry.eligible
+        ? { mode: "comparable", reasons: [] }
+        : { mode: "raw-only", reasons: describeComparabilityReasons(entry.reasons) }
+    ])
+  ) as Record<MetricFamily, FamilyDecision>;
+  if (
+    comparability.metricRegistryVersion === "1" &&
+    report.baseline.conditions.shields !== report.variant.conditions.shields
+  ) {
+    families["shields-simulation"] = {
+      mode: "raw-only",
+      reasons: [
+        ...new Set([
+          ...families["shields-simulation"].reasons,
+          "The two visits measured different Shields quantities (filter-list matches vs engine-blocked requests), which must never share a delta."
+        ])
+      ]
+    };
+  }
+  const missingHistoricalConsentActivation =
+    comparability.evaluatorVersion === "1" &&
+    report.experiment.kind === "intervention" &&
+    report.experiment.axis === "consent" &&
+    (report.baseline.evidence.consent?.controlActivated !== true ||
+      report.variant.evidence.consent?.controlActivated !== true);
+  const consentActivationReason =
+    "One or both requested consent controls were not activated, so the visits remain separate raw evidence rather than an accept-versus-reject comparison.";
+  if (missingHistoricalConsentActivation) {
+    for (const family of Object.keys(families) as MetricFamily[]) {
+      families[family] = {
+        mode: "raw-only",
+        reasons: [...new Set([...families[family].reasons, consentActivationReason])]
+      };
+    }
+  }
   return {
-    mode: comparability.pairValidity.eligible ? "comparable" : "raw-only",
-    reasons: describeComparabilityReasons(comparability.pairValidity.reasons),
+    mode:
+      comparability.pairValidity.eligible && !missingHistoricalConsentActivation
+        ? "comparable"
+        : "raw-only",
+    reasons: [
+      ...new Set([
+        ...describeComparabilityReasons(comparability.pairValidity.reasons),
+        ...(missingHistoricalConsentActivation ? [consentActivationReason] : [])
+      ])
+    ],
     compatibility: {
       origin: "recorded",
       baseline,
       variant,
       matched: baseline === variant
     },
-    families: Object.fromEntries(
-      Object.entries(comparability.perMetric).map(([family, entry]) => [
-        family,
-        entry.eligible
-          ? { mode: "comparable", reasons: [] }
-          : { mode: "raw-only", reasons: describeComparabilityReasons(entry.reasons) }
-      ])
-    ) as Record<MetricFamily, FamilyDecision>
+    families
   };
 }

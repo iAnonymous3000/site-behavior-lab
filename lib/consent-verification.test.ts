@@ -1,8 +1,10 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
+  TCF_API_METHOD,
   consentVerificationEnabled,
   onetrustObservedState,
+  readTcfApiState,
   tcfObservedState,
   type TcfApiReadOutcome
 } from "./consent-verification";
@@ -24,6 +26,39 @@ test("consentVerificationEnabled reads only the exact opt-in value", () => {
   assert.equal(consentVerificationEnabled({ SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION: "0" }), false);
 });
 
+test("the current TCF interpreter projects Purpose 11", async () => {
+  assert.equal(TCF_API_METHOD, "tcf-api@2");
+  const previousWindow = Object.getOwnPropertyDescriptor(globalThis, "window");
+  Object.defineProperty(globalThis, "window", {
+    configurable: true,
+    value: {
+      __tcfapi: (
+        _command: string,
+        _version: number,
+        callback: (data: unknown, success: boolean) => void
+      ) => callback({
+        gdprApplies: true,
+        eventStatus: "useractioncomplete",
+        purpose: { consents: { "10": true, "11": false, "12": true } }
+      }, true)
+    }
+  });
+  try {
+    assert.deepEqual(await readTcfApiState(100), {
+      status: "read",
+      gdprApplies: true,
+      eventStatus: "useractioncomplete",
+      purposeConsents: { "10": true, "11": false }
+    });
+  } finally {
+    if (previousWindow === undefined) {
+      Reflect.deleteProperty(globalThis, "window");
+    } else {
+      Object.defineProperty(globalThis, "window", previousWindow);
+    }
+  }
+});
+
 test("tcfObservedState only classifies settled registrations", () => {
   // Outside the GDPR regime or before the CMP settles, nothing is provable.
   assert.equal(tcfObservedState(tcfRead({ gdprApplies: false, purposeConsents: { "1": true, "2": true } })), "unknown");
@@ -34,16 +69,24 @@ test("tcfObservedState only classifies settled registrations", () => {
   assert.equal(tcfObservedState(tcfRead({ purposeConsents: { "1": true, "2": true, "3": true } })), "accepted-all");
   assert.equal(
     tcfObservedState(tcfRead({ eventStatus: "tcloaded", purposeConsents: { "1": false, "2": false } })),
-    "rejected-all"
+    "unknown"
   );
-  assert.equal(tcfObservedState(tcfRead({ purposeConsents: { "1": true, "2": false } })), "partial");
 
   // A single granted purpose cannot distinguish acceptance from necessity.
   assert.equal(tcfObservedState(tcfRead({ purposeConsents: { "1": true } })), "unknown");
 
-  // An empty consent set is rejected-all only when GDPR provably applies.
-  assert.equal(tcfObservedState(tcfRead({ purposeConsents: {} })), "rejected-all");
+  // Empty and zero-grant consent vectors cannot prove rejection without the
+  // separate legitimate-interest state and publisher restrictions.
+  assert.equal(tcfObservedState(tcfRead({ purposeConsents: {} })), "unknown");
   assert.equal(tcfObservedState(tcfRead({ gdprApplies: null, purposeConsents: {} })), "unknown");
+});
+
+test("tcfObservedState refuses mixed purpose-consent vectors instead of fabricating a contradiction", () => {
+  // TCF reports legitimate-interest choices separately. A mixed consent-only
+  // vector is therefore not enough to infer a partial registered choice.
+  assert.equal(tcfObservedState(tcfRead({ purposeConsents: { "1": true, "2": false } })), "unknown");
+  assert.equal(tcfObservedState(tcfRead({ purposeConsents: { "1": true, "2": true, "3": false } })), "unknown");
+  assert.equal(tcfObservedState(tcfRead({ purposeConsents: { "1": false, "2": false } })), "unknown");
 });
 
 test("onetrustObservedState classifies only the unambiguous extremes", () => {

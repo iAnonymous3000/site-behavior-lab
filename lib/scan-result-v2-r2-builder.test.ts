@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { adblockListMeta } from "./adblock-engine";
 import { consentInteractionWarning } from "./consent-interaction";
+import { TCF_API_METHOD } from "./consent-verification";
 import { NODE_ADBLOCK_ENGINE_VERSION, NODE_SHIELDS_REQUEST_CONTEXT_VERSION } from "./legacy-methodology";
 import {
   DETECTOR_REGISTRY_DIGEST,
@@ -192,8 +193,8 @@ function makeVerifiedConsentInput(input: NodeScanReportV2R2Input, mode: "accept-
     interactionAttempted: true,
     controlActivated: true,
     verificationObservations: [
-      { phaseId: 1, method: "tcf-api@1", observed, result: { outcome: "read", sequence: 0 } },
-      { phaseId: 2, method: "tcf-api@1", observed, result: { outcome: "read", sequence: 1 } }
+      { phaseId: 1, method: TCF_API_METHOD, observed, result: { outcome: "read", sequence: 0 } },
+      { phaseId: 2, method: TCF_API_METHOD, observed, result: { outcome: "read", sequence: 1 } }
     ]
   };
 }
@@ -267,7 +268,7 @@ test("a facts-proven arm failure remains an honest comparison result", () => {
   assert.deepEqual(scanReportV2R2SemanticViolations(toPublicScanReportR2(report)), []);
 });
 
-test("an unavailable consent arm censors only the derived intervention claims", () => {
+test("an unavailable consent arm leaves raw runs but makes the pair and every delta raw-only", () => {
   const input = comparisonInput("consent", "baseline");
   input.variant.consent = {
     interactionAttempted: true,
@@ -285,8 +286,12 @@ test("an unavailable consent arm censors only the derived intervention claims", 
     outcome: "inconclusive",
     phaseId: 1
   });
-  assert.equal(report.comparability.pairValidity.eligible, true);
-  assert.equal(report.comparability.perMetric["raw-counts"].eligible, true);
+  assert.deepEqual(report.comparability.pairValidity, { eligible: false, reasons: ["design-invalid"] });
+  for (const entry of Object.values(report.comparability.perMetric)) {
+    assert.equal(entry.eligible, false);
+    assert.equal(entry.reasons.includes("design-invalid"), true);
+  }
+  assert.equal(report.diff.families["raw-counts"].eligible, false);
   assert.equal(report.comparability.perMetric["consent-verification"].eligible, false);
   assert.equal(
     report.comparability.perMetric["consent-verification"].reasons.includes(
@@ -295,6 +300,10 @@ test("an unavailable consent arm censors only the derived intervention claims", 
     true
   );
   assert.equal(report.comparability.interventionVerified, false);
+  assert.equal(report.baseline.evidence.requests.length, input.baseline.evidence.requests.length);
+  assert.equal(report.variant.evidence.requests.length, input.variant.evidence.requests.length);
+  assert.equal(report.baseline.summary.counts.totalRequests, report.baseline.evidence.requests.length);
+  assert.equal(report.variant.summary.counts.totalRequests, report.variant.evidence.requests.length);
   assert.deepEqual(scanReportV2R2SemanticViolations(toPublicScanReportR2(report)), []);
 });
 
@@ -377,6 +386,7 @@ test("the Node builder emits a validator-clean r2 shell with current provenance 
   assert.equal(report.run.provenance.observer, "node-playwright");
   assert.equal(report.run.provenance.methodologyVersion, NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION);
   assert.match(report.run.provenance.methodologyVersion, new RegExp(NODE_SHIELDS_REQUEST_CONTEXT_VERSION));
+  assert.match(report.run.provenance.methodologyVersion, /\+consent-r2-v2\+/);
   assert.deepEqual(report.run.provenance.detectorRegistry, {
     version: DETECTOR_REGISTRY_VERSION,
     digest: DETECTOR_REGISTRY_DIGEST
@@ -891,6 +901,45 @@ test("consent conclusions are derived: partial strong evidence stays unavailable
   assert.equal(consent?.reverifiedAfterReload, false);
 });
 
+test("unknown TCF reads cannot contradict either consent choice", () => {
+  for (const mode of ["accept-all", "reject-all"] as const) {
+    const input = baseInput();
+    input.conditions.consent = mode;
+    input.measurement.phases.push(
+      { phaseId: 1, kind: "consent-interaction", startedAtMs: 1000, endedAtMs: 1500 },
+      { phaseId: 2, kind: "post-choice-reload", startedAtMs: 1500, endedAtMs: 2000 }
+    );
+    input.summary.durationMs = 2000;
+    input.consent = {
+      interactionAttempted: true,
+      controlActivated: true,
+      verificationObservations: [
+        {
+          phaseId: 1,
+          method: TCF_API_METHOD,
+          observed: "unknown",
+          result: { outcome: "read", sequence: 0 }
+        },
+        {
+          phaseId: 2,
+          method: TCF_API_METHOD,
+          observed: "unknown",
+          result: { outcome: "read", sequence: 1 }
+        }
+      ]
+    };
+
+    const consent = buildNodeScanReportV2R2(input).run.evidence.consent;
+    assert.deepEqual(
+      consent?.verificationObservations.map((observation) => observation.consistentWithChoice),
+      [null, null],
+      mode
+    );
+    assert.equal(consent?.choiceState, "unavailable", mode);
+    assert.equal(consent?.reverifiedAfterReload, false, mode);
+  }
+});
+
 test("weak consent is emitted only from a grounded banner transition", () => {
   const input = baseInput();
   input.conditions.consent = "accept-all";
@@ -933,13 +982,13 @@ test("two strong reads can establish verified consent only across interaction an
     verificationObservations: [
       {
         phaseId: 1,
-        method: "tcf-api@1",
+        method: TCF_API_METHOD,
         observed: "rejected-all",
         result: { outcome: "read", sequence: 0 }
       },
       {
         phaseId: 2,
-        method: "tcf-api@1",
+        method: TCF_API_METHOD,
         observed: "rejected-all",
         result: { outcome: "read", sequence: 1 }
       }
@@ -1048,7 +1097,7 @@ test("detector drift and internally inconsistent observations are rejected befor
     verificationObservations: [
       {
         phaseId: 1,
-        method: "tcf-api@1",
+        method: TCF_API_METHOD,
         observed: null,
         result: { outcome: "read", sequence: 0 }
       }

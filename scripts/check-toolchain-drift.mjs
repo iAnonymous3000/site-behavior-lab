@@ -4,6 +4,7 @@ import { appendFile, mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
+import { isDeepStrictEqual } from "node:util";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const USER_AGENT = "site-behavior-lab-ci (toolchain drift check)";
@@ -24,6 +25,8 @@ const NPM_PLAYWRIGHT_URL = "https://registry.npmjs.org/playwright/latest";
 const NPM_TLDTS_URL = "https://registry.npmjs.org/tldts/latest";
 const PLAYWRIGHT_TAG_BROWSERS_URL = (version) =>
   `https://raw.githubusercontent.com/microsoft/playwright/v${version}/packages/playwright-core/browsers.json`;
+const PLAYWRIGHT_TAG_SECCOMP_URL = (version) =>
+  `https://raw.githubusercontent.com/microsoft/playwright/v${version}/utils/docker/seccomp_profile.json`;
 const CHROME_STABLE_URL =
   "https://versionhistory.googleapis.com/v1/chrome/platforms/linux/channels/stable/versions?order_by=version%20desc&page_size=1";
 
@@ -112,13 +115,14 @@ function chromiumDescriptor(payload, label) {
 }
 
 async function localPins() {
-  const [cargoLock, packageSource, packageLockSource, corePackageSource, installedBrowsersSource] =
+  const [cargoLock, packageSource, packageLockSource, corePackageSource, installedBrowsersSource, seccompProfileSource] =
     await Promise.all([
       readFile(path.join(ROOT, "tools", "adblock-wasm", "Cargo.lock"), "utf8"),
       readFile(path.join(ROOT, "package.json"), "utf8"),
       readFile(path.join(ROOT, "package-lock.json"), "utf8"),
       readFile(path.join(ROOT, "node_modules", "playwright-core", "package.json"), "utf8"),
-      readFile(path.join(ROOT, "node_modules", "playwright-core", "browsers.json"), "utf8")
+      readFile(path.join(ROOT, "node_modules", "playwright-core", "browsers.json"), "utf8"),
+      readFile(path.join(ROOT, "scripts", "playwright-seccomp-profile.json"), "utf8")
     ]);
 
   const packageJson = parseJson(packageSource, "package.json");
@@ -162,6 +166,7 @@ async function localPins() {
     adblock: resolvedAdblockVersion(cargoLock),
     playwright,
     chromium: chromiumDescriptor(installedBrowsers, "installed playwright-core/browsers.json"),
+    seccompProfile: parseJson(seccompProfileSource, "scripts/playwright-seccomp-profile.json"),
     tldts
   };
 }
@@ -185,13 +190,18 @@ async function fetchJson(label, url) {
 }
 
 async function upstreamVersions(pinnedPlaywright) {
-  const [adblockPayload, playwrightPayload, tldtsPayload, taggedBrowsersPayload, chromePayload] = await Promise.all([
-    fetchJson("crates.io adblock", CRATES_IO_ADBLOCK_URL),
-    fetchJson("npm playwright", NPM_PLAYWRIGHT_URL),
-    fetchJson("npm tldts", NPM_TLDTS_URL),
-    fetchJson(`Playwright v${pinnedPlaywright} browsers.json`, PLAYWRIGHT_TAG_BROWSERS_URL(pinnedPlaywright)),
-    fetchJson("Chrome VersionHistory stable", CHROME_STABLE_URL)
-  ]);
+  const [adblockPayload, playwrightPayload, tldtsPayload, taggedBrowsersPayload, taggedSeccompProfile, chromePayload] =
+    await Promise.all([
+      fetchJson("crates.io adblock", CRATES_IO_ADBLOCK_URL),
+      fetchJson("npm playwright", NPM_PLAYWRIGHT_URL),
+      fetchJson("npm tldts", NPM_TLDTS_URL),
+      fetchJson(`Playwright v${pinnedPlaywright} browsers.json`, PLAYWRIGHT_TAG_BROWSERS_URL(pinnedPlaywright)),
+      fetchJson(
+        `Playwright v${pinnedPlaywright} seccomp profile`,
+        PLAYWRIGHT_TAG_SECCOMP_URL(pinnedPlaywright)
+      ),
+      fetchJson("Chrome VersionHistory stable", CHROME_STABLE_URL)
+    ]);
 
   if (!Array.isArray(chromePayload?.versions) || chromePayload.versions.length !== 1) {
     throw new Error("Chrome VersionHistory must return exactly one Linux stable version.");
@@ -200,6 +210,7 @@ async function upstreamVersions(pinnedPlaywright) {
     adblock: requiredString(adblockPayload?.crate?.max_stable_version, "crates.io adblock stable version"),
     playwright: requiredString(playwrightPayload?.version, "npm playwright latest version"),
     taggedChromium: chromiumDescriptor(taggedBrowsersPayload, `Playwright v${pinnedPlaywright} browsers.json`),
+    taggedSeccompProfile,
     chromeStable: requiredString(
       chromePayload.versions[0]?.version,
       "Chrome VersionHistory Linux stable version",
@@ -227,7 +238,7 @@ export function driftRows(pinned, upstream) {
       pinned: pinned.playwright,
       upstream: upstream.playwright,
       drift: pinned.playwright !== upstream.playwright,
-      action: "Update the exact npm pin and lockfile together with the reviewed container base."
+      action: "Update the exact npm pin, lockfile, reviewed container base, and version-tagged seccomp profile together."
     },
     {
       component: "Bundled Chromium / Chrome Stable (Linux)",
@@ -244,6 +255,15 @@ export function driftRows(pinned, upstream) {
       action: "Update the exact npm pin, lockfile, and public-suffix provenance disclosure together."
     }
   ];
+}
+
+export function assertPinnedSeccompProfile(playwrightVersion, localProfile, taggedProfile) {
+  if (!isDeepStrictEqual(localProfile, taggedProfile)) {
+    throw new Error(
+      `scripts/playwright-seccomp-profile.json does not match Playwright v${playwrightVersion} ` +
+        "utils/docker/seccomp_profile.json. Update and review the profile with the Playwright pin."
+    );
+  }
 }
 
 function markdownReport(rows, checkedAt) {
@@ -270,7 +290,7 @@ ${table}
 
 ${actions}
 
-The adblock version comes from the exact resolved package in \`tools/adblock-wasm/Cargo.lock\`. npm pins must match exactly across \`package.json\`, \`package-lock.json\`, and the resolved lockfile packages. The bundled browser comes from the integrity-checked Playwright package and must match \`playwright-core/browsers.json\` at the exact pinned Playwright Git tag. Chrome Stable is the Linux consumer stable channel from Google's VersionHistory API and is compared by major version only.
+The adblock version comes from the exact resolved package in \`tools/adblock-wasm/Cargo.lock\`. npm pins must match exactly across \`package.json\`, \`package-lock.json\`, and the resolved lockfile packages. The bundled browser comes from the integrity-checked Playwright package and must match \`playwright-core/browsers.json\` at the exact pinned Playwright Git tag. The Docker seccomp profile must likewise match \`utils/docker/seccomp_profile.json\` at that tag. Chrome Stable is the Linux consumer stable channel from Google's VersionHistory API and is compared by major version only.
 
 This issue is a maintenance signal, not authorization to update automatically. Measurement-version changes require the repository's provenance, comparability, and validation gates.
 `;
@@ -307,6 +327,7 @@ async function main() {
         `${upstream.taggedChromium.version} (revision ${upstream.taggedChromium.revision}).`
     );
   }
+  assertPinnedSeccompProfile(pinned.playwright, pinned.seccompProfile, upstream.taggedSeccompProfile);
   const rows = driftRows(pinned, upstream);
   const driftCount = rows.filter((row) => row.drift).length;
   const report = markdownReport(rows, new Date().toISOString());

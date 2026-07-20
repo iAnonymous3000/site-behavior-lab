@@ -118,12 +118,15 @@ export default function MethodologyPage() {
         <p>
           A comparison is two sequential visits that differ in one declared condition: Global Privacy Control off
           versus on, no blocking versus Brave-list block simulation, or an accept-all versus reject-all consent
-          click. The two visits run in randomized order so time-ordered site behavior is not systematically assigned
-          to the same arm across scans, and each report discloses which visit ran first. A single two-visit report is
-          not counterbalanced; only an aggregate containing independent AB and BA pairs can make that claim. Before
-          any comparative wording is used, an eligibility gate checks that both visits completed, hit no recording
-          caps, and held the non-compared conditions constant; ineligible pairs render as two independent visits with
-          the reasons stated. Differences between two visits can still reflect timing, experiments, caching, consent
+          click. From the July 13, 2026 randomization release onward, the two visits run in randomized order so
+          time-ordered site behavior is not systematically assigned to the same arm across scans. Post-release v1
+          report warnings name the visit that ran first; post-release v2 JSON records <code>AB</code> for baseline
+          first or <code>BA</code> for variant first. Comparisons captured before that release used a fixed
+          baseline-then-variant order and carry no randomized-order disclosure. A single two-visit report is not
+          counterbalanced; only an aggregate containing independent AB and BA pairs can make that claim. Before any
+          comparative wording is used, an eligibility gate checks that both visits completed, hit no recording caps,
+          and held the non-compared conditions constant; ineligible pairs render as two independent visits with the
+          reasons stated. Differences between two visits can still reflect timing, experiments, caching, consent
           state, or bot detection, so comparison wording stays descriptive: it reports what differed between the
           visits, never that the compared setting caused the difference.
         </p>
@@ -180,13 +183,14 @@ export default function MethodologyPage() {
           Findings like &quot;at or above the 90th-percentile mark for third-party domains&quot; currently use a
           legacy-v1 cohort: one newest eligible passive lead run per distinct site. Failed or no-response loads,
           request-capped runs, accept/reject consent arms, reserved domains, and every v2 run are excluded from that
-          distribution. Successful v2 and capped runs still count toward corpus coverage, which is reported separately
-          from the fully measured sample. Percentile wording activates only after 50 fully measured sites; v2 reports
-          use fixed reference thresholds until a matching-methodology cohort exists. The wording is anchored to the
-          stored percentile mark, not the percentage of sites strictly below a value, because ties can make those
-          different. The corpus is curated, not a random sample of the web. Site history pages compare a site only
-          against its own earlier reports with a compatible schema, method, browser, device, and filter snapshot;
-          retention alone never makes two reports comparable.
+          distribution. Corpus coverage counts distinct sites with at least one successful load, including capped
+          recordings; a site represented only by failed or block-page visits was attempted but is outside that loaded
+          coverage count. The fully measured sample is narrower still. Percentile wording activates only after 50
+          fully measured sites; v2 reports use fixed reference thresholds until a matching-methodology cohort exists.
+          The wording is anchored to the stored percentile mark, not the percentage of sites strictly below a value,
+          because ties can make those different. The corpus is curated, not a random sample of the web. Site history
+          pages compare a site only against its own earlier reports with a compatible schema, method, browser, device,
+          and filter snapshot; retention alone never makes two reports comparable.
         </p>
       </section>
 

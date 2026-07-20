@@ -5,6 +5,7 @@ import net from "node:net";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
+import { savedReportRetainsScreenshot } from "./smoke-deployed-scanner-report.mjs";
 import { startSmokeR2Server } from "./smoke-r2-server.mjs";
 
 process.on("uncaughtException", (error) => {
@@ -78,7 +79,7 @@ async function runV1ImageSmoke() {
 
 async function runPublicR2ImageSmoke() {
   const bucket = "site-behavior-lab-smoke";
-  smokeR2 = await startSmokeR2Server({ bucket });
+  smokeR2 = await startSmokeR2Server({ bucket, host: await dockerR2BindHost() });
   const scanner = await startScannerContainer(
     [
       "SITE_BEHAVIOR_LAB_SCANNER_EGRESS=docker-smoke",
@@ -119,6 +120,26 @@ async function runPublicR2ImageSmoke() {
   } finally {
     await stopScannerContainer(scanner.containerId);
   }
+}
+
+async function dockerR2BindHost() {
+  // Docker Desktop forwards host.docker.internal to the host loopback. Native
+  // Linux instead reaches the host through the default bridge gateway, so bind
+  // only that interface rather than exposing the unauthenticated fixture on
+  // every runner interface.
+  if (process.platform !== "linux") return "127.0.0.1";
+  const { stdout } = await execFileAsync(dockerBin, [
+    "network",
+    "inspect",
+    "bridge",
+    "--format",
+    "{{(index .IPAM.Config 0).Gateway}}"
+  ]);
+  const gateway = stdout.trim();
+  if (!net.isIPv4(gateway) || gateway === "0.0.0.0") {
+    throw new Error(`Docker default bridge did not expose one narrow IPv4 gateway: ${JSON.stringify(gateway)}.`);
+  }
+  return gateway;
 }
 
 async function startScannerContainer(environment, addHostGateway = false) {
@@ -173,7 +194,7 @@ function assertPublicR2Bundles(objects) {
   const keys = new Set(objects.map(({ key }) => key));
   for (const object of reports) {
     const report = JSON.parse(object.body);
-    if (report.schemaVersion !== 2 || report.schemaRevision !== 2 || Object.hasOwn(report, "ephemeral")) {
+    if (report.schemaVersion !== 2 || report.schemaRevision !== 2 || savedReportRetainsScreenshot(report)) {
       throw new Error(`R2 smoke object ${object.key} was not a screenshot-free public v2/r2 report.`);
     }
     if (!keys.has(`${object.key}.provenance.json`)) {

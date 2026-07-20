@@ -7,6 +7,7 @@ import {
   entryEligibleForCorpusRollups,
   preferAsSiteDataPoint,
   selectSiteDataPoints,
+  summarizeCorpusSiteCounts,
   type DirectoryEntry
 } from "./corpus-overview";
 import { makeConsentInterventionReportV2R2, makeConsentSingleReportV2R2 } from "./scan-report-v2-r2-fixtures";
@@ -207,4 +208,20 @@ test("corpus rollups require an uncensored passive lead run", () => {
     entryEligibleForCorpusRollups(makeEntry({ id: "consent-reject", consentMode: "reject-all", comparisonType: "consent" })),
     false
   );
+});
+
+test("corpus site counts separate attempts, successful coverage, failures, and capped coverage", () => {
+  const counts = summarizeCorpusSiteCounts([
+    makeEntry({ id: "loaded", domain: "loaded.example" }),
+    makeEntry({ id: "loaded-old-failure", domain: "loaded.example", status: 403, runOutcome: "failed" }),
+    makeEntry({ id: "capped", domain: "capped.example", capped: true }),
+    makeEntry({ id: "failed", domain: "failed.example", status: 403, runOutcome: "failed" })
+  ]);
+
+  assert.deepEqual(counts, {
+    attemptedSiteCount: 3,
+    coverageSiteCount: 2,
+    failedSiteCount: 1,
+    cappedSiteCount: 1
+  });
 });

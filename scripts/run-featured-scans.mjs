@@ -29,6 +29,7 @@ import { spawn } from "node:child_process";
 import { appendFile, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { failureDiagnosticFromStderr } from "./run-featured-scans-diagnostics.mjs";
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const sitesFileEnv = process.env.FEATURED_SITES_FILE?.trim();
@@ -193,32 +194,55 @@ function selectSites(config) {
 }
 
 function runOneScan(site, { compareGpc, compareShields, compareConsent, device }) {
-  return run(process.execPath, [ciScanScript], {
-    SCAN_URL: site.url,
-    SCAN_DEVICE: device,
-    // Only one comparison mode per scan; Shields (the tried-vs-blocked moat) wins,
-    // then the consent accept/reject diff, then GPC (main() already resolves the
-    // precedence, so these flags are mutually exclusive here).
-    SCAN_COMPARE_SHIELDS: compareShields ? "true" : "false",
-    SCAN_COMPARE_CONSENT: compareConsent ? "true" : "false",
-    SCAN_COMPARE_GPC: compareGpc ? "true" : "false",
-    SCAN_GPC_ENABLED: "true",
-    // Avoid each child appending duplicate keys to a shared GITHUB_OUTPUT file.
-    GITHUB_OUTPUT: ""
-  });
+  return run(
+    process.execPath,
+    [ciScanScript],
+    {
+      SCAN_URL: site.url,
+      SCAN_DEVICE: device,
+      // Only one comparison mode per scan; Shields (the tried-vs-blocked moat) wins,
+      // then the consent accept/reject diff, then GPC (main() already resolves the
+      // precedence, so these flags are mutually exclusive here).
+      SCAN_COMPARE_SHIELDS: compareShields ? "true" : "false",
+      SCAN_COMPARE_CONSENT: compareConsent ? "true" : "false",
+      SCAN_COMPARE_GPC: compareGpc ? "true" : "false",
+      SCAN_GPC_ENABLED: "true",
+      // Avoid each child appending duplicate keys to a shared GITHUB_OUTPUT file.
+      GITHUB_OUTPUT: ""
+    },
+    { captureFailureDiagnostic: true }
+  );
 }
 
-function run(command, args, extraEnv) {
+function run(command, args, extraEnv, { captureFailureDiagnostic = false } = {}) {
   return new Promise((resolve, reject) => {
+    let stderrTail = "";
     const child = spawn(command, args, {
       cwd: rootDir,
-      stdio: "inherit",
+      stdio: captureFailureDiagnostic ? ["inherit", "inherit", "pipe"] : "inherit",
       env: { ...process.env, ...extraEnv }
     });
+    if (captureFailureDiagnostic) {
+      child.stderr?.on("data", (chunk) => {
+        stderrTail = `${stderrTail}${String(chunk)}`.slice(-8192);
+        // Preserve the inherited-stderr behavior's backpressure. Without
+        // pausing this pipe, a noisy failed child can enqueue unbounded writes
+        // in the orchestrator while diagnostics are being captured.
+        if (!process.stderr.write(chunk)) {
+          child.stderr?.pause();
+          process.stderr.once("drain", () => child.stderr?.resume());
+        }
+      });
+    }
     child.on("error", reject);
-    child.on("exit", (code) => {
+    // Wait for stdio to close so the final diagnostic line cannot race the
+    // process exit event and disappear from the summary artifact.
+    child.on("close", (code) => {
       if (code === 0) resolve();
-      else reject(new Error(`${path.basename(args[0] ?? command)} exited with status ${code}`));
+      else {
+        const fallback = `${path.basename(args[0] ?? command)} exited with status ${code}`;
+        reject(new Error(failureDiagnosticFromStderr(stderrTail) || fallback));
+      }
     });
   });
 }

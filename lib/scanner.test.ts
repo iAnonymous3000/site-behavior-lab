@@ -3,6 +3,7 @@ import { createServer } from "node:http";
 import { connect } from "node:net";
 import { test } from "node:test";
 import { PublicScanError } from "./public-errors";
+import { TCF_API_METHOD } from "./consent-verification";
 import { MeasurementKernel } from "./measurement-kernel";
 import { buildScanConditions, buildScanResult } from "./scan-result-builder";
 import { ScanNetworkRecorder } from "./scan-runtime";
@@ -1318,15 +1319,15 @@ test("scanSite verifies a consent click end to end when the verification flag is
           document.cookie = "OptanonConsent=groups%3DC0001%3A1%2CC0002%3A0; path=/";
           tcData.eventStatus = "useractioncomplete";
           tcData.purpose = { consents: { "1": false, "2": false } };
-          document.getElementById("banner").style.display = "none";
+          document.getElementById("consent-banner").style.display = "none";
         };
       </script>
       <script src="/asset.js"></script>
-      <div id="banner" style="display:none">
+      <div id="consent-banner" style="display:none">
         <button onclick="registerRejection()">Reject all</button>
       </div>
       <script>
-        if (!rejected) document.getElementById("banner").style.display = "block";
+        if (!rejected) document.getElementById("consent-banner").style.display = "block";
       </script>
       <p>fixture</p>`);
   });
@@ -1397,9 +1398,9 @@ test("scanSite verifies a consent click end to end when the verification flag is
     );
     assert.ok(moments[0].atMs < moments[1].atMs && moments[1].atMs < moments[2].atMs);
 
-    // Strong interpreter reads in BOTH consent phases: the TCF registration is
-    // readable and consistent with the reject click; the OneTrust cookie set
-    // by the banner parses to the same registered state.
+    // Strong interpreter reads in BOTH consent phases. The consent-only TCF
+    // vector stays unknown without legitimate-interest configuration, while
+    // the OneTrust cookie proves the registered reject state.
     assert.deepEqual(
       consent!.verificationObservations.map((observation) => [
         observation.phaseId,
@@ -1408,9 +1409,9 @@ test("scanSite verifies a consent click end to end when the verification flag is
         observation.result.outcome
       ]),
       [
-        [consentPhaseId, "tcf-api@1", "rejected-all", "read"],
+        [consentPhaseId, TCF_API_METHOD, "unknown", "read"],
         [consentPhaseId, "onetrust-cookie@1", "rejected-all", "read"],
-        [reloadPhaseId, "tcf-api@1", "rejected-all", "read"],
+        [reloadPhaseId, TCF_API_METHOD, "unknown", "read"],
         [reloadPhaseId, "onetrust-cookie@1", "rejected-all", "read"]
       ]
     );
@@ -1457,7 +1458,7 @@ test("a consent click cannot promote a sibling origin into evidence or active-in
     response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
     response.end(`<!doctype html>
       <title>Trusted consent origin</title>
-      <button onclick="location.href='http://account.consent-origin.com/'">Accept all</button>`);
+      <div id="consent-banner"><button onclick="location.href='http://account.consent-origin.com/'">Accept all</button></div>`);
   });
   await new Promise<void>((resolve, reject) => {
     upstream.once("error", reject);
@@ -1555,11 +1556,11 @@ test("post-consent cross-site reload evidence is rejected and the active input p
           localStorage.setItem("cmp-choice", "rejected");
           tcData.eventStatus = "useractioncomplete";
           tcData.purpose = { consents: { "1": false } };
-          document.getElementById("banner").style.display = "none";
+          document.getElementById("consent-banner").style.display = "none";
         };
         if (rejected) location.replace("http://other-subject.test/");
       </script>
-      <div id="banner"><button onclick="reject()">Reject all</button></div>`);
+      <div id="consent-banner"><button onclick="reject()">Reject all</button></div>`);
   });
   await new Promise<void>((resolve, reject) => {
     upstream.once("error", reject);

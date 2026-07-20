@@ -6,7 +6,14 @@ import { domainsMatch } from "./featured-sites";
 import { buildReportHeadline, type HeadlineTone } from "./report-headline";
 import { trackingServiceRequests } from "./report-insights";
 import { readStoredReportForId } from "./report-source";
-import { comparisonArmViews, displayRunView, familyCensoredOnRun, toReportView, type ReportView } from "./scan-report-view";
+import {
+  comparisonArmViews,
+  displayRunView,
+  familyCensoredOnRun,
+  runHitRequestRecordingCap,
+  toReportView,
+  type ReportView
+} from "./scan-report-view";
 import { isReservedReportDomain } from "./reserved-report-domains";
 import { listStaticReportIds } from "./static-report-files";
 import {
@@ -164,13 +171,45 @@ export type CorpusOverview = {
    * recordings: what the corpus covers, as opposed to what it measures.
    */
   coverageSiteCount: number;
+  /** Distinct real sites represented by any committed attempt, successful or failed. */
+  attemptedSiteCount: number;
+  /** Attempted sites with no successful load in the committed corpus. */
+  failedSiteCount: number;
+  /** Successfully loaded sites with at least one request-capped recording. */
+  cappedSiteCount: number;
 };
+
+export type CorpusSiteCounts = Pick<
+  CorpusOverview,
+  "coverageSiteCount" | "attemptedSiteCount" | "failedSiteCount" | "cappedSiteCount"
+>;
 
 type CatalogEntry = { domain: string; id: string; label: string };
 
 /** A missing main-document response or HTTP >= 400 is not a successful site load. */
 function entryLoadFailed(entry: DirectoryEntry): boolean {
   return entry.runOutcome !== "complete" || typeof entry.status !== "number" || entry.status >= 400;
+}
+
+/**
+ * Mutually distinguishes attempted sites from successful coverage. A site with
+ * both failed and successful reports counts as covered, not failed; capped
+ * coverage is a named subset of successful loads rather than a third total.
+ */
+export function summarizeCorpusSiteCounts(entries: DirectoryEntry[]): CorpusSiteCounts {
+  const attemptedDomains = new Set(entries.map((entry) => entry.domain));
+  const coverageDomains = new Set(entries.filter((entry) => !entryLoadFailed(entry)).map((entry) => entry.domain));
+  const cappedDomains = new Set(
+    entries.filter((entry) => !entryLoadFailed(entry) && entry.capped).map((entry) => entry.domain)
+  );
+  const failedSiteCount = [...attemptedDomains].filter((domain) => !coverageDomains.has(domain)).length;
+
+  return {
+    attemptedSiteCount: attemptedDomains.size,
+    coverageSiteCount: coverageDomains.size,
+    failedSiteCount,
+    cappedSiteCount: cappedDomains.size
+  };
 }
 
 /** Consent interaction arms are post-choice states, not passive site visits. */
@@ -237,11 +276,9 @@ async function buildCorpusOverview(): Promise<CorpusOverview> {
     .sort((a, b) => b.trackerRequests - a.trackerRequests)
     .slice(0, 5);
 
-  // Coverage counts every distinct site that loaded, including capped
-  // recordings the statistics exclude.
-  const coverageDomains = new Set(entries.filter((entry) => !entryLoadFailed(entry)).map((entry) => entry.domain));
+  const siteCounts = summarizeCorpusSiteCounts(entries);
 
-  return { entries, rollups, heaviest, siteCount: sites.length, coverageSiteCount: coverageDomains.size };
+  return { entries, rollups, heaviest, siteCount: sites.length, ...siteCounts };
 }
 
 /**
@@ -377,7 +414,7 @@ async function loadDirectoryEntries(catalog: CatalogEntry[]): Promise<LoadedDire
       runOutcome: run.quality.outcome,
       requestEvidenceComplete: !familyCensoredOnRun(run, "requests"),
       cookieEvidenceComplete: !familyCensoredOnRun(run, "cookies"),
-      capped: familyCensoredOnRun(run, "requests"),
+      capped: runHitRequestRecordingCap(run),
       requestedUrl: run.conditions.requestedUrl,
       finalUrl: run.conditions.finalUrl,
       schemaVersion: readResult.stored.schemaVersion,

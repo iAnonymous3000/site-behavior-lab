@@ -152,6 +152,14 @@ test("deployed smoke helpers reject persisted screenshot material for each gener
     true,
     "the r2 ephemeral shell itself is never persistable"
   );
+
+  const r2ComparisonWithScreenshot = structuredClone(r2);
+  Object.assign(r2ComparisonWithScreenshot.variant, { screenshot: "data:image/png;base64,PRIVATE" });
+  assert.equal(
+    adapter.savedReportRetainsScreenshot(r2ComparisonWithScreenshot),
+    true,
+    "a persisted r2 comparison arm may not retain a screenshot"
+  );
 });
 
 test("deployed smoke helpers prove the configured store instead of trusting capabilities", async () => {

@@ -6,9 +6,11 @@
  * experiment evidence, comparability, diff) is recomputed from the structured
  * facts and any disagreement is a violation.
  *
- * Version discipline: r2 rules extend evaluator "1" pre-emission (decision
- * recorded in lib/scan-report-v2-evaluators.ts: no v2 artifact exists
- * anywhere; versions freeze at first producer emission).
+ * Version discipline: comparability semantics and metric dependencies dispatch
+ * independently by the versions recorded on the wire. Comparability evaluator
+ * "2" refuses a consent pair without two activated controls; metric registry
+ * "2" fixes the mixed-mode Shields comparison. Version "1" remains readable
+ * for historical reports in both dimensions.
  */
 import {
   axisStateFor,
@@ -29,9 +31,13 @@ import {
   deriveObservationConsistency,
   evaluateComparability,
   interventionAxisDelta,
+  isSupportedComparabilityEvaluatorVersion,
+  isSupportedMetricRegistryVersion,
   phaseKindAt,
   scanRunCoreViolations,
-  subjectsMatch
+  subjectsMatch,
+  type ComparabilityEvaluatorVersion,
+  type MetricRegistryVersion
 } from "./scan-report-v2-evaluators";
 import { canonicalJson } from "./scan-report-v2-fingerprints";
 import {
@@ -75,9 +81,17 @@ export function attemptedStrongInterpreters(run: ScanRunV2R2): string[] {
 export function evaluateComparabilityR2(
   experiment: Experiment,
   baseline: ScanRunV2R2,
-  variant: ScanRunV2R2
+  variant: ScanRunV2R2,
+  metricRegistryVersion?: MetricRegistryVersion,
+  comparabilityEvaluatorVersion?: ComparabilityEvaluatorVersion
 ): Comparability {
-  const base = evaluateComparability(experiment, baseline, variant);
+  const base = evaluateComparability(
+    experiment,
+    baseline,
+    variant,
+    metricRegistryVersion,
+    comparabilityEvaluatorVersion
+  );
   const reasons: ComparabilityReason[] = [...base.perMetric["consent-verification"].reasons];
   const setA = attemptedStrongInterpreters(baseline);
   const setB = attemptedStrongInterpreters(variant);
@@ -672,24 +686,43 @@ export function scanReportV2R2SemanticViolations(report: PublicScanReportV2R2): 
     experiment.kind === "intervention"
       ? (({ supportingPairs: _supportingPairs, ...rest }) => rest)(experiment)
       : experiment;
-  const derived = evaluateComparabilityR2(strippedExperiment, report.baseline, report.variant);
-  if (report.comparability.evaluatorVersion !== derived.evaluatorVersion) {
-    violations.push("comparability: evaluatorVersion disagrees with the r2 evaluator");
+  const evaluatorVersion = report.comparability.evaluatorVersion;
+  const metricRegistryVersion = report.comparability.metricRegistryVersion;
+  if (!isSupportedComparabilityEvaluatorVersion(evaluatorVersion)) {
+    violations.push(`comparability: unsupported evaluatorVersion ${evaluatorVersion}`);
   }
-  if (report.comparability.metricRegistryVersion !== derived.metricRegistryVersion) {
-    violations.push("comparability: metricRegistryVersion disagrees with the r2 evaluator");
+  if (!isSupportedMetricRegistryVersion(metricRegistryVersion)) {
+    violations.push(`comparability: unsupported metricRegistryVersion ${metricRegistryVersion}`);
   }
-  if (!canonicallyEqual(report.comparability.pairValidity, derived.pairValidity)) {
-    violations.push("comparability: pairValidity disagrees with the r2 evaluator");
-  }
-  for (const family of Object.keys(derived.perMetric) as Array<keyof Comparability["perMetric"]>) {
-    if (!canonicallyEqual(report.comparability.perMetric[family], derived.perMetric[family])) {
-      const reasons = derived.perMetric[family].reasons.join(", ") || "none";
-      violations.push(`comparability: perMetric.${family} disagrees with the r2 evaluator (derived reasons: ${reasons})`);
+  if (
+    isSupportedComparabilityEvaluatorVersion(evaluatorVersion) &&
+    isSupportedMetricRegistryVersion(metricRegistryVersion)
+  ) {
+    const derived = evaluateComparabilityR2(
+      strippedExperiment,
+      report.baseline,
+      report.variant,
+      metricRegistryVersion,
+      evaluatorVersion
+    );
+    if (report.comparability.evaluatorVersion !== derived.evaluatorVersion) {
+      violations.push("comparability: evaluatorVersion disagrees with the r2 evaluator");
     }
-  }
-  if (report.comparability.interventionVerified !== derived.interventionVerified) {
-    violations.push("comparability: interventionVerified disagrees with the arm outcomes");
+    if (report.comparability.metricRegistryVersion !== derived.metricRegistryVersion) {
+      violations.push("comparability: metricRegistryVersion disagrees with the r2 evaluator");
+    }
+    if (!canonicallyEqual(report.comparability.pairValidity, derived.pairValidity)) {
+      violations.push("comparability: pairValidity disagrees with the r2 evaluator");
+    }
+    for (const family of Object.keys(derived.perMetric) as Array<keyof Comparability["perMetric"]>) {
+      if (!canonicallyEqual(report.comparability.perMetric[family], derived.perMetric[family])) {
+        const reasons = derived.perMetric[family].reasons.join(", ") || "none";
+        violations.push(`comparability: perMetric.${family} disagrees with the r2 evaluator (derived reasons: ${reasons})`);
+      }
+    }
+    if (report.comparability.interventionVerified !== derived.interventionVerified) {
+      violations.push("comparability: interventionVerified disagrees with the arm outcomes");
+    }
   }
 
   const rebuiltDiff = buildComparisonDiffV2(report.baseline, report.variant, report.comparability.perMetric);

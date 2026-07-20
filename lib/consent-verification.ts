@@ -5,8 +5,9 @@ import type { ConsentObservedState } from "./scan-report-v2";
  * banner click (RFC 15.4). The interpreters here map raw CMP state into the
  * closed `ConsentObservedState` vocabulary before anything leaves the read;
  * raw CMP payloads are never retained. Method identifiers are the r2
- * evaluator's closed set (`tcf-api@1`, `onetrust-cookie@1`); nothing in this
- * module touches the frozen v1 wire.
+ * evaluator's closed set (`tcf-api@2`, `onetrust-cookie@1`); readers retain
+ * `tcf-api@1` only for historical validation. Nothing in this module touches
+ * the frozen v1 wire.
  *
  * Every mapping errs toward "unknown" (which derives a null consistency and
  * therefore neither verifies nor contradicts the click) whenever the state's
@@ -19,7 +20,7 @@ export function consentVerificationEnabled(env: NodeJS.ProcessEnv = process.env)
   return env[CONSENT_VERIFICATION_ENV] === "1";
 }
 
-export const TCF_API_METHOD = "tcf-api@1";
+export const TCF_API_METHOD = "tcf-api@2";
 export const ONETRUST_COOKIE_METHOD = "onetrust-cookie@1";
 export const ONETRUST_CONSENT_COOKIE = "OptanonConsent";
 
@@ -44,7 +45,7 @@ export type TcfApiReadOutcome =
       status: "read";
       gdprApplies: boolean | null;
       eventStatus: string | null;
-      /** Purpose id -> consent flag, ids "1".."10" only; never the raw TCData. */
+      /** Purpose id -> consent flag, ids "1".."11" only; never the raw TCData. */
       purposeConsents: Record<string, boolean>;
     }
   | { status: "unavailable" }
@@ -90,7 +91,7 @@ export function readTcfApiState(timeoutMs: number): Promise<TcfApiReadOutcome> {
         const consents: Record<string, boolean> = {};
         const rawConsents = record.purpose?.consents;
         if (rawConsents !== null && typeof rawConsents === "object") {
-          for (const id of ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]) {
+          for (const id of ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11"]) {
             const value = (rawConsents as Record<string, unknown>)[id];
             if (typeof value === "boolean") consents[id] = value;
           }
@@ -120,20 +121,21 @@ const TCF_SETTLED_EVENT_STATUSES = new Set(["useractioncomplete", "tcloaded"]);
  * Map a TCF read to the closed observed-state vocabulary. Classification runs
  * over the purposes the site actually requested (the keys present), never a
  * fixed purpose list: an accept-all click grants only what was asked for.
- * A single-purpose grant stays "unknown" because acceptance and necessity are
- * indistinguishable there.
+ * Only a multi-purpose unanimous grant classifies. A mixed, empty, or
+ * zero-grant consent vector is incomplete without the separate
+ * legitimate-interest state and publisher restrictions, and must stay
+ * "unknown" so site-specific legal-basis configuration cannot fabricate a
+ * contradiction. A single-purpose grant likewise stays "unknown" because
+ * acceptance and necessity are indistinguishable there.
  */
 export function tcfObservedState(read: Extract<TcfApiReadOutcome, { status: "read" }>): ConsentObservedState {
   if (read.gdprApplies === false) return "unknown";
   if (read.eventStatus === null || !TCF_SETTLED_EVENT_STATUSES.has(read.eventStatus)) return "unknown";
   const flags = Object.values(read.purposeConsents);
-  // An empty consent set is a rejected-all registration only when the CMP
-  // affirms the GDPR regime applies; otherwise absence proves nothing.
-  if (flags.length === 0) return read.gdprApplies === true ? "rejected-all" : "unknown";
+  if (flags.length < 2) return "unknown";
   const granted = flags.filter((flag) => flag).length;
-  if (granted === 0) return "rejected-all";
-  if (granted === flags.length) return flags.length >= 2 ? "accepted-all" : "unknown";
-  return "partial";
+  if (granted === flags.length) return "accepted-all";
+  return "unknown";
 }
 
 export type OnetrustParseOutcome =

@@ -1,4 +1,5 @@
 import { createServer } from "node:http";
+import { isIPv4 } from "node:net";
 
 const MAX_OBJECT_BYTES = 32 * 1024 * 1024;
 
@@ -7,7 +8,10 @@ const MAX_OBJECT_BYTES = 32 * 1024 * 1024;
  * smoke. It is intentionally process-local test infrastructure: SigV4 headers
  * are accepted but never authenticated, and no production code imports it.
  */
-export async function startSmokeR2Server({ bucket = "site-behavior-lab-smoke" } = {}) {
+export async function startSmokeR2Server({ bucket = "site-behavior-lab-smoke", host = "127.0.0.1" } = {}) {
+  if (!isIPv4(host) || host === "0.0.0.0") {
+    throw new Error("Docker R2 smoke endpoint requires one narrow IPv4 bind address.");
+  }
   const objects = new Map();
   const server = createServer(async (request, response) => {
     try {
@@ -21,7 +25,7 @@ export async function startSmokeR2Server({ bucket = "site-behavior-lab-smoke" } 
 
   await new Promise((resolve, reject) => {
     server.once("error", reject);
-    server.listen(0, "0.0.0.0", () => {
+    server.listen(0, host, () => {
       server.off("error", reject);
       resolve();
     });
@@ -33,6 +37,7 @@ export async function startSmokeR2Server({ bucket = "site-behavior-lab-smoke" } 
   }
 
   return Object.freeze({
+    host: address.address,
     port: address.port,
     snapshot() {
       return [...objects.entries()].map(([key, object]) =>

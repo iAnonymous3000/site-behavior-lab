@@ -77,6 +77,158 @@ test("consentClickArgs serializes the regex source for the page function", () =>
   assert.ok(args.shadowHosts.includes("#usercentrics-root"));
 });
 
+test("generic consent labels require bounded banner context while known CMP selectors remain direct", { timeout: 20_000 }, async () => {
+  const browser = await chromium.launch({ headless: true });
+  try {
+    const page = await browser.newPage();
+
+    await page.setContent(`<!doctype html><body>
+      <button id="standalone-agree">I agree</button>
+      <button id="standalone-decline">No thanks</button>
+      <script>
+        standaloneAgreeClicks = 0;
+        standaloneDeclineClicks = 0;
+        document.querySelector("#standalone-agree").addEventListener("click", () => standaloneAgreeClicks += 1);
+        document.querySelector("#standalone-decline").addEventListener("click", () => standaloneDeclineClicks += 1);
+      </script>
+    </body>`);
+
+    assert.equal(
+      await page.evaluate(findVisibleConsentControl, consentVisibilityArgs(SHADOW_ROOT_CAPABILITY)),
+      false
+    );
+    assert.deepEqual(
+      await page.evaluate(findAndClickConsentControl, consentClickArgs("accept-all", SHADOW_ROOT_CAPABILITY)),
+      { clicked: false }
+    );
+    assert.deepEqual(
+      await page.evaluate(findAndClickConsentControl, consentClickArgs("reject-all", SHADOW_ROOT_CAPABILITY)),
+      { clicked: false }
+    );
+    assert.deepEqual(
+      await page.evaluate(() => ({
+        agree: Reflect.get(window, "standaloneAgreeClicks"),
+        decline: Reflect.get(window, "standaloneDeclineClicks")
+      })),
+      { agree: 0, decline: 0 }
+    );
+
+    // A localized privacy-policy link is common in unrelated newsletter and
+    // terms dialogs; a bare privacy word is not banner context.
+    await page.setContent(`<!doctype html><body>
+      <section role="dialog" aria-label="Newsletter">
+        <p>Suscríbete para recibir novedades. Consulta nuestra política de privacidad.</p>
+        <button>I agree</button>
+        <button>No thanks</button>
+      </section>
+    </body>`);
+    assert.equal(
+      await page.evaluate(findVisibleConsentControl, consentVisibilityArgs(SHADOW_ROOT_CAPABILITY)),
+      false
+    );
+    assert.deepEqual(
+      await page.evaluate(findAndClickConsentControl, consentClickArgs("accept-all", SHADOW_ROOT_CAPABILITY)),
+      { clicked: false }
+    );
+    assert.deepEqual(
+      await page.evaluate(findAndClickConsentControl, consentClickArgs("reject-all", SHADOW_ROOT_CAPABILITY)),
+      { clicked: false }
+    );
+
+    await page.setContent(`<!doctype html><body>
+      <section role="dialog" aria-label="Cookie preferences">
+        <p>We use cookies and similar tracking technologies.</p>
+        <button id="generic-agree">I agree</button>
+        <button id="generic-decline">No thanks</button>
+      </section>
+      <script>
+        genericAgreeClicks = 0;
+        genericDeclineClicks = 0;
+        document.querySelector("#generic-agree").addEventListener("click", () => genericAgreeClicks += 1);
+        document.querySelector("#generic-decline").addEventListener("click", () => genericDeclineClicks += 1);
+      </script>
+    </body>`);
+
+    assert.equal(
+      await page.evaluate(findVisibleConsentControl, consentVisibilityArgs(SHADOW_ROOT_CAPABILITY)),
+      true
+    );
+    assert.deepEqual(
+      await page.evaluate(findAndClickConsentControl, consentClickArgs("accept-all", SHADOW_ROOT_CAPABILITY)),
+      { clicked: true, matchedText: "i agree" }
+    );
+    assert.deepEqual(
+      await page.evaluate(findAndClickConsentControl, consentClickArgs("reject-all", SHADOW_ROOT_CAPABILITY)),
+      { clicked: true, matchedText: "no thanks" }
+    );
+    assert.deepEqual(
+      await page.evaluate(() => ({
+        agree: Reflect.get(window, "genericAgreeClicks"),
+        decline: Reflect.get(window, "genericDeclineClicks")
+      })),
+      { agree: 1, decline: 1 }
+    );
+
+    // Localized context still works when it describes privacy choices rather
+    // than merely linking to a privacy policy.
+    await page.setContent(`<!doctype html><body>
+      <section role="dialog">
+        <p>Preferencias de privacidad</p>
+        <button>Rechazar todo</button>
+      </section>
+    </body>`);
+    assert.equal(
+      await page.evaluate(findVisibleConsentControl, consentVisibilityArgs(SHADOW_ROOT_CAPABILITY)),
+      true
+    );
+    assert.deepEqual(
+      await page.evaluate(findAndClickConsentControl, consentClickArgs("reject-all", SHADOW_ROOT_CAPABILITY)),
+      { clicked: true, matchedText: "rechazar todo" }
+    );
+
+    // Stable CMP controls remain the first tier and do not need generic text
+    // or a surrounding context marker.
+    await page.setContent(`<!doctype html><body>
+      <button id="onetrust-accept-btn-handler">Continue</button>
+      <script>
+        knownCmpClicks = 0;
+        document.querySelector("#onetrust-accept-btn-handler").addEventListener("click", () => knownCmpClicks += 1);
+      </script>
+    </body>`);
+    assert.equal(
+      await page.evaluate(findVisibleConsentControl, consentVisibilityArgs(SHADOW_ROOT_CAPABILITY)),
+      true
+    );
+    assert.deepEqual(
+      await page.evaluate(findAndClickConsentControl, consentClickArgs("accept-all", SHADOW_ROOT_CAPABILITY)),
+      { clicked: true, cmp: "OneTrust", selector: "#onetrust-accept-btn-handler" }
+    );
+    assert.equal(await page.evaluate(() => Reflect.get(window, "knownCmpClicks")), 1);
+
+    // A generic exact-label control inside a catalogued shadow host inherits
+    // that already-bounded CMP context even when the root has no extra copy.
+    await page.setContent(`<!doctype html><body>
+      <div id="cmpwrapper"></div>
+      <script>
+        const root = document.querySelector("#cmpwrapper").attachShadow({ mode: "open" });
+        const accept = document.createElement("button");
+        accept.textContent = "Accept all";
+        root.append(accept);
+      </script>
+    </body>`);
+    assert.equal(
+      await page.evaluate(findVisibleConsentControl, consentVisibilityArgs(SHADOW_ROOT_CAPABILITY)),
+      true
+    );
+    assert.deepEqual(
+      await page.evaluate(findAndClickConsentControl, consentClickArgs("accept-all", SHADOW_ROOT_CAPABILITY)),
+      { clicked: true, matchedText: "accept all" }
+    );
+  } finally {
+    await browser.close();
+  }
+});
+
 test("the browser probes reach closed known CMP roots while leaving unrelated roots closed", { timeout: 20_000 }, async () => {
   const browser = await chromium.launch({ headless: true });
   try {

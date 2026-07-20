@@ -1,5 +1,24 @@
 import type { ReportView, RunConsentView } from "./scan-report-views";
 
+/** Compact, human-facing status for the methodology row; never expose wire tokens. */
+export function consentVerificationSummary(consent: RunConsentView): string {
+  if (!consent.controlActivated) return "no choice dispatched";
+  switch (consent.choiceState) {
+    case "verified":
+      return "registered choice verified";
+    case "contradicted":
+      return "registered state contradicted the click";
+    case "weak-signal":
+      return "banner dismissed; registered state unverified";
+    case "failed":
+      return "registered-state check failed";
+    case "unavailable":
+      return "registered state unavailable";
+    case null:
+      return "registration unverified";
+  }
+}
+
 /** Version-aware statement of what the recorded consent evidence established. */
 export function consentRegistrationSentence(
   view: Pick<ReportView, "origin" | "revision">,

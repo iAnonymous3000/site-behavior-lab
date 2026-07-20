@@ -51,6 +51,7 @@ import {
 import { consentChoiceLabel } from "@/lib/consent-interaction";
 import { requestLogToCsv } from "@/lib/csv-export";
 import { displayableScreenshot, gpcRunMeasurement } from "@/lib/report-insights";
+import { consentVerificationSummary } from "@/lib/report-consent-copy";
 import { buildReportHeadline, reportPageTitle } from "@/lib/report-headline";
 import { committedReportLocation } from "@/lib/report-locator";
 import { plural } from "@/lib/text-format";
@@ -82,7 +83,16 @@ const EXAMPLES: { url: string; hint: string }[] = [
   { url: "wikipedia.org", hint: "minimal" }
 ];
 export type CorpusHighlights = {
-  siteCount: number;
+  /** Distinct real sites represented by any committed attempt. */
+  attemptedSiteCount: number;
+  /** Attempted sites with at least one successful load, capped recordings included. */
+  loadedSiteCount: number;
+  /** Attempted sites with no successful load in the committed corpus. */
+  failedSiteCount: number;
+  /** Successfully loaded sites with at least one request-capped recording. */
+  cappedSiteCount: number;
+  /** Sites eligible for the cross-version category medians. */
+  eligibleSiteCount: number;
   topCategories: { label: string; medianTrackers: number }[];
 };
 
@@ -367,7 +377,7 @@ export function SiteBehaviorApp({
           </div>
         </header>
 
-        {corpusHighlights && corpusHighlights.siteCount > 0 && !loaded && !loading && !error && (
+        {corpusHighlights && corpusHighlights.attemptedSiteCount > 0 && !loaded && !loading && !error && (
           <CorpusHero highlights={corpusHighlights} />
         )}
 
@@ -598,10 +608,9 @@ export function SiteBehaviorApp({
                                 displayedRun.consent.cmp ? ` (${displayedRun.consent.cmp})` : ""
                               }`
                             : "no banner control found; pre-consent"}
-                          {/* Dispatch vs verification stay distinct: the click
-                              is a fact, the choice state is what an
-                              interpreter could verify (v2 only). */}
-                          {displayedRun.consent.choiceState ? ` · choice ${displayedRun.consent.choiceState}` : " · choice unverified"}
+                          {/* Dispatch vs verification stay distinct, and the
+                              reader-facing summary never exposes wire tokens. */}
+                          {` · ${consentVerificationSummary(displayedRun.consent)}`}
                         </dd>
                       </div>
                     )}
@@ -716,8 +725,8 @@ function CorpusHero({ highlights }: { highlights: CorpusHighlights }) {
       <p className="eyebrow">Transparency index</p>
       <h2 id="corpus-hero-title">What websites actually load: measured, not claimed.</h2>
       <p className="corpus-hero-lead">
-        We open {plural(highlights.siteCount, "real site")} in a controlled browser and record the requests, cookies, and
-        trackers each visit observes (unusually heavy visits hit a recording cap and are flagged), then run each through <strong>Brave&rsquo;s own ad-block engine</strong> (the open-source{" "}
+        Across the committed library, we attempted controlled visits to {plural(highlights.attemptedSiteCount, "real site")}: {plural(highlights.loadedSiteCount, "site")} {highlights.loadedSiteCount === 1 ? "has" : "have"} at least one successful load, while {plural(highlights.failedSiteCount, "site")} {highlights.failedSiteCount === 1 ? "has" : "have"} only failed or block-page visits. {plural(highlights.cappedSiteCount, "successfully loaded site")} {highlights.cappedSiteCount === 1 ? "has" : "have"} a request-capped recording, which remains visible as lower-bound evidence; the category medians below use {plural(highlights.eligibleSiteCount, "site")} with an eligible, uncapped passive lead visit. For each visit, we record the requests, cookies, and
+        trackers it observes, then run its requests through <strong>Brave&rsquo;s own ad-block engine</strong> (the open-source{" "}
         <code>adblock-rust</code>, with Brave&rsquo;s default lists) to show which requests match the filter lists of
         Brave Shields, the ad and tracker blocker built into the Brave browser. Reproducible evidence, not a score.
       </p>

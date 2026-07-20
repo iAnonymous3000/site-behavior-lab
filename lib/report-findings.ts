@@ -396,7 +396,7 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
           : "This scan did not match any third-party domains to the service catalog.",
     detail:
       trackingEntities.length > 0
-        ? `These services can profile visitors across sites.${topCategories.length > 0 ? ` Observed categories include ${humanList(topCategories)}.` : ""}${sessionReplayNote}${operationalNote}`
+        ? `These services can profile visitors across sites.${topCategories.length > 0 ? ` Catalog labels for those services include ${humanList(topCategories)}.` : ""}${sessionReplayNote}${operationalNote}`
         : operationalEntities.length > 0
           ? `These are monitoring or support tools, not cross-site trackers. Unlabeled third parties may still be present.${requestsCensored ? CENSORED_ABSENCE_NOTE : ""}`
           : `There may still be unlabeled third parties, but no known catalog entity was matched.${requestsCensored ? CENSORED_ABSENCE_NOTE : ""}`,
@@ -837,7 +837,7 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
     detail: corpusIsUsable(corpus) && (domainsBenchmarkAllowed || cookiesBenchmarkAllowed)
       ? `The cards below translate the evidence into plain language. Where a measured distribution exists, severity ranks this visit against percentiles from the ${corpus.sampleSize.toLocaleString("en-US")} fully measured sites${
           typeof corpus.coverageSiteCount === "number" && corpus.coverageSiteCount > corpus.sampleSize
-            ? ` (of ${corpus.coverageSiteCount.toLocaleString("en-US")} sites scanned; failed and request-capped visits are excluded from statistics)`
+            ? ` (among ${corpus.coverageSiteCount.toLocaleString("en-US")} sites with a successful load; request-capped, post-choice consent, and v2 loads are included in that coverage but excluded from this legacy-v1 distribution, while failed or block-page attempts are outside it)`
             : ""
         }, a curated set of popular, mostly commercial sites, not a random sample of the web, and otherwise uses fixed reference thresholds. The request log, domain table, and methodology remain below for verification.`
       : corpusIsUsable(corpus)

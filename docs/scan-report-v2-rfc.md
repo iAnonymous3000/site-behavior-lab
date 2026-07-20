@@ -243,13 +243,19 @@ type MetricFamily =
 |---|---|
 | `raw-counts` | browser, device, locale/tz, egress, methodologyVersion |
 | `tracker-classification` | the above + trackerCatalog digest |
-| `shields-simulation` | the above + adblock manifest digest + engine version |
+| `shields-simulation` | the above + adblock manifest digest + engine version + Shields measurement mode |
 | `consent-verification` | the above + CMP interpreter versions |
 | `detector-findings` | the above + that detector's version |
 
 Eligibility is evaluated **per metric family** (section 4.4): a pair can be temporally
 comparable on raw counts while ineligible on Shields metrics, and the diff renders
 exactly that. Unknown values in any key follow the unknown rule.
+
+Metric dependency registry `2` adds the Shields measurement mode to that family's
+key: classification counts filter-list matches while block simulation counts requests
+the engine actually blocked, so those quantities never share a delta. Registry `1`
+remains implemented only to validate already-published reports; readers apply the
+same mixed-mode refusal as a display safety erratum without rewriting their wire.
 
 ### 3.4 List digests
 
@@ -921,6 +927,10 @@ function toReportView(report: StoredScanReport): ReportView;
 - The detector registry (5.4), metric dependency registry, quality evaluator, and
   comparability evaluator each carry their own version, recorded in the artifacts they
   produce, so results are interpretable after any of them changes.
+- Comparability evaluator `2` requires both requested controls to have been activated
+  before a consent intervention is pair-valid. Evaluator `1` remains implemented only
+  for exact validation of historical reports; readers apply the same missing-control
+  refusal as a display safety erratum without rewriting their wire.
 - **v1 is frozen** (commit 0619050): no fields are added to v1, including the
   previously floated `redactionVersion` marker; that plan is superseded by 15.8.
   v1 changes require a demonstrated leak, crash, documented legacy
@@ -1044,13 +1054,13 @@ exceptions.
   "passed" }`; variant expected/observed `"shields:block-simulation"` with a nonzero
   evaluation count, `passed`.
 - Both runs run-level complete; adblock manifest digests equal.
-- **Result**: `pairValidity.eligible = true`;
-  `perMetric["shields-simulation"].eligible = true`; `interventionVerified = true`.
-  The report may state an **observed intervention difference**
-  (`strength: "observed-difference"`). Strong causal wording still requires
-  replicated evidence (`"replicated-difference"`). Under v0.2's model this pair was
-  impossible (the measurement fingerprint could never match); that is the
-  contradiction v0.3 fixed.
+- **Result under metric registry 2**: `pairValidity.eligible = true`;
+  `perMetric["shields-simulation"] = { eligible: false, reasons:
+  ["dependency-version-mismatch:shieldsMode"] }`; `interventionVerified = true`.
+  Like-for-like raw-count families may state an **observed intervention difference**
+  (`strength: "observed-difference"`), but each arm's Shields measurement stays
+  per-run evidence under its own label and the two values never form a delta. Strong
+  causal wording still requires replicated evidence (`"replicated-difference"`).
 
 ### 12.2 Accept verifies, Reject inconclusive: no post-reject claim
 
@@ -1548,6 +1558,43 @@ only a content type, and a report write plus a sidecar write is NOT atomic):
   corrected here and in the runtime copy (lib/pixel-events.ts, README,
   glossary) and both schema descriptions must be fixed in the next new
   revision's types, never by editing the frozen files.
+
+- **E2 (2026-07-20, open; fix lands with the next published revision)**: the
+  published v2 r1 and r2 schemas describe `InterventionExperiment.order` as
+  "Counterbalanced across pairs from the first v2 release." That conflates a
+  pair's randomized execution order with counterbalancing. `AB` means the
+  baseline ran first and `BA` means the variant ran first. A single pair is
+  randomized, not counterbalanced; only independent pairs covering both orders
+  support `evidence.counterbalanced: true`. The published r1/r2 schema files
+  remain byte-for-byte unchanged under the freeze; replace this description
+  only in the next new revision's types.
+
+- **E3 (2026-07-20, fixed by metric dependency registry 2)**: registry 1 omitted
+  the Shields measurement mode from the `shields-simulation` compatibility key,
+  allowing a classification arm's filter-list matches to be subtracted from a block
+  simulation arm's actually blocked requests. Registry 2 refuses that family with
+  `dependency-version-mismatch:shieldsMode`. Historical registry-1 reports remain
+  byte-for-byte readable under their recorded evaluator; the reader decision layer
+  independently suppresses the mixed-mode Shields delta.
+
+- **E4 (2026-07-20, fixed by comparability evaluator 2)**: evaluator 1 did not
+  require both requested consent controls to have been activated before treating the
+  visits as a pair, so raw-count and other family deltas could render when one arm was
+  still pre-consent. Evaluator 2 marks that design invalid and denies every pair-level
+  delta while retaining both runs as raw evidence. Historical evaluator-1 reports
+  remain readable; the reader decision layer applies the same refusal when a recorded
+  consent arm lacks an activated control.
+
+- **E5 (2026-07-20, fixed by `tcf-api@2` and `consent-r2-v2`)**: the first TCF
+  interpreter projected only Purposes 1–10 and treated empty or zero-grant
+  purpose-consent vectors as reject-all even though TCF records legitimate-interest
+  state and publisher restrictions separately. `tcf-api@2` projects Purpose 11 and
+  classifies only a multi-purpose unanimous grant; mixed, empty, zero-grant, and
+  single-purpose vectors remain `unknown` rather than fabricating a verification or
+  contradiction. Readers retain `tcf-api@1` for historical validation, but the exact
+  attempted-interpreter-set compatibility key refuses an `@1`/`@2` consent delta. New
+  producer output also records methodology component `consent-r2-v2`, preventing any
+  pre/post-change metric family from comparing as the same measurement instrument.
 
 ## Changelog
 

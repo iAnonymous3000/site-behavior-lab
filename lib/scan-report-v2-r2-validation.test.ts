@@ -104,6 +104,37 @@ test("every valid r2 fixture passes structural validation and has zero semantic 
   }
 });
 
+test("Shields pairs refuse a delta between classification matches and simulation blocks", () => {
+  const report = makeShieldsInterventionReportV2R2();
+
+  assert.equal(report.comparability.metricRegistryVersion, "2");
+  assert.equal(report.comparability.pairValidity.eligible, true, "the pair itself remains valid");
+  assert.deepEqual(report.comparability.perMetric["shields-simulation"], {
+    eligible: false,
+    reasons: ["dependency-version-mismatch:shieldsMode"]
+  });
+  assert.equal(report.diff.families["shields-simulation"].eligible, false);
+});
+
+test("evaluator-2 consent pair validity requires both requested controls to activate", () => {
+  for (const missingArm of ["baseline", "variant"] as const) {
+    const report = makeConsentInterventionReportV2R2();
+    report[missingArm].evidence.consent!.controlActivated = false;
+
+    const comparability = evaluateComparabilityR2(report.experiment, report.baseline, report.variant);
+    assert.equal(comparability.evaluatorVersion, "2", missingArm);
+    assert.deepEqual(
+      comparability.pairValidity,
+      { eligible: false, reasons: ["design-invalid"] },
+      missingArm
+    );
+    for (const [family, entry] of Object.entries(comparability.perMetric)) {
+      assert.equal(entry.eligible, false, `${missingArm}:${family}`);
+      assert.equal(entry.reasons.includes("design-invalid"), true, `${missingArm}:${family}`);
+    }
+  }
+});
+
 test("consent derivations produce the five states from their fixtures", () => {
   const verified = makeConsentRunR2("reject-all");
   assert.equal(deriveChoiceStateR2(verified, verified.evidence.consent!), "verified");
@@ -500,4 +531,59 @@ test("the consent-verification family is unknown for pairs that attempted nothin
   // The consent intervention, by contrast, is eligible: matching non-empty sets.
   const consent = makeConsentInterventionReportV2R2();
   assert.equal(consent.comparability.perMetric["consent-verification"].eligible, true);
+});
+
+test("historical TCF v1 remains valid while mixed TCF interpreter versions refuse consent comparability", () => {
+  const setTcfMethod = (
+    report: PublicScanReportV2R2,
+    arm: "baseline" | "variant",
+    method: "tcf-api@1" | "tcf-api@2"
+  ): void => {
+    if (report.reportType !== "comparison" || report.experiment.kind !== "intervention") {
+      throw new Error("expected an intervention comparison fixture");
+    }
+    const consent = report[arm].evidence.consent;
+    if (consent === undefined) throw new Error("expected consent evidence");
+    consent.verificationObservations = consent.verificationObservations.map((observation) => ({
+      ...observation,
+      method
+    }));
+    report.experiment.verification[arm] = { ...report.experiment.verification[arm], method };
+  };
+
+  const historical = makeConsentInterventionReportV2R2();
+  setTcfMethod(historical, "baseline", "tcf-api@1");
+  setTcfMethod(historical, "variant", "tcf-api@1");
+  historical.comparability = evaluateComparabilityR2(
+    historical.experiment,
+    historical.baseline,
+    historical.variant,
+    "1",
+    "1"
+  );
+  historical.diff = buildComparisonDiffV2(
+    historical.baseline,
+    historical.variant,
+    historical.comparability.perMetric
+  );
+  assert.deepEqual(violationsOf(historical), [], "published @1 reports remain readable under recorded evaluators");
+
+  const crossVersion = makeConsentInterventionReportV2R2();
+  setTcfMethod(crossVersion, "baseline", "tcf-api@1");
+  setTcfMethod(crossVersion, "variant", "tcf-api@2");
+  crossVersion.comparability = evaluateComparabilityR2(
+    crossVersion.experiment,
+    crossVersion.baseline,
+    crossVersion.variant
+  );
+  crossVersion.diff = buildComparisonDiffV2(
+    crossVersion.baseline,
+    crossVersion.variant,
+    crossVersion.comparability.perMetric
+  );
+  assert.deepEqual(crossVersion.comparability.perMetric["consent-verification"], {
+    eligible: false,
+    reasons: ["dependency-version-mismatch:consent-interpreter"]
+  });
+  assert.deepEqual(violationsOf(crossVersion), [], "the denied comparison is itself a valid report");
 });

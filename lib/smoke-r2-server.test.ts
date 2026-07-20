@@ -4,13 +4,14 @@ import { test } from "node:test";
 import { pathToFileURL } from "node:url";
 
 type SmokeR2Server = {
+  host: string;
   port: number;
   snapshot(): Array<{ key: string; body: string; headers: Record<string, string> }>;
   close(): Promise<void>;
 };
 
 type SmokeR2Helpers = {
-  startSmokeR2Server(options: { bucket: string }): Promise<SmokeR2Server>;
+  startSmokeR2Server(options: { bucket: string; host?: string }): Promise<SmokeR2Server>;
 };
 
 const nativeImport = new Function("specifier", "return import(specifier)") as (
@@ -23,7 +24,7 @@ const helpers = nativeImport(
 test("Docker smoke R2 endpoint supports conditional writes, list, metadata readback, and delete", async () => {
   const { startSmokeR2Server } = await helpers;
   const server = await startSmokeR2Server({ bucket: "smoke-bucket" });
-  const endpoint = `http://127.0.0.1:${server.port}/smoke-bucket`;
+  const endpoint = `http://${server.host}:${server.port}/smoke-bucket`;
   const key = "reports/20260719-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.json";
   const objectUrl = `${endpoint}/${key}`;
   const metadata = {
@@ -32,6 +33,7 @@ test("Docker smoke R2 endpoint supports conditional writes, list, metadata readb
   };
 
   try {
+    assert.equal(server.host, "127.0.0.1");
     const created = await fetch(objectUrl, {
       method: "PUT",
       headers: { "if-none-match": "*", ...metadata },
@@ -54,4 +56,12 @@ test("Docker smoke R2 endpoint supports conditional writes, list, metadata readb
   } finally {
     await server.close();
   }
+});
+
+test("Docker smoke R2 endpoint rejects an all-interface bind", async () => {
+  const { startSmokeR2Server } = await helpers;
+  await assert.rejects(
+    startSmokeR2Server({ bucket: "smoke-bucket", host: "0.0.0.0" }),
+    /requires one narrow IPv4 bind address/
+  );
 });
