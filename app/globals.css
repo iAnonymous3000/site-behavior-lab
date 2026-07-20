@@ -3940,6 +3940,16 @@ details[open] > summary .disclosure-chevron {
     min-width: 0;
   }
 
+  /* Ubuntu's system font is slightly wider than macOS at this breakpoint.
+     Let full-width actions shrink below their label's intrinsic width instead
+     of pushing the page a few pixels past the viewport. */
+  .static-action-row > .primary-button,
+  .static-action-row > .secondary-button {
+    max-width: 100%;
+    min-width: 0;
+    white-space: normal;
+  }
+
   .featured-cards {
     grid-template-columns: minmax(0, 1fr);
   }
