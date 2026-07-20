@@ -3772,6 +3772,7 @@ details[open] > summary .disclosure-chevron {
     grid-template-columns: 1fr;
   }
 
+  .corpus-hero-actions,
   .public-mode-actions,
   .static-action-row,
   .static-compare-heading,
@@ -3780,6 +3781,8 @@ details[open] > summary .disclosure-chevron {
     flex-direction: column;
   }
 
+  .corpus-hero-actions .primary-button,
+  .corpus-hero-actions .secondary-button,
   .public-mode-actions .primary-button,
   .public-mode-actions .secondary-button,
   .static-action-row .primary-button,
@@ -3943,6 +3946,8 @@ details[open] > summary .disclosure-chevron {
   /* Ubuntu's system font is slightly wider than macOS at this breakpoint.
      Let full-width actions shrink below their label's intrinsic width instead
      of pushing the page a few pixels past the viewport. */
+  .corpus-hero-actions > .primary-button,
+  .corpus-hero-actions > .secondary-button,
   .static-action-row > .primary-button,
   .static-action-row > .secondary-button {
     max-width: 100%;

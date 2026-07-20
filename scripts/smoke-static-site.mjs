@@ -571,8 +571,10 @@ async function assertNoHorizontalOverflow(page, label) {
       .map((element) => {
         const bounds = element.getBoundingClientRect();
         const className = typeof element.className === "string" ? element.className.trim() : "";
+        const text = element.textContent?.replace(/\s+/g, " ").trim().slice(0, 80) || "";
         return {
           element: `${element.tagName.toLowerCase()}${className ? `.${className.split(/\s+/).join(".")}` : ""}`,
+          text,
           left: Math.round(bounds.left * 10) / 10,
           right: Math.round(bounds.right * 10) / 10,
           width: Math.round(bounds.width * 10) / 10
@@ -586,7 +588,9 @@ async function assertNoHorizontalOverflow(page, label) {
 
   if (measurement.scrollWidth <= measurement.viewportWidth + 1) return;
   const details = measurement.offenders
-    .map(({ element, left, right, width }) => `${element} left=${left} right=${right} width=${width}`)
+    .map(({ element, text, left, right, width }) =>
+      `${element}${text ? ` text=${JSON.stringify(text)}` : ""} left=${left} right=${right} width=${width}`
+    )
     .join("; ");
   fail(
     `${label} has page-level horizontal overflow ` +
