@@ -33,9 +33,10 @@ as quickly as is practical for a volunteer-maintained project.
   connect-time pinning), which is why its config defaults to gated. Bypasses of
   the pinning proxy are exactly what we want to hear about.
 - **Data leakage.** Raw cookie/storage *values* or PII appearing in reports,
-  exports, or logs. Values are intentionally redacted to byte counts, and report
-  URLs omit credentials and fragments. Third-party request logs preserve query
-  parameter names as evidence, but redact parameter values. Shareable
+  exports, or logs. Cookie values are omitted. Storage values are omitted while
+  their byte counts may remain. Report URLs omit credentials and fragments;
+  query values always drop, and only reviewed exact query-key literals may
+  survive, with all others generalized. Shareable
   reports are persisted as screenshot-stripped JSON under the configured
   filesystem or R2 report store. Report links use random IDs and report reads are
   rate-limited. Public and horizontally scaled deployments should use a protected
@@ -48,7 +49,7 @@ as quickly as is practical for a volunteer-maintained project.
   transaction, so the byte caps remain the bound inside a reused tunnel. GPC,
   Shields, and consent comparisons each
   consume two rate-limit tokens but occupy one scan slot until both sequential
-  visits finish. The local report store prunes by age and count. Node keeps a
+  visits finish. The configured report store prunes by age and count. Node keeps a
   per-process defense; the reference Containers deployment additionally charges
   its minute and day quotas atomically in Durable Object SQLite and uses edge WAF
   controls. Other public or horizontally scaled deployments still need an
@@ -59,7 +60,7 @@ as quickly as is practical for a volunteer-maintained project.
   atomic quotas and edge abuse controls. A token or human check is a deployment
   control, not a complete abuse-prevention system; pair it with proxy, firewall,
   and monitoring limits.
-  Cloudflare Worker deployments stay gated unless operators explicitly set both
+  Legacy Browser Run Worker deployments stay gated unless operators explicitly set both
   `SITE_BEHAVIOR_LAB_ALLOW_UNAUTHENTICATED_SCANS=1` and
   `SITE_BEHAVIOR_LAB_ACCEPT_BROWSER_RUN_DNS_REBINDING_RISK=1`, acknowledging
   that Browser Run currently has only DNS-over-HTTPS preflight checks rather

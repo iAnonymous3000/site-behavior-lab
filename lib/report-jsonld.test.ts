@@ -71,12 +71,96 @@ test("measures both labeled runs and top-level dates for comparison reports", ()
   assert.ok(!measured.some((entry) => entry.name === "Third-party requests"));
 });
 
+test("omits PageGraph-unsupported metrics instead of publishing observed zeroes", () => {
+  const view = viewFromV2(makePublicSingleReportV2R2(), 2);
+  const run = view.runs[0];
+  assert.notEqual(run.quality.byFamily, null);
+  assert.notEqual(run.quality.facts, null);
+  for (const family of ["cookies", "storage", "fingerprinting", "detector-output", "consent-verification"] as const) {
+    run.quality.byFamily![family] = { outcome: "censored", reasons: ["capture-loss:dropped"] };
+    run.quality.facts!.captureLoss.push({
+      family,
+      phaseId: null,
+      kind: "dropped",
+      count: 0,
+      detail: "pagegraph-unsupported"
+    });
+  }
+
+  const measured = buildReportDataset(view, { url: "https://example.org/reports/pagegraph/" }).variableMeasured as Array<
+    Record<string, unknown>
+  >;
+  assert.ok(measured.some((entry) => entry.name === "Third-party requests" && "value" in entry));
+  assert.ok(!measured.some((entry) => entry.name === "Third-party cookies"));
+  assert.ok(!measured.some((entry) => entry.name === "Fingerprint-like API calls"));
+  const quality = measured.find((entry) => entry.name === "Measurement quality");
+  assert.equal(quality?.value, "limited coverage");
+  assert.match(String(quality?.description), /Unsupported measurements omitted/);
+});
+
+test("publishes failed-visit counts as lower bounds rather than exact zeroes", () => {
+  const dataset = buildReportDataset(viewFromV1Report(makeResult({ status: 500 })), {
+    url: "https://example.org/reports/failed/"
+  });
+  const measured = dataset.variableMeasured as Array<Record<string, unknown>>;
+  const requests = measured.find((entry) => entry.name === "Third-party requests");
+  assert.equal(requests?.minValue, 0);
+  assert.equal("value" in (requests ?? {}), false);
+  assert.match(String(requests?.description), /failed visit/);
+  assert.ok(!measured.some((entry) => entry.name === "Third-party cookies"));
+  assert.match(
+    String(measured.find((entry) => entry.name === "Measurement quality")?.description),
+    /Interrupted end-state snapshots omitted: Third-party cookies/
+  );
+  assert.equal(measured.find((entry) => entry.name === "Measurement quality")?.value, "failed");
+});
+
+test("marks capped and generically incomplete metrics as lower bounds while retaining complete families", () => {
+  const capped = viewFromV1Report(
+    makeResult({ warnings: ["The scan stopped recording or loading additional requests after 1000 requests."] })
+  );
+  const cappedMeasured = buildReportDataset(capped, { url: "https://example.org/reports/capped/" })
+    .variableMeasured as Array<Record<string, unknown>>;
+  assert.equal("value" in (cappedMeasured.find((entry) => entry.name === "Third-party requests") ?? {}), false);
+  assert.match(
+    String(cappedMeasured.find((entry) => entry.name === "Third-party requests")?.description),
+    /recording cap/
+  );
+  assert.ok(!cappedMeasured.some((entry) => entry.name === "Third-party cookies"));
+  assert.equal(cappedMeasured.find((entry) => entry.name === "Measurement quality")?.value, "capped");
+
+  const incomplete = viewFromV2(makePublicSingleReportV2R2(), 2);
+  incomplete.runs[0].quality.byFamily!.requests = { outcome: "censored", reasons: ["capture-loss:dropped"] };
+  const incompleteMeasured = buildReportDataset(incomplete, { url: "https://example.org/reports/incomplete/" })
+    .variableMeasured as Array<Record<string, unknown>>;
+  const incompleteRequests = incompleteMeasured.find((entry) => entry.name === "Third-party requests");
+  const completeCookies = incompleteMeasured.find((entry) => entry.name === "Third-party cookies");
+  assert.equal("value" in (incompleteRequests ?? {}), false);
+  assert.equal("minValue" in (incompleteRequests ?? {}), true);
+  assert.equal("value" in (completeCookies ?? {}), true);
+  assert.equal(incompleteMeasured.find((entry) => entry.name === "Measurement quality")?.value, "incomplete");
+
+  const cookieSnapshot = viewFromV2(makePublicSingleReportV2R2(), 2);
+  cookieSnapshot.runs[0].quality.byFamily!.cookies = { outcome: "censored", reasons: ["capture-loss:dropped"] };
+  const cookieSnapshotMeasured = buildReportDataset(cookieSnapshot, {
+    url: "https://example.org/reports/cookie-snapshot/"
+  }).variableMeasured as Array<Record<string, unknown>>;
+  assert.ok(!cookieSnapshotMeasured.some((entry) => entry.name === "Third-party cookies"));
+  assert.equal(cookieSnapshotMeasured.find((entry) => entry.name === "Measurement quality")?.value, "incomplete");
+  assert.match(
+    String(cookieSnapshotMeasured.find((entry) => entry.name === "Measurement quality")?.description),
+    /Interrupted end-state snapshots omitted/
+  );
+});
+
 type ResultOverrides = {
   firstPartyDomain?: string;
   domains?: DomainSummary[];
   thirdPartyRequests?: number;
   thirdPartyDomains?: number;
   thirdPartyCookies?: number;
+  status?: number;
+  warnings?: string[];
 };
 
 function makeTrackerDomain(domain: string, requests: number, entity: string, category: string): DomainSummary {
@@ -98,7 +182,7 @@ function makeResult(overrides: ResultOverrides): ScanResult {
     reportType: "single",
     summary: {
       pageTitle: "",
-      status: 200,
+      status: overrides.status ?? 200,
       durationMs: 1,
       firstPartyDomain: overrides.firstPartyDomain ?? "example.com",
       totalRequests: (overrides.thirdPartyRequests ?? 0) + 5,
@@ -135,6 +219,6 @@ function makeResult(overrides: ResultOverrides): ScanResult {
     fingerprintEvents: [],
     fingerprintDetections: [],
     screenshot: null,
-    warnings: []
+    warnings: overrides.warnings ?? []
   };
 }

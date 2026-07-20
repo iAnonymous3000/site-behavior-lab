@@ -17,11 +17,18 @@ export default function MethodologyPage() {
         <p className="eyebrow">Methodology</p>
         <h1>How a scan works</h1>
         <p>
-          Scanner-generated reports are built from one or two controlled, automated browser visits, and every number
-          in them is an observation from those visits, not a general claim about the site. This page describes the measurement:
-          what the visit does, what is recorded, and where the honest limits are. Terms are defined in the{" "}
+          Scanner-generated reports contain one measured run per condition: one run for a single report and two for a
+          comparison. Every number is an observation from those runs, not a general claim about the site. This page
+          describes what a run does, what is recorded, and where the honest limits are. Terms are defined in the{" "}
           <Link href="/glossary/">glossary</Link>; how scan data is handled is on the{" "}
           <Link href="/privacy/">privacy page</Link>.
+        </p>
+        <p>
+          A measured run is not a promise of exactly one network navigation. Consent verification may perform one
+          disclosed post-choice reload; the input probe may navigate to a blank page at the end to flush unload
+          beacons; and policy analysis may open one separate, SSRF-guarded policy page after the primary request log is
+          frozen. Reload- and policy-phase traffic is excluded from the main request counts, while unload beacons sent
+          by the measured page during the active input probe remain included.
         </p>
         <p>
           A local PageGraph import is the disclosed exception: it adapts a paired GraphML capture and metadata
@@ -111,13 +118,14 @@ export default function MethodologyPage() {
         <p>
           A comparison is two sequential visits that differ in one declared condition: Global Privacy Control off
           versus on, no blocking versus Brave-list block simulation, or an accept-all versus reject-all consent
-          click. The two visits run in randomized (counterbalanced) order so time-ordered site behavior cannot load
-          systematically onto one arm, and each report discloses which visit ran first. Before any comparative
-          wording is used, an eligibility gate checks that both visits completed, hit no recording caps, and held
-          the non-compared conditions constant; ineligible pairs render as two independent visits with the reasons
-          stated. Differences between two visits can still reflect timing, experiments, caching, consent state, or
-          bot detection, so comparison wording stays descriptive: it reports what differed between the visits,
-          never that the compared setting caused the difference.
+          click. The two visits run in randomized order so time-ordered site behavior is not systematically assigned
+          to the same arm across scans, and each report discloses which visit ran first. A single two-visit report is
+          not counterbalanced; only an aggregate containing independent AB and BA pairs can make that claim. Before
+          any comparative wording is used, an eligibility gate checks that both visits completed, hit no recording
+          caps, and held the non-compared conditions constant; ineligible pairs render as two independent visits with
+          the reasons stated. Differences between two visits can still reflect timing, experiments, caching, consent
+          state, or bot detection, so comparison wording stays descriptive: it reports what differed between the
+          visits, never that the compared setting caused the difference.
         </p>
       </section>
 
@@ -169,14 +177,16 @@ export default function MethodologyPage() {
       <section className="legal-section">
         <h2>The corpus and percentiles</h2>
         <p>
-          Findings like &quot;at or above the 90th-percentile mark for third-party domains&quot; compare a report
-          against the measured public corpus: one data point per distinct site, using only fully measured visits
-          (failed and recording-capped visits are excluded from the distributions). The wording is anchored to the
+          Findings like &quot;at or above the 90th-percentile mark for third-party domains&quot; currently use a
+          legacy-v1 cohort: one newest eligible passive lead run per distinct site. Failed or no-response loads,
+          request-capped runs, accept/reject consent arms, reserved domains, and every v2 run are excluded from that
+          distribution. Successful v2 and capped runs still count toward corpus coverage, which is reported separately
+          from the fully measured sample. Percentile wording activates only after 50 fully measured sites; v2 reports
+          use fixed reference thresholds until a matching-methodology cohort exists. The wording is anchored to the
           stored percentile mark, not the percentage of sites strictly below a value, because ties can make those
-          different. The corpus is a curated set of popular sites plus a diversity seed list, not a random sample
-          of the web, and the wording says so. Site history pages compare a site only against its own earlier
-          reports with a compatible schema, method, browser, device, and filter snapshot; retention alone never
-          makes two reports comparable.
+          different. The corpus is curated, not a random sample of the web. Site history pages compare a site only
+          against its own earlier reports with a compatible schema, method, browser, device, and filter snapshot;
+          retention alone never makes two reports comparable.
         </p>
       </section>
 

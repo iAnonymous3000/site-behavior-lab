@@ -6,6 +6,7 @@ import { appendFile, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { awaitSubmittedScanJob } from "./run-ci-scan-job.mjs";
 import { botBlockReason, isPublishableScanReport } from "./run-ci-scan-report.mjs";
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -43,7 +44,14 @@ try {
     throw new Error(isRecord(scanResponse) && typeof scanResponse.error === "string" ? scanResponse.error : "Scan failed.");
   }
 
-  const scanReport = isJobSubmission(scanResponse) ? await awaitScanJob(scanResponse) : scanResponse;
+  const scanReport = isJobSubmission(scanResponse)
+    ? await awaitSubmittedScanJob({
+        submission: scanResponse,
+        baseUrl,
+        headers: accessHeaders(),
+        isPublishableScanReport
+      })
+    : scanResponse;
 
   const id = reportIdPattern.test(scanReport.share?.id || "") ? scanReport.share.id : createReportId();
   const savedReport = await fetchSavedReport(scanReport);
@@ -127,33 +135,6 @@ function isJobSubmission(response) {
     response.status === "queued" &&
     typeof response.statusPath === "string"
   );
-}
-
-async function awaitScanJob(submission) {
-  const statusUrl = `${baseUrl}${submission.statusPath}`;
-  for (let attempt = 0; attempt < 180; attempt += 1) {
-    const status = await fetchJson(statusUrl, accessHeaders());
-    if (isRecord(status) && status.ok && status.status === "succeeded") {
-      if (!isPublishableScanReport(status.report)) {
-        throw new Error("Completed scan job did not include a publishable report.");
-      }
-      return status.report;
-    }
-    if (isRecord(status) && status.ok && (status.status === "queued" || status.status === "running")) {
-      await delay(1000);
-      continue;
-    }
-    throw new Error(
-      isRecord(status) && typeof status.error === "string"
-        ? status.error
-        : `Scan job ${submission.jobId} did not complete.`
-    );
-  }
-  throw new Error(`Scan job ${submission.jobId} did not finish before the polling timeout.`);
-}
-
-function delay(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 async function postJson(url, body) {

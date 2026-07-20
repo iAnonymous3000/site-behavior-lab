@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckCircle2, Copy, Download, ExternalLink } from "lucide-react";
+import { AlertCircle, CheckCircle2, Copy, Download, ExternalLink } from "lucide-react";
 import type { MouseEvent } from "react";
 import { useEffect, useState } from "react";
 import { absoluteShareUrl, reportSharePath } from "./report-overview";
@@ -140,23 +140,32 @@ export function ReportHeader({
 }
 
 function CopyButton({ value, label }: { value: string; label: string }) {
-  const [copied, setCopied] = useState(false);
+  const [state, setState] = useState<"idle" | "copied" | "failed">("idle");
   return (
     <button
       type="button"
       className="ghost-button"
-      aria-label={`Copy ${label}`}
+      aria-label={state === "failed" ? `Could not copy ${label}` : `Copy ${label}`}
+      aria-live="polite"
       onClick={async () => {
         try {
           await navigator.clipboard.writeText(value);
-          setCopied(true);
-          setTimeout(() => setCopied(false), 1200);
+          setState("copied");
+          window.setTimeout(() => setState("idle"), 1600);
         } catch {
-          /* clipboard unavailable */
+          setState("failed");
+          window.setTimeout(() => setState("idle"), 2500);
         }
       }}
     >
-      {copied ? <CheckCircle2 size={14} aria-hidden="true" /> : <Copy size={14} aria-hidden="true" />}
+      {state === "copied" ? (
+        <CheckCircle2 size={14} aria-hidden="true" />
+      ) : state === "failed" ? (
+        <AlertCircle size={14} aria-hidden="true" />
+      ) : (
+        <Copy size={14} aria-hidden="true" />
+      )}
+      {state === "copied" ? "Copied" : state === "failed" ? "Copy failed" : "Copy link"}
     </button>
   );
 }

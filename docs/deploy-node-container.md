@@ -1,11 +1,12 @@
 # Deploying the Node Container Behind Cloudflare (Option B)
 
-> **Status (2026-06-21):** the chosen Cloudflare-native path for live Shields is
-> Cloudflare Containers, see [deploy-cloudflare-containers.md](deploy-cloudflare-containers.md),
-> which runs this same Dockerfile on Workers Paid + Containers with R2 storage. This page is
-> the generic, host-agnostic runbook (any Docker host behind Cloudflare); both require **paid
-> compute**. The free launch still uses neither: it is the **Cloudflare Pages corpus**
-> (published Shields-diff evidence) plus the **Worker GPC / trackers scan**.
+> **Current status:** the reference deployment is **B2**: the static Cloudflare
+> Pages site at `sitebehavior.org` calls the full Node/Playwright scanner on
+> Cloudflare Containers at `scan.sitebehavior.org`, with R2 storage. The former
+> public Browser Run/free lane is retired and deleted. See
+> [deploy-cloudflare-containers.md](deploy-cloudflare-containers.md). This page is
+> the generic host-agnostic runbook for running the same Docker image on another
+> host behind Cloudflare; that path also requires paid compute.
 
 The runbook for the recommended public topology from
 [deployment-topology.md](deployment-topology.md): the **Node/Playwright scanner
@@ -26,13 +27,13 @@ visitor ─▶ Cloudflare (WAF + rate rules + Turnstile + cache)
         durable report store  (persistent volume, or Cloudflare R2)
 ```
 
-**Chosen path, B1, single origin.** The container serves *everything* from one
-origin: the scan UI (`/`), the API (`/api/*`), and report permalinks
+**Generic self-host option, B1, single origin.** The container serves *everything*
+from one origin: the scan UI (`/`), the API (`/api/*`), and report permalinks
 (`/reports/:id`). Visitors hit the Cloudflare-proxied container directly, there is
 no separate site and **no cross-origin (CORS) surface to configure**. Steps 1-4 and
-6 are the B1 launch path. **Optional (B2):** add a separate static Cloudflare Pages site
-as a cached marketing/gallery door whose scan form posts here via
-`NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SCAN_API_BASE`, that variant is step 5.
+6 are the B1 launch path. **Reference deployment, B2:** add a separate static
+Cloudflare Pages site as the public UI/gallery whose scan form posts to the
+container via `NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SCAN_API_BASE`; that variant is step 5.
 
 **Recommended launch sequence.** Stand the container up **private/operator-only**
 first (token-gated, no public inbound), publish an operator-run **report corpus**

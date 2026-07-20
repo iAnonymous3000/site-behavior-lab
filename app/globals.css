@@ -650,8 +650,20 @@ a {
   margin: 10px 0 0;
 }
 
+.scanner-health-row {
+  align-items: baseline;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+}
+
+.scanner-health-retry {
+  min-height: 32px;
+  padding: 5px 9px;
+}
+
 .scanner-status-note-error {
-  color: var(--danger, #c0392b);
+  color: var(--sig-loud);
 }
 
 .url-privacy-note {
@@ -759,16 +771,26 @@ a {
   padding: 4px;
 }
 
-.run-mode-control {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+.run-mode-group {
+  container-type: inline-size;
 }
 
-/* Three modes share one row and "Brave Shields" is the longest label, so run
-   buttons trade horizontal padding and icon gap for label room. */
+.run-mode-control {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+/* Keep all four modes on one row when the control itself has room, independent
+   of the surrounding workbench layout. */
 .segmented-control.run-mode-control button {
   gap: 6px;
   padding: 0 6px;
   white-space: nowrap;
+}
+
+@container (max-width: 380px) {
+  .run-mode-control {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 .segmented-control button {
@@ -1036,6 +1058,11 @@ a {
 .file-button {
   cursor: pointer;
   position: relative;
+}
+
+.file-button:focus-within {
+  border-color: var(--accent);
+  box-shadow: var(--ring);
 }
 
 .file-button input {
@@ -1391,6 +1418,43 @@ a {
 .report-main > *,
 .report-sidebar > * {
   min-width: 0;
+}
+
+.report-evidence-tables {
+  display: grid;
+  gap: 16px;
+  grid-column: 1 / -1;
+  min-width: 0;
+}
+
+.route-state-shell {
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+}
+
+.route-state-card {
+  display: grid;
+  gap: 14px;
+  justify-items: start;
+  max-width: 680px;
+  padding: clamp(24px, 5vw, 48px);
+}
+
+.route-state-card h1,
+.route-state-card p {
+  margin: 0;
+}
+
+.route-state-card > svg {
+  color: var(--sig-warn);
+}
+
+.route-state-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 6px;
 }
 
 .report-header {
@@ -2957,6 +3021,12 @@ a {
   padding: 16px;
 }
 
+.causal-graph-scroll:focus-visible,
+.table-wrap:focus-visible {
+  border-radius: 6px;
+  box-shadow: inset 0 0 0 2px var(--accent);
+}
+
 .causal-graph {
   display: block;
   height: auto;
@@ -3756,11 +3826,6 @@ details[open] > summary .disclosure-chevron {
     flex: 1 1 auto;
   }
 
-  /* The copy button is icon-only; keep it from stretching to a full button width. */
-  .report-actions .ghost-button {
-    flex: 0 0 auto;
-  }
-
   .static-gallery-heading {
     align-items: flex-start;
     flex-direction: column;
@@ -3849,5 +3914,33 @@ details[open] > summary .disclosure-chevron {
   .table-wrap td.url-cell {
     white-space: normal;
     word-break: break-all;
+  }
+}
+
+@media (max-width: 360px) {
+  .app-shell {
+    padding-inline: 8px;
+  }
+
+  .scan-panel {
+    padding-inline: 8px;
+  }
+
+  /* Nested grid items otherwise retain the featured card's 248px min-content
+     width, which can push the static archive past a 320px viewport after the
+     surrounding card padding is accounted for. */
+  .static-tools,
+  .static-tools > *,
+  .static-gallery > * {
+    min-width: 0;
+  }
+
+  .featured-cards {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .turnstile-row {
+    display: flex;
+    justify-content: center;
   }
 }

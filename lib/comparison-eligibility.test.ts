@@ -91,15 +91,44 @@ test("user agent, language, and final page must also match", () => {
     /ended on different pages/
   );
 
-  // Consent pairs are exempt from the final-URL rule: the dispatched click
-  // itself can navigate.
+  // A consent click may navigate within the same origin, including changing
+  // both path and query.
   const acceptArm = makeRun({});
   acceptArm.conditions = { ...acceptArm.conditions, consentMode: "accept-all" };
   acceptArm.consentInteraction = { mode: "accept-all", clicked: true };
   const rejectArm = makeRun({});
-  rejectArm.conditions = { ...rejectArm.conditions, consentMode: "reject-all", finalUrl: "https://example.com/consent-done" };
+  rejectArm.conditions = {
+    ...rejectArm.conditions,
+    consentMode: "reject-all",
+    finalUrl: "https://example.com/consent-done?choice=reject"
+  };
   rejectArm.consentInteraction = { mode: "reject-all", clicked: true };
   assert.equal(comparisonEligibility(createConsentComparisonReport(acceptArm, rejectArm)).eligible, true);
+});
+
+test("consent pairs require both final URLs to have the same normalized origin", () => {
+  const pairEndingAt = (baselineFinalUrl: string, variantFinalUrl: string) => {
+    const baseline = makeRun({});
+    baseline.conditions = { ...baseline.conditions, consentMode: "accept-all", finalUrl: baselineFinalUrl };
+    baseline.consentInteraction = { mode: "accept-all", clicked: true };
+    const variant = makeRun({});
+    variant.conditions = { ...variant.conditions, consentMode: "reject-all", finalUrl: variantFinalUrl };
+    variant.consentInteraction = { mode: "reject-all", clicked: true };
+    return comparisonEligibility(createConsentComparisonReport(baseline, variant));
+  };
+
+  // URL parsing normalizes host casing and an explicit default HTTPS port.
+  assert.equal(pairEndingAt("https://EXAMPLE.com/accepted", "https://example.com:443/rejected?choice=no").eligible, true);
+
+  for (const [label, variantFinalUrl] of [
+    ["subdomain", "https://account.example.com/rejected"],
+    ["scheme", "http://example.com/rejected"],
+    ["port", "https://example.com:8443/rejected"]
+  ] as const) {
+    const eligibility = pairEndingAt("https://example.com/accepted", variantFinalUrl);
+    assert.equal(eligibility.eligible, false, `${label} changes must not compare as consent choices on one origin`);
+    assert.match(eligibility.reasons.join(" "), /different or unprovable origins/);
+  }
 });
 
 test("a consent pair requires both clicks to have really dispatched", () => {

@@ -62,7 +62,7 @@ async function apiChecks() {
     consentMode: "observe"
   });
   if (!clean.ok || clean.summary.status !== 200 || clean.summary.totalRequests < 1) {
-    fail("clean page scan did not produce a successful report");
+    fail(`clean page scan did not produce a successful report: ${smokeResponseSummary(clean)}`);
   }
   if (clean.schemaVersion !== scanReportSchemaVersion) {
     fail("clean page scan did not include the current report schema version");
@@ -71,7 +71,12 @@ async function apiChecks() {
     fail("scan report did not include deterministic browser conditions");
   }
   if (!clean.conditions.scannerEgress || !clean.conditions.scannerDisclosure.includes(clean.conditions.scannerEgress)) {
-    fail("scan report did not include scanner egress metadata");
+    fail(
+      `scan report did not include scanner egress metadata: ${JSON.stringify({
+        scannerEgress: clean.conditions.scannerEgress,
+        scannerDisclosure: clean.conditions.scannerDisclosure
+      })}`
+    );
   }
   if (JSON.stringify(clean).includes("smoke-secret")) {
     fail("scan report leaked a query string secret");
@@ -156,6 +161,18 @@ async function apiChecks() {
   pass("API rejects malformed JSON cleanly");
 }
 
+function smokeResponseSummary(value) {
+  if (!value || typeof value !== "object") return JSON.stringify(value);
+  return JSON.stringify({
+    ok: value.ok,
+    error: value.error,
+    schemaVersion: value.schemaVersion,
+    status: value.summary?.status,
+    totalRequests: value.summary?.totalRequests,
+    warnings: Array.isArray(value.warnings) ? value.warnings.slice(0, 3) : undefined
+  });
+}
+
 async function uiChecks() {
   const browser = await chromium.launch({ headless: true });
   const context = await browser.newContext({ acceptDownloads: true, viewport: { width: 1440, height: 1000 } });
@@ -173,6 +190,28 @@ async function uiChecks() {
 
     await page.fill("#url", "https://example.com");
     await page.getByRole("button", { name: "Scan", exact: true }).click();
+    const loadingState = page.locator(".loading-state");
+    await loadingState.waitFor({ state: "visible", timeout: 5_000 });
+    const loadingSemantics = await loadingState.evaluate((element) => ({
+      rootRole: element.getAttribute("role"),
+      announcements: Array.from(element.querySelectorAll('[role="status"]')).map((node) => node.textContent)
+    }));
+    if (loadingSemantics.rootRole === "status") {
+      fail("the one-second loading timer is inside the status live region");
+    }
+    if (loadingSemantics.announcements.length !== 1) fail("scan loading state lacks its bounded status announcement");
+    await page.waitForTimeout(1_100);
+    // A fast local scan may finish during this interval. If the loading state
+    // is still mounted, confirm that only the visual timer changed.
+    if (await loadingState.isVisible()) {
+      const announcementAfterTick = await loadingState.evaluate(
+        (element) => element.querySelector('[role="status"]')?.textContent ?? null
+      );
+      if (announcementAfterTick !== loadingSemantics.announcements[0]) {
+        fail("scan loading status announcement changes with the one-second timer");
+      }
+    }
+    pass("scan timer stays outside the bounded live status announcement");
     await waitForReportOrError(page, 30_000);
     await expectText(page.locator(".report-header"), "Example Domain");
     await expectText(page.locator(".warnings"), "one automated, headless Chromium visit");

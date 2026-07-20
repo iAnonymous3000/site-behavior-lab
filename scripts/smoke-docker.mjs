@@ -2,7 +2,10 @@
 
 import { execFile, spawn } from "node:child_process";
 import net from "node:net";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
+import { startSmokeR2Server } from "./smoke-r2-server.mjs";
 
 process.on("uncaughtException", (error) => {
   console.error(error instanceof Error ? error.message : error);
@@ -19,8 +22,15 @@ const dockerBin = process.env.DOCKER_BIN || "docker";
 const image = process.env.DOCKER_SMOKE_IMAGE || "site-behavior-lab:smoke";
 const token = process.env.DOCKER_SMOKE_SCAN_ACCESS_TOKEN || "docker-smoke-token";
 const skipBuild = /^(1|true|yes|on)$/i.test(process.env.DOCKER_SMOKE_SKIP_BUILD || "");
+const publicR2Smoke = /^(1|true|yes|on)$/i.test(process.env.DOCKER_SMOKE_PUBLIC_R2 || "");
+// Playwright's version-pinned default Docker seccomp profile plus the user-
+// namespace syscalls Chromium's sandbox needs. Keep it in lockstep with the
+// Playwright image/package pin rather than removing syscall filtering or
+// disabling Chromium's own sandbox.
+const seccompProfile = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "playwright-seccomp-profile.json");
 
-let containerId = "";
+const runningContainers = new Set();
+let smokeR2 = null;
 
 try {
   await assertDockerAvailable();
@@ -31,38 +41,144 @@ try {
     await run(dockerBin, ["build", "--build-arg", `SITE_BEHAVIOR_LAB_BUILD_COMMIT=${buildCommit}`, "-t", image, "."]);
   }
 
+  await runV1ImageSmoke();
+  if (publicR2Smoke) await runPublicR2ImageSmoke();
+} finally {
+  for (const containerId of runningContainers) {
+    await execFileAsync(dockerBin, ["stop", containerId]).catch(() => undefined);
+  }
+  await smokeR2?.close().catch(() => undefined);
+}
+
+async function runV1ImageSmoke() {
+  const scanner = await startScannerContainer([
+    // This label is in the frozen v1 redaction allowlist; an invented suffix
+    // would be intentionally generalized and make the smoke test its own
+    // source of invalid methodology metadata.
+    "SITE_BEHAVIOR_LAB_SCANNER_EGRESS=docker-smoke",
+    "SITE_BEHAVIOR_LAB_CHROMIUM_SANDBOX=1"
+  ]);
+  try {
+    assertSandboxEnabled(scanner.health);
+    if (scanner.health.storage !== "filesystem") {
+      throw new Error("Default Docker smoke did not retain the filesystem/v1 report lane.");
+    }
+    await run("node", ["scripts/smoke-test.mjs"], {
+      BASE_URL: scanner.baseUrl,
+      SMOKE_SCAN_ACCESS_TOKEN: token
+    });
+    console.log(`Docker v1/filesystem smoke passed for ${image} at ${scanner.baseUrl}.`);
+  } catch (error) {
+    await printScannerLogs(scanner.containerId);
+    throw error;
+  } finally {
+    await stopScannerContainer(scanner.containerId);
+  }
+}
+
+async function runPublicR2ImageSmoke() {
+  const bucket = "site-behavior-lab-smoke";
+  smokeR2 = await startSmokeR2Server({ bucket });
+  const scanner = await startScannerContainer(
+    [
+      "SITE_BEHAVIOR_LAB_SCANNER_EGRESS=docker-smoke",
+      "SITE_BEHAVIOR_LAB_SCANNER_EGRESS_REGION=docker-smoke",
+      "SITE_BEHAVIOR_LAB_CHROMIUM_SANDBOX=1",
+      "SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION=1",
+      "SITE_BEHAVIOR_LAB_PUBLIC_R2_REPORTS=1",
+      "SITE_BEHAVIOR_LAB_REPORT_STORE_BACKEND=r2",
+      `SITE_BEHAVIOR_LAB_R2_BUCKET=${bucket}`,
+      `SITE_BEHAVIOR_LAB_R2_ENDPOINT=http://host.docker.internal:${smokeR2.port}`,
+      "SITE_BEHAVIOR_LAB_R2_ACCESS_KEY_ID=smoke-access-key",
+      "SITE_BEHAVIOR_LAB_R2_SECRET_ACCESS_KEY=smoke-secret-key",
+      "SITE_BEHAVIOR_LAB_R2_PREFIX=reports/"
+    ],
+    true
+  );
+  try {
+    assertSandboxEnabled(scanner.health);
+    if (
+      scanner.health.storage !== "r2" ||
+      scanner.health.checks?.reportStore?.kind !== "r2" ||
+      scanner.health.checks?.reportStore?.configuredPath !== true ||
+      scanner.health.checks?.publicR2Reports?.status !== "enabled" ||
+      scanner.health.checks?.consentVerification !== "enabled"
+    ) {
+      throw new Error("Docker health did not confirm the production public-v2/R2 posture.");
+    }
+    await run("node", ["scripts/smoke-deployed-scanner.mjs"], {
+      SCAN_BASE_URL: scanner.baseUrl,
+      SMOKE_SCAN_ACCESS_TOKEN: token,
+      SMOKE_EXPECTED_STORAGE: "r2"
+    });
+    assertPublicR2Bundles(smokeR2.snapshot());
+    console.log(`Docker public-v2/R2 smoke passed for ${image} at ${scanner.baseUrl}.`);
+  } catch (error) {
+    await printScannerLogs(scanner.containerId);
+    throw error;
+  } finally {
+    await stopScannerContainer(scanner.containerId);
+  }
+}
+
+async function startScannerContainer(environment, addHostGateway = false) {
   const port = await freePort();
-  const runResult = await execFileAsync(dockerBin, [
+  const args = [
     "run",
     "--rm",
+    "--init",
+    "--ipc=host",
+    "--security-opt",
+    `seccomp=${seccompProfile}`,
     "-d",
     "-p",
-    `127.0.0.1:${port}:3000`,
-    "-e",
-    `SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN=${token}`,
-    "-e",
-    "SITE_BEHAVIOR_LAB_SCANNER_EGRESS=docker-smoke",
-    "-e",
-    "SITE_BEHAVIOR_LAB_CHROMIUM_SANDBOX=1",
-    image
-  ]);
-  containerId = runResult.stdout.trim();
-  if (!containerId) throw new Error("Docker did not return a container id.");
+    `127.0.0.1:${port}:3000`
+  ];
+  if (addHostGateway) args.push("--add-host", "host.docker.internal:host-gateway");
+  args.push("-e", `SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN=${token}`);
+  for (const value of environment) args.push("-e", value);
+  args.push(image);
 
+  const runResult = await execFileAsync(dockerBin, args);
+  const containerId = runResult.stdout.trim();
+  if (!containerId) throw new Error("Docker did not return a container id.");
+  runningContainers.add(containerId);
   const baseUrl = `http://127.0.0.1:${port}`;
-  const health = await waitForHealth(baseUrl);
+  return { containerId, baseUrl, health: await waitForHealth(baseUrl) };
+}
+
+async function stopScannerContainer(containerId) {
+  if (!runningContainers.delete(containerId)) return;
+  await execFileAsync(dockerBin, ["stop", containerId]).catch(() => undefined);
+}
+
+async function printScannerLogs(containerId) {
+  const result = await execFileAsync(dockerBin, ["logs", "--tail", "200", containerId]).catch(() => null);
+  if (!result) return;
+  const output = `${result.stdout}${result.stderr}`.trim();
+  if (output) console.error(`Scanner container logs (${containerId.slice(0, 12)}):\n${output}`);
+}
+
+function assertSandboxEnabled(health) {
   if (health.checks?.chromiumSandbox !== "enabled") {
     throw new Error("Docker health did not confirm that the Chromium sandbox is enabled.");
   }
-  await run("node", ["scripts/smoke-test.mjs"], {
-    BASE_URL: baseUrl,
-    SMOKE_SCAN_ACCESS_TOKEN: token
-  });
+}
 
-  console.log(`Docker smoke passed for ${image} at ${baseUrl}.`);
-} finally {
-  if (containerId) {
-    await execFileAsync(dockerBin, ["stop", containerId]).catch(() => undefined);
+function assertPublicR2Bundles(objects) {
+  const reports = objects.filter(({ key }) => /^reports\/[0-9]{8}-[0-9a-f]{32}\.json$/.test(key));
+  if (reports.length < 2) {
+    throw new Error("Public-v2/R2 Docker smoke did not persist both single and comparison reports.");
+  }
+  const keys = new Set(objects.map(({ key }) => key));
+  for (const object of reports) {
+    const report = JSON.parse(object.body);
+    if (report.schemaVersion !== 2 || report.schemaRevision !== 2 || Object.hasOwn(report, "ephemeral")) {
+      throw new Error(`R2 smoke object ${object.key} was not a screenshot-free public v2/r2 report.`);
+    }
+    if (!keys.has(`${object.key}.provenance.json`)) {
+      throw new Error(`R2 smoke object ${object.key} is missing its provenance sidecar.`);
+    }
   }
 }
 

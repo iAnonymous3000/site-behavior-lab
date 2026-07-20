@@ -66,7 +66,7 @@ import type { CnameCloak, NetworkRequestRecord, TrackerMatch } from "./types";
 import { promises as dnsPromises } from "node:dns";
 import { PublicScanError } from "./public-errors";
 import { assertPublicHttpUrl, normalizeUrl } from "./url-safety";
-import { redactUrlForReport, safeParseUrl } from "./report-url";
+import { safeParseUrl } from "./report-url";
 import { redactUrlV2 } from "./redaction-v2";
 import { buildScanConditions, buildScanResult } from "./scan-result-builder";
 import { MeasurementKernel, deriveCookieMutations, deriveStorageMutations } from "./measurement-kernel";

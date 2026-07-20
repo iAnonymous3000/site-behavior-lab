@@ -66,6 +66,20 @@ test("an HTTP error load gets a failed-load bottom line, not a low-signal one", 
   assert.doesNotMatch(bottomLine.title, /few review signals/);
 });
 
+test("failed and request-capped visits never receive corpus benchmark labels", () => {
+  const corpus = makeCorpus(60);
+  const visits = [
+    makeResult({ firstPartyDomain: "blocked.example", status: 403, totalRequests: 1 }),
+    makeResult({ firstPartyDomain: "capped.example", totalRequests: 1200 })
+  ];
+
+  for (const visit of visits) {
+    const findings = buildFindings(viewFromV1Report(visit), corpus);
+    assert.equal(byId(findings, "third-party-services").benchmark, undefined);
+    assert.equal(byId(findings, "third-party-cookies").benchmark, undefined);
+  }
+});
+
 test("a request-capped quiet visit gets an incomplete-evidence bottom line, not a quiet one", () => {
   const result = makeResult({ firstPartyDomain: "quiet.example", totalRequests: 1200 });
 
@@ -144,7 +158,7 @@ test("a Shields pair with mixed directions never reads as 'fewer tracking signal
 
   const card = byId(buildFindings(viewFromV1Report(shieldsPair(baseline, variant)), null), "shields-comparison");
   assert.equal(card.level, "info");
-  assert.match(card.title, /Mixed changes observed with Brave-list blocking on/);
+  assert.match(card.title, /Mixed changes observed in the Brave-list blocking attempt/);
   assert.match(card.lead, /8 more third-party requests/);
   assert.match(card.lead, /1 fewer known-service request/);
   assert.doesNotMatch(card.title, /Fewer tracking signals/);
@@ -170,7 +184,7 @@ test("names major platforms and escalates the third-party card", () => {
   assert.match(platforms.lead, /Google, Meta and TikTok/);
 
   const services = byId(findings, "third-party-services");
-  assert.equal(services.title, "Tracking and ad services saw this visit");
+  assert.equal(services.title, "Tracking and ad services responded during this visit");
 });
 
 test("flags Google Analytics remarketing only when the DoubleClick sync is present", () => {
@@ -278,6 +292,8 @@ test("adds a Shields-block card only when ad-block is active", () => {
   // never presented as a measured block.
   assert.match(blocked.title, /12 of 25 requests matched Brave Shields filter lists/);
   assert.doesNotMatch(blocked.title, /would block/);
+  assert.doesNotMatch(blocked.detail, /requests LOADED/);
+  assert.match(blocked.detail, /were not blocked by the scanner/);
   assert.match(blocked.detail, /neither a measured block count nor the total effect/);
 
   const simulated: ScanResult = {
@@ -376,7 +392,7 @@ test("a consent comparison flags trackers that survive Reject all", () => {
   assert.equal(findings[0].id, "bottom-line");
   const card = byId(findings, "consent-comparison");
   assert.equal(card.level, "warn");
-  assert.match(card.title, /loaded in the visit that clicked Reject all/);
+  assert.match(card.title, /Requests were sent .* in the visit that clicked Reject all/);
   assert.match(card.lead, /Google/);
   assert.match(card.detail, /not a violation ruling/);
   // The claim must stay observational: recording spans the whole visit and the
@@ -389,6 +405,26 @@ test("a consent comparison flags trackers that survive Reject all", () => {
   assert.match(card.detail, /appeared only in the visit that clicked Accept all/);
   assert.doesNotMatch(card.detail, /did remove/);
   assert.match(card.evidence, /30 with the accept-all click, 6 with the reject-all click/);
+});
+
+test("a consent finding never upgrades unanswered requests into receipt", () => {
+  const quietTracker = {
+    ...makeTrackerDomain("quiet-tracker.example", 2, "Quiet Analytics", "analytics"),
+    statuses: []
+  };
+  const acceptRun = {
+    ...makeResult({ firstPartyDomain: "shop.example", domains: [quietTracker], thirdPartyRequests: 2 }),
+    consentInteraction: { mode: "accept-all" as const, clicked: true, cmp: "OneTrust" }
+  };
+  const rejectRun = {
+    ...makeResult({ firstPartyDomain: "shop.example", domains: [quietTracker], thirdPartyRequests: 2 }),
+    consentInteraction: { mode: "reject-all" as const, clicked: true, cmp: "OneTrust" }
+  };
+
+  const card = byId(buildFindings(viewFromV1Report(consentPair(acceptRun, rejectRun)), null), "consent-comparison");
+  assert.match(card.title, /Requests were sent/);
+  assert.match(card.lead, /recorded no response, so receipt is unproven/);
+  assert.doesNotMatch(`${card.title} ${card.lead}`, /received requests|loaded in/);
 });
 
 test("a verified r2 consent finding reports registration and retains scope caveats", () => {
@@ -557,10 +593,10 @@ test("surfaces pre-consent tracking when a consent-management platform is presen
   });
   const card = byId(buildFindings(viewFromV1Report(withCmp), null), "consent-banner");
   assert.equal(card.level, "warn");
-  assert.match(card.title, /trackers had already loaded/);
+  assert.match(card.title, /tracker requests appeared before any choice/);
   assert.match(card.lead, /OneTrust/);
   assert.match(card.lead, /before the scanner made any consent choice/);
-  assert.match(card.detail, /records what loaded before the scanner made a consent choice/);
+  assert.match(card.detail, /records requests made before the scanner made a consent choice/);
   assert.match(card.detail, /does not determine whether any request required consent/);
   assert.match(card.detail, /whether the site's behavior complied with applicable law/);
   assert.doesNotMatch(card.detail, /not permitted under GDPR\/ePrivacy/);
@@ -572,8 +608,8 @@ test("surfaces pre-consent tracking when a consent-management platform is presen
   });
   const informational = byId(buildFindings(viewFromV1Report(cmpOnly), null), "consent-banner");
   assert.equal(informational.level, "info");
-  assert.equal(informational.title, "A consent management platform loaded");
-  assert.match(informational.lead, /no catalogued tracking company loaded/);
+  assert.equal(informational.title, "A consent management platform answered");
+  assert.match(informational.lead, /no request to a catalogued tracking company was recorded/);
   assert.match(informational.lead, /before the scanner made any consent choice/);
 
   const noCmp = makeResult({
@@ -766,7 +802,7 @@ test("flags unnamed tracking companies as an informational disclosure gap", () =
   const card = byId(buildFindings(viewFromV1Report(result), null), "privacy-policy");
   assert.equal(card.level, "info");
   assert.match(card.title, /never names/);
-  assert.match(card.lead, /Criteo/);
+  assert.match(card.lead, /Criteo was sent requests during this visit but is never named/);
   assert.match(card.detail, /not automatically a violation/);
 });
 

@@ -257,11 +257,12 @@ function scheduleAfterResponseTurn(task: () => Promise<unknown>): void {
 }
 
 /**
- * Fair counterbalancing draw (RFC 4.3): which arm of a comparison visits the
- * site first. A fixed baseline-then-variant order would let time-ordered
- * site behavior (cache warming, ad rotation, bot-score escalation) load
- * systematically onto one arm; randomizing the order turns that bias into
- * noise across the corpus. The executed order is disclosed on the report.
+ * Fair order draw (RFC 4.3): which arm of a comparison visits the site first.
+ * A fixed baseline-then-variant order would let time-ordered site behavior
+ * (cache warming, ad rotation, bot-score escalation) load systematically onto
+ * one arm; randomizing the order turns that bias into noise across the corpus.
+ * One pair is randomized, not counterbalanced; counterbalancing requires
+ * independent AB and BA pairs. The executed order is disclosed on the report.
  */
 function drawComparisonFirstArm(): ComparisonExecutedFirst {
   return randomBytes(1)[0] < 128 ? "baseline" : "variant";

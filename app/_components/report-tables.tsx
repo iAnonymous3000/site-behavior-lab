@@ -67,7 +67,7 @@ function DomainTable({ domains }: { domains: DomainSummary[] }) {
           onChange={(event) => setQuery(event.target.value)}
         />
       </div>
-      <div className="table-wrap">
+      <div className="table-wrap" role="region" aria-label="Domain evidence table" tabIndex={0}>
         <table>
           <thead>
             <tr>
@@ -210,7 +210,12 @@ function RequestTable({ requests, phases }: { requests: NetworkRequestRecord[]; 
           </select>
         </label>
       </div>
-      <div className={`table-wrap request-table${hasPhases ? " has-phase-column" : ""}`}>
+      <div
+        className={`table-wrap request-table${hasPhases ? " has-phase-column" : ""}`}
+        role="region"
+        aria-label="Request log table"
+        tabIndex={0}
+      >
         <table>
           <thead>
             <tr>

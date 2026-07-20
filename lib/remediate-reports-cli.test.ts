@@ -239,7 +239,7 @@ test("check fails closed for every incomplete or contradictory provenance state"
       name: "wrong report id",
       reason: "report-id-mismatch",
       report: remediatedSingle,
-      sidecar: (id, report) =>
+      sidecar: (_id, report) =>
         JSON.stringify(currentSidecar(reportId("f"), report, reportCreatedAt(report)))
     },
     {

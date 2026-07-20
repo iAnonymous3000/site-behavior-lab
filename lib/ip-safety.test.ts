@@ -53,9 +53,20 @@ test("isPublicIpAddress blocks private and reserved IPv6 addresses", () => {
     "2001::1",
     "2001:2::1",
     "2001:0db8::1",
-    "2002::1"
+    "2002::1",
+    "3fff::1",
+    "3fff:0fff:ffff::1",
+    "5f00::1",
+    "5f00:ffff::1"
   ]) {
     assert.equal(isIpAddress(address), true, address);
     assert.equal(isPublicIpAddress(address), false, address);
+  }
+});
+
+test("isPublicIpAddress keeps the new special-use IPv6 blocks on their exact CIDR boundaries", () => {
+  for (const address of ["3fff:1000::1", "5eff:ffff::1", "5f01::1"]) {
+    assert.equal(isIpAddress(address), true, address);
+    assert.equal(isPublicIpAddress(address), true, address);
   }
 });

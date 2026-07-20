@@ -6,6 +6,7 @@ import {
   fetchRuntimeScannerHealth,
   friendlyScanError,
   isAbortError,
+  liveScannerStatusLabel,
   resumeRuntimeScan,
   shouldLoadSavedScanAccessKey,
   shouldReleaseAcceptedScanJob,
@@ -65,6 +66,25 @@ test("scanner health is validated and every unresolved or failed posture stays f
   assert.equal(failed.awaitingScannerHealth, false);
   assert.equal(failed.scannerUnavailable, true);
   assert.equal(failed.scanBlocked, true);
+
+  const timedOut = await fetchRuntimeScannerHealth({
+    fetcher: async () => new Promise<Response>(() => undefined),
+    resolveApiUrl: (path) => path,
+    timeoutMs: 5
+  });
+  assert.deepEqual(timedOut, {
+    health: null,
+    error: "Public scanner status is unavailable. Try again shortly."
+  });
+  assert.equal(
+    liveScannerStatusLabel({
+      liveScanEnabled: true,
+      staticExport: false,
+      health: null,
+      error: timedOut.error
+    }),
+    "Offline"
+  );
 });
 
 test("runtime policy trusts advertised capabilities and blocks until required Turnstile completes", () => {
@@ -96,6 +116,28 @@ test("runtime policy trusts advertised capabilities and blocks until required Tu
   assert.equal(policy.scanBlocked, true);
   assert.equal(policy.liveApiServesReportPages, false);
   assert.equal(policy.scheduledRescansEnabled, true);
+
+  const dynamicResolvedFalse = deriveScanRuntimePolicy({
+    liveScanEnabled: true,
+    staticExport: false,
+    staticLiveScanEnabled: false,
+    openAccessBuild: true,
+    reportPage: false,
+    turnstileSiteKeyConfigured: false,
+    turnstileToken: "",
+    health: {
+      ok: true,
+      status: "ok",
+      openAccess: true,
+      turnstile: false,
+      scansAvailable: true,
+      capabilities: { gpcComparison: true, shieldsComparison: false, consentComparison: false }
+    },
+    healthError: null
+  });
+  assert.equal(dynamicResolvedFalse.gpcComparisonEnabled, true);
+  assert.equal(dynamicResolvedFalse.shieldsComparisonEnabled, false);
+  assert.equal(dynamicResolvedFalse.consentComparisonEnabled, false);
 });
 
 test("resolved gated health overrides an open-access build hint and restores saved-key eligibility", () => {
@@ -261,10 +303,21 @@ test("resume and cancel use the access key captured at admission and preserve ab
       assert.equal(url, `https://scanner.example${STATUS_PATH}`);
       assert.equal(init.method, "DELETE");
       assert.equal((init.headers as Record<string, string>).Authorization, "Bearer admission-key");
+      assert.equal(init.signal instanceof AbortSignal, true);
       return Response.json({ ok: true, jobId: JOB_ID, status: "cancelled", error: "Cancelled by visitor." });
     }
   });
   assert.equal(message, "Cancelled by visitor.");
+
+  await assert.rejects(
+    cancelRuntimeScan({
+      job,
+      resolveApiUrl: (path) => path,
+      fetcher: async () => new Promise<Response>(() => undefined),
+      timeoutMs: 5
+    }),
+    /cancellation timed out/i
+  );
 
   controller.abort();
   const aborted = controller.signal.reason;

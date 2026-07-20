@@ -11,7 +11,7 @@ Keep the weekly Brave-list refresh separate. It has its own provenance and valid
 
 ## Release record and boundaries
 
-Before changing pins, record the baseline commit and the exact old/new versions and digests for every item above. Build the candidate as a local commit in a clean checkout. Do not push it yet: `main` is the production publication boundary.
+Before changing pins, record the baseline commit and the exact old/new versions and digests for every item above. Build the candidate as a local commit in a clean checkout. Do not push it yet: pushing `main` starts CI and, if every gate passes, may fast-forward the exact tested commit to the deploy-only `production` branch. `main` is the release-candidate branch; `production` is the deployment boundary.
 
 The gate has two distinct checks:
 

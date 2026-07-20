@@ -16,7 +16,8 @@ export type RollupSite = {
   categoryLabel: string;
   trackerRequests: number;
   thirdPartyRequests: number;
-  thirdPartyCookies: number;
+  /** null when this run's cookie family was unsupported or censored. */
+  thirdPartyCookies: number | null;
   shieldsThirdPartyChange: number | null;
 };
 
@@ -26,7 +27,10 @@ export type CategoryRollup = {
   siteCount: number;
   medianTrackers: number;
   medianThirdParty: number;
-  medianCookies: number;
+  /** null when no site in the category has complete cookie evidence. */
+  medianCookies: number | null;
+  /** Cookie-family denominator, which can be smaller than siteCount. */
+  cookieMeasuredSites: number;
   /** Signed median of the category's paired-site changes; null with no pairs. */
   medianShieldsChange: number | null;
   /** Sites in this category with an eligible Shields pair (the mix's basis). */
@@ -64,13 +68,15 @@ export function buildCategoryRollups(sites: RollupSite[]): CategoryRollup[] {
   const rollups: CategoryRollup[] = [];
   for (const [id, list] of byCategory) {
     const paired = list.map((site) => site.shieldsThirdPartyChange).filter((value): value is number => value !== null);
+    const measuredCookies = list.map((site) => site.thirdPartyCookies).filter((value): value is number => value !== null);
     rollups.push({
       id,
       label: list[0].categoryLabel,
       siteCount: list.length,
       medianTrackers: median(list.map((site) => site.trackerRequests)),
       medianThirdParty: median(list.map((site) => site.thirdPartyRequests)),
-      medianCookies: median(list.map((site) => site.thirdPartyCookies)),
+      medianCookies: measuredCookies.length > 0 ? median(measuredCookies) : null,
+      cookieMeasuredSites: measuredCookies.length,
       medianShieldsChange: paired.length > 0 ? median(paired) : null,
       shieldsPairedSites: paired.length,
       shieldsDecreased: paired.filter((value) => value < 0).length,

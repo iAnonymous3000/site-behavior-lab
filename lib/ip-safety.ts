@@ -87,6 +87,10 @@ function isPublicIpv6(address: string): boolean {
   if (first === 0x0064 && second === 0xff9b) return false;
   if (first === 0x2001 && (second === 0 || second === 0x0002 || second === 0x0db8)) return false;
   if (first === 0x2002) return false;
+  // IANA marks both ranges non-globally-reachable. Keep these exact CIDR
+  // boundaries in sync with the IPv6 Special-Purpose Address Space registry.
+  if (first === 0x3fff && (second & 0xf000) === 0) return false; // 3fff::/20 documentation
+  if (first === 0x5f00) return false; // 5f00::/16 SRv6 SIDs
   return true;
 }
 

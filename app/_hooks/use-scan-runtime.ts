@@ -69,11 +69,13 @@ export function useScanRuntime({
   const scanControllerRef = useRef<AbortController | null>(null);
   const [scannerHealth, setScannerHealth] = useState<ScanRuntimeHealth | null>(null);
   const [scannerHealthError, setScannerHealthError] = useState<string | null>(null);
+  const [scannerHealthAttempt, setScannerHealthAttempt] = useState(0);
   const [turnstileToken, setTurnstileToken] = useState("");
   // Bumped after every network scan attempt: Turnstile tokens are single-use.
   const [turnstileResetNonce, setTurnstileResetNonce] = useState(0);
   const [scheduledRescanCreateBusy, setScheduledRescanCreateBusy] = useState(false);
   const [urlNotice, setUrlNotice] = useState("");
+  const [urlError, setUrlError] = useState("");
 
   useEffect(() => {
     if (!shouldLoadSavedScanAccessKey({ liveScanEnabled: LIVE_SCAN_ENABLED, reportPage })) return;
@@ -110,8 +112,9 @@ export function useScanRuntime({
   useEffect(() => {
     if (reportPage || !LIVE_SCAN_ENABLED) return;
     let cancelled = false;
+    const controller = new AbortController();
 
-    void fetchRuntimeScannerHealth({ resolveApiUrl: scannerApiUrl }).then((result) => {
+    void fetchRuntimeScannerHealth({ resolveApiUrl: scannerApiUrl, signal: controller.signal }).then((result) => {
       if (cancelled) return;
       setScannerHealth(result.health);
       setScannerHealthError(result.error);
@@ -119,8 +122,9 @@ export function useScanRuntime({
 
     return () => {
       cancelled = true;
+      controller.abort();
     };
-  }, [reportPage]);
+  }, [reportPage, scannerHealthAttempt]);
 
   const policy = deriveScanRuntimePolicy({
     liveScanEnabled: LIVE_SCAN_ENABLED,
@@ -144,6 +148,10 @@ export function useScanRuntime({
   }, [policy.consentComparisonEnabled, policy.gpcComparisonEnabled, policy.shieldsComparisonEnabled]);
 
   async function runScan(targetUrl: string) {
+    if (cancellingScan) {
+      setError("Wait for the cancellation request to finish before starting another scan.");
+      return;
+    }
     if (scheduledRescanCreateBusy) {
       setError("Wait for the scheduled rescan request to finish before scanning.");
       return;
@@ -219,7 +227,6 @@ export function useScanRuntime({
       );
     } finally {
       if (scanControllerRef.current === controller) scanControllerRef.current = null;
-      setCancellingScan(false);
       setLoading(false);
       setScanning(false);
       if (policy.turnstileRequired) {
@@ -230,7 +237,7 @@ export function useScanRuntime({
   }
 
   async function resumeActiveScan() {
-    if (!activeScanJob || loading) return;
+    if (!activeScanJob || loading || cancellingScan) return;
     const job = activeScanJob;
     const controller = new AbortController();
     scanControllerRef.current = controller;
@@ -259,7 +266,6 @@ export function useScanRuntime({
       );
     } finally {
       if (scanControllerRef.current === controller) scanControllerRef.current = null;
-      setCancellingScan(false);
       setLoading(false);
       setScanning(false);
     }
@@ -268,12 +274,16 @@ export function useScanRuntime({
   async function cancelActiveScan() {
     if (!activeScanJob || cancellingScan) return;
     const job = activeScanJob;
+    scanControllerRef.current?.abort();
+    const controller = new AbortController();
+    scanControllerRef.current = controller;
     setCancellingScan(true);
+    setLoading(false);
+    setScanning(false);
     setCancelScanError(null);
 
     try {
-      const message = await cancelRuntimeScan({ job, resolveApiUrl: scannerApiUrl });
-      scanControllerRef.current?.abort();
+      const message = await cancelRuntimeScan({ job, resolveApiUrl: scannerApiUrl, signal: controller.signal });
       setActiveScanJob(null);
       setLoading(false);
       setScanning(false);
@@ -287,23 +297,37 @@ export function useScanRuntime({
           : "The scan could not be cancelled."
       );
     } finally {
+      if (scanControllerRef.current === controller) scanControllerRef.current = null;
       setCancellingScan(false);
     }
+  }
+
+  function retryScannerHealth() {
+    setScannerHealth(null);
+    setScannerHealthError(null);
+    setScannerHealthAttempt((attempt) => attempt + 1);
   }
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const trimmed = form.url.trim();
     if (!trimmed) {
-      setError("Enter a public URL to scan, for example https://example.com.");
+      const message = "Enter a public URL to scan, for example https://example.com.";
+      setUrlError(message);
+      setError(message);
+      window.requestAnimationFrame(() => document.getElementById("url")?.focus());
       return;
     }
     const normalized = normalizeScanUrl(trimmed);
     if (!normalized) {
       setUrlNotice("");
-      setError("Enter a valid public URL, for example https://example.com.");
+      const message = "Enter a valid public URL, for example https://example.com.";
+      setUrlError(message);
+      setError(message);
+      window.requestAnimationFrame(() => document.getElementById("url")?.focus());
       return;
     }
+    setUrlError("");
     setForm((current) => ({ ...current, url: normalized }));
     setUrlNotice(
       /[?#]/.test(trimmed)
@@ -315,6 +339,7 @@ export function useScanRuntime({
 
   function useExample(url: string) {
     setForm((current) => ({ ...current, url: `https://${url}` }));
+    setUrlError("");
     // Example chips prefill only; the visitor still chooses scan options and
     // deliberately submits before any paid browser work begins.
     window.requestAnimationFrame(() => document.getElementById("url")?.focus());
@@ -365,16 +390,20 @@ export function useScanRuntime({
     turnstileResetNonce,
     setTurnstileToken,
     urlNotice,
-    clearUrlNotice: () => setUrlNotice(""),
+    urlError,
+    clearUrlNotice: () => {
+      setUrlNotice("");
+      setUrlError("");
+    },
     policy,
     scannerStatus: scannerStatusText(scannerHealth, scannerHealthError),
     statusLabel: liveScannerStatusLabel({
       health: scannerHealth,
       error: scannerHealthError,
       liveScanEnabled: LIVE_SCAN_ENABLED,
-      staticExport: STATIC_EXPORT,
-      staticLiveScanEnabled: STATIC_LIVE_SCAN_ENABLED
+      staticExport: STATIC_EXPORT
     }),
+    retryScannerHealth,
     handleSubmit,
     useExample,
     updateAccessKey,

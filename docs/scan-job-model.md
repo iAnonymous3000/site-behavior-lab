@@ -11,10 +11,11 @@ reached R2, but cannot replay queued/running work.
 
 Phase 2 adds an opt-in restart-safe execution path in that same Durable Object,
 behind `SITE_BEHAVIOR_LAB_DURABLE_JOBS=1`. The committed deployment configuration
-keeps the flag at `0`; the path is not shipped live until its encryption key,
-private coordinator channel, privacy disclosure, and no-polling lease-expiry test
-all pass. This note pins both the current flag-off behavior and the gated Phase-2
-contract.
+keeps the flag at `0`; the implementation ships in the deployment artifact but is
+not activated in production until the external encryption key/private coordinator
+setup and staged no-polling lease-expiry test pass. The privacy disclosure is
+already published. This note pins both the current flag-off behavior and the gated
+Phase-2 contract.
 
 ## Goals
 
@@ -344,7 +345,7 @@ retention), pruned on write, hard row cap with oldest-first eviction. The
 best-effort write runs in `waitUntil`; failures are logged and never replace
 the container's already-accepted `202` response.
 
-### Phase 2: durable execution (disabled and unshipped behind a gate)
+### Phase 2: durable execution (implemented; disabled in production behind an activation gate)
 
 When `SITE_BEHAVIOR_LAB_DURABLE_JOBS=1`, queued jobs persist a dedicated
 encrypted execution DTO so a restarted container can resume accepted work. This

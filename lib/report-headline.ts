@@ -14,8 +14,10 @@ import {
   isOperationalEntity,
   keystrokeLeakHashed,
   pixelFieldLabel,
+  respondedTrackerEntityNames,
   scanLoadFailureStatus,
   shieldsRunMeasurement,
+  trackerResponseQualification,
   trackerEntitySummaries
 } from "./report-insights";
 import { plural } from "./text-format";
@@ -86,6 +88,7 @@ export function buildReportHeadline(view: ReportView): ReportHeadline {
   const entities = trackerEntitySummaries(run.evidence);
   const trackingEntities = entities.filter((entity) => !isOperationalEntity(entity));
   const trackingNames = trackingEntities.map((entity) => entity.entity);
+  const respondedEntities = respondedTrackerEntityNames(run.evidence);
   const platforms = entities.filter((entity) => HEADLINE_PLATFORMS.includes(entity.entity)).map((entity) => entity.entity);
   const highEntropy = highEntropyDetections(run.evidence);
   const sessionReplay = trackingEntities.some((entity) =>
@@ -175,7 +178,7 @@ export function buildReportHeadline(view: ReportView): ReportHeadline {
       ? finish(
           "alarm",
           `${domain} sent a hashed copy of what you type to ${recipientCount}.`,
-          `A unique value typed into a form on ${domain} reached ${recipients} as a one-way hash, without the form being submitted, the pattern used to match you to a known identity. A real visitor's keystrokes could be captured the same way.`
+          `A one-way hash of a unique value typed into a form on ${domain} was placed in requests sent to ${recipients}, without the form being submitted, the pattern used to match you to a known identity. A real visitor's keystrokes could be captured the same way.`
         )
       : finish(
           "warn",
@@ -213,6 +216,7 @@ export function buildReportHeadline(view: ReportView): ReportHeadline {
   // even verified r2 evidence does not make the whole request log post-choice.
   if (classificationDeltasUsable && arms && axis === "consent" && arms.variant.consent?.controlActivated === true) {
     const rejectTracking = trackerEntitySummaries(arms.variant.evidence).filter((entity) => !isOperationalEntity(entity));
+    const rejectResponded = respondedTrackerEntityNames(arms.variant.evidence);
     // Both consent headlines describe the Reject-all (variant) visit, so the
     // stat chips and share text must quote that run too, not the Accept-all
     // baseline the report otherwise leads with. "In the visit where the
@@ -223,10 +227,10 @@ export function buildReportHeadline(view: ReportView): ReportHeadline {
     if (rejectTracking.length > 0) {
       return finish(
         "warn",
-        `${domain} still reached ${plural(rejectTracking.length, "tracking company", "tracking companies")} in the visit that clicked Reject all.`,
+        `${domain} still sent requests to ${plural(rejectTracking.length, "tracking company", "tracking companies")} in the visit that clicked Reject all.`,
         `In the visit where the scanner clicked Reject all, ${joinNames(
           rejectTracking.map((entity) => entity.entity)
-        )} received requests. ${registration} ${CONSENT_WHOLE_VISIT_CAVEAT} The diff lists the services that appeared only in the visit that clicked Accept all.`,
+        )} ${trackerResponseQualification(rejectTracking, rejectResponded)}. ${registration} ${CONSENT_WHOLE_VISIT_CAVEAT} The diff lists the services that appeared only in the visit that clicked Accept all.`,
         buildStats(arms.variant, rejectTracking.length),
         "variant"
       );
@@ -234,8 +238,8 @@ export function buildReportHeadline(view: ReportView): ReportHeadline {
     if (rawCountDeltasUsable && arms.baseline.consent?.controlActivated === true && trackingEntities.length > 0) {
       return finish(
         "info",
-        `${domain} loaded no catalogued trackers in the visit that clicked Reject all.`,
-        `The visit that clicked Reject all loaded no catalogued tracking company, while the visit that clicked Accept all loaded ${plural(
+        `${domain} recorded no requests to catalogued trackers in the visit that clicked Reject all.`,
+        `The visit that clicked Reject all recorded no request to a catalogued tracking company, while the visit that clicked Accept all recorded requests to ${plural(
           trackingEntities.length,
           "tracking company",
           "tracking companies"
@@ -262,12 +266,12 @@ export function buildReportHeadline(view: ReportView): ReportHeadline {
     if (classificationDeltasUsable && gpcOnTracking.length > 0 && after > 0 && reductionPct < 25) {
       return finish(
         "alarm",
-        `${domain} still contacted ${plural(gpcOnTracking.length, "tracking company", "tracking companies")} with a privacy signal on.`,
-        `The visit with a "do not sell or share" (GPC) signal switched on still contacted ${plural(
+        `${domain} still sent requests to ${plural(gpcOnTracking.length, "tracking company", "tracking companies")} with a privacy signal configured.`,
+        `The visit configured with a "do not sell or share" (GPC) signal still sent requests to ${plural(
           gpcOnTracking.length,
           "tracking company",
           "tracking companies"
-        )}: ${plural(after, "third-party request")}, versus ${n(before)} in the visit without the signal. An observed difference for this pair of visits; request counts cannot show whether data sales stopped, only what loaded.`,
+        )}: ${plural(after, "third-party request")}, versus ${n(before)} in the visit without the signal. An observed difference for this pair of visits; request counts cannot show whether data sales stopped, only what was requested.`,
         buildStats(arms.variant, gpcOnTracking.length),
         "variant"
       );
@@ -277,8 +281,8 @@ export function buildReportHeadline(view: ReportView): ReportHeadline {
       // evidence switcher default stays there too (no focusArm).
       return finish(
         "calm",
-        `Off-site requests to ${domain} dropped ${reductionPct}% with a privacy signal on.`,
-        `With a Global Privacy Control signal on, off-site requests dropped ${reductionPct}% (${n(before)} → ${n(after)}). An observed difference for this pair of visits, not proof the site honors the signal.`
+        `Off-site requests to ${domain} were ${reductionPct}% lower in the visit configured with a privacy signal.`,
+        `In the visit configured with Global Privacy Control, off-site requests were ${reductionPct}% lower (${n(before)} → ${n(after)}). An observed difference for this pair of visits, not proof the site honors or received the signal.`
       );
     }
   }
@@ -304,11 +308,11 @@ export function buildReportHeadline(view: ReportView): ReportHeadline {
       // Pair-framed with lead-run stats: no focusArm (see the GPC calm note).
       return finish(
         removed >= 30 ? "warn" : "info",
-        `${domain} loaded ${plural(removed, "fewer third-party request")} with Brave-list blocking on.`,
+        `${domain} recorded ${plural(removed, "fewer third-party request")} in the visit configured for Brave-list blocking.`,
         `The visit with no blocking made ${plural(
           total,
           "request"
-        )}; with Brave's ad-block engine and default Shields filter lists actively blocking (a simulation in this scanner's browser, not a live Brave-browser visit), ${plural(removed, "third-party request")} did not load.${engineNote}${extraNote}`
+        )}; the visit configured to apply Brave's ad-block engine and default Shields filter lists (a simulation in this scanner's browser, not a live Brave-browser visit) recorded ${plural(removed, "fewer third-party request")}.${engineNote}${extraNote}`
       );
     }
   }
@@ -318,12 +322,6 @@ export function buildReportHeadline(view: ReportView): ReportHeadline {
   // has a null status is proven only to have been SENT requests, never to
   // have received them. Entities with at least one answered request keep the
   // receipt verbs; the rest get attempt wording.
-  const respondedEntities = new Set<string>();
-  for (const domainSummary of run.evidence.domains) {
-    if (domainSummary.thirdParty && domainSummary.tracker && domainSummary.statuses.length > 0) {
-      respondedEntities.add(domainSummary.tracker.entity);
-    }
-  }
   const receiptClause = (names: string, total: number, answeredCount: number): string =>
     answeredCount === total
       ? `${names} saw this visit`
@@ -359,10 +357,10 @@ export function buildReportHeadline(view: ReportView): ReportHeadline {
         : `${domain} sent this visit to ${plural(trackingEntities.length, "tracking company", "tracking companies")}.`,
       `${
         answeredCount === trackingEntities.length
-          ? `${joinNames(trackingNames)} loaded with the page`
+          ? `${joinNames(trackingNames)} answered requests from the page`
           : answeredCount > 0
             ? `${joinNames(trackingNames)} were sent requests (${answeredCount} answered; the rest recorded no response)`
-            : `${joinNames(trackingNames)} were sent requests that recorded no response, so receipt is unproven`
+          : `${joinNames(trackingNames)} were sent requests that recorded no response, so receipt is unproven`
       }: ${plural(run.counts.thirdPartyRequests, "request")} went to ${plural(
         run.counts.thirdPartyDomains,
         "third-party domain"
@@ -419,7 +417,7 @@ export function buildReportHeadline(view: ReportView): ReportHeadline {
       ? `${plural(
           run.counts.thirdPartyDomains,
           "third-party domain"
-        )} loaded, but no catalogued tracking company, third-party cookie, or fingerprinting signal showed up in this visit.`
+        )} appeared in the request log, but no catalogued tracking company, third-party cookie, or fingerprinting signal showed up in this visit.`
       : "No third-party domains, tracking companies, cookies, or fingerprinting signals showed up in this visit.",
     calmStats
   );

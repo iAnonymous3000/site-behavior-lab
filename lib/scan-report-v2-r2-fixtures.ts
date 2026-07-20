@@ -372,7 +372,7 @@ export function makeConsentInterventionReportV2R2(): PublicComparisonReportV2R2 
   const baseline = makeConsentRunR2("accept-all", { runId: "run-consent-accept" });
   const variant = makeConsentRunR2("reject-all", { runId: "run-consent-reject" });
   variant.startedAt = "2026-07-09T10:01:00.000Z"; // not a fingerprint input; no re-mint needed
-  const arm = (run: ScanRunV2R2, mode: "accept-all" | "reject-all"): ArmVerification => ({
+  const arm = (mode: "accept-all" | "reject-all"): ArmVerification => ({
     axis: "consent",
     expected: `consent:${mode}`,
     observed: `consent:${mode}`,
@@ -385,7 +385,7 @@ export function makeConsentInterventionReportV2R2(): PublicComparisonReportV2R2 
     axis: "consent",
     pairId: "pair-consent-r2",
     order: "AB",
-    verification: { baseline: arm(baseline, "accept-all"), variant: arm(variant, "reject-all") },
+    verification: { baseline: arm("accept-all"), variant: arm("reject-all") },
     evidence: { pairs: 1, counterbalanced: false, strength: "observed-difference" }
   });
 }

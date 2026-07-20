@@ -295,7 +295,7 @@ type InterventionExperiment = {
   kind: "intervention";
   axis: InterventionAxis;
   pairId: string;                    // random id shared by both runs
-  order: "AB" | "BA";                // counterbalanced from the first v2 release (no scan cost)
+  order: "AB" | "BA";                // randomized per pair; one pair is not counterbalanced
   verification: {                    // section 4.3: BOTH arms, always
     baseline: ArmVerification;
     variant: ArmVerification;
@@ -1014,9 +1014,10 @@ data files (versioned, reviewed like code); the internal shape of tier-0 `RawCap
 3. **Phase shape**: compact `phaseId` on every phase-sensitive observation, backed by
    the per-run phase table; requests attribute by start phase; cookies/storage get
    per-phase mutations plus final snapshots (7.2).
-4. **AB/BA**: counterbalanced from the first v2 experiment release (no added scan
-   cost), on intervention experiments only. Repeated pairs deferred; evidence strength
-   is explicit (4.2) and behavior alerts will require a confirmation run.
+4. **AB/BA**: order is randomized from the first v2 experiment release (no added
+   scan cost), on intervention experiments only. A single pair is not counterbalanced;
+   only aggregated independent pairs covering both AB and BA orders are. Evidence
+   strength is explicit (4.2) and behavior alerts require replicated evidence.
 5. **Digests**: aggregate manifest digest per run (stored in `toolchain`) + published
    immutable per-list digest manifest, including engine and normalization versions
    (3.4, 3.5).

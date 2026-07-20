@@ -25,7 +25,6 @@ import type {
   PublicComparisonReportV2R2,
   PublicScanReportV2R2,
   PublicSingleReportV2R2,
-  ScanRunV2R2,
   ShieldsVerificationFactsR2,
   SupportingPairR2
 } from "./scan-report-v2-r2";

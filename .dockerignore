@@ -1,24 +1,50 @@
 node_modules
 .next
+.next-pages-work
+out
+dist
+build
+.vercel
 .site-behavior-lab
 .unit-test-dist
 coverage
 test-results
 playwright-report
 blob-report
+junit.xml
 .git
 .env
 .env.*
 !.env.example
+.wrangler
+*.pem
+*.key
+*.crt
+*.p12
 *.log
 *.tmp
 *.temp
 wrangler.container.generated.*.jsonc
+tsconfig.tsbuildinfo
+*.tsbuildinfo
 .DS_Store
+Thumbs.db
+.idea
+.vscode
+*.swp
+*.swo
 
 # Local operator secrets and assistant state must never enter the build
 # context: the build stage's COPY . . would otherwise expose them to the
 # build daemon, layer caches, and every build-time process.
 .cloudflare-*.local
+CLAUDE.md
 CLAUDE.local.md
 .claude
+.claude.json
+.codex
+.codexignore
+CODEX.md
+.cursor
+.cursorrules
+.cursorignore

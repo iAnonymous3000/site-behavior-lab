@@ -50,7 +50,7 @@ export function VisitPhasesAndStateChanges({ run }: { run: RunView }) {
         prove that no traffic occurred; some phase traffic can be intentionally excluded from the public request log.
       </p>
 
-      <div className="table-wrap visit-phase-table">
+      <div className="table-wrap visit-phase-table" role="region" aria-label="Visit phase evidence table" tabIndex={0}>
         <table>
           <thead>
             <tr>

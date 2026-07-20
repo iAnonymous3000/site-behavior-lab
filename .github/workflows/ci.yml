@@ -101,10 +101,39 @@ jobs:
       - name: Smoke test
         run: BASE_URL=http://127.0.0.1:3100 npm run test:smoke
 
+  docker:
+    name: Docker Runtime and Public R2 Smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+
+      - name: Set up Node
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      # Builds the exact deployable image once, preserves the v1/filesystem
+      # smoke, then restarts that image against a process-local S3-compatible
+      # endpoint with the production public-v2/R2 gates enabled.
+      - name: Smoke deployable Docker image
+        run: npm run test:smoke:docker
+        env:
+          DOCKER_SMOKE_PUBLIC_R2: "1"
+
   promote:
     name: Advance production to the tested SHA
     needs:
       - app
+      - docker
       - smoke
     # PR code never receives a write token. Pushes and explicit dispatches must
     # both target this repository's main ref before they can promote.

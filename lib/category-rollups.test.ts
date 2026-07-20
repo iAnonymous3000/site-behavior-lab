@@ -55,6 +55,22 @@ test("buildCategoryRollups excludes uncategorized sites and reports null Shields
   assert.equal(rollups[0].shieldsIncreased, 0);
 });
 
+test("cookie medians exclude unsupported or censored cookie families", () => {
+  const rollups = buildCategoryRollups([
+    site({ thirdPartyCookies: 8 }),
+    site({ thirdPartyCookies: 2 }),
+    site({ thirdPartyCookies: null })
+  ]);
+
+  assert.equal(rollups[0].siteCount, 3);
+  assert.equal(rollups[0].cookieMeasuredSites, 2);
+  assert.equal(rollups[0].medianCookies, 5);
+
+  const unavailable = buildCategoryRollups([site({ thirdPartyCookies: null })]);
+  assert.equal(unavailable[0].cookieMeasuredSites, 0);
+  assert.equal(unavailable[0].medianCookies, null);
+});
+
 test("buildCategoryRollups keeps increased pairs signed and publishes the direction mix", () => {
   // Counterexample pin: an x.com-style pair that loads MORE third-party
   // requests with blocking on must pull the median as a positive value and be

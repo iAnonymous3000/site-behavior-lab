@@ -134,12 +134,18 @@ export function comparisonEligibility(report: ComparisonScanResult): ComparisonE
   }
   // Same OBSERVED subject, not just the same requested one: two visits that
   // landed on different final pages (a consent wall, a regional redirect)
-  // measured different documents. Consent pairs are exempt from the final-URL
-  // rule below the origin level: the dispatched click itself can navigate.
-  if (
-    report.comparisonType !== "consent" &&
-    normalizedRoute(report.baseline.conditions.finalUrl) !== normalizedRoute(report.variant.conditions.finalUrl)
-  ) {
+  // measured different documents. A dispatched consent click may navigate to
+  // a different path or query, but crossing origins changes the observed site
+  // context and cannot support an accept-vs-reject comparison.
+  if (report.comparisonType === "consent") {
+    const baselineOrigin = normalizedOrigin(report.baseline.conditions.finalUrl);
+    const variantOrigin = normalizedOrigin(report.variant.conditions.finalUrl);
+    if (baselineOrigin === null || variantOrigin === null || baselineOrigin !== variantOrigin) {
+      reasons.push(
+        `The two consent visits ended on different or unprovable origins (${report.baseline.conditions.finalUrl} vs ${report.variant.conditions.finalUrl}), so their difference is not a comparison of choices on one site origin.`
+      );
+    }
+  } else if (normalizedRoute(report.baseline.conditions.finalUrl) !== normalizedRoute(report.variant.conditions.finalUrl)) {
     reasons.push(
       `The two visits ended on different pages (${report.baseline.conditions.finalUrl} vs ${report.variant.conditions.finalUrl}), so their difference is not a comparison of one page.`
     );
@@ -290,6 +296,16 @@ function consentDispatchProblem(label: string, choice: "accept-all" | "reject-al
 /** Trailing-slash-insensitive route equality; everything else must match exactly. */
 function normalizedRoute(url: string): string {
   return url.trim().replace(/\/+$/, "");
+}
+
+/** URL-standard origin equality; default ports and host casing normalize. */
+function normalizedOrigin(url: string): string | null {
+  try {
+    const parsed = new URL(url.trim());
+    return parsed.origin === "null" ? null : parsed.origin;
+  } catch {
+    return null;
+  }
 }
 
 /**

@@ -123,10 +123,9 @@ test("flags a GPC comparison that barely changed as an alarm", () => {
 
   const headline = buildReportHeadline(viewFromV1Report(gpcPair(baseline, variant)));
   assert.equal(headline.tone, "alarm");
-  // DESCRIPTIVE two-visit wording only: "the signal barely changed what
-  // loaded" is intervention-attributed phrasing (RFC 4.4) and would need
-  // claims.interventionAttribution, which no v1 report can grant.
-  assert.match(headline.headline, /amazon\.com still contacted 1 tracking company with a privacy signal on\./);
+  // V1 records configuration but no readback, so the headline must not claim
+  // that the signal was verified as received or applied.
+  assert.match(headline.headline, /amazon\.com still sent requests to 1 tracking company with a privacy signal configured\./);
   assert.match(headline.subhead, /do not sell or share/);
   assert.match(headline.subhead, /versus 420 in the visit without the signal/);
   // The lead finding quotes the GPC-on visit's numbers, so the evidence
@@ -172,8 +171,8 @@ test("credits a GPC comparison that pulled back as calm", () => {
 
   const headline = buildReportHeadline(viewFromV1Report(gpcPair(baseline, variant)));
   assert.equal(headline.tone, "calm");
-  assert.match(headline.headline, /Off-site requests to respectful\.example dropped 100% with a privacy signal on\./);
-  assert.match(headline.subhead, /not proof the site honors the signal/);
+  assert.match(headline.headline, /Off-site requests to respectful\.example were 100% lower in the visit configured with a privacy signal\./);
+  assert.match(headline.subhead, /not proof the site honors or received the signal/);
 });
 
 test("the GPC alarm counts tracking companies from the GPC-on visit, not the baseline", () => {
@@ -198,7 +197,7 @@ test("the GPC alarm counts tracking companies from the GPC-on visit, not the bas
 
   const headline = buildReportHeadline(viewFromV1Report(gpcPair(baseline, variant)));
   assert.equal(headline.tone, "alarm");
-  assert.match(headline.subhead, /still contacted 1 tracking company:/);
+  assert.match(headline.subhead, /still sent requests to 1 tracking company:/);
   assert.doesNotMatch(headline.subhead, /3 tracking companies/);
   // The stat chips and share text sit next to the sentence, so they must quote
   // the same GPC-on visit, not the baseline's three companies.
@@ -246,7 +245,7 @@ test("frames a Shields comparison as the observed paired-visit difference", () =
 
   const headline = buildReportHeadline(viewFromV1Report(shieldsPair(baseline, variant)));
   assert.equal(headline.tone, "warn");
-  assert.match(headline.headline, /heavy\.example loaded 55 fewer third-party requests with Brave-list blocking on\./);
+  assert.match(headline.headline, /heavy\.example recorded 55 fewer third-party requests in the visit configured for Brave-list blocking\./);
   assert.doesNotMatch(headline.headline, /would/);
   // Pair-framed with lead-run stat chips: the switcher default stays on the
   // lead (baseline) run, so no focus arm is declared.
@@ -515,7 +514,7 @@ test("trackers surviving a real Reject all click lead the consent-comparison hea
 
   const headline = buildReportHeadline(viewFromV1Report(consentPair(acceptRun, rejectRun)));
   assert.equal(headline.tone, "warn");
-  assert.match(headline.headline, /shop\.example still reached 1 tracking company in the visit that clicked Reject all\./);
+  assert.match(headline.headline, /shop\.example still sent requests to 1 tracking company in the visit that clicked Reject all\./);
   assert.match(headline.subhead, /Google/);
   // The recording covers the full visit and the click is never verified, so
   // no sentence may sequence the traffic relative to the click.
@@ -526,6 +525,26 @@ test("trackers surviving a real Reject all click lead the consent-comparison hea
   assert.match(headline.subhead, /legitimate interest/);
   assert.doesNotMatch(headline.subhead, /After the scanner clicked/);
   assert.equal(headline.focusArm, "variant");
+});
+
+test("an unanswered Reject-all tracker is described as a send, never proven receipt", () => {
+  const quietTracker = {
+    ...makeTrackerDomain("quiet-tracker.example", 2, "Quiet Analytics", "analytics"),
+    statuses: []
+  };
+  const acceptRun = {
+    ...makeResult({ firstPartyDomain: "shop.example", domains: [quietTracker], thirdPartyRequests: 2 }),
+    consentInteraction: { mode: "accept-all" as const, clicked: true, cmp: "OneTrust" }
+  };
+  const rejectRun = {
+    ...makeResult({ firstPartyDomain: "shop.example", domains: [quietTracker], thirdPartyRequests: 2 }),
+    consentInteraction: { mode: "reject-all" as const, clicked: true, cmp: "OneTrust" }
+  };
+
+  const headline = buildReportHeadline(viewFromV1Report(consentPair(acceptRun, rejectRun)));
+  assert.match(headline.headline, /still sent requests to 1 tracking company/);
+  assert.match(headline.subhead, /recorded no response, so receipt is unproven/);
+  assert.doesNotMatch(`${headline.headline} ${headline.subhead}`, /received requests|still reached/);
 });
 
 test("a verified r2 consent headline states registration without dropping whole-visit caveats", () => {
@@ -564,7 +583,7 @@ test("a clean reject run headlines that the consent choice made a difference", (
   assert.equal(headline.tone, "info");
   // The scanner cannot verify the site registered the click, so the headline
   // describes the Reject-all visit, never an effect the rejection caused.
-  assert.match(headline.headline, /shop\.example loaded no catalogued trackers in the visit that clicked Reject all\./);
+  assert.match(headline.headline, /shop\.example recorded no requests to catalogued trackers in the visit that clicked Reject all\./);
   assert.doesNotMatch(headline.headline, /Rejecting|removed/);
 });
 
@@ -768,7 +787,7 @@ test("a tampered wire diff cannot drive the headline; numbers derive from the tw
   report.diff.totalRequests = { before: 12345, after: 12345, delta: 0 };
 
   const headline = buildReportHeadline(viewFromV1Report(report));
-  assert.match(headline.headline, /heavy\.example loaded 55 fewer third-party requests with Brave-list blocking on\./);
+  assert.match(headline.headline, /heavy\.example recorded 55 fewer third-party requests in the visit configured for Brave-list blocking\./);
   assert.match(headline.subhead, /made 100 requests/);
 });
 

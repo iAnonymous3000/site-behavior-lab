@@ -73,6 +73,41 @@ test("status polling retries 429/502/503 and honors bounded Retry-After", async 
   assert.equal(transientBodyCancelled, true);
 });
 
+test("sustained transient status failures return a resumable ordinary error", async () => {
+  let calls = 0;
+  let cancelledBodies = 0;
+  const waits: number[] = [];
+  const fetcher: ScanJobPollFetcher = async () => {
+    calls += 1;
+    return new Response(
+      new ReadableStream({
+        cancel() {
+          cancelledBodies += 1;
+        }
+      }),
+      { status: 503 }
+    );
+  };
+
+  await assert.rejects(
+    pollAcceptedScanJob({
+      statusPath: STATUS_PATH,
+      fetcher,
+      wait: async (ms) => {
+        waits.push(ms);
+      }
+    }),
+    (error: unknown) =>
+      error instanceof Error &&
+      !(error instanceof ScanJobEndedError) &&
+      /temporarily unavailable \(HTTP 503\)/.test(error.message)
+  );
+
+  assert.equal(calls, 4, "one request plus three bounded retries");
+  assert.equal(cancelledBodies, 4);
+  assert.deepEqual(waits, [1_000, 2_000, 4_000]);
+});
+
 test("saved-report recovery retries transient faults and honors HTTP-date Retry-After", async () => {
   const now = Date.UTC(2026, 6, 18, 12, 0, 0);
   const calls: string[] = [];

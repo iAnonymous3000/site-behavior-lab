@@ -6,6 +6,7 @@ import type { RuntimeScanJobApiResponse } from "./runtime-scan-report";
 
 const TRANSIENT_HTTP_STATUSES = new Set([429, 502, 503]);
 const MAX_TRANSIENT_BACKOFF_MS = 30_000;
+const MAX_TRANSIENT_RETRIES_PER_CYCLE = 3;
 
 export type ScanJobPollFetcher = (input: string, init: RequestInit) => Promise<Response>;
 export type ScanJobPollWait = (ms: number, signal?: AbortSignal) => Promise<void>;
@@ -153,7 +154,7 @@ type RetryContext = {
 };
 
 async function fetchWithTransientRetry(url: string, context: RetryContext): Promise<Response> {
-  let transientAttempt = 0;
+  let transientRetries = 0;
   for (;;) {
     throwIfAborted(context.signal);
     const response = await context.fetcher(url, {
@@ -163,14 +164,23 @@ async function fetchWithTransientRetry(url: string, context: RetryContext): Prom
     });
     if (!TRANSIENT_HTTP_STATUSES.has(response.status)) return response;
 
-    transientAttempt += 1;
-    const fallback = Math.min(1_000 * 2 ** Math.min(transientAttempt - 1, 10), MAX_TRANSIENT_BACKOFF_MS);
-    const delay = retryAfterMs(response.headers.get("Retry-After"), context.now()) ?? fallback;
+    const status = response.status;
     try {
       await response.body?.cancel();
     } catch {
       /* the response will be discarded either way */
     }
+
+    // A retry budget belongs to one status/readback cycle, not to the accepted
+    // job as a whole. Sustained coordinator trouble must return an ordinary
+    // Error so the UI can expose Resume/Cancel while retaining the capability;
+    // an explicit resume starts a fresh bounded budget.
+    if (transientRetries >= MAX_TRANSIENT_RETRIES_PER_CYCLE) {
+      throw new Error(`The scan service remained temporarily unavailable (HTTP ${status}).`);
+    }
+    transientRetries += 1;
+    const fallback = Math.min(1_000 * 2 ** Math.min(transientRetries - 1, 10), MAX_TRANSIENT_BACKOFF_MS);
+    const delay = retryAfterMs(response.headers.get("Retry-After"), context.now()) ?? fallback;
     await context.wait(delay, context.signal);
   }
 }

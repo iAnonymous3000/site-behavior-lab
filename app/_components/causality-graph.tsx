@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useId, useMemo } from "react";
 import { plural } from "@/lib/text-format";
 import type { NetworkRequestRecord } from "@/lib/types";
 
@@ -49,6 +49,8 @@ function truncateMiddle(value: string, max = 30): string {
 
 function CausalityGraph({ requests }: { requests: NetworkRequestRecord[] }) {
   const edges = useMemo(() => buildCausalEdges(requests), [requests]);
+  const headingId = useId();
+  const scrollDescriptionId = useId();
   if (edges.length === 0) return null;
 
   const sources = orderedUnique(edges.map((edge) => edge.source));
@@ -82,15 +84,24 @@ function CausalityGraph({ requests }: { requests: NetworkRequestRecord[] }) {
   return (
     <section className="data-section causal-graph-card">
       <div className="section-heading">
-        <h2>Causal map</h2>
+        <h2 id={headingId}>Causal map</h2>
         <span className="muted">Which script caused which third-party request, from PageGraph provenance.</span>
       </div>
-      <div className="causal-graph-scroll">
+      <p className="visually-hidden" id={scrollDescriptionId}>
+        Horizontally scrollable visual map. A complete text list of the displayed relationships follows it.
+      </p>
+      <div
+        className="causal-graph-scroll"
+        role="region"
+        aria-labelledby={headingId}
+        aria-describedby={scrollDescriptionId}
+        tabIndex={0}
+      >
         <svg
           className="causal-graph"
           viewBox={`0 0 ${width} ${height}`}
-          role="img"
-          aria-label={`Causal map of ${sources.length} scripts contacting ${dests.length} third-party destinations.`}
+          aria-hidden="true"
+          focusable="false"
         >
           {edges.map((edge) => {
             const y1 = columnY(sources.length, sourceIndex.get(edge.source) ?? 0);
@@ -106,7 +117,9 @@ function CausalityGraph({ requests }: { requests: NetworkRequestRecord[] }) {
                 d={`M${x1},${y1} C${mx},${y1} ${mx},${y2} ${x2},${y2}`}
                 strokeWidth={strokeWidth}
                 fill="none"
-              />
+              >
+                <title>{`${edge.source} to ${edge.dest}: ${plural(edge.requests, "request")}`}</title>
+              </path>
             );
           })}
           {sources.map((source, index) => {
@@ -114,6 +127,7 @@ function CausalityGraph({ requests }: { requests: NetworkRequestRecord[] }) {
             const reach = sourceReach.get(source) ?? 0;
             return (
               <g key={`s-${source}`} className="causal-node causal-node-source">
+                <title>{source}</title>
                 <rect x={0} y={y} width={colW} height={nodeH} rx={8} />
                 <text x={12} y={y + 18} className="causal-node-label">
                   {truncateMiddle(source)}
@@ -130,6 +144,7 @@ function CausalityGraph({ requests }: { requests: NetworkRequestRecord[] }) {
             const isTracker = edges.some((edge) => edge.dest === dest && edge.tracker);
             return (
               <g key={`d-${dest}`} className={`causal-node causal-node-dest${isTracker ? " causal-node-tracker" : ""}`}>
+                <title>{dest}</title>
                 <rect x={rightX} y={y} width={colW} height={nodeH} rx={8} />
                 <text x={rightX + 12} y={y + 18} className="causal-node-label">
                   {truncateMiddle(dest)}
@@ -142,6 +157,15 @@ function CausalityGraph({ requests }: { requests: NetworkRequestRecord[] }) {
           })}
         </svg>
       </div>
+      <h3 className="visually-hidden">Relationships shown in the causal map</h3>
+      <ol className="visually-hidden">
+        {edges.map((edge) => (
+          <li key={`${edge.source}->${edge.dest}-text`}>
+            {edge.source} caused {plural(edge.requests, "request")} to {edge.dest}
+            {edge.tracker ? ", a catalogued service" : ""}.
+          </li>
+        ))}
+      </ol>
     </section>
   );
 }

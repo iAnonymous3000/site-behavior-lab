@@ -3,11 +3,9 @@ import {
   DURABLE_SCAN_JOB_RECONCILIATION_TIMEOUT_MS,
   DURABLE_SCAN_JOB_PUBLICATION_SETTLEMENT_MS,
   DURABLE_SCAN_JOB_PUBLICATION_TIMEOUT_MS,
-  DURABLE_SCAN_JOBS_ENV,
   isDurableScanJobPayload,
   isScanJobId,
-  type DurableScanJobPayload,
-  type DurableScanJobPayloadV1
+  type DurableScanJobPayload
 } from "./durable-scan-job-contract";
 
 export {

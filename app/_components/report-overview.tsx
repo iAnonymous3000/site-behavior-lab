@@ -2,6 +2,7 @@
 
 import {
   AlertTriangle,
+  AlertCircle,
   CheckCircle2,
   Clock,
   Cookie,
@@ -23,6 +24,7 @@ import { clientReportRuntime, staticAssetPath } from "../client-runtime";
 import { isCorpusStats, type CorpusStats } from "@/lib/corpus-stats";
 import { buildFindings, type FindingIconKey } from "@/lib/report-findings";
 import { buildReportHeadline } from "@/lib/report-headline";
+import { gpcRunMeasurement, shieldsRunMeasurement } from "@/lib/report-insights";
 import { committedReportLocation, locateReport, type ReportRuntime } from "@/lib/report-locator";
 import {
   displayRunView,
@@ -87,7 +89,7 @@ export function HeadlineBanner({
 }) {
   const headline = useMemo(() => buildReportHeadline(view), [view]);
   const [shareLink, setShareLink] = useState("");
-  const [copied, setCopied] = useState(false);
+  const [copyState, setCopyState] = useState<"idle" | "copied" | "failed">("idle");
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -110,10 +112,11 @@ export function HeadlineBanner({
   async function copyPost() {
     try {
       await navigator.clipboard.writeText(postText);
-      setCopied(true);
-      window.setTimeout(() => setCopied(false), 2000);
+      setCopyState("copied");
+      window.setTimeout(() => setCopyState("idle"), 2000);
     } catch {
-      setCopied(false);
+      setCopyState("failed");
+      window.setTimeout(() => setCopyState("idle"), 2500);
     }
   }
 
@@ -141,9 +144,15 @@ export function HeadlineBanner({
             <ExternalLink size={15} aria-hidden="true" />
             Post on X
           </a>
-          <button type="button" className="headline-share" onClick={copyPost}>
-            {copied ? <CheckCircle2 size={15} aria-hidden="true" /> : <Copy size={15} aria-hidden="true" />}
-            {copied ? "Copied" : "Copy post"}
+          <button type="button" className="headline-share" onClick={copyPost} aria-live="polite">
+            {copyState === "copied" ? (
+              <CheckCircle2 size={15} aria-hidden="true" />
+            ) : copyState === "failed" ? (
+              <AlertCircle size={15} aria-hidden="true" />
+            ) : (
+              <Copy size={15} aria-hidden="true" />
+            )}
+            {copyState === "copied" ? "Copied" : copyState === "failed" ? "Copy failed" : "Copy post"}
           </button>
         </div>
       </div>
@@ -257,6 +266,20 @@ export function MetricGrid({ run }: { run: RunView }) {
   const storageUnsupported = familyUnsupportedOnRun(run, "storage");
   const fingerprintUnsupported =
     familyUnsupportedOnRun(run, "fingerprinting") || familyUnsupportedOnRun(run, "detector-output");
+  const shieldsMeasurement = shieldsRunMeasurement(run);
+  const shieldsConfigured = run.conditions.shieldsMode !== null && run.conditions.shieldsMode !== "off";
+  const gpcMeasurement = gpcRunMeasurement(run);
+  const gpcDisplay =
+    gpcMeasurement.outcome === "verified"
+      ? {
+          value: gpcMeasurement.observed ? "Verified on" : "Verified off",
+          detail: "header and JavaScript readback agreed"
+        }
+      : gpcMeasurement.outcome === "contradicted"
+        ? { value: "Mismatch", detail: `configured ${gpcMeasurement.configured ? "on" : "off"}; readback disagreed` }
+        : gpcMeasurement.outcome === "unverified"
+          ? { value: "Not verified", detail: `configured ${gpcMeasurement.configured ? "on" : "off"}; readback inconclusive` }
+          : { value: gpcMeasurement.configured ? "Configured on" : "Configured off", detail: "readback not recorded" };
   const metrics = [
     {
       label: "Requests",
@@ -264,23 +287,32 @@ export function MetricGrid({ run }: { run: RunView }) {
       detail: `${run.counts.thirdPartyRequests.toLocaleString("en-US")} third-party`,
       icon: Network
     },
-    ...(run.conditions.adblockActive
+    ...(shieldsMeasurement
       ? [
-          run.conditions.shieldsMode === "block-simulation"
+          shieldsMeasurement.kind === "engine-blocked"
             ? {
                 label: "Blocked by Brave lists",
-                value: run.counts.shieldsBlockedRequests ?? 0,
-                detail: "aborted in this visit",
+                value: shieldsMeasurement.count,
+                detail: "verified engine blocks in this visit",
                 icon: ShieldCheck
               }
             : {
                 label: "Matched Shields lists",
-                value: run.counts.shieldsBlockedRequests ?? 0,
-                detail: `of ${run.counts.totalRequests.toLocaleString("en-US")} requests`,
+                value: shieldsMeasurement.count,
+                detail: `verified classification of ${run.counts.totalRequests.toLocaleString("en-US")} requests`,
                 icon: ShieldCheck
               }
         ]
-      : []),
+      : shieldsConfigured || run.verificationFacts?.shields
+        ? [
+            {
+              label: "Brave-list measurement",
+              value: "Not verified",
+              detail: "engine application or request evaluation was inconclusive",
+              icon: Shield
+            }
+          ]
+        : []),
     {
       label: "Third-party domains",
       value: run.counts.thirdPartyDomains,
@@ -317,9 +349,9 @@ export function MetricGrid({ run }: { run: RunView }) {
     },
     {
       label: "GPC signal",
-      value: run.conditions.gpcEnabled ? "Sent" : "Off",
-      detail: run.conditions.gpcEnabled ? "opt-out sent" : "no opt-out sent",
-      icon: run.conditions.gpcEnabled ? ShieldCheck : Shield
+      value: gpcDisplay.value,
+      detail: gpcDisplay.detail,
+      icon: gpcMeasurement.observed === true ? ShieldCheck : Shield
     },
     {
       label: "Duration",
@@ -363,7 +395,7 @@ export function TrafficViz({ run }: { run: RunView }) {
   const total = run.counts.totalRequests;
   const thirdParty = Math.min(run.counts.thirdPartyRequests, total);
   const tracker = Math.min(run.counts.knownTrackerRequests, thirdParty);
-  const third = thirdParty - tracker;
+  const otherThirdParty = thirdParty - tracker;
   const first = total - thirdParty;
 
   const pct = (n: number) => (total > 0 ? `${Math.round((n / total) * 10000) / 100}%` : "0%");
@@ -371,9 +403,13 @@ export function TrafficViz({ run }: { run: RunView }) {
   return (
     <section className="viz-card">
       <h2>Request composition &amp; timeline</h2>
-      <div className="party-bar" role="img" aria-label={`${first} first-party, ${third} third-party, ${tracker} known-service requests`}>
+      <div
+        className="party-bar"
+        role="img"
+        aria-label={`${first} first-party, ${otherThirdParty} other third-party, ${tracker} known-service requests`}
+      >
         {first > 0 && <span className="party-seg-first" style={{ width: pct(first) }} />}
-        {third > 0 && <span className="party-seg-third" style={{ width: pct(third) }} />}
+        {otherThirdParty > 0 && <span className="party-seg-third" style={{ width: pct(otherThirdParty) }} />}
         {tracker > 0 && <span className="party-seg-track" style={{ width: pct(tracker) }} />}
       </div>
       <div className="party-legend">
@@ -383,7 +419,7 @@ export function TrafficViz({ run }: { run: RunView }) {
         </div>
         <div>
           <span className="legend-swatch party-seg-third" />
-          Third-party <span className="legend-count">{third.toLocaleString("en-US")}</span>
+          Other third-party <span className="legend-count">{otherThirdParty.toLocaleString("en-US")}</span>
         </div>
         <div>
           <span className="legend-swatch party-seg-track" />

@@ -6,6 +6,7 @@ import {
   corpusExportMetadataForView,
   entryEligibleForCorpusRollups,
   preferAsSiteDataPoint,
+  selectSiteDataPoints,
   type DirectoryEntry
 } from "./corpus-overview";
 import { makeConsentInterventionReportV2R2, makeConsentSingleReportV2R2 } from "./scan-report-v2-r2-fixtures";
@@ -129,6 +130,9 @@ function makeEntry(overrides: Partial<DirectoryEntry> & { id: string }): Directo
     requestedUrl: "https://shop.example/",
     finalUrl: "https://shop.example/",
     status: 200,
+    runOutcome: "complete",
+    requestEvidenceComplete: true,
+    cookieEvidenceComplete: true,
     schemaVersion: 1,
     schemaRevision: null,
     schemaOrigin: "legacy-derived",
@@ -142,12 +146,32 @@ function makeEntry(overrides: Partial<DirectoryEntry> & { id: string }): Directo
   };
 }
 
-test("preferAsSiteDataPoint keeps a Shields report over other kinds regardless of age", () => {
+test("preferAsSiteDataPoint uses the newest eligible behavior report regardless of kind", () => {
   const shields = makeEntry({ id: "shields", scannedAt: "2026-06-01T00:00:00.000Z" });
   const gpc = makeEntry({ id: "gpc", comparisonType: "gpc", scannedAt: "2026-07-05T00:00:00.000Z" });
 
-  assert.equal(preferAsSiteDataPoint(shields, gpc), true);
-  assert.equal(preferAsSiteDataPoint(gpc, shields), false);
+  assert.equal(preferAsSiteDataPoint(shields, gpc), false);
+  assert.equal(preferAsSiteDataPoint(gpc, shields), true);
+});
+
+test("site data points combine newest behavior with the newest eligible Shields pair", () => {
+  const oldShields = makeEntry({
+    id: "shields-old",
+    scannedAt: "2026-06-01T00:00:00.000Z",
+    shieldsThirdPartyChange: -20
+  });
+  const latestBehavior = makeEntry({
+    id: "gpc-new",
+    comparisonType: "gpc",
+    scannedAt: "2026-07-05T00:00:00.000Z",
+    thirdPartyRequests: 12,
+    shieldsThirdPartyChange: null
+  });
+
+  const [site] = selectSiteDataPoints([oldShields, latestBehavior]);
+  assert.equal(site.id, "gpc-new");
+  assert.equal(site.thirdPartyRequests, 12);
+  assert.equal(site.shieldsThirdPartyChange, -20);
 });
 
 test("preferAsSiteDataPoint picks the newest scan within a kind, not the heaviest", () => {
@@ -163,8 +187,18 @@ test("preferAsSiteDataPoint picks the newest scan within a kind, not the heavies
 test("corpus rollups require an uncensored passive lead run", () => {
   assert.equal(entryEligibleForCorpusRollups(makeEntry({ id: "passive" })), true);
   assert.equal(entryEligibleForCorpusRollups(makeEntry({ id: "failed", status: 403 })), false);
+  assert.equal(entryEligibleForCorpusRollups(makeEntry({ id: "quality-failed", runOutcome: "failed" })), false);
   assert.equal(entryEligibleForCorpusRollups(makeEntry({ id: "no-response", status: null })), false);
   assert.equal(entryEligibleForCorpusRollups(makeEntry({ id: "capped", capped: true })), false);
+  assert.equal(
+    entryEligibleForCorpusRollups(makeEntry({ id: "requests-incomplete", requestEvidenceComplete: false })),
+    false
+  );
+  assert.equal(
+    entryEligibleForCorpusRollups(makeEntry({ id: "cookies-incomplete", cookieEvidenceComplete: false })),
+    true,
+    "cookie-family loss must not discard otherwise complete request metrics"
+  );
   assert.equal(
     entryEligibleForCorpusRollups(makeEntry({ id: "consent-accept", consentMode: "accept-all", comparisonType: "consent" })),
     false

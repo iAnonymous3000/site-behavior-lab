@@ -425,6 +425,42 @@ test("supporting-pair gates: chronology, identity, fingerprints, and evidence de
     "primary pair measurement environments do not match",
     "primary environment mismatch with supporting evidence"
   );
+
+  const supportingObserverMismatch = mutate(base(), (draft) => {
+    if (draft.experiment.kind !== "intervention") throw new Error("expected intervention fixture");
+    for (const run of [draft.experiment.supportingPairs![0].baseline, draft.experiment.supportingPairs![0].variant]) {
+      run.provenance.observer = "pagegraph-import";
+    }
+  });
+  assertSingleViolationPath(
+    violationsOf(supportingObserverMismatch),
+    "measurement observer does not match the primary pair",
+    "supporting producer mismatch"
+  );
+
+  const primaryObserverMismatch = mutate(base(), (draft) => {
+    if (draft.experiment.kind !== "intervention") throw new Error("expected intervention fixture");
+    draft.variant.provenance.observer = "browser-run-worker";
+    const { supportingPairs: _supportingPairs, ...primaryExperiment } = draft.experiment;
+    draft.comparability = evaluateComparabilityR2(primaryExperiment, draft.baseline, draft.variant);
+    draft.diff = buildComparisonDiffV2(draft.baseline, draft.variant, draft.comparability.perMetric);
+  });
+  assertSingleViolationPath(
+    violationsOf(primaryObserverMismatch),
+    "primary pair measurement observers do not match",
+    "primary producer mismatch with supporting evidence"
+  );
+});
+
+test("r2 comparisons reject duplicate primary run IDs at the read boundary", () => {
+  const duplicatePrimaryRunId = mutate(makeShieldsInterventionReportV2R2(), (draft) => {
+    draft.variant.runId = draft.baseline.runId;
+  });
+  assertSingleViolationPath(
+    violationsOf(duplicatePrimaryRunId),
+    "primary runs must have distinct runId values",
+    "duplicate primary runId"
+  );
 });
 
 test("primary order and comparability/diff forgeries reject", () => {

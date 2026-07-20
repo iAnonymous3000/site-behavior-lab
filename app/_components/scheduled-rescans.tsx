@@ -64,6 +64,7 @@ export function ScheduledRescans({
   const [status, setStatus] = useState<EncryptedWatchStatus | null>(null);
   const [activity, setActivity] = useState<WatchActivity>(null);
   const [error, setError] = useState<string | null>(null);
+  const [deleteConfirmation, setDeleteConfirmation] = useState(false);
   const [fragmentChecked, setFragmentChecked] = useState(false);
   const [invalidManagementFragment, setInvalidManagementFragment] = useState(false);
   const requestControllerRef = useRef<AbortController | null>(null);
@@ -107,6 +108,16 @@ export function ScheduledRescans({
       }
       if (!recovered) {
         const hasInvalidManagementFragment = window.location.hash.startsWith("#watch=");
+        // In-page navigation (skip links, report anchors) must not replace the
+        // only schedule-management capability. Keep it in the URL for refresh,
+        // copy, and crash recovery while retaining the browser's completed
+        // scroll to the requested section.
+        if (!hasInvalidManagementFragment && retainedCredentialsRef.current) {
+          const managementUrl = encryptedWatchManagementUrl(window.location.href, retainedCredentialsRef.current);
+          window.history.replaceState(window.history.state, "", managementUrl);
+          setFragmentChecked(true);
+          return;
+        }
         pendingCreationRef.current = null;
         retainedCredentialsRef.current = null;
         setCredentials(null);
@@ -288,6 +299,7 @@ export function ScheduledRescans({
     requestControllerRef.current?.abort();
     requestControllerRef.current = controller;
     setActivity("deleting");
+    setDeleteConfirmation(false);
     setError(null);
     try {
       await deleteEncryptedWatch({
@@ -425,10 +437,20 @@ export function ScheduledRescans({
               )}
               Refresh status
             </button>
-            <button className="ghost-button" type="button" onClick={() => void deleteSchedule()} disabled={activity !== null}>
+            <button
+              className="ghost-button"
+              type="button"
+              onClick={() => deleteConfirmation ? void deleteSchedule() : setDeleteConfirmation(true)}
+              disabled={activity !== null}
+            >
               {activity === "deleting" ? <Loader2 className="spin" size={16} aria-hidden="true" /> : <Trash2 size={16} aria-hidden="true" />}
-              {activity === "deleting" ? "Deleting…" : "Delete schedule"}
+              {activity === "deleting" ? "Deleting…" : deleteConfirmation ? "Confirm delete" : "Delete schedule"}
             </button>
+            {deleteConfirmation && activity === null && (
+              <button className="secondary-button" type="button" onClick={() => setDeleteConfirmation(false)}>
+                Keep schedule
+              </button>
+            )}
           </div>
         </div>
       ) : (

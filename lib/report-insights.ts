@@ -74,6 +74,34 @@ export function trackerEntitySummaries(result: Pick<ScanResult, "domains">): Tra
   return Array.from(summaries.values()).sort((a, b) => b.requests - a.requests || a.entity.localeCompare(b.entity));
 }
 
+/**
+ * Catalogued entities for which at least one HTTP response was observed.
+ * Domain rows are created when a request is dispatched, so an empty
+ * `statuses` array proves only an attempted send. Receipt-oriented report
+ * wording must consult this set before saying an entity "saw", "received",
+ * or "loaded" the visit.
+ */
+export function respondedTrackerEntityNames(result: Pick<ScanResult, "domains">): Set<string> {
+  const names = new Set<string>();
+  for (const domain of result.domains) {
+    if (domain.thirdParty && domain.tracker && domain.statuses.length > 0) {
+      names.add(domain.tracker.entity);
+    }
+  }
+  return names;
+}
+
+/** Response-safe predicate phrase shared by consent headlines and finding cards. */
+export function trackerResponseQualification(
+  entities: ReadonlyArray<{ entity: string }>,
+  responded: ReadonlySet<string>
+): string {
+  const answered = entities.filter((entity) => responded.has(entity.entity)).length;
+  if (answered === entities.length) return "answered requests";
+  if (answered > 0) return `were sent requests (${answered.toLocaleString("en-US")} answered; the rest recorded no response)`;
+  return "were sent requests that recorded no response, so receipt is unproven";
+}
+
 /** An entity whose every category is operational (monitoring/support), not cross-site tracking. */
 export function isOperationalEntity(entity: TrackerEntitySummary): boolean {
   return entity.categories.length > 0 && entity.categories.every((category) => !isTrackingCategory(category));
@@ -193,10 +221,60 @@ export type ShieldsRunMeasurement = {
 export function shieldsRunMeasurement(run: {
   counts: { shieldsBlockedRequests: number | null };
   conditions: { adblockActive: boolean | null; shieldsMode: string | null };
+  verificationFacts?: {
+    shields: {
+      engineLoaded: boolean;
+      applied: boolean;
+      requestsEvaluated: number;
+      requestsMatched: number;
+      requestsActuallyBlocked: number;
+    } | null;
+  } | null;
 }): ShieldsRunMeasurement | null {
+  const facts = run.verificationFacts?.shields;
+  if (facts) {
+    if (!facts.engineLoaded || facts.requestsEvaluated === 0) return null;
+    return facts.applied
+      ? { kind: "engine-blocked", count: facts.requestsActuallyBlocked }
+      : { kind: "filter-matches", count: facts.requestsMatched };
+  }
   const count = run.counts.shieldsBlockedRequests;
   if (typeof count !== "number" || run.conditions.adblockActive !== true) return null;
   return { kind: run.conditions.shieldsMode === "block-simulation" ? "engine-blocked" : "filter-matches", count };
+}
+
+export type GpcRunMeasurement = {
+  configured: boolean;
+  observed: boolean | null;
+  outcome: "verified" | "contradicted" | "unverified" | "configured-only";
+};
+
+/** Keep configured GPC state distinct from the r2 header/JS readback. */
+export function gpcRunMeasurement(run: {
+  conditions: { gpcEnabled: boolean };
+  verificationFacts?: {
+    gpc: {
+      header: "confirmed-present" | "confirmed-absent" | "unobservable";
+      jsSignal: "confirmed-true" | "confirmed-false" | "confirmed-absent" | "read-failed" | "unobservable";
+    } | null;
+  } | null;
+}): GpcRunMeasurement {
+  const configured = run.conditions.gpcEnabled;
+  const facts = run.verificationFacts?.gpc;
+  if (!facts) return { configured, observed: null, outcome: "configured-only" };
+
+  const observed =
+    facts.header === "confirmed-present" && facts.jsSignal === "confirmed-true"
+      ? true
+      : facts.header === "confirmed-absent" &&
+          (facts.jsSignal === "confirmed-absent" || facts.jsSignal === "confirmed-false")
+        ? false
+        : null;
+  return {
+    configured,
+    observed,
+    outcome: observed === null ? "unverified" : observed === configured ? "verified" : "contradicted"
+  };
 }
 
 /** The single detection of a given kind, narrowed to its evidence shape, if present. */
@@ -257,7 +335,7 @@ export function detectionEvidence(detection: FingerprintDetectionSummary): strin
   }
 
   if (detection.kind === "keystroke-exfiltration") {
-    return `typed value reached ${humanList(detection.evidence.recipients)} as ${humanList(
+    return `typed value was sent to ${humanList(detection.evidence.recipients)} as ${humanList(
       detection.evidence.encodings
     )}, from ${plural(detection.evidence.fieldsTyped, "field")}`;
   }

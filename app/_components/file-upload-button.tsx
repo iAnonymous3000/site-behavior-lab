@@ -3,7 +3,6 @@
 import { Upload } from "lucide-react";
 import type { ReactNode } from "react";
 import {
-  MAX_PAGEGRAPH_METADATA_BYTES,
   pageGraphUploadSelection,
   type PageGraphUploadSelection
 } from "@/lib/pagegraph-upload-selection";

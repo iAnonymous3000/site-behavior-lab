@@ -71,6 +71,12 @@ export type DirectoryEntry = {
   consentClicks: ConsentClicks | null;
   /** Lead run's top-level HTTP status; >= 400 means an error/block page, not the site. */
   status: number | null;
+  /** Evaluator-derived outcome; status 200 can still be a failed/bot-wall run. */
+  runOutcome: "complete" | "failed";
+  /** Whether request-derived counts are complete enough for aggregate use. */
+  requestEvidenceComplete: boolean;
+  /** Whether cookie counts are complete enough for a cookie-specific aggregate. */
+  cookieEvidenceComplete: boolean;
   /**
    * The lead run hit the request-recording cap: its activity counts are floors cut
    * off mid-collection, so the row is excluded from percentiles, rollups,
@@ -164,13 +170,14 @@ type CatalogEntry = { domain: string; id: string; label: string };
 
 /** A missing main-document response or HTTP >= 400 is not a successful site load. */
 function entryLoadFailed(entry: DirectoryEntry): boolean {
-  return typeof entry.status !== "number" || entry.status >= 400;
+  return entry.runOutcome !== "complete" || typeof entry.status !== "number" || entry.status >= 400;
 }
 
 /** Consent interaction arms are post-choice states, not passive site visits. */
 export function entryEligibleForCorpusRollups(entry: DirectoryEntry): boolean {
   return (
     !entryLoadFailed(entry) &&
+    entry.requestEvidenceComplete &&
     !entry.capped &&
     entry.consentMode !== "accept-all" &&
     entry.consentMode !== "reject-all"
@@ -209,16 +216,11 @@ async function buildCorpusOverview(): Promise<CorpusOverview> {
     if (delta) entry.sinceLastScan = delta;
   }
 
-  // One data point per site for the rollups and leaderboard (a site may carry both
-  // a GPC and a Shields report; prefer the Shields one so the blocked number is real).
-  const byDomain = new Map<string, DirectoryEntry>();
-  for (const entry of measured) {
-    const existing = byDomain.get(entry.domain);
-    if (!existing || preferAsSiteDataPoint(entry, existing)) {
-      byDomain.set(entry.domain, entry);
-    }
-  }
-  const sites = [...byDomain.values()];
+  // Current behavior and Shields-pair evidence have different freshness
+  // requirements. A historical Shields pair must not pin a site's ordinary
+  // request/cookie metrics forever, but its paired delta remains the newest
+  // available Shields observation until a newer eligible pair exists.
+  const sites = selectSiteDataPoints(measured);
 
   const rollups = buildCategoryRollups(
     sites.map((site) => ({
@@ -226,7 +228,7 @@ async function buildCorpusOverview(): Promise<CorpusOverview> {
       categoryLabel: site.categoryLabel,
       trackerRequests: site.trackerRequests,
       thirdPartyRequests: site.thirdPartyRequests,
-      thirdPartyCookies: site.thirdPartyCookies,
+      thirdPartyCookies: site.cookieEvidenceComplete ? site.thirdPartyCookies : null,
       shieldsThirdPartyChange: site.shieldsThirdPartyChange
     }))
   );
@@ -243,18 +245,41 @@ async function buildCorpusOverview(): Promise<CorpusOverview> {
 }
 
 /**
- * Picks the report that represents a site in the rollups and leaderboard:
- * prefer a Shields comparison (its blocked count is real), then the NEWEST
- * scan. Newest matters because the archive keeps every historical report and
- * the entry list arrives sorted heaviest-first, so keeping the first hit would
- * pin category medians and "heaviest" rankings to each site's historical
- * maximum instead of its current behavior.
+ * Picks the report that represents a site's current behavior in rollups and
+ * the leaderboard. Report kind is irrelevant here: the newest eligible visit
+ * is the best available observation of current behavior.
  */
 export function preferAsSiteDataPoint(candidate: DirectoryEntry, existing: DirectoryEntry): boolean {
-  const candidateShields = candidate.comparisonType === "shields";
-  const existingShields = existing.comparisonType === "shields";
-  if (candidateShields !== existingShields) return candidateShields;
-  return Date.parse(candidate.scannedAt) > Date.parse(existing.scannedAt);
+  const candidateAt = Date.parse(candidate.scannedAt);
+  const existingAt = Date.parse(existing.scannedAt);
+  if (!Number.isFinite(candidateAt)) return false;
+  if (!Number.isFinite(existingAt)) return true;
+  return candidateAt > existingAt || (candidateAt === existingAt && candidate.id.localeCompare(existing.id) > 0);
+}
+
+/**
+ * One newest behavior row per site, decorated independently with that site's
+ * newest eligible Shields delta. Returning copies avoids mutating directory
+ * entries that are also rendered individually.
+ */
+export function selectSiteDataPoints(entries: DirectoryEntry[]): DirectoryEntry[] {
+  const currentByDomain = new Map<string, DirectoryEntry>();
+  const shieldsByDomain = new Map<string, DirectoryEntry>();
+
+  for (const entry of entries) {
+    const current = currentByDomain.get(entry.domain);
+    if (!current || preferAsSiteDataPoint(entry, current)) currentByDomain.set(entry.domain, entry);
+
+    if (entry.comparisonType === "shields" && entry.shieldsThirdPartyChange !== null) {
+      const shields = shieldsByDomain.get(entry.domain);
+      if (!shields || preferAsSiteDataPoint(entry, shields)) shieldsByDomain.set(entry.domain, entry);
+    }
+  }
+
+  return [...currentByDomain.values()].map((entry) => ({
+    ...entry,
+    shieldsThirdPartyChange: shieldsByDomain.get(entry.domain)?.shieldsThirdPartyChange ?? null
+  }));
 }
 
 async function loadCategoryCatalog(): Promise<CatalogEntry[]> {
@@ -349,6 +374,9 @@ async function loadDirectoryEntries(catalog: CatalogEntry[]): Promise<LoadedDire
       consentMode: run.conditions.consentMode,
       consentClicks: consentClicksForView(view),
       status: run.status,
+      runOutcome: run.quality.outcome,
+      requestEvidenceComplete: !familyCensoredOnRun(run, "requests"),
+      cookieEvidenceComplete: !familyCensoredOnRun(run, "cookies"),
       capped: familyCensoredOnRun(run, "requests"),
       requestedUrl: run.conditions.requestedUrl,
       finalUrl: run.conditions.finalUrl,

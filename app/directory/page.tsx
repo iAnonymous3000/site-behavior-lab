@@ -123,7 +123,14 @@ export default async function DirectoryPage() {
                   </div>
                   <div>
                     <dt>3rd-party cookies</dt>
-                    <dd>{rollup.medianCookies.toLocaleString()}</dd>
+                    <dd>
+                      {rollup.medianCookies === null ? "Not measured" : rollup.medianCookies.toLocaleString()}
+                      {rollup.cookieMeasuredSites < rollup.siteCount && (
+                        <small>
+                          {" "}across {rollup.cookieMeasuredSites.toLocaleString()} of {rollup.siteCount.toLocaleString()} sites
+                        </small>
+                      )}
+                    </dd>
                   </div>
                   {rollup.medianShieldsChange !== null && (
                     <div>

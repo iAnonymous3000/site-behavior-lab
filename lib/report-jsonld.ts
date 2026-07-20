@@ -1,5 +1,13 @@
 import { buildReportHeadline } from "./report-headline";
-import { comparisonArmViews, displayRunView, type ReportView, type RunView } from "./scan-report-views";
+import {
+  comparisonArmViews,
+  displayRunView,
+  familyCensoredOnRun,
+  familyUnsupportedOnRun,
+  runHitRequestRecordingCap,
+  type ReportView,
+  type RunView
+} from "./scan-report-views";
 
 /**
  * Builds schema.org `Dataset` JSON-LD for a saved report page. A scan report is
@@ -27,10 +35,10 @@ export function buildReportDataset(view: ReportView, options: { url: string; jso
   const labels = view.comparison?.runLabels;
   const variableMeasured = arms
     ? [
-        ...runMeasurements(arms.baseline.counts, labels?.baseline ?? "baseline"),
-        ...runMeasurements(arms.variant.counts, labels?.variant ?? "variant")
+        ...runMeasurements(arms.baseline, labels?.baseline ?? "baseline"),
+        ...runMeasurements(arms.variant, labels?.variant ?? "variant")
       ]
-    : runMeasurements(run.counts);
+    : runMeasurements(run);
 
   const dataset: Record<string, unknown> = {
     "@context": "https://schema.org",
@@ -67,17 +75,106 @@ export function buildReportDataset(view: ReportView, options: { url: string; jso
   return dataset;
 }
 
-function runMeasurements(counts: RunView["counts"], runLabel?: string): Record<string, unknown>[] {
+type CountMeasurement = {
+  name: string;
+  value: number;
+  family: "requests" | "cookies" | "fingerprinting";
+};
+
+function runMeasurements(run: RunView, runLabel?: string): Record<string, unknown>[] {
   const suffix = runLabel ? ` (${runLabel})` : "";
-  return [
-    propertyValue(`Third-party requests${suffix}`, counts.thirdPartyRequests),
-    propertyValue(`Catalogued service requests${suffix}`, counts.knownTrackerRequests),
-    propertyValue(`Third-party domains${suffix}`, counts.thirdPartyDomains),
-    propertyValue(`Third-party cookies${suffix}`, counts.thirdPartyCookies),
-    propertyValue(`Fingerprint-like API calls${suffix}`, counts.fingerprintEvents)
+  const measurements: CountMeasurement[] = [
+    { name: `Third-party requests${suffix}`, value: run.counts.thirdPartyRequests, family: "requests" },
+    { name: `Catalogued service requests${suffix}`, value: run.counts.knownTrackerRequests, family: "requests" },
+    { name: `Third-party domains${suffix}`, value: run.counts.thirdPartyDomains, family: "requests" },
+    { name: `Third-party cookies${suffix}`, value: run.counts.thirdPartyCookies, family: "cookies" },
+    { name: `Fingerprint-like API calls${suffix}`, value: run.counts.fingerprintEvents, family: "fingerprinting" }
   ];
+
+  const unsupported = measurements.filter((measurement) => familyUnsupportedOnRun(run, measurement.family));
+  // Cookie counts describe an end-state snapshot, not a monotonic event
+  // counter. On an interrupted/failed visit that snapshot can move in either
+  // direction as cookies are added or deleted, so it is not a valid minValue.
+  const censoredSnapshots = measurements.filter(
+    (measurement) =>
+      measurement.family === "cookies" &&
+      !familyUnsupportedOnRun(run, measurement.family) &&
+      (run.quality.outcome === "failed" || familyCensoredOnRun(run, measurement.family))
+  );
+  const retained = measurements
+    .filter(
+      (measurement) =>
+        !familyUnsupportedOnRun(run, measurement.family) && !censoredSnapshots.includes(measurement)
+    )
+    .map((measurement) => {
+      const lowerBound = run.quality.outcome === "failed" || familyCensoredOnRun(run, measurement.family);
+      return lowerBound
+        ? lowerBoundProperty(measurement.name, measurement.value, lowerBoundDescription(run, measurement.family))
+        : propertyValue(measurement.name, measurement.value);
+    });
+  const quality = qualityProperty(
+    run,
+    suffix,
+    retained.some((entry) => "minValue" in entry),
+    unsupported,
+    censoredSnapshots
+  );
+  return quality ? [...retained, quality] : retained;
 }
 
 function propertyValue(name: string, value: number): Record<string, unknown> {
   return { "@type": "PropertyValue", name, value };
+}
+
+function lowerBoundProperty(name: string, minValue: number, description: string): Record<string, unknown> {
+  return { "@type": "PropertyValue", name, minValue, description };
+}
+
+function lowerBoundDescription(run: RunView, family: CountMeasurement["family"]): string {
+  if (run.quality.outcome === "failed") {
+    return "Observed lower bound from a failed visit; this is not an exact total or proof of absence.";
+  }
+  if (runHitRequestRecordingCap(run)) {
+    return "Observed lower bound before the recording cap; this is not an exact total or proof of absence.";
+  }
+  return `Observed lower bound because ${family} evidence was incomplete; this is not an exact total or proof of absence.`;
+}
+
+function qualityProperty(
+  run: RunView,
+  suffix: string,
+  hasLowerBounds: boolean,
+  unsupported: CountMeasurement[],
+  censoredSnapshots: CountMeasurement[]
+): Record<string, unknown> | null {
+  if (!hasLowerBounds && unsupported.length === 0 && censoredSnapshots.length === 0) return null;
+
+  const state =
+    run.quality.outcome === "failed"
+      ? "failed"
+      : runHitRequestRecordingCap(run)
+        ? "capped"
+        : hasLowerBounds || censoredSnapshots.length > 0
+          ? "incomplete"
+          : "limited coverage";
+  const notes: string[] = [];
+  if (hasLowerBounds) notes.push("Censored counts are published as observed lower bounds, not exact totals.");
+  if (unsupported.length > 0) {
+    notes.push(
+      `Unsupported measurements omitted: ${unsupported.map((entry) => entry.name.replace(suffix, "")).join(", ")}.`
+    );
+  }
+  if (censoredSnapshots.length > 0) {
+    notes.push(
+      `Interrupted end-state snapshots omitted: ${censoredSnapshots
+        .map((entry) => entry.name.replace(suffix, ""))
+        .join(", ")}.`
+    );
+  }
+  return {
+    "@type": "PropertyValue",
+    name: `Measurement quality${suffix}`,
+    value: state,
+    description: notes.join(" ")
+  };
 }

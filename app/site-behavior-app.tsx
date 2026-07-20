@@ -50,7 +50,7 @@ import {
 } from "./client-runtime";
 import { consentChoiceLabel } from "@/lib/consent-interaction";
 import { requestLogToCsv } from "@/lib/csv-export";
-import { displayableScreenshot } from "@/lib/report-insights";
+import { displayableScreenshot, gpcRunMeasurement } from "@/lib/report-insights";
 import { buildReportHeadline, reportPageTitle } from "@/lib/report-headline";
 import { committedReportLocation } from "@/lib/report-locator";
 import { plural } from "@/lib/text-format";
@@ -122,10 +122,12 @@ export function SiteBehaviorApp({
     turnstileResetNonce,
     setTurnstileToken,
     urlNotice,
+    urlError,
     clearUrlNotice,
     policy,
     scannerStatus,
     statusLabel,
+    retryScannerHealth,
     handleSubmit,
     useExample,
     updateAccessKey,
@@ -144,6 +146,7 @@ export function SiteBehaviorApp({
     turnstileRequired,
     turnstileUnsupported,
     awaitingTurnstile,
+    scannerUnavailable,
     scanBlocked
   } = policy;
   const [staticReports, setStaticReports] = useState<StaticReportManifestEntry[] | null>(STATIC_EXPORT ? null : []);
@@ -181,7 +184,7 @@ export function SiteBehaviorApp({
 
   async function loadReportFile(file: File | null) {
     if (!file) return;
-    setLoading(false);
+    setLoading(true);
     setError(null);
     setLoaded(null);
 
@@ -194,11 +197,13 @@ export function SiteBehaviorApp({
       setLoaded(withoutLoadedReportShare(read.loaded));
     } catch (readError) {
       setError(readError instanceof Error ? readError.message : "Report JSON could not be opened.");
+    } finally {
+      setLoading(false);
     }
   }
 
   async function loadPageGraphFile(selection: PageGraphUploadSelection) {
-    setLoading(false);
+    setLoading(true);
     setError(null);
     setLoaded(null);
 
@@ -209,6 +214,8 @@ export function SiteBehaviorApp({
       setLoaded(await readPageGraphUpload(selection));
     } catch (readError) {
       setError(readError instanceof Error ? readError.message : "The PageGraph capture pair could not be opened.");
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -285,8 +292,11 @@ export function SiteBehaviorApp({
       scanBlocked={scanBlocked || scheduledRescanCreateBusy}
       activeScanJob={Boolean(activeScanJob)}
       urlNotice={urlNotice}
+      urlError={urlError}
       clearUrlNotice={clearUrlNotice}
       scannerStatus={scannerStatus}
+      scannerStatusError={scannerUnavailable}
+      onRetryScannerHealth={retryScannerHealth}
       turnstileRequired={turnstileRequired}
       turnstileResetNonce={turnstileResetNonce}
       onTurnstileToken={setTurnstileToken}
@@ -398,7 +408,7 @@ export function SiteBehaviorApp({
           <p className="visually-hidden" role="status" aria-live="polite">
             {reportReadyMessage}
           </p>
-          {!loaded && !loading && !error && (
+          {!loaded && !loading && !activeScanJob && (
             <EmptyState
               onPick={useExample}
               onUploadReport={loadReportFile}
@@ -485,8 +495,6 @@ export function SiteBehaviorApp({
                 <TrafficViz run={displayedRun} />
                 <VisitPhasesAndStateChanges run={displayedRun} />
                 <Warnings warnings={reportView.warnings} />
-                <DomainTable domains={displayedRun.evidence.domains} />
-                <RequestTable requests={displayedRun.evidence.requests} phases={displayedRun.phases} />
               </div>
 
               <aside className="report-sidebar">
@@ -579,7 +587,7 @@ export function SiteBehaviorApp({
                     </div>
                     <div>
                       <dt>GPC</dt>
-                      <dd>{displayedRun.conditions.gpcEnabled ? "sent" : "not sent"}</dd>
+                      <dd>{gpcMethodologyLabel(displayedRun)}</dd>
                     </div>
                     {displayedRun.consent && (
                       <div>
@@ -631,6 +639,11 @@ export function SiteBehaviorApp({
                   {displayedRun.conditions.disclosure && <p>{displayedRun.conditions.disclosure}</p>}
                 </section>
               </aside>
+
+              <div className="report-evidence-tables" aria-label="Raw report evidence">
+                <DomainTable domains={displayedRun.evidence.domains} />
+                <RequestTable requests={displayedRun.evidence.requests} phases={displayedRun.phases} />
+              </div>
             </section>
           )}
         </div>
@@ -733,6 +746,20 @@ function CorpusHero({ highlights }: { highlights: CorpusHighlights }) {
 
 function safeFilenamePart(value: string): string {
   return value.replace(/[^a-z0-9.-]+/gi, "-").replace(/^-+|-+$/g, "") || "report";
+}
+
+function gpcMethodologyLabel(run: RunView): string {
+  const measurement = gpcRunMeasurement(run);
+  if (measurement.outcome === "verified") {
+    return `${measurement.configured ? "configured on" : "configured off"} · readback verified`;
+  }
+  if (measurement.outcome === "contradicted") {
+    return `${measurement.configured ? "configured on" : "configured off"} · readback contradicted`;
+  }
+  if (measurement.outcome === "unverified") {
+    return `${measurement.configured ? "configured on" : "configured off"} · readback inconclusive`;
+  }
+  return `${measurement.configured ? "configured on" : "configured off"} · readback not recorded`;
 }
 
 function isStaticReportManifest(value: unknown): value is { reports: StaticReportManifestEntry[] } {
@@ -951,9 +978,14 @@ function LoadingState({
   }
 
   return (
-    <section className="loading-state" role="status">
+    <section className="loading-state" aria-labelledby="scan-loading-title">
+      <p className="visually-hidden" role="status">
+        Scan started. Progress details are shown below.
+      </p>
       <span className="pulse-dot" />
-      <h2>{isComparison ? "Preparing two controlled browser visits" : "Preparing a controlled browser visit"}</h2>
+      <h2 id="scan-loading-title">
+        {isComparison ? "Preparing two controlled browser visits" : "Preparing a controlled browser visit"}
+      </h2>
       <p>
         {mode === "gpc"
           ? "Comparing GPC off and on runs for requests, cookies, storage, and browser API observations."

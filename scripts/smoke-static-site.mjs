@@ -343,12 +343,23 @@ async function main() {
     // known service (an xhr, not a script), so third-party=2, known-service=1, and
     // known-service+script=0.
     await page.goto(`${baseUrl}/`, { waitUntil: "networkidle" });
-    await page
-      .locator("label.file-button", { hasText: "Open report file" })
-      .first()
-      .locator('input[type="file"]')
-      .setInputFiles(singleReportFixture);
+    const reportUploadLabel = page.locator("label.file-button", { hasText: "Open report file" }).first();
+    const reportUploadInput = reportUploadLabel.locator('input[type="file"]');
+    await reportUploadInput.evaluate((input) => input.focus());
+    const uploadFocusShadow = await reportUploadLabel.evaluate((label) => getComputedStyle(label).boxShadow);
+    if (uploadFocusShadow === "none") fail("file upload button has no visible keyboard focus treatment");
+    pass("file upload button exposes visible keyboard focus");
+    await reportUploadInput.setInputFiles(singleReportFixture);
     await page.waitForSelector(".report-header", { timeout: 10_000 });
+    await expectText(page.locator(".party-legend"), "Other third-party");
+    const domainTableRegion = page.getByRole("region", { name: "Domain evidence table" });
+    if ((await domainTableRegion.getAttribute("tabindex")) !== "0") {
+      fail("domain evidence horizontal scroller is not keyboard-focusable");
+    }
+    await domainTableRegion.focus();
+    const tableFocusShadow = await domainTableRegion.evaluate((region) => getComputedStyle(region).boxShadow);
+    if (tableFocusShadow === "none") fail("evidence table scroller has no visible keyboard focus treatment");
+    pass("report labels traffic remainder accurately and exposes a focusable evidence scroller");
     if ((await page.locator(".visit-phase-evidence").count()) !== 0) {
       fail("legacy v1 upload rendered v2-only phase evidence");
     }
@@ -377,6 +388,10 @@ async function main() {
     if (privacyCardsHtml.includes("[redacted")) fail("report cards expose raw redaction markers");
     pass("static report explains privacy-filtered cookie and storage names without changing reviewed names");
     await page.locator("details.data-section", { hasText: "Request log" }).locator("summary").click();
+    const requestTableRegion = page.getByRole("region", { name: "Request log table" });
+    if ((await requestTableRegion.getAttribute("tabindex")) !== "0") {
+      fail("request log horizontal scroller is not keyboard-focusable");
+    }
     await page.getByRole("button", { name: "Third-party" }).click();
     await expectRequestRowCount(page, 2);
     await page.getByRole("button", { name: "Known services" }).click();
@@ -396,6 +411,11 @@ async function main() {
     await page.waitForSelector(".visit-phase-evidence", { timeout: 10_000 });
     if (await hasHorizontalOverflow(page)) fail("static mobile r2 report has page-level horizontal overflow");
     pass("static mobile r2 phase report fits viewport");
+
+    await page.setViewportSize({ width: 320, height: 900 });
+    await page.goto(`${baseUrl}/`, { waitUntil: "networkidle" });
+    if (await hasHorizontalOverflow(page)) fail("static narrow-mobile archive has page-level horizontal overflow");
+    pass("static archive fits a 320px viewport");
   } finally {
     await browser.close();
     await new Promise((resolve, reject) => server.close((error) => (error ? reject(error) : resolve())));

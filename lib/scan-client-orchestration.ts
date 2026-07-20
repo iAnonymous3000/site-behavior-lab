@@ -55,9 +55,18 @@ export function deriveScanRuntimePolicy(input: {
   health: ScanRuntimeHealth | null;
   healthError: string | null;
 }): ScanRuntimePolicy {
-  const gpcComparisonEnabled = !input.staticExport || input.health?.capabilities?.gpcComparison === true;
-  const shieldsComparisonEnabled = !input.staticExport || input.health?.capabilities?.shieldsComparison === true;
-  const consentComparisonEnabled = !input.staticExport || input.health?.capabilities?.consentComparison === true;
+  // Before health resolves, a dynamic build may render its configured options
+  // while submission remains blocked. Once health answers, advertised false
+  // is authoritative on every surface, not only the static-live client.
+  const gpcComparisonEnabled = input.health
+    ? input.health.capabilities?.gpcComparison === true
+    : !input.staticExport;
+  const shieldsComparisonEnabled = input.health
+    ? input.health.capabilities?.shieldsComparison === true
+    : !input.staticExport;
+  const consentComparisonEnabled = input.health
+    ? input.health.capabilities?.consentComparison === true
+    : !input.staticExport;
   // The build flag is only a pre-health rendering hint. Once the live edge has
   // answered, its resolved posture is authoritative so an activation-time
   // access gate cannot be hidden by an older open-access Pages build.
@@ -112,11 +121,22 @@ export function shouldLoadSavedScanAccessKey(input: {
 export async function fetchRuntimeScannerHealth(options: {
   resolveApiUrl: (path: string) => string;
   fetcher?: RuntimeScanFetcher;
+  signal?: AbortSignal;
+  timeoutMs?: number;
 }): Promise<{ health: ScanRuntimeHealth | null; error: string | null }> {
   const fetcher = options.fetcher ?? ((input, init) => fetch(input, init));
   try {
-    const response = await fetcher(options.resolveApiUrl("/api/health"), { cache: "no-store" });
-    const payload = (await response.json()) as unknown;
+    const { response, payload } = await withAbortDeadline(
+      {
+        signal: options.signal,
+        timeoutMs: options.timeoutMs ?? 8_000,
+        timeoutMessage: "Scanner health check timed out."
+      },
+      async (signal) => {
+        const response = await fetcher(options.resolveApiUrl("/api/health"), { cache: "no-store", signal });
+        return { response, payload: (await response.json()) as unknown };
+      }
+    );
     if (!response.ok || !isScanRuntimeHealth(payload)) {
       throw new Error("Scanner health check failed.");
     }
@@ -220,17 +240,29 @@ export async function cancelRuntimeScan(options: {
   job: ActiveScanJob;
   resolveApiUrl: (path: string) => string;
   fetcher?: RuntimeScanFetcher;
+  signal?: AbortSignal;
+  timeoutMs?: number;
 }): Promise<string> {
   const fetcher = options.fetcher ?? ((input, init) => fetch(input, init));
   const headers: Record<string, string> = {};
   if (options.job.accessKey) headers.Authorization = `Bearer ${options.job.accessKey}`;
 
-  const response = await fetcher(options.resolveApiUrl(options.job.statusPath), {
-    method: "DELETE",
-    cache: "no-store",
-    headers
-  });
-  const payload = (await response.json()) as unknown;
+  const { payload } = await withAbortDeadline(
+    {
+      signal: options.signal,
+      timeoutMs: options.timeoutMs ?? 10_000,
+      timeoutMessage: "Scan cancellation timed out."
+    },
+    async (signal) => {
+      const response = await fetcher(options.resolveApiUrl(options.job.statusPath), {
+        method: "DELETE",
+        cache: "no-store",
+        headers,
+        signal
+      });
+      return { response, payload: (await response.json()) as unknown };
+    }
+  );
   if (isRuntimeScanError(payload)) throw new Error(payload.error);
   if (!isRecord(payload) || payload.ok !== true || payload.status !== "cancelled") {
     throw new Error("The scan could not be cancelled.");
@@ -252,10 +284,8 @@ export function liveScannerStatusLabel(input: {
   error: string | null;
   liveScanEnabled: boolean;
   staticExport: boolean;
-  staticLiveScanEnabled: boolean;
 }): string {
   if (!input.liveScanEnabled) return input.staticExport ? "Evidence Library" : "Controlled";
-  if (!input.staticLiveScanEnabled) return "Controlled";
   if (input.error) return "Offline";
   if (!input.health) return "Checking";
   if (input.health.scansAvailable === false) return "Offline";
@@ -298,6 +328,9 @@ export function scannerStatusText(health: ScanRuntimeHealth | null, error: strin
 
 export function friendlyScanError(message: string, openAccessScanner: boolean): string {
   const lower = message.toLowerCase();
+  if (lower.includes("cancellation") && lower.includes("timeout")) {
+    return "The cancellation request timed out. The accepted scan is still retained; try cancelling again or resume its status checks.";
+  }
   if (lower.includes("timeout") || lower.includes("did not load") || lower.includes("scan duration")) {
     return "The page did not finish loading in time. It may be slow, very large, or blocking automated visits. Try again, or try a different page.";
   }
@@ -340,6 +373,37 @@ export function friendlyScanError(message: string, openAccessScanner: boolean): 
     return "That doesn't look like a valid web address. Use a full URL such as https://example.com.";
   }
   return message;
+}
+
+async function withAbortDeadline<T>(
+  options: { signal?: AbortSignal; timeoutMs: number; timeoutMessage: string },
+  task: (signal: AbortSignal) => Promise<T>
+): Promise<T> {
+  const controller = new AbortController();
+  let timedOut = false;
+  const abortFromCaller = () => controller.abort(options.signal?.reason);
+  if (options.signal?.aborted) abortFromCaller();
+  else options.signal?.addEventListener("abort", abortFromCaller, { once: true });
+
+  const timer = setTimeout(() => {
+    timedOut = true;
+    controller.abort(new DOMException(options.timeoutMessage, "TimeoutError"));
+  }, Math.max(1, options.timeoutMs));
+  const aborted = new Promise<never>((_resolve, reject) => {
+    const rejectAbort = () => reject(controller.signal.reason ?? new DOMException("The request was cancelled.", "AbortError"));
+    if (controller.signal.aborted) rejectAbort();
+    else controller.signal.addEventListener("abort", rejectAbort, { once: true });
+  });
+
+  try {
+    return await Promise.race([task(controller.signal), aborted]);
+  } catch (error) {
+    if (timedOut) throw new Error(options.timeoutMessage);
+    throw error;
+  } finally {
+    clearTimeout(timer);
+    options.signal?.removeEventListener("abort", abortFromCaller);
+  }
 }
 
 function isRuntimeScanError(value: unknown): value is { ok: false; error: string } {

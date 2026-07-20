@@ -9,7 +9,7 @@
 // Usage:
 //   SCAN_BASE_URL=https://scan.sitebehavior.org \
 //   [SMOKE_SCAN_ACCESS_TOKEN=<token>] \
-//   [SMOKE_SHIELDS_URL=https://example.com] \
+//   [SMOKE_SHIELDS_URL=https://www.iana.org/domains/reserved] \
 //   [SMOKE_EXPECTED_STORAGE=r2|filesystem] \
 //   npm run test:smoke:scanner
 //
@@ -40,7 +40,10 @@ import {
 
 const baseUrl = (process.env.SCAN_BASE_URL || "").trim().replace(/\/+$/, "");
 const token = (process.env.SMOKE_SCAN_ACCESS_TOKEN || process.env.SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN || "").trim();
-const shieldsUrl = (process.env.SMOKE_SHIELDS_URL || "https://example.com").trim();
+// example.com is intentionally document-only, while r2 verification requires
+// at least one subresource to reach the engine. IANA's stable public page has
+// subresources and lets the smoke prove evaluation even when zero rules match.
+const shieldsUrl = (process.env.SMOKE_SHIELDS_URL || "https://www.iana.org/domains/reserved").trim();
 const expectedStorage = (process.env.SMOKE_EXPECTED_STORAGE || "r2").trim();
 const POLL_INTERVAL_MS = 2000;
 const MAX_POLLS = 120; // ~4 min ceiling for a Shields comparison (two visits)
@@ -215,7 +218,7 @@ async function checkShieldsComparison() {
   }
   if (!hasShieldsComparisonDiff(report)) fail("Shields comparison is missing its diff");
   if (!shieldsEngineActive(report)) {
-    fail("Shields comparison ran without the ad-block engine active");
+    fail(`Shields comparison ran without the ad-block engine active: ${shieldsPostureSummary(report)}`);
   }
   // Two DIFFERENT measurements, never blended: the variant's engine-aborted
   // count and the baseline's filter-list matches while loading normally.
@@ -223,6 +226,27 @@ async function checkShieldsComparison() {
   pass(
     `live Shields comparison ran on ${shieldsUrl} (engine active; engine-blocked: ${engineBlocked ?? "n/a"}, baseline filter matches: ${filterMatches ?? "n/a"})`
   );
+}
+
+function shieldsPostureSummary(report) {
+  if (report.schemaVersion === 1) {
+    return JSON.stringify({
+      baseline: { adblock: report.baseline?.conditions?.adblock, shieldsMode: report.baseline?.conditions?.shieldsMode },
+      variant: { adblock: report.variant?.conditions?.adblock, shieldsMode: report.variant?.conditions?.shieldsMode }
+    });
+  }
+  return JSON.stringify({
+    baseline: {
+      shields: report.baseline?.conditions?.shields,
+      facts: report.baseline?.verificationFacts?.shields,
+      verification: report.experiment?.verification?.baseline
+    },
+    variant: {
+      shields: report.variant?.conditions?.shields,
+      facts: report.variant?.verificationFacts?.shields,
+      verification: report.experiment?.verification?.variant
+    }
+  });
 }
 
 async function checkSsrfRefusal() {

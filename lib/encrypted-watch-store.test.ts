@@ -35,7 +35,6 @@ import {
   recoverExpiredEncryptedWatchLeases,
   resolveEncryptedWatchLease,
   type EncryptedWatchAdmission,
-  type EncryptedWatchClaim,
   type EncryptedWatchCredential,
   type EncryptedWatchKeyring,
   type EncryptedWatchStoreSql

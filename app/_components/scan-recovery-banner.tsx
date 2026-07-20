@@ -19,18 +19,18 @@ export function ScanRecoveryBanner({
   onResume: () => void;
   onCancel: () => void;
 }) {
-  if (!error) return null;
+  if (!error && !cancelling && !cancellationError) return null;
 
   return (
     <section className="error-banner" role="alert">
       <AlertTriangle size={18} aria-hidden="true" />
       <div className="error-banner-copy">
-        <span>{error}</span>
+        <span>{error ?? (cancelling ? "Cancelling the accepted scan…" : "The cancellation request did not finish.")}</span>
         {acceptedJob && !loading && (
           <div className="scan-recovery-controls">
             <p>The accepted job is retained; you can safely resume status checks or cancel it.</p>
             <div className="scan-recovery-actions">
-              <button className="secondary-button" type="button" onClick={onResume}>
+              <button className="secondary-button" type="button" onClick={onResume} disabled={cancelling}>
                 Resume status checks
               </button>
               <button className="ghost-button" type="button" onClick={onCancel} disabled={cancelling}>

@@ -34,8 +34,10 @@ import {
   pixelEventEvidence,
   pixelEventSummaries,
   pixelFieldLabel,
+  respondedTrackerEntityNames,
   scanLoadFailureStatus,
   shieldsRunMeasurement,
+  trackerResponseQualification,
   trackerEntitySummaries
 } from "./report-insights";
 import {
@@ -145,15 +147,27 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
   const operationalEntities = entities.filter((entity) => isOperationalEntity(entity));
   const trackingNames = trackingEntities.map((entity) => entity.entity);
   const operationalNames = operationalEntities.map((entity) => entity.entity);
+  const respondedEntities = respondedTrackerEntityNames(run.evidence);
   const topCategories = Array.from(new Set(trackingEntities.flatMap((entity) => entity.categories))).slice(0, 3);
   const cookiesUnsupported = familyUnsupportedOnRun(run, "cookies");
   const detectorUnsupported =
     familyUnsupportedOnRun(run, "detector-output") || familyUnsupportedOnRun(run, "fingerprinting");
+  const requestsCensored = familyCensoredOnRun(run, "requests");
+  const cookiesCensored = familyCensoredOnRun(run, "cookies");
+  // Raw fingerprint events live in the "fingerprinting" evidence family;
+  // detector conclusions live in "detector-output". The absence card covers
+  // both, so censoring in either hedges it.
+  const detectorCensored = familyCensoredOnRun(run, "detector-output") || familyCensoredOnRun(run, "fingerprinting");
+  const runCompleted = run.quality.outcome === "complete";
+  const domainsBenchmarkAllowed = runCompleted && !requestsCensored;
+  const cookiesBenchmarkAllowed = runCompleted && !cookiesUnsupported && !cookiesCensored;
   // Corpus percentiles when available + large enough; otherwise fixed thresholds.
-  const domainsBenchmark = corpusBenchmark(corpus, "thirdPartyDomains", run.counts.thirdPartyDomains);
-  const cookiesBenchmark = cookiesUnsupported
-    ? null
-    : corpusBenchmark(corpus, "thirdPartyCookies", run.counts.thirdPartyCookies);
+  const domainsBenchmark = domainsBenchmarkAllowed
+    ? corpusBenchmark(corpus, "thirdPartyDomains", run.counts.thirdPartyDomains)
+    : null;
+  const cookiesBenchmark = cookiesBenchmarkAllowed
+    ? corpusBenchmark(corpus, "thirdPartyCookies", run.counts.thirdPartyCookies)
+    : null;
   const thirdPartyLevel = strongestLevel([
     levelForMetric("trackerEntities", trackingEntities.length),
     domainsBenchmark ? domainsBenchmark.level : levelForMetric("thirdPartyDomains", run.counts.thirdPartyDomains)
@@ -186,13 +200,6 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
   // An ABSENCE claim over a censored evidence family cannot reassure: nothing
   // proves the absence held after collection stopped, so those cards hedge
   // and drop to "info" instead of "ok".
-  const requestsCensored = familyCensoredOnRun(run, "requests");
-  const cookiesCensored = familyCensoredOnRun(run, "cookies");
-  // Raw fingerprint events live in the "fingerprinting" evidence family;
-  // detector conclusions live in "detector-output". The absence card covers
-  // both, so censoring in either hedges it.
-  const detectorCensored = familyCensoredOnRun(run, "detector-output") || familyCensoredOnRun(run, "fingerprinting");
-
   const keystrokeDetection = fingerprintDetection(run.evidence, "keystroke-exfiltration");
   if (keystrokeDetection) {
     const recipients = humanList(keystrokeDetection.evidence.recipients);
@@ -212,7 +219,7 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
         ? `What you type was sent to ${recipientCount} as a hash`
         : `Your typing is sent to ${recipientCount} as you go`,
       lead: hashed
-        ? `When the scanner typed a unique test value into ${fields}, that value reached ${recipients} as a one-way hash (${humanList(keystrokeDetection.evidence.encodings)}) and without the form ever being submitted.`
+        ? `When the scanner typed a unique test value into ${fields}, that value was sent to ${recipients} as a one-way hash (${humanList(keystrokeDetection.evidence.encodings)}) and without the form ever being submitted.`
         : `When the scanner typed a unique test value into ${fields}, that value was sent to ${recipients} as it was typed (${humanList(keystrokeDetection.evidence.encodings)}), without the form ever being submitted, typically search type-ahead or autocomplete handled by a third party.`,
       detail: hashed
         ? `The typed value was hashed (${humanList(
@@ -221,7 +228,7 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
         : `The value was sent in a recoverable form (${humanList(
             keystrokeDetection.evidence.encodings
           )}), consistent with a functional type-ahead or autocomplete (a search or location lookup) handled by a third party. Still worth knowing your keystrokes leave to ${recipients}, but not on its own evidence of covert capture. The scanner types only synthetic values and never submits the form.`,
-      evidence: `Test value reached ${recipients} via ${humanList(keystrokeDetection.evidence.encodings)}.`
+      evidence: `Test value was sent to ${recipients} via ${humanList(keystrokeDetection.evidence.encodings)}.`
     });
   }
 
@@ -251,24 +258,29 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
   const consentPlatform = run.conditions.consentMode === "observe" ? detectConsentPlatform(run.evidence.domains) : null;
   if (consentPlatform) {
     const preConsentTrackers = trackingEntities.length;
+    const consentPlatformAnswered =
+      (run.evidence.domains.find((domain) => domain.domain === consentPlatform.domain)?.statuses.length ?? 0) > 0;
+    const answeredPreConsentTrackers = trackingEntities.filter((entity) => respondedEntities.has(entity.entity)).length;
     findings.push({
       id: "consent-banner",
       icon: "cookie",
       level: preConsentTrackers > 0 ? "warn" : "info",
       title:
         preConsentTrackers > 0
-          ? "Consent management loaded, but trackers had already loaded too"
-          : "A consent management platform loaded",
+          ? "Consent tooling and tracker requests appeared before any choice"
+          : consentPlatformAnswered
+            ? "A consent management platform answered"
+            : "A consent management platform was requested",
       lead:
         preConsentTrackers > 0
-          ? `${run.domain} loaded ${consentPlatform.name}, a consent management platform (the tooling that shows cookie banners), yet ${plural(
+          ? `${run.domain} sent a request to ${consentPlatform.name}, a consent management platform (the tooling that shows cookie banners), and sent requests to ${plural(
               preConsentTrackers,
               "tracking company",
               "tracking companies"
-            )} already loaded before the scanner made any consent choice.`
-          : `${run.domain} loaded ${consentPlatform.name}, a consent management platform (the tooling that shows cookie banners); no catalogued tracking company loaded before the scanner made any consent choice in this visit.`,
+            )} before the scanner made any consent choice${answeredPreConsentTrackers > 0 ? `; ${plural(answeredPreConsentTrackers, "company", "companies")} answered` : "; none recorded a response"}.`
+          : `${run.domain} sent a request to ${consentPlatform.name}, a consent management platform (the tooling that shows cookie banners); no request to a catalogued tracking company was recorded before the scanner made any consent choice in this visit.`,
       detail:
-        'A request to the platform\'s loader proves the consent tooling loaded, not that a banner was visibly shown to this scanner; banner display can vary by region and visit context. The scanner never clicks a banner in this mode, so this report records what loaded before the scanner made a consent choice. It does not determine whether any request required consent or whether the site\'s behavior complied with applicable law. More trackers may load after "Accept" than this report captures, so tracker counts here are a lower bound for users who consent.',
+        'A request to the platform\'s loader proves the page attempted to fetch consent tooling; an observed response supports delivery, but neither fact proves a banner was visibly shown to this scanner. Banner display can vary by region and visit context. The scanner never clicks a banner in this mode, so this report records requests made before the scanner made a consent choice. It does not determine whether any request required consent or whether the site\'s behavior complied with applicable law. More trackers may appear after "Accept" than this report captures, so tracker counts here are a lower bound for users who consent.',
       evidence: `Consent platform detected via a request to ${consentPlatform.domain}.`
     });
   }
@@ -352,7 +364,7 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
           : conditionalConflicts.length > 0
             ? `Comparing the site's own privacy policy against this visit: ${humanList(conditionalConflicts, 2)}.`
             : policy.unmentionedEntities.length > 0
-              ? `${humanList(policy.unmentionedEntities)} received requests during this visit but ${policy.unmentionedEntities.length === 1 ? "is" : "are"} never named in the privacy policy text.`
+              ? `${humanList(policy.unmentionedEntities)} ${policy.unmentionedEntities.length === 1 ? "was" : "were"} sent requests during this visit but ${policy.unmentionedEntities.length === 1 ? "is" : "are"} never named in the privacy policy text.`
               : `The policy's checkable statements did not contradict this visit's evidence (${coverage}).`,
       detail:
         conflicts.length > 0 || conditionalConflicts.length > 0
@@ -370,7 +382,9 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
     level: trackingEntities.length > 0 ? thirdPartyLevel : requestsCensored ? "info" : "ok",
     title:
       trackingEntities.length > 0
-        ? "Tracking and ad services saw this visit"
+        ? trackingEntities.every((entity) => respondedEntities.has(entity.entity))
+          ? "Tracking and ad services responded during this visit"
+          : "Requests were sent to tracking and ad services"
         : operationalEntities.length > 0
           ? "Only operational services matched"
           : "No known services matched",
@@ -387,25 +401,27 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
           ? `These are monitoring or support tools, not cross-site trackers. Unlabeled third parties may still be present.${requestsCensored ? CENSORED_ABSENCE_NOTE : ""}`
           : `There may still be unlabeled third parties, but no known catalog entity was matched.${requestsCensored ? CENSORED_ABSENCE_NOTE : ""}`,
     evidence: `${plural(run.counts.thirdPartyRequests, "third-party request")} across ${plural(run.counts.thirdPartyDomains, "third-party domain")}.`,
-    benchmark: domainsBenchmark
-      ? domainsBenchmark.label
-      : trackingEntities.length > 0
-        ? benchmarkLabel("trackerEntities", trackingEntities.length)
-        : benchmarkLabel("thirdPartyDomains", run.counts.thirdPartyDomains)
+    benchmark: !domainsBenchmarkAllowed
+      ? undefined
+      : domainsBenchmark
+        ? domainsBenchmark.label
+        : trackingEntities.length > 0
+          ? benchmarkLabel("trackerEntities", trackingEntities.length)
+          : benchmarkLabel("thirdPartyDomains", run.counts.thirdPartyDomains)
   });
 
   findings.push({
     id: "named-platforms",
     icon: "network",
     level: headlineNames.length === 0 ? (requestsCensored ? "info" : "ok") : headlineNames.length >= 3 ? "warn" : "info",
-    title: headlineNames.length > 0 ? "Data reached major platforms" : "No major platforms received data",
+    title: headlineNames.length > 0 ? "Requests were sent to major platforms" : "No requests to major platforms were recorded",
     lead:
       headlineNames.length > 0
         ? `This visit sent requests to ${humanList(headlineNames)}.`
         : "No requests to Google, Meta, TikTok, or X were observed in this visit.",
     detail:
       headlineNames.length > 0
-        ? "These platforms can link this visit to the profile they already hold about you from other sites and apps."
+        ? "If received, these platforms can link this visit to the profile they already hold about you from other sites and apps."
         : `Major ad-platform pixels were not observed in this single passive visit; interaction-gated pixels could still load for real users.${requestsCensored ? CENSORED_ABSENCE_NOTE : ""}`,
     evidence:
       headlineNames.length > 0
@@ -434,7 +450,7 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
       detail:
         pixelsWithMatching.length > 0
           ? "Beyond detecting that a pixel is present, this reads each pixel request's event type and whether its advanced-matching parameters held values. These are the fields the platforms document as carrying hashed emails or phone numbers so events can be matched to a known person; the scanner records only which fields were populated, never their values, so neither the contents nor the hashing is verified."
-          : "This reads each pixel request's event type (such as PageView, ViewContent, or Purchase), not just that the pixel loaded. No advanced-matching identifier fields were observed in this passive visit; interaction-gated events could still carry them for real users.",
+          : "This reads each pixel request's event type (such as PageView, ViewContent, or Purchase), not just that a pixel request was recorded. No advanced-matching identifier fields were observed in this passive visit; interaction-gated events could still carry them for real users.",
       evidence: humanList(pixelEvents.map(pixelEventEvidence), 4)
     });
   }
@@ -517,7 +533,7 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
     evidence: cookiesUnsupported
       ? "Unsupported by the request-only PageGraph r2 producer."
       : `${plural(run.counts.cookies, "cookie")} total in this report.`,
-    benchmark: cookiesUnsupported
+    benchmark: !cookiesBenchmarkAllowed
       ? undefined
       : cookiesBenchmark
         ? cookiesBenchmark.label
@@ -703,20 +719,21 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
         // "Brave-list blocking", never "Brave Shields on": the blocking arm
         // ran Brave's ad-block engine and default Shields lists as a block
         // SIMULATION in this scanner's browser, not a live Brave visit.
-        const simulationNote =
-          "Brave's ad-block engine and default Shields filter lists actively blocking (a simulation in this scanner's browser, not a live Brave-browser visit)";
+        const simulationNote = view.claims.interventionAttribution
+          ? "Brave's ad-block engine and default Shields filter lists verified as actively blocking (a simulation in this scanner's browser, not a live Brave-browser visit)"
+          : "the scanner configured to apply Brave's ad-block engine and default Shields filter lists (a simulation in this scanner's browser, not a live Brave-browser visit; application was not verified)";
         findings.unshift({
           id: "shields-comparison",
           icon: "shield-check",
           level: direction === "decreased" ? "ok" : direction === "flat" ? "quiet" : "info",
           title:
             direction === "decreased"
-              ? "Fewer tracking signals observed with Brave-list blocking on"
+              ? "Fewer tracking signals observed in the Brave-list blocking attempt"
               : direction === "increased"
-                ? "More third-party activity observed with Brave-list blocking on"
+                ? "More third-party activity observed in the Brave-list blocking attempt"
                 : direction === "mixed"
-                  ? "Mixed changes observed with Brave-list blocking on"
-                  : "No change observed with Brave-list blocking on",
+                  ? "Mixed changes observed in the Brave-list blocking attempt"
+                  : "No change observed in the Brave-list blocking attempt",
           lead:
             direction === "flat"
               ? `The blocking visit (${simulationNote}) showed no change in the comparable metrics (${humanList(
@@ -817,13 +834,15 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
               ? ` Evidence collection was also cut short (${humanList(censorshipNotes, 2)}), so activity counts are floors for this visit and end-state figures are snapshots of an interrupted recording.`
               : ""
           }`,
-    detail: corpusIsUsable(corpus)
+    detail: corpusIsUsable(corpus) && (domainsBenchmarkAllowed || cookiesBenchmarkAllowed)
       ? `The cards below translate the evidence into plain language. Where a measured distribution exists, severity ranks this visit against percentiles from the ${corpus.sampleSize.toLocaleString("en-US")} fully measured sites${
           typeof corpus.coverageSiteCount === "number" && corpus.coverageSiteCount > corpus.sampleSize
             ? ` (of ${corpus.coverageSiteCount.toLocaleString("en-US")} sites scanned; failed and request-capped visits are excluded from statistics)`
             : ""
         }, a curated set of popular, mostly commercial sites, not a random sample of the web, and otherwise uses fixed reference thresholds. The request log, domain table, and methodology remain below for verification.`
-      : "The cards below translate the evidence into plain language; severity reflects fixed reference thresholds, not measured population percentiles. The request log, domain table, and methodology remain below for verification.",
+      : corpusIsUsable(corpus)
+        ? "The cards below translate the evidence into plain language. This failed or incomplete evidence is not ranked against corpus percentiles; positive signals remain visible as lower bounds. The request log, domain table, and methodology remain below for verification."
+        : "The cards below translate the evidence into plain language; severity reflects fixed reference thresholds, not measured population percentiles. The request log, domain table, and methodology remain below for verification.",
     evidence: `${plural(run.counts.totalRequests, "request")} observed in one controlled visit.`
   });
 
@@ -851,7 +870,7 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
           : "No requests matched the default filter lists of Brave Shields, the ad and tracker blocker built into the Brave browser.",
       detail: simulated
         ? "Measured with Brave's own ad-block engine and default filter lists actively blocking (network requests only, so no cosmetic or CNAME-based blocking). Blocked requests are not in this run's totals, and requests a blocked script would have made never started."
-        : "Computed with Brave's own ad-block engine and default filter lists in classification mode: matched requests LOADED normally and are counted in this report. Matching shows what Shields would target on this visit's traffic; an actual Shields visit blocks these and also prevents their follow-on requests, so this number is neither a measured block count nor the total effect.",
+        : "Computed with Brave's own ad-block engine and default filter lists in classification mode: matched requests were not blocked by the scanner and remain in this report's observed request counts. Matching shows what Shields would target on this visit's traffic; an actual Shields visit blocks these and also prevents their follow-on requests, so this number is neither a measured block count nor the total effect.",
       // The catalog count is run-wide: it is a separate labeling layer, not a
       // proven subset of the Shields-matched requests, so the sentence must
       // not chain the two sets together.
@@ -915,6 +934,7 @@ function buildConsentComparisonFinding(
   const rejectClicked = variant.consent?.controlActivated === true;
   const acceptTracking = trackerEntitySummaries(baseline.evidence).filter((entity) => !isOperationalEntity(entity));
   const rejectTracking = trackerEntitySummaries(variant.evidence).filter((entity) => !isOperationalEntity(entity));
+  const rejectResponded = respondedTrackerEntityNames(variant.evidence);
   const requestsBefore = baseline.counts.thirdPartyRequests;
   const requestsAfter = variant.counts.thirdPartyRequests;
   const registration = consentRegistrationSentence(view, variant.consent, "Reject all");
@@ -966,13 +986,13 @@ function buildConsentComparisonFinding(
       id: "consent-comparison",
       icon: "cookie",
       level: "warn",
-      title: `${plural(rejectTracking.length, "tracking company", "tracking companies")} loaded in the visit that clicked Reject all`,
-      // The cross-arm contrast ("N loaded in the accept-click visit") is a
+      title: `Requests were sent to ${plural(rejectTracking.length, "tracking company", "tracking companies")} in the visit that clicked Reject all`,
+      // The cross-arm contrast ("N appeared in the accept-click visit") is a
       // classification-family juxtaposition; without that family the card
       // keeps the reject-click visit's own facts only.
-      lead: `In the visit where the scanner clicked Reject all, ${humanList(rejectTracking.map((entity) => entity.entity))} received requests${
+      lead: `In the visit where the scanner clicked Reject all, ${humanList(rejectTracking.map((entity) => entity.entity))} ${trackerResponseQualification(rejectTracking, rejectResponded)}${
         classificationAllowed
-          ? ` (${plural(acceptTracking.length, "tracking company", "tracking companies")} loaded in the visit that clicked Accept all)`
+          ? ` (${plural(acceptTracking.length, "tracking company", "tracking companies")} appeared in the request log for the visit that clicked Accept all)`
           : ""
       }.`,
       detail: `${registration} ${CONSENT_WHOLE_VISIT_CAVEAT} It is a documented observation to review against the banner's promises, not a violation ruling. The diff below lists the services that appeared only in the visit that clicked Accept all.`,
@@ -992,14 +1012,14 @@ function buildConsentComparisonFinding(
       : "The visit that clicked Reject all had no catalogued trackers",
     lead:
       classificationAllowed && acceptTracking.length > 0
-        ? `The visit where the scanner clicked Reject all loaded no catalogued tracking company, while the visit that clicked Accept all loaded ${plural(
+        ? `The visit where the scanner clicked Reject all recorded no request to a catalogued tracking company, while the visit that clicked Accept all recorded requests to ${plural(
             acceptTracking.length,
             "tracking company",
             "tracking companies"
           )}.`
         : classificationAllowed
-          ? "No catalogued tracking company loaded in either visit; on this page the two visits differed little because there was little to consent to."
-          : "The visit where the scanner clicked Reject all loaded no catalogued tracking company.",
+          ? "No request to a catalogued tracking company was recorded in either visit; on this page the two visits differed little because there was little to consent to."
+          : "The visit where the scanner clicked Reject all recorded no request to a catalogued tracking company.",
     detail: `${registration} ${CONSENT_WHOLE_VISIT_CAVEAT} A single paired comparison can also reflect run-to-run variance (ad rotation, caching, experiments), so treat this as an observed difference for this pair of visits.${
       rejectEvidenceCensored ? CENSORED_ABSENCE_NOTE : ""
     }`,

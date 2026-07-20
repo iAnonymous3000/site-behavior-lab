@@ -18,8 +18,7 @@ import {
   type ComparabilityReason,
   type Experiment,
   type InterventionAxis,
-  type PhaseKind,
-  type ScanRunV2
+  type PhaseKind
 } from "./scan-report-v2";
 import {
   CONSENT_CHOICE_TO_ARM_OUTCOME,
@@ -43,8 +42,7 @@ import {
   type InterventionExperimentR2,
   type PublicScanReportV2R2,
   type ScanRunV2R2,
-  type ShieldsVerificationFactsR2,
-  type SupportingPairR2
+  type ShieldsVerificationFactsR2
 } from "./scan-report-v2-r2";
 
 function canonicallyEqual(a: unknown, b: unknown): boolean {
@@ -536,6 +534,14 @@ function supportingPairViolations(
   ) {
     violations.push("supporting pairs: primary pair measurement environments do not match");
   }
+  // `observer` is a compatibility dimension in the evaluator, but is not part
+  // of the frozen r2 measurementEnvironment fingerprint. Check it explicitly
+  // so supporting evidence cannot mix Node, browser-worker, and PageGraph
+  // producers while still counting as replication/counterbalancing.
+  const primaryObserver = primaryBaseline.provenance.observer;
+  if (pairs.length > 0 && primaryObserver !== primaryVariant.provenance.observer) {
+    violations.push("supporting pairs: primary pair measurement observers do not match");
+  }
 
   for (const [index, pair] of pairs.entries()) {
     const label = `supporting pair ${index}`;
@@ -575,9 +581,12 @@ function supportingPairViolations(
     if (pair.variant.fingerprints.condition !== primaryVariant.fingerprints.condition) {
       violations.push(`${label}: variant condition fingerprint does not match the primary variant`);
     }
-    for (const run of [pair.baseline, pair.variant]) {
+    for (const [runLabel, run] of [["baseline", pair.baseline], ["variant", pair.variant]] as const) {
       if (run.fingerprints.measurementEnvironment !== primaryBaseline.fingerprints.measurementEnvironment) {
         violations.push(`${label}: measurement environment does not match the primary pair`);
+      }
+      if (run.provenance.observer !== primaryObserver) {
+        violations.push(`${label}: ${runLabel} measurement observer does not match the primary pair`);
       }
     }
 
@@ -642,6 +651,9 @@ export function scanReportV2R2SemanticViolations(report: PublicScanReportV2R2): 
     ...runR2Violations(report.baseline, "baseline"),
     ...runR2Violations(report.variant, "variant")
   ];
+  if (report.baseline.runId === report.variant.runId) {
+    violations.push("comparison: primary runs must have distinct runId values");
+  }
 
   const experiment = report.experiment;
   if (experiment.kind === "intervention") {

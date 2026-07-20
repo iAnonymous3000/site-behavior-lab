@@ -40,7 +40,6 @@ import type {
   InterventionAxis,
   MetricFamily,
   PhaseSpan,
-  Provenance,
   PublicScanReportV2,
   RunSummary,
   ScanRunV2,
@@ -391,6 +390,10 @@ export type ReportView = {
 };
 
 function runViewFromV2(run: ScanRunV2 | ScanRunV2R2, label: RunView["label"]): RunView {
+  const verificationFacts =
+    "verificationFacts" in run && run.verificationFacts
+      ? { gpc: run.verificationFacts.gpc ?? null, shields: run.verificationFacts.shields ?? null }
+      : null;
   return {
     label,
     domain: run.subject.observed.registrableDomain,
@@ -438,10 +441,7 @@ function runViewFromV2(run: ScanRunV2 | ScanRunV2R2, label: RunView["label"]): R
     },
     // r2 runs may carry axis readbacks; r1 runs never do, and a missing block
     // is "never verified", not a verified-off wrapper.
-    verificationFacts:
-      "verificationFacts" in run && run.verificationFacts
-        ? { gpc: run.verificationFacts.gpc ?? null, shields: run.verificationFacts.shields ?? null }
-        : null,
+    verificationFacts,
     evidence: {
       requests: run.evidence.requests,
       domains: summarizeDomains(run.evidence.requests),
@@ -468,9 +468,13 @@ function runViewFromV2(run: ScanRunV2 | ScanRunV2R2, label: RunView["label"]): R
       viewport: { ...run.conditions.device.viewport },
       gpcEnabled: run.conditions.gpc,
       shieldsMode: run.conditions.shields,
-      // The APPLIED state is the recorded shields condition; toolchain.adblock
-      // only says an engine build was pinned, not that it acted on this run.
-      adblockActive: run.conditions.shields !== "off",
+      // R2 keeps requested and observed intervention state separate. When
+      // readback exists, engineLoaded is the actual measurement posture; the
+      // condition remains the requested mode. R1 has no facts and therefore
+      // falls back to its recorded condition as configured-only metadata.
+      adblockActive: verificationFacts?.shields
+        ? verificationFacts.shields.engineLoaded
+        : run.conditions.shields !== "off",
       adblockLists: run.toolchain.adblock
         ? {
             source: run.toolchain.adblock.source,

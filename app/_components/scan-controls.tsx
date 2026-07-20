@@ -36,8 +36,11 @@ type ScanControlsProps = {
   scanBlocked: boolean;
   activeScanJob: boolean;
   urlNotice: string;
+  urlError: string;
   clearUrlNotice: () => void;
   scannerStatus: string;
+  scannerStatusError: boolean;
+  onRetryScannerHealth: () => void;
   turnstileRequired: boolean;
   turnstileResetNonce: number;
   onTurnstileToken: (token: string) => void;
@@ -94,8 +97,11 @@ export function ScanControls({
   scanBlocked,
   activeScanJob,
   urlNotice,
+  urlError,
   clearUrlNotice,
   scannerStatus,
+  scannerStatusError,
+  onRetryScannerHealth,
   turnstileRequired,
   turnstileResetNonce,
   onTurnstileToken,
@@ -122,6 +128,8 @@ export function ScanControls({
           inputMode="url"
           autoComplete="url"
           spellCheck={false}
+          aria-invalid={urlError ? true : undefined}
+          aria-describedby={urlError ? "url-error" : urlNotice ? "url-notice" : undefined}
           value={form.url}
           onChange={(event) => {
             clearUrlNotice();
@@ -139,9 +147,23 @@ export function ScanControls({
         </button>
       </div>
 
-      {urlNotice && <p className="scanner-status-note url-privacy-note">{urlNotice}</p>}
+      {urlNotice && <p className="scanner-status-note url-privacy-note" id="url-notice">{urlNotice}</p>}
+      {urlError && <p className="scanner-status-note scanner-status-note-error" id="url-error">{urlError}</p>}
 
-      {STATIC_LIVE_SCAN_ENABLED && <p className="scanner-status-note">{scannerStatus}</p>}
+      <div className="scanner-health-row">
+        <p
+          className={`scanner-status-note${scannerStatusError ? " scanner-status-note-error" : ""}`}
+          role="status"
+          aria-live="polite"
+        >
+          {scannerStatus}
+        </p>
+        {scannerStatusError && (
+          <button className="ghost-button scanner-health-retry" type="button" onClick={onRetryScannerHealth}>
+            Retry status
+          </button>
+        )}
+      </div>
 
       {turnstileRequired && turnstileSiteKeyConfigured && (
         <div className="turnstile-row">
@@ -174,7 +196,7 @@ export function ScanControls({
           <ChevronDown className="disclosure-chevron" size={15} aria-hidden="true" />
         </summary>
         <div className="controls-grid">
-          <fieldset className="control-group">
+          <fieldset className="control-group run-mode-group">
             <legend>Run</legend>
             <div className="segmented-control run-mode-control" role="group" aria-label="Run mode">
               <button
