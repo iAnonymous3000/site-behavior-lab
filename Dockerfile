@@ -59,6 +59,7 @@ COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/.next ./.next
 COPY --from=build /app/lib/adblock-wasm ./lib/adblock-wasm
 COPY --from=build /app/public ./public
+COPY --from=build /app/scripts/public-build-commit.mjs ./scripts/public-build-commit.mjs
 COPY --from=build /app/next.config.mjs ./next.config.mjs
 
 # Scans open attacker-controlled pages, so the runtime must not be root. The

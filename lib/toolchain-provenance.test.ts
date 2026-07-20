@@ -89,3 +89,14 @@ test("tldts manifest, lockfile, and installation use one exact version", () => {
   assert.equal(tldtsPackage.version, declaredVersion);
   assert.equal(tldtsPackage.dependencies["tldts-core"], `^${declaredVersion}`);
 });
+
+test("runtime container includes the module imported by next.config", () => {
+  const nextConfig = source("next.config.mjs");
+  const dockerfile = source("Dockerfile");
+
+  assert.match(nextConfig, /from "\.\/scripts\/public-build-commit\.mjs"/);
+  assert.match(
+    dockerfile,
+    /^COPY --from=build \/app\/scripts\/public-build-commit\.mjs \.\/scripts\/public-build-commit\.mjs$/m
+  );
+});
