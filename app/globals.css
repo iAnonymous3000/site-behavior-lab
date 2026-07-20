@@ -3922,6 +3922,11 @@ details[open] > summary .disclosure-chevron {
     padding-inline: 8px;
   }
 
+  .empty-state,
+  .loading-state {
+    padding-inline: 8px;
+  }
+
   .scan-panel {
     padding-inline: 8px;
   }

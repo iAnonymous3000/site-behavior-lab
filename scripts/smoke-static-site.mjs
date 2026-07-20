@@ -402,19 +402,21 @@ async function main() {
 
     await page.setViewportSize({ width: 390, height: 900 });
     await page.goto(`${baseUrl}/`, { waitUntil: "networkidle" });
-    if (await hasHorizontalOverflow(page)) fail("static mobile archive has page-level horizontal overflow");
+    await page.waitForSelector(".static-report-card", { timeout: 10_000 });
+    await assertNoHorizontalOverflow(page, "static mobile archive");
     pass("static mobile archive fits viewport");
     await page.goto(`${baseUrl}/sites/${encodeURIComponent(profileKey)}/`, { waitUntil: "networkidle" });
-    if (await hasHorizontalOverflow(page)) fail("static mobile site profile has page-level horizontal overflow");
+    await assertNoHorizontalOverflow(page, "static mobile site profile");
     pass("static mobile site profile fits viewport");
     await page.goto(`${baseUrl}/reports/${phaseReport.id}/`, { waitUntil: "networkidle" });
     await page.waitForSelector(".visit-phase-evidence", { timeout: 10_000 });
-    if (await hasHorizontalOverflow(page)) fail("static mobile r2 report has page-level horizontal overflow");
+    await assertNoHorizontalOverflow(page, "static mobile r2 report");
     pass("static mobile r2 phase report fits viewport");
 
     await page.setViewportSize({ width: 320, height: 900 });
     await page.goto(`${baseUrl}/`, { waitUntil: "networkidle" });
-    if (await hasHorizontalOverflow(page)) fail("static narrow-mobile archive has page-level horizontal overflow");
+    await page.waitForSelector(".static-report-card", { timeout: 10_000 });
+    await assertNoHorizontalOverflow(page, "static narrow-mobile archive");
     pass("static archive fits a 320px viewport");
   } finally {
     await browser.close();
@@ -552,8 +554,44 @@ async function expectRequestRowCount(page, expected) {
   if (actual !== expected) fail(`expected ${expected} request rows, got ${actual}`);
 }
 
-async function hasHorizontalOverflow(page) {
-  return page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 1);
+async function assertNoHorizontalOverflow(page, label) {
+  // Chromium can report a transient min-content width while React commits the
+  // archive and the platform's system fonts finish resolving. Measure only
+  // after the rendered layout has crossed two animation frames; a persistent
+  // overflow still fails with the exact elements that escaped the viewport.
+  await page.evaluate(async () => {
+    await document.fonts?.ready;
+    await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+  });
+
+  const measurement = await page.evaluate(() => {
+    const viewportWidth = window.innerWidth;
+    const scrollWidth = document.documentElement.scrollWidth;
+    const offenders = [...document.querySelectorAll("body *")]
+      .map((element) => {
+        const bounds = element.getBoundingClientRect();
+        const className = typeof element.className === "string" ? element.className.trim() : "";
+        return {
+          element: `${element.tagName.toLowerCase()}${className ? `.${className.split(/\s+/).join(".")}` : ""}`,
+          left: Math.round(bounds.left * 10) / 10,
+          right: Math.round(bounds.right * 10) / 10,
+          width: Math.round(bounds.width * 10) / 10
+        };
+      })
+      .filter(({ right }) => right > viewportWidth + 1)
+      .sort((left, right) => right.right - left.right)
+      .slice(0, 5);
+    return { viewportWidth, scrollWidth, offenders };
+  });
+
+  if (measurement.scrollWidth <= measurement.viewportWidth + 1) return;
+  const details = measurement.offenders
+    .map(({ element, left, right, width }) => `${element} left=${left} right=${right} width=${width}`)
+    .join("; ");
+  fail(
+    `${label} has page-level horizontal overflow ` +
+      `(viewport=${measurement.viewportWidth}, scroll=${measurement.scrollWidth}${details ? `; ${details}` : ""})`
+  );
 }
 
 function searchableReportText(report) {
