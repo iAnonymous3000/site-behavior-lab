@@ -17,6 +17,7 @@ const PUBLIC_R2_REPORTS_ENV = "SITE_BEHAVIOR_LAB_PUBLIC_R2_REPORTS";
 const V2_SHADOW_EMISSION_ENV = "SITE_BEHAVIOR_LAB_V2_SHADOW_EMISSION";
 const V2_SHADOW_BACKEND_ENV = "SITE_BEHAVIOR_LAB_V2_SHADOW_BACKEND";
 const DURABLE_JOBS_ENV = "SITE_BEHAVIOR_LAB_DURABLE_JOBS";
+const ENCRYPTED_WATCHES_ENV = "SITE_BEHAVIOR_LAB_ENCRYPTED_WATCHES";
 const DURABLE_JOBS_INTERNAL_TOKEN_ENV = "SITE_BEHAVIOR_LAB_DURABLE_JOBS_INTERNAL_TOKEN";
 const DURABLE_JOBS_COORDINATOR_URL_ENV = "SITE_BEHAVIOR_LAB_DURABLE_JOBS_COORDINATOR_URL";
 const R2_ENVS = [
@@ -45,6 +46,7 @@ afterEach(() => {
   delete process.env[V2_SHADOW_EMISSION_ENV];
   delete process.env[V2_SHADOW_BACKEND_ENV];
   delete process.env[DURABLE_JOBS_ENV];
+  delete process.env[ENCRYPTED_WATCHES_ENV];
   delete process.env[DURABLE_JOBS_INTERNAL_TOKEN_ENV];
   delete process.env[DURABLE_JOBS_COORDINATOR_URL_ENV];
   for (const name of R2_ENVS) delete process.env[name];
@@ -105,6 +107,7 @@ test("runtimeStatus reports degraded status for open local defaults", async () =
   assert.equal(status.checks.consentVerification, "disabled");
   assert.deepEqual(status.checks.publicR2Reports, { status: "disabled" });
   assert.deepEqual(status.checks.durableJobs, { requested: false, enabled: false, readiness: "disabled" });
+  assert.deepEqual(status.checks.encryptedWatches, { requested: false, enabled: false, readiness: "disabled" });
   assert.deepEqual(status.checks.v2ShadowEmission, { status: "disabled", backend: "filesystem" });
   assert.equal(status.warnings.length, 3);
 });
@@ -142,6 +145,7 @@ test("runtimeStatus reports ok status when production controls are configured", 
     shieldsComparison: true,
     consentComparison: true,
     savedReports: true,
+    scheduledRescans: false,
     savedReportPages: true
   });
   assert.deepEqual(status.warnings, []);
@@ -231,7 +235,42 @@ test("runtimeStatus exposes Node-only durable-job readiness without claiming edg
     enabled: true,
     readiness: "node-ready"
   });
+  assert.deepEqual(status.checks.encryptedWatches, {
+    requested: false,
+    enabled: false,
+    readiness: "disabled"
+  });
   assert.deepEqual(status.warnings, []);
+
+  process.env[ENCRYPTED_WATCHES_ENV] = "1";
+  const watchReady = await runtimeStatus(loadedAdblock);
+  assert.deepEqual(watchReady.checks.encryptedWatches, {
+    requested: true,
+    enabled: true,
+    readiness: "node-ready"
+  });
+  assert.equal(watchReady.capabilities.scheduledRescans, false);
+  assert.deepEqual(watchReady.warnings, []);
+
+  process.env[DURABLE_JOBS_ENV] = "0";
+  const durableDisabled = await runtimeStatus(loadedAdblock);
+  assert.equal(durableDisabled.scansAvailable, true, "watch readiness must not disable ordinary scans");
+  assert.equal(durableDisabled.checks.encryptedWatches.readiness, "misconfigured");
+  assert.equal(
+    durableDisabled.checks.encryptedWatches.reasons?.some((reason) => reason.includes("durable scan jobs")),
+    true
+  );
+
+  process.env[DURABLE_JOBS_ENV] = "1";
+  process.env[ENCRYPTED_WATCHES_ENV] = "yes";
+  const invalidWatchFlag = await runtimeStatus(loadedAdblock);
+  assert.equal(invalidWatchFlag.scansAvailable, true, "an optional watch misconfiguration must not refuse scans");
+  assert.deepEqual(invalidWatchFlag.checks.encryptedWatches, {
+    requested: true,
+    enabled: false,
+    readiness: "misconfigured",
+    reasons: [`${ENCRYPTED_WATCHES_ENV} must be 0, 1, or unset.`]
+  });
 
   process.env[DURABLE_JOBS_INTERNAL_TOKEN_ENV] = "short";
   const shortToken = await runtimeStatus(loadedAdblock);

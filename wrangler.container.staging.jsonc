@@ -60,6 +60,15 @@
     // committed above.
     "SITE_BEHAVIOR_LAB_DURABLE_JOBS": "1",
     "SITE_BEHAVIOR_LAB_DURABLE_JOBS_COORDINATOR_URL": "https://scan-staging.sitebehavior.org",
+
+    // Replay canaries validate one execution owner and must not also exercise
+    // a topology change. This config has max_instances: 1, so sharding remains
+    // explicitly off and its documented ceiling remains one.
+    "SITE_BEHAVIOR_LAB_CONTAINER_SHARDING": "0",
+    "SITE_BEHAVIOR_LAB_CONTAINER_SHARD_COUNT": "1",
+    // The replay-canary deployment proves durability only. Watches have their
+    // own later rollout and Worker-only key ceremony.
+    "SITE_BEHAVIOR_LAB_ENCRYPTED_WATCHES": "0",
     "SITE_BEHAVIOR_LAB_REPORT_MIN_SURVIVAL_MS": "4500000",
 
     // Bucket isolation is explicit. Provision this bucket and staging-scoped R2

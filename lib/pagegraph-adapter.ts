@@ -77,6 +77,10 @@ export type PageGraphAdapterInput = {
   warnings?: string[];
 };
 
+/**
+ * @deprecated Legacy/internal v1 compatibility adapter. The public upload
+ * producer is buildPageGraphScanReportV2R2 with paired GraphML + metadata.
+ */
 export function pageGraphToScanResult(input: PageGraphAdapterInput): ScanResult {
   const requestedUrl = requiredUrl(input.requestedUrl, "requestedUrl");
   const finalUrl = input.finalUrl ? requiredUrl(input.finalUrl, "finalUrl") : requestedUrl;
@@ -87,7 +91,7 @@ export function pageGraphToScanResult(input: PageGraphAdapterInput): ScanResult 
     ...(input.warnings ?? [])
   ];
   const trackerMatcher = input.trackerMatcher ?? findTrackerMatch;
-  const requests = normalizeRequests(input.requests ?? [], firstPartyDomain, warnings, trackerMatcher);
+  const requests = normalizePageGraphRequests(input.requests ?? [], firstPartyDomain, warnings, trackerMatcher);
   if (requests.length > 0 && requests.every((request) => !hasHumanReadableProvenance(request.provenance))) {
     warnings.push(
       "No PageGraph request provenance was supplied. This report can show observed requests but not script-to-request causality."
@@ -130,11 +134,18 @@ export function pageGraphToScanResult(input: PageGraphAdapterInput): ScanResult 
   });
 }
 
-function normalizeRequests(
+/**
+ * Normalize and classify PageGraph request observations before the public
+ * redaction boundary. Exported for the browser-side r2 importer so it can
+ * reuse exactly the same party/catalog semantics without routing through the
+ * Node-only r2 builder.
+ */
+export function normalizePageGraphRequests(
   observations: PageGraphNetworkRequest[],
   firstPartyDomain: string,
   warnings: string[],
-  trackerMatcher: TrackerMatcher
+  trackerMatcher: TrackerMatcher = findTrackerMatch,
+  options: { requireTimestamps?: boolean; aggregateInvalidWarnings?: boolean } = {}
 ): NetworkRequestRecord[] {
   const requests: NetworkRequestRecord[] = [];
 
@@ -142,8 +153,20 @@ function normalizeRequests(
     const parsed = safeParseUrl(observation.url);
     const domain = normalizeDomain(observation.domain ?? parsed?.hostname ?? "");
     if (!parsed || (parsed.protocol !== "http:" && parsed.protocol !== "https:") || !domain) {
-      warnings.push(`Skipped PageGraph request ${index + 1} because its URL was not HTTP(S).`);
+      const warning = options.aggregateInvalidWarnings
+        ? "One or more PageGraph requests were omitted because their URLs were not HTTP(S)."
+        : `Skipped PageGraph request ${index + 1} because its URL was not HTTP(S).`;
+      if (!warnings.includes(warning)) warnings.push(warning);
       return;
+    }
+
+    if (
+      options.requireTimestamps &&
+      (observation.startedAtMs === undefined ||
+        !Number.isSafeInteger(observation.startedAtMs) ||
+        observation.startedAtMs < 0)
+    ) {
+      throw new Error(`PageGraph request ${index + 1} is missing an exact nonnegative millisecond timestamp.`);
     }
 
     const thirdParty = isThirdParty(firstPartyDomain, domain);
@@ -155,7 +178,10 @@ function normalizeRequests(
       domain,
       method: observation.method ?? "UNKNOWN",
       resourceType: observation.resourceType ?? "other",
-      status: observation.status ?? null,
+      // PageGraph uses status 0 for a request-error completion. That is not an
+      // HTTP status and therefore becomes the schema's explicit no-status
+      // value rather than an invalid/invented code.
+      status: normalizeHttpStatus(observation.status),
       thirdParty,
       tracker: thirdParty ? trackerMatcher(domain) : null,
       provenance: normalizeProvenance(observation.provenance),
@@ -164,6 +190,10 @@ function normalizeRequests(
   });
 
   return requests;
+}
+
+function normalizeHttpStatus(value: number | null | undefined): number | null {
+  return typeof value === "number" && Number.isInteger(value) && value >= 100 && value <= 599 ? value : null;
 }
 
 function normalizeProvenance(provenance: NetworkRequestProvenance | undefined): NetworkRequestProvenance | undefined {

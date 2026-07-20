@@ -13,8 +13,9 @@
 > deployment was deleted from Cloudflare on 2026-07-09. The code stays in-repo for
 > self-hosting and ships gated with no `workers.dev` alias. The analysis below is the
 > decision record that led to Option B, keep it. Production currently routes to
-> one warm singleton container; `max_instances = 3` is a ceiling, not active
-> three-way sharding.
+> one warm singleton container. Bounded durable-execution sharding is implemented
+> but separately flag-gated until durable jobs are live and proven; shard zero
+> reuses that singleton, so `max_instances = 3` covers the complete topology.
 
 ## Context
 
@@ -83,8 +84,9 @@ Worker stays available as an optional gated/edge fallback, not the primary path.
   required defense-in-depth boundary, as the README already states.
 - **Unlocks:** P2 collapsed to R2 plus layered limits. Since launch, the front
   Worker has added an atomic Durable Object SQLite quota and a bounded durable
-  IDs-only recovery registry. Full execution replay and horizontal sharding
-  remain the scale items documented in [scan-job-model.md](scan-job-model.md).
+  IDs-only recovery registry. Full execution replay is staged behind its live
+  gate; bounded horizontal execution sharding is implemented behind a second,
+  post-durability gate documented in [scan-job-model.md](scan-job-model.md).
 
 ### Option C, Wait for Browser Run connect-time pinning
 
@@ -111,8 +113,9 @@ Once Option B is chosen, the roadmap re-collapses (**executed 2026-06-21:** P1 c
 deploy + P2 R2 store; P3 corpus active; P4 Shields runs live on the container.
 **Executed 2026-06-22:** live Shields on the public front door at scan.sitebehavior.org,
 open access behind edge WAF/Turnstile. **Executed by 2026-07-13:** atomic Durable
-Object quotas and the Phase-1 IDs-only job recovery registry. **Remaining:**
-Phase-2 execution leases/replay and sharding beyond the singleton container):
+Object quotas and the Phase-1 IDs-only job recovery registry. **Implemented but
+operator-gated:** Phase-2 execution leases/replay, followed by bounded execution
+sharding beyond the singleton container):
 
 1. **Container + edge wiring (P1 execution).** Build/ship the Node scanner container
    ([Dockerfile](../Dockerfile) exists; validate with `npm run test:smoke:docker`),
@@ -133,8 +136,10 @@ Phase-2 execution leases/replay and sharding beyond the singleton container):
 4. **Shields diff (P4).** Already in the Node path under Option B, surface it as a
    first-class public comparison mode; no Worker port needed.
 5. **Durable async jobs (P5).** Phase 1 recovers completed R2 reports after a
-   process restart. Phase 2, durable payloads plus fenced leases and replay, is
-   still pending; follow [scan-job-model.md](scan-job-model.md).
+   process restart. Phase 2 durable payloads, fenced leases, replay, and bounded
+   execution sharding are implemented behind independent activation gates; the
+   replay canaries and production flag changes remain operator work. Follow
+   [scan-job-model.md](scan-job-model.md).
 
 If Option A is chosen instead, steps 2 and 4 become net-new Worker engineering and a
 Durable Object replaces the best-effort KV quota counters.

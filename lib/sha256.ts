@@ -30,7 +30,11 @@ function utf8Bytes(text: string): Uint8Array {
 }
 
 export function sha256Hex(text: string): string {
-  const message = utf8Bytes(text);
+  return sha256BytesHex(utf8Bytes(text));
+}
+
+/** SHA-256 over exact bytes, for browser-side artifact provenance. */
+export function sha256BytesHex(message: Uint8Array): string {
   const bitLength = message.length * 8;
 
   // Padding: 0x80, zeros, 64-bit big-endian length.

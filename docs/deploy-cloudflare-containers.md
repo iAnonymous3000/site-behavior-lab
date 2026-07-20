@@ -57,8 +57,8 @@ export class ScannerContainer extends Container {
 
 export default {
   async fetch(request: Request, env: { SCANNER: DurableObjectNamespace }): Promise<Response> {
-    // One warm instance keeps the in-memory async job queue coherent. Scale by
-    // sharding on a key here once a single instance is not enough.
+    // The default singleton remains the Phase-1 route and durable coordinator.
+    // The committed Worker alone may fan fenced Phase-2 execution out.
     return getContainer(env.SCANNER).fetch(request);
   }
 };
@@ -95,9 +95,23 @@ export default {
 }
 ```
 
-`max_instances` is a platform ceiling. The committed Worker currently routes
-through one default `getContainer(env.SCANNER)` singleton so the in-process queue
-remains coherent; it does not actively distribute scans across three instances.
+`max_instances` is a platform ceiling. With the committed flags off, the Worker
+routes through one default `getContainer(env.SCANNER)` singleton so the
+process-local queue remains coherent. After durable jobs are live and proven,
+`SITE_BEHAVIOR_LAB_CONTAINER_SHARDING=1` plus an exact count from 2 to 3 fans out
+only durable private activation, abort, and reconciliation requests. Shard zero
+is the default singleton and only shards one/two are named instances, so a count
+of 3 consumes exactly this configured ceiling. The authoritative job/status
+state and the per-job persisted route remain in the default Durable Object.
+
+Encrypted scheduled rescans are another independent post-durability gate. The
+default Durable Object remains their authoritative encrypted store and scheduler;
+each due watch is freshly prepared by Node, then routed as a normal durable job.
+Keep `SITE_BEHAVIOR_LAB_ENCRYPTED_WATCHES=0` until durable execution is live and
+proven. Enabled watches also require the configured scan access-token gate;
+open public ingress remains valid for ordinary scans but blocks watch readiness
+and creation. Its two encryption keys are Worker-only and are never part of
+`ScannerContainer.envVars`; see [encrypted-watches.md](encrypted-watches.md).
 
 > **Verify these against current Cloudflare docs**, the `@cloudflare/containers` routing
 > helper (`getContainer`), the Durable Object migration shape (`new_sqlite_classes`), and
@@ -131,6 +145,10 @@ SITE_BEHAVIOR_LAB_SCANNER_EGRESS=cloudflare-containers
 # a partial tuple makes health fail. Set SITE_BEHAVIOR_LAB_SCANNER_EGRESS_REGION
 # only to override it with a value that truthfully names the egress location.
 SITE_BEHAVIOR_LAB_ASYNC_SCANS=1                          # long scans don't hold the connection
+SITE_BEHAVIOR_LAB_ENCRYPTED_WATCHES=0                    # separate post-durability gate
+# Worker secrets only; never forward into the container:
+# SITE_BEHAVIOR_LAB_ENCRYPTED_WATCHES_KEY=<32-byte unpadded base64url>
+# SITE_BEHAVIOR_LAB_ENCRYPTED_WATCHES_PREVIOUS_KEY=<optional prior key>
 SITE_BEHAVIOR_LAB_CHROMIUM_SANDBOX=1                    # asserted by health + deployed smoke
 SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN=<strong secret>     # operator-gated launch (see §6)
 ```

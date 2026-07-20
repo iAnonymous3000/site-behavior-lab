@@ -2,6 +2,7 @@ import {
   comparisonArmViews,
   displayRunView,
   runCensorshipNotes,
+  unsupportedEvidenceFamilies,
   type ReportView,
   type RunView
 } from "./scan-report-views";
@@ -387,12 +388,26 @@ export function buildReportHeadline(view: ReportView): ReportHeadline {
   // bounds), but never the calm one: a truncated visit has low counts because
   // collection stopped, not because the site was quiet.
   const censorshipNotes = runCensorshipNotes(run);
+  const unsupportedFamilies = unsupportedEvidenceFamilies(run);
   if (censorshipNotes.length > 0) {
     return finish(
       "info",
       `${domain}'s scan was cut short, so low counts are not the full story.`,
-      `Evidence collection did not finish: ${joinNames(censorshipNotes, 2)}. Activity counts in this report are floors for this visit, and its cookie and storage figures are snapshots of an interrupted visit, not the site's full behavior.`,
+      unsupportedFamilies.length > 0
+        ? `Supported evidence collection did not finish: ${joinNames(censorshipNotes, 2)}. Those activity counts are floors. ${joinNames(unsupportedFamilies)} evidence was not captured by this PageGraph producer at all, so its zeroes are unavailable measurements rather than interrupted snapshots.`
+        : `Evidence collection did not finish: ${joinNames(censorshipNotes, 2)}. Activity counts in this report are floors for this visit, and its cookie and storage figures are snapshots of an interrupted visit, not the site's full behavior.`,
       stats.length > 0 ? stats : [{ label: "third-party requests", value: n(run.counts.thirdPartyRequests), emphasis: true }]
+    );
+  }
+
+  if (unsupportedFamilies.length > 0) {
+    return finish(
+      "info",
+      `${domain}'s PageGraph report covers requests, not every evidence family.`,
+      `Request capture completed, but ${joinNames(unsupportedFamilies)} evidence was not captured by this PageGraph producer. Zeroes in those families mean unavailable measurements, not observed absences.`,
+      stats.length > 0
+        ? stats
+        : [{ label: "requests captured", value: n(run.counts.totalRequests), emphasis: true }]
     );
   }
 

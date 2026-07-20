@@ -24,7 +24,12 @@ import { isCorpusStats, type CorpusStats } from "@/lib/corpus-stats";
 import { buildFindings, type FindingIconKey } from "@/lib/report-findings";
 import { buildReportHeadline } from "@/lib/report-headline";
 import { committedReportLocation, locateReport, type ReportRuntime } from "@/lib/report-locator";
-import { displayRunView, type ReportView, type RunView } from "@/lib/scan-report-views";
+import {
+  displayRunView,
+  familyUnsupportedOnRun,
+  type ReportView,
+  type RunView
+} from "@/lib/scan-report-views";
 import { plural } from "@/lib/text-format";
 import { isReviewedStorageKey } from "@/lib/public-name-policy";
 import type { NetworkRequestRecord, ReportShare } from "@/lib/types";
@@ -248,6 +253,10 @@ export function MetricGrid({ run }: { run: RunView }) {
   const apiFamilies = new Set(run.evidence.fingerprintEvents.map((event) => event.api)).size;
   const detectionCount = run.evidence.fingerprintDetections.reduce((total, detection) => total + detection.count, 0);
   const privacyFilteredStorageKeys = run.evidence.storage.filter((entry) => !isReviewedStorageKey(entry.key)).length;
+  const cookiesUnsupported = familyUnsupportedOnRun(run, "cookies");
+  const storageUnsupported = familyUnsupportedOnRun(run, "storage");
+  const fingerprintUnsupported =
+    familyUnsupportedOnRun(run, "fingerprinting") || familyUnsupportedOnRun(run, "detector-output");
   const metrics = [
     {
       label: "Requests",
@@ -280,24 +289,28 @@ export function MetricGrid({ run }: { run: RunView }) {
     },
     {
       label: "Cookies",
-      value: run.counts.cookies,
-      detail: `${run.counts.thirdPartyCookies.toLocaleString("en-US")} third-party`,
+      value: cookiesUnsupported ? "Not captured" : run.counts.cookies,
+      detail: cookiesUnsupported
+        ? "unsupported by PageGraph import"
+        : `${run.counts.thirdPartyCookies.toLocaleString("en-US")} third-party`,
       icon: Cookie
     },
     {
       label: "Storage keys",
-      value: run.counts.storageEntries,
-      detail:
-        privacyFilteredStorageKeys > 0
+      value: storageUnsupported ? "Not captured" : run.counts.storageEntries,
+      detail: storageUnsupported
+        ? "unsupported by PageGraph import"
+        : privacyFilteredStorageKeys > 0
           ? `${privacyFilteredStorageKeys.toLocaleString("en-US")} ${privacyFilteredStorageKeys === 1 ? "key" : "keys"} privacy-filtered; values omitted`
           : "values omitted",
       icon: Database
     },
     {
       label: "Fingerprint-like calls",
-      value: run.counts.fingerprintEvents,
-      detail:
-        detectionCount > 0
+      value: fingerprintUnsupported ? "Not captured" : run.counts.fingerprintEvents,
+      detail: fingerprintUnsupported
+        ? "unsupported by PageGraph import"
+        : detectionCount > 0
           ? `${plural(detectionCount, "behavior")} matched`
           : `${apiFamilies.toLocaleString("en-US")} API ${apiFamilies === 1 ? "family" : "families"}`,
       icon: Fingerprint
@@ -322,7 +335,7 @@ export function MetricGrid({ run }: { run: RunView }) {
     <section className="numbers-section">
       <div className="numbers-heading">
         <p className="eyebrow">By the numbers</p>
-        <span>Raw counts from this one visit. The findings above interpret them.</span>
+        <span>Recorded counts and evidence availability from this one visit. The findings above interpret them.</span>
       </div>
       <div className="metric-grid">
         {metrics.map((metric) => {

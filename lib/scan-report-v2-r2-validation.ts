@@ -69,6 +69,7 @@ const AXIS_STATES = new Set([
   "consent:accept-all",
   "consent:reject-all"
 ]);
+const SHA256 = /^[0-9a-f]{64}$/;
 
 function isCount(value: unknown): value is number {
   return typeof value === "number" && Number.isSafeInteger(value) && value >= 0;
@@ -146,6 +147,14 @@ function isShieldsFacts(value: unknown, phaseCount: number): value is ShieldsVer
  */
 function validateAndStripRun(value: unknown): Record<string, unknown> | null {
   if (!isRecord(value) || !Array.isArray(value.phases)) return null;
+  const provenance = value.provenance;
+  if (
+    isRecord(provenance) &&
+    provenance.sourceArtifactDigest !== undefined &&
+    (typeof provenance.sourceArtifactDigest !== "string" || !SHA256.test(provenance.sourceArtifactDigest))
+  ) {
+    return null;
+  }
   const phaseCount = value.phases.length;
 
   const { verificationFacts, ...withoutFacts } = value as Record<string, unknown> & { verificationFacts?: unknown };

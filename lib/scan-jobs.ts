@@ -44,6 +44,12 @@ import {
   DURABLE_SCAN_JOB_RECONCILIATION_TIMEOUT_MS,
   DURABLE_SCAN_JOB_PUBLICATION_TIMEOUT_MS
 } from "./durable-scan-job-contract";
+import {
+  ENCRYPTED_WATCHES_ENV,
+  encryptedWatchesFlagState,
+  isEncryptedWatchPayload
+} from "./encrypted-watch-contract";
+import { assertPublicHttpUrl } from "./url-safety";
 
 const ASYNC_SCANS_ENV = "SITE_BEHAVIOR_LAB_ASYNC_SCANS";
 const JOB_ID_PATTERN = /^[0-9]{8}-[0-9a-f]{32}$/;
@@ -164,6 +170,13 @@ export type DurableScanJobAdmissionDependencies = {
   createId?: (now: Date) => string;
 };
 
+export type EncryptedWatchRunPreparationDependencies = {
+  requireReady?: () => void;
+  verifyPublicUrl?: (url: URL) => Promise<void>;
+  now?: () => number;
+  createId?: (now: Date) => string;
+};
+
 export type DurableScanJobActivationDependencies = {
   coordinator?: DurableScanJobCoordinator;
   scan?: ScanRunner;
@@ -229,6 +242,63 @@ export async function prepareDurableScanJobRequest(
   dependencies: DurableScanJobAdmissionDependencies = {}
 ): Promise<DurableScanJobPreparation> {
   const prepared = await (dependencies.prepare ?? prepareScanRequest)(request);
+  return prepareDurableScanJob(prepared, dependencies);
+}
+
+/**
+ * Prepare one already-decrypted scheduled watch run for ordinary durable-job
+ * admission. This private Node boundary deliberately performs a fresh DNS
+ * check for every run; a target that was public when the watch was created may
+ * resolve to a private address a week later. The plaintext payload is returned
+ * only as the existing short-lived durable-job envelope and is never retained
+ * by this module as watch state.
+ */
+export async function prepareEncryptedWatchRun(
+  value: unknown,
+  dependencies: EncryptedWatchRunPreparationDependencies = {}
+): Promise<DurableScanJobPreparation> {
+  if (!isEncryptedWatchPayload(value)) {
+    throw new PublicScanError("Invalid encrypted watch run payload.");
+  }
+
+  const requireReady = dependencies.requireReady ?? requireEncryptedWatchRunReadiness;
+  requireReady();
+  const target = new URL(value.target.url);
+  await (dependencies.verifyPublicUrl ?? assertPublicHttpUrl)(target);
+
+  return prepareDurableScanJob(
+    {
+      // This local marker is intentionally excluded from DurableScanJobPayload.
+      // Scheduled runs use the coordinator's global budget, never an IP-derived
+      // or capability-derived public client key.
+      clientKey: "encrypted-watch-scheduled-run",
+      url: target.href,
+      device: value.options.device,
+      gpcEnabled: value.options.gpcEnabled,
+      compareGpc: false,
+      compareShields: false,
+      compareConsent: false,
+      rateLimitCost: 1
+    },
+    {
+      ...dependencies,
+      // Readiness was checked before any DNS work above.
+      requireReady: () => undefined
+    }
+  );
+}
+
+function requireEncryptedWatchRunReadiness(): void {
+  if (!durableScanJobsEnabled() || encryptedWatchesFlagState(process.env[ENCRYPTED_WATCHES_ENV]) !== "enabled") {
+    throw new PublicScanError("Encrypted scheduled rescans are not enabled and ready.", 503);
+  }
+  requireDurableScanJobReadiness();
+}
+
+function prepareDurableScanJob(
+  prepared: PreparedScanRequest,
+  dependencies: Pick<DurableScanJobAdmissionDependencies, "requireReady" | "now" | "createId">
+): DurableScanJobPreparation {
   (dependencies.requireReady ?? requireDurableScanJobReadiness)();
 
   const nowMs = (dependencies.now ?? Date.now)();

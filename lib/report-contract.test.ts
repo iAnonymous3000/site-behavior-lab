@@ -1,12 +1,16 @@
 import assert from "node:assert/strict";
-import { readdir } from "node:fs/promises";
+import { readFile, readdir } from "node:fs/promises";
 import path from "node:path";
 import { test } from "node:test";
 import { committedReportCreatedAt } from "./committed-report-created-at";
 import { createGpcComparisonReport } from "./compare-reports";
-import { pageGraphToScanResult } from "./pagegraph-adapter";
+import {
+  buildPageGraphScanReportV2R2,
+  type PageGraphCaptureMetadataV1
+} from "./pagegraph-v2-r2-builder";
 import { REPORT_PRODUCER_CAPABILITIES } from "./report-producers";
 import { isScanReport } from "./report-validation";
+import { isPublicScanReportV2R2 } from "./scan-report-v2-r2-validation";
 import type { StoredScanReport } from "./scan-report-reader";
 import {
   listDanglingStaticSidecarIds,
@@ -238,22 +242,28 @@ test("report validation rejects listener detections without third-party origins"
   assert.equal(isScanReport(report), false);
 });
 
-test("PageGraph and comparison producers emit current ScanReport artifacts", () => {
-  const pageGraph = pageGraphToScanResult({
-    requestedUrl: "https://example.com/",
-    finalUrl: "https://example.com/",
-    scannedAt: new Date(0).toISOString()
+test("paired PageGraph import and comparison producers emit their current report artifacts", async () => {
+  const fixtureDir = path.join(process.cwd(), "lib", "__fixtures__", "pagegraph");
+  const graphBytes = new Uint8Array(await readFile(path.join(fixtureDir, "real-wikipedia-2026-07-19.graphml")));
+  const graphMetadata = JSON.parse(
+    await readFile(path.join(fixtureDir, "real-wikipedia-2026-07-19.meta.json"), "utf8")
+  ) as PageGraphCaptureMetadataV1;
+  const pageGraph = buildPageGraphScanReportV2R2(graphBytes, graphMetadata, {
+    buildCommit: "a".repeat(40),
+    runId: "pagegraph-contract-test-0001"
   });
   const comparison = createGpcComparisonReport(
     makeScanResult({ url: "https://example.com/", device: "desktop", gpcEnabled: false, consentMode: "observe" }),
     makeScanResult({ url: "https://example.com/", device: "desktop", gpcEnabled: true, consentMode: "observe" })
   );
 
-  assert.equal(pageGraph.schemaVersion, SCAN_REPORT_SCHEMA_VERSION);
+  assert.equal(pageGraph.schemaVersion, 2);
+  assert.equal(pageGraph.schemaRevision, 2);
+  assert.equal(pageGraph.run.provenance.observer, "pagegraph-import");
   assert.equal(comparison.schemaVersion, SCAN_REPORT_SCHEMA_VERSION);
   assert.equal(comparison.baseline.schemaVersion, SCAN_REPORT_SCHEMA_VERSION);
   assert.equal(comparison.variant.schemaVersion, SCAN_REPORT_SCHEMA_VERSION);
-  assert.equal(isScanReport(pageGraph), true);
+  assert.equal(isPublicScanReportV2R2(pageGraph), true);
   assert.equal(isScanReport(comparison), true);
 });
 
@@ -273,7 +283,9 @@ test("report producer capability matrix captures intentional runtime gaps", () =
   assert.equal(capabilities.get("cloudflare-worker")?.dnsGuard, "edge-doh-preflight-only");
   assert.equal(capabilities.get("cloudflare-worker")?.trackerCatalog, "none");
   assert.equal(capabilities.get("pagegraph")?.singleScan, true);
-  assert.equal(capabilities.get("pagegraph")?.trackerCatalog, "provided-or-hand-curated");
+  assert.equal(capabilities.get("pagegraph")?.runtime, "Paired GraphML + sidecar r2 import");
+  assert.equal(capabilities.get("pagegraph")?.dnsGuard, "not-applicable-local-artifact");
+  assert.equal(capabilities.get("pagegraph")?.trackerCatalog, "hand-curated-service-catalog");
   assert.equal(capabilities.get("pagegraph")?.reportStore, "caller-managed");
 });
 

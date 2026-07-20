@@ -670,8 +670,10 @@ Steps 2 through 5 of the user-sequenced measurement kernel rollout landed:
   operator lock was removed. Historical v1 reports remain legacy-derived; fresh
   GPC, Shields, and consent r2 reports now flow through the mixed-version corpus
   pipeline. Final health proved open access, Turnstile enabled, shadow disabled,
-  and no warnings. The deployment config allows at most three instances, while
-  current routing intentionally uses one warm singleton; sharding is pending.
+  and no warnings. At that receipt, routing intentionally used one warm
+  singleton. Bounded durable-execution sharding was subsequently implemented
+  behind its separate post-durability activation gate; the committed production
+  flags still preserve the singleton.
 - **Step 5 repeat evidence complete.** On feature build
   `13e4449444ad3eed12fcb3d2e9dd48d5e233a438`, two preselected GPC pairs were captured;
   both were AB, both were eligible and intervention-verified, and all four
@@ -705,7 +707,6 @@ tie-safe mark-anchored wording), the "consent copy still says attribution is
 always unverifiable" finding matched no current string, and the health
 CONTRACT always had consentComparison (only the human status line omitted
 it). pagegraph-rust models the OLD start-edge schema ("request type"), so
-the round's resource-type fix keeps that name as a legacy fallback; a
-validation pass against a fresh real capture (Brave nightly +
-pagegraph-crawl) is still owed because the repo pins the schema from source
-reading, not from a live capture.
+the round's resource-type fix keeps that name as a legacy fallback. The owed
+live validation is now closed by the committed Brave Nightly + pagegraph-crawl
+`0.7.7` Wikipedia fixture and its digest-bound metadata sidecar.

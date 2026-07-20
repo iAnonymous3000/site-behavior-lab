@@ -25,6 +25,7 @@ const NODE_ONLY_MODULES = new Set([
   "lib/scan-gate.ts",
   "lib/scan-jobs.ts",
   "lib/scan-limits.ts",
+  "lib/scan-result-v2-r2-builder.ts",
   "lib/scanner.ts",
   "lib/static-report-files.ts",
   "lib/url-safety.ts"
@@ -45,7 +46,14 @@ test("Cloudflare Worker imports stay out of Node-only modules", async () => {
 test("browser client imports stay out of Node and server modules", async () => {
   await assertBoundary({
     name: "browser-client",
-    entrypoints: ["app/site-behavior-app.tsx", "app/reports/[id]/saved-report-client.tsx"],
+    entrypoints: [
+      "app/site-behavior-app.tsx",
+      "app/reports/[id]/saved-report-client.tsx",
+      // The app reaches this code-split importer with import(), so keep an
+      // explicit entrypoint even if the shell import is later refactored.
+      "lib/pagegraph-client-import.ts",
+      "lib/pagegraph-v2-r2-builder.ts"
+    ],
     blockedLocalModules: NODE_ONLY_MODULES,
     blockedPackages: BROWSER_CLIENT_BLOCKED_PACKAGES
   });
@@ -106,6 +114,12 @@ async function readRuntimeImports(projectRelativePath: string): Promise<string[]
 
   for (const match of source.matchAll(/^\s*export\s+(type\s+)?(?:[\s\S]*?\s+from\s+)["']([^"']+)["'];?/gm)) {
     if (!match[1]) imports.push(match[2]);
+  }
+
+  // Code-split browser features are still runtime edges. The previous static
+  // import-only walk silently skipped the PageGraph upload chunk.
+  for (const match of source.matchAll(/\bimport\(\s*["']([^"']+)["']\s*\)/g)) {
+    imports.push(match[1]);
   }
 
   return imports;

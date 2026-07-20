@@ -1015,12 +1015,53 @@ export function runCensorshipNotes(run: RunView): string[] {
   if (run.quality.byFamily) {
     for (const [family, entry] of Object.entries(run.quality.byFamily)) {
       if (entry.outcome !== "censored") continue;
+      const familyLosses = run.quality.facts?.captureLoss.filter((loss) => loss.family === family) ?? [];
+      if (familyLosses.length > 0 && familyLosses.every((loss) => loss.detail === "pagegraph-unsupported")) {
+        continue;
+      }
       notes.push(
         `${family} evidence was censored before completion${entry.reasons.length > 0 ? ` (${entry.reasons.join(", ")})` : ""}`
       );
     }
   }
   return notes;
+}
+
+/**
+ * PageGraph's request-only producer records unsupported evidence families as
+ * explicit capture-loss sentinels so comparison claims stay fail closed. That
+ * is an availability statement, not an interrupted capture or an observed
+ * zero, and renderers must keep those meanings distinct.
+ */
+export function familyUnsupportedOnRun(run: RunView, family: string): boolean {
+  return (
+    run.quality.facts?.captureLoss.some(
+      (loss) => loss.family === family && loss.detail === "pagegraph-unsupported"
+    ) ?? false
+  );
+}
+
+const UNSUPPORTED_FAMILY_LABELS: Record<string, string> = {
+  cookies: "cookie",
+  storage: "storage",
+  fingerprinting: "fingerprinting",
+  "detector-output": "detector",
+  "consent-verification": "consent-verification"
+};
+
+export function unsupportedEvidenceFamilies(run: RunView): string[] {
+  const families = new Set(
+    (run.quality.facts?.captureLoss ?? [])
+      .filter((loss) => loss.detail === "pagegraph-unsupported")
+      .map((loss) => loss.family)
+  );
+  return [...families].map((family) => UNSUPPORTED_FAMILY_LABELS[family] ?? family);
+}
+
+export function runUnsupportedEvidenceNotes(run: RunView): string[] {
+  return unsupportedEvidenceFamilies(run).map(
+    (family) => `${family} evidence was not captured by this PageGraph producer`
+  );
 }
 
 /**
@@ -1079,13 +1120,24 @@ export function schemaProvenanceLabel(view: ReportView): string {
  * recorded fact.
  */
 export function runQualitySummary(run: RunView): string {
-  const basis = run.quality.origin === "recorded" ? "recorded by the scanner" : "derived from status and warnings";
+  const basis =
+    run.conditions.automation === "brave-pagegraph"
+      ? "declared by the supplied PageGraph sidecar"
+      : run.quality.origin === "recorded"
+        ? "recorded by the scanner"
+        : "derived from status and warnings";
   if (run.quality.outcome === "failed") {
     const status = typeof run.status === "number" && run.status >= 400 ? ` (HTTP ${run.status})` : "";
     return `failed${status}; ${basis}`;
   }
   const notes = runCensorshipNotes(run);
-  if (notes.length > 0) return `cut short: ${notes.join("; ")}; ${basis}`;
+  const unsupported = runUnsupportedEvidenceNotes(run);
+  if (notes.length > 0) {
+    return `cut short: ${notes.join("; ")}${unsupported.length > 0 ? `; unsupported: ${unsupported.join("; ")}` : ""}; ${basis}`;
+  }
+  if (unsupported.length > 0) {
+    return `complete for supported evidence; unsupported: ${unsupported.join("; ")}; ${basis}`;
+  }
   return `complete; ${basis}`;
 }
 

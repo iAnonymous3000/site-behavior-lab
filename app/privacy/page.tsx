@@ -54,6 +54,22 @@ export default function PrivacyPage() {
       </section>
 
       <section className="legal-section">
+        <h2>Local PageGraph imports</h2>
+        <p>
+          Opening a paired PageGraph <code>.graphml</code> and <code>.meta.json</code> file is a browser-only import.
+          The raw artifact bytes are read in your tab and are not sent to the scanner or stored by this service. The
+          normalized local report also omits the source-artifact digest so separately shared reports cannot be linked
+          back to the same raw capture by that fingerprint.
+        </p>
+        <p>
+          Treat raw PageGraph files as sensitive before selecting or sharing them: captures can contain request
+          headers, URLs, storage identifiers, or other page-controlled values. Site Behavior Lab emits only the
+          privacy-reduced request evidence supported by this importer and marks cookie, storage, fingerprinting,
+          detector, and consent families unsupported.
+        </p>
+      </section>
+
+      <section className="legal-section">
         <h2>What the scan itself does</h2>
         <p>
           In Single mode the scanner makes <strong>one automated browser visit</strong> to the page; the comparison
@@ -117,6 +133,18 @@ export default function PrivacyPage() {
             ciphertext may remain temporarily in Cloudflare&rsquo;s platform recovery snapshots until Cloudflare&rsquo;s
             own backup-retention window expires; those copies remain application-encrypted.
           </li>
+          <li>
+            <strong>Optional encrypted scheduled rescans are separate from live share reports.</strong> When the
+            post-durability feature is explicitly enabled, one single-mode scan runs immediately and then at a fixed
+            seven-day cadence, for at most five scheduled attempts or 30 days. Failed pre-admission attempts still
+            consume that bound. The exact query-free address and its device/GPC options are application-encrypted with
+            a separate Worker-only key. The service stores an opaque watch
+            ID, only a cryptographic digest of the 256-bit control capability, and bounded scheduling/run metadata;
+            it does not link the watch to an IP address, client hash, account, or Turnstile token. Capability-authenticated
+            metadata and deletion remain available during rollback even if the feature or decryption key is unavailable,
+            while target reads and scheduled execution fail closed. Deletion prevents future runs, but a durable scan
+            already admitted may still finish under the ordinary job and report-retention rules.
+          </li>
           <li>No report is linked to your identity, and reports do not record your IP address.</li>
         </ul>
       </section>
@@ -128,7 +156,8 @@ export default function PrivacyPage() {
           transiently for that limit and for the Turnstile bot check. It is not attached to stored reports and
           is not used to profile or track you across visits. The optional restart-safe job record does not copy or
           link either the IP address or its rate-limit client hash; a replay is the same admitted job, so it does not
-          repeat the Turnstile check or charge the scan quota again.
+          repeat the Turnstile check or charge the scan quota again. Scheduled rescan execution uses a small global
+          daily budget rather than a stored per-IP identity.
         </p>
       </section>
 
@@ -139,7 +168,9 @@ export default function PrivacyPage() {
             <strong>Cloudflare</strong> provides hosting, network protection, and the Turnstile check. The Turnstile
             token (and, for that check, your IP) is processed by Cloudflare under its own terms. If restart-safe jobs
             are enabled, Cloudflare also hosts the application-encrypted active queue record and may retain encrypted
-            copies in platform recovery snapshots for its backup-retention window.
+            copies in platform recovery snapshots for its backup-retention window. If scheduled rescans are enabled,
+            Cloudflare likewise hosts their application-encrypted target/options and non-content scheduling metadata;
+            recovery snapshots can temporarily retain encrypted copies after active deletion.
           </li>
           <li>
             <strong>The site you scan</strong> receives the automated visit and may log it like any other request,

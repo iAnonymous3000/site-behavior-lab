@@ -1,4 +1,7 @@
+import { resolvePublicBuildCommit } from "./scripts/public-build-commit.mjs";
+
 const isStaticExport = process.env.SITE_BEHAVIOR_LAB_STATIC_EXPORT === "1";
+const publicBuildCommit = resolvePublicBuildCommit();
 
 function normalizeBasePath(value) {
   if (!value) return "";
@@ -29,7 +32,8 @@ const nextConfig = {
   env: {
     NEXT_PUBLIC_SITE_BEHAVIOR_LAB_STATIC_EXPORT: isStaticExport ? "1" : "0",
     NEXT_PUBLIC_SITE_BEHAVIOR_LAB_PAGES_BASE_PATH: pagesBasePath,
-    NEXT_PUBLIC_SITE_BEHAVIOR_LAB_GITHUB_REPOSITORY: process.env.GITHUB_REPOSITORY || ""
+    NEXT_PUBLIC_SITE_BEHAVIOR_LAB_GITHUB_REPOSITORY: process.env.GITHUB_REPOSITORY || "",
+    NEXT_PUBLIC_SITE_BEHAVIOR_LAB_BUILD_COMMIT: publicBuildCommit
   },
   ...(isStaticExport
     ? {

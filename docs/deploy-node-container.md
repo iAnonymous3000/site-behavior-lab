@@ -77,12 +77,18 @@ Start from [.env.example](../.env.example). For a public-but-safe deployment:
 | `SITE_BEHAVIOR_LAB_DURABLE_JOBS_KEY` | unset | **Worker-only secret:** canonical base64url encoding of exactly 32 random bytes for application AES-256-GCM encryption. Never expose it publicly or forward it into Node. Drain the 75-minute active-job window before rotating unless the deployed code explicitly supports both key versions. |
 | `SITE_BEHAVIOR_LAB_DURABLE_JOBS_INTERNAL_TOKEN` | unset | **Separate Worker-to-Node secret**, forwarded only to authenticate the private prepare/execute/heartbeat/publication/reconciliation channel. Never reuse the public scan token, Turnstile secret, R2 credentials, or encryption key. |
 | `SITE_BEHAVIOR_LAB_DURABLE_JOBS_COORDINATOR_URL` | unset | Non-secret fixed HTTPS scanner origin used for Node callbacks to the Durable Object coordinator. Supply an origin only: no path, query, credentials, or fragment. |
+| `SITE_BEHAVIOR_LAB_ENCRYPTED_WATCHES` | `0` | Cloudflare Containers only. Post-durability scheduled-rescan gate. The generic single-host topology has no shared watch scheduler and must keep this at `0`. |
+| `SITE_BEHAVIOR_LAB_ENCRYPTED_WATCHES_KEY` | unset | **Worker-only secret:** current canonical base64url encoding of exactly 32 random bytes for watch target/options encryption. Keep it isolated and never forward it into Node. |
+| `SITE_BEHAVIOR_LAB_ENCRYPTED_WATCHES_PREVIOUS_KEY` | unset | Optional Worker-only previous watch key for rotation across the bounded 30-day TTL. New writes always use the current key. |
 
 `/api/health` reports `degraded` until the token, store dir, and egress label are
 all set; drive it from your load balancer and alert on `degraded`. A requested
 durable-jobs mode is also unavailable unless encryption, private coordinator auth,
 R2/public-r2 persistence, and scheduled execution are all ready; do not treat a
 flag-on degraded response as permission to fall back to the in-memory queue.
+Node can report encrypted watches only as `node-ready`: it proves the private
+fresh-DNS preparation boundary, but cannot see the Worker-only key or Durable
+Object watch scheduler. Only the edge may promote the effective state to `ready`.
 
 ## 3. Put Cloudflare in front
 
@@ -207,3 +213,9 @@ The gated Cloudflare Containers Phase-2 path uses the singleton Durable Object f
 admission, scheduled fenced leases, terminal status, and R2 reconciliation; it is
 not live merely because its code is present. Follow the rollout gate above and
 [scan-job-model.md](scan-job-model.md) before enabling it.
+
+Encrypted scheduled rescans are also Cloudflare-Containers-only and are activated
+only after durable execution is live and proven. Keep
+`SITE_BEHAVIOR_LAB_ENCRYPTED_WATCHES=0` on a generic Node host. The complete data,
+rotation, canary, and rollback contract is in
+[encrypted-watches.md](encrypted-watches.md).

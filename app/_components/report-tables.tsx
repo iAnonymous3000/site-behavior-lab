@@ -386,7 +386,8 @@ function ListOverflowNote({ total, shown, where }: { total: number; shown: numbe
   );
 }
 
-function CookieList({ cookies }: { cookies: CookieRecord[] }) {
+function CookieList({ cookies, unsupported = false }: { cookies: CookieRecord[]; unsupported?: boolean }) {
+  if (unsupported) return <p className="muted">Cookie evidence was not captured; this PageGraph import does not support it.</p>;
   if (cookies.length === 0) return <p className="muted">No cookies were visible to the scan context.</p>;
 
   const shown = Math.min(cookies.length, 12);
@@ -420,7 +421,8 @@ function CookieList({ cookies }: { cookies: CookieRecord[] }) {
   );
 }
 
-function StorageList({ storage }: { storage: StorageRecord[] }) {
+function StorageList({ storage, unsupported = false }: { storage: StorageRecord[]; unsupported?: boolean }) {
+  if (unsupported) return <p className="muted">Storage evidence was not captured; this PageGraph import does not support it.</p>;
   if (storage.length === 0) return <p className="muted">No local or session storage keys observed on the final page.</p>;
 
   const shown = Math.min(storage.length, 12);
@@ -450,11 +452,16 @@ function StorageList({ storage }: { storage: StorageRecord[] }) {
 
 function FingerprintList({
   events,
-  detections
+  detections,
+  unsupported = false
 }: {
   events: FingerprintEventSummary[];
   detections: FingerprintDetectionSummary[];
+  unsupported?: boolean;
 }) {
+  if (unsupported) {
+    return <p className="muted">Browser-behavior evidence was not captured; this PageGraph import does not support it.</p>;
+  }
   if (events.length === 0 && detections.length === 0) {
     return <p className="muted">No instrumented high-entropy API or interaction listener signals were observed.</p>;
   }

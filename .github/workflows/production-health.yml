@@ -26,7 +26,7 @@ jobs:
           ref: production
           fetch-depth: 1
 
-      - name: Record expected production revision and durable-jobs state
+      - name: Record expected production revision and gated feature states
         env:
           PRODUCTION_CONFIG_FILE: ${{ github.workspace }}/wrangler.container.jsonc
         run: |
@@ -47,7 +47,45 @@ jobs:
             process.exit(1);
           }
 
+          const shardingMatches = [
+            ...source.matchAll(/"SITE_BEHAVIOR_LAB_CONTAINER_SHARDING"\s*:\s*"([^"]*)"/g)
+          ];
+          const shardCountMatches = [
+            ...source.matchAll(/"SITE_BEHAVIOR_LAB_CONTAINER_SHARD_COUNT"\s*:\s*"([^"]*)"/g)
+          ];
+          const shardingFlag = shardingMatches[0]?.[1];
+          const shardCountWire = shardCountMatches[0]?.[1];
+          const shardCount = Number(shardCountWire);
+          if (
+            shardingMatches.length !== 1 ||
+            (shardingFlag !== "0" && shardingFlag !== "1") ||
+            shardCountMatches.length !== 1 ||
+            !/^[1-3]$/.test(shardCountWire ?? "") ||
+            !Number.isSafeInteger(shardCount) ||
+            (shardingFlag === "1" && (matches[0][1] !== "1" || shardCount < 2))
+          ) {
+            console.error(
+              "::error title=Invalid production container-sharding expectation::" +
+                "wrangler.container.jsonc must declare one exact 0/1 sharding flag and one shard count from 1 to 3; enabled sharding requires durable jobs and at least two shards."
+            );
+            process.exit(1);
+          }
+
+          const watchMatches = [
+            ...source.matchAll(/"SITE_BEHAVIOR_LAB_ENCRYPTED_WATCHES"\s*:\s*"([^"]*)"/g)
+          ];
+          if (watchMatches.length !== 1 || (watchMatches[0][1] !== "0" && watchMatches[0][1] !== "1")) {
+            console.error(
+              "::error title=Invalid production encrypted-watches expectation::" +
+                "wrangler.container.jsonc must declare SITE_BEHAVIOR_LAB_ENCRYPTED_WATCHES exactly once as \"0\" or \"1\"."
+            );
+            process.exit(1);
+          }
+
           fs.appendFileSync(process.env.GITHUB_ENV, `EXPECTED_DURABLE_JOBS=${matches[0][1]}\n`);
+          fs.appendFileSync(process.env.GITHUB_ENV, `EXPECTED_CONTAINER_SHARDING=${shardingFlag}\n`);
+          fs.appendFileSync(process.env.GITHUB_ENV, `EXPECTED_CONTAINER_SHARD_COUNT=${shardCountWire}\n`);
+          fs.appendFileSync(process.env.GITHUB_ENV, `EXPECTED_ENCRYPTED_WATCHES=${watchMatches[0][1]}\n`);
           NODE
 
       - name: Wait for exact scanner and Pages revisions
@@ -115,6 +153,9 @@ jobs:
           const schema = readJson(process.env.SCHEMA_FILE, "Pages report schema");
           const expectedDeployment = process.env.EXPECTED_PRODUCTION_SHA;
           const expectedDurableJobs = process.env.EXPECTED_DURABLE_JOBS;
+          const expectedContainerSharding = process.env.EXPECTED_CONTAINER_SHARDING;
+          const expectedContainerShardCount = Number(process.env.EXPECTED_CONTAINER_SHARD_COUNT);
+          const expectedEncryptedWatches = process.env.EXPECTED_ENCRYPTED_WATCHES;
           const failures = [];
           const assertPosture = (condition, message) => {
             if (!condition) failures.push(message);
@@ -168,6 +209,50 @@ jobs:
           } else {
             failures.push(`production durable-jobs expectation must be 0 or 1 (received ${JSON.stringify(expectedDurableJobs)})`);
           }
+          if (expectedContainerSharding === "1") {
+            assertPosture(expectedDurableJobs === "1",
+              "container sharding must not be enabled unless durable jobs are enabled");
+            assertPosture(health?.checks?.durableJobs?.containerSharding?.requested === true,
+              "container sharding must report requested when enabled in production config");
+            assertPosture(health?.checks?.durableJobs?.containerSharding?.enabled === true,
+              "container sharding must report enabled when enabled in production config");
+            assertPosture(health?.checks?.durableJobs?.containerSharding?.readiness === "ready",
+              "container sharding must report ready when enabled in production config");
+            assertPosture(health?.checks?.durableJobs?.containerSharding?.shardCount === expectedContainerShardCount,
+              `container sharding must report configured count ${expectedContainerShardCount}`);
+          } else if (expectedContainerSharding === "0") {
+            assertPosture(health?.checks?.durableJobs?.containerSharding?.requested === false,
+              "container sharding must not report requested while disabled in production config");
+            assertPosture(health?.checks?.durableJobs?.containerSharding?.enabled === false,
+              "container sharding must not report enabled while disabled in production config");
+            assertPosture(health?.checks?.durableJobs?.containerSharding?.readiness === "disabled",
+              "container sharding must report disabled while disabled in production config");
+            assertPosture(health?.checks?.durableJobs?.containerSharding?.shardCount === 1,
+              "disabled container sharding must collapse effective topology to one shard");
+          } else {
+            failures.push(`production container-sharding expectation must be 0 or 1 (received ${JSON.stringify(expectedContainerSharding)})`);
+          }
+          if (expectedEncryptedWatches === "1") {
+            assertPosture(health?.checks?.encryptedWatches?.requested === true,
+              "encrypted watches must report requested when enabled in production config");
+            assertPosture(health?.checks?.encryptedWatches?.enabled === true,
+              "encrypted watches must report enabled when enabled in production config");
+            assertPosture(health?.checks?.encryptedWatches?.readiness === "ready",
+              "encrypted watches must report ready when enabled in production config");
+            assertPosture(health?.capabilities?.scheduledRescans === true,
+              "scheduled rescans must be advertised when encrypted watches are ready");
+          } else if (expectedEncryptedWatches === "0") {
+            assertPosture(health?.checks?.encryptedWatches?.requested === false,
+              "encrypted watches must not report requested while disabled in production config");
+            assertPosture(health?.checks?.encryptedWatches?.enabled === false,
+              "encrypted watches must not report enabled while disabled in production config");
+            assertPosture(health?.checks?.encryptedWatches?.readiness === "disabled",
+              "encrypted watches must report disabled while disabled in production config");
+            assertPosture(health?.capabilities?.scheduledRescans === false,
+              "scheduled rescans must not be advertised while encrypted watches are disabled");
+          } else {
+            failures.push(`production encrypted-watches expectation must be 0 or 1 (received ${JSON.stringify(expectedEncryptedWatches)})`);
+          }
           assertPosture(schema?.$id === "https://sitebehavior.org/schemas/scan-report.v2.r2.schema.json",
             "live Pages must advertise the ScanReport v2/r2 contract");
           assertPosture(Number.isFinite(health?.limits?.publicScanRateLimitPerMinute) && health.limits.publicScanRateLimitPerMinute > 0,
@@ -206,6 +291,8 @@ jobs:
             "- Scanner egress region: **configured**",
             "- Consent registration verification: **enabled**",
             `- Durable jobs: **${expectedDurableJobs === "1" ? "ready" : "disabled"}** (matches production config)`,
+            `- Container sharding: **${expectedContainerSharding === "1" ? `${expectedContainerShardCount} shards ready` : "disabled"}** (matches production config)`,
+            `- Encrypted scheduled rescans: **${expectedEncryptedWatches === "1" ? "ready" : "disabled"}** (matches production config)`,
             "- Pages report contract: **v2/r2**",
             "- Report storage: **R2**, seven-day retention",
             `- Scanner deployment: \`${health.deployment}\``,

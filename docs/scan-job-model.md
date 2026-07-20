@@ -233,6 +233,11 @@ Flag-on durable worker:
 - Cold-starts or calls the Node container through a private coordinator channel,
   then reuses the same `executePreparedScan` function.
 - Uses shared R2 report storage and emits structured lifecycle logs.
+- Keeps status, cancellation, quota, scheduling, and per-job execution routing
+  authoritative in the default singleton Durable Object. With the independent
+  post-durability sharding gate enabled, only private fenced activation, abort,
+  and reconciliation requests use named container instances; Phase-1 work and
+  every public control request remain on the singleton.
 
 ## UI Migration
 
@@ -262,6 +267,14 @@ Deployed progression:
    flag off).
 3. Encrypted Durable Object admission, scheduled fenced leases, and R2
    reconciliation (Phase 2, opt-in and gated).
+4. Bounded durable-execution sharding (opt-in after Phase 2 is live and proven).
+   The route selected at admission is stored atomically with the job, so retries,
+   cancellation, reconciliation, count changes, and a flag rollback keep using
+   the same execution owner. Pre-sharding rows default to the singleton.
+5. Encrypted scheduled rescans (independent opt-in after Phase 2 is live and
+   proven). The coordinator owns only encrypted immutable target/options plus
+   bounded non-content schedule/history metadata; every due run is admitted as
+   a normal durable job after fresh Node target validation.
 
 ## Compatibility decisions
 
@@ -422,3 +435,30 @@ requires `SITE_BEHAVIOR_LAB_DURABLE_JOBS_KEY`, a distinct
 privacy disclosure, and a live test that abandons the first lease and observes the
 scheduled second attempt complete under the same `reportId` without polling or
 health traffic. Only after that gate may production turn the flag on.
+
+### Post-durability encrypted scheduled rescans
+
+`SITE_BEHAVIOR_LAB_ENCRYPTED_WATCHES=1` is a separate rollout after durable jobs
+are production-ready. It does not create another execution queue: the singleton
+coordinator schedules due watches, decrypts one strict payload transiently, asks
+the authenticated private Node route to freshly validate DNS and prepare it,
+then admits the resulting ordinary durable job. The existing persistent schedule
+drives both job recovery and watch cadence without status polling.
+
+Watch storage is bounded to a seven-day cadence, 30-day TTL, five attempts, 32 active
+watches, and 100 scheduled admissions per UTC day. The 128-bit watch ID is
+non-secret; control requires an independent 256-bit capability, of which only a
+SHA-256 digest is stored. AES-256-GCM protects the exact query-free target and
+single-mode r2 options under a distinct Worker-only key. One optional previous
+key supports rotation while new envelopes always use the current key. Opaque
+timestamps, run count, lease fences, and bounded job/report outcome linkage are
+stored separately; no target, IP, client hash, Turnstile token, or request
+credential appears there.
+
+Creation, target decryption, and due claims fail closed unless the feature keyring
+and durable jobs are ready. Capability-authenticated metadata read and deletion
+remain usable when the flag is rolled back or a key is temporarily unavailable,
+so operators can purge retained ciphertext. Each due run repeats Node DNS/public
+address validation and still uses the browser's connect-time public-address
+proxy. See [encrypted-watches.md](encrypted-watches.md) for the public contract,
+rotation ceremony, activation canary, and report-retention caveat.

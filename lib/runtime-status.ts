@@ -9,6 +9,10 @@ import {
   DURABLE_SCAN_JOBS_ENV
 } from "./durable-scan-job-contract";
 import {
+  ENCRYPTED_WATCHES_ENV,
+  encryptedWatchesFlagState
+} from "./encrypted-watch-contract";
+import {
   DURABLE_SCAN_JOB_REPORT_MIN_SURVIVAL_MS,
   REPORT_MAX_AGE_DAYS_ENV,
   REPORT_MIN_SURVIVAL_MS_ENV,
@@ -69,6 +73,12 @@ export type RuntimeStatus = {
       readiness: "disabled" | "node-ready" | "ready" | "misconfigured";
       reasons?: string[];
     };
+    encryptedWatches: {
+      requested: boolean;
+      enabled: boolean;
+      readiness: "disabled" | "node-ready" | "ready" | "misconfigured";
+      reasons?: string[];
+    };
     v2ShadowEmission: {
       status: "enabled" | "disabled" | "misconfigured";
       backend: "filesystem" | "r2" | "none";
@@ -102,6 +112,8 @@ export async function runtimeStatus(
   }
   const durableJobs = durableJobsRuntimeCheck(store.public, publicR2Status);
   warnings.push(...durableJobs.warnings);
+  const encryptedWatches = encryptedWatchesRuntimeCheck(durableJobs.check);
+  warnings.push(...encryptedWatches.warnings);
   const egressRegion = resolveScannerEgressRegion();
   if (egressRegion.status === "misconfigured") {
     warnings.push(
@@ -148,6 +160,7 @@ export async function runtimeStatus(
       consentVerification: shadow.consentVerification,
       publicR2Reports: { status: publicR2Status },
       durableJobs: durableJobs.check,
+      encryptedWatches: encryptedWatches.check,
       v2ShadowEmission: shadow.emission
     },
     capabilities: {
@@ -161,12 +174,52 @@ export async function runtimeStatus(
       // A broken store backend cannot save or serve reports; the UI must not
       // offer share links it cannot honor.
       savedReports: store.error === null,
+      // The Node runtime can prove the private preparation boundary only. The
+      // edge must verify its isolated Worker-only key and DO scheduler before
+      // promoting this capability.
+      scheduledRescans: false,
       // The full Next app serves /reports/:id pages, so live-scanned reports have
       // a shareable permalink on this origin.
       savedReportPages: true
     },
     warnings
   });
+}
+
+function encryptedWatchesRuntimeCheck(
+  durableJobs: RuntimeStatus["checks"]["durableJobs"]
+): {
+  check: RuntimeStatus["checks"]["encryptedWatches"];
+  warnings: string[];
+} {
+  const flag = encryptedWatchesFlagState(process.env[ENCRYPTED_WATCHES_ENV]);
+  if (flag === "disabled") {
+    return {
+      check: { requested: false, enabled: false, readiness: "disabled" },
+      warnings: []
+    };
+  }
+
+  const reasons: string[] = [];
+  if (flag === "misconfigured") {
+    reasons.push(`${ENCRYPTED_WATCHES_ENV} must be 0, 1, or unset.`);
+  } else if (!durableJobs.enabled || durableJobs.readiness === "disabled" || durableJobs.readiness === "misconfigured") {
+    reasons.push("Encrypted watches require durable scan jobs to be enabled and Node-ready.");
+  }
+
+  if (reasons.length > 0) {
+    return {
+      check: { requested: true, enabled: false, readiness: "misconfigured", reasons },
+      warnings: reasons.map((reason) => `Encrypted watches are not ready: ${reason}`)
+    };
+  }
+
+  return {
+    // The watch key is Worker-only by design, so Node health cannot claim the
+    // end-to-end feature is ready or expose any key-derived detail.
+    check: { requested: true, enabled: true, readiness: "node-ready" },
+    warnings: []
+  };
 }
 
 function durableJobsRuntimeCheck(

@@ -17,11 +17,19 @@ export default function MethodologyPage() {
         <p className="eyebrow">Methodology</p>
         <h1>How a scan works</h1>
         <p>
-          Every report is built from one or two controlled, automated browser visits, and every number in it is an
-          observation from those visits, not a general claim about the site. This page describes the measurement:
+          Scanner-generated reports are built from one or two controlled, automated browser visits, and every number
+          in them is an observation from those visits, not a general claim about the site. This page describes the measurement:
           what the visit does, what is recorded, and where the honest limits are. Terms are defined in the{" "}
           <Link href="/glossary/">glossary</Link>; how scan data is handled is on the{" "}
           <Link href="/privacy/">privacy page</Link>.
+        </p>
+        <p>
+          A local PageGraph import is the disclosed exception: it adapts a paired GraphML capture and metadata
+          sidecar produced outside this service. That path records request evidence from a self-reported headful
+          Brave Nightly crawl; cookie, storage, fingerprinting, detector, and consent evidence are explicitly marked
+          unsupported rather than shown as observed zeroes. The GraphML binds its schema, root URL, capture date, and
+          duration, while browser, environment, tool, sanitizer, and quality declarations come from the sidecar and
+          are not cryptographically attested.
         </p>
         <p className="legal-back">
           <Link href="/">&larr; Back to Site Behavior Lab</Link>
@@ -31,7 +39,7 @@ export default function MethodologyPage() {
       <section className="legal-section">
         <h2>The visit</h2>
         <p>
-          The scanner loads the page in a headless Chromium browser with a fixed profile: en-US locale, UTC
+          The controlled scanner loads the page in a headless Chromium browser with a fixed profile: en-US locale, UTC
           timezone, a desktop or mobile viewport, and a disclosed egress network. It does not scroll, click, or log
           in, with exactly two bounded exceptions described below. The visit ends after a capped duration, and the
           report records the scan conditions (browser version, viewport, timezone, locale, GPC state, catalog
@@ -55,6 +63,7 @@ export default function MethodologyPage() {
 
       <section className="legal-section">
         <h2>What is recorded</h2>
+        <p>The controlled scanner can record the following families; each report discloses any family it did not capture.</p>
         <ul>
           <li>Network requests (URL, domain, method, resource type, status), classified first/third party.</li>
           <li>Curated service labels from a hand-maintained, US-biased catalog of recognizable services.</li>
@@ -145,6 +154,15 @@ export default function MethodologyPage() {
           retain application-encrypted copies after active deletion until their own retention window expires. This
           path stays disabled until its flag, encryption key, private coordinator authentication, privacy disclosure,
           and live lease-expiry test are all in place.
+        </p>
+        <p>
+          An optional encrypted watch schedules one immediate single-mode visit and then independent visits every
+          seven days, with a five-attempt/30-day ceiling. Failed pre-admission attempts still consume that bound. Every
+          due attempt freshly resolves and validates the target in Node before the connect-time public-address guard
+          performs the visit; an old public DNS decision is never reused.
+          Each result is an ordinary r2 report with the conditions observed on that run. Because live report links
+          follow the ordinary seven-day and count retention policy, a watch is a scheduled rescan convenience, not a
+          permanent time series or a claim that an observed difference was caused by the passage of time.
         </p>
       </section>
 

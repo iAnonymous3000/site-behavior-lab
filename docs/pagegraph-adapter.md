@@ -1,65 +1,101 @@
 # PageGraph Adapter Note
 
-## Purpose
+## Public producer
 
-The internal Brave-oriented seam is `ScanResult`, not the Playwright scanner.
-`lib/pagegraph-adapter.ts` defines a normalized PageGraph ingestion shape and
-maps it into the same report contract consumed by the comparison engine, UI,
-JSON export, report store, and static gallery. `lib/pagegraph-parser.ts`
-provides a schema-aware GraphML bridge for real PageGraph node/edge shapes, with
-a tolerant fallback for older synthetic fixtures and ad hoc PageGraph-style
-exports.
+The browser-facing importer produces a public ScanReport v2 revision 2, not a
+legacy `ScanResult`. A user selects exactly two same-stem files: a bounded
+GraphML artifact and its `.meta.json` sidecar. `lib/pagegraph-client-import.ts`
+reads both locally in the tab, and `lib/pagegraph-v2-r2-builder.ts` emits one
+single-run, passive-load r2 report.
 
-This keeps the existing Playwright scanner useful as a portable external mode
-while allowing Brave-owned crawl data to become the higher-fidelity internal
-source.
+The r2 producer is deliberately request-only. It extracts request URL, method,
+resource type, status, navigation-relative timestamp, catalog label, and
+script/actor provenance when the graph supplies it. Cookies, storage,
+fingerprinting, detector output, and consent verification are not inferred from
+an upload: every one is recorded as censored with a
+`detail: "pagegraph-unsupported", count: 0` sentinel. That zero is a versioned
+availability marker for a family the producer never collected, not an observed
+absence and not an interrupted capture. A censored request family, by contrast,
+must declare a positive exact omitted count in the sidecar.
 
-## Adapter Input
+The strict r2 path accepts PageGraph schema `0.7.7` and fails closed on missing
+or duplicate graph identities, keys, fields, non-canonical timestamps, or
+structural limits. It requires the current root GraphML `<desc>` and binds its
+schema version, `is_root=true`, root-frame URL, capture date, and start/end
+interval to the sidecar. The sidecar's artifact byte length and lowercase
+SHA-256 digest bind the selected file. Browser/environment conditions,
+pagegraph-crawl and sanitizer identities, and quality/coverage declarations
+remain sidecar testimony rather than cryptographic or artifact-derived
+attestation, and the report says so.
 
-The adapter expects normalized observations:
+Arbitrary local uploads omit `sourceArtifactDigest` from the public report to
+avoid making two separately shared reports linkable by their raw-file hash.
+The committed sanitized fixture opts into that digest only for repository
+provenance. The exact app build commit comes from trusted compile-time build
+provenance, never from the untrusted sidecar.
 
-- target conditions: requested URL, final URL, crawl time, browser version,
-  user agent, viewport, GPC state, egress label, and catalog metadata
-- network observations: URL, method, resource type, status, optional domain,
-  timing, and optional provenance
-- request provenance: graph record id, initiator actor, script URL/domain, and
-  injector URL/domain when the PageGraph export exposes them
-- cookie observations with values already excluded
-- storage key observations with value byte counts, not values
-- high-entropy API or fingerprinting-related event summaries
-- optional screenshot and warnings
+## Legacy utilities
 
-The parser is intentionally conservative. When it sees real PageGraph
-`node type` / `edge type` keys, it extracts requests from `resource` nodes,
-pairs `request start` and `request complete` / `request error` edges by
-`request id`, and walks actor → script → injector edges to fill request
-provenance. It also reads schema-shaped `storage set` and `js call` edges for
-storage and high-entropy API summaries. If those schema keys are absent, it
-falls back to the older tolerant parser that looks for request/storage/API hints
-on arbitrary records.
+`lib/pagegraph-adapter.ts` and the tolerant exports in
+`lib/pagegraph-parser.ts` remain legacy/internal compatibility utilities for
+older synthetic fixtures and tests. They can normalize caller-supplied cookie,
+storage, and fingerprint summaries into v1 `ScanResult`, and they retain a
+heuristic fallback when schema keys are absent. They are not the public upload
+producer and must not be used to describe the current r2 contract. The strict
+r2 entry point reuses only request normalization and does not materialize
+unused storage or JavaScript-event summaries.
 
 The real PageGraph GraphML vocabulary (node/edge types, attribute keys, and the
 provenance traversal) is documented in [pagegraph-schema.md](pagegraph-schema.md).
-The schema-shaped harness under `lib/__fixtures__/pagegraph/` is still synthetic;
-replace it with a real Brave export plus versioned `meta.json` before claiming
-parser fidelity against production data.
+The small `schema-*` harnesses under `lib/__fixtures__/pagegraph/` remain
+synthetic golden cases. `real-wikipedia-2026-07-19.graphml` is a bounded,
+sanitized subgraph from a live Brave Nightly capture, and its adjacent
+`real-wikipedia-2026-07-19.meta.json` binds the exact committed bytes to the
+browser, PageGraph, capture-tool, condition, and sanitization provenance. The
+unredacted capture is intentionally not committed: PageGraph request headers
+and storage results can contain client IP, geolocation, and fresh cookie
+identifiers.
 
-## Catalog Injection
+### Real-fixture capture receipt
 
-The PageGraph adapter accepts an optional `trackerMatcher` and
-`trackerCatalog`. Brave/internal integrations should pass Brave-owned list or
-entity data here instead of falling back to the bundled curated catalog.
+- Captured `https://www.wikipedia.org/` at `2026-07-19T23:47:29.150Z`
+  with a clean checkout of official `brave/pagegraph-crawl` package `1.2.13`
+  at `7f48717737906e81ae5993bee34a9abe4c2caca6` (lockfile SHA-256
+  `e80f96152a3f49dd16442b5b55e9025eb5bd340981c9e5e7393bcc2f37ea72e5`).
+  The CLI banner at that revision is stale and reports `1.2.1`; the sidecar
+  records the package version tied to the lockfile and source revision.
+- Browser: Brave Nightly `151.1.94.81`, Chromium `151.0.7922.34`, PageGraph
+  schema `0.7.7`; 15-second dwell, Shields down, GPC enabled, `en-US`,
+  `America/Los_Angeles`, desktop window `1365x768`, direct unpinned egress,
+  headful, and the capture tool's disposable bundled profile.
+- The private raw graph was 3,251,469 bytes with SHA-256
+  `1dc75405e30e0c6858d4913f9c5bf54822ffe7cda43ace63ede4b46e432604cc`.
+  That digest is provenance for the non-committed source only; it is not an
+  importable or remotely attestable artifact.
+- Sanitizer `pagegraph-public-fixture@1` retained the behavior edge families,
+  every retained edge endpoint, the explicit target root, and the
+  `create node` / `insert node` edges for request and execution actors, all in
+  capture order. It replaced all 10 header payloads, four script sources, 13
+  JS-argument payloads, and 26 JS/storage result or write values. The committed
+  graph is 27,149 bytes with SHA-256
+  `5f3a2fd225f871508aa6141f6d78ae141ec0d750a2c57048ba97902c3b694885`.
+- The retained graph has 36 nodes and 81 edges: five request starts paired to
+  five completions, four script executions, 13 JS calls, ten storage reads,
+  three storage writes, and one storage delete. `xmllint` accepted it, all
+  retained timestamps are nonnegative integer navigation-relative
+  milliseconds, and a forbidden-field scan found no local paths, header or
+  cookie values, client IP/geolocation values, authorization values, or private
+  query data.
 
-## Comparison Path
+## Capabilities and limits
 
-`createComparisonReport` is comparison-type agnostic. Existing GPC comparisons
-still use `createGpcComparisonReport`; Brave-oriented code can call
-`createShieldsComparisonReport` or `createTemporalComparisonReport` for Shields
-off/on and before/after artifacts. Comparisons also include optional causal path
-diffs when both reports include request provenance, so a Shields or temporal
-report can show which script/request relationships appeared or disappeared
-instead of only showing count deltas.
+The public importer emits one single observation and does not mint GPC,
+Shields, consent, or temporal comparisons. It uses the bundled curated tracker
+catalog and caller-managed local output; it does not perform DNS navigation or
+store the raw artifact. Optional causal UI is available only when retained
+requests contain human-readable actor/script provenance. Otherwise the report
+explicitly says it can show requests but not script-to-request causality.
 
-The committed fixture reports under `public/reports/` include a PageGraph-backed
-single report and a Shields comparison so the static evidence library exercises
-the new path.
+Raw PageGraph captures can include sensitive headers, storage identifiers,
+local paths, or page-controlled values. The committed real fixture is a bounded
+sanitized artifact; do not treat arbitrary raw captures as safe to publish.

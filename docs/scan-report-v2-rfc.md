@@ -516,6 +516,15 @@ type QualityReason =
   | "scan-slot-timeout" | `capture-loss:${string}` | `budget-exhausted:${string}`;
 ```
 
+`count` is normally the exact number of omitted observations and a censored
+PageGraph request family therefore requires a positive exact count. The one
+versioned exception is the request-only PageGraph r2 producer's
+`detail: "pagegraph-unsupported"` entry for a family the producer never
+attempts to collect: `count: 0` is an explicit unsupported-family sentinel,
+not an estimate of zero missing records. Renderers must present that sentinel
+as **not captured / unsupported**, never as an observed absence or an
+interrupted visit.
+
 The mapping from evidence families to metric families is part of the metric dependency
 registry: `raw-counts` reads requests/cookies/storage, `shields-simulation` reads
 requests, `consent-verification` reads its own family, and so on. "Censored" is the
@@ -1145,19 +1154,24 @@ are retained as the implementation receipt and ordering invariant:
     deltas, stats, exports), with corpus regeneration.
 11. **Move the stable schema alias to r2**, only after the complete dual-read gate
     and the phases above.
-12. **Controlled r2 producer emission** (Node scanner, compare-reports, and CI
-    script). Browser Run stays v1 per 11.1. The PageGraph upload adapter also
-    remains v1 until a representative real capture and versioned capture-metadata
-    contract can supply r2's mandatory conditions, provenance, phases, detector
-    ledger, and quality facts. Comparison producers emit r2 only once step 10's
+12. **Controlled r2 producer emission** (Node scanner, compare-reports, CI
+    script, and the paired PageGraph GraphML + metadata importer). Browser Run
+    stays v1 per 11.1. The PageGraph importer moved to request-only r2 after a
+    representative Brave Nightly capture and exact versioned metadata contract
+    supplied mandatory conditions, provenance, one passive phase, detector
+    ledger, and quality facts; unsupported evidence families are explicit
+    `pagegraph-unsupported` sentinels. Comparison producers emit r2 only once step 10's
     verified phased experiments exist to populate the structured facts; emitting
     them earlier would mint r2 reports whose mandatory semantics nothing can satisfy.
 
 Larger follow-on phases:
 
-13. Durable jobs (inheriting 9.7's constraints): the IDs-only recovery registry
-    is implemented; execution leases/replay remain pending.
-14. Registrable-domain profiles are implemented; opaque encrypted watches remain pending.
+13. Durable jobs (inheriting 9.7's constraints): fenced execution leases,
+    bounded replay, staging fault canaries, and IDs-only recovery are
+    implemented. Production activation remains an operator gate.
+14. Registrable-domain profiles and opaque encrypted scheduled rescans are
+    implemented behind fail-closed durability/readiness and feature gates.
+    Production activation remains sequenced after the durable-job canaries.
 
 ---
 

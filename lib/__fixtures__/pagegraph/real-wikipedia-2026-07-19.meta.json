@@ -1,0 +1,104 @@
+{
+  "$schema": "site-behavior-lab/pagegraph-capture@1",
+  "artifact": {
+    "sha256": "5f3a2fd225f871508aa6141f6d78ae141ec0d750a2c57048ba97902c3b694885",
+    "bytes": 27149,
+    "sanitizerVersion": "pagegraph-public-fixture@1"
+  },
+  "capture": {
+    "requestedUrl": "https://www.wikipedia.org/",
+    "finalUrl": "https://www.wikipedia.org/",
+    "scannedAt": "2026-07-19T23:47:29.150Z",
+    "durationMs": 15459,
+    "pageTitle": "Wikipedia",
+    "browser": {
+      "name": "Brave Nightly",
+      "version": "151.1.94.81",
+      "chromiumVersion": "151.0.7922.34",
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36"
+    },
+    "locale": "en-US",
+    "language": "en-US",
+    "timezone": "America/Los_Angeles",
+    "device": {
+      "kind": "desktop",
+      "viewport": {
+        "width": 1365,
+        "height": 768,
+        "isMobile": false
+      }
+    },
+    "headless": false,
+    "gpc": true,
+    "shields": "off",
+    "egress": {
+      "label": "direct-host-network",
+      "region": "unpinned"
+    },
+    "timestampOrigin": "navigation-start",
+    "timestampUnit": "milliseconds"
+  },
+  "tool": {
+    "name": "pagegraph-crawl",
+    "version": "1.2.13",
+    "sourceRevision": "7f48717737906e81ae5993bee34a9abe4c2caca6",
+    "pageGraphSchemaVersion": "0.7.7"
+  },
+  "quality": {
+    "status": null,
+    "navigationSettled": true,
+    "botWallTitleMatched": false,
+    "families": {
+      "requests": {
+        "outcome": "complete"
+      },
+      "cookies": {
+        "outcome": "unsupported"
+      },
+      "storage": {
+        "outcome": "unsupported"
+      },
+      "fingerprinting": {
+        "outcome": "unsupported"
+      },
+      "detector-output": {
+        "outcome": "unsupported"
+      },
+      "consent-verification": {
+        "outcome": "unsupported"
+      }
+    }
+  },
+  "detectors": {
+    "fingerprint-heuristics": {
+      "version": "pagegraph-import-unsupported@1",
+      "status": "unsupported",
+      "reason": "unsupported"
+    },
+    "keystroke-exfiltration": {
+      "version": "pagegraph-import-unsupported@1",
+      "status": "unsupported",
+      "reason": "unsupported"
+    },
+    "cname-uncloaking": {
+      "version": "pagegraph-import-unsupported@1",
+      "status": "unsupported",
+      "reason": "unsupported"
+    },
+    "pixel-events": {
+      "version": "pagegraph-import-unsupported@1",
+      "status": "unsupported",
+      "reason": "unsupported"
+    },
+    "consent-banner": {
+      "version": "pagegraph-import-unsupported@1",
+      "status": "unsupported",
+      "reason": "unsupported"
+    },
+    "privacy-policy": {
+      "version": "pagegraph-import-unsupported@1",
+      "status": "unsupported",
+      "reason": "unsupported"
+    }
+  }
+}

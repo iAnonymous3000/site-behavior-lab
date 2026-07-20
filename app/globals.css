@@ -460,6 +460,111 @@ a {
   padding: 20px;
 }
 
+.scan-panel-stack {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+}
+
+.scheduled-rescan-panel {
+  display: grid;
+  gap: 10px;
+}
+
+.scheduled-rescan-heading {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+}
+
+.scheduled-rescan-heading > svg {
+  color: var(--accent-strong);
+  flex: 0 0 auto;
+}
+
+.scheduled-rescan-heading h2 {
+  font-size: 16px;
+  margin: 2px 0 0;
+}
+
+.scheduled-rescan-panel > p,
+.scheduled-rescan-status > p {
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.scheduled-rescan-boundary strong {
+  color: var(--text);
+}
+
+.scheduled-rescan-status {
+  border-top: 1px solid var(--border);
+  display: grid;
+  gap: 10px;
+  padding-top: 12px;
+}
+
+.scheduled-rescan-status dl {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 24px;
+  margin: 0;
+}
+
+.scheduled-rescan-status dl div {
+  display: grid;
+  gap: 2px;
+}
+
+.scheduled-rescan-status dt {
+  color: var(--text-subtle);
+  font-size: 11px;
+  text-transform: uppercase;
+}
+
+.scheduled-rescan-status dd {
+  font-size: 13px;
+  margin: 0;
+}
+
+.scheduled-rescan-private-note {
+  font-size: 12px !important;
+}
+
+.scheduled-rescan-runs {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.scheduled-rescan-runs h3,
+.scheduled-rescan-runs p {
+  margin: 0;
+}
+
+.scheduled-rescan-runs ol {
+  display: grid;
+  gap: 0.45rem;
+  margin: 0;
+  padding-left: 1.3rem;
+}
+
+.scheduled-rescan-runs li {
+  align-items: baseline;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem 0.8rem;
+  justify-content: space-between;
+}
+
+.scheduled-rescan-actions {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
 .public-mode-panel {
   align-content: center;
   display: grid;

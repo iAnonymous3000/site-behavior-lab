@@ -34,12 +34,42 @@ test("isScanRuntimeHealth accepts the private shadow readiness projection", () =
         scannerEgressRegion: "configured",
         publicR2Reports: { status: "enabled" },
         durableJobs: { requested: true, enabled: true, readiness: "node-ready" },
+        encryptedWatches: { requested: true, enabled: true, readiness: "node-ready" },
         v2ShadowEmission: { status: "enabled", backend: "r2" }
       }
     }),
     true
   );
   assert.equal(isScanRuntimeHealth({ ok: true, checks: { scannerEgressRegion: "misconfigured" } }), true);
+});
+
+test("isScanRuntimeHealth validates the bounded durable container topology", () => {
+  const durableJobs = {
+    requested: true,
+    enabled: true,
+    readiness: "ready",
+    containerSharding: { requested: true, enabled: true, readiness: "ready", shardCount: 3 }
+  };
+  assert.equal(isScanRuntimeHealth({ ok: true, checks: { durableJobs } }), true);
+  assert.equal(
+    isScanRuntimeHealth({
+      ok: true,
+      checks: { durableJobs: { ...durableJobs, containerSharding: { ...durableJobs.containerSharding, shardCount: 4 } } }
+    }),
+    false
+  );
+  assert.equal(
+    isScanRuntimeHealth({
+      ok: true,
+      checks: {
+        durableJobs: {
+          ...durableJobs,
+          containerSharding: { requested: true, enabled: false, readiness: "ready", shardCount: 3 }
+        }
+      }
+    }),
+    false
+  );
 });
 
 test("isScanRuntimeHealth rejects malformed payloads", () => {
@@ -70,6 +100,27 @@ test("isScanRuntimeHealth rejects malformed payloads", () => {
   assert.equal(
     isScanRuntimeHealth({
       ok: true,
+      checks: { encryptedWatches: { requested: true, enabled: true, readiness: "ready" } }
+    }),
+    true
+  );
+  assert.equal(
+    isScanRuntimeHealth({
+      ok: true,
+      checks: { encryptedWatches: { requested: true, enabled: true, readiness: "warming" } }
+    }),
+    false
+  );
+  assert.equal(
+    isScanRuntimeHealth({
+      ok: true,
+      checks: { encryptedWatches: { requested: true, enabled: false, readiness: "misconfigured", reasons: [42] } }
+    }),
+    false
+  );
+  assert.equal(
+    isScanRuntimeHealth({
+      ok: true,
       checks: { durableJobs: { requested: true, enabled: false, readiness: "misconfigured", reasons: [42] } }
     }),
     false
@@ -83,6 +134,7 @@ test("isScanRuntimeHealth rejects malformed payloads", () => {
     false
   );
   assert.equal(isScanRuntimeHealth({ ok: true, capabilities: { gpcComparison: "maybe" } }), false);
+  assert.equal(isScanRuntimeHealth({ ok: true, capabilities: { scheduledRescans: "maybe" } }), false);
 });
 
 test("asScanRuntimeHealth returns its argument unchanged", () => {

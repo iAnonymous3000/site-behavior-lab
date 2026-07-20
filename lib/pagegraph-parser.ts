@@ -32,8 +32,30 @@ const FINGERPRINT_API_HINTS = [
   /screen\./i
 ];
 
+// Defense in depth for callers that bypass the file picker. The byte ceiling
+// is enforced before decoding by the r2 importer; these structural ceilings
+// prevent a bounded file from expanding into unbounded record/field work.
+export const PAGEGRAPH_R2_MAX_ARTIFACT_BYTES = 32 * 1024 * 1024;
+export const PAGEGRAPH_R2_MAX_RECORDS = 250_000;
+export const PAGEGRAPH_R2_MAX_KEYS = 1_024;
+export const PAGEGRAPH_R2_MAX_FIELDS_PER_RECORD = 64;
+export const PAGEGRAPH_R2_MAX_FIELD_CHARS = 16_384;
+export const PAGEGRAPH_R2_SUPPORTED_SCHEMA_VERSION = "0.7.7" as const;
+const PAGEGRAPH_R2_ABOUT_URL = "https://github.com/brave/brave-browser/wiki/PageGraph";
+
+export type PageGraphDescription = {
+  schemaVersion: typeof PAGEGRAPH_R2_SUPPORTED_SCHEMA_VERSION;
+  rootUrl: string;
+  isRoot: true;
+  scannedAt: string;
+  startedAtMs: number;
+  endedAtMs: number;
+  durationMs: number;
+};
+
 export type PageGraphParseOptions = Omit<PageGraphAdapterInput, "requests" | "storage" | "fingerprintEvents">;
 
+/** @deprecated Legacy/internal v1 compatibility utility; public uploads use the strict r2 builder. */
 export function pageGraphGraphmlToScanResult(graphml: string, options: PageGraphParseOptions): ScanResult {
   return pageGraphToScanResult(pageGraphGraphmlToAdapterInput(graphml, options));
 }
@@ -46,6 +68,7 @@ const INFERRED_ROOT_URL_WARNING =
 // Front-door entry point for ingesting a PageGraph GraphML export without the
 // caller having to know the page URL up front: the scanned page URL is inferred
 // from the graph (root/frame/document node) unless explicitly overridden.
+/** @deprecated Legacy single-file v1 importer retained for compatibility tests only. */
 export function pageGraphUploadToScanResult(graphml: string, overrides: PageGraphUploadOverrides = {}): ScanResult {
   const explicitUrl = overrides.requestedUrl?.trim();
   const detected = explicitUrl ? undefined : rootUrlFromRecords(parseGraphmlRecords(graphml));
@@ -88,8 +111,16 @@ function rootUrlFromRecords(records: GraphRecord[]): { url: string; confident: b
   return inferred ? { url: inferred, confident: false } : undefined;
 }
 
+/** @deprecated Tolerant legacy/internal parser; the public r2 producer uses the strict entry point below. */
 export function pageGraphGraphmlToAdapterInput(graphml: string, options: PageGraphParseOptions): PageGraphAdapterInput {
   const records = parseGraphmlRecords(graphml);
+  return pageGraphRecordsToAdapterInput(records, options);
+}
+
+function pageGraphRecordsToAdapterInput(
+  records: GraphRecord[],
+  options: PageGraphParseOptions
+): PageGraphAdapterInput {
   const warnings = [...(options.warnings ?? [])];
   const hasSchema = hasPageGraphSchema(records);
   const requests = hasSchema ? extractSchemaRequests(records) : extractHeuristicRequests(records);
@@ -112,48 +143,350 @@ export function pageGraphGraphmlToAdapterInput(graphml: string, options: PageGra
   };
 }
 
+/**
+ * Fail-closed PageGraph parser used by the r2 import producer. The legacy v1
+ * viewer intentionally tolerates older/heuristic exports; r2 provenance may
+ * only claim current-schema facts that were actually present in the graph.
+ */
+export function pageGraphGraphmlToStrictAdapterInput(
+  graphml: string,
+  options: PageGraphParseOptions
+): PageGraphAdapterInput & { graphRootUrl: string; description: PageGraphDescription } {
+  if (graphml.length > PAGEGRAPH_R2_MAX_ARTIFACT_BYTES) {
+    throw new Error(`PageGraph r2 artifacts must not exceed ${PAGEGRAPH_R2_MAX_ARTIFACT_BYTES} decoded characters.`);
+  }
+  const description = parseStrictPageGraphDescription(graphml);
+  const records = parseStrictGraphmlRecords(graphml);
+  assertStrictRecordEnvelope(records);
+  if (records.length === 0 || !hasPageGraphSchema(records)) {
+    throw new Error("PageGraph r2 import requires the current node type / edge type schema.");
+  }
+  const graphRootUrl = strictGraphRootUrl(records, description.rootUrl);
+
+  const index = buildGraphIndex(records);
+  const requestIds = new Set<string>();
+  for (const edge of index.edges) {
+    if (edgeType(edge) !== "request start") continue;
+    const resource = edge.target ? index.recordsById.get(edge.target) : undefined;
+    if (!resource || nodeType(resource) !== "resource" || !firstField(resource, ["url"])) {
+      throw new Error("PageGraph r2 request-start edges must target a resource with an explicit URL.");
+    }
+    const requestId = firstField(edge, ["request id"]);
+    if (!requestId || requestIds.has(requestId)) {
+      throw new Error("PageGraph r2 request-start edges require unique explicit request ids.");
+    }
+    requestIds.add(requestId);
+    if (!firstField(edge, ["resource type", "request type"])) {
+      throw new Error("PageGraph r2 request-start edges require an explicit resource type.");
+    }
+    strictNonnegativeIntegerField(edge, "timestamp");
+  }
+
+  return { ...pageGraphRequestRecordsToAdapterInput(records, options), graphRootUrl, description };
+}
+
+function pageGraphRequestRecordsToAdapterInput(
+  records: GraphRecord[],
+  options: PageGraphParseOptions
+): PageGraphAdapterInput {
+  const warnings = [...(options.warnings ?? [])];
+  const requests = extractSchemaRequests(records);
+  if (requests.length === 0) {
+    warnings.push("No PageGraph network request observations were extracted.");
+  }
+  // The public r2 producer deliberately supports request evidence only. Do
+  // not traverse and materialize storage or JS-API summaries that it would
+  // immediately discard; raw GraphML can contain sensitive values even when
+  // the output contract correctly marks those families unsupported.
+  return { ...options, requests, warnings };
+}
+
+function strictGraphRootUrl(records: GraphRecord[], expectedUrl: string): string {
+  const matching = records.filter((record) => {
+    if (record.kind !== "node") return false;
+    const type = nodeType(record)?.toLowerCase();
+    if (type !== "dom root" && type !== "web page") return false;
+    return firstField(record, ["url"]) === expectedUrl;
+  });
+  if (matching.length !== 1) {
+    throw new Error(
+      "PageGraph r2 import requires exactly one explicit DOM root/web-page node whose URL matches the GraphML description."
+    );
+  }
+  return expectedUrl;
+}
+
+function strictNonnegativeIntegerField(record: GraphRecord, name: string): number {
+  const value = firstField(record, [name]);
+  if (value === undefined || !/^(?:0|[1-9]\d*)$/.test(value)) {
+    throw new Error(
+      `PageGraph r2 request-start edges require exact canonical nonnegative integer millisecond ${name} tokens.`
+    );
+  }
+  const parsed = Number(value);
+  if (!Number.isSafeInteger(parsed)) {
+    throw new Error(`PageGraph r2 request-start ${name} exceeds the safe integer envelope.`);
+  }
+  return parsed;
+}
+
+/**
+ * Parse the capture provenance embedded by PageGraph itself. The sidecar is
+ * useful transport metadata, but it must not be able to replace or rewrite
+ * the artifact's own schema, root, wall-clock time, or capture interval.
+ */
+function parseStrictPageGraphDescription(graphml: string): PageGraphDescription {
+  const descriptions = [...graphml.matchAll(/<desc\b([^>]*)>([\s\S]*?)<\/desc>/gi)];
+  if (descriptions.length !== 1 || (descriptions[0]?.[1] ?? "").trim() !== "") {
+    throw new Error("PageGraph r2 artifacts require exactly one attribute-free GraphML description.");
+  }
+  const body = descriptions[0]?.[2] ?? "";
+  const schemaVersion = strictDescriptionValue(body, "version");
+  if (schemaVersion !== PAGEGRAPH_R2_SUPPORTED_SCHEMA_VERSION) {
+    throw new Error(
+      `PageGraph r2 artifacts require PageGraph schema ${PAGEGRAPH_R2_SUPPORTED_SCHEMA_VERSION}; received ${schemaVersion || "missing"}.`
+    );
+  }
+  if (strictDescriptionValue(body, "is_root") !== "true") {
+    throw new Error("PageGraph r2 artifacts require an is_root=true GraphML description.");
+  }
+  if (strictDescriptionValue(body, "about") !== PAGEGRAPH_R2_ABOUT_URL) {
+    throw new Error(`PageGraph r2 artifacts require the current PageGraph about URL (${PAGEGRAPH_R2_ABOUT_URL}).`);
+  }
+  if (strictDescriptionValue(body, "frame_id") !== "0") {
+    throw new Error("PageGraph r2 artifacts require the root frame_id 0 description.");
+  }
+
+  const rootUrl = strictDescriptionHttpUrl(strictDescriptionValue(body, "url"));
+  const scannedAt = pageGraphDateToIso(strictDescriptionValue(body, "date"));
+  const timeBlocks = [...body.matchAll(/<time\b([^>]*)>([\s\S]*?)<\/time>/gi)];
+  if (timeBlocks.length !== 1 || (timeBlocks[0]?.[1] ?? "").trim() !== "") {
+    throw new Error("PageGraph r2 artifacts require exactly one attribute-free description time interval.");
+  }
+  const time = timeBlocks[0]?.[2] ?? "";
+  const startedAtMs = strictDescriptionInteger(time, "start");
+  const endedAtMs = strictDescriptionInteger(time, "end");
+  if (startedAtMs !== 0 || endedAtMs < startedAtMs) {
+    throw new Error("PageGraph r2 description time must be a nonnegative navigation-start interval beginning at zero.");
+  }
+  assertExactDescriptionChildren(body);
+
+  return {
+    schemaVersion: PAGEGRAPH_R2_SUPPORTED_SCHEMA_VERSION,
+    rootUrl,
+    isRoot: true,
+    scannedAt,
+    startedAtMs,
+    endedAtMs,
+    durationMs: endedAtMs - startedAtMs
+  };
+}
+
+function assertExactDescriptionChildren(body: string): void {
+  let remainder = body;
+  for (const tag of ["version", "about", "is_root", "frame_id", "url", "date"]) {
+    remainder = remainder.replace(new RegExp(`<${tag}\\b[^>]*>[\\s\\S]*?<\\/${tag}>`, "i"), "");
+  }
+  remainder = remainder.replace(/<time\b[^>]*>[\s\S]*?<\/time>/i, "");
+  if (remainder.trim() !== "") {
+    throw new Error("PageGraph r2 description contains unknown, duplicate, or malformed child elements.");
+  }
+}
+
+function strictDescriptionValue(body: string, tag: string): string {
+  const pattern = new RegExp(`<${tag}\\b([^>]*)>([\\s\\S]*?)<\\/${tag}>`, "gi");
+  const matches = [...body.matchAll(pattern)];
+  if (matches.length !== 1 || (matches[0]?.[1] ?? "").trim() !== "") {
+    throw new Error(`PageGraph r2 description requires exactly one attribute-free ${tag} value.`);
+  }
+  const raw = (matches[0]?.[2] ?? "").trim();
+  if (!raw || /<[^>]*>/.test(raw)) {
+    throw new Error(`PageGraph r2 description ${tag} must be a nonempty scalar value.`);
+  }
+  return decodeXml(raw);
+}
+
+function strictDescriptionInteger(body: string, tag: string): number {
+  const value = strictDescriptionValue(body, tag);
+  if (!/^(?:0|[1-9]\d*)$/.test(value)) {
+    throw new Error(`PageGraph r2 description ${tag} must be a nonnegative integer millisecond value.`);
+  }
+  const parsed = Number(value);
+  if (!Number.isSafeInteger(parsed)) {
+    throw new Error(`PageGraph r2 description ${tag} exceeds the safe integer envelope.`);
+  }
+  return parsed;
+}
+
+function strictDescriptionHttpUrl(value: string): string {
+  const parsed = safeParseUrl(value);
+  if (
+    !parsed ||
+    (parsed.protocol !== "http:" && parsed.protocol !== "https:") ||
+    !parsed.hostname ||
+    parsed.username !== "" ||
+    parsed.password !== "" ||
+    parsed.toString() !== value
+  ) {
+    throw new Error("PageGraph r2 description URL must be a canonical credential-free HTTP(S) URL.");
+  }
+  return value;
+}
+
+function pageGraphDateToIso(value: string): string {
+  const match = /^(0|[1-9]\d{0,12})(?:\.(\d+))?$/.exec(value);
+  if (!match) {
+    throw new Error("PageGraph r2 description date must be nonnegative decimal Unix seconds.");
+  }
+  const seconds = Number(match[1]);
+  const milliseconds = Number((match[2] ?? "").padEnd(3, "0").slice(0, 3) || "0");
+  const epochMs = seconds * 1000 + milliseconds;
+  if (!Number.isSafeInteger(epochMs)) {
+    throw new Error("PageGraph r2 description date exceeds the safe timestamp envelope.");
+  }
+  const date = new Date(epochMs);
+  if (!Number.isFinite(date.getTime())) {
+    throw new Error("PageGraph r2 description date is outside the supported timestamp range.");
+  }
+  return date.toISOString();
+}
+
+function assertStrictRecordEnvelope(records: GraphRecord[]): void {
+  if (records.length > PAGEGRAPH_R2_MAX_RECORDS) {
+    throw new Error(`PageGraph r2 artifacts must not exceed ${PAGEGRAPH_R2_MAX_RECORDS} graph records.`);
+  }
+  for (const record of records) {
+    if (
+      record.id.length > 512 ||
+      (record.source?.length ?? 0) > 512 ||
+      (record.target?.length ?? 0) > 512
+    ) {
+      throw new Error("PageGraph r2 graph identifiers exceed the 512-character envelope.");
+    }
+    const fields = Object.entries(record.fields);
+    if (fields.length > PAGEGRAPH_R2_MAX_FIELDS_PER_RECORD) {
+      throw new Error(`PageGraph r2 records must not exceed ${PAGEGRAPH_R2_MAX_FIELDS_PER_RECORD} fields.`);
+    }
+    if (fields.some(([name, value]) => name.length > 256 || value.length > PAGEGRAPH_R2_MAX_FIELD_CHARS)) {
+      throw new Error("PageGraph r2 graph fields exceed the public import envelope.");
+    }
+  }
+}
+
 export function parseGraphmlRecords(graphml: string): GraphRecord[] {
   const keys = parseGraphKeys(graphml);
   return [...parseGraphElements(graphml, "node", keys), ...parseGraphElements(graphml, "edge", keys)];
 }
 
-function parseGraphKeys(graphml: string): Map<string, GraphKey> {
+type StrictGraphParseState = {
+  recordCount: number;
+  recordIds: Set<string>;
+};
+
+function parseStrictGraphmlRecords(graphml: string): GraphRecord[] {
+  const keys = parseGraphKeys(graphml, true);
+  const state: StrictGraphParseState = { recordCount: 0, recordIds: new Set() };
+  const nodes = parseGraphElements(graphml, "node", keys, state);
+  const edges = parseGraphElements(graphml, "edge", keys, state);
+  return [...nodes, ...edges];
+}
+
+function parseGraphKeys(graphml: string, strict = false): Map<string, GraphKey> {
   const keys = new Map<string, GraphKey>();
   const keyPattern = /<key\b([^>]*)\/?>/gi;
   for (const match of graphml.matchAll(keyPattern)) {
-    const attributes = parseAttributes(match[1] ?? "");
+    if (strict && keys.size >= PAGEGRAPH_R2_MAX_KEYS) {
+      throw new Error(`PageGraph r2 artifacts must not exceed ${PAGEGRAPH_R2_MAX_KEYS} key declarations.`);
+    }
+    const attributes = parseAttributes(match[1] ?? "", strict);
+    if (strict) assertExactAttributeNames(attributes, ["id", "for", "attr.name", "attr.type"], "key");
     const id = attributes.id;
-    if (!id) continue;
+    if (!id) {
+      if (strict) throw new Error("PageGraph r2 key declarations require an explicit id.");
+      continue;
+    }
+    if (strict && keys.has(id)) {
+      throw new Error(`PageGraph r2 artifacts must not contain duplicate key declarations (${id}).`);
+    }
+    const name = normalizeFieldName(attributes["attr.name"] ?? attributes.name ?? id);
+    if (strict && (id.length > 256 || !name || name.length > 256)) {
+      throw new Error("PageGraph r2 key ids and names must be nonempty and at most 256 characters.");
+    }
     keys.set(id, {
       id,
-      name: normalizeFieldName(attributes["attr.name"] ?? attributes.name ?? id)
+      name
     });
   }
   return keys;
 }
 
-function parseGraphElements(graphml: string, kind: "node" | "edge", keys: Map<string, GraphKey>): GraphRecord[] {
+function parseGraphElements(
+  graphml: string,
+  kind: "node" | "edge",
+  keys: Map<string, GraphKey>,
+  strictState?: StrictGraphParseState
+): GraphRecord[] {
   const records: GraphRecord[] = [];
   const pattern = new RegExp(`<${kind}\\b([^>]*)>([\\s\\S]*?)<\\/${kind}>`, "gi");
   for (const match of graphml.matchAll(pattern)) {
-    const attributes = parseAttributes(match[1] ?? "");
+    if (strictState && ++strictState.recordCount > PAGEGRAPH_R2_MAX_RECORDS) {
+      throw new Error(`PageGraph r2 artifacts must not exceed ${PAGEGRAPH_R2_MAX_RECORDS} graph records.`);
+    }
+    const attributes = parseAttributes(match[1] ?? "", strictState !== undefined);
+    if (strictState) {
+      assertExactAttributeNames(
+        attributes,
+        kind === "node" ? ["id"] : ["id", "source", "target"],
+        kind
+      );
+    }
     const body = match[2] ?? "";
-    const id = attributes.id ?? `${kind}-${records.length + 1}`;
+    const explicitId = attributes.id;
+    if (strictState && (!explicitId || !explicitId.trim())) {
+      throw new Error(`PageGraph r2 ${kind} records require an explicit nonempty id.`);
+    }
+    const id = explicitId ?? `${kind}-${records.length + 1}`;
+    if (strictState) {
+      if (strictState.recordIds.has(id)) {
+        throw new Error(`PageGraph r2 artifacts must not contain duplicate node/edge ids (${id}).`);
+      }
+      strictState.recordIds.add(id);
+      if (
+        id.length > 512 ||
+        (attributes.source?.length ?? 0) > 512 ||
+        (attributes.target?.length ?? 0) > 512
+      ) {
+        throw new Error("PageGraph r2 graph identifiers exceed the 512-character envelope.");
+      }
+    }
     const fields: Record<string, string> = {};
 
     // parseAttributes already XML-decodes values; decoding again here would
     // double-decode entities (e.g. "&amp;lt;" -> "<" instead of "&lt;").
     for (const [name, value] of Object.entries(attributes)) {
-      fields[normalizeFieldName(name)] = value;
+      // XML identity/join attributes remain available on the GraphRecord. In
+      // strict mode they must not collide with PageGraph's own data field
+      // named "id" (the capture's numeric node identity).
+      if (strictState && (name === "id" || name === "source" || name === "target")) continue;
+      assignGraphField(fields, normalizeFieldName(name), value, strictState !== undefined);
     }
 
     const dataPattern = /<data\b([^>]*)>([\s\S]*?)<\/data>/gi;
+    const dataKeys = strictState ? new Set<string>() : undefined;
     for (const dataMatch of body.matchAll(dataPattern)) {
-      const dataAttributes = parseAttributes(dataMatch[1] ?? "");
+      const dataAttributes = parseAttributes(dataMatch[1] ?? "", strictState !== undefined);
+      if (strictState) assertExactAttributeNames(dataAttributes, ["key"], "data");
       const key = dataAttributes.key ?? "";
+      if (strictState && (!key || !keys.has(key))) {
+        throw new Error("PageGraph r2 data fields must reference an explicit declared key.");
+      }
+      if (dataKeys?.has(key)) {
+        throw new Error(`PageGraph r2 records must not contain duplicate data field declarations (${key}).`);
+      }
+      dataKeys?.add(key);
       const name = normalizeFieldName(keys.get(key)?.name ?? key);
       if (!name) continue;
-      fields[name] = decodeXml(stripTags(dataMatch[2] ?? "").trim());
+      assignGraphField(fields, name, decodeXml(stripTags(dataMatch[2] ?? "").trim()), strictState !== undefined);
     }
 
     records.push({
@@ -165,6 +498,32 @@ function parseGraphElements(graphml: string, kind: "node" | "edge", keys: Map<st
     });
   }
   return records;
+}
+
+function assignGraphField(fields: Record<string, string>, name: string, value: string, strict: boolean): void {
+  if (strict) {
+    if (Object.prototype.hasOwnProperty.call(fields, name)) {
+      throw new Error(`PageGraph r2 records must not contain duplicate normalized fields (${name}).`);
+    }
+    if (Object.keys(fields).length >= PAGEGRAPH_R2_MAX_FIELDS_PER_RECORD) {
+      throw new Error(`PageGraph r2 records must not exceed ${PAGEGRAPH_R2_MAX_FIELDS_PER_RECORD} fields.`);
+    }
+    if (name.length > 256 || value.length > PAGEGRAPH_R2_MAX_FIELD_CHARS) {
+      throw new Error("PageGraph r2 graph fields exceed the public import envelope.");
+    }
+  }
+  fields[name] = value;
+}
+
+function assertExactAttributeNames(
+  attributes: Record<string, string>,
+  allowed: readonly string[],
+  element: string
+): void {
+  const unknown = Object.keys(attributes).filter((name) => !allowed.includes(name));
+  if (unknown.length > 0) {
+    throw new Error(`PageGraph r2 ${element} elements contain unknown attributes (${unknown.join(", ")}).`);
+  }
 }
 
 function hasPageGraphSchema(records: GraphRecord[]): boolean {
@@ -595,11 +954,23 @@ function uniqueStorage(records: StorageRecord[]): StorageRecord[] {
   });
 }
 
-function parseAttributes(source: string): Record<string, string> {
+function parseAttributes(source: string, strict = false): Record<string, string> {
   const attributes: Record<string, string> = {};
   const attributePattern = /([\w:.-]+)\s*=\s*(?:"([^"]*)"|'([^']*)')/g;
+  let consumedThrough = 0;
   for (const match of source.matchAll(attributePattern)) {
-    attributes[match[1]] = decodeXml(match[2] ?? match[3] ?? "");
+    if (strict && source.slice(consumedThrough, match.index).trim() !== "") {
+      throw new Error("PageGraph r2 elements contain malformed attribute syntax.");
+    }
+    const name = match[1];
+    if (strict && Object.prototype.hasOwnProperty.call(attributes, name)) {
+      throw new Error(`PageGraph r2 elements must not contain duplicate attributes (${name}).`);
+    }
+    attributes[name] = decodeXml(match[2] ?? match[3] ?? "");
+    consumedThrough = (match.index ?? 0) + match[0].length;
+  }
+  if (strict && source.slice(consumedThrough).replace(/\/\s*$/, "").trim() !== "") {
+    throw new Error("PageGraph r2 elements contain malformed attribute syntax.");
   }
   return attributes;
 }

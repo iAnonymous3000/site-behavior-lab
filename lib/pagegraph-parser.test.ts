@@ -192,6 +192,13 @@ test("pageGraphGraphmlToAdapterInput reads the current capture schema (type on t
   // apart by the graph's own request id.
   assert.equal(requests.length, 4);
   assert.equal(requests.filter((request) => request.url === "https://tracker.example/collect").length, 2);
+
+  const report = pageGraphGraphmlToScanResult(graphml, {
+    requestedUrl: "https://news.example/",
+    finalUrl: "https://news.example/",
+    scannedAt: new Date(0).toISOString()
+  });
+  assert.equal(report.requests[1].status, null, "PageGraph request-error status 0 is explicit no-HTTP-status");
 });
 
 test("normalizePageGraphResourceType folds Blink names into the Playwright vocabulary", () => {

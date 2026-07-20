@@ -7,8 +7,8 @@ export type ReportProducerCapability = {
   shieldsComparison: boolean;
   consentComparison: boolean;
   asyncJobs: boolean;
-  dnsGuard: "node-connect-time-proxy" | "edge-doh-preflight-only" | "source-artifact";
-  trackerCatalog: "hand-curated-service-catalog" | "none" | "provided-or-hand-curated";
+  dnsGuard: "node-connect-time-proxy" | "edge-doh-preflight-only" | "not-applicable-local-artifact";
+  trackerCatalog: "hand-curated-service-catalog" | "none";
   reportStore: "filesystem-or-r2" | "kv-or-r2" | "caller-managed";
 };
 
@@ -43,15 +43,15 @@ export const REPORT_PRODUCER_CAPABILITIES: readonly ReportProducerCapability[] =
   },
   {
     producer: "pagegraph",
-    runtime: "Brave PageGraph adapter",
+    runtime: "Paired GraphML + sidecar r2 import",
     emitsScanReport: true,
     singleScan: true,
     gpcComparison: false,
     shieldsComparison: false,
     consentComparison: false,
     asyncJobs: false,
-    dnsGuard: "source-artifact",
-    trackerCatalog: "provided-or-hand-curated",
+    dnsGuard: "not-applicable-local-artifact",
+    trackerCatalog: "hand-curated-service-catalog",
     reportStore: "caller-managed"
   }
 ] as const;

@@ -1,4 +1,5 @@
 import { SCAN_TOKEN_REQUEST_HEADERS } from "./scan-token";
+import { ENCRYPTED_WATCH_CAPABILITY_HEADER } from "./encrypted-watch-contract";
 
 /**
  * Single definition of the scan API CORS contract, shared by the Node API routes
@@ -15,6 +16,7 @@ const CORS_ALLOWED_REQUEST_HEADERS = [
   "authorization",
   "content-type",
   "cf-turnstile-response",
+  ENCRYPTED_WATCH_CAPABILITY_HEADER,
   ...SCAN_TOKEN_REQUEST_HEADERS
 ] as const;
 

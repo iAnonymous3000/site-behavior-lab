@@ -17,6 +17,7 @@ import { isRecord } from "./guards";
 export type ScanRuntimeStatus = "ok" | "degraded" | "error";
 
 export type DurableScanJobsReadiness = "disabled" | "node-ready" | "ready" | "misconfigured";
+export type EncryptedWatchesReadiness = "disabled" | "node-ready" | "ready" | "misconfigured";
 
 export type ScanRuntimeCapabilities = {
   singleScan?: boolean;
@@ -24,6 +25,8 @@ export type ScanRuntimeCapabilities = {
   shieldsComparison?: boolean;
   consentComparison?: boolean;
   savedReports?: boolean;
+  /** True only when the edge can create and schedule encrypted seven-day rescans. */
+  scheduledRescans?: boolean;
   /**
    * The scan API origin serves human-viewable `/reports/:id` HTML pages (it runs
    * the full Node app), so a freshly scanned report has a shareable permalink
@@ -69,6 +72,25 @@ export type ScanRuntimeHealth = {
       requested: boolean;
       enabled: boolean;
       readiness: DurableScanJobsReadiness;
+      reasons?: string[];
+      /** Edge-only execution topology; absent on the Node prerequisite view. */
+      containerSharding?: {
+        requested: boolean;
+        enabled: boolean;
+        readiness: "disabled" | "blocked" | "ready" | "misconfigured";
+        shardCount: number;
+        reasons?: string[];
+      };
+    };
+    /**
+     * `node-ready` proves the private fresh-DNS preparation boundary is ready.
+     * Only the edge can verify the Worker-only watch key and Durable Object
+     * scheduling state before advertising `ready`.
+     */
+    encryptedWatches?: {
+      requested: boolean;
+      enabled: boolean;
+      readiness: EncryptedWatchesReadiness;
       reasons?: string[];
     };
     v2ShadowEmission?: {
@@ -117,7 +139,7 @@ function isScanRuntimeStatus(value: unknown): value is ScanRuntimeStatus {
 
 function isCapabilities(value: unknown): value is ScanRuntimeCapabilities {
   if (!isRecord(value)) return false;
-  return (["singleScan", "gpcComparison", "shieldsComparison", "consentComparison", "savedReports", "savedReportPages"] as const).every(
+  return (["singleScan", "gpcComparison", "shieldsComparison", "consentComparison", "savedReports", "scheduledRescans", "savedReportPages"] as const).every(
     (key) => value[key] === undefined || typeof value[key] === "boolean"
   );
 }
@@ -175,6 +197,65 @@ function isChecks(value: unknown): value is NonNullable<ScanRuntimeHealth["check
       value.durableJobs.reasons !== undefined &&
       (!Array.isArray(value.durableJobs.reasons) ||
         !value.durableJobs.reasons.every((reason) => typeof reason === "string"))
+    ) {
+      return false;
+    }
+    if (value.durableJobs.containerSharding !== undefined) {
+      const sharding = value.durableJobs.containerSharding;
+      if (!isRecord(sharding)) return false;
+      if (typeof sharding.requested !== "boolean" || typeof sharding.enabled !== "boolean") return false;
+      if (
+        sharding.readiness !== "disabled" &&
+        sharding.readiness !== "blocked" &&
+        sharding.readiness !== "ready" &&
+        sharding.readiness !== "misconfigured"
+      ) {
+        return false;
+      }
+      if (
+        !Number.isSafeInteger(sharding.shardCount) ||
+        (sharding.shardCount as number) < 1 ||
+        (sharding.shardCount as number) > 3
+      ) {
+        return false;
+      }
+      if (
+        (sharding.readiness === "ready" &&
+          (sharding.requested !== true || sharding.enabled !== true || (sharding.shardCount as number) < 2)) ||
+        (sharding.readiness !== "ready" &&
+          (sharding.enabled !== false || sharding.shardCount !== 1))
+      ) {
+        return false;
+      }
+      if (
+        sharding.reasons !== undefined &&
+        (!Array.isArray(sharding.reasons) ||
+          !sharding.reasons.every((reason) => typeof reason === "string"))
+      ) {
+        return false;
+      }
+    }
+  }
+  if (value.encryptedWatches !== undefined) {
+    if (!isRecord(value.encryptedWatches)) return false;
+    if (
+      typeof value.encryptedWatches.requested !== "boolean" ||
+      typeof value.encryptedWatches.enabled !== "boolean"
+    ) {
+      return false;
+    }
+    if (
+      value.encryptedWatches.readiness !== "disabled" &&
+      value.encryptedWatches.readiness !== "node-ready" &&
+      value.encryptedWatches.readiness !== "ready" &&
+      value.encryptedWatches.readiness !== "misconfigured"
+    ) {
+      return false;
+    }
+    if (
+      value.encryptedWatches.reasons !== undefined &&
+      (!Array.isArray(value.encryptedWatches.reasons) ||
+        !value.encryptedWatches.reasons.every((reason) => typeof reason === "string"))
     ) {
       return false;
     }

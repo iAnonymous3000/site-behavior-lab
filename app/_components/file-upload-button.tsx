@@ -2,6 +2,14 @@
 
 import { Upload } from "lucide-react";
 import type { ReactNode } from "react";
+import {
+  MAX_PAGEGRAPH_METADATA_BYTES,
+  pageGraphUploadSelection,
+  type PageGraphUploadSelection
+} from "@/lib/pagegraph-upload-selection";
+
+export { pageGraphUploadSelection } from "@/lib/pagegraph-upload-selection";
+export type { PageGraphUploadSelection } from "@/lib/pagegraph-upload-selection";
 
 // Reports (even comparisons with two inline screenshots) stay well under a few
 // megabytes, and PageGraph exports under a few tens; anything past this bound
@@ -75,18 +83,43 @@ export function ReportUploadButton({
   );
 }
 
-export function PageGraphUploadButton({
-  onUploadReport,
+/**
+ * Revision-2 PageGraph picker. Both the GraphML and its exact digest-bound
+ * `.meta.json` sidecar are mandatory; selecting an arbitrary GraphML alone
+ * can no longer mint guessed capture conditions.
+ */
+export function PageGraphR2UploadButton({
+  onUploadPair,
   onError,
   children
 }: {
-  onUploadReport: (file: File | null) => Promise<void>;
+  onUploadPair: (selection: PageGraphUploadSelection) => Promise<void>;
   onError?: (message: string) => void;
   children: ReactNode;
 }) {
   return (
-    <FileUploadButton accept=".graphml,.xml,application/xml,text/xml" onSelect={onUploadReport} onError={onError}>
+    <label className="secondary-button file-button">
+      <Upload size={17} aria-hidden="true" />
       {children}
-    </FileUploadButton>
+      <input
+        type="file"
+        multiple
+        accept=".graphml,.xml,.meta.json,application/xml,text/xml,application/json"
+        onChange={(event) => {
+          const input = event.currentTarget;
+          const surfaced = Promise.resolve()
+            .then(() => pageGraphUploadSelection(Array.from(input.files ?? [])))
+            .then(onUploadPair)
+            .catch((error) => {
+              const message = error instanceof Error ? error.message : "PageGraph capture files could not be opened.";
+              if (onError) onError(message);
+              else console.error(message);
+            });
+          void surfaced.finally(() => {
+            input.value = "";
+          });
+        }}
+      />
+    </label>
   );
 }

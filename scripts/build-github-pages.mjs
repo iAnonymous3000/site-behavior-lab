@@ -205,6 +205,10 @@ async function main() {
       ...process.env,
       NEXT_PUBLIC_SITE_BEHAVIOR_LAB_STATIC_EXPORT: "1",
       NEXT_TELEMETRY_DISABLED: "1",
+      // Feed the already verified clean-HEAD identity into Next's compile-time
+      // public environment. Relying on optional CI variables would make local
+      // Pages builds emit an empty PageGraph producer identity.
+      SITE_BEHAVIOR_LAB_BUILD_COMMIT: deployment,
       SITE_BEHAVIOR_LAB_STATIC_EXPORT: "1"
     }
   });

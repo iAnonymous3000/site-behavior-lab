@@ -57,6 +57,18 @@ async function scannerAdvertisesShields(apiBase) {
   }
 }
 
+async function scannerAdvertisesScheduledRescans(apiBase) {
+  if (!apiBase) return false;
+  try {
+    const response = await fetch(`${apiBase.replace(/\/+$/, "")}/api/health`, { cache: "no-store" });
+    if (!response.ok) return false;
+    const health = await response.json();
+    return health?.capabilities?.scheduledRescans === true;
+  } catch {
+    return false;
+  }
+}
+
 async function main() {
   const manifest = await readManifest();
   const phaseReport = await findR2PhaseSmokeReport(manifest);
@@ -175,6 +187,28 @@ async function main() {
       }
       pass(openAccessScanner ? "static home renders open live scanner" : "static home renders gated live scanner");
     }
+
+    const scheduledRescansExpected = await scannerAdvertisesScheduledRescans(liveScanApiBase);
+    const scheduledRescanPanels = await page.locator(".scheduled-rescan-panel").count();
+    if (!scheduledRescansExpected && scheduledRescanPanels !== 0) {
+      fail("scheduled-rescan UI rendered without an exact health capability");
+    }
+    if (scheduledRescansExpected) {
+      if (scheduledRescanPanels !== 1) fail("scheduled-rescan capability did not render exactly one management panel");
+      await expectText(page.locator("#scheduled-rescan-title"), "Schedule weekly rescans");
+      await expectText(page.locator(".scheduled-rescan-panel"), "every 7 days");
+      await expectText(page.locator(".scheduled-rescan-panel"), "30 days");
+      await expectText(page.locator(".scheduled-rescan-panel"), "maximum of 5 scheduled attempts");
+      await expectText(page.locator(".scheduled-rescan-panel"), "Scheduled rescans, not change alerts.");
+      if ((await page.getByRole("button", { name: "Schedule weekly rescans", exact: true }).count()) !== 1) {
+        fail("scheduled-rescan panel is missing its deliberate create action");
+      }
+    }
+    pass(
+      scheduledRescansExpected
+        ? "scheduled-rescan capability renders exact bounded-retention UI"
+        : "scheduled-rescan UI stays absent while capability is disabled"
+    );
 
     const cardCount = await page.locator(".static-report-card").count();
     if (cardCount !== Math.min(archivePageSize, manifest.reports.length)) {

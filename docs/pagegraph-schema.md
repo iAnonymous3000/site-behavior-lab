@@ -58,10 +58,15 @@ an HTTP verb. PageGraph does not record GET/POST on request edges (see caveats).
 
 ## Edge types (31)
 
-Requests: `request start` (`request type`, `status`, `request id`),
-`request complete` (`resource type`, `status`, `request id`, `response hash`,
+Requests: `request start` (`request type`, lifecycle `status`, `request id`),
+`request complete` (`resource type`, lifecycle `status`, `request id`, `response hash`,
 `headers`, `size`, `value?`), `request error` (`status`, `request id`, …),
 `request response`.
+
+In the current `0.7.7` capture, request-edge `status` values are lifecycle
+tokens such as `started` and `complete`, not HTTP response codes. The importer
+therefore records HTTP status as unavailable (`null`) rather than inventing a
+numeric response status.
 
 Causality / JS: `execute`, `execute from attribute` (`attr name`), `js call`
 (`args`, `script position`), `js result` (`value?`).
@@ -102,18 +107,19 @@ script) ← create node / execute ← injecting script ← execute ← … ← p
 Walking `execute` edges upward gives "third-party script X injected script Y
 which fetched tracker Z".
 
-Status/type pairing: pair `request start` and `request complete`/`request error`
-by `request id`. `resource type` and final `status` come from the completion
-edge. Storage and fingerprint events carry their own provenance too, the
+Completion/type pairing: pair `request start` and `request complete`/`request error`
+by `request id`. `resource type` comes from the completion edge; its `status`
+is a lifecycle/completion state, so the current schema does not supply an HTTP
+response code. Storage and fingerprint events carry their own provenance too, the
 `storage set` / `js call` edge's source script attributes who set the key or
 called the Web API.
 
-## Gaps in the legacy synthetic fixture and tolerant fallback
+## Historical gaps in the legacy synthetic fixture and tolerant fallback
 
 Checked against `lib/pagegraph-parser.test.ts` `SAMPLE_GRAPHML` and the tolerant
-fallback parser. These are the concrete deltas the real-schema path and
-`lib/__fixtures__/pagegraph/schema-provenance.graphml` harness are meant to
-close:
+fallback parser. These were the concrete deltas that the current real-schema
+path, provenance harness, and committed real capture close; the legacy
+heuristic fallback alone still cannot establish them:
 
 1. **Type key.** The fixture uses one `attr.name="type"`; real exports use **two**
    keys, `node type` and `edge type`. A real export keyed on `type` yields nothing.
@@ -124,11 +130,11 @@ close:
 3. **No request-id pairing.** Final `status` and `resource type` live on a
    separate `request complete` edge joined by `request id`; the fixture has none.
 4. **Initiators are script-only.** Real initiators are frequently `HTML element`
-   nodes, requiring the `create node`/`insert node` walk to reach the script.
-   That walk is unimplemented and untested.
-5. **No injector chain (biggest gap).** There are no `execute`/`create node`
-   edges in the fixture, so `injectedById`/`injectedByUrl`/`injectedByDomain`
-   can never populate from real data, the whole reason provenance was added.
+   nodes, requiring the implemented `create node`/`insert node` walk to reach
+   the script; the schema harness and real fixture exercise this path.
+5. **No injector chain in the old sample.** Its missing `execute`/`create node`
+   edges could never populate `injectedById`/`injectedByUrl`/`injectedByDomain`;
+   the synthetic provenance golden now covers that specific chain.
 6. **HTTP method is invented.** The fixture sets `method=GET/POST`; PageGraph has
    no HTTP verb on request edges. Map `request type` → `resourceType`; leave
    `NetworkRequestRecord.method` defaulted/absent for PageGraph-sourced reports.
@@ -141,14 +147,25 @@ close:
 
 ## What a real fixture must capture
 
-When dropping a real export per the handoff contract
-(`lib/__fixtures__/pagegraph/`), pick a tracker-heavy site whose graph contains
-at least one **dynamically injected third-party script that then fetches a
-tracker**, that single path exercises `request start` → `resource`,
-`create node`/`execute` for the script, and the `execute` injector hop, which is
-what proves `initiatorId` / `scriptId` / `injectedById` and the script/injector
-domains all populate. Record the PageGraph/Brave version in the sidecar
-`meta.json`; the literals above are current-`main` and can drift.
+When refreshing a real export under `lib/__fixtures__/pagegraph/`, prefer a
+controlled public fixture page whose graph contains a **dynamically injected
+third-party script that then fetches a resource**. That single path exercises
+`request start` → `resource`, `create node`/`execute` for the script, and the
+`execute` injector hop, which is what proves `initiatorId` / `scriptId` /
+`injectedById` and the script/injector domains all populate. If a live public
+site is used instead, commit only a deterministic bounded subgraph: remove
+request/response headers, storage values, JS arguments/results, and script
+source; inspect URLs and retained fields for identifiers; and bind the exact
+committed bytes and sanitization rules in a versioned sidecar. Never commit the
+raw graph merely to claim real-capture coverage.
+
+`real-wikipedia-2026-07-19.graphml` is the first such real-capture fixture. It
+proves the current Brave schema against real request pairing, Blink resource
+types, parser/element initiators, script execution, JS calls, and storage
+mutations. Wikipedia did not produce a dynamically injected third-party
+request in this passive visit, so the synthetic provenance golden remains the
+test for that specific chain; this schema note records the limitation
+explicitly.
 
 See also [pagegraph-adapter.md](pagegraph-adapter.md) for the adapter contract
 that consumes this.

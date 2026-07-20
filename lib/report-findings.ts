@@ -42,7 +42,9 @@ import {
   comparisonArmViews,
   displayRunView,
   familyCensoredOnRun,
+  familyUnsupportedOnRun,
   runCensorshipNotes,
+  unsupportedEvidenceFamilies,
   type ClaimGate,
   type ReportView,
   type RunView
@@ -144,9 +146,14 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
   const trackingNames = trackingEntities.map((entity) => entity.entity);
   const operationalNames = operationalEntities.map((entity) => entity.entity);
   const topCategories = Array.from(new Set(trackingEntities.flatMap((entity) => entity.categories))).slice(0, 3);
+  const cookiesUnsupported = familyUnsupportedOnRun(run, "cookies");
+  const detectorUnsupported =
+    familyUnsupportedOnRun(run, "detector-output") || familyUnsupportedOnRun(run, "fingerprinting");
   // Corpus percentiles when available + large enough; otherwise fixed thresholds.
   const domainsBenchmark = corpusBenchmark(corpus, "thirdPartyDomains", run.counts.thirdPartyDomains);
-  const cookiesBenchmark = corpusBenchmark(corpus, "thirdPartyCookies", run.counts.thirdPartyCookies);
+  const cookiesBenchmark = cookiesUnsupported
+    ? null
+    : corpusBenchmark(corpus, "thirdPartyCookies", run.counts.thirdPartyCookies);
   const thirdPartyLevel = strongestLevel([
     levelForMetric("trackerEntities", trackingEntities.length),
     domainsBenchmark ? domainsBenchmark.level : levelForMetric("thirdPartyDomains", run.counts.thirdPartyDomains)
@@ -483,22 +490,38 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
     id: "third-party-cookies",
     icon: "cookie",
     level:
-      run.counts.thirdPartyCookies === 0 && cookiesCensored
+      cookiesUnsupported
+        ? "info"
+        : run.counts.thirdPartyCookies === 0 && cookiesCensored
         ? "info"
         : cookiesBenchmark
           ? cookiesBenchmark.level
           : levelForMetric("thirdPartyCookies", run.counts.thirdPartyCookies),
-    title: run.counts.thirdPartyCookies > 0 ? "Third-party cookies were present" : "No third-party cookies observed",
+    title: cookiesUnsupported
+      ? "Cookie evidence was not captured"
+      : run.counts.thirdPartyCookies > 0
+        ? "Third-party cookies were present"
+        : "No third-party cookies observed",
     lead:
-      run.counts.thirdPartyCookies > 0
+      cookiesUnsupported
+        ? "This request-only PageGraph import does not capture cookie evidence."
+        : run.counts.thirdPartyCookies > 0
         ? `${plural(run.counts.thirdPartyCookies, "third-party cookie")} showed up during the visit.`
         : "The automated visit did not observe third-party cookies.",
     detail:
-      run.counts.thirdPartyCookies > 0
+      cookiesUnsupported
+        ? "The report's zero-valued cookie fields are schema placeholders for an unavailable measurement, not evidence that the site set no cookies."
+        : run.counts.thirdPartyCookies > 0
         ? "Third-party cookies can help outside services recognize repeat visits across sites when the browser allows them."
         : `This does not prove the site never uses cookies; it means this visit did not observe third-party cookies.${cookiesCensored ? CENSORED_ABSENCE_NOTE : ""}`,
-    evidence: `${plural(run.counts.cookies, "cookie")} total in this report.`,
-    benchmark: cookiesBenchmark ? cookiesBenchmark.label : benchmarkLabel("thirdPartyCookies", run.counts.thirdPartyCookies)
+    evidence: cookiesUnsupported
+      ? "Unsupported by the request-only PageGraph r2 producer."
+      : `${plural(run.counts.cookies, "cookie")} total in this report.`,
+    benchmark: cookiesUnsupported
+      ? undefined
+      : cookiesBenchmark
+        ? cookiesBenchmark.label
+        : benchmarkLabel("thirdPartyCookies", run.counts.thirdPartyCookies)
   });
 
   // Restricted to genuinely cross-site listener origins: the in-page probe's
@@ -550,13 +573,17 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
     id: "fingerprint-apis",
     icon: "fingerprint",
     level:
-      highEntropyDetections.length > 0
+      detectorUnsupported
+        ? "info"
+        : highEntropyDetections.length > 0
         ? "warn"
         : run.counts.fingerprintEvents > 0 || detectorCensored
           ? "info"
           : "ok",
     title:
-      highEntropyDetections.length > 0
+      detectorUnsupported
+        ? "Fingerprinting evidence was not captured"
+        : highEntropyDetections.length > 0
         ? highEntropyDetections.length === 1
           ? `${highEntropyDetectionLabels[0]} matched`
           : "Behavioral fingerprinting heuristics matched"
@@ -564,19 +591,25 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
           ? "Fingerprint-like browser APIs were called"
           : "No fingerprint-like API calls observed",
     lead:
-      highEntropyDetections.length > 0
+      detectorUnsupported
+        ? "This request-only PageGraph import does not capture fingerprinting or detector evidence."
+        : highEntropyDetections.length > 0
         ? `${plural(highEntropyDetections.length, "behavioral heuristic")} matched: ${humanList(highEntropyDetectionLabels, 5)}.`
         : run.counts.fingerprintEvents > 0
           ? `${plural(run.counts.fingerprintEvents, "high-entropy API call")} appeared in the instrumentation log.`
           : "The scan did not observe the instrumented high-entropy browser APIs.",
     detail:
-      highEntropyDetections.length > 0
+      detectorUnsupported
+        ? "The report's zero-valued fingerprint fields are schema placeholders for an unavailable measurement, not an observed absence of fingerprint-like behavior."
+        : highEntropyDetections.length > 0
         ? "These heuristics look for behavior patterns such as canvas readback after drawing, repeated canvas font measurement, WebGL entropy reads, offline audio rendering, or WebRTC peer-connection setup. They are review prompts for this visit, not proof of cross-site identity tracking."
         : run.counts.fingerprintEvents > 0
           ? `These calls can be legitimate (charts, graphics, media), so the count is observational, not a severity score, and it excludes Web and Service Workers. Top calls: ${humanList(topFingerprintApis)}.`
           : `This is an observation layer, not proof that fingerprinting is impossible.${detectorCensored ? CENSORED_ABSENCE_NOTE : ""}`,
     evidence:
-      highEntropyDetections.length > 0
+      detectorUnsupported
+        ? "Unsupported by the request-only PageGraph r2 producer."
+        : highEntropyDetections.length > 0
         ? humanList(highEntropyDetections.map(detectionEvidence), 4)
         : `${plural(run.evidence.fingerprintEvents.length, "API family", "API families")} recorded.`
   });
@@ -750,6 +783,7 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
   // cards themselves sit at "info" on a censored run and must not read as
   // review-worthy signals.
   const censorshipNotes = runCensorshipNotes(run);
+  const unsupportedFamilies = unsupportedEvidenceFamilies(run);
   // Methodology cards (an ineligible pair) are about this report, not the
   // site: "review-worthy signals" must reflect observed behavior only.
   const overallLevel = strongestLevel(
@@ -757,17 +791,25 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
   );
   const censoredQuiet =
     censorshipNotes.length > 0 && (overallLevel === "ok" || overallLevel === "quiet" || overallLevel === "info");
+  const unsupportedQuiet =
+    censorshipNotes.length === 0 &&
+    unsupportedFamilies.length > 0 &&
+    (overallLevel === "ok" || overallLevel === "quiet" || overallLevel === "info");
   findings.unshift({
     id: "bottom-line",
-    icon: overallLevel === "ok" && !censoredQuiet ? "check" : "alert",
-    level: censoredQuiet ? "info" : overallLevel,
+    icon: overallLevel === "ok" && !censoredQuiet && !unsupportedQuiet ? "check" : "alert",
+    level: censoredQuiet || unsupportedQuiet ? "info" : overallLevel,
     title: censoredQuiet
       ? "Bottom line: the visit was cut short, so few signals is not a verdict"
+      : unsupportedQuiet
+        ? "Bottom line: this PageGraph report covers requests; other evidence was not captured"
       : overallLevel === "ok"
         ? "Bottom line: few review signals in this visit"
         : "Bottom line: this visit has review-worthy signals",
     lead: censoredQuiet
       ? `Evidence collection did not finish (${humanList(censorshipNotes, 2)}), so the quiet result reflects an interrupted recording, not a verdict about the site.`
+      : unsupportedQuiet
+        ? `Request evidence was recorded, but ${humanList(unsupportedFamilies)} evidence is unsupported by this producer. Those zero-valued fields are unavailable measurements, not observed absences.`
       : overallLevel === "ok"
         ? "The automated visit did not observe known third-party services, third-party cookies, or instrumented fingerprint-like calls."
         : `The scan observed signals a non-expert should not have to decode from raw request tables.${

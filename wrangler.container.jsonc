@@ -52,6 +52,19 @@
     "SITE_BEHAVIOR_LAB_DURABLE_JOBS": "0",
     "SITE_BEHAVIOR_LAB_DURABLE_JOBS_COORDINATOR_URL": "https://scan.sitebehavior.org",
 
+    // Independent post-durability rollout gate. Keep this at "0" until
+    // durable jobs are live and proven. When enabled, shard zero reuses the
+    // default singleton and shards one/two are named instances, so count 3
+    // consumes exactly the max_instances: 3 ceiling below (not 3 + 1).
+    "SITE_BEHAVIOR_LAB_CONTAINER_SHARDING": "0",
+    "SITE_BEHAVIOR_LAB_CONTAINER_SHARD_COUNT": "3",
+
+    // Independent post-durability gate for encrypted seven-day scheduled
+    // rescans. Enabling requires a distinct Worker-only current watch key; an
+    // optional previous key supports rotation across the bounded 30-day TTL.
+    // Neither key is forwarded into the Node container.
+    "SITE_BEHAVIOR_LAB_ENCRYPTED_WATCHES": "0",
+
     // Durable job/status metadata lives for 75 minutes. Keep the public report
     // alive for at least the same interval so a lost status response can recover
     // the committed report instead of fabricating expiry.

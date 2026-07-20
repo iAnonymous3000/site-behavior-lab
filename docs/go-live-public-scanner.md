@@ -537,6 +537,76 @@ Only after every item passes may a separate reviewed production change set
 `SITE_BEHAVIOR_LAB_DURABLE_JOBS=1`. This runbook does not authorize that flip or
 a deployment by itself.
 
+### Post-durability container sharding
+
+Do not combine this with durable activation. After production health reports
+`checks.durableJobs.readiness: "ready"` and replay/normal traffic has completed a
+separate soak, set `SITE_BEHAVIOR_LAB_CONTAINER_SHARDING=1` in a reviewed change.
+The committed production shard count is 3 and must stay at or below the
+container application's `max_instances`. Shard zero is the existing default
+singleton; only shards one and two allocate named instances.
+
+Verify health reports
+`checks.durableJobs.containerSharding = { requested: true, enabled: true,
+readiness: "ready", shardCount: 3 }`, then submit enough token-gated durable
+scans to exercise every shard and confirm status plus cancellation through the
+same public job capability. Roll back only the sharding flag to `0` if needed.
+Existing jobs retain their admission-time route in authoritative DO SQLite;
+new work returns to the singleton. Turning durable jobs off also forces all new
+Phase-1 execution to the singleton while retained durable rows remain
+status/cancellation-recoverable.
+
+### Post-durability encrypted scheduled rescans
+
+Do not combine watch activation with durable activation or sharding. First require
+production `checks.durableJobs.readiness: "ready"`, both replay canaries, ordinary
+traffic, and a separate soak. The committed
+`SITE_BEHAVIOR_LAB_ENCRYPTED_WATCHES=0` is the rollback baseline.
+
+1. Restore the temporary production scan-access lock. Generate a new independent
+   32-byte key as canonical unpadded base64url and install it only as the Worker
+   secret. Do not reuse the durable-job key, coordinator token, scan token,
+   Turnstile secret, or R2 credentials, and do not forward it into Node:
+
+   ```bash
+   umask 077
+   WATCH_KEY_FILE="$(mktemp)"
+   openssl rand 32 | openssl base64 -A | tr '+/' '-_' | tr -d '=' > "$WATCH_KEY_FILE"
+   npx wrangler secret put SITE_BEHAVIOR_LAB_ENCRYPTED_WATCHES_KEY \
+     -c wrangler.container.jsonc < "$WATCH_KEY_FILE"
+   rm -f "$WATCH_KEY_FILE"
+   unset WATCH_KEY_FILE
+   ```
+
+2. Promote a reviewed change setting only
+   `SITE_BEHAVIOR_LAB_ENCRYPTED_WATCHES=1`. Require exact scanner/Pages source
+   provenance, no warnings, `checks.encryptedWatches = { requested: true,
+   enabled: true, readiness: "ready" }`, and
+   `capabilities.scheduledRescans: true`. Node health alone may report only
+   `node-ready`; the combined edge health is authoritative.
+3. While ingress remains locked, create one accountless watch for a controlled
+   public fixture with no query or fragment. Preserve its capability only in the
+   canary client/URL fragment and send it in
+   `x-site-behavior-lab-watch-capability`; never print it or put it in a request
+   path/query. Do not poll, health-check, or read status to drive the immediate
+   run. Confirm the coordinator schedules and admits an ordinary durable job.
+4. Read capability-authenticated metadata, retrieve the normal r2 report, then
+   delete the watch. Confirm no API response/log contains the plaintext target
+   and that deletion prevents future watch claims. A job admitted before deletion
+   may still finish normally.
+5. Re-run the ordinary token-gated scanner smoke and production health workflow.
+   Keep the scan-access token gate for as long as watches are enabled: the edge
+   marks watches misconfigured and refuses new watch creation under open public
+   ingress. To reopen ordinary scans, first roll the watch flag back to `0`.
+
+Rollback the watch flag to `0` first. New creates and due decryption stop, but
+capability-authenticated metadata reads/deletes must remain available. Keep the
+current key installed until every retained watch has expired or been deleted.
+For rotation, deploy a new current key and the old key as
+`SITE_BEHAVIOR_LAB_ENCRYPTED_WATCHES_PREVIOUS_KEY`; new envelopes use the new key.
+Retain the previous key for the maximum 30-day TTL (or delete every old-key
+watch), then remove it. See [encrypted-watches.md](encrypted-watches.md).
+
 ## Open it to the public
 
 1. **Create a Turnstile site** in the Cloudflare dashboard (Turnstile → Add site,
@@ -619,10 +689,10 @@ a deployment by itself.
 - Fresh GPC, Shields, and consent r2 reports were validated and added to the
   mixed-version corpus. The access-token lock was then removed last; final
   health proved open access, Turnstile enabled, r2 and consent enabled, shadow
-  disabled, and no warnings. The deployment config permits at most three
-  instances, but the current `getContainer(env.SCANNER)` routing deliberately
-  uses one warm singleton; horizontal sharding is still pending. The Brave-list
-  refresh rerun also succeeded.
+  disabled, and no warnings. At that receipt, routing deliberately used one
+  warm singleton. Bounded durable-execution sharding is now implemented behind
+  its separate post-durability activation gate; the committed production flags
+  still preserve the singleton. The Brave-list refresh rerun also succeeded.
 - Container-observability retention/query verification, the WAF ceiling, and a
   scoped synthetic R2 write/read/delete monitor remain external operational
   follow-ups. `/api/health` proves R2 configuration, not remote reachability.
@@ -691,8 +761,11 @@ and rerun CI on `main` to resume. Never move `production` by hand.
 ## Operate
 
 - Watch container compute/egress cost. `max_instances` is only a ceiling while
-  routing uses the singleton container; lower `sleepAfter` to save cost or raise
-  it to cut cold starts.
+  routing uses the singleton container. After durable jobs are proven, enable
+  `SITE_BEHAVIOR_LAB_CONTAINER_SHARDING=1` separately; the configured shard count
+  includes shard zero (the existing singleton), so it must never exceed the
+  deployment's `max_instances`. Lower `sleepAfter` to save cost or raise it to
+  cut cold starts.
 - Alert on `/api/health` `status: degraded` (includes the ad-block engine load
   state used for Shields).
 - Tune `SITE_BEHAVIOR_LAB_PUBLIC_SCAN_RATE_LIMIT_PER_MINUTE` / `_PER_DAY` and the

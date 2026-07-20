@@ -46,5 +46,6 @@ test("scanCorsHeaders permits the scan auth/turnstile headers and preflight meth
   assert.match(headers["Access-Control-Allow-Headers"], /\bcontent-type\b/);
   assert.match(headers["Access-Control-Allow-Headers"], /cf-turnstile-response/);
   assert.match(headers["Access-Control-Allow-Headers"], /x-site-behavior-lab-access-token/);
+  assert.match(headers["Access-Control-Allow-Headers"], /x-site-behavior-lab-watch-capability/);
   assert.equal(headers["Vary"], "Origin");
 });

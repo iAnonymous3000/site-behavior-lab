@@ -10,7 +10,7 @@ import {
   type VisitPhaseRow
 } from "@/lib/report-phase-evidence";
 import { plural } from "@/lib/text-format";
-import type { RunView } from "@/lib/scan-report-views";
+import { familyUnsupportedOnRun, type RunView } from "@/lib/scan-report-views";
 
 /**
  * The v2-only, per-run phase surface. It follows the report shell's selected
@@ -24,10 +24,15 @@ export function VisitPhasesAndStateChanges({ run }: { run: RunView }) {
   if (evidence === null) return null;
 
   const shownChanges = evidence.changes.slice(0, STATE_CHANGE_ROW_LIMIT);
-  const ledgerIncomplete = evidence.cookieLedgerIncomplete || evidence.storageLedgerIncomplete;
+  const cookieUnsupported = familyUnsupportedOnRun(run, "cookies");
+  const storageUnsupported = familyUnsupportedOnRun(run, "storage");
+  const ledgerUnsupported = cookieUnsupported || storageUnsupported;
+  const ledgerIncomplete =
+    (evidence.cookieLedgerIncomplete && !cookieUnsupported) ||
+    (evidence.storageLedgerIncomplete && !storageUnsupported);
   const incompleteFamilies = [
-    evidence.cookieLedgerIncomplete ? "cookie" : null,
-    evidence.storageLedgerIncomplete ? "storage" : null
+    evidence.cookieLedgerIncomplete && !cookieUnsupported ? "cookie" : null,
+    evidence.storageLedgerIncomplete && !storageUnsupported ? "storage" : null
   ].filter((family): family is string => family !== null);
 
   return (
@@ -85,11 +90,13 @@ export function VisitPhasesAndStateChanges({ run }: { run: RunView }) {
                   family="cookies"
                   phase={phase}
                   tally={phase.cookieChanges}
+                  unsupported={cookieUnsupported}
                 />
                 <MutationTallyCell
                   family="storage"
                   phase={phase}
                   tally={phase.storageChanges}
+                  unsupported={storageUnsupported}
                 />
               </tr>
             ))}
@@ -115,6 +122,13 @@ export function VisitPhasesAndStateChanges({ run }: { run: RunView }) {
               Changes are inferred from privacy-filtered snapshots at phase boundaries, not instrumented browser write
               events. Cookie values are never recorded; storage values are omitted and only byte counts remain.
             </p>
+
+            {ledgerUnsupported && (
+              <p className="state-change-warning">
+                Cookie and storage state evidence was not captured by this request-only PageGraph import. Its empty
+                ledgers are unavailable measurements, not observed zeroes.
+              </p>
+            )}
 
             {ledgerIncomplete && (
               <p className="state-change-warning">
@@ -145,7 +159,9 @@ export function VisitPhasesAndStateChanges({ run }: { run: RunView }) {
               </ol>
             ) : (
               <p className="table-empty">
-                {ledgerIncomplete
+                {ledgerUnsupported
+                  ? "Cookie and storage snapshot changes were not captured by this PageGraph import."
+                  : ledgerIncomplete
                   ? "No complete cookie or storage snapshot-change records are available for this visit."
                   : "No cookie or storage snapshot changes were recorded for this visit."}
               </p>
@@ -178,12 +194,22 @@ export function VisitPhasesAndStateChanges({ run }: { run: RunView }) {
 function MutationTallyCell({
   family,
   phase,
-  tally
+  tally,
+  unsupported
 }: {
   family: "cookies" | "storage";
   phase: VisitPhaseRow;
   tally: MutationTally;
+  unsupported: boolean;
 }) {
+  if (unsupported) {
+    return (
+      <td data-label={family === "cookies" ? "Cookie records" : "Storage records"}>
+        Not captured
+        <small className="phase-incomplete">PageGraph unsupported</small>
+      </td>
+    );
+  }
   const incomplete = phase.incompleteFamilies.includes(family);
   const additions = phase.kind === "passive-load" ? "present" : "appeared";
   const parts = [

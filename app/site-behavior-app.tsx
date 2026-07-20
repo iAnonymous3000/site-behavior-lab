@@ -1,12 +1,7 @@
 "use client";
 
 import {
-  AlertTriangle,
-  CheckCircle2,
   Cookie,
-  Copy,
-  Download,
-  ExternalLink,
   Eye,
   FileJson,
   Fingerprint,
@@ -20,19 +15,16 @@ import {
   Shield,
   Sun
 } from "lucide-react";
-import type { FormEvent, MouseEvent } from "react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { CausalityGraph } from "./_components/causality-graph";
 import { ComparisonPanel } from "./_components/comparison-panel";
-import { PageGraphUploadButton, ReportUploadButton } from "./_components/file-upload-button";
 import {
-  absoluteShareUrl,
-  FindingsBoard,
-  HeadlineBanner,
-  MetricGrid,
-  reportSharePath,
-  TrafficViz
-} from "./_components/report-overview";
+  PageGraphR2UploadButton,
+  ReportUploadButton,
+  type PageGraphUploadSelection
+} from "./_components/file-upload-button";
+import { FindingsBoard, HeadlineBanner, MetricGrid, TrafficViz } from "./_components/report-overview";
+import { ReportHeader } from "./_components/report-header";
 import {
   CookieList,
   DomainTable,
@@ -45,16 +37,15 @@ import {
 } from "./_components/report-tables";
 import { StaticReportGallery } from "./_components/static-gallery";
 import { VisitPhasesAndStateChanges } from "./_components/visit-phases-and-state-changes";
-import { ScanControls, type ScanFormState } from "./_components/scan-controls";
+import { ScanControls } from "./_components/scan-controls";
+import { ScanRecoveryBanner } from "./_components/scan-recovery-banner";
+import { ScheduledRescans } from "./_components/scheduled-rescans";
+import { useScanRuntime } from "./_hooks/use-scan-runtime";
 import {
   LIVE_SCAN_ENABLED,
-  LIVE_SCAN_TURNSTILE_SITE_KEY,
-  OPEN_ACCESS_SCANNER,
   SCAN_WORKFLOW_URL,
   STATIC_EXPORT,
-  STATIC_LIVE_SCAN_ENABLED,
   clientReportRuntime,
-  scannerApiUrl,
   staticAssetPath
 } from "./client-runtime";
 import { consentChoiceLabel } from "@/lib/consent-interaction";
@@ -62,14 +53,12 @@ import { requestLogToCsv } from "@/lib/csv-export";
 import { displayableScreenshot } from "@/lib/report-insights";
 import { buildReportHeadline, reportPageTitle } from "@/lib/report-headline";
 import { committedReportLocation } from "@/lib/report-locator";
-import { isScanRuntimeHealth, type ScanRuntimeHealth } from "@/lib/scan-runtime-health";
-import { pollAcceptedScanJob, ScanJobEndedError } from "@/lib/scan-job-polling";
 import { plural } from "@/lib/text-format";
 import { readLoadedReport, withoutLoadedReportShare } from "@/lib/client-report-reader";
 import {
   comparisonArmViews,
   displayRunView,
-  requestEvidenceState,
+  familyUnsupportedOnRun,
   runQualitySummary,
   schemaProvenanceLabel,
   viewFromV1Report,
@@ -79,35 +68,11 @@ import {
 // Type-only: the deep reader module stays lazy-loaded (client-report-reader);
 // a type import is erased at build time and adds nothing to the bundle.
 import type { LoadedReport } from "@/lib/scan-report-view";
-import { safeNavigableHttpUrl } from "@/lib/report-url";
-import type { RuntimeScanApiResponse, RuntimeScanJobApiResponse } from "@/lib/runtime-scan-report";
-import { normalizeScanUrl, scannerHealthPending } from "./scan-form";
 import type {
   ComparisonScanResult,
-  ReportShare,
-  ScanJobSubmissionResponse,
   ScanReport,
   StaticReportManifestEntry
 } from "@/lib/types";
-
-type ActiveScanJob = {
-  statusPath: string;
-  accessKey: string;
-  reportId: string;
-};
-
-const initialForm: ScanFormState = {
-  url: "",
-  device: "desktop",
-  gpcEnabled: true,
-  compareGpc: false,
-  compareShields: false,
-  compareConsent: false,
-  accessKey: ""
-};
-
-// The browser reads health through the shared cross-runtime contract.
-type ScannerHealth = ScanRuntimeHealth;
 
 const EXAMPLES: { url: string; hint: string }[] = [
   { url: "youtube.com", hint: "one mega-entity" },
@@ -138,68 +103,51 @@ export function SiteBehaviorApp({
   corpusHighlights = null,
   reportPage = false
 }: SiteBehaviorAppProps) {
-  const [form, setForm] = useState<ScanFormState>(initialForm);
-  // The shell's report state is the version-independent LoadedReport (RFC
-  // 14.8 atomic consumer migration): original wire retained for share links
-  // and exports, the view for every render read.
-  const [loaded, setLoaded] = useState<LoadedReport | null>(initialLoaded);
-  const [error, setError] = useState<string | null>(initialError);
-  const [loading, setLoading] = useState(initialLoading);
-  // Distinguishes an active scan (long, controlled browser visit) from opening a
-  // saved report (a quick fetch). `initialLoading` only ever comes from the saved
-  // report permalink, so loading without scanning means "opening a saved report".
-  const [scanning, setScanning] = useState(false);
-  const [activeScanJob, setActiveScanJob] = useState<ActiveScanJob | null>(null);
-  const [cancellingScan, setCancellingScan] = useState(false);
-  const [cancelScanError, setCancelScanError] = useState<string | null>(null);
-  const scanPollControllerRef = useRef<AbortController | null>(null);
+  const {
+    form,
+    setForm,
+    loaded,
+    setLoaded,
+    error,
+    setError,
+    loading,
+    setLoading,
+    scanning,
+    activeScanJob,
+    cancellingScan,
+    cancelScanError,
+    scheduledRescanCreateBusy,
+    setScheduledRescanCreateBusy,
+    turnstileToken,
+    turnstileResetNonce,
+    setTurnstileToken,
+    urlNotice,
+    clearUrlNotice,
+    policy,
+    scannerStatus,
+    statusLabel,
+    handleSubmit,
+    useExample,
+    updateAccessKey,
+    acceptScheduledRescanTarget,
+    resetTurnstileAfterScheduledRescanAttempt,
+    resumeActiveScan,
+    cancelActiveScan
+  } = useScanRuntime({ reportPage, initialLoaded, initialError, initialLoading });
+  const {
+    gpcComparisonEnabled,
+    shieldsComparisonEnabled,
+    consentComparisonEnabled,
+    liveApiServesReportPages,
+    scheduledRescansEnabled,
+    scannerRequiresAccessKey,
+    turnstileRequired,
+    turnstileUnsupported,
+    awaitingTurnstile,
+    scanBlocked
+  } = policy;
   const [staticReports, setStaticReports] = useState<StaticReportManifestEntry[] | null>(STATIC_EXPORT ? null : []);
   const [staticReportsError, setStaticReportsError] = useState<string | null>(null);
-  const [scannerHealth, setScannerHealth] = useState<ScannerHealth | null>(null);
-  const [scannerHealthError, setScannerHealthError] = useState<string | null>(null);
-  const [turnstileToken, setTurnstileToken] = useState("");
-  // Bumped after every scan attempt to force a fresh single-use Turnstile token.
-  const [turnstileResetNonce, setTurnstileResetNonce] = useState(0);
-  // Set when a submit stripped a query string/fragment from the typed URL, so
-  // the user understands why the address in the box changed.
-  const [urlNotice, setUrlNotice] = useState("");
-
-  useEffect(() => {
-    if (reportPage) return;
-    if (!LIVE_SCAN_ENABLED) return;
-    if (OPEN_ACCESS_SCANNER) return;
-
-    try {
-      const savedAccessKey = localStorage.getItem("sbl-access-key");
-      if (savedAccessKey) {
-        setForm((current) => ({ ...current, accessKey: savedAccessKey }));
-      }
-    } catch {
-      /* localStorage unavailable */
-    }
-  }, [reportPage]);
-
-  useEffect(() => {
-    if (reportPage || typeof window === "undefined") return;
-    const requested = new URLSearchParams(window.location.search).get("url");
-    if (!requested) return;
-    const normalized = normalizeScanUrl(requested);
-    if (normalized) setForm((current) => ({ ...current, url: normalized }));
-  }, [reportPage]);
-
-  useEffect(() => {
-    setLoaded(initialLoaded);
-  }, [initialLoaded]);
-
-  useEffect(() => {
-    setError(initialError);
-  }, [initialError]);
-
-  useEffect(() => () => scanPollControllerRef.current?.abort(), []);
-
-  useEffect(() => {
-    setLoading(initialLoading);
-  }, [initialLoading]);
 
   useEffect(() => {
     if (reportPage) return;
@@ -231,299 +179,6 @@ export function SiteBehaviorApp({
     };
   }, [reportPage]);
 
-  useEffect(() => {
-    if (reportPage) return;
-    if (!LIVE_SCAN_ENABLED) return;
-
-    let cancelled = false;
-
-    async function loadScannerHealth() {
-      try {
-        const response = await fetch(scannerApiUrl("/api/health"), { cache: "no-store" });
-        const payload = (await response.json()) as unknown;
-        if (!response.ok || !isScanRuntimeHealth(payload)) {
-          throw new Error("Scanner health check failed.");
-        }
-        if (!payload.ok) {
-          // The Worker is reachable but configured so scans cannot succeed.
-          // Surface the specific reason instead of advertising a working scanner.
-          if (!cancelled) {
-            setScannerHealth(null);
-            setScannerHealthError(payload.error || "The public scanner is not ready for scans right now.");
-          }
-          return;
-        }
-        if (!cancelled) {
-          setScannerHealth(payload);
-          setScannerHealthError(null);
-        }
-      } catch {
-        if (!cancelled) {
-          setScannerHealth(null);
-          setScannerHealthError("Public scanner status is unavailable. Try again shortly.");
-        }
-      }
-    }
-
-    void loadScannerHealth();
-    return () => {
-      cancelled = true;
-    };
-  }, [reportPage]);
-
-  const gpcComparisonEnabled = !STATIC_EXPORT || scannerHealth?.capabilities?.gpcComparison === true;
-  const shieldsComparisonEnabled = !STATIC_EXPORT || scannerHealth?.capabilities?.shieldsComparison === true;
-  const consentComparisonEnabled = !STATIC_EXPORT || scannerHealth?.capabilities?.consentComparison === true;
-  const openAccessScanner = OPEN_ACCESS_SCANNER || scannerHealth?.openAccess === true;
-  // A live-scanned report only has a shareable permalink when the scan API serves
-  // its own report pages (the full Node app / container). The JSON-only Browser
-  // Run Worker does not, so its reports stay download-only (no broken Share link).
-  const liveApiServesReportPages = reportPage || scannerHealth?.capabilities?.savedReportPages === true;
-  const scannerRequiresAccessKey =
-    LIVE_SCAN_ENABLED && !openAccessScanner && (!STATIC_LIVE_SCAN_ENABLED || scannerHealth?.authenticated === true);
-  const scannerUnavailable =
-    LIVE_SCAN_ENABLED && (Boolean(scannerHealthError) || scannerHealth?.scansAvailable === false);
-  // The Worker advertises whether it enforces Turnstile. Satisfy it only when the
-  // static build also carries a public site key; otherwise scanning can only fail.
-  const turnstileRequired = LIVE_SCAN_ENABLED && scannerHealth?.turnstile === true;
-  const turnstileSiteKeyConfigured = Boolean(LIVE_SCAN_TURNSTILE_SITE_KEY);
-  const turnstileUnsupported = turnstileRequired && !turnstileSiteKeyConfigured;
-  const awaitingTurnstile = turnstileRequired && turnstileSiteKeyConfigured && !turnstileToken;
-  // Health is the authority for access, capability, and Turnstile posture. Do
-  // not let a fast submit race the initial fetch and omit a required token.
-  const awaitingScannerHealth = scannerHealthPending({
-    liveScanEnabled: LIVE_SCAN_ENABLED,
-    reportPage,
-    healthResolved: scannerHealth !== null,
-    healthError: scannerHealthError
-  });
-  const scanBlocked = awaitingScannerHealth || scannerUnavailable || turnstileUnsupported || awaitingTurnstile;
-
-  useEffect(() => {
-    setForm((current) => ({
-      ...current,
-      compareGpc: current.compareGpc && gpcComparisonEnabled,
-      compareShields: current.compareShields && shieldsComparisonEnabled,
-      compareConsent: current.compareConsent && consentComparisonEnabled
-    }));
-  }, [consentComparisonEnabled, gpcComparisonEnabled, shieldsComparisonEnabled]);
-
-  async function runScan(targetUrl: string) {
-    if (activeScanJob) {
-      setError("This accepted scan is still available. Resume its status checks or cancel it before starting another scan.");
-      return;
-    }
-    if (!LIVE_SCAN_ENABLED) {
-      setLoading(false);
-      setLoaded(null);
-      setError("This published build cannot run live scans. Use an Actions-generated report, upload JSON, or run the Node app locally.");
-      return;
-    }
-    if (awaitingScannerHealth) {
-      setLoading(false);
-      setLoaded(null);
-      setError("Checking public scanner status. Try again in a moment.");
-      return;
-    }
-    if (scannerUnavailable) {
-      setLoading(false);
-      setLoaded(null);
-      setError(scannerHealthError || "The public scanner is not available right now. Try again shortly.");
-      return;
-    }
-    if (turnstileUnsupported) {
-      setLoading(false);
-      setLoaded(null);
-      setError(
-        "This scanner requires Turnstile verification, but this site was not built with a Turnstile site key. Rebuild with NEXT_PUBLIC_SITE_BEHAVIOR_LAB_TURNSTILE_SITE_KEY set to the Worker's site key."
-      );
-      return;
-    }
-    if (awaitingTurnstile) {
-      setLoading(false);
-      setLoaded(null);
-      setError("Complete the Turnstile check before scanning.");
-      return;
-    }
-
-    setLoading(true);
-    setScanning(true);
-    setError(null);
-    setLoaded(null);
-    setCancelScanError(null);
-
-    try {
-      const headers: Record<string, string> = { "Content-Type": "application/json" };
-      const accessKey = form.accessKey.trim();
-      if (scannerRequiresAccessKey && accessKey) {
-        headers.Authorization = `Bearer ${accessKey}`;
-      }
-
-      const response = await fetch(scannerApiUrl("/api/scan"), {
-        method: "POST",
-        headers,
-        body: JSON.stringify({
-          url: targetUrl,
-          device: form.device,
-          gpcEnabled: form.gpcEnabled,
-          compareGpc: gpcComparisonEnabled && form.compareGpc,
-          compareShields: shieldsComparisonEnabled && form.compareShields,
-          compareConsent: consentComparisonEnabled && form.compareConsent,
-          consentMode: "observe",
-          ...(turnstileRequired && turnstileToken ? { turnstileToken } : {})
-        })
-      });
-      const payload = (await response.json()) as RuntimeScanApiResponse;
-      if ("ok" in payload && payload.ok === false) throw new Error(payload.error);
-      if (isScanJobSubmissionResponse(payload)) {
-        const jobAccessKey = scannerRequiresAccessKey ? accessKey : "";
-        const acceptedJob: ActiveScanJob = {
-          statusPath: payload.statusPath,
-          accessKey: jobAccessKey,
-          reportId: payload.reportId
-        };
-        const pollController = new AbortController();
-        scanPollControllerRef.current = pollController;
-        setActiveScanJob(acceptedJob);
-        setLoaded(
-          await pollAcceptedScanJob({
-            ...acceptedJob,
-            signal: pollController.signal,
-            resolveApiUrl: scannerApiUrl
-          })
-        );
-        setActiveScanJob(null);
-        return;
-      }
-      // A synchronous scan result is untrusted wire data like every other
-      // payload: it goes through the canonical reader, never a bare cast.
-      const read = await readLoadedReport(payload, "The scan result");
-      if (!read.ok) throw new Error(read.message);
-      setLoaded(read.loaded);
-    } catch (scanError) {
-      if (isAbortError(scanError)) return;
-      if (scanError instanceof ScanJobEndedError) setActiveScanJob(null);
-      setError(scanError instanceof Error ? friendlyError(scanError.message) : "Scan failed.");
-    } finally {
-      scanPollControllerRef.current = null;
-      setCancellingScan(false);
-      setLoading(false);
-      setScanning(false);
-      // Turnstile tokens are single-use, so force a fresh challenge for the next scan.
-      if (turnstileRequired) {
-        setTurnstileToken("");
-        setTurnstileResetNonce((nonce) => nonce + 1);
-      }
-    }
-  }
-
-  async function resumeActiveScan() {
-    if (!activeScanJob || loading) return;
-    const job = activeScanJob;
-    const pollController = new AbortController();
-    scanPollControllerRef.current = pollController;
-    setLoading(true);
-    setScanning(true);
-    setLoaded(null);
-    setError(null);
-    setCancelScanError(null);
-
-    try {
-      setLoaded(
-        await pollAcceptedScanJob({
-          ...job,
-          signal: pollController.signal,
-          resolveApiUrl: scannerApiUrl
-        })
-      );
-      setActiveScanJob(null);
-    } catch (scanError) {
-      if (isAbortError(scanError)) return;
-      if (scanError instanceof ScanJobEndedError) setActiveScanJob(null);
-      setError(scanError instanceof Error ? friendlyError(scanError.message) : "Scan status checks failed.");
-    } finally {
-      scanPollControllerRef.current = null;
-      setCancellingScan(false);
-      setLoading(false);
-      setScanning(false);
-    }
-  }
-
-  async function cancelActiveScan() {
-    if (!activeScanJob || cancellingScan) return;
-    setCancellingScan(true);
-    setCancelScanError(null);
-
-    try {
-      const headers: Record<string, string> = {};
-      if (activeScanJob.accessKey) {
-        headers.Authorization = `Bearer ${activeScanJob.accessKey}`;
-      }
-      const response = await fetch(scannerApiUrl(activeScanJob.statusPath), {
-        method: "DELETE",
-        cache: "no-store",
-        headers
-      });
-      const payload = (await response.json()) as RuntimeScanJobApiResponse;
-      if (!payload.ok) throw new Error(payload.error);
-      if (payload.status !== "cancelled") throw new Error("The scan could not be cancelled.");
-
-      scanPollControllerRef.current?.abort();
-      setActiveScanJob(null);
-      setLoading(false);
-      setScanning(false);
-      setError(payload.error || "Scan cancelled.");
-    } catch (cancelError) {
-      setCancelScanError(
-        cancelError instanceof Error ? friendlyError(cancelError.message) : "The scan could not be cancelled."
-      );
-    } finally {
-      setCancellingScan(false);
-    }
-  }
-
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const trimmed = form.url.trim();
-    if (!trimmed) {
-      setError("Enter a public URL to scan, for example https://example.com.");
-      return;
-    }
-    const normalized = normalizeScanUrl(trimmed);
-    if (!normalized) {
-      setUrlNotice("");
-      setError("Enter a valid public URL, for example https://example.com.");
-      return;
-    }
-    setForm((current) => ({ ...current, url: normalized }));
-    setUrlNotice(
-      /[?#]/.test(trimmed)
-        ? "Removed the query string and fragment from the URL for privacy before scanning."
-        : ""
-    );
-    void runScan(normalized);
-  }
-
-  function useExample(url: string) {
-    setForm((current) => ({ ...current, url: `https://${url}` }));
-    // Example chips are suggestions, not paid browser work. Prefill the form
-    // and let the visitor deliberately submit after reviewing the mode/device.
-    window.requestAnimationFrame(() => document.getElementById("url")?.focus());
-  }
-
-  function updateAccessKey(accessKey: string) {
-    setForm((current) => ({ ...current, accessKey }));
-    try {
-      if (accessKey) {
-        localStorage.setItem("sbl-access-key", accessKey);
-      } else {
-        localStorage.removeItem("sbl-access-key");
-      }
-    } catch {
-      /* localStorage unavailable */
-    }
-  }
-
   async function loadReportFile(file: File | null) {
     if (!file) return;
     setLoading(false);
@@ -542,20 +197,18 @@ export function SiteBehaviorApp({
     }
   }
 
-  async function loadPageGraphFile(file: File | null) {
-    if (!file) return;
+  async function loadPageGraphFile(selection: PageGraphUploadSelection) {
     setLoading(false);
     setError(null);
     setLoaded(null);
 
     try {
-      const graphml = await file.text();
-      // Code-split the PageGraph parser (and its tldts dependency) so it loads
-      // only when a GraphML file is actually opened, keeping the main bundle lean.
-      const { pageGraphUploadToScanResult } = await import("@/lib/pagegraph-parser");
-      setLoaded(loadedFromV1Wire(pageGraphUploadToScanResult(graphml)));
+      // Code-split the strict r2 importer and graph parser so neither affects
+      // the first-load bundle. The importer verifies the digest-bound sidecar.
+      const { readPageGraphUpload } = await import("@/lib/pagegraph-client-import");
+      setLoaded(await readPageGraphUpload(selection));
     } catch (readError) {
-      setError(readError instanceof Error ? readError.message : "PageGraph file could not be parsed.");
+      setError(readError instanceof Error ? readError.message : "The PageGraph capture pair could not be opened.");
     }
   }
 
@@ -620,21 +273,20 @@ export function SiteBehaviorApp({
       ? `Scan report ready for ${primaryRun.domain}: ${plural(primaryRun.counts.totalRequests, "request")} observed.`
       : "";
   const permalinkHeadline = reportPage && reportView ? buildReportHeadline(reportView) : null;
-  const statusLabel = liveScannerStatusLabel(scannerHealth, scannerHealthError);
   const statusClassName = `status-pill${STATIC_EXPORT ? " status-pill-static" : ""}${
     LIVE_SCAN_ENABLED ? " status-pill-live" : ""
   }`;
-  const scanForm = (
+  const scanControls = (
     <ScanControls
       form={form}
       setForm={setForm}
       onSubmit={handleSubmit}
       loading={loading}
-      scanBlocked={scanBlocked}
+      scanBlocked={scanBlocked || scheduledRescanCreateBusy}
       activeScanJob={Boolean(activeScanJob)}
       urlNotice={urlNotice}
-      clearUrlNotice={() => setUrlNotice("")}
-      scannerStatus={scannerStatusText(scannerHealth, scannerHealthError)}
+      clearUrlNotice={clearUrlNotice}
+      scannerStatus={scannerStatus}
       turnstileRequired={turnstileRequired}
       turnstileResetNonce={turnstileResetNonce}
       onTurnstileToken={setTurnstileToken}
@@ -647,6 +299,24 @@ export function SiteBehaviorApp({
       scannerRequiresAccessKey={scannerRequiresAccessKey}
       onAccessKeyChange={updateAccessKey}
     />
+  );
+  const scanForm = (
+    <div className="scan-panel-stack">
+      {scanControls}
+      <ScheduledRescans
+        enabled={scheduledRescansEnabled}
+        form={form}
+        scanBlocked={scanBlocked}
+        scanBusy={loading}
+        acceptedScanJob={Boolean(activeScanJob)}
+        scannerRequiresAccessKey={scannerRequiresAccessKey}
+        turnstileRequired={turnstileRequired}
+        turnstileToken={turnstileToken}
+        onTargetNormalized={acceptScheduledRescanTarget}
+        onCreateBusyChange={setScheduledRescanCreateBusy}
+        onCreateNetworkAttemptSettled={resetTurnstileAfterScheduledRescanAttempt}
+      />
+    </div>
   );
 
   return (
@@ -706,41 +376,23 @@ export function SiteBehaviorApp({
               <div>
                 <h2>Evidence, then interpretation</h2>
                 <p>
-                  Every report records the exact scan conditions, then the request log, cookies, storage keys,
-                  known-service labels, and instrumentation notes. Signals describe what was observed, not a verdict.
+                  Reports disclose their scan conditions and exactly which evidence families were captured or
+                  unsupported. Recorded signals describe one visit, not a verdict about the site.
                 </p>
               </div>
             </aside>
           </section>
         )}
 
-        {error && (
-          <section className="error-banner" role="alert">
-            <AlertTriangle size={18} aria-hidden="true" />
-            <div className="error-banner-copy">
-              <span>{error}</span>
-              {activeScanJob && !loading && (
-                <div className="scan-recovery-controls">
-                  <p>The accepted job is retained; you can safely resume status checks or cancel it.</p>
-                  <div className="scan-recovery-actions">
-                    <button className="secondary-button" type="button" onClick={() => void resumeActiveScan()}>
-                      Resume status checks
-                    </button>
-                    <button
-                      className="ghost-button"
-                      type="button"
-                      onClick={() => void cancelActiveScan()}
-                      disabled={cancellingScan}
-                    >
-                      {cancellingScan ? "Cancelling…" : "Cancel scan"}
-                    </button>
-                  </div>
-                  {cancelScanError && <p>{cancelScanError} The accepted job is still retained.</p>}
-                </div>
-              )}
-            </div>
-          </section>
-        )}
+        <ScanRecoveryBanner
+          error={error}
+          acceptedJob={Boolean(activeScanJob)}
+          loading={loading}
+          cancelling={cancellingScan}
+          cancellationError={cancelScanError}
+          onResume={() => void resumeActiveScan()}
+          onCancel={() => void cancelActiveScan()}
+        />
 
         <div id="report">
           <p className="visually-hidden" role="status" aria-live="polite">
@@ -866,12 +518,18 @@ export function SiteBehaviorApp({
 
                 <section className="side-card">
                   <h2>Cookies</h2>
-                  <CookieList cookies={displayedRun.evidence.cookies} />
+                  <CookieList
+                    cookies={displayedRun.evidence.cookies}
+                    unsupported={familyUnsupportedOnRun(displayedRun, "cookies")}
+                  />
                 </section>
 
                 <section className="side-card">
                   <h2>Storage</h2>
-                  <StorageList storage={displayedRun.evidence.storage} />
+                  <StorageList
+                    storage={displayedRun.evidence.storage}
+                    unsupported={familyUnsupportedOnRun(displayedRun, "storage")}
+                  />
                 </section>
 
                 <section className="side-card">
@@ -879,6 +537,10 @@ export function SiteBehaviorApp({
                   <FingerprintList
                     events={displayedRun.evidence.fingerprintEvents}
                     detections={displayedRun.evidence.fingerprintDetections}
+                    unsupported={
+                      familyUnsupportedOnRun(displayedRun, "fingerprinting") ||
+                      familyUnsupportedOnRun(displayedRun, "detector-output")
+                    }
                   />
                 </section>
 
@@ -1073,105 +735,6 @@ function safeFilenamePart(value: string): string {
   return value.replace(/[^a-z0-9.-]+/gi, "-").replace(/^-+|-+$/g, "") || "report";
 }
 
-function liveScannerStatusLabel(health: ScannerHealth | null, error: string | null): string {
-  if (!LIVE_SCAN_ENABLED) return STATIC_EXPORT ? "Evidence Library" : "Controlled";
-  if (!STATIC_LIVE_SCAN_ENABLED) return "Controlled";
-  if (error) return "Offline";
-  if (!health) return "Checking";
-  if (health.scansAvailable === false) return "Offline";
-  return health.status === "ok" ? "Live" : health.ok ? "Limited" : "Offline";
-}
-
-function scannerStatusText(health: ScannerHealth | null, error: string | null): string {
-  if (error) return error;
-  if (!health) return "Checking public scanner status...";
-  if (health.scansAvailable === false) return "Scanner temporarily unavailable. Try again later.";
-
-  const storage = health.storage ? ` Storage: ${health.storage.toUpperCase()}.` : "";
-  const minuteLimit = health.limits?.publicScanRateLimitPerMinute;
-  const dayLimit = health.limits?.publicScanRateLimitPerDay;
-  const limits =
-    typeof minuteLimit === "number" && typeof dayLimit === "number"
-      ? ` Rate-limited to ${minuteLimit} scan tokens/min and ${dayLimit}/day per client.`
-      : " Rate-limited per client.";
-  const comparisons = [
-    health.capabilities?.gpcComparison ? "GPC" : null,
-    health.capabilities?.shieldsComparison ? "Brave Shields" : null,
-    health.capabilities?.consentComparison ? "Consent" : null
-  ].filter((label): label is string => label !== null);
-  const comparison =
-    comparisons.length > 1
-      ? ` ${comparisons.slice(0, -1).join(", ")} and ${comparisons[comparisons.length - 1]} comparisons are available.`
-      : comparisons.length === 1
-        ? ` ${comparisons[0]} comparison is available.`
-        : "";
-  const adblock =
-    health.checks?.adblock?.active === false ? " Brave Shields classification is unavailable on this scanner." : "";
-
-  if (health.openAccess) {
-    return `Public scanner ready. No access key required.${limits}${comparison}${storage}${adblock}`;
-  }
-
-  return `Scanner ready. Access key required.${comparison}${storage}${adblock}`;
-}
-
-function friendlyError(message: string): string {
-  const lower = message.toLowerCase();
-  if (lower.includes("timeout") || lower.includes("did not load") || lower.includes("scan duration")) {
-    return "The page did not finish loading in time. It may be slow, very large, or blocking automated visits. Try again, or try a different page.";
-  }
-  if (lower.includes("private") || lower.includes("localhost") || lower.includes("internal") || lower.includes("not a public")) {
-    return "That address can't be scanned. The scanner only visits public web pages, not localhost, private networks, or internal hosts.";
-  }
-  if (
-    lower.includes("could not be loaded") ||
-    lower.includes("could not be resolved") ||
-    lower.includes("blocking automated") ||
-    lower.includes("unreachable")
-  ) {
-    return "The scanner couldn't load that page. The site may be down, unreachable, or actively blocking automated visits. Try again, or try a different page.";
-  }
-  if (lower.includes("rate") || lower.includes("too many") || lower.includes("slow down")) {
-    return "Too many scans in a short window. Wait a moment and try again.";
-  }
-  if (lower.includes("access") || lower.includes("token") || lower.includes("unauthorized") || lower.includes("forbidden")) {
-    if (OPEN_ACCESS_SCANNER) {
-      return "The public scanner is still rejecting open scans. The Cloudflare Worker may need to be redeployed.";
-    }
-    return "This scanner requires a valid access key. Add it under Options, or contact whoever runs this instance.";
-  }
-  // Only genuine address-validation messages map to the "valid web address"
-  // hint. The generic "Scan failed. Check the target URL" fallback also mentions
-  // "url", so matching on "url"/"http" alone mislabels real load failures as bad
-  // input, exactly the bug behind banks like fidelity.com appearing invalid.
-  if (
-    lower.includes("valid public url") ||
-    lower.includes("enter a public url") ||
-    lower.includes("only http and https") ||
-    lower.includes("credentials in url") ||
-    lower.includes("invalid url")
-  ) {
-    return "That doesn't look like a valid web address. Use a full URL such as https://example.com.";
-  }
-  return message;
-}
-
-function isScanJobSubmissionResponse(value: RuntimeScanApiResponse): value is ScanJobSubmissionResponse {
-  return (
-    "ok" in value &&
-    value.ok === true &&
-    "jobId" in value &&
-    value.status === "queued" &&
-    typeof value.statusPath === "string"
-  );
-}
-
-function isAbortError(error: unknown): boolean {
-  return error instanceof Error && error.name === "AbortError";
-}
-
-
-
 function isStaticReportManifest(value: unknown): value is { reports: StaticReportManifestEntry[] } {
   if (!value || typeof value !== "object" || !Array.isArray((value as { reports?: unknown }).reports)) {
     return false;
@@ -1208,9 +771,9 @@ function armDisplayLabel(view: ReportView | null, arm: "baseline" | "variant"): 
 }
 
 /**
- * Wrap a locally built v1 wire report (a PageGraph import, the gallery's
- * client-side temporal comparison) as a LoadedReport, using the LIGHT view
- * builder so these paths never pull the deep validators into the bundle.
+ * Wrap the gallery's locally built v1 temporal comparison as a LoadedReport,
+ * using the LIGHT view builder so that legacy-only path never pulls the deep
+ * validators into the bundle. PageGraph imports use the paired r2 reader.
  */
 function loadedFromV1Wire(report: ScanReport): LoadedReport {
   return { source: "v1", wire: report, view: viewFromV1Report(report) };
@@ -1260,7 +823,7 @@ function EmptyState({
 }: {
   onPick: (url: string) => void;
   onUploadReport: (file: File | null) => Promise<void>;
-  onUploadPageGraph: (file: File | null) => Promise<void>;
+  onUploadPageGraph: (selection: PageGraphUploadSelection) => Promise<void>;
   /** Surfaces picker-side rejections (e.g. the size cap) that never reach the upload handlers. */
   onUploadError: (message: string) => void;
   onCreateComparison: (comparison: ComparisonScanResult) => void;
@@ -1327,13 +890,14 @@ function EmptyState({
         <div className="pagegraph-ingest-text">
           <Network size={16} aria-hidden="true" />
           <span>
-            Have a Brave <strong>PageGraph</strong> export? Open the <code>.graphml</code> to view it as a report: requests,
-            storage, fingerprinting, and script-to-request causality, all rendered here.
+            Have a Brave <strong>PageGraph</strong> capture? Open its <code>.graphml</code> and matching{" "}
+            <code>.meta.json</code> sidecar for a request-only r2 report. Unsupported evidence families stay censored,
+            never guessed.
           </span>
         </div>
-        <PageGraphUploadButton onUploadReport={onUploadPageGraph} onError={onUploadError}>
-          Open PageGraph .graphml
-        </PageGraphUploadButton>
+        <PageGraphR2UploadButton onUploadPair={onUploadPageGraph} onError={onUploadError}>
+          Open GraphML + meta.json
+        </PageGraphR2UploadButton>
       </div>
     </section>
   );
@@ -1434,153 +998,5 @@ function LoadingState({
         watching for it to be sent off-site. It covers fields on the loaded page, not flows behind login or extra steps.
       </p>
     </section>
-  );
-}
-
-function ReportHeader({
-  share,
-  view,
-  run,
-  evidenceRun,
-  csvArmLabel,
-  onDownload,
-  onDownloadCsv,
-  liveApiServesReportPages
-}: {
-  /** The wire report's share pointer, needed only to resolve the permalink. */
-  share: ReportShare | null;
-  view: ReportView;
-  /** The arm selected by the evidence switcher; quality chips follow it. */
-  evidenceRun: RunView;
-  run: RunView;
-  /** Names the visit the CSV exports on comparisons; null on single reports. */
-  csvArmLabel: string | null;
-  onDownload: () => void;
-  onDownloadCsv: () => void;
-  liveApiServesReportPages: boolean;
-}) {
-  const sharePath = reportSharePath(share, liveApiServesReportPages);
-  // The anchor keeps the origin-relative path (it navigates fine and stays
-  // valid during static prerender), but the clipboard needs a complete URL, so
-  // resolve it to absolute on the client once mounted.
-  const [shareUrl, setShareUrl] = useState<string | null>(null);
-  useEffect(() => {
-    setShareUrl(sharePath ? absoluteShareUrl(sharePath) : null);
-  }, [sharePath]);
-  // v2 subject URLs are privacy-generalized route shapes; they parse as URLs
-  // but point nowhere real, so they render as text, never as a link.
-  const finalUrl = run.conditions.urlsAreRouteShapes ? null : safeNavigableHttpUrl(run.conditions.finalUrl);
-  const title = view.title || run.pageTitle;
-  const selectedRequestEvidence = requestEvidenceState(evidenceRun);
-
-  const [shareCopied, setShareCopied] = useState(false);
-  async function handleShare(event: MouseEvent<HTMLAnchorElement>) {
-    const url = shareUrl ?? sharePath;
-    if (!url) return;
-    // Prefer the platform's native share sheet where it exists (mobile, Safari).
-    if (typeof navigator !== "undefined" && typeof navigator.share === "function") {
-      event.preventDefault();
-      try {
-        await navigator.share({ title: title || run.domain, url });
-      } catch {
-        /* the user dismissed the share sheet */
-      }
-      return;
-    }
-    // No native share: when the permalink is the page already open, navigating
-    // does nothing, so copy the link instead, the button must always act.
-    if (typeof window !== "undefined" && url === window.location.href) {
-      event.preventDefault();
-      try {
-        await navigator.clipboard.writeText(url);
-        setShareCopied(true);
-        window.setTimeout(() => setShareCopied(false), 1500);
-      } catch {
-        /* clipboard unavailable */
-      }
-    }
-  }
-  return (
-    <section className="report-header">
-      <div>
-        <p className="eyebrow">
-          {view.reportType === "comparison" ? "Comparison Report" : "Scan Report"}
-          {/* Provenance is always visible, not buried in the sidebar: a
-              legacy-derived or limited report says so where the title is. */}
-          <span className="report-provenance">{schemaProvenanceLabel(view)}</span>
-          {selectedRequestEvidence !== "complete" && (
-            <span
-              className="capped-chip"
-              title={
-                selectedRequestEvidence === "capped"
-                  ? "The selected visit hit the request-recording cap: its activity counts are floors cut off mid-collection, and cookie and storage figures are end-state snapshots of an interrupted visit."
-                  : "The selected visit did not finish collecting request evidence. Its request counts are lower bounds; see Run quality for the recorded reason."
-              }
-            >
-              {selectedRequestEvidence === "capped" ? "recording capped" : "request evidence incomplete"}
-            </span>
-          )}
-        </p>
-        <h2>{title || run.domain}</h2>
-        {finalUrl ? (
-          <a href={finalUrl} target="_blank" rel="noreferrer">
-            {run.conditions.finalUrl}
-            <ExternalLink size={14} aria-hidden="true" />
-          </a>
-        ) : (
-          <span className="report-url">{run.conditions.finalUrl}</span>
-        )}
-      </div>
-      <div className="report-actions">
-        {sharePath && (
-          <>
-            <a className="secondary-button" href={sharePath} onClick={handleShare}>
-              <ExternalLink size={17} aria-hidden="true" />
-              {shareCopied ? "Link copied" : "Share"}
-            </a>
-            <CopyButton value={shareUrl ?? sharePath} label="share link" />
-          </>
-        )}
-        <button
-          className="secondary-button"
-          type="button"
-          onClick={onDownloadCsv}
-          title={
-            csvArmLabel
-              ? `Download the "${csvArmLabel}" visit's request log as CSV (follows the evidence switcher below)`
-              : "Download the request log as CSV"
-          }
-        >
-          <Download size={17} aria-hidden="true" />
-          {csvArmLabel ? `CSV · ${csvArmLabel}` : "CSV"}
-        </button>
-        <button className="secondary-button" type="button" onClick={onDownload}>
-          <Download size={17} aria-hidden="true" />
-          JSON
-        </button>
-      </div>
-    </section>
-  );
-}
-
-function CopyButton({ value, label }: { value: string; label: string }) {
-  const [copied, setCopied] = useState(false);
-  return (
-    <button
-      type="button"
-      className="ghost-button"
-      aria-label={`Copy ${label}`}
-      onClick={async () => {
-        try {
-          await navigator.clipboard.writeText(value);
-          setCopied(true);
-          setTimeout(() => setCopied(false), 1200);
-        } catch {
-          /* clipboard unavailable */
-        }
-      }}
-    >
-      {copied ? <CheckCircle2 size={14} aria-hidden="true" /> : <Copy size={14} aria-hidden="true" />}
-    </button>
   );
 }
