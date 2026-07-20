@@ -88,8 +88,8 @@ test("runtimeStatus reports degraded status for open local defaults", async () =
   assert.deepEqual(status.checks.adblock, {
     active: true,
     engine: "loaded",
-    version: "adblock-rust-0.13.0",
-    engineVersion: "adblock-rust-0.13.0",
+    version: "adblock-rust-0.13.2",
+    engineVersion: "adblock-rust-0.13.2",
     source: "Brave default ad-block lists",
     lists: 31,
     fetchedAt: new Date(0).toISOString(),
@@ -491,8 +491,8 @@ async function loadedAdblock() {
   return {
     active: true as const,
     engine: "loaded" as const,
-    version: "adblock-rust-0.13.0" as const,
-    engineVersion: "adblock-rust-0.13.0" as const,
+    version: "adblock-rust-0.13.2" as const,
+    engineVersion: "adblock-rust-0.13.2" as const,
     source: "Brave default ad-block lists",
     lists: 31,
     fetchedAt: new Date(0).toISOString(),

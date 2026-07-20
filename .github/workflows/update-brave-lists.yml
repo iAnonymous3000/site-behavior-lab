@@ -5,9 +5,9 @@ name: Update Brave Shields Lists
 #   1. Weekly refresh of the default filter lists from Brave's own catalog,
 #      validated end to end (the WASM engine must load the new snapshot and
 #      still block known ad URLs) before the refresh is committed.
-#   2. A drift check against the adblock-rust crate (github.com/brave/adblock-rust)
-#      that surfaces a warning when the pinned engine version falls behind, since
-#      rebuilding the WASM needs a local Rust toolchain (tools/adblock-wasm/).
+#   2. A measurement-toolchain drift check against crates.io, npm, and Chrome's
+#      consumer stable channel. Expected drift is tracked in one canonical issue;
+#      malformed local pins or unavailable upstream metadata fail the job.
 
 on:
   schedule:
@@ -95,32 +95,98 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: gh workflow run ci.yml --ref main
 
-  engine-drift-check:
-    name: Check adblock-rust engine version drift
+  toolchain-drift-check:
+    name: Check measurement toolchain drift
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
     steps:
       - name: Checkout
         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
 
-      - name: Compare the pinned adblock crate against crates.io
+      - name: Set up Node
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install integrity-checked package metadata
+        run: npm ci --ignore-scripts
+
+      - name: Compare resolved pins with upstream stable versions
+        id: drift
+        env:
+          DRIFT_REPORT_FILE: ${{ runner.temp }}/measurement-toolchain-drift.md
+        run: node scripts/check-toolchain-drift.mjs --report "$DRIFT_REPORT_FILE"
+
+      - name: Reconcile the measurement toolchain issue
+        # workflow_dispatch may target a feature ref; only the default branch
+        # is authoritative for the repository-wide maintenance issue.
+        if: github.ref_type == 'branch' && github.ref_name == github.event.repository.default_branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE_TITLE: Update measurement toolchain pins
+          DRIFT_REPORT_FILE: ${{ runner.temp }}/measurement-toolchain-drift.md
+          HAS_DRIFT: ${{ steps.drift.outputs.drift }}
         run: |
-          pinned=$(grep -oE 'adblock = \{ version = "[0-9.]+"' tools/adblock-wasm/Cargo.toml | grep -oE '[0-9.]+')
-          latest=$(curl -fsSL -H "User-Agent: site-behavior-lab-ci (list refresh workflow)" \
-            https://crates.io/api/v1/crates/adblock | node -e "
-              let raw = '';
-              process.stdin.on('data', (chunk) => { raw += chunk; });
-              process.stdin.on('end', () => {
-                process.stdout.write(JSON.parse(raw).crate.max_stable_version);
-              });
-            ")
-          echo "Pinned adblock crate: ${pinned}" >> "$GITHUB_STEP_SUMMARY"
-          echo "Latest stable on crates.io: ${latest}" >> "$GITHUB_STEP_SUMMARY"
-          case "$latest" in
-            "$pinned"|"$pinned".*)
-              echo "Engine pin is current." >> "$GITHUB_STEP_SUMMARY"
-              ;;
-            *)
-              echo "::warning title=adblock-rust engine drift::The vendored WASM engine pins adblock ${pinned} but crates.io has ${latest}. Rebuild tools/adblock-wasm (wasm-pack) and re-vendor lib/adblock-wasm to pick up new filter syntax support."
-              echo "Engine pin is BEHIND: rebuild tools/adblock-wasm against ${latest}." >> "$GITHUB_STEP_SUMMARY"
-              ;;
-          esac
+          set -euo pipefail
+
+          candidates=$(gh api \
+            --paginate \
+            --slurp \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "repos/${GITHUB_REPOSITORY}/issues?state=all&per_page=100")
+          match=$(printf '%s' "$candidates" | node -e '
+            let source = "";
+            process.stdin.on("data", (chunk) => { source += chunk; });
+            process.stdin.on("end", () => {
+              const marker = "<!-- site-behavior-lab:measurement-toolchain-drift -->";
+              const matches = JSON.parse(source)
+                .flat()
+                .filter((issue) => !issue.pull_request && typeof issue.body === "string" && issue.body.includes(marker));
+              if (matches.length > 1) throw new Error(`Found ${matches.length} canonical drift issues; expected at most one.`);
+              if (matches.length === 1) process.stdout.write(`${matches[0].number}|${matches[0].state}`);
+            });
+          ')
+
+          issue_number="${match%%|*}"
+          issue_state="${match#*|}"
+          if [[ -z "$match" ]]; then
+            issue_number=""
+            issue_state=""
+          fi
+
+          if [[ "$HAS_DRIFT" == "true" ]]; then
+            if [[ -z "$issue_number" ]]; then
+              gh issue create \
+                --repo "$GITHUB_REPOSITORY" \
+                --title "$ISSUE_TITLE" \
+                --body-file "$DRIFT_REPORT_FILE"
+            else
+              gh issue edit "$issue_number" \
+                --repo "$GITHUB_REPOSITORY" \
+                --title "$ISSUE_TITLE" \
+                --body-file "$DRIFT_REPORT_FILE"
+              if [[ "$issue_state" == "closed" ]]; then
+                gh issue reopen "$issue_number" \
+                  --repo "$GITHUB_REPOSITORY" \
+                  --comment "Measurement toolchain drift is present again; the issue body has the current resolved and upstream versions."
+              fi
+            fi
+          elif [[ "$HAS_DRIFT" == "false" ]]; then
+            if [[ -n "$issue_number" && "$issue_state" == "open" ]]; then
+              gh issue edit "$issue_number" \
+                --repo "$GITHUB_REPOSITORY" \
+                --title "$ISSUE_TITLE" \
+                --body-file "$DRIFT_REPORT_FILE"
+              gh issue close "$issue_number" \
+                --repo "$GITHUB_REPOSITORY" \
+                --reason completed \
+                --comment "All monitored measurement-toolchain pins now match their upstream stable references."
+            fi
+          else
+            echo "::error::The drift checker returned an invalid drift output: ${HAS_DRIFT}"
+            exit 1
+          fi

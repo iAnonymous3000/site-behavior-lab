@@ -49,6 +49,21 @@ test("official actions are pinned to reviewed Node-24-compatible releases", () =
   }
 });
 
+test("Dependabot covers every tracked dependency ecosystem at its manifest path", () => {
+  const config = source(".github/dependabot.yml");
+  const configuredPaths = [...config.matchAll(/- package-ecosystem: "([^"]+)"\n\s+directory: "([^"]+)"/g)].map(
+    ([, ecosystem, directory]) => [ecosystem, directory]
+  );
+
+  assert.deepEqual(configuredPaths, [
+    ["npm", "/"],
+    ["cargo", "/tools/adblock-wasm"],
+    ["docker", "/"],
+    ["github-actions", "/"]
+  ]);
+  assert.equal(config.match(/interval: "weekly"/g)?.length, configuredPaths.length);
+});
+
 test("automation logs do not print raw scan URLs, page titles, rules, or local input paths", () => {
   const ci = source("scripts/run-ci-scan.mjs");
   assert.equal(ci.includes("Skipping ${targetUrl}"), false);

@@ -24,6 +24,7 @@
     "lists:verify": "node scripts/verify-adblock-engine.mjs",
     "check": "npm run typecheck && npm run cf:typecheck && npm run test:unit && npm run build",
     "corpus:pagegraph": "tsc -p tsconfig.test.json && node .unit-test-dist/lib/pagegraph-corpus-cli.js",
+    "corpus:audit-neutrality": "tsc -p tsconfig.schema.json && node dist/schema/lib/corpus-neutrality-cli.js",
     "corpus:stats": "node scripts/build-corpus-stats.mjs",
     "reports:manifest": "node scripts/build-static-report-manifest.mjs",
     "reports:prune": "node scripts/prune-static-reports.mjs",
@@ -35,6 +36,7 @@
     "test:smoke:scanner": "node scripts/smoke-deployed-scanner.mjs",
     "test:smoke:durable-job-replay": "node scripts/smoke-durable-job-replay.mjs",
     "test:smoke:encrypted-watches": "node scripts/smoke-encrypted-watches.mjs",
+    "toolchain:canary": "tsc -p tsconfig.schema.json && node scripts/toolchain-canary.mjs",
     "test:unit": "rm -rf .unit-test-dist && tsc -p tsconfig.test.json && node --test --test-concurrency=1 .unit-test-dist/lib/*.test.js",
     "test:smoke": "node scripts/smoke-test.mjs",
     "typecheck": "next typegen && tsc --noEmit",
@@ -47,10 +49,10 @@
     "aws4fetch": "^1.0.20",
     "lucide-react": "^0.468.0",
     "next": "^15.0.4",
-    "playwright": "1.61.0",
+    "playwright": "1.61.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "tldts": "7.4.3"
+    "tldts": "7.4.9"
   },
   "overrides": {
     "postcss": "8.5.10"
@@ -58,13 +60,13 @@
   "devDependencies": {
     "@cloudflare/containers": "^0.3.7",
     "@cloudflare/playwright": "^1.3.0",
-    "@cloudflare/workers-types": "^4.20260619.1",
+    "@cloudflare/workers-types": "^5.20260719.1",
     "@types/node": "^24.13.3",
     "@types/react": "^19.0.1",
     "@types/react-dom": "^19.0.2",
     "ajv": "8.20.0",
     "ts-json-schema-generator": "2.4.0",
     "typescript": "^5.7.2",
-    "wrangler": "^4.103.0"
+    "wrangler": "^4.112.0"
   }
 }

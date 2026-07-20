@@ -1,6 +1,11 @@
-ARG PLAYWRIGHT_VERSION=1.61.0
 ARG SITE_BEHAVIOR_LAB_BUILD_COMMIT=""
-FROM mcr.microsoft.com/playwright:v${PLAYWRIGHT_VERSION}-noble AS build
+
+# Keep one literal, immutable external base so Docker Dependabot can update it.
+# lib/toolchain-provenance.test.ts ties this tag to package.json and requires
+# the digest, preventing the runtime image from drifting behind the scanner.
+FROM mcr.microsoft.com/playwright:v1.61.1-noble@sha256:5b8f294aff9041b7191c34a4bab3ac270157a28774d4b0660e9743297b697e48 AS playwright-base
+
+FROM playwright-base AS build
 
 ARG SITE_BEHAVIOR_LAB_BUILD_COMMIT
 
@@ -38,7 +43,7 @@ RUN npm ci && npx playwright install chromium
 COPY . .
 RUN npm run check && npm prune --omit=dev
 
-FROM mcr.microsoft.com/playwright:v${PLAYWRIGHT_VERSION}-noble AS runner
+FROM playwright-base AS runner
 
 ARG SITE_BEHAVIOR_LAB_BUILD_COMMIT
 
