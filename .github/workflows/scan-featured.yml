@@ -145,24 +145,44 @@ jobs:
           BASE_URL: http://127.0.0.1:3100
           FEATURED_SUMMARY_PATH: ${{ runner.temp }}/featured-scan-summary.json
 
+      - name: Classify reports for partial publication
+        id: refresh_policy
+        if: always()
+        env:
+          FEATURED_SUMMARY_PATH: ${{ runner.temp }}/featured-scan-summary.json
+          FEATURED_SCAN_OUTCOME: ${{ steps.featured_scan.outcome }}
+        run: node scripts/run-featured-scans-diagnostics.mjs --classify-publication
+
       - name: Prune retained static reports
-        if: steps.featured_scan.outcome == 'success'
+        # Preserve old evidence when batch health is below the gate. A healthy
+        # full refresh alone may apply age/count retention.
+        if: steps.refresh_policy.outputs.healthy == 'true'
         run: npm run reports:prune
 
       - name: Verify report redaction and provenance
-        if: steps.featured_scan.outcome == 'success'
+        id: report_validation
+        if: steps.refresh_policy.outputs.publishable == 'true'
         run: npm run reports:remediate -- --check
 
       - name: Build static report manifest
-        if: steps.featured_scan.outcome == 'success'
+        id: report_manifest
+        if: >-
+          steps.refresh_policy.outputs.publishable == 'true' &&
+          steps.report_validation.outcome == 'success'
         run: npm run reports:manifest
 
       - name: Build corpus stats
-        if: steps.featured_scan.outcome == 'success'
+        id: corpus_stats
+        if: >-
+          steps.refresh_policy.outputs.publishable == 'true' &&
+          steps.report_validation.outcome == 'success' &&
+          steps.report_manifest.outcome == 'success'
         run: npm run corpus:stats
 
       - name: Summarize corpus
-        if: steps.featured_scan.outcome == 'success'
+        if: >-
+          steps.refresh_policy.outputs.publishable == 'true' &&
+          steps.corpus_stats.outcome == 'success'
         run: |
           REPORTS=$(jq '.reports | length' public/reports/index.json 2>/dev/null || echo 0)
           SAMPLE=$(jq '.sampleSize' public/corpus-stats.json 2>/dev/null || echo 0)
@@ -176,7 +196,9 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload report artifacts
-        if: steps.featured_scan.outcome == 'success'
+        if: >-
+          steps.refresh_policy.outputs.publishable == 'true' &&
+          steps.corpus_stats.outcome == 'success'
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: site-behavior-featured-reports
@@ -187,7 +209,13 @@ jobs:
 
       - name: Commit static reports
         id: commit
-        if: steps.featured_scan.outcome == 'success'
+        # A below-threshold batch remains red below, but its independently
+        # validated reports still advance the evidence base and corpus stats.
+        if: >-
+          steps.refresh_policy.outputs.publishable == 'true' &&
+          steps.report_validation.outcome == 'success' &&
+          steps.report_manifest.outcome == 'success' &&
+          steps.corpus_stats.outcome == 'success'
         run: |
           echo "pushed=false" >> "$GITHUB_OUTPUT"
           git config user.name "iAnonymous3000"

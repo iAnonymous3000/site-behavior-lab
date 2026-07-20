@@ -78,14 +78,18 @@ test("automation logs do not print raw scan URLs, page titles, rules, or local i
   assert.equal(pageGraph.includes("JSON.stringify(options.rule)"), false);
 });
 
-test("featured refresh failures stay unpublished, loud, and canonically tracked", () => {
+test("featured refresh failures publish only validated successes, stay loud, and remain tracked", () => {
   const workflow = source(".github/workflows/scan-featured.yml");
   const runner = source("scripts/run-featured-scans.mjs");
 
   assert.match(runner, /successRateEnv\("FEATURED_MIN_SUCCESS_RATE", 0\.9\)/);
   assert.match(workflow, /permissions:[\s\S]*?issues: write/);
   assert.match(workflow, /id: featured_scan\n\s+continue-on-error: true/);
-  assert.match(workflow, /if: steps\.featured_scan\.outcome == 'success'\n\s+run: npm run reports:prune/);
+  assert.match(workflow, /--classify-publication/);
+  assert.match(workflow, /- name: Prune retained static reports[\s\S]*?if: steps\.refresh_policy\.outputs\.healthy == 'true'/);
+  assert.match(workflow, /- name: Verify report redaction and provenance[\s\S]*?steps\.refresh_policy\.outputs\.publishable == 'true'/);
+  assert.match(workflow, /- name: Build corpus stats[\s\S]*?steps\.report_manifest\.outcome == 'success'/);
+  assert.match(workflow, /- name: Commit static reports[\s\S]*?steps\.corpus_stats\.outcome == 'success'/);
   assert.match(workflow, /steps\.refresh_alert\.outputs\.authoritative == 'true'/);
   assert.match(workflow, /site-behavior-lab:featured-corpus-refresh/);
   assert.match(workflow, /gh issue create/);

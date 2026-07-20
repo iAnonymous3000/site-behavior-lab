@@ -21,8 +21,8 @@
  *   FEATURED_MIN_SUCCESS_RATE         Minimum fraction of sites that must scan
  *                                     successfully for the run to succeed
  *                                     (default: 0.9). Below it the run exits
- *                                     nonzero so a partial refresh is never
- *                                     silently published as a green run.
+ *                                     nonzero, even though independently
+ *                                     validated successes can still publish.
  */
 
 import { spawn } from "node:child_process";
@@ -103,8 +103,9 @@ async function main() {
   }
 
   // A green run must mean a meaningful refresh. Individual bot walls and
-  // outages are tolerated up to the threshold; beyond it the run fails so the
-  // workflow never commits and publishes a mostly-stale corpus as fresh.
+  // outages are tolerated up to the threshold; beyond it the run stays red
+  // and its canonical issue stays open. The workflow may still revalidate and
+  // publish the successful reports without treating failed targets as fresh.
   if (succeeded === 0 || successRate < minSuccessRate) {
     console.error(
       `Refusing to treat this as a successful refresh: ${succeeded}/${sites.length} sites succeeded (${Math.round(

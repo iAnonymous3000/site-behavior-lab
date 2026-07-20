@@ -65,6 +65,21 @@ export function publicFeaturedScanSummary(value) {
   return { total, succeeded, failed, successRate, requiredSuccessRate };
 }
 
+/**
+ * Keep batch health separate from report publication. A below-threshold batch
+ * must stay red, but any reports it did produce can still refresh the corpus
+ * after the workflow independently revalidates them. No failed target is
+ * counted as a success, and a zero-success or malformed summary publishes
+ * nothing.
+ */
+export function featuredPublicationDecision(value, scanOutcome) {
+  const summary = publicFeaturedScanSummary(value);
+  const publishable = summary !== null && summary.succeeded > 0;
+  const healthy =
+    publishable && scanOutcome === "success" && summary.successRate >= summary.requiredSuccessRate;
+  return { publishable, healthy };
+}
+
 function inlineCode(value, fallback) {
   const normalized = typeof value === "string" ? value.trim() : "";
   return /^[A-Za-z0-9._/-]{1,200}$/.test(normalized) ? normalized : fallback;
@@ -167,13 +182,42 @@ async function prepareAlertFromEnvironment() {
   }
 }
 
+async function classifyPublicationFromEnvironment() {
+  const summaryPath = process.env.FEATURED_SUMMARY_PATH?.trim();
+  let summary = null;
+  if (summaryPath) {
+    try {
+      summary = JSON.parse(await readFile(summaryPath, "utf8"));
+    } catch {
+      // A missing or malformed summary is safely non-publishable. The alert
+      // preparer later records the same condition without exposing paths.
+    }
+  }
+
+  const decision = featuredPublicationDecision(summary, process.env.FEATURED_SCAN_OUTCOME);
+  const outputPath = process.env.GITHUB_OUTPUT?.trim();
+  if (outputPath) {
+    await appendFile(outputPath, `publishable=${decision.publishable}\nhealthy=${decision.healthy}\n`, "utf8");
+  }
+  console.log(
+    decision.publishable
+      ? `Valid scan reports are available for publication (batch healthy: ${decision.healthy}).`
+      : "No valid scan reports are available for publication."
+  );
+}
+
 const invokedPath = process.argv[1] ? path.resolve(process.argv[1]) : null;
 if (invokedPath === fileURLToPath(import.meta.url)) {
-  if (process.argv.length !== 3 || process.argv[2] !== "--prepare-alert") {
-    console.error("Usage: run-featured-scans-diagnostics.mjs --prepare-alert");
+  const mode = process.argv.length === 3 ? process.argv[2] : null;
+  if (mode !== "--prepare-alert" && mode !== "--classify-publication") {
+    console.error(
+      "Usage: run-featured-scans-diagnostics.mjs --prepare-alert | --classify-publication"
+    );
     process.exitCode = 1;
   } else {
-    prepareAlertFromEnvironment().catch((error) => {
+    const operation =
+      mode === "--prepare-alert" ? prepareAlertFromEnvironment : classifyPublicationFromEnvironment;
+    operation().catch((error) => {
       console.error(error instanceof Error ? error.message : error);
       process.exitCode = 1;
     });

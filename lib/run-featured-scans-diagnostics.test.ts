@@ -12,6 +12,10 @@ type FeaturedScanDiagnosticHelpers = {
     successRate: number;
     requiredSuccessRate: number;
   } | null;
+  featuredPublicationDecision(value: unknown, scanOutcome: unknown): {
+    publishable: boolean;
+    healthy: boolean;
+  };
   buildFeaturedRefreshIssueReport(input: {
     failed: boolean;
     summary: unknown;
@@ -102,6 +106,48 @@ test("featured refresh issue reports expose aggregates but omit per-target diagn
   assert.equal(report.includes("private-target.example"), false);
   assert.equal(report.includes("token=secret"), false);
   assert.equal(publicFeaturedScanSummary({ ...detailed, failed: 11 }), null);
+});
+
+test("below-threshold batches publish valid successes while remaining unhealthy", async () => {
+  const { featuredPublicationDecision } = await helpers;
+  const partial = {
+    total: 81,
+    succeeded: 68,
+    failed: 13,
+    successRate: 68 / 81,
+    requiredSuccessRate: 0.9
+  };
+  const healthy = {
+    total: 81,
+    succeeded: 73,
+    failed: 8,
+    successRate: 73 / 81,
+    requiredSuccessRate: 0.9
+  };
+
+  assert.deepEqual(featuredPublicationDecision(partial, "failure"), {
+    publishable: true,
+    healthy: false
+  });
+  assert.deepEqual(featuredPublicationDecision(healthy, "success"), {
+    publishable: true,
+    healthy: true
+  });
+  assert.deepEqual(featuredPublicationDecision(healthy, "failure"), {
+    publishable: true,
+    healthy: false
+  });
+  assert.deepEqual(
+    featuredPublicationDecision(
+      { total: 81, succeeded: 0, failed: 81, successRate: 0, requiredSuccessRate: 0.9 },
+      "failure"
+    ),
+    { publishable: false, healthy: false }
+  );
+  assert.deepEqual(featuredPublicationDecision({ ...partial, failed: 12 }, "failure"), {
+    publishable: false,
+    healthy: false
+  });
 });
 
 test("only an unfiltered default-mode full featured refresh is authoritative", async () => {
