@@ -13,7 +13,11 @@
 import { Container, getContainer } from "@cloudflare/containers";
 import { scanCorsHeaders } from "../lib/cors";
 import { scansAvailableAfterEdgeOverlay } from "../lib/container-health-overlay";
-import { PublicFacingError } from "../lib/public-errors";
+import { toPublicError } from "../lib/public-errors";
+import {
+  isProductionSyntheticMonitorToken,
+  isProductionSyntheticScanPayload
+} from "../lib/production-synthetic";
 import {
   ENCRYPTED_WATCH_CAPABILITY_HEADER,
   ENCRYPTED_WATCH_ENCRYPTION_KEY_ENV,
@@ -79,6 +83,7 @@ import {
   constantTimeEqual,
   formatPublicScanRetryAfter,
   openScanBlockedForMissingTurnstile,
+  probeTurnstileConfiguration,
   publicClientHash,
   publicScanGateStatus,
   publicScanRateLimit,
@@ -211,6 +216,9 @@ type Env = {
   // Set as Worker secrets (`wrangler secret put -c wrangler.container.jsonc <NAME>`)
   // and forwarded into the container via envVars below.
   SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN?: string;
+  // Worker-only credential for the scheduled production synthetic. Unlike the
+  // general scan token, this does not close public ingress or reach Node.
+  SITE_BEHAVIOR_LAB_SYNTHETIC_MONITOR_TOKEN?: string;
   TURNSTILE_SECRET_KEY?: string;
   SITE_BEHAVIOR_LAB_R2_BUCKET?: string;
   SITE_BEHAVIOR_LAB_R2_PREFIX?: string;
@@ -221,11 +229,27 @@ type Env = {
 
 // Mirrors the scan fields the edge gate needs from the request body.
 type ScanGatePayload = {
+  url?: unknown;
+  device?: unknown;
+  gpcEnabled?: unknown;
+  consentMode?: unknown;
   compareGpc?: unknown;
   compareShields?: unknown;
   compareConsent?: unknown;
   turnstileToken?: unknown;
 };
+
+const SYNTHETIC_MONITOR_TOKEN_HEADER = "x-site-behavior-lab-synthetic-monitor-token";
+const PUBLIC_INGRESS_PREFLIGHT_CLIENT_HASH = "0".repeat(64);
+const TURNSTILE_CONFIGURATION_PROBE_CACHE_MS = 60_000;
+
+let turnstileConfigurationProbeCache:
+  | {
+      expiresAt: number;
+      result: Promise<"verified" | "misconfigured" | "unavailable">;
+      secret: string;
+    }
+  | undefined;
 
 const MAX_BODY_BYTES = 4_096;
 const MAX_COORDINATOR_BODY_BYTES = 32_768;
@@ -2132,6 +2156,13 @@ export default {
       }
     }
 
+    // This separately tests the visitor-facing edge dependencies without a
+    // solved CAPTCHA, a monitor bypass, a scan submission, or quota consumption.
+    // It is intentionally not folded into the operator synthetic's result.
+    if (request.method === "GET" && url.pathname === "/api/health/public-ingress" && !url.search) {
+      return publicIngressPreflightResponse(request, env);
+    }
+
     // Health: the container's Node app has no Turnstile concept and cannot see
     // the front Worker's open-access/Turnstile config, so overlay the edge gate's
     // own view onto its response, otherwise the UI never shows the Turnstile
@@ -2199,6 +2230,7 @@ export default {
     // them reach Node request logs, preparation code, or report material.
     forwardedHeaders.delete(DURABLE_REPLAY_FAULT_MODE_HEADER);
     forwardedHeaders.delete(DURABLE_REPLAY_FAULT_TOKEN_HEADER);
+    forwardedHeaders.delete(SYNTHETIC_MONITOR_TOKEN_HEADER);
     const forwarded = new Request(request.url, { method: "POST", headers: forwardedHeaders, body });
     if (durableAdmission) {
       if (!deferredRateLimit) return durableUnavailableResponse(request, env);
@@ -2241,12 +2273,14 @@ function requireDurableScanJobConfig(env: Env): DurableScanJobConfig {
     !durableScanJobSecretsAreDistinct(encryptionKey, internalToken) ||
     !durableScanJobKeyIsIsolated(encryptionKey, [
       internalToken,
+      env.SITE_BEHAVIOR_LAB_SYNTHETIC_MONITOR_TOKEN ?? "",
       env.SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN ?? "",
       env.TURNSTILE_SECRET_KEY ?? "",
       env.SITE_BEHAVIOR_LAB_R2_ACCESS_KEY_ID ?? "",
       env.SITE_BEHAVIOR_LAB_R2_SECRET_ACCESS_KEY ?? ""
     ]) ||
     !durableScanJobKeyIsIsolated(internalToken, [
+      env.SITE_BEHAVIOR_LAB_SYNTHETIC_MONITOR_TOKEN ?? "",
       env.SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN ?? "",
       env.TURNSTILE_SECRET_KEY ?? "",
       env.SITE_BEHAVIOR_LAB_R2_ACCESS_KEY_ID ?? "",
@@ -2313,6 +2347,7 @@ function requireEncryptedWatchConfig(env: Env): EncryptedWatchConfig {
   const sharedSecrets = [
     durable.encryptionKey,
     durable.internalToken,
+    env.SITE_BEHAVIOR_LAB_SYNTHETIC_MONITOR_TOKEN ?? "",
     env.SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN ?? "",
     env.TURNSTILE_SECRET_KEY ?? "",
     env.SITE_BEHAVIOR_LAB_R2_ACCESS_KEY_ID ?? "",
@@ -3119,6 +3154,9 @@ function forwardToContainer(request: Request, env: Env, trustedInternalToken?: s
   // handlers even if a caller supplies them outside POST /api/scan.
   headers.delete(DURABLE_REPLAY_FAULT_MODE_HEADER);
   headers.delete(DURABLE_REPLAY_FAULT_TOKEN_HEADER);
+  // The synthetic credential is an edge-only capability on every route, not
+  // just the scan handler that consumes it.
+  headers.delete(SYNTHETIC_MONITOR_TOKEN_HEADER);
   // Accountless watch credentials terminate at the edge and must never appear
   // in Node request logs, report material, assets, or fallback routes.
   headers.delete(ENCRYPTED_WATCH_CAPABILITY_HEADER);
@@ -3145,6 +3183,99 @@ function frontDoorOrigin(env: Env): string | null {
   } catch {
     return null;
   }
+}
+
+async function publicIngressPreflightResponse(request: Request, env: Env): Promise<Response> {
+  const gate = publicScanGateStatus({
+    accessToken: env.SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN,
+    allowUnauthenticated: env.SITE_BEHAVIOR_LAB_ALLOW_UNAUTHENTICATED_SCANS,
+    turnstileSecret: env.TURNSTILE_SECRET_KEY
+  });
+  const refusals = publicScanRefusalReasons({
+    accessToken: env.SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN,
+    allowUnauthenticated: env.SITE_BEHAVIOR_LAB_ALLOW_UNAUTHENTICATED_SCANS,
+    turnstileSecret: env.TURNSTILE_SECRET_KEY,
+    acceptNoTurnstileRisk: env.SITE_BEHAVIOR_LAB_ACCEPT_NO_TURNSTILE_RISK,
+    rateLimitStoreBound: true
+  });
+  const turnstileConfiguration = gate.turnstile
+    ? await cachedTurnstileConfigurationProbe(env.TURNSTILE_SECRET_KEY?.trim() ?? "")
+    : "misconfigured";
+
+  let quotaReadiness: "ready" | "unavailable" = "unavailable";
+  if (gate.openAccess) {
+    try {
+      const quota = await getContainer(env.SCANNER).peekPublicScanRateLimit({
+        scope: "public",
+        clientHash: PUBLIC_INGRESS_PREFLIGHT_CLIENT_HASH,
+        cost: 1,
+        perMinute: publicScanRateLimit(
+          env.SITE_BEHAVIOR_LAB_PUBLIC_SCAN_RATE_LIMIT_PER_MINUTE,
+          DEFAULT_PUBLIC_SCAN_RATE_LIMIT_PER_MINUTE
+        ),
+        perDay: publicScanRateLimit(
+          env.SITE_BEHAVIOR_LAB_PUBLIC_SCAN_RATE_LIMIT_PER_DAY,
+          DEFAULT_PUBLIC_SCAN_RATE_LIMIT_PER_DAY
+        )
+      });
+      quotaReadiness = quota.allowed ? "ready" : "unavailable";
+    } catch {
+      quotaReadiness = "unavailable";
+    }
+  }
+
+  const ready =
+    gate.authenticated === false &&
+    gate.openAccess === true &&
+    refusals.length === 0 &&
+    turnstileConfiguration === "verified" &&
+    quotaReadiness === "ready";
+  const body = {
+    ok: ready,
+    status: ready ? "ready" : "degraded",
+    scope: "public-ingress-preflight",
+    checks: {
+      openAccess: gate.openAccess,
+      turnstile: {
+        configuration: turnstileConfiguration,
+        challengeSolved: false
+      },
+      quota: {
+        readiness: quotaReadiness,
+        consumed: false
+      },
+      monitorBypassUsed: false,
+      scanSubmitted: false
+    }
+  };
+  return new Response(JSON.stringify(body), {
+    status: 200,
+    headers: {
+      ...scanCorsHeaders(request.headers.get("origin"), env.SITE_BEHAVIOR_LAB_ALLOWED_ORIGIN),
+      "content-type": "application/json; charset=utf-8",
+      "cache-control": "no-store"
+    }
+  });
+}
+
+function cachedTurnstileConfigurationProbe(
+  secret: string
+): Promise<"verified" | "misconfigured" | "unavailable"> {
+  const now = Date.now();
+  if (
+    turnstileConfigurationProbeCache &&
+    turnstileConfigurationProbeCache.secret === secret &&
+    turnstileConfigurationProbeCache.expiresAt > now
+  ) {
+    return turnstileConfigurationProbeCache.result;
+  }
+  const result = probeTurnstileConfiguration({ secret });
+  turnstileConfigurationProbeCache = {
+    expiresAt: now + TURNSTILE_CONFIGURATION_PROBE_CACHE_MS,
+    result,
+    secret
+  };
+  return result;
 }
 
 /** Overlay the front Worker's gate decision (auth / open access / Turnstile) onto the container health. */
@@ -3259,6 +3390,7 @@ export async function durableJobsEdgeHealthCheck(
     | "SITE_BEHAVIOR_LAB_DURABLE_REPLAY_FAULTS"
     | "SITE_BEHAVIOR_LAB_DURABLE_REPLAY_FAULT_TOKEN"
     | "SITE_BEHAVIOR_LAB_ALLOW_UNAUTHENTICATED_SCANS"
+    | "SITE_BEHAVIOR_LAB_SYNTHETIC_MONITOR_TOKEN"
     | "SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN"
     | "TURNSTILE_SECRET_KEY"
     | "SITE_BEHAVIOR_LAB_R2_BUCKET"
@@ -3429,6 +3561,7 @@ export async function encryptedWatchesEdgeHealthCheck(
     | "SITE_BEHAVIOR_LAB_DURABLE_JOBS_INTERNAL_TOKEN"
     | "SITE_BEHAVIOR_LAB_DURABLE_JOBS_COORDINATOR_URL"
     | "SITE_BEHAVIOR_LAB_ALLOW_UNAUTHENTICATED_SCANS"
+    | "SITE_BEHAVIOR_LAB_SYNTHETIC_MONITOR_TOKEN"
     | "SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN"
     | "TURNSTILE_SECRET_KEY"
     | "SITE_BEHAVIOR_LAB_R2_ACCESS_KEY_ID"
@@ -3543,6 +3676,29 @@ async function gateScanRequest(
     compareShields: payload.compareShields === true,
     compareConsent: payload.compareConsent === true
   });
+  const expectedMonitorToken = env.SITE_BEHAVIOR_LAB_SYNTHETIC_MONITOR_TOKEN?.trim();
+  const suppliedMonitorToken = request.headers.get(SYNTHETIC_MONITOR_TOKEN_HEADER)?.trim();
+  if (
+    isProductionSyntheticMonitorToken(expectedMonitorToken) &&
+    suppliedMonitorToken &&
+    (await constantTimeEqual(suppliedMonitorToken, expectedMonitorToken))
+  ) {
+    if (!isProductionSyntheticScanPayload(payload)) {
+      throw new EdgeScanGateError("The synthetic monitor credential is limited to its fixed scan contract.", 400);
+    }
+    if (chargeMode === "charge") return null;
+    // A future durable production lane charges the monitor like other trusted
+    // operator traffic, never against a visitor's public quota.
+    const rateLimit: PublicScanRateLimitCharge = {
+      scope: "authenticated",
+      clientHash,
+      cost,
+      perMinute: AUTHENTICATED_SCAN_RATE_LIMIT_PER_MINUTE,
+      perDay: null
+    };
+    await assertDeferredScanRateLimitAvailable(rateLimit, env);
+    return rateLimit;
+  }
   const expectedToken = env.SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN?.trim();
   if (expectedToken) {
     if (!(await scanAccessTokenMatches(request.headers, expectedToken))) {
@@ -3637,10 +3793,9 @@ function parseScanGatePayload(body: string): ScanGatePayload {
 }
 
 function gateErrorResponse(error: unknown, request: Request, env: Env): Response {
-  const status = error instanceof PublicFacingError ? error.status : 500;
-  const message = error instanceof Error ? error.message : "The scan request was rejected.";
-  return new Response(JSON.stringify({ ok: false, error: message }), {
-    status,
+  const publicError = toPublicError(error);
+  return new Response(JSON.stringify({ ok: false, error: publicError.message }), {
+    status: publicError.status,
     headers: {
       ...scanCorsHeaders(request.headers.get("origin"), env.SITE_BEHAVIOR_LAB_ALLOWED_ORIGIN),
       "Content-Type": "application/json; charset=utf-8"

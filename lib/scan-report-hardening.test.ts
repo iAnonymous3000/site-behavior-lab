@@ -31,11 +31,20 @@ import {
 } from "./scan-report-view";
 import { makeGpcInterventionReportV2R2 } from "./scan-report-v2-r2-fixtures";
 import { evaluateComparability, evaluateQuality } from "./scan-report-v2-evaluators";
-import { createComparisonReport, createConsentComparisonReport, createGpcComparisonReport, createShieldsComparisonReport, createTemporalComparisonReport } from "./compare-reports";
+import {
+  compareScanResults,
+  createComparisonReport,
+  createConsentComparisonReport,
+  createGpcComparisonReport,
+  createShieldsComparisonReport,
+  createTemporalComparisonReport
+} from "./compare-reports";
 import type { ScanReport, ScanResult } from "./types";
 import { buildFingerprints } from "./scan-report-v2-fingerprints";
 import { makeScanRunV2 } from "./scan-report-v2-fixtures";
 import { sha256Hex } from "./sha256";
+import { COMPARISON_REQUEST_CAP } from "./comparison-eligibility";
+import { buildReportHeadline } from "./report-headline";
 
 function mutate<T>(fixture: T, apply: (draft: T) => void): T {
   const draft = structuredClone(fixture);
@@ -127,6 +136,254 @@ test("a malformed v1 upload returns a typed error without crashing", () => {
     (draft as AnyRecord).summary.totalRequests = "12";
   });
   assert.deepEqual(readStoredScanReport(stringSummary), { ok: false, error: "invalid" });
+});
+
+test("a structurally valid v1 upload must reconcile its conclusions with its evidence", () => {
+  const forgedSummary = mutate(makeScanReportV1(), (draft) => {
+    if (draft.reportType === "comparison") throw new Error("expected single fixture");
+    draft.summary.totalRequests = 400;
+    draft.summary.thirdPartyRequests = 95;
+  });
+  const summaryRead = readStoredScanReport(forgedSummary);
+  assert.equal(summaryRead.ok, false);
+  if (!summaryRead.ok) {
+    assert.equal(summaryRead.error, "inconsistent");
+    assert.equal(summaryRead.violations?.some((entry) => entry.includes("summary.totalRequests")), true);
+  }
+
+  const forgedDiff = makeScanReportV1Comparison();
+  forgedDiff.diff.totalRequests = { before: 1, after: 1, delta: 999 };
+  const diffRead = readStoredScanReport(forgedDiff);
+  assert.equal(diffRead.ok, false);
+  if (!diffRead.ok) {
+    assert.equal(diffRead.error, "inconsistent");
+    assert.equal(diffRead.violations?.includes("comparison: diff does not reconcile with the two runs"), true);
+  }
+});
+
+test("a negative v1 fingerprint-event count is rejected before it can drive an absence headline", () => {
+  const report = mutate(makeScanReportV1(), (draft) => {
+    if (draft.reportType === "comparison") throw new Error("expected single fixture");
+    draft.fingerprintEvents = [{ api: "canvas.toDataURL", count: -1 }];
+    draft.summary.fingerprintEvents = -1;
+  });
+
+  const read = readStoredScanReport(report);
+  const renderedSubhead = read.ok ? buildReportHeadline(toReportView(read.stored)).subhead : null;
+  assert.equal(
+    read.ok,
+    false,
+    `negative fingerprint evidence reached the public headline: ${renderedSubhead ?? "not rendered"}`
+  );
+  assert.deepEqual(read, { ok: false, error: "invalid" });
+});
+
+test("v1 count-like facts and derived diff endpoints must be non-negative safe integers", () => {
+  const invalidRuns: Array<[string, (draft: AnyRecord) => void]> = [
+    ["fractional event count", (draft) => {
+      draft.fingerprintEvents = [{ api: "canvas.toDataURL", count: 0.5 }];
+      draft.summary.fingerprintEvents = 0.5;
+    }],
+    ["negative storage size", (draft) => {
+      draft.storage = [{ area: "localStorage", key: "theme", valueBytes: -1 }];
+      draft.summary.storageEntries = 1;
+    }],
+    ["negative pixel request count", (draft) => {
+      draft.pixelEvents = [{ platform: "Meta", product: "Meta Pixel", events: [], advancedMatching: [], requests: -1 }];
+    }],
+    ["negative catalog entry count", (draft) => {
+      draft.conditions.trackerCatalog.entries = -1;
+    }],
+    ["unsafe summary count", (draft) => {
+      draft.summary.cookies = Number.MAX_SAFE_INTEGER + 1;
+    }]
+  ];
+
+  for (const [label, mutateRun] of invalidRuns) {
+    const report = mutate(makeScanReportV1(), (draft) => {
+      if (draft.reportType === "comparison") throw new Error("expected single fixture");
+      mutateRun(draft as AnyRecord);
+    });
+    assert.deepEqual(readStoredScanReport(report), { ok: false, error: "invalid" }, label);
+  }
+
+  const invalidDiff = makeScanReportV1Comparison();
+  invalidDiff.diff.totalRequests = { before: -1, after: 0, delta: 1 };
+  assert.deepEqual(readStoredScanReport(invalidDiff), { ok: false, error: "invalid" });
+});
+
+test("v1 binds the observed URL host and comparison root identity to the recorded run", () => {
+  const wrongHost = mutate(makeScanReportV1(), (draft) => {
+    if (draft.reportType === "comparison") throw new Error("expected single fixture");
+    draft.conditions.finalUrl = "https://other.example/path";
+  });
+  const hostRead = readStoredScanReport(wrongHost);
+  assert.equal(hostRead.ok, false);
+  if (!hostRead.ok) {
+    assert.equal(hostRead.error, "inconsistent");
+    assert.equal(hostRead.violations?.some((entry) => entry.includes("firstPartyDomain")), true);
+  }
+
+  for (const field of ["requestedUrl", "scannedAt", "device"] as const) {
+    const comparison = makeScanReportV1Comparison();
+    if (field === "requestedUrl") comparison.requestedUrl = "https://forged.example/";
+    if (field === "scannedAt") comparison.scannedAt = "2026-07-10T00:00:00.000Z";
+    if (field === "device") comparison.device = "mobile";
+    const read = readStoredScanReport(comparison);
+    assert.equal(read.ok, false, field);
+    if (!read.ok) {
+      assert.equal(read.error, "inconsistent", field);
+      assert.equal(read.violations?.some((entry) => entry.includes(`root ${field}`)), true, field);
+    }
+  }
+
+  const crossSite = makeScanReportV1Comparison();
+  crossSite.baseline = structuredClone(crossSite.baseline);
+  crossSite.baseline.conditions.requestedUrl = "https://attacker.example/";
+  crossSite.baseline.conditions.finalUrl = "https://attacker.example/landing";
+  crossSite.baseline.summary.firstPartyDomain = "attacker.example";
+  crossSite.diff = compareScanResults(crossSite.baseline, crossSite.variant);
+  const crossSiteRead = readStoredScanReport(crossSite);
+  assert.equal(crossSiteRead.ok, false);
+  if (!crossSiteRead.ok) {
+    assert.equal(crossSiteRead.error, "inconsistent");
+    assert.equal(crossSiteRead.violations?.some((entry) => entry.includes("requestedUrl does not match both runs")), true);
+    assert.equal(crossSiteRead.violations?.some((entry) => entry.includes("same final site")), true);
+  }
+
+  const mixedDevice = makeScanReportV1Comparison();
+  mixedDevice.baseline = structuredClone(mixedDevice.baseline);
+  mixedDevice.baseline.conditions.viewport.isMobile = true;
+  const mixedDeviceRead = readStoredScanReport(mixedDevice);
+  assert.equal(mixedDeviceRead.ok, false);
+  if (!mixedDeviceRead.ok) {
+    assert.equal(mixedDeviceRead.violations?.some((entry) => entry.includes("device does not match both runs")), true);
+  }
+
+  const legitimateRedirects = makeScanReportV1Comparison();
+  legitimateRedirects.baseline = structuredClone(legitimateRedirects.baseline);
+  legitimateRedirects.variant = structuredClone(legitimateRedirects.variant);
+  legitimateRedirects.baseline.conditions.scannedAt = "2026-07-09T09:59:00.000Z";
+  legitimateRedirects.baseline.conditions.finalUrl = "https://www.example.com/landing";
+  legitimateRedirects.baseline.summary.firstPartyDomain = "www.example.com";
+  legitimateRedirects.variant.conditions.finalUrl = "https://shop.example.com/home";
+  legitimateRedirects.variant.summary.firstPartyDomain = "shop.example.com";
+  legitimateRedirects.diff = compareScanResults(legitimateRedirects.baseline, legitimateRedirects.variant);
+  assert.equal(
+    readStoredScanReport(legitimateRedirects).ok,
+    true,
+    "arm timestamps and same-site redirect targets may legitimately differ"
+  );
+});
+
+test("v1 accepts set reordering but rejects duplicate set members", () => {
+  const run = makeMaximalScanReportV1() as ScanResult;
+  run.requests.push({ ...structuredClone(run.requests[0]), id: 2, status: 204, resourceType: "xhr", startedAtMs: 13 });
+  run.summary.totalRequests = 2;
+  run.summary.thirdPartyRequests = 2;
+  run.summary.knownTrackerRequests = 2;
+  run.summary.shieldsBlockedRequests = 2;
+  run.domains[0] = {
+    ...run.domains[0],
+    requests: 2,
+    statuses: [204, 200],
+    resourceTypes: ["xhr", "image"]
+  };
+  assert.equal(readStoredScanReport(run).ok, true, "status/resource set order is non-semantic");
+
+  const duplicateStatus = structuredClone(run);
+  duplicateStatus.domains[0].statuses.push(200);
+  assert.equal(readStoredScanReport(duplicateStatus).ok, false, "duplicate status is not a set");
+
+  const duplicateResourceType = structuredClone(run);
+  duplicateResourceType.domains[0].resourceTypes.push("image");
+  assert.equal(readStoredScanReport(duplicateResourceType).ok, false, "duplicate resource type is not a set");
+
+  const duplicatePixelEvent = makeMaximalScanReportV1() as ScanResult;
+  duplicatePixelEvent.pixelEvents![0].events.push(duplicatePixelEvent.pixelEvents![0].events[0]);
+  assert.equal(readStoredScanReport(duplicatePixelEvent).ok, false, "duplicate pixel event name is not a set");
+
+  const duplicatePixelField = makeMaximalScanReportV1() as ScanResult;
+  duplicatePixelField.pixelEvents![0].advancedMatching.push(
+    duplicatePixelField.pixelEvents![0].advancedMatching[0]
+  );
+  assert.equal(readStoredScanReport(duplicatePixelField).ok, false, "duplicate pixel field is not a set");
+
+  const duplicatePixelPlatform = makeMaximalScanReportV1() as ScanResult;
+  duplicatePixelPlatform.pixelEvents!.push(structuredClone(duplicatePixelPlatform.pixelEvents![0]));
+  assert.equal(readStoredScanReport(duplicatePixelPlatform).ok, false, "pixel summaries are unique per platform");
+
+  const comparison = makeScanReportV1Comparison();
+  comparison.baseline = makeMaximalScanReportV1();
+  comparison.variant = structuredClone(comparison.baseline);
+  comparison.variant.cookies.push(
+    { name: "a", domain: "example.com", path: "/", sameSite: "Lax", secure: true, httpOnly: false, session: true, thirdParty: false },
+    { name: "b", domain: "example.com", path: "/", sameSite: "Lax", secure: true, httpOnly: false, session: true, thirdParty: false }
+  );
+  comparison.variant.summary.cookies += 2;
+  comparison.requestedUrl = comparison.variant.conditions.requestedUrl;
+  comparison.scannedAt = comparison.variant.conditions.scannedAt;
+  comparison.device = comparison.variant.conditions.viewport.isMobile ? "mobile" : "desktop";
+  comparison.diff = compareScanResults(comparison.baseline, comparison.variant);
+  comparison.diff.addedCookies.reverse();
+  assert.equal(readStoredScanReport(comparison).ok, true, "diff member order is non-semantic");
+
+  comparison.diff.addedCookies.push(structuredClone(comparison.diff.addedCookies[0]));
+  assert.equal(readStoredScanReport(comparison).ok, false, "duplicate diff members are rejected");
+
+  const pixelComparison = makeScanReportV1Comparison();
+  pixelComparison.baseline = makeMaximalScanReportV1();
+  pixelComparison.variant = structuredClone(pixelComparison.baseline);
+  pixelComparison.variant.pixelEvents[0].events.push("Purchase", "Lead");
+  pixelComparison.variant.pixelEvents[0].advancedMatching.push("phone", "name");
+  pixelComparison.requestedUrl = pixelComparison.variant.conditions.requestedUrl;
+  pixelComparison.scannedAt = pixelComparison.variant.conditions.scannedAt;
+  pixelComparison.device = pixelComparison.variant.conditions.viewport.isMobile ? "mobile" : "desktop";
+  pixelComparison.diff = compareScanResults(pixelComparison.baseline, pixelComparison.variant);
+  pixelComparison.diff.addedPixelEvents[0].events.reverse();
+  pixelComparison.diff.addedPixelEvents[0].advancedMatching.reverse();
+  assert.equal(readStoredScanReport(pixelComparison).ok, true, "nested pixel sets are order-insensitive");
+
+  pixelComparison.diff.addedPixelEvents[0].events.push(pixelComparison.diff.addedPixelEvents[0].events[0]);
+  assert.equal(readStoredScanReport(pixelComparison).ok, false, "nested pixel diff duplicates are rejected");
+});
+
+test("v1 rejects impossible Shields measurements while retaining valid block-simulation counts", () => {
+  const noEngine = mutate(makeScanReportV1(), (draft) => {
+    if (draft.reportType === "comparison") throw new Error("expected single fixture");
+    draft.summary.shieldsBlockedRequests = 1;
+  });
+  assert.equal(readStoredScanReport(noEngine).ok, false);
+
+  const classificationMismatch = makeMaximalScanReportV1() as ScanResult;
+  classificationMismatch.summary.shieldsBlockedRequests = 2;
+  assert.equal(readStoredScanReport(classificationMismatch).ok, false);
+
+  const simulation = mutate(makeScanReportV1(), (draft) => {
+    if (draft.reportType === "comparison") throw new Error("expected single fixture");
+    draft.conditions.shieldsMode = "block-simulation";
+    draft.conditions.adblock = { active: true, source: "brave", lists: 1, fetchedAt: "2026-07-01T00:00:00.000Z" };
+    draft.summary.shieldsBlockedRequests = 7;
+  });
+  assert.equal(readStoredScanReport(simulation).ok, true);
+
+  const maximumSimulation = structuredClone(simulation);
+  if (maximumSimulation.reportType === "comparison") throw new Error("expected single fixture");
+  maximumSimulation.summary.shieldsBlockedRequests = COMPARISON_REQUEST_CAP;
+  assert.equal(readStoredScanReport(maximumSimulation).ok, true);
+
+  const absurdSimulation = structuredClone(simulation);
+  if (absurdSimulation.reportType === "comparison") throw new Error("expected single fixture");
+  absurdSimulation.summary.shieldsBlockedRequests = COMPARISON_REQUEST_CAP + 1;
+  const absurdRead = readStoredScanReport(absurdSimulation);
+  assert.equal(absurdRead.ok, false);
+  if (!absurdRead.ok) {
+    assert.equal(absurdRead.violations?.some((entry) => entry.includes("routing cap")), true);
+  }
+
+  const impossibleRetainedBlock = makeMaximalScanReportV1() as ScanResult;
+  impossibleRetainedBlock.conditions.shieldsMode = "block-simulation";
+  assert.equal(readStoredScanReport(impossibleRetainedBlock).ok, false);
 });
 
 test("non-canonical timestamps and inverted phase spans read as inconsistent", () => {
@@ -600,6 +857,21 @@ test("tampered summary counts no longer reconcile with the evidence", () => {
   }
 });
 
+test("capture loss never authorizes summary counts beyond the retained evidence", () => {
+  const report = mutate(makePublicSingleReportV2(), (draft) => {
+    draft.run.qualityFacts.captureLoss.push({ family: "requests", phaseId: 0, kind: "clipped", count: 1 });
+    draft.run.quality = evaluateQuality(draft.run.qualityFacts, { observedRequests: draft.run.evidence.requests.length });
+    draft.run.summary.counts.totalRequests = 500;
+    draft.run.summary.countsByPhase[0].totalRequests = 500;
+  });
+  const read = readStoredScanReport(report);
+  assert.equal(read.ok, false);
+  if (!read.ok) {
+    assert.equal(read.error, "inconsistent");
+    assert.equal(read.violations?.some((entry) => entry.includes("summary.counts.totalRequests")), true);
+  }
+});
+
 test("budget exhaustion must surface in quality", () => {
   const facts = { ...makeScanRunV2().qualityFacts, budgetsExhausted: ["keystroke-probe"] };
   const derived = evaluateQuality(facts, { observedRequests: 1 });
@@ -1070,9 +1342,7 @@ test("the export/persistence boundary never serializes an ephemeral shell", () =
     assert.equal(readStoredScanReport(wire).ok, true);
     assert.equal(wire.reportType, "single");
     if (wire.reportType === "single") {
-      // The fixture deliberately has one declared request but an empty request
-      // log. The export boundary derives the public summary from the retained
-      // evidence instead of preserving the stale count.
+      // The canonical public count remains derived from retained evidence.
       assert.equal(wire.summary.totalRequests, 0);
     }
   }
@@ -1372,6 +1642,14 @@ function makeMaximalScanReportV1(): AnyRecord {
   report.consentInteraction = { mode: "accept-all", clicked: true, cmp: "OneTrust", selector: "#accept", frameUrl: "https://cmp.example/frame" };
   report.screenshot = "data:image/png;base64,MAXSHOT";
   report.share = { id: "20260709-" + "a".repeat(32), path: "/reports/x", jsonPath: "/api/reports/x" };
+  report.summary.totalRequests = 1;
+  report.summary.thirdPartyRequests = 1;
+  report.summary.knownTrackerRequests = 1;
+  report.summary.thirdPartyDomains = 1;
+  report.summary.cookies = 1;
+  report.summary.thirdPartyCookies = 0;
+  report.summary.storageEntries = 1;
+  report.summary.fingerprintEvents = 2;
   report.summary.shieldsBlockedRequests = 1;
   return report;
 }
@@ -1404,16 +1682,7 @@ test("maximal v1 single and comparison fixtures retain every public evidence fam
   comparison.runLabels = { baseline: "Shields off", variant: "Shields on" };
   comparison.baseline = makeMaximalScanReportV1();
   delete comparison.baseline.reportType;
-  comparison.diff.shieldsBlockedRequests = { before: 0, after: 1, delta: 1 };
-  comparison.diff.addedDomains = [{ domain: "google-analytics.com", requests: 1, tracker: null }];
-  comparison.diff.addedEntities = [{ entity: "Google", requests: 1, domains: 1 }];
-  comparison.diff.addedCookies = [{ name: "_ga", domain: ".example.com", thirdParty: false }];
-  comparison.diff.addedStorageKeys = [{ area: "localStorage", key: "theme" }];
-  comparison.diff.addedFingerprinting = [{ kind: "canvas-fingerprinting", heuristic: "openwpm-canvas-v1", count: 1 }];
-  comparison.diff.addedPixelEvents = [{ platform: "Meta", product: "Meta Pixel", events: ["PageView"], advancedMatching: [] }];
-  comparison.diff.addedProvenance = [
-    { domain: "google-analytics.com", requests: 1, tracker: null, initiator: "example.com", script: null, injectedBy: null }
-  ];
+  comparison.diff = compareScanResults(comparison.baseline, comparison.variant);
   const comparisonResult = readScanTransportPayload(comparison);
   assert.equal(comparisonResult.kind, "report");
   if (comparisonResult.kind === "report") {

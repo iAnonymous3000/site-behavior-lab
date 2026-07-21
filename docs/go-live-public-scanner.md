@@ -655,11 +655,17 @@ watch), then remove it. See [encrypted-watches.md](encrypted-watches.md).
 ## Verify
 
 1. `GET <scanner>/api/health` → `ok: true`, `openAccess: true`, `turnstile: true`.
-2. From sitebehavior.org, complete the Turnstile challenge and run a real scan;
+2. `GET <scanner>/api/health/public-ingress` → `ok: true`, `status: "ready"`.
+   This separate preflight proves that Siteverify recognizes the configured
+   secret and that a non-consuming public-scope quota peek succeeds. It must
+   also report `challengeSolved: false`, `scanSubmitted: false`,
+   `quota.consumed: false`, and `monitorBypassUsed: false`; it is not a claim
+   that a visitor completed a scan.
+3. From sitebehavior.org, complete the Turnstile challenge and run a real scan;
    confirm a report renders with the live Shields (tried-vs-blocked) diff.
-3. Confirm a request **without** a Turnstile token is rejected (`400`), and that
+4. Confirm a request **without** a Turnstile token is rejected (`400`), and that
    exceeding the per-minute limit returns `429`.
-4. Re-run the automated smoke test. An **open** origin that enforces Turnstile
+5. Re-run the automated smoke test. An **open** origin that enforces Turnstile
    cannot be smoked unattended (Turnstile is built to block exactly that, and the
    script has no token to send), so point it at a deployment with an access token
    configured and pass `SMOKE_SCAN_ACCESS_TOKEN`, a matching token is checked
@@ -670,8 +676,10 @@ watch), then remove it. See [encrypted-watches.md](encrypted-watches.md).
    SMOKE_SCAN_ACCESS_TOKEN=<token> npm run test:smoke:scanner
    ```
 
-   For the open public origin, step 2's manual Turnstile scan is the end-to-end
-   check; step 3 already confirms the unattended (no-token) request is rejected.
+   For the open public origin, step 3's manual Turnstile scan remains the
+   end-to-end visitor check. The public-ingress preflight verifies the secret and
+   non-consuming quota dependency without pretending to solve a CAPTCHA; step 4
+   confirms the unattended (no-token) request is rejected.
 
 ### 2026-07-13 r2 rollout receipt
 
@@ -739,7 +747,9 @@ the committed Shields corpus keep working unchanged.
 Production deploys track the **`production`** branch, never `main`. After both
 test jobs pass, CI fast-forwards `production` to the exact SHA it tested;
 `.github/workflows/promote-production.yml` is an idempotent fallback for
-ordinary push/user-dispatched runs. Both paths share one serialized promotion
+ordinary push/user-dispatched runs. It may also retry when all three test jobs
+passed but CI's direct promotion failed, after reading the completed run and
+requiring each test conclusion to be `success`. Both paths share one serialized promotion
 group and the same safeguards: no force pushes, no out-of-order rewind, and a
 hard failure when the tested SHA is no longer reachable from `main`. CI owns
 the direct path because runs dispatched by repo-writing workflows with

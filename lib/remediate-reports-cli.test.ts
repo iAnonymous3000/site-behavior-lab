@@ -347,6 +347,7 @@ function sensitiveSingle(id: string): ScanResult {
   if (report.reportType === "comparison") throw new Error("expected single report fixture");
   report.conditions.requestedUrl = "https://patient-0123456789abcdef.example.com/users/alice?token=secret";
   report.conditions.finalUrl = report.conditions.requestedUrl;
+  report.summary.firstPartyDomain = "patient-0123456789abcdef.example.com";
   report.share = buildStaticReportShare(id);
   return report;
 }

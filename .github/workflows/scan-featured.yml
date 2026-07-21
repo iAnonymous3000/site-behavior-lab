@@ -85,6 +85,10 @@ env:
   FEATURED_COMPARE_SHIELDS: ${{ github.event.inputs.compare_shields || github.event.client_payload.compare_shields || 'true' }}
   FEATURED_COMPARE_CONSENT: ${{ github.event.inputs.compare_consent || github.event.client_payload.compare_consent || 'false' }}
   FEATURED_DEVICE: ${{ github.event.inputs.device || github.event.client_payload.device || 'desktop' }}
+  # The scheduled catalog contains sites that intermittently refuse automation.
+  # Treat at least 80% as a healthy refresh while keeping lower-yield runs red;
+  # operators can deliberately raise this with a repository Actions variable.
+  FEATURED_MIN_SUCCESS_RATE: ${{ vars.FEATURED_MIN_SUCCESS_RATE || '0.8' }}
   # Disclose that the corpus was scanned from CI (GitHub-hosted runner egress).
   # Override with a repo Actions variable named SCANNER_EGRESS if you scan elsewhere.
   SITE_BEHAVIOR_LAB_SCANNER_EGRESS: ${{ vars.SCANNER_EGRESS || 'github-actions-ubuntu' }}
@@ -154,9 +158,11 @@ jobs:
         run: node scripts/run-featured-scans-diagnostics.mjs --classify-publication
 
       - name: Prune retained static reports
-        # Preserve old evidence when batch health is below the gate. A healthy
-        # full refresh alone may apply age/count retention.
-        if: steps.refresh_policy.outputs.healthy == 'true'
+        # Retention is independent of aggregate batch health. The pruner keeps
+        # each cohort's newest generations and a broad per-site disappearance
+        # guard, so failed targets retain evidence while validated successes do
+        # not make a below-threshold corpus grow without bound.
+        if: steps.refresh_policy.outputs.publishable == 'true'
         run: npm run reports:prune
 
       - name: Verify report redaction and provenance
@@ -285,10 +291,19 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           ISSUE_TITLE: Repair the weekly featured corpus refresh
+          MANAGED_ISSUE_LABEL: site-behavior-lab-featured-refresh
           REFRESH_REPORT_FILE: ${{ runner.temp }}/featured-corpus-refresh.md
           REFRESH_FAILED: ${{ steps.refresh_alert.outputs.failed }}
         run: |
           set -euo pipefail
+
+          if ! gh api --silent "repos/${GITHUB_REPOSITORY}/labels/${MANAGED_ISSUE_LABEL}"; then
+            gh api --silent --method POST "repos/${GITHUB_REPOSITORY}/labels" \
+              -f "name=${MANAGED_ISSUE_LABEL}" \
+              -f color=1d76db \
+              -f description="Managed by the Site Behavior Lab featured-refresh workflow" || \
+              gh api --silent "repos/${GITHUB_REPOSITORY}/labels/${MANAGED_ISSUE_LABEL}"
+          fi
 
           candidates=$(gh api \
             --paginate \
@@ -301,19 +316,40 @@ jobs:
             process.stdin.on("data", (chunk) => { source += chunk; });
             process.stdin.on("end", () => {
               const marker = "<!-- site-behavior-lab:featured-corpus-refresh -->";
-              const matches = JSON.parse(source)
+              const managedLabel = process.env.MANAGED_ISSUE_LABEL;
+              const trusted = JSON.parse(source)
                 .flat()
-                .filter((issue) => !issue.pull_request && typeof issue.body === "string" && issue.body.includes(marker));
-              if (matches.length > 1) throw new Error(`Found ${matches.length} canonical refresh issues; expected at most one.`);
-              if (matches.length === 1) process.stdout.write(`${matches[0].number}|${matches[0].state}`);
+                .map((issue) => {
+                  const labels = Array.isArray(issue.labels)
+                    ? issue.labels.map((label) => typeof label === "string" ? label : label?.name)
+                    : [];
+                  return !issue.pull_request &&
+                    issue.user?.login === "github-actions[bot]" &&
+                    issue.user?.type === "Bot" &&
+                    typeof issue.body === "string" &&
+                    issue.body.includes(marker) ? { issue, labels } : null;
+                })
+                .filter(Boolean);
+              const managed = trusted.filter(({ labels }) => labels.includes(managedLabel));
+              const legacy = trusted.filter(({ issue, labels }) =>
+                !labels.includes(managedLabel) && issue.title === process.env.ISSUE_TITLE);
+              if (managed.length > 1 || legacy.length > 1 || (managed.length === 1 && legacy.length === 1)) {
+                throw new Error("Found conflicting canonical refresh issues; expected at most one trusted managed or legacy issue.");
+              }
+              const selected = managed[0] ?? legacy[0];
+              if (selected) {
+                process.stdout.write(`${selected.issue.number}|${selected.issue.state}|${legacy.length === 1 ? "true" : "false"}`);
+              }
             });
           ')
 
-          issue_number="${match%%|*}"
-          issue_state="${match#*|}"
+          IFS='|' read -r issue_number issue_state issue_needs_label <<< "$match"
           if [[ -z "$match" ]]; then
             issue_number=""
             issue_state=""
+            issue_needs_label="false"
+          elif [[ "$issue_needs_label" == "true" ]]; then
+            gh issue edit "$issue_number" --repo "$GITHUB_REPOSITORY" --add-label "$MANAGED_ISSUE_LABEL"
           fi
 
           if [[ "$REFRESH_FAILED" == "true" ]]; then
@@ -321,7 +357,8 @@ jobs:
               gh issue create \
                 --repo "$GITHUB_REPOSITORY" \
                 --title "$ISSUE_TITLE" \
-                --body-file "$REFRESH_REPORT_FILE"
+                --body-file "$REFRESH_REPORT_FILE" \
+                --label "$MANAGED_ISSUE_LABEL"
             else
               gh issue edit "$issue_number" \
                 --repo "$GITHUB_REPOSITORY" \

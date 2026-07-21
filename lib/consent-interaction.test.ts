@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { chromium } from "playwright";
+import { chromium, type Browser, type Page } from "playwright";
 import {
   cmpSelectorsForChoice,
   consentChoiceLabel,
@@ -17,10 +17,20 @@ import {
 
 const SHADOW_ROOT_CAPABILITY = "c".repeat(64);
 
+async function newConsentPage(browser: Browser): Promise<Page> {
+  const context = await browser.newContext();
+  await context.addInitScript(
+    installConsentShadowRootCapture,
+    consentShadowRootCaptureArgs(SHADOW_ROOT_CAPABILITY)
+  );
+  return context.newPage();
+}
+
 test("whole-label matching accepts the known accept/reject phrases", () => {
   assert.equal(matchesConsentChoice("accept-all", "Accept all"), true);
   assert.equal(matchesConsentChoice("accept-all", "  Accept All Cookies  "), true);
   assert.equal(matchesConsentChoice("accept-all", "I agree"), true);
+  assert.equal(matchesConsentChoice("accept-all", "Tout accepter"), true);
   assert.equal(matchesConsentChoice("reject-all", "Reject all"), true);
   assert.equal(matchesConsentChoice("reject-all", "Decline all cookies"), true);
   assert.equal(matchesConsentChoice("reject-all", "Only necessary cookies"), true);
@@ -80,7 +90,7 @@ test("consentClickArgs serializes the regex source for the page function", () =>
 test("generic consent labels require bounded banner context while known CMP selectors remain direct", { timeout: 20_000 }, async () => {
   const browser = await chromium.launch({ headless: true });
   try {
-    const page = await browser.newPage();
+    const page = await newConsentPage(browser);
 
     await page.setContent(`<!doctype html><body>
       <button id="standalone-agree">I agree</button>
@@ -144,8 +154,14 @@ test("generic consent labels require bounded banner context while known CMP sele
       <script>
         genericAgreeClicks = 0;
         genericDeclineClicks = 0;
-        document.querySelector("#generic-agree").addEventListener("click", () => genericAgreeClicks += 1);
-        document.querySelector("#generic-decline").addEventListener("click", () => genericDeclineClicks += 1);
+        document.querySelector("#generic-agree").addEventListener("click", (event) => {
+          genericAgreeClicks += 1;
+          event.currentTarget.disabled = true;
+        });
+        document.querySelector("#generic-decline").addEventListener("click", (event) => {
+          genericDeclineClicks += 1;
+          event.currentTarget.disabled = true;
+        });
       </script>
     </body>`);
 
@@ -174,8 +190,13 @@ test("generic consent labels require bounded banner context while known CMP sele
     await page.setContent(`<!doctype html><body>
       <section role="dialog">
         <p>Preferencias de privacidad</p>
-        <button>Rechazar todo</button>
+        <button id="localized-reject">Rechazar todo</button>
       </section>
+      <script>
+        document.querySelector("#localized-reject").addEventListener("click", (event) => {
+          event.currentTarget.disabled = true;
+        });
+      </script>
     </body>`);
     assert.equal(
       await page.evaluate(findVisibleConsentControl, consentVisibilityArgs(SHADOW_ROOT_CAPABILITY)),
@@ -192,7 +213,10 @@ test("generic consent labels require bounded banner context while known CMP sele
       <button id="onetrust-accept-btn-handler">Continue</button>
       <script>
         knownCmpClicks = 0;
-        document.querySelector("#onetrust-accept-btn-handler").addEventListener("click", () => knownCmpClicks += 1);
+        document.querySelector("#onetrust-accept-btn-handler").addEventListener("click", (event) => {
+          knownCmpClicks += 1;
+          event.currentTarget.disabled = true;
+        });
       </script>
     </body>`);
     assert.equal(
@@ -213,6 +237,7 @@ test("generic consent labels require bounded banner context while known CMP sele
         const root = document.querySelector("#cmpwrapper").attachShadow({ mode: "open" });
         const accept = document.createElement("button");
         accept.textContent = "Accept all";
+        accept.addEventListener("click", () => accept.remove());
         root.append(accept);
       </script>
     </body>`);
@@ -224,6 +249,323 @@ test("generic consent labels require bounded banner context while known CMP sele
       await page.evaluate(findAndClickConsentControl, consentClickArgs("accept-all", SHADOW_ROOT_CAPABILITY)),
       { clicked: true, matchedText: "accept all" }
     );
+  } finally {
+    await browser.close();
+  }
+});
+
+test("browser probes reject hidden and no-op decoys and continue to a genuine reacting control", { timeout: 20_000 }, async () => {
+  const browser = await chromium.launch({ headless: true });
+  try {
+    const page = await newConsentPage(browser);
+
+    await page.setContent(`<!doctype html><body>
+      <div style="opacity: 0">
+        <button id="onetrust-accept-btn-handler">Accept all</button>
+        <button id="onetrust-reject-all-handler">Reject all</button>
+      </div>
+      <script>
+        hiddenClicks = 0;
+        document.querySelectorAll("button").forEach((button) => {
+          button.addEventListener("click", () => hiddenClicks += 1);
+        });
+      </script>
+    </body>`);
+    assert.equal(
+      await page.evaluate(findVisibleConsentControl, consentVisibilityArgs(SHADOW_ROOT_CAPABILITY)),
+      false,
+      "an opaque control is not visible merely because its own opacity is nonzero"
+    );
+    assert.deepEqual(
+      await page.evaluate(findAndClickConsentControl, consentClickArgs("accept-all", SHADOW_ROOT_CAPABILITY)),
+      { clicked: false }
+    );
+    assert.deepEqual(
+      await page.evaluate(findAndClickConsentControl, consentClickArgs("reject-all", SHADOW_ROOT_CAPABILITY)),
+      { clicked: false }
+    );
+    assert.equal(await page.evaluate(() => Reflect.get(window, "hiddenClicks")), 0);
+
+    await page.setContent(`<!doctype html><body>
+      <div id="usercentrics-root" style="opacity: 0"></div>
+      <script>
+        const root = document.querySelector("#usercentrics-root").attachShadow({ mode: "open" });
+        const button = document.createElement("button");
+        button.dataset.testid = "uc-accept-all-button";
+        button.textContent = "Accept all";
+        button.addEventListener("click", () => window.shadowHiddenClicks = (window.shadowHiddenClicks || 0) + 1);
+        root.append(button);
+      </script>
+    </body>`);
+    assert.equal(
+      await page.evaluate(findVisibleConsentControl, consentVisibilityArgs(SHADOW_ROOT_CAPABILITY)),
+      false,
+      "the visibility walk crosses a shadow boundary to the hidden host"
+    );
+    assert.deepEqual(
+      await page.evaluate(findAndClickConsentControl, consentClickArgs("accept-all", SHADOW_ROOT_CAPABILITY)),
+      { clicked: false }
+    );
+    assert.equal(await page.evaluate(() => Reflect.get(window, "shadowHiddenClicks") ?? 0), 0);
+
+    await page.setContent(`<!doctype html><body>
+      <button id="onetrust-accept-btn-handler" style="filter: opacity(.01); width: 120px; height: 30px">
+        Accept all
+      </button>
+      <div style="position: relative; width: 1px; height: 1px; overflow: hidden">
+        <button id="onetrust-reject-all-handler" style="position: absolute; left: 20px; top: 20px; width: 120px; height: 30px">
+          Reject all
+        </button>
+      </div>
+      <script>
+        hiddenCssClicks = 0;
+        document.querySelectorAll("button").forEach((button) => {
+          button.addEventListener("click", (event) => {
+            hiddenCssClicks += 1;
+            event.currentTarget.disabled = true;
+          });
+        });
+      </script>
+    </body>`);
+    assert.equal(
+      await page.evaluate(findVisibleConsentControl, consentVisibilityArgs(SHADOW_ROOT_CAPABILITY)),
+      false,
+      "filter-hidden and fully ancestor-clipped decoys are not visible"
+    );
+    assert.deepEqual(
+      await page.evaluate(findAndClickConsentControl, consentClickArgs("accept-all", SHADOW_ROOT_CAPABILITY)),
+      { clicked: false }
+    );
+    assert.deepEqual(
+      await page.evaluate(findAndClickConsentControl, consentClickArgs("reject-all", SHADOW_ROOT_CAPABILITY)),
+      { clicked: false }
+    );
+    assert.equal(await page.evaluate(() => Reflect.get(window, "hiddenCssClicks")), 0);
+
+    await page.setContent(`<!doctype html><body>
+      <div style="opacity: .1">
+        <div style="filter: opacity(.1)">
+          <button id="onetrust-reject-all-handler" style="width: 120px; height: 30px">Reject all</button>
+        </div>
+      </div>
+      <script>
+        cumulativeOpacityClicks = 0;
+        document.querySelector("button").addEventListener("click", (event) => {
+          cumulativeOpacityClicks += 1;
+          event.currentTarget.disabled = true;
+        });
+      </script>
+    </body>`);
+    assert.equal(
+      await page.evaluate(findVisibleConsentControl, consentVisibilityArgs(SHADOW_ROOT_CAPABILITY)),
+      false,
+      "ordinary and filter opacity factors are cumulative across ancestors"
+    );
+    assert.deepEqual(
+      await page.evaluate(findAndClickConsentControl, consentClickArgs("reject-all", SHADOW_ROOT_CAPABILITY)),
+      { clicked: false }
+    );
+    assert.equal(await page.evaluate(() => Reflect.get(window, "cumulativeOpacityClicks")), 0);
+
+    await page.setContent(`<!doctype html><body>
+      <button id="onetrust-accept-btn-handler" style="position: absolute; left: 20px; top: 20px; width: 120px; height: 30px">
+        Accept all
+      </button>
+      <div style="position: fixed; inset: 0; z-index: 9999; background: white"></div>
+      <script>
+        occludedClicks = 0;
+        document.querySelector("button").addEventListener("click", (event) => {
+          occludedClicks += 1;
+          event.currentTarget.disabled = true;
+        });
+      </script>
+    </body>`);
+    assert.equal(
+      await page.evaluate(findVisibleConsentControl, consentVisibilityArgs(SHADOW_ROOT_CAPABILITY)),
+      false,
+      "a fully opaque overlay above a control prevents a visibility signal"
+    );
+    assert.deepEqual(
+      await page.evaluate(findAndClickConsentControl, consentClickArgs("accept-all", SHADOW_ROOT_CAPABILITY)),
+      { clicked: false },
+      "a fully occluded known-selector decoy is not clicked"
+    );
+    assert.equal(await page.evaluate(() => Reflect.get(window, "occludedClicks")), 0);
+
+    await page.setContent(`<!doctype html><body>
+      <button id="onetrust-accept-btn-handler">Stale decoy</button>
+      <section id="real-banner">
+        <button id="onetrust-accept-btn-handler">Accept all</button>
+      </section>
+      <script>
+        decoyClicks = 0;
+        realClicks = 0;
+        document.querySelector("body > #onetrust-accept-btn-handler").addEventListener("click", () => {
+          decoyClicks += 1;
+        });
+        document.querySelector("#real-banner button").addEventListener("click", () => {
+          realClicks += 1;
+          setTimeout(() => document.querySelector("#real-banner").remove(), 275);
+        });
+      </script>
+    </body>`);
+    assert.deepEqual(
+      await page.evaluate(findAndClickConsentControl, consentClickArgs("accept-all", SHADOW_ROOT_CAPABILITY)),
+      { clicked: true, cmp: "OneTrust", selector: "#onetrust-accept-btn-handler" },
+      "a no-op duplicate must not suppress a genuine control with a 200-300ms exit animation"
+    );
+    assert.deepEqual(
+      await page.evaluate(() => ({
+        decoy: Reflect.get(window, "decoyClicks"),
+        real: Reflect.get(window, "realClicks")
+      })),
+      { decoy: 1, real: 1 }
+    );
+
+    await page.setContent(`<!doctype html><body>
+      <button id="onetrust-reject-all-handler">No-op reject</button>
+    </body>`);
+    assert.deepEqual(
+      await page.evaluate(findAndClickConsentControl, consentClickArgs("reject-all", SHADOW_ROOT_CAPABILITY)),
+      { clicked: false },
+      "dispatching a synthetic click without a control reaction is not activation proof"
+    );
+
+    await page.setContent(`<!doctype html><body>
+      <button id="onetrust-accept-btn-handler">Forged click override</button>
+      <script>
+        overrideEvents = 0;
+        const overridden = document.querySelector("button");
+        overridden.addEventListener("click", () => overrideEvents += 1);
+        overridden.click = () => { overridden.disabled = true; };
+      </script>
+    </body>`);
+    assert.deepEqual(
+      await page.evaluate(findAndClickConsentControl, consentClickArgs("accept-all", SHADOW_ROOT_CAPABILITY)),
+      { clicked: false },
+      "an own click override cannot forge event dispatch or a reacting activation"
+    );
+    assert.deepEqual(
+      await page.evaluate(() => ({
+        events: Reflect.get(window, "overrideEvents"),
+        disabled: (document.querySelector("button") as HTMLButtonElement).disabled
+      })),
+      { events: 1, disabled: false },
+      "the trusted MouseEvent bypasses the override without accepting its fake disabled state"
+    );
+
+    await page.setContent(`<!doctype html><body>
+      <section id="async-banner">
+        <button id="onetrust-reject-all-handler">Reject all</button>
+      </section>
+      <script>
+        document.querySelector("#onetrust-reject-all-handler").addEventListener("click", () => {
+          setTimeout(() => document.querySelector("#async-banner").remove(), 300);
+        });
+      </script>
+    </body>`);
+    assert.deepEqual(
+      await page.evaluate(findAndClickConsentControl, consentClickArgs("reject-all", SHADOW_ROOT_CAPABILITY)),
+      { clicked: true, cmp: "OneTrust", selector: "#onetrust-reject-all-handler" },
+      "the upper end of a bounded 200-300ms asynchronous dismissal is accepted"
+    );
+
+    await page.setContent(`<!doctype html><body>
+      <button id="onetrust-reject-all-handler">Timer sabotage</button>
+      <script>window.setTimeout = () => 1;</script>
+    </body>`);
+    const timerSabotageStarted = Date.now();
+    assert.deepEqual(
+      await page.evaluate(findAndClickConsentControl, consentClickArgs("reject-all", SHADOW_ROOT_CAPABILITY)),
+      { clicked: false },
+      "page-authored timers cannot bypass the 350ms reaction bound"
+    );
+    const timerSabotageElapsed = Date.now() - timerSabotageStarted;
+    assert.ok(timerSabotageElapsed >= 300 && timerSabotageElapsed < 1_500);
+  } finally {
+    await browser.close();
+  }
+});
+
+test("generic context supports large first-layer banners and the dominant French accept label", { timeout: 20_000 }, async () => {
+  const browser = await chromium.launch({ headless: true });
+  try {
+    const page = await newConsentPage(browser);
+    await page.setContent(`<!doctype html><body>
+      <section role="dialog" aria-label="Préférences de confidentialité">
+        <p>Choix de confidentialité et consentement pour les cookies</p>
+        ${Array.from({ length: 25 }, (_, index) => `<button>Option ${index + 1}</button>`).join("")}
+        <button id="french-accept">Tout accepter</button>
+      </section>
+      <script>
+        document.querySelector("#french-accept").addEventListener("click", (event) => {
+          event.currentTarget.disabled = true;
+        });
+      </script>
+    </body>`);
+    assert.equal(
+      await page.evaluate(findVisibleConsentControl, consentVisibilityArgs(SHADOW_ROOT_CAPABILITY)),
+      true
+    );
+    assert.deepEqual(
+      await page.evaluate(findAndClickConsentControl, consentClickArgs("accept-all", SHADOW_ROOT_CAPABILITY)),
+      { clicked: true, matchedText: "tout accepter" }
+    );
+  } finally {
+    await browser.close();
+  }
+});
+
+test("browser probes retain trusted DOM brands and methods after hostile intrinsic poisoning", { timeout: 20_000 }, async () => {
+  const browser = await chromium.launch({ headless: true });
+  try {
+    const page = await newConsentPage(browser);
+    await page.setContent(`<!doctype html><body>
+      <button id="onetrust-accept-btn-handler">Accept all</button>
+      <script>
+        intrinsicPoisonClickEvents = 0;
+        const target = document.querySelector("button");
+        target.addEventListener("click", () => {
+          intrinsicPoisonClickEvents += 1;
+          target.remove();
+        });
+      </script>
+    </body>`);
+    await page.evaluate(() => {
+      Reflect.set(window, "HTMLElement", class FakeHTMLElement {});
+      Reflect.set(window, "HTMLInputElement", class FakeHTMLInputElement {});
+      Reflect.set(window, "RegExp", class FakeRegExp {});
+      Document.prototype.querySelectorAll = (() => {
+        throw new Error("poisoned Document.querySelectorAll");
+      }) as typeof Document.prototype.querySelectorAll;
+      DocumentFragment.prototype.querySelectorAll = (() => {
+        throw new Error("poisoned DocumentFragment.querySelectorAll");
+      }) as typeof DocumentFragment.prototype.querySelectorAll;
+      Element.prototype.querySelectorAll = (() => {
+        throw new Error("poisoned Element.querySelectorAll");
+      }) as typeof Element.prototype.querySelectorAll;
+      Element.prototype.getBoundingClientRect = (() => {
+        throw new Error("poisoned geometry");
+      }) as typeof Element.prototype.getBoundingClientRect;
+      Element.prototype.getAttribute = (() => {
+        throw new Error("poisoned attributes");
+      }) as typeof Element.prototype.getAttribute;
+      Array.from = (() => []) as typeof Array.from;
+      Array.prototype.some = (() => false) as typeof Array.prototype.some;
+      Array.prototype.includes = (() => false) as typeof Array.prototype.includes;
+      RegExp.prototype.test = (() => false) as typeof RegExp.prototype.test;
+      window.setTimeout = (() => 1) as unknown as typeof window.setTimeout;
+    });
+
+    assert.equal(
+      await page.evaluate(findVisibleConsentControl, consentVisibilityArgs(SHADOW_ROOT_CAPABILITY)),
+      true
+    );
+    assert.deepEqual(
+      await page.evaluate(findAndClickConsentControl, consentClickArgs("accept-all", SHADOW_ROOT_CAPABILITY)),
+      { clicked: true, cmp: "OneTrust", selector: "#onetrust-accept-btn-handler" }
+    );
+    assert.equal(await page.evaluate(() => Reflect.get(window, "intrinsicPoisonClickEvents")), 1);
   } finally {
     await browser.close();
   }
@@ -393,6 +735,7 @@ test("the browser probes reach closed known CMP roots while leaving unrelated ro
       reject.textContent = "Reject all";
       reject.addEventListener("click", () => {
         Reflect.set(window, "openRejectClicks", (Reflect.get(window, "openRejectClicks") ?? 0) + 1);
+        reject.disabled = true;
       });
       root.append(reject);
       document.body.append(host);

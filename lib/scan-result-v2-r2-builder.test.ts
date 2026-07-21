@@ -392,7 +392,7 @@ test("the Node builder emits a validator-clean r2 shell with current provenance 
   assert.equal(report.run.provenance.methodologyVersion, NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION);
   assert.match(report.run.provenance.methodologyVersion, new RegExp(NODE_SCANNER_METHODOLOGY_VERSION));
   assert.equal(recordedPlaywrightVersion(report.run.provenance.methodologyVersion), NODE_PLAYWRIGHT_VERSION);
-  assert.match(report.run.provenance.methodologyVersion, /\+consent-r2-v3\+/);
+  assert.match(report.run.provenance.methodologyVersion, /\+consent-r2-v4\+/);
   assert.deepEqual(report.run.provenance.detectorRegistry, {
     version: DETECTOR_REGISTRY_VERSION,
     digest: DETECTOR_REGISTRY_DIGEST

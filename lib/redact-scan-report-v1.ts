@@ -36,6 +36,8 @@ import {
 import { isCanonicalReportShare } from "./report-locator";
 import { MIN_POLICY_TEXT_LENGTH } from "./privacy-policy";
 import { scannerDisclosure, type ScanConditionsProfile } from "./scan-condition-disclosure";
+import { INVALID_UPSTREAM_RESPONSE_WARNING } from "./scan-runtime";
+import { GPC_WORKER_CAPTURE_LOSS_WARNING } from "./gpc-injection";
 import {
   NODE_PLAYWRIGHT_VERSION,
   NODE_SCANNER_METHODOLOGY_VERSION,
@@ -254,6 +256,8 @@ const FIXED_SCANNER_WARNINGS = new Set([
   "The page did not reach network idle before the Cloudflare scan window ended.",
   "Blocked one or more requests that resolved to local or private network addresses at connection time.",
   "The scan stopped opening additional proxy requests after reaching its connection and target safety budget.",
+  INVALID_UPSTREAM_RESPONSE_WARNING,
+  GPC_WORKER_CAPTURE_LOSS_WARNING,
   CONSENT_RELOAD_DISCLOSURE,
   "The consent interaction left the recorded site; later page state was not used and the active input probe was skipped.",
   "The post-consent reload left the recorded site; its state was not used and the active input probe was skipped.",

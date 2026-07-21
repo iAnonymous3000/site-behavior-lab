@@ -11,6 +11,7 @@
  */
 import { isRecord } from "./guards";
 import { isScanReport } from "./report-validation";
+import { scanReportV1SemanticViolations } from "./scan-report-v1-evaluators";
 import { deepValidateScanReportV1 } from "./scan-report-v1-guard";
 import type { ScanReport } from "./types";
 import {
@@ -30,11 +31,10 @@ export type StoredScanReport =
   | { schemaVersion: 2; schemaRevision: 2; report: PublicScanReportV2R2 };
 
 /**
- * "invalid": malformed wire data. "inconsistent": structurally valid v2 whose
- * derived blocks (quality, verification outcomes, comparability, diff)
- * disagree with a recomputation from the recorded facts; a forged conclusion,
- * not a parse problem. "unsupported-*": capability gaps, never best-effort
- * parsed.
+ * "invalid": malformed wire data. "inconsistent": a structurally valid report
+ * whose derived blocks disagree with a recomputation from the recorded facts;
+ * a forged conclusion, not a parse problem. "unsupported-*": capability gaps,
+ * never best-effort parsed.
  */
 export type ReadStoredScanReportError = "invalid" | "inconsistent" | "unsupported-version" | "unsupported-revision";
 
@@ -53,9 +53,12 @@ export function readStoredScanReport(value: unknown): ReadStoredScanReportResult
     // The frozen validator plus the deep security backport: malformed uploads
     // (null request entries, cookie without a name) fail here as a typed
     // error instead of crashing a consumer downstream.
-    return isScanReport(value) && deepValidateScanReportV1(value)
-      ? { ok: true, stored: { schemaVersion: 1, report: value } }
-      : { ok: false, error: "invalid" };
+    if (!isScanReport(value) || !deepValidateScanReportV1(value)) {
+      return { ok: false, error: "invalid" };
+    }
+    const violations = scanReportV1SemanticViolations(value);
+    if (violations.length > 0) return { ok: false, error: "inconsistent", violations };
+    return { ok: true, stored: { schemaVersion: 1, report: value } };
   }
 
   if (value.schemaVersion === SCAN_REPORT_V2_SCHEMA_VERSION) {

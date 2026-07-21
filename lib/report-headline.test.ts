@@ -454,6 +454,24 @@ test("a plain-text keystroke leak reads as a calmer third-party type-ahead, not 
   assert.match(headline.subhead, /geocode\.arcgis\.com/);
 });
 
+test("privacy-generalized recipient hosts render as wildcards in headline prose", () => {
+  const result = makeResult({
+    firstPartyDomain: "weather.gov",
+    fingerprintDetections: [
+      {
+        kind: "keystroke-exfiltration",
+        heuristic: "input-sentinel-exfiltration-v1",
+        count: 1,
+        evidence: { recipients: ["{label}.arcgis.com"], encodings: ["plain"], fieldsTyped: 1, fieldTypes: ["search"] }
+      }
+    ]
+  });
+
+  const headline = buildReportHeadline(viewFromV1Report(result));
+  assert.match(headline.subhead, /\*\.arcgis\.com/);
+  assert.equal(headline.subhead.includes("{label}"), false);
+});
+
 test("a pixel with populated identifier fields leads over the named-platform story", () => {
   const result = makeResult({
     firstPartyDomain: "shop.example",
@@ -491,7 +509,7 @@ test("an event-only pixel does not trigger the identifier headline", () => {
   assert.match(headline.headline, /shop\.example told Meta you were here\./);
 });
 
-test("trackers surviving a real Reject all click lead the consent-comparison headline", () => {
+test("an unverified legacy consent pair falls through to the raw evidence headline", () => {
   const acceptRun = {
     ...makeResult({
       firstPartyDomain: "shop.example",
@@ -514,20 +532,12 @@ test("trackers surviving a real Reject all click lead the consent-comparison hea
 
   const headline = buildReportHeadline(viewFromV1Report(consentPair(acceptRun, rejectRun)));
   assert.equal(headline.tone, "warn");
-  assert.match(headline.headline, /shop\.example still sent requests to 1 tracking company in the visit that clicked Reject all\./);
-  assert.match(headline.subhead, /Google/);
-  // The recording covers the full visit and the click is never verified, so
-  // no sentence may sequence the traffic relative to the click.
-  assert.match(headline.subhead, /In the visit where the scanner clicked Reject all/);
-  assert.match(headline.subhead, /before and after the click/);
-  assert.match(headline.subhead, /v1 report records only/);
-  assert.match(headline.subhead, /cannot verify/);
-  assert.match(headline.subhead, /legitimate interest/);
-  assert.doesNotMatch(headline.subhead, /After the scanner clicked/);
-  assert.equal(headline.focusArm, "variant");
+  assert.match(headline.headline, /shop\.example told Google and Meta you were here\./);
+  assert.doesNotMatch(`${headline.headline} ${headline.subhead}`, /Reject all|Accept all|after the click/);
+  assert.equal(headline.focusArm, undefined);
 });
 
-test("an unanswered Reject-all tracker is described as a send, never proven receipt", () => {
+test("an unverified legacy consent pair keeps unanswered traffic in raw send-only wording", () => {
   const quietTracker = {
     ...makeTrackerDomain("quiet-tracker.example", 2, "Quiet Analytics", "analytics"),
     statuses: []
@@ -542,9 +552,9 @@ test("an unanswered Reject-all tracker is described as a send, never proven rece
   };
 
   const headline = buildReportHeadline(viewFromV1Report(consentPair(acceptRun, rejectRun)));
-  assert.match(headline.headline, /still sent requests to 1 tracking company/);
+  assert.match(headline.headline, /sent this visit to 1 tracking company/);
   assert.match(headline.subhead, /recorded no response, so receipt is unproven/);
-  assert.doesNotMatch(`${headline.headline} ${headline.subhead}`, /received requests|still reached/);
+  assert.doesNotMatch(`${headline.headline} ${headline.subhead}`, /received requests|still reached|Reject all|Accept all/);
 });
 
 test("a verified r2 consent headline states registration without dropping whole-visit caveats", () => {
@@ -565,7 +575,48 @@ test("a verified r2 consent headline states registration without dropping whole-
   assert.doesNotMatch(headline.subhead, /never verified|cannot verify/);
 });
 
-test("a clean reject run headlines that the consent choice made a difference", () => {
+test("v2 dispatch alone cannot drive a Reject-all headline", () => {
+  const view = viewFromV2(makeConsentInterventionReportV2R2(), 2);
+  const variant = view.runs.find((run) => run.label === "variant");
+  if (!variant?.consent) throw new Error("fixture invariant");
+  variant.consent.choiceState = "unavailable";
+  variant.consent.bannerTransition = null;
+
+  const headline = buildReportHeadline(view);
+  assert.doesNotMatch(headline.headline, /clicked Reject all/);
+  assert.doesNotMatch(headline.subhead, /visit that clicked Reject all/);
+});
+
+test("a contradicted registered consent state cannot fall through to a calm headline", () => {
+  const view = viewFromV2(makeConsentInterventionReportV2R2(), 2);
+  const variant = view.runs.find((run) => run.label === "variant");
+  if (!variant?.consent) throw new Error("fixture invariant");
+  variant.consent.choiceState = "contradicted";
+
+  const headline = buildReportHeadline(view);
+  assert.equal(headline.tone, "warn");
+  assert.match(headline.headline, /registered consent state contradicted the Reject all click/);
+  assert.match(headline.subhead, /does not support an accept-versus-reject outcome/);
+  assert.equal(headline.focusArm, "variant");
+  assert.doesNotMatch(headline.headline, /relatively private/);
+});
+
+test("a no-click consent contradiction names the requested choice without inventing dispatch", () => {
+  const view = viewFromV2(makeConsentInterventionReportV2R2(), 2);
+  const variant = view.runs.find((run) => run.label === "variant");
+  if (!variant?.consent) throw new Error("fixture invariant");
+  variant.consent.controlActivated = false;
+  variant.consent.choiceState = "contradicted";
+
+  const headline = buildReportHeadline(view);
+  assert.equal(headline.tone, "warn");
+  assert.match(headline.headline, /inconsistent with the requested Reject all choice/);
+  assert.match(headline.subhead, /did not activate the Reject all control/);
+  assert.doesNotMatch(`${headline.headline} ${headline.subhead}`, /Reject all click|dispatched choice/);
+  assert.doesNotMatch(headline.headline, /relatively private/);
+});
+
+test("a clean legacy reject attempt cannot drive a consent headline", () => {
   const acceptRun = {
     ...makeResult({
       firstPartyDomain: "shop.example",
@@ -580,11 +631,9 @@ test("a clean reject run headlines that the consent choice made a difference", (
   };
 
   const headline = buildReportHeadline(viewFromV1Report(consentPair(acceptRun, rejectRun)));
-  assert.equal(headline.tone, "info");
-  // The scanner cannot verify the site registered the click, so the headline
-  // describes the Reject-all visit, never an effect the rejection caused.
-  assert.match(headline.headline, /shop\.example recorded no requests to catalogued trackers in the visit that clicked Reject all\./);
-  assert.doesNotMatch(headline.headline, /Rejecting|removed/);
+  assert.equal(headline.tone, "warn");
+  assert.match(headline.headline, /shop\.example told Google you were here\./);
+  assert.doesNotMatch(`${headline.headline} ${headline.subhead}`, /Reject all|Accept all|Rejecting|removed/);
 });
 
 test("an un-clicked reject run falls through to the ordinary evidence headline", () => {
@@ -636,6 +685,25 @@ test("a null status (e.g. PageGraph import) is not treated as a failed load", ()
   assert.match(headline.headline, /quiet\.example kept this visit relatively private\./);
 });
 
+test("the calm absence claim qualifies cookies as third-party", () => {
+  const result = makeResult({ firstPartyDomain: "quiet.example", cookies: 5, thirdPartyCookies: 0 });
+
+  const headline = buildReportHeadline(viewFromV1Report(result));
+  assert.equal(headline.tone, "calm");
+  assert.match(headline.subhead, /third-party cookies/);
+  assert.doesNotMatch(headline.subhead, /tracking companies, cookies/);
+});
+
+test("the calm story discloses raw fingerprint-observer events below the detector threshold", () => {
+  const result = makeResult({ firstPartyDomain: "quiet.example", fingerprintEvents: 2 });
+
+  const headline = buildReportHeadline(viewFromV1Report(result));
+  assert.equal(headline.tone, "calm");
+  assert.match(headline.subhead, /recorded 2 browser-API events used by the fingerprinting heuristics/);
+  assert.match(headline.subhead, /none met a detector's fingerprinting threshold/);
+  assert.doesNotMatch(headline.subhead, /no .*fingerprinting signal/i);
+});
+
 test("a request-capped quiet visit is framed as cut short, never as relatively private", () => {
   // 1,200 recorded requests trips the cap rule; with no catalogued trackers
   // the old calm story would have read truncation as privacy.
@@ -665,6 +733,7 @@ type ResultOverrides = {
   totalRequests?: number;
   thirdPartyRequests?: number;
   thirdPartyDomains?: number;
+  cookies?: number;
   thirdPartyCookies?: number;
   fingerprintEvents?: number;
   fingerprintDetections?: FingerprintDetectionSummary[];
@@ -730,7 +799,7 @@ function makeResult(overrides: ResultOverrides = {}): ScanResult {
       thirdPartyRequests,
       knownTrackerRequests,
       thirdPartyDomains: overrides.thirdPartyDomains ?? domains.length,
-      cookies: overrides.thirdPartyCookies ?? 0,
+      cookies: overrides.cookies ?? overrides.thirdPartyCookies ?? 0,
       thirdPartyCookies: overrides.thirdPartyCookies ?? 0,
       storageEntries: 0,
       fingerprintEvents: overrides.fingerprintEvents ?? 0

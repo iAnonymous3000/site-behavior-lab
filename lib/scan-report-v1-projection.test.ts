@@ -26,7 +26,17 @@ function rawSingle(): ScanResult {
       startedAtMs: 1
     }
   ];
-  report.domains = [];
+  report.domains = [
+    {
+      domain: "a8f3c9d2e1b4f6a7.telemetry.example.net",
+      requests: 1,
+      thirdParty: true,
+      tracker: null,
+      blockedByShields: false,
+      statuses: [200],
+      resourceTypes: ["script"]
+    }
+  ];
   report.cookies = [
     {
       name: "anna_private_cookie",

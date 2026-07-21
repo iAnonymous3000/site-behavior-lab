@@ -35,6 +35,7 @@ export type DurableReplayFaultEnvironment = Readonly<{
   SITE_BEHAVIOR_LAB_DURABLE_JOBS_INTERNAL_TOKEN?: string;
   SITE_BEHAVIOR_LAB_DURABLE_JOBS_COORDINATOR_URL?: string;
   SITE_BEHAVIOR_LAB_ALLOW_UNAUTHENTICATED_SCANS?: string;
+  SITE_BEHAVIOR_LAB_SYNTHETIC_MONITOR_TOKEN?: string;
   SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN?: string;
   TURNSTILE_SECRET_KEY?: string;
   SITE_BEHAVIOR_LAB_R2_BUCKET?: string;
@@ -144,6 +145,7 @@ export function durableReplayFaultConfig(
     const otherSecrets = [
       env[DURABLE_SCAN_JOB_ENCRYPTION_KEY_ENV],
       env[DURABLE_SCAN_JOB_INTERNAL_TOKEN_ENV],
+      env.SITE_BEHAVIOR_LAB_SYNTHETIC_MONITOR_TOKEN,
       env.SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN,
       env.TURNSTILE_SECRET_KEY,
       env.SITE_BEHAVIOR_LAB_R2_ACCESS_KEY_ID,
@@ -156,7 +158,7 @@ export function durableReplayFaultConfig(
       .filter((value): value is string => value !== null);
     if (otherSecrets.includes(faultToken)) {
       reasons.push(
-        `${DURABLE_REPLAY_FAULT_TOKEN_ENV} must not reuse any durable-job, access-gate, Turnstile, or R2 secret.`
+        `${DURABLE_REPLAY_FAULT_TOKEN_ENV} must not reuse any durable-job, synthetic-monitor, access-gate, Turnstile, or R2 secret.`
       );
     }
   }

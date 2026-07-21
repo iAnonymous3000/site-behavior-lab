@@ -6,6 +6,7 @@ import {
   constantTimeEqual,
   enforcePublicScanRateLimit,
   openScanBlockedForMissingTurnstile,
+  probeTurnstileConfiguration,
   publicClientHash,
   publicScanGateStatus,
   publicScanRateLimit,
@@ -64,6 +65,67 @@ test("assertTurnstileToken requires a token and honors the siteverify result", a
     (error: unknown) => error instanceof EdgeScanGateError && error.status === 403
   );
   await assert.doesNotReject(() => assertTurnstileToken({ secret: "k", token: "t", fetchImpl: okFetch(true) }));
+});
+
+test("Turnstile configuration probe distinguishes a valid secret from secret and transport failures", async () => {
+  let requestedUrl = "";
+  let requestInit: RequestInit | undefined;
+  const validSecretFetch = (async (input: URL | RequestInfo, init?: RequestInit) => {
+    requestedUrl = String(input);
+    requestInit = init;
+    return new Response(
+      JSON.stringify({ success: false, "error-codes": ["invalid-input-response"] }),
+      { status: 200, headers: { "content-type": "application/json" } }
+    );
+  }) as typeof fetch;
+  assert.equal(
+    await probeTurnstileConfiguration({ secret: "valid-secret", fetchImpl: validSecretFetch }),
+    "verified"
+  );
+  assert.equal(requestedUrl, "https://challenges.cloudflare.com/turnstile/v0/siteverify");
+  assert.equal(requestInit?.method, "POST");
+  assert.equal(requestInit?.redirect, "error");
+  assert.ok(requestInit?.signal instanceof AbortSignal);
+  const body = requestInit?.body as URLSearchParams;
+  assert.equal(body.get("secret"), "valid-secret");
+  assert.match(body.get("response") ?? "", /health-probe-invalid-token/);
+
+  const invalidSecretFetch = (async () =>
+    new Response(
+      JSON.stringify({ success: false, "error-codes": ["invalid-input-secret"] }),
+      { status: 200, headers: { "content-type": "application/json" } }
+    )) as typeof fetch;
+  assert.equal(
+    await probeTurnstileConfiguration({ secret: "wrong-secret", fetchImpl: invalidSecretFetch }),
+    "misconfigured"
+  );
+  assert.equal(await probeTurnstileConfiguration({ secret: "   ", fetchImpl: validSecretFetch }), "misconfigured");
+
+  const unavailableFetch = (async () => {
+    throw new Error("offline");
+  }) as typeof fetch;
+  assert.equal(
+    await probeTurnstileConfiguration({ secret: "valid-secret", fetchImpl: unavailableFetch }),
+    "unavailable"
+  );
+  assert.equal(
+    await probeTurnstileConfiguration({
+      secret: "valid-secret",
+      fetchImpl: (async () => new Response("oops", { status: 502 })) as typeof fetch
+    }),
+    "unavailable"
+  );
+  assert.equal(
+    await probeTurnstileConfiguration({
+      secret: "valid-secret",
+      fetchImpl: (async () =>
+        new Response(
+          JSON.stringify({ success: false, "error-codes": ["invalid-input-response", "internal-error"] }),
+          { status: 200 }
+        )) as typeof fetch
+    }),
+    "unavailable"
+  );
 });
 
 test("enforcePublicScanRateLimit charges windows and rejects over the per-minute limit", async () => {

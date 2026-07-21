@@ -43,6 +43,22 @@ function isFiniteNumber(value: unknown): value is number {
   return typeof value === "number" && Number.isFinite(value);
 }
 
+function isSafeInteger(value: unknown): value is number {
+  return typeof value === "number" && Number.isSafeInteger(value);
+}
+
+function isNonNegativeSafeInteger(value: unknown): value is number {
+  return isSafeInteger(value) && value >= 0;
+}
+
+function isPositiveSafeInteger(value: unknown): value is number {
+  return isSafeInteger(value) && value > 0;
+}
+
+function isHttpStatus(value: unknown): value is number {
+  return isSafeInteger(value) && value >= 100 && value <= 599;
+}
+
 function isOptionalString(value: unknown): boolean {
   return value === undefined || typeof value === "string";
 }
@@ -51,8 +67,16 @@ function isStringArray(value: unknown): value is string[] {
   return Array.isArray(value) && value.every((entry) => typeof entry === "string");
 }
 
-function isNumberArray(value: unknown): value is number[] {
-  return Array.isArray(value) && value.every(isFiniteNumber);
+function isHttpStatusArray(value: unknown): value is number[] {
+  return Array.isArray(value) && value.every(isHttpStatus);
+}
+
+function isUniqueStringArray(value: unknown): value is string[] {
+  return isStringArray(value) && new Set(value).size === value.length;
+}
+
+function isUniqueHttpStatusArray(value: unknown): value is number[] {
+  return isHttpStatusArray(value) && new Set(value).size === value.length;
 }
 
 function isV1Tracker(value: unknown): boolean {
@@ -90,17 +114,17 @@ function isV1Provenance(value: unknown): boolean {
 function isV1Request(value: unknown): boolean {
   return (
     isRecord(value) &&
-    isFiniteNumber(value.id) &&
+    isPositiveSafeInteger(value.id) &&
     typeof value.url === "string" &&
     typeof value.domain === "string" &&
     typeof value.method === "string" &&
     typeof value.resourceType === "string" &&
-    (value.status === null || isFiniteNumber(value.status)) &&
+    (value.status === null || isHttpStatus(value.status)) &&
     typeof value.thirdParty === "boolean" &&
     (value.tracker === null || isV1Tracker(value.tracker)) &&
     (value.blockedByShields === undefined || typeof value.blockedByShields === "boolean") &&
     (value.provenance === undefined || isV1Provenance(value.provenance)) &&
-    isFiniteNumber(value.startedAtMs)
+    isNonNegativeSafeInteger(value.startedAtMs)
   );
 }
 
@@ -108,12 +132,12 @@ function isV1Domain(value: unknown): boolean {
   return (
     isRecord(value) &&
     typeof value.domain === "string" &&
-    isFiniteNumber(value.requests) &&
+    isNonNegativeSafeInteger(value.requests) &&
     typeof value.thirdParty === "boolean" &&
     (value.tracker === null || isV1Tracker(value.tracker)) &&
     (value.blockedByShields === undefined || typeof value.blockedByShields === "boolean") &&
-    isNumberArray(value.statuses) &&
-    isStringArray(value.resourceTypes)
+    isUniqueHttpStatusArray(value.statuses) &&
+    isUniqueStringArray(value.resourceTypes)
   );
 }
 
@@ -137,12 +161,22 @@ function isV1Storage(value: unknown): boolean {
     typeof value.area === "string" &&
     STORAGE_AREAS.has(value.area) &&
     typeof value.key === "string" &&
-    isFiniteNumber(value.valueBytes)
+    isNonNegativeSafeInteger(value.valueBytes)
   );
 }
 
 function isV1FingerprintEvent(value: unknown): boolean {
-  return isRecord(value) && typeof value.api === "string" && isFiniteNumber(value.count);
+  return isRecord(value) && typeof value.api === "string" && isNonNegativeSafeInteger(value.count);
+}
+
+function isV1FingerprintDetection(value: unknown): boolean {
+  if (!isFingerprintDetectionSummary(value) || !isRecord(value) || !isRecord(value.evidence)) return false;
+  return (
+    isPositiveSafeInteger(value.count) &&
+    Object.values(value.evidence).every(
+      (entry) => typeof entry !== "number" || isNonNegativeSafeInteger(entry)
+    )
+  );
 }
 
 function isV1CnameCloak(value: unknown): boolean {
@@ -154,11 +188,17 @@ function isV1PixelEvent(value: unknown): boolean {
     isRecord(value) &&
     typeof value.platform === "string" &&
     typeof value.product === "string" &&
-    isStringArray(value.events) &&
+    isUniqueStringArray(value.events) &&
     Array.isArray(value.advancedMatching) &&
     value.advancedMatching.every((field) => typeof field === "string" && PIXEL_MATCH_FIELDS.has(field)) &&
-    isFiniteNumber(value.requests)
+    new Set(value.advancedMatching).size === value.advancedMatching.length &&
+    isNonNegativeSafeInteger(value.requests)
   );
+}
+
+function hasUniquePixelPlatforms(values: unknown[]): boolean {
+  const platforms = values.map((entry) => (isRecord(entry) && typeof entry.platform === "string" ? entry.platform : null));
+  return platforms.every((platform) => platform !== null) && new Set(platforms).size === platforms.length;
 }
 
 function isV1PrivacyPolicy(value: unknown): boolean {
@@ -172,7 +212,7 @@ function isV1PrivacyPolicy(value: unknown): boolean {
     ) &&
     isStringArray(value.mentionedEntities) &&
     isStringArray(value.unmentionedEntities) &&
-    isFiniteNumber(value.policyTextLength)
+    isNonNegativeSafeInteger(value.policyTextLength)
   );
 }
 
@@ -195,8 +235,7 @@ function isV1Share(value: unknown): boolean {
 
 function isV1Summary(value: unknown): boolean {
   if (!isRecord(value)) return false;
-  const numericFields = [
-    "durationMs",
+  const countFields = [
     "totalRequests",
     "thirdPartyRequests",
     "knownTrackerRequests",
@@ -208,10 +247,11 @@ function isV1Summary(value: unknown): boolean {
   ];
   return (
     typeof value.pageTitle === "string" &&
-    (value.status === null || isFiniteNumber(value.status)) &&
+    (value.status === null || isHttpStatus(value.status)) &&
+    isNonNegativeSafeInteger(value.durationMs) &&
     typeof value.firstPartyDomain === "string" &&
-    numericFields.every((field) => isFiniteNumber(value[field])) &&
-    (value.shieldsBlockedRequests === undefined || isFiniteNumber(value.shieldsBlockedRequests))
+    countFields.every((field) => isNonNegativeSafeInteger(value[field])) &&
+    (value.shieldsBlockedRequests === undefined || isNonNegativeSafeInteger(value.shieldsBlockedRequests))
   );
 }
 
@@ -235,8 +275,8 @@ function isV1Conditions(value: unknown): boolean {
   return (
     stringFields.every((field) => typeof value[field] === "string") &&
     isRecord(viewport) &&
-    isFiniteNumber(viewport.width) &&
-    isFiniteNumber(viewport.height) &&
+    isPositiveSafeInteger(viewport.width) &&
+    isPositiveSafeInteger(viewport.height) &&
     typeof viewport.isMobile === "boolean" &&
     typeof value.gpcEnabled === "boolean" &&
     typeof value.headless === "boolean" &&
@@ -250,14 +290,14 @@ function isV1Conditions(value: unknown): boolean {
       (isRecord(adblock) &&
         typeof adblock.active === "boolean" &&
         typeof adblock.source === "string" &&
-        isFiniteNumber(adblock.lists) &&
+        isNonNegativeSafeInteger(adblock.lists) &&
         typeof adblock.fetchedAt === "string")) &&
     isRecord(catalog) &&
     typeof catalog.source === "string" &&
     typeof catalog.version === "string" &&
     typeof catalog.region === "string" &&
-    isFiniteNumber(catalog.entries) &&
-    isFiniteNumber(catalog.curatedOverrides) &&
+    isNonNegativeSafeInteger(catalog.entries) &&
+    isNonNegativeSafeInteger(catalog.curatedOverrides) &&
     typeof catalog.license === "string"
   );
 }
@@ -278,9 +318,12 @@ function deepValidateV1Result(result: ScanResult): boolean {
     Array.isArray(value.fingerprintEvents) &&
     value.fingerprintEvents.every(isV1FingerprintEvent) &&
     (value.fingerprintDetections === undefined ||
-      (Array.isArray(value.fingerprintDetections) && value.fingerprintDetections.every(isFingerprintDetectionSummary))) &&
+      (Array.isArray(value.fingerprintDetections) && value.fingerprintDetections.every(isV1FingerprintDetection))) &&
     (value.cnameCloaks === undefined || (Array.isArray(value.cnameCloaks) && value.cnameCloaks.every(isV1CnameCloak))) &&
-    (value.pixelEvents === undefined || (Array.isArray(value.pixelEvents) && value.pixelEvents.every(isV1PixelEvent))) &&
+    (value.pixelEvents === undefined ||
+      (Array.isArray(value.pixelEvents) &&
+        value.pixelEvents.every(isV1PixelEvent) &&
+        hasUniquePixelPlatforms(value.pixelEvents))) &&
     (value.privacyPolicy === undefined || isV1PrivacyPolicy(value.privacyPolicy)) &&
     (value.consentInteraction === undefined || isV1ConsentInteraction(value.consentInteraction)) &&
     // `undefined` matches the frozen validator: the UI's JSON export drops the
@@ -293,20 +336,30 @@ function deepValidateV1Result(result: ScanResult): boolean {
 }
 
 function isV1MetricDelta(value: unknown): boolean {
-  return isRecord(value) && isFiniteNumber(value.before) && isFiniteNumber(value.after) && isFiniteNumber(value.delta);
+  return (
+    isRecord(value) &&
+    isNonNegativeSafeInteger(value.before) &&
+    isNonNegativeSafeInteger(value.after) &&
+    isSafeInteger(value.delta)
+  );
 }
 
 function isV1DomainChange(value: unknown): boolean {
   return (
     isRecord(value) &&
     typeof value.domain === "string" &&
-    isFiniteNumber(value.requests) &&
+    isNonNegativeSafeInteger(value.requests) &&
     (value.tracker === null || isV1Tracker(value.tracker))
   );
 }
 
 function isV1EntityChange(value: unknown): boolean {
-  return isRecord(value) && typeof value.entity === "string" && isFiniteNumber(value.requests) && isFiniteNumber(value.domains);
+  return (
+    isRecord(value) &&
+    typeof value.entity === "string" &&
+    isNonNegativeSafeInteger(value.requests) &&
+    isNonNegativeSafeInteger(value.domains)
+  );
 }
 
 function isV1CookieChange(value: unknown): boolean {
@@ -325,7 +378,7 @@ function isV1FingerprintingChange(value: unknown): boolean {
     typeof value.kind === "string" &&
     DETECTION_KINDS.has(value.kind) &&
     typeof value.heuristic === "string" &&
-    isFiniteNumber(value.count)
+    isNonNegativeSafeInteger(value.count)
   );
 }
 
@@ -334,9 +387,10 @@ function isV1PixelEventChange(value: unknown): boolean {
     isRecord(value) &&
     typeof value.platform === "string" &&
     typeof value.product === "string" &&
-    isStringArray(value.events) &&
+    isUniqueStringArray(value.events) &&
     Array.isArray(value.advancedMatching) &&
-    value.advancedMatching.every((field) => typeof field === "string" && PIXEL_MATCH_FIELDS.has(field))
+    value.advancedMatching.every((field) => typeof field === "string" && PIXEL_MATCH_FIELDS.has(field)) &&
+    new Set(value.advancedMatching).size === value.advancedMatching.length
   );
 }
 
@@ -344,7 +398,7 @@ function isV1ProvenanceChange(value: unknown): boolean {
   return (
     isRecord(value) &&
     typeof value.domain === "string" &&
-    isFiniteNumber(value.requests) &&
+    isNonNegativeSafeInteger(value.requests) &&
     (value.tracker === null || isV1Tracker(value.tracker)) &&
     (value.initiator === null || typeof value.initiator === "string") &&
     (value.script === null || typeof value.script === "string") &&
@@ -383,9 +437,13 @@ function isV1Diff(value: unknown): boolean {
     (value.shieldsBlockedRequests === undefined || isV1MetricDelta(value.shieldsBlockedRequests)) &&
     changeArrays.every(([field, check]) => Array.isArray(value[field]) && (value[field] as unknown[]).every(check)) &&
     (value.addedPixelEvents === undefined ||
-      (Array.isArray(value.addedPixelEvents) && value.addedPixelEvents.every(isV1PixelEventChange))) &&
+      (Array.isArray(value.addedPixelEvents) &&
+        value.addedPixelEvents.every(isV1PixelEventChange) &&
+        hasUniquePixelPlatforms(value.addedPixelEvents))) &&
     (value.removedPixelEvents === undefined ||
-      (Array.isArray(value.removedPixelEvents) && value.removedPixelEvents.every(isV1PixelEventChange)))
+      (Array.isArray(value.removedPixelEvents) &&
+        value.removedPixelEvents.every(isV1PixelEventChange) &&
+        hasUniquePixelPlatforms(value.removedPixelEvents)))
   );
 }
 

@@ -1,9 +1,10 @@
 import assert from "node:assert/strict";
 import { createServer } from "node:http";
-import { connect } from "node:net";
+import { connect, createServer as createNetServer } from "node:net";
 import { test } from "node:test";
 import { PublicScanError } from "./public-errors";
 import { TCF_API_METHOD } from "./consent-verification";
+import { GPC_WORKER_CAPTURE_LOSS_WARNING } from "./gpc-injection";
 import { MeasurementKernel } from "./measurement-kernel";
 import { buildScanConditions, buildScanResult } from "./scan-result-builder";
 import { ScanNetworkRecorder } from "./scan-runtime";
@@ -14,10 +15,12 @@ import {
   closeSharedBrowserForTests,
   createContextOptions,
   decideRoutedRequest,
+  fingerprintFrameCoverageStatus,
   MAX_RECORDED_REQUESTS,
   NON_HTTP_WARNING_EXAMPLE_LIMIT,
   phaseAwareDetections,
   redactUrlForReport,
+  retainedScanEvidenceDiagnostics,
   SCAN_CHROMIUM_LAUNCH_ARGS,
   ScanRequestBudget,
   scannerEgressRegion,
@@ -26,8 +29,10 @@ import {
   ScanWarningCollector,
   sameScanSubjectUrl,
   stagedSingleVisitMeasurement,
-  typeSentinelIntoFields
+  typeSentinelIntoFields,
+  type ScanEvidenceDiagnostics
 } from "./scanner";
+import { INVALID_UPSTREAM_RESPONSE_WARNING } from "./scan-runtime";
 import { resolveScannerEgressRegion } from "./scanner-egress";
 
 test("scannerEgressRegion records only r2-safe explicit regions or complete Cloudflare placement", () => {
@@ -98,6 +103,12 @@ test("scan browser contexts block Service Workers on desktop and mobile", () => 
     );
     assert.equal(options.serviceWorkers, "block");
   }
+});
+
+test("fingerprint frame coverage never treats one readable frame as complete coverage for two attempted frames", () => {
+  assert.equal(fingerprintFrameCoverageStatus({ attemptedFrames: 2, readableFrames: 1 }), "partial");
+  assert.equal(fingerprintFrameCoverageStatus({ attemptedFrames: 1, readableFrames: 0 }), "failed");
+  assert.equal(fingerprintFrameCoverageStatus({ attemptedFrames: 2, readableFrames: 2 }), "complete");
 });
 
 test("post-consent subject checks require the exact normalized HTTP(S) origin", () => {
@@ -344,14 +355,190 @@ test("ScanRequestBudget exposes its request-capture loss without target data", (
   assert.deepEqual(budget.getDiagnostics(), {
     name: "request-capture",
     family: "requests",
-    captureLoss: false
+    captureLoss: false,
+    captureLossCount: 0
   });
   assert.equal(budget.allowRoutedHttpRequest(), true);
   assert.equal(budget.allowRoutedHttpRequest(), false);
   assert.deepEqual(budget.getDiagnostics(), {
     name: "request-capture",
     family: "requests",
-    captureLoss: true
+    captureLoss: true,
+    captureLossCount: 1
+  });
+});
+
+test("ScanRequestBudget can defer its legacy warning until a retained evidence boundary", () => {
+  const warnings = new ScanWarningCollector();
+  const budget = new ScanRequestBudget(warnings, 1, true);
+  assert.equal(budget.allowRoutedHttpRequest(), true);
+  assert.equal(budget.allowRoutedHttpRequest(), false);
+  assert.deepEqual(warnings.list, []);
+  assert.equal(budget.getDiagnostics().captureLossCount, 1);
+
+  budget.emitCaptureLossWarning();
+  budget.emitCaptureLossWarning();
+  assert.deepEqual(warnings.list, ["The scan stopped recording or loading additional requests after 1 requests."]);
+});
+
+test("retained scanner diagnostics subtract reload loss while keeping later active-probe loss", () => {
+  const snapshot = (input: {
+    invalid: number;
+    trafficLoss: number;
+    transactions: number;
+    uniqueTargets: number;
+    responseBytes: number;
+    responseLoss: number;
+    uploadBytes: number;
+    uploadLoss: number;
+    requestLoss: number;
+    ambiguous: number;
+    transform: number;
+    unsupported: number;
+    pendingIds: number[];
+  }): ScanEvidenceDiagnostics => ({
+    proxy: {
+      invalidUpstreamResponseCount: input.invalid,
+      trafficBudget: {
+        name: "proxy-traffic",
+        family: "requests",
+        transactionLimit: 100,
+        transactionsSeen: input.transactions,
+        uniqueTargetLimit: 100,
+        uniqueTargetsSeen: input.uniqueTargets,
+        captureLoss: input.trafficLoss > 0
+          ? {
+              family: "requests",
+              phaseId: null,
+              kind: "cap",
+              count: input.trafficLoss,
+              detail: "proxy-traffic"
+            }
+          : null
+      },
+      responseByteBudget: {
+        name: "request-capture",
+        family: "requests",
+        limitBytes: 100,
+        forwardedBytes: input.responseBytes,
+        remainingBytes: 100 - input.responseBytes,
+        limitReached: input.responseBytes >= 100,
+        captureLoss: input.responseLoss > 0
+          ? {
+              family: "requests",
+              phaseId: null,
+              kind: "cap",
+              count: input.responseLoss,
+              detail: "request-capture"
+            }
+          : null
+      },
+      uploadByteBudget: {
+        name: "request-upload",
+        family: "requests",
+        limitBytes: 100,
+        forwardedBytes: input.uploadBytes,
+        remainingBytes: 100 - input.uploadBytes,
+        limitReached: input.uploadBytes >= 100,
+        captureLoss: input.uploadLoss > 0
+          ? {
+              family: "requests",
+              phaseId: null,
+              kind: "cap",
+              count: input.uploadLoss,
+              detail: "request-upload"
+            }
+          : null
+      }
+    },
+    requestCapture: {
+      name: "request-capture",
+      family: "requests",
+      captureLoss: input.requestLoss > 0,
+      captureLossCount: input.requestLoss
+    },
+    gpcWorker: {
+      diagnostics: {
+        ambiguousWorkerRequestCount: input.ambiguous,
+        captureLossCount: input.ambiguous + input.transform + input.unsupported + input.pendingIds.length,
+        pendingWorkerRegistrationCount: input.pendingIds.length,
+        transformFailureCount: input.transform,
+        unsupportedWorkerCount: input.unsupported
+      },
+      pendingWorkerRegistrationIds: input.pendingIds
+    }
+  });
+
+  const before = snapshot({
+    invalid: 1,
+    trafficLoss: 1,
+    transactions: 10,
+    uniqueTargets: 2,
+    responseBytes: 20,
+    responseLoss: 1,
+    uploadBytes: 5,
+    uploadLoss: 0,
+    requestLoss: 1,
+    ambiguous: 1,
+    transform: 0,
+    unsupported: 0,
+    pendingIds: [1]
+  });
+  const after = snapshot({
+    invalid: 4,
+    trafficLoss: 4,
+    transactions: 30,
+    uniqueTargets: 5,
+    responseBytes: 60,
+    responseLoss: 3,
+    uploadBytes: 20,
+    uploadLoss: 2,
+    requestLoss: 5,
+    ambiguous: 3,
+    transform: 2,
+    unsupported: 1,
+    pendingIds: [2, 3]
+  });
+  const final = snapshot({
+    invalid: 6,
+    trafficLoss: 5,
+    transactions: 35,
+    uniqueTargets: 6,
+    responseBytes: 70,
+    responseLoss: 5,
+    uploadBytes: 25,
+    uploadLoss: 2,
+    requestLoss: 8,
+    ambiguous: 4,
+    transform: 4,
+    unsupported: 1,
+    pendingIds: [2, 3, 4]
+  });
+
+  const retained = retainedScanEvidenceDiagnostics(final, { before, after });
+  assert.equal(retained.proxy.invalidUpstreamResponseCount, 3);
+  assert.equal(retained.proxy.trafficBudget.transactionsSeen, 15);
+  assert.equal(retained.proxy.trafficBudget.uniqueTargetsSeen, 3);
+  assert.equal(retained.proxy.trafficBudget.captureLoss?.count, 2);
+  assert.equal(retained.proxy.responseByteBudget.forwardedBytes, 30);
+  assert.equal(retained.proxy.responseByteBudget.captureLoss?.count, 3);
+  assert.equal(retained.proxy.uploadByteBudget.forwardedBytes, 10);
+  assert.equal(retained.proxy.uploadByteBudget.captureLoss, null);
+  assert.deepEqual(retained.requestCapture, {
+    name: "request-capture",
+    family: "requests",
+    captureLoss: true,
+    captureLossCount: 4
+  });
+  assert.deepEqual(retained.gpcWorker, {
+    diagnostics: {
+      ambiguousWorkerRequestCount: 2,
+      captureLossCount: 5,
+      pendingWorkerRegistrationCount: 1,
+      transformFailureCount: 2,
+      unsupportedWorkerCount: 0
+    },
+    pendingWorkerRegistrationIds: [4]
   });
 });
 
@@ -1075,12 +1262,12 @@ test("scanSite stages live phase-aware readbacks while returning only v1", { tim
       ).length
     );
 
-    const tampered = stagedSingleVisitMeasurement(await runFixture("http://phase-collection.test/?tamper=1"));
-    assert.notEqual(tampered, null);
-    assert.deepEqual(tampered!.verificationFacts.gpc, {
+    const tamperAttempt = stagedSingleVisitMeasurement(await runFixture("http://phase-collection.test/?tamper=1"));
+    assert.notEqual(tamperAttempt, null);
+    assert.deepEqual(tamperAttempt!.verificationFacts.gpc, {
       method: "gpc-header-readback@1",
       header: "confirmed-present",
-      jsSignal: "confirmed-false",
+      jsSignal: "confirmed-true",
       observedOn: "first-party-navigation",
       phaseId: 0
     });
@@ -1117,6 +1304,339 @@ test("scanSite stages live phase-aware readbacks while returning only v1", { tim
   }
 });
 
+test("scanSite marks fingerprint coverage partial when a poisoned main frame is masked by a readable iframe", { timeout: 20_000 }, async () => {
+  const upstream = createServer((request, response) => {
+    const host = request.headers.host?.split(":")[0];
+    response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+    if (host === "clean-fingerprint-frame.test") {
+      response.end("<!doctype html><title>clean child</title>");
+      return;
+    }
+    response.end(`<!doctype html><title>partial fingerprint coverage</title>
+      <iframe src="http://clean-fingerprint-frame.test/frame"></iframe>
+      <script>
+        for (let index = 0; index <= 256; index += 1) {
+          const canvas = document.createElement("canvas");
+          canvas.getContext("2d").fillText("abcdefghij", 0, 16);
+        }
+      </script>`);
+  });
+  await new Promise<void>((resolve, reject) => {
+    upstream.once("error", reject);
+    upstream.listen(0, "127.0.0.1", resolve);
+  });
+  const address = upstream.address();
+  assert.ok(address && typeof address === "object");
+
+  try {
+    const result = await scanSite(
+      {
+        url: "http://fingerprint-partial.test/",
+        device: "desktop",
+        gpcEnabled: false,
+        consentMode: "observe"
+      },
+      {
+        publicUrlAlreadyVerified: true,
+        verifyPublicUrl: async () => undefined,
+        resolvePublicHost: async () => [{ address: "93.184.216.34", family: 4 }],
+        connectProxyUpstreamForTests: () => connect(address.port, "127.0.0.1"),
+        resolveCnameChain: async () => []
+      }
+    );
+    const staged = stagedSingleVisitMeasurement(result);
+    assert.notEqual(staged, null);
+    assert.deepEqual(staged!.measurement.detectors["fingerprint-heuristics"], {
+      version: "fingerprint-observer@1",
+      status: "partial",
+      reason: "scan-failed",
+      phaseId: 0
+    });
+    assert.equal(
+      staged!.measurement.qualityFacts.captureLoss.some(
+        (loss) =>
+          loss.family === "fingerprinting" &&
+          loss.phaseId === 0 &&
+          loss.kind === "dropped" &&
+          loss.count >= 1
+      ),
+      true
+    );
+  } finally {
+    await closeSharedBrowserForTests();
+    await new Promise<void>((resolve) => upstream.close(() => resolve()));
+  }
+});
+
+test("malformed upstream status metadata becomes explicit request capture loss", { timeout: 20_000 }, async () => {
+  const upstream = createNetServer((socket) => {
+    let request = "";
+    socket.on("data", (chunk) => {
+      request += chunk.toString("latin1");
+      if (!request.includes("\r\n\r\n")) return;
+      socket.removeAllListeners("data");
+      const path = request.split(" ")[1] ?? "/";
+      if (path === "/bad.js") {
+        socket.end(Buffer.from("HTTP/1.1 200 Bad\x07Phrase\r\nContent-Length: 0\r\nConnection: close\r\n\r\n", "latin1"));
+        return;
+      }
+      const body = "<!doctype html><title>Malformed subresource fixture</title><script src='/bad.js'></script>";
+      socket.end(
+        `HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nContent-Length: ${Buffer.byteLength(body)}\r\nConnection: close\r\n\r\n${body}`
+      );
+    });
+  });
+  await new Promise<void>((resolve, reject) => {
+    upstream.once("error", reject);
+    upstream.listen(0, "127.0.0.1", resolve);
+  });
+  const address = upstream.address();
+  assert.ok(address && typeof address === "object");
+
+  try {
+    const result = await scanSite(
+      { url: "http://malformed-scan.test/", device: "desktop", gpcEnabled: false, consentMode: "observe" },
+      {
+        publicUrlAlreadyVerified: true,
+        verifyPublicUrl: async () => undefined,
+        resolvePublicHost: async () => [{ address: "93.184.216.34", family: 4 }],
+        connectProxyUpstreamForTests: () => connect(address.port, "127.0.0.1"),
+        resolveCnameChain: async () => []
+      }
+    );
+    assert.equal(result.summary.pageTitle, "Malformed subresource fixture");
+    assert.equal(
+      result.warnings.includes(INVALID_UPSTREAM_RESPONSE_WARNING),
+      true
+    );
+    const staged = stagedSingleVisitMeasurement(result);
+    assert.notEqual(staged, null);
+    assert.equal(
+      staged!.measurement.qualityFacts.captureLoss.some(
+        (loss) => loss.family === "requests" && loss.phaseId === null && loss.kind === "dropped" && loss.count >= 1
+      ),
+      true
+    );
+  } finally {
+    await closeSharedBrowserForTests();
+    await new Promise<void>((resolve) => upstream.close(() => resolve()));
+  }
+});
+
+test("an ordinary upstream subresource failure does not censor request evidence", { timeout: 20_000 }, async () => {
+  let failedSubresourceHits = 0;
+  const upstream = createNetServer((socket) => {
+    let request = "";
+    socket.on("data", (chunk) => {
+      request += chunk.toString("latin1");
+      if (!request.includes("\r\n\r\n")) return;
+      socket.removeAllListeners("data");
+      const path = request.split(" ")[1] ?? "/";
+      if (path === "/unavailable.js") {
+        failedSubresourceHits += 1;
+        socket.destroy();
+        return;
+      }
+      const body = "<!doctype html><title>Ordinary failure fixture</title><script src='/unavailable.js'></script>";
+      socket.end(
+        `HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nContent-Length: ${Buffer.byteLength(body)}\r\nConnection: close\r\n\r\n${body}`
+      );
+    });
+  });
+  await new Promise<void>((resolve, reject) => {
+    upstream.once("error", reject);
+    upstream.listen(0, "127.0.0.1", resolve);
+  });
+  const address = upstream.address();
+  assert.ok(address && typeof address === "object");
+
+  try {
+    const result = await scanSite(
+      { url: "http://ordinary-failure.test/", device: "desktop", gpcEnabled: false, consentMode: "observe" },
+      {
+        publicUrlAlreadyVerified: true,
+        verifyPublicUrl: async () => undefined,
+        resolvePublicHost: async () => [{ address: "93.184.216.34", family: 4 }],
+        connectProxyUpstreamForTests: () => connect(address.port, "127.0.0.1"),
+        resolveCnameChain: async () => []
+      }
+    );
+    assert.equal(failedSubresourceHits, 1);
+    assert.equal(result.summary.pageTitle, "Ordinary failure fixture");
+    assert.equal(result.warnings.includes(INVALID_UPSTREAM_RESPONSE_WARNING), false);
+    const staged = stagedSingleVisitMeasurement(result);
+    assert.notEqual(staged, null);
+    assert.equal(
+      staged!.measurement.qualityFacts.captureLoss.some(
+        (loss) => loss.family === "requests" && loss.phaseId === null && loss.kind === "dropped"
+      ),
+      false
+    );
+  } finally {
+    await closeSharedBrowserForTests();
+    await new Promise<void>((resolve) => upstream.close(() => resolve()));
+  }
+});
+
+test("excluded privacy-policy traffic cannot censor the main visit's request evidence", { timeout: 20_000 }, async () => {
+  const upstreamPaths: string[] = [];
+  const upstream = createNetServer((socket) => {
+    let request = "";
+    socket.on("data", (chunk) => {
+      request += chunk.toString("latin1");
+      if (!request.includes("\r\n\r\n")) return;
+      socket.removeAllListeners("data");
+      const path = request.split(" ")[1] ?? "/";
+      upstreamPaths.push(path);
+      if (path === "/bad.js") {
+        socket.end(Buffer.from("HTTP/1.1 200 Bad\x07Phrase\r\nContent-Length: 0\r\nConnection: close\r\n\r\n", "latin1"));
+        return;
+      }
+      if (path === "/policy-worker.js") {
+        const workerBody = "postMessage('policy-only')";
+        socket.end(
+          `HTTP/1.1 200 OK\r\nContent-Type: application/javascript\r\nContent-Length: ${Buffer.byteLength(workerBody)}\r\nConnection: close\r\n\r\n${workerBody}`
+        );
+        return;
+      }
+      const body = path === "/privacy"
+        ? "<!doctype html><title>Privacy</title><h1>Privacy Policy</h1><p>We collect information and use cookies for analytics and advertising.</p><script>new Worker('/policy-worker.js')</script><script src='/bad.js'></script>"
+        : "<!doctype html><title>Main</title><a href='/privacy'>Privacy Policy</a>";
+      socket.end(
+        `HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nContent-Length: ${Buffer.byteLength(body)}\r\nConnection: close\r\n\r\n${body}`
+      );
+    });
+  });
+  await new Promise<void>((resolve, reject) => {
+    upstream.once("error", reject);
+    upstream.listen(0, "127.0.0.1", resolve);
+  });
+  const address = upstream.address();
+  assert.ok(address && typeof address === "object");
+
+  try {
+    const result = await scanSite(
+      { url: "http://policy-main.test/", device: "desktop", gpcEnabled: true, consentMode: "observe" },
+      {
+        publicUrlAlreadyVerified: true,
+        verifyPublicUrl: async () => undefined,
+        resolvePublicHost: async () => [{ address: "93.184.216.34", family: 4 }],
+        connectProxyUpstreamForTests: () => connect(address.port, "127.0.0.1"),
+        resolveCnameChain: async () => []
+      }
+    );
+
+    assert.equal(upstreamPaths[0], "/");
+    assert.equal(upstreamPaths.includes("/privacy"), true);
+    assert.equal(upstreamPaths.includes("/bad.js"), true);
+    assert.equal(upstreamPaths.includes("/policy-worker.js"), true);
+    assert.equal(result.requests.length, 1, "the policy visit stays outside the public request log");
+    assert.equal(result.warnings.includes(INVALID_UPSTREAM_RESPONSE_WARNING), false);
+    assert.equal(result.warnings.includes(GPC_WORKER_CAPTURE_LOSS_WARNING), false);
+    const staged = stagedSingleVisitMeasurement(result);
+    assert.notEqual(staged, null);
+    assert.equal(
+      staged!.measurement.qualityFacts.captureLoss.some(
+        (loss) => loss.family === "requests" && loss.phaseId === null && loss.kind === "dropped"
+      ),
+      false
+    );
+  } finally {
+    await closeSharedBrowserForTests();
+    await new Promise<void>((resolve) => upstream.close(() => resolve()));
+  }
+});
+
+test("excluded post-consent reload traffic cannot exhaust retained proxy evidence", { timeout: 30_000 }, async () => {
+  let documentHits = 0;
+  let reloadAssetHits = 0;
+  const upstream = createServer((request, response) => {
+    if (request.url === "/reload-only.js") {
+      reloadAssetHits += 1;
+      response.writeHead(200, { "content-type": "application/javascript" });
+      response.end("void 0");
+      return;
+    }
+
+    documentHits += 1;
+    response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+    response.end(`<!doctype html>
+      <title>Excluded reload budget fixture</title>
+      <script>
+        const visit = Number(sessionStorage.getItem("fixture-visits") || "0");
+        sessionStorage.setItem("fixture-visits", String(visit + 1));
+        const rejected = localStorage.getItem("cmp-choice") === "rejected";
+        const tcData = {
+          gdprApplies: true,
+          eventStatus: rejected ? "tcloaded" : "cmpuishown",
+          purpose: {
+            consents: rejected ? { "1": false } : {},
+            legitimateInterests: rejected ? { "1": false } : {}
+          }
+        };
+        window.__tcfapi = (_command, _version, callback) => callback(tcData, true);
+        window.rejectAll = () => {
+          localStorage.setItem("cmp-choice", "rejected");
+          tcData.eventStatus = "useractioncomplete";
+          tcData.purpose = { consents: { "1": false }, legitimateInterests: { "1": false } };
+          document.getElementById("consent-banner").hidden = true;
+        };
+        if (visit > 0) {
+          const asset = document.createElement("script");
+          asset.src = "/reload-only.js";
+          document.head.append(asset);
+        }
+      </script>
+      <div id="consent-banner"><button onclick="rejectAll()">Reject all</button></div>
+      <script>if (rejected) document.getElementById("consent-banner").hidden = true;</script>`);
+  });
+  await new Promise<void>((resolve, reject) => {
+    upstream.once("error", reject);
+    upstream.listen(0, "127.0.0.1", resolve);
+  });
+  const address = upstream.address();
+  assert.ok(address && typeof address === "object");
+
+  process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION = "1";
+  try {
+    const result = await scanSite(
+      {
+        url: "http://excluded-reload-budget.test/",
+        device: "desktop",
+        gpcEnabled: false,
+        consentMode: "reject-all"
+      },
+      {
+        publicUrlAlreadyVerified: true,
+        verifyPublicUrl: async () => undefined,
+        resolvePublicHost: async () => [{ address: "93.184.216.34", family: 4 }],
+        connectProxyUpstreamForTests: () => connect(address.port, "127.0.0.1"),
+        proxyTransactionLimitForTests: 2,
+        resolveCnameChain: async () => []
+      }
+    );
+
+    assert.equal(result.consentInteraction?.clicked, true);
+    assert.equal(documentHits, 2, "the consent verification reload completed");
+    assert.equal(reloadAssetHits, 0, "the excluded reload alone reached the proxy transaction cap");
+    assert.equal(
+      result.warnings.some((warning) => warning.includes("connection and target safety budget")),
+      false
+    );
+    const staged = stagedSingleVisitMeasurement(result);
+    assert.notEqual(staged, null);
+    assert.equal(staged!.measurement.qualityFacts.budgetsExhausted.includes("proxy-traffic"), false);
+    assert.equal(
+      staged!.measurement.qualityFacts.captureLoss.some((loss) => loss.detail === "proxy-traffic"),
+      false
+    );
+  } finally {
+    delete process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION;
+    await closeSharedBrowserForTests();
+    await new Promise<void>((resolve) => upstream.close(() => resolve()));
+  }
+});
+
 test("a closed Usercentrics root remains clickable after a failed passive storage collection", { timeout: 20_000 }, async () => {
   let receivedGpcHeader: string | string[] | undefined;
   const upstream = createServer((request, response) => {
@@ -1146,7 +1666,10 @@ test("a closed Usercentrics root remains clickable after a failed passive storag
         const accept = document.createElement("button");
         accept.dataset.testid = "uc-accept-all-button";
         accept.textContent = "Accept all";
-        accept.addEventListener("click", () => localStorage.setItem("consent-state", "accepted"));
+        accept.addEventListener("click", () => {
+          localStorage.setItem("consent-state", "accepted");
+          accept.disabled = true;
+        });
         consentRoot.append(accept);
       </script>
       <script src="http://ads.example/pixel.js"></script>
@@ -1224,7 +1747,7 @@ test("a closed Usercentrics root remains clickable after a failed passive storag
   }
 });
 
-test("observe-mode verification can see a closed Usercentrics root without clicking it", { timeout: 20_000 }, async () => {
+test("observe-mode verification sees a closed Usercentrics root without invoking page-owned geometry", { timeout: 20_000 }, async () => {
   let closedRootProbeRequests = 0;
   let clickRequests = 0;
   const upstream = createServer((request, response) => {
@@ -1283,7 +1806,7 @@ test("observe-mode verification can see a closed Usercentrics root without click
     );
 
     assert.equal(result.consentInteraction, undefined);
-    assert.ok(closedRootProbeRequests > 0);
+    assert.equal(closedRootProbeRequests, 0, "trusted geometry must bypass the element's own override");
     assert.equal(clickRequests, 0);
     const staged = stagedSingleVisitMeasurement(result);
     assert.equal(staged?.measurement.detectors["consent-banner"].status, "complete");

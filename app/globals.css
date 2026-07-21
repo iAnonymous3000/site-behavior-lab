@@ -362,6 +362,12 @@ a {
   transform: translateY(1px);
 }
 
+.icon-button:focus-visible {
+  border-color: var(--accent);
+  box-shadow: var(--shadow-sm), var(--ring);
+  color: var(--text);
+}
+
 /* ---- Cards (shared) ---- */
 .card,
 .scan-panel,
@@ -3750,6 +3756,14 @@ details[open] > summary .disclosure-chevron {
     padding: 24px 14px 48px;
   }
 
+  .directory-page {
+    padding: 24px 14px 48px;
+  }
+
+  .directory-list {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
   .site-profile-current {
     grid-template-columns: 1fr;
   }
@@ -3941,6 +3955,23 @@ details[open] > summary .disclosure-chevron {
   .static-tools > *,
   .static-gallery > * {
     min-width: 0;
+  }
+
+  /* Long comparison labels are wider than the directory card's content box
+     at 320px. Let the grid/flex descendants shrink and wrap instead of making
+     the entire page adopt the label's min-content width. */
+  .directory-row,
+  .directory-row > .directory-report-link,
+  .directory-row-top,
+  .directory-headline,
+  .directory-metrics {
+    min-width: 0;
+  }
+
+  .directory-type {
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    white-space: normal;
   }
 
   /* Ubuntu's system font is slightly wider than macOS at this breakpoint.

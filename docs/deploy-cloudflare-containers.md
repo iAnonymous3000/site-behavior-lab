@@ -313,13 +313,55 @@ R2 is the smoke default. A self-host intentionally using a filesystem store must
 set `SMOKE_EXPECTED_STORAGE=filesystem`; that checks the configured backend but
 cannot prove the host volume survives replacement.
 
-Point `SMOKE_SHIELDS_URL` at a tracker-heavy site to also eyeball non-zero engine-blocked
+The default Shields target is the independently hosted `https://www.iana.org/`, so a
+sitebehavior.org outage cannot block promotion of its own repair. Point
+`SMOKE_SHIELDS_URL` at a tracker-heavy site to also eyeball non-zero engine-blocked
 and baseline filter-match counts. A quick manual check of the same essentials:
 
 ```bash
 curl -s https://scan.sitebehavior.org/api/health | jq '{capabilities, chromiumSandbox: .checks.chromiumSandbox}'
 # expect chromiumSandbox: "enabled" plus singleScan/Shields/savedReports capabilities
 ```
+
+### Activate the scheduled production synthetic
+
+Every delivered production-health run calls the distinct public
+`/api/health/public-ingress` preflight first. The Worker submits a deliberately
+invalid response token directly to the exact Cloudflare Siteverify origin and
+requires the valid-secret `invalid-input-response` result, then performs a
+non-consuming `public`-scope peek against the Durable Object quota ledger. The
+response explicitly records that no CAPTCHA was solved, no visitor scan was
+submitted, no quota was consumed, and the monitor bypass was not used. This is
+stronger than configuration-only health, but it is not an end-to-end visitor
+scan; keep the manual browser challenge check in the go-live runbook.
+
+After the commit containing the synthetic lane is live on the `production` branch,
+configure one new random value in both control planes. The Cloudflare secret stays in
+the front Worker and bypasses Turnstile only for the monitor's authenticated
+`POST /api/scan`; the GitHub secret is disclosed only to the hourly workflow step.
+
+```bash
+SBL_MONITOR_TOKEN="$(openssl rand -hex 32)"
+printf '%s' "$SBL_MONITOR_TOKEN" | npx wrangler secret put \
+  -c wrangler.container.jsonc SITE_BEHAVIOR_LAB_SYNTHETIC_MONITOR_TOKEN
+printf '%s' "$SBL_MONITOR_TOKEN" | gh secret set PRODUCTION_SYNTHETIC_MONITOR_TOKEN
+gh variable set PRODUCTION_SYNTHETIC_MONITOR_REQUIRED --body 1
+unset SBL_MONITOR_TOKEN
+
+# Immediate receipt; the manual dispatch runs the synthetic as well as posture checks.
+gh workflow run production-health.yml --ref main
+```
+
+The separate operator-only synthetic performs one neutral IANA scan, polls it to completion, verifies the
+public v2/r2 result, reads the exact persisted report back from R2, and renders its
+HTML report page. Every request rejects redirects, returned capability URLs are
+restricted to the exact scanner origin and expected path, and per-request plus
+whole-run deadlines bound failure handling. Its report follows the ordinary seven-day/500-report retention
+policy; it is not the still-separate delete canary. The workflow requests four
+best-effort checks per hour, runs this synthetic on the hourly `:07` schedule, and
+maintains one canonical failure issue. For an actual detection-latency SLA, have an
+independent scheduler send the `production-health` repository dispatch; GitHub cron
+delivery can be delayed.
 
 ## 8. Verify private v2/r2 shadows before the schema alias flip
 

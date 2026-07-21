@@ -17,12 +17,13 @@ export type BlockedProxyTarget = {
   /**
    * Why the proxy refused or failed the connection. Consumers word user-facing
    * copy from this: only "non-public-address" is a private/local-network guard
-   * block. "resolution-failed" is a DNS failure, "upstream-failed" a TCP
-   * connect failure (the host may simply be down), "blocked-port" the
-   * standard-ports policy, "upgrade-blocked" the WebSocket-proxying refusal,
-   * "resource-limit" the independent proxy traffic bound, and
-   * "invalid-target" a malformed proxy request. None of those prove a
-   * private-network target and must never be described as one.
+   * block. "resolution-failed" is a DNS failure, "upstream-failed" an
+   * ordinary TCP or HTTP-client failure (the host may simply be down),
+   * "invalid-upstream-response" an upstream response that cannot be safely
+   * reflected, "blocked-port" the standard-ports policy, "upgrade-blocked"
+   * the WebSocket-proxying refusal, "resource-limit" the independent proxy
+   * traffic bound, and "invalid-target" a malformed proxy request. None of
+   * those prove a private-network target and must never be described as one.
    */
   reason:
     | "invalid-target"
@@ -31,6 +32,7 @@ export type BlockedProxyTarget = {
     | "blocked-port"
     | "upgrade-blocked"
     | "upstream-failed"
+    | "invalid-upstream-response"
     | "resource-limit";
 };
 
@@ -73,6 +75,11 @@ export type PublicScanProxyCaptureLoss<Name extends PublicScanProxyByteBudgetNam
 };
 
 export type PublicScanProxyDiagnostics = {
+  /**
+   * Uncapped, target-free count. `blockedTargets` is a bounded examples list,
+   * so evidence-quality decisions must use this diagnostic instead.
+   */
+  invalidUpstreamResponseCount: number;
   trafficBudget: {
     name: typeof PUBLIC_SCAN_PROXY_TRAFFIC_BUDGET_NAME;
     family: "requests";
@@ -164,7 +171,15 @@ export async function startPublicScanProxy(options: StartPublicScanProxyOptions 
     normalizeTransactionLimit(options.transactionLimit),
     normalizeUniqueTargetLimit(options.uniqueTargetLimit)
   );
-  const connectUpstream = options.connectUpstreamForTests ?? defaultConnectUpstream;
+  const upstreamResponseDiagnostics = new UpstreamResponseDiagnostics();
+  const rawConnectUpstream = options.connectUpstreamForTests ?? defaultConnectUpstream;
+  let closing = false;
+  const connectUpstream = (target: Readonly<PinnedTarget>): net.Socket => {
+    const socket = rawConnectUpstream(target);
+    trackSocket(socket, sockets);
+    if (closing) socket.destroy();
+    return socket;
+  };
 
   const server = http.createServer((request, response) => {
     handleHttpProxyRequest(request, response, {
@@ -173,6 +188,7 @@ export async function startPublicScanProxy(options: StartPublicScanProxyOptions 
       blockedTargets,
       pinnedTargets,
       trafficBudget,
+      upstreamResponseDiagnostics,
       responseByteBudget,
       uploadByteBudget,
       connectUpstream
@@ -188,6 +204,7 @@ export async function startPublicScanProxy(options: StartPublicScanProxyOptions 
       blockedTargets,
       pinnedTargets,
       trafficBudget,
+      upstreamResponseDiagnostics,
       responseByteBudget,
       uploadByteBudget,
       connectUpstream
@@ -203,6 +220,7 @@ export async function startPublicScanProxy(options: StartPublicScanProxyOptions 
       blockedTargets,
       pinnedTargets,
       trafficBudget,
+      upstreamResponseDiagnostics,
       responseByteBudget,
       uploadByteBudget,
       connectUpstream
@@ -234,13 +252,16 @@ export async function startPublicScanProxy(options: StartPublicScanProxyOptions 
     server: `http://127.0.0.1:${address.port}`,
     blockedTargets,
     getDiagnostics: () => ({
+      invalidUpstreamResponseCount: upstreamResponseDiagnostics.invalidResponseCount,
       trafficBudget: trafficBudget.snapshot(),
       responseByteBudget: responseByteBudget.snapshot(),
       uploadByteBudget: uploadByteBudget.snapshot()
     }),
     close: async () => {
+      closing = true;
+      const serverClosed = new Promise<void>((resolve) => server.close(() => resolve()));
       for (const socket of sockets) socket.destroy();
-      await new Promise<void>((resolve) => server.close(() => resolve()));
+      await serverClosed;
     }
   };
 }
@@ -277,6 +298,20 @@ async function handleHttpProxyRequest(
     return;
   }
 
+  let uploadCapped = false;
+  let upstreamOutcomeRecorded = false;
+  const recordUpstreamFailure = () => {
+    if (uploadCapped || upstreamOutcomeRecorded) return;
+    upstreamOutcomeRecorded = true;
+    recordBlockedTarget(state.blockedTargets, safeTargetLabel(targetUrl), "upstream-failed");
+  };
+  const recordInvalidUpstreamResponse = () => {
+    if (upstreamOutcomeRecorded) return;
+    upstreamOutcomeRecorded = true;
+    state.upstreamResponseDiagnostics.recordInvalidResponse();
+    recordBlockedTarget(state.blockedTargets, safeTargetLabel(targetUrl), "invalid-upstream-response");
+  };
+
   const upstream = http.request(
     {
       host: target.address,
@@ -294,20 +329,72 @@ async function handleHttpProxyRequest(
         response.destroy();
         return;
       }
-      response.writeHead(upstreamResponse.statusCode ?? 502, upstreamResponse.statusMessage, upstreamResponse.headers);
+      if (!isValidPublicScanProxyUpstreamStatusLine(upstreamResponse.statusCode, upstreamResponse.statusMessage)) {
+        recordInvalidUpstreamResponse();
+        upstreamResponse.destroy();
+        response.destroy();
+        return;
+      }
+      try {
+        response.writeHead(upstreamResponse.statusCode, upstreamResponse.statusMessage, upstreamResponse.headers);
+      } catch {
+        // Node's client parser is deliberately more permissive than its server
+        // writer. Keep any future parser/writer mismatch inside this request so
+        // hostile upstream metadata cannot escape the callback or leak sockets.
+        recordInvalidUpstreamResponse();
+        upstreamResponse.destroy();
+        response.destroy();
+        return;
+      }
       pipeWithinResponseByteBudget(upstreamResponse, response, state.responseByteBudget);
     }
   );
 
-  let uploadCapped = false;
-  upstream.on("error", () => {
-    if (!uploadCapped) recordBlockedTarget(state.blockedTargets, safeTargetLabel(targetUrl), "upstream-failed");
+  upstream.on("error", (error) => {
+    if (isHttpParserError(error)) {
+      recordInvalidUpstreamResponse();
+    } else {
+      recordUpstreamFailure();
+    }
+    if (!response.destroyed) response.destroy();
+  });
+
+  // A 101 response is surfaced as `upgrade`, not through the response callback
+  // or the request's error path. This HTTP proxy does not support switching an
+  // ordinary request to an arbitrary upstream protocol, so close both sides
+  // explicitly instead of leaving the downstream request open until teardown.
+  upstream.once("upgrade", (_upstreamResponse, upstreamSocket) => {
+    recordInvalidUpstreamResponse();
+    upstreamSocket.destroy();
     if (!response.destroyed) response.destroy();
   });
 
   pipeWithinByteBudget(request, upstream, state.uploadByteBudget, undefined, () => {
     uploadCapped = true;
   });
+}
+
+const VALID_UPSTREAM_STATUS_MESSAGE = /^[\t\x20-\x7e\x80-\xff]*$/;
+
+/**
+ * Incoming HTTP accepts some status metadata that ServerResponse.writeHead
+ * refuses. Validate at that narrower boundary before reflecting upstream data.
+ */
+export function isValidPublicScanProxyUpstreamStatusLine(
+  statusCode: number | undefined,
+  statusMessage: string | undefined
+): statusCode is number {
+  return (
+    Number.isInteger(statusCode) &&
+    (statusCode as number) >= 100 &&
+    (statusCode as number) <= 999 &&
+    (statusMessage === undefined || VALID_UPSTREAM_STATUS_MESSAGE.test(statusMessage))
+  );
+}
+
+function isHttpParserError(error: unknown): boolean {
+  if (!error || typeof error !== "object" || !("code" in error)) return false;
+  return typeof error.code === "string" && error.code.startsWith("HPE_");
 }
 
 async function handleHttpsConnect(
@@ -389,10 +476,23 @@ type ProxyState = {
   blockedTargets: BlockedProxyTarget[];
   pinnedTargets: Map<string, Promise<PinnedTarget>>;
   trafficBudget: ProxyTrafficBudget;
+  upstreamResponseDiagnostics: UpstreamResponseDiagnostics;
   responseByteBudget: AggregateByteBudget<typeof PUBLIC_SCAN_PROXY_RESPONSE_BYTE_BUDGET_NAME>;
   uploadByteBudget: AggregateByteBudget<typeof PUBLIC_SCAN_PROXY_UPLOAD_BYTE_BUDGET_NAME>;
   connectUpstream: (target: Readonly<PinnedTarget>) => net.Socket;
 };
+
+class UpstreamResponseDiagnostics {
+  private invalidResponses = 0;
+
+  get invalidResponseCount(): number {
+    return this.invalidResponses;
+  }
+
+  recordInvalidResponse(): void {
+    this.invalidResponses += 1;
+  }
+}
 
 async function getPinnedTarget(targetUrl: URL, state: ProxyState): Promise<PinnedTarget> {
   const hostname = normalizeHostname(targetUrl.hostname);
@@ -770,8 +870,18 @@ function pipeWithinByteBudget<Name extends PublicScanProxyByteBudgetName>(
   source.once("end", () => {
     if (!terminated && !destination.destroyed) destination.end();
   });
+  source.once("close", () => {
+    // A normal EOF is already propagated with `end()` above. A close before
+    // EOF is an abort, so the paired stream must not remain open indefinitely.
+    if (!source.readableEnded && !destination.destroyed) destination.destroy();
+  });
   source.once("error", () => {
     if (!terminated && !destination.destroyed) destination.destroy();
+  });
+  destination.once("close", () => {
+    // In particular, tear down an upstream response when the browser cancels
+    // its downstream request. Preserve a completed source's normal half-close.
+    if (!source.readableEnded && !source.destroyed) source.destroy();
   });
   destination.once("error", () => {
     if (!terminated && !source.destroyed) source.destroy();

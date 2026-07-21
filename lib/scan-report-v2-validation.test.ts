@@ -10,6 +10,7 @@ import {
 } from "./scan-report-v2-fixtures";
 import { isPublicComparisonReportV2, isPublicScanReportV2, isPublicSingleReportV2 } from "./scan-report-v2-validation";
 import { readStoredScanReport } from "./scan-report-reader";
+import { buildComparisonDiffV2, evaluateQuality } from "./scan-report-v2-evaluators";
 
 function mutate<T>(fixture: T, apply: (draft: T) => void): unknown {
   const draft = structuredClone(fixture);
@@ -137,6 +138,109 @@ test("phase references must point into the run's phase table", () => {
   assert.equal(isPublicSingleReportV2(emptyPhases), false);
 });
 
+test("zero-count capture loss is reserved for the exact PageGraph unsupported sentinel", () => {
+  const zeroLoss = mutate(makePublicSingleReportV2(), (draft) => {
+    draft.run.qualityFacts.captureLoss.push({ family: "requests", phaseId: 0, kind: "clipped", count: 0 });
+  });
+  assert.equal(isPublicSingleReportV2(zeroLoss), false);
+
+  const forgedSentinel = mutate(makePublicSingleReportV2(), (draft) => {
+    draft.run.qualityFacts.captureLoss.push({
+      family: "requests",
+      phaseId: null,
+      kind: "dropped",
+      count: 0,
+      detail: "pagegraph-unsupported"
+    });
+  });
+  assert.equal(isPublicSingleReportV2(forgedSentinel), false, "requests are never an unsupported PageGraph family");
+
+  const wrongRevision = mutate(makePublicSingleReportV2(), (draft) => {
+    draft.run.provenance.observer = "pagegraph-import";
+    draft.run.provenance.acquisition = "upload";
+    draft.run.conditions.automation = "brave-pagegraph";
+    draft.run.qualityFacts.captureLoss = [
+      "cookies",
+      "storage",
+      "fingerprinting",
+      "detector-output",
+      "consent-verification"
+    ].map((family) => ({
+      family,
+      phaseId: null,
+      kind: "dropped",
+      count: 0,
+      detail: "pagegraph-unsupported"
+    })) as typeof draft.run.qualityFacts.captureLoss;
+  });
+  assert.equal(isPublicSingleReportV2(wrongRevision), false, "the PageGraph unsupported contract is r2-only");
+});
+
+test("set-like v2 diff arrays are order-insensitive and reject duplicates", () => {
+  const report = makeInterventionComparisonReportV2();
+  report.variant.evidence.requests.push(
+    {
+      id: 2,
+      url: "https://alpha.tracker.example/a.js",
+      domain: "alpha.tracker.example",
+      method: "GET",
+      resourceType: "script",
+      status: 200,
+      thirdParty: true,
+      tracker: { domain: "alpha.tracker.example", entity: "Alpha", category: "analytics", confidence: "curated" },
+      startedAtMs: 20,
+      phaseId: 0
+    },
+    {
+      id: 3,
+      url: "https://beta.tracker.example/b.js",
+      domain: "beta.tracker.example",
+      method: "GET",
+      resourceType: "script",
+      status: 200,
+      thirdParty: true,
+      tracker: { domain: "beta.tracker.example", entity: "Beta", category: "analytics", confidence: "curated" },
+      startedAtMs: 30,
+      phaseId: 0
+    }
+  );
+  Object.assign(report.variant.summary.counts, {
+    totalRequests: 3,
+    thirdPartyRequests: 2,
+    knownTrackerRequests: 2,
+    thirdPartyDomains: 2
+  });
+  Object.assign(report.variant.summary.countsByPhase[0], {
+    totalRequests: 3,
+    thirdPartyRequests: 2,
+    knownTrackerRequests: 2
+  });
+  report.diff = buildComparisonDiffV2(report.baseline, report.variant, report.comparability.perMetric);
+  report.diff.families["tracker-classification"].addedTrackerDomains.reverse();
+
+  const reorderedRead = readStoredScanReport(report);
+  assert.equal(reorderedRead.ok, true, JSON.stringify(!reorderedRead.ok ? reorderedRead.violations : []));
+
+  report.diff.families["tracker-classification"].addedTrackerDomains.push("alpha.tracker.example");
+  assert.equal(isPublicComparisonReportV2(report), false, "duplicate members are structurally rejected");
+});
+
+test("set-like evaluator reasons are order-insensitive and reject duplicates", () => {
+  const report = makePublicSingleReportV2();
+  report.run.qualityFacts.captureLoss = [
+    { family: "requests", phaseId: 0, kind: "cap", count: 1 },
+    { family: "requests", phaseId: 0, kind: "clipped", count: 1 }
+  ];
+  report.run.quality = evaluateQuality(report.run.qualityFacts, {
+    observedRequests: report.run.evidence.requests.length
+  });
+  report.run.quality.byFamily.requests.reasons.reverse();
+  assert.equal(readStoredScanReport(report).ok, true, "reason order is non-semantic");
+
+  report.run.quality.byFamily.requests.reasons.push("capture-loss:cap");
+  assert.equal(isPublicSingleReportV2(report), false, "duplicate reasons are structurally rejected");
+});
+
 test("HTTP statuses, request IDs, and timing fields use the producer's bounded integer vocabulary", () => {
   for (const status of [-1, 99, 600, 200.5]) {
     const badRunStatus = mutate(makePublicSingleReportV2(), (draft) => {
@@ -214,6 +318,11 @@ test("enum mutants are rejected", () => {
     (draft.run.conditions as unknown as Record<string, unknown>).shields = "on";
   });
   assert.equal(isPublicSingleReportV2(badShields), false);
+
+  const badAutomation = mutate(makePublicSingleReportV2(), (draft) => {
+    (draft.run.conditions as unknown as Record<string, unknown>).automation = "selenium-grid";
+  });
+  assert.equal(isPublicSingleReportV2(badAutomation), false);
 });
 
 test("reader: v1 routes to the frozen validator, v2 to the r1 validator", () => {

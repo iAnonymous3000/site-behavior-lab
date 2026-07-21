@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { loadCorpusOverview, type DirectoryEntry } from "@/lib/corpus-overview";
+import { entryEligibleForCorpusRollups, loadCorpusOverview, type DirectoryEntry } from "@/lib/corpus-overview";
 import { reportPagePath } from "@/lib/report-locator";
 import { siteProfileKey, siteProfilePath } from "@/lib/site-profile";
 import { formatDelta } from "@/lib/temporal-deltas";
@@ -111,7 +111,7 @@ export default async function SiteProfilePage({ params }: { params: Promise<{ do
       <section className="site-profile-section" aria-labelledby="history-title">
         <p className="eyebrow">Evidence timeline</p>
         <h2 id="history-title">{profile.entries.length} {profile.entries.length === 1 ? "report" : "reports"}</h2>
-        <HistorySparkline entries={profile.entries} />
+        <HistorySparkline entries={profile.entries.filter(entryEligibleForCorpusRollups)} />
         <ol className="site-history-list">
           {profile.entries.map((entry) => (
             <li key={entry.id}>
@@ -157,10 +157,9 @@ function IncompleteEvidenceChip({ capped }: { capped: boolean }) {
 }
 
 /**
- * Dependency-free inline sparkline over the timeline's own listed numbers
- * (third-party requests per report, oldest to newest). It plots exactly what
- * the list below shows; the caption carries the mixed-conditions caveat and
- * the full series is in the accessible label.
+ * Dependency-free inline sparkline over eligible passive visits only. Consent
+ * interaction arms, failed loads, and incomplete recordings remain visible in
+ * the evidence timeline below, but must never be plotted as one trend series.
  */
 function HistorySparkline({ entries }: { entries: DirectoryEntry[] }) {
   // `entries` arrive newest first; plot chronologically.
@@ -196,8 +195,8 @@ function HistorySparkline({ entries }: { entries: DirectoryEntry[] }) {
         <circle cx={last.x} cy={last.y} r="2.5" fill="currentColor" />
       </svg>
       <figcaption>
-        Third-party requests per report, oldest to newest. Reports can differ in kind and conditions; see the
-        timeline below.
+        Third-party requests in successful, complete passive visits, oldest to newest. The full mixed evidence
+        timeline remains below.
       </figcaption>
     </figure>
   );
@@ -205,7 +204,9 @@ function HistorySparkline({ entries }: { entries: DirectoryEntry[] }) {
 
 function formatDate(value: string): string {
   const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? value : date.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
+  return Number.isNaN(date.getTime())
+    ? value
+    : date.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric", timeZone: "UTC" });
 }
 
 function formatSince(entry: DirectoryEntry): string {

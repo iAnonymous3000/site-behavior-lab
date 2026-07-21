@@ -72,6 +72,7 @@ async function scannerAdvertisesScheduledRescans(apiBase) {
 async function main() {
   const manifest = await readManifest();
   const phaseReport = await findR2PhaseSmokeReport(manifest);
+  const longestOgReport = await findLongestOgReport(manifest);
   const server = createStaticServer();
   await listen(server);
   const address = server.address();
@@ -87,6 +88,23 @@ async function main() {
     await expectText(page.locator("h1"), "See what a site does, not just what it says.");
     await expectText(page.locator(".static-gallery"), "Saved reports");
     pass("static home renders archive shell");
+
+    const themeToggle = page.getByRole("button", { name: "Toggle colour theme" });
+    const themeRestingShadow = await themeToggle.evaluate((button) => getComputedStyle(button).boxShadow);
+    let themeToggleHasKeyboardFocus = false;
+    for (let step = 0; step < 20; step += 1) {
+      await page.keyboard.press("Tab");
+      themeToggleHasKeyboardFocus = await themeToggle.evaluate((button) => button.matches(":focus-visible"));
+      if (themeToggleHasKeyboardFocus) break;
+    }
+    if (!themeToggleHasKeyboardFocus) {
+      fail("theme toggle is not keyboard reachable with a visible focus state");
+    }
+    const themeFocusShadow = await themeToggle.evaluate((button) => getComputedStyle(button).boxShadow);
+    if (themeFocusShadow === "none" || themeFocusShadow === themeRestingShadow) {
+      fail("theme toggle focus does not add a visible ring beyond its resting shadow");
+    }
+    pass("theme toggle exposes visible keyboard focus");
 
     // Both immutable ScanReport v2 revisions publish independently; the
     // stable alias serves the current r2 revision (RFC 10.3/14.11).
@@ -129,6 +147,38 @@ async function main() {
       if (!pagesHeaders.includes(rule)) fail(`${schemaPath} omits its schema-errata companion link`);
     }
     pass("frozen schema responses point to the published errata without changing schema bytes");
+
+    for (const cardPath of [
+      "/opengraph-image",
+      "/twitter-image",
+      "/reports/*/opengraph-image",
+      "/reports/*/twitter-image"
+    ]) {
+      const rule = `${cardPath}\n  Content-Type: image/png`;
+      if (!pagesHeaders.includes(rule)) fail(`${cardPath} omits its extensionless PNG content type`);
+    }
+    for (const cardPath of [
+      "/opengraph-image",
+      `/reports/${phaseReport.id}/opengraph-image`,
+      `/reports/${longestOgReport.id}/opengraph-image`
+    ]) {
+      const response = await fetch(`${baseUrl}${cardPath}`);
+      if (!response.ok || response.headers.get("content-type") !== "image/png") {
+        fail(`${cardPath} was not served as image/png`);
+      }
+      const bytes = Buffer.from(await response.arrayBuffer());
+      if (
+        bytes.length < 24 ||
+        !bytes.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])) ||
+        bytes.readUInt32BE(16) !== 1200 ||
+        bytes.readUInt32BE(20) !== 630
+      ) {
+        fail(`${cardPath} is not a complete 1200x630 PNG`);
+      }
+    }
+    pass(
+      `extensionless social cards, including the current longest report (${longestOgReport.descriptionLength} description characters), are complete 1200x630 PNGs`
+    );
 
     const deploymentResponse = await fetch(`${baseUrl}/deployment.json`);
     if (!deploymentResponse.ok) fail(`static deployment provenance not served (${deploymentResponse.status})`);
@@ -269,12 +319,24 @@ async function main() {
     // error, never build a doomed comparison.
     await page.locator(".static-compare-upload input").nth(0).setInputFiles(singleReportFixture);
     await page.locator(".static-compare-upload input").nth(1).setInputFiles(singleReportFixture);
+    await page.waitForFunction(
+      (name) =>
+        [...document.querySelectorAll(".compare-upload-label")].filter((label) => label.textContent?.trim() === name).length === 2,
+      path.basename(singleReportFixture)
+    );
     await page.getByRole("button", { name: "Compare files" }).click();
     await expectText(page.locator(".static-compare-panel"), "cannot order a before/after pair");
     pass("static archive refuses an unorderable upload pair");
 
     await page.locator(".static-compare-upload input").nth(0).setInputFiles(rescanReportFixture);
     await page.locator(".static-compare-upload input").nth(1).setInputFiles(singleReportFixture);
+    await page.waitForFunction(
+      ([beforeName, afterName]) => {
+        const labels = [...document.querySelectorAll(".compare-upload-label")].map((label) => label.textContent?.trim());
+        return labels[0] === beforeName && labels[1] === afterName;
+      },
+      [path.basename(rescanReportFixture), path.basename(singleReportFixture)]
+    );
     await page.getByRole("button", { name: "Compare files" }).click();
     await page.waitForSelector(".comparison-card", { timeout: 10_000 });
     const comparisonCard = page.locator(".comparison-card");
@@ -435,6 +497,9 @@ async function main() {
     await page.waitForSelector(".static-report-card", { timeout: 10_000 });
     await assertNoHorizontalOverflow(page, "static narrow-mobile archive");
     pass("static archive fits a 320px viewport");
+    await page.goto(`${baseUrl}/directory/`, { waitUntil: "networkidle" });
+    await assertNoHorizontalOverflow(page, "static narrow-mobile directory");
+    pass("static directory fits a 320px viewport");
   } finally {
     await browser.close();
     await new Promise((resolve, reject) => server.close((error) => (error ? reject(error) : resolve())));
@@ -447,6 +512,37 @@ async function readManifest() {
     fail("static report manifest is missing reports");
   }
   return payload;
+}
+
+/** Select the current longest generated description without depending on any retained claim family. */
+async function findLongestOgReport(manifest) {
+  let longest = { ...manifest.reports[0], descriptionLength: 0 };
+  for (const entry of manifest.reports) {
+    let html;
+    try {
+      html = await readFile(path.join(outDir, "reports", entry.id, "index.html"), "utf8");
+    } catch {
+      continue;
+    }
+    const match = html.match(/<meta property="og:description" content="([^"]*)"\/>/);
+    if (!match) continue;
+    const description = decodeHtmlAttribute(match[1]);
+    if (description.length > longest.descriptionLength) {
+      longest = { ...entry, descriptionLength: description.length };
+    }
+  }
+  return longest;
+}
+
+function decodeHtmlAttribute(value) {
+  return value
+    .replace(/&#x([0-9a-f]+);/gi, (_match, code) => String.fromCodePoint(Number.parseInt(code, 16)))
+    .replace(/&#([0-9]+);/g, (_match, code) => String.fromCodePoint(Number.parseInt(code, 10)))
+    .replaceAll("&quot;", '"')
+    .replaceAll("&apos;", "'")
+    .replaceAll("&lt;", "<")
+    .replaceAll("&gt;", ">")
+    .replaceAll("&amp;", "&");
 }
 
 /**
@@ -557,7 +653,8 @@ function listen(server) {
 async function expectText(locator, expected) {
   const text = await locator.textContent();
   if (!text || !text.includes(expected)) {
-    fail(`expected text "${expected}" was not found`);
+    const excerpt = text && text.length > 1_000 ? `${text.slice(0, 500)} ... ${text.slice(-500)}` : (text ?? "");
+    fail(`expected text "${expected}" was not found in ${JSON.stringify(excerpt)}`);
   }
 }
 
@@ -620,6 +717,8 @@ function searchableReportText(report) {
 }
 
 function contentType(filePath) {
+  const basename = path.basename(filePath);
+  if (basename === "opengraph-image" || basename === "twitter-image") return "image/png";
   const extension = path.extname(filePath);
   if (extension === ".html") return "text/html; charset=utf-8";
   if (extension === ".js") return "text/javascript; charset=utf-8";

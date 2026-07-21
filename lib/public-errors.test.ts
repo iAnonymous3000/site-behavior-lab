@@ -1,4 +1,6 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import path from "node:path";
 import { test } from "node:test";
 import { EdgeUrlSafetyError } from "./edge-url-safety";
 import { PublicFacingError, PublicScanError, toPublicError } from "./public-errors";
@@ -40,4 +42,20 @@ test("toPublicError scrubs unexpected errors without blaming the target URL and 
   } finally {
     console.error = originalConsoleError;
   }
+});
+
+test("front Workers scrub unexpected exception text before unauthenticated responses", () => {
+  const worker = readFileSync(path.join(process.cwd(), "cloudflare", "worker.ts"), "utf8");
+  const containerWorker = readFileSync(path.join(process.cwd(), "cloudflare", "container-worker.ts"), "utf8");
+
+  assert.match(
+    worker,
+    /catch \(error\) \{\s*const publicError = toPublicError\(error\);\s*return jsonResponse\(\{ ok: false, error: publicError\.message \}, request, env, publicError\.status\);/
+  );
+  assert.match(
+    containerWorker,
+    /function gateErrorResponse[\s\S]*?const publicError = toPublicError\(error\);[\s\S]*?JSON\.stringify\(\{ ok: false, error: publicError\.message \}\)[\s\S]*?status: publicError\.status,/
+  );
+  assert.doesNotMatch(worker, /const message = error instanceof Error \? error\.message/);
+  assert.doesNotMatch(containerWorker, /const message = error instanceof Error \? error\.message/);
 });

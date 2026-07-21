@@ -30,6 +30,8 @@ function makeResult(overrides: { firstPartyDomain?: string; totalRequests?: numb
   const base = makeScanReportV1();
   if (base.reportType === "comparison") throw new Error("fixture must be a single report");
   const totalRequests = overrides.totalRequests ?? base.summary.totalRequests;
+  const firstPartyDomain = overrides.firstPartyDomain ?? "shop.example.org";
+  const subjectUrl = `https://${firstPartyDomain}/`;
   return {
     ...base,
     requests:
@@ -48,9 +50,14 @@ function makeResult(overrides: { firstPartyDomain?: string; totalRequests?: numb
           })),
     summary: {
       ...base.summary,
-      firstPartyDomain: overrides.firstPartyDomain ?? "shop.example.org",
+      firstPartyDomain,
       status: overrides.status ?? base.summary.status,
       totalRequests
+    },
+    conditions: {
+      ...base.conditions,
+      requestedUrl: subjectUrl,
+      finalUrl: subjectUrl
     }
   };
 }

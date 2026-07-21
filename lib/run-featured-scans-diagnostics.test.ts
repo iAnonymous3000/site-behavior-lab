@@ -4,6 +4,7 @@ import { pathToFileURL } from "node:url";
 import { test } from "node:test";
 
 type FeaturedScanDiagnosticHelpers = {
+  featuredMinimumSuccessRate(raw: unknown, fallback?: number, floor?: number): number;
   failureDiagnosticFromStderr(stderr: unknown): string | null;
   publicFeaturedScanSummary(value: unknown): {
     total: number;
@@ -36,6 +37,16 @@ const nativeImport = new Function("specifier", "return import(specifier)") as (
 const helpers = nativeImport(
   pathToFileURL(path.join(process.cwd(), "scripts", "run-featured-scans-diagnostics.mjs")).href
 );
+
+test("featured success-rate overrides can raise but never lower the 80% workflow floor", async () => {
+  const { featuredMinimumSuccessRate } = await helpers;
+  assert.equal(featuredMinimumSuccessRate(undefined), 0.9);
+  assert.equal(featuredMinimumSuccessRate("0.8"), 0.8);
+  assert.equal(featuredMinimumSuccessRate("0.95"), 0.95);
+  assert.throws(() => featuredMinimumSuccessRate("0.79"), /from 0\.8 to 1/);
+  assert.throws(() => featuredMinimumSuccessRate("0"), /from 0\.8 to 1/);
+  assert.throws(() => featuredMinimumSuccessRate("not-a-rate"), /from 0\.8 to 1/);
+});
 
 test("featured-scan diagnostics retain the final child failure reason", async () => {
   const { failureDiagnosticFromStderr } = await helpers;

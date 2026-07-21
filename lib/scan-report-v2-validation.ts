@@ -257,6 +257,7 @@ const SHARE_KEYS = new Set(["id", "path", "jsonPath"]);
 
 const SHIELDS_CONDITIONS = new Set(["off", "classification", "block-simulation"]);
 const CONSENT_CONDITIONS = new Set(["observe", "accept-all", "reject-all"]);
+const AUTOMATIONS = new Set(["playwright-chromium", "brave-pagegraph", "external"]);
 const DEVICE_KINDS = new Set(["desktop", "mobile"]);
 const OBSERVERS = new Set(["node-playwright", "browser-run-worker", "pagegraph-import"]);
 const ACQUISITIONS = new Set(["public-api", "operator-cli", "ci-workflow", "upload"]);
@@ -264,6 +265,13 @@ const DETECTOR_STATUSES = new Set(["complete", "partial", "skipped", "unsupporte
 const RUN_OUTCOMES = new Set(["complete", "failed"]);
 const FAMILY_OUTCOMES = new Set(["complete", "censored"]);
 const CAPTURE_LOSS_KINDS = new Set(["dropped", "clipped", "truncated", "timeout", "cap"]);
+const PAGEGRAPH_UNSUPPORTED_FAMILIES = new Set([
+  "cookies",
+  "storage",
+  "fingerprinting",
+  "detector-output",
+  "consent-verification"
+]);
 const MUTATION_OPS = new Set(["added", "changed", "removed"]);
 const ARM_OUTCOMES = new Set(["passed", "failed", "inconclusive"]);
 const EVIDENCE_STRENGTHS = new Set(["observed-difference", "replicated-difference"]);
@@ -343,6 +351,10 @@ function isStringArray(value: unknown): value is string[] {
   return Array.isArray(value) && value.every((entry) => typeof entry === "string");
 }
 
+function isUniqueStringArray(value: unknown): value is string[] {
+  return isStringArray(value) && new Set(value).size === value.length;
+}
+
 function isVocabCode(value: unknown): value is string {
   return typeof value === "string" && VOCAB_CODE_PATTERN.test(value);
 }
@@ -404,7 +416,8 @@ function isConditionVector(value: unknown): value is ConditionVector {
     isNonEmptyString(browser.name) &&
     isNonEmptyString(browser.version) &&
     typeof value.headless === "boolean" &&
-    isNonEmptyString(value.automation)
+    typeof value.automation === "string" &&
+    AUTOMATIONS.has(value.automation)
   );
 }
 
@@ -461,6 +474,14 @@ function isPhaseId(value: unknown, phaseCount: number): value is number {
 }
 
 function isCaptureLossEntry(value: unknown, phaseCount: number): boolean {
+  const unsupportedPageGraphFamily =
+    isRecord(value) &&
+    value.count === 0 &&
+    value.phaseId === null &&
+    value.kind === "dropped" &&
+    value.detail === "pagegraph-unsupported" &&
+    typeof value.family === "string" &&
+    PAGEGRAPH_UNSUPPORTED_FAMILIES.has(value.family);
   return (
     record(value, CAPTURE_LOSS_KEYS) &&
     typeof value.family === "string" &&
@@ -468,7 +489,7 @@ function isCaptureLossEntry(value: unknown, phaseCount: number): boolean {
     (value.phaseId === null || isPhaseId(value.phaseId, phaseCount)) &&
     typeof value.kind === "string" &&
     CAPTURE_LOSS_KINDS.has(value.kind) &&
-    isCount(value.count) &&
+    (isPositiveInteger(value.count) || unsupportedPageGraphFamily) &&
     (value.detail === undefined || isVocabCode(value.detail))
   );
 }
@@ -479,16 +500,47 @@ function isQualityFacts(value: unknown, phaseCount: number): value is QualityFac
     (value.status === null || isHttpStatus(value.status)) &&
     typeof value.botWallTitleMatched === "boolean" &&
     typeof value.navigationSettled === "boolean" &&
-    Array.isArray(value.budgetsExhausted) &&
+    isUniqueStringArray(value.budgetsExhausted) &&
     value.budgetsExhausted.every(isVocabCode) &&
     Array.isArray(value.captureLoss) &&
     value.captureLoss.every((entry) => isCaptureLossEntry(entry, phaseCount))
   );
 }
 
+/**
+ * The zero-count unsupported marker belongs to exactly one producer contract:
+ * the request-only PageGraph r2 importer. That producer must emit the complete
+ * five-family set once each; every other producer/revision must emit none.
+ */
+function hasValidPageGraphUnsupportedSet(run: ScanRunV2, schemaRevision: 1 | 2): boolean {
+  const sentinels = run.qualityFacts.captureLoss.filter((entry) => entry.detail === "pagegraph-unsupported");
+  const isPageGraphR2Producer =
+    schemaRevision === 2 &&
+    run.provenance.observer === "pagegraph-import" &&
+    run.provenance.acquisition === "upload" &&
+    run.conditions.automation === "brave-pagegraph";
+
+  if (!isPageGraphR2Producer) return sentinels.length === 0;
+  if (sentinels.length !== PAGEGRAPH_UNSUPPORTED_FAMILIES.size) return false;
+
+  const families = new Set<string>();
+  for (const entry of sentinels) {
+    if (
+      !PAGEGRAPH_UNSUPPORTED_FAMILIES.has(entry.family) ||
+      entry.phaseId !== null ||
+      entry.kind !== "dropped" ||
+      entry.count !== 0
+    ) {
+      return false;
+    }
+    families.add(entry.family);
+  }
+  return families.size === PAGEGRAPH_UNSUPPORTED_FAMILIES.size;
+}
+
 function isQualityReasons(value: unknown): boolean {
   return (
-    Array.isArray(value) &&
+    isUniqueStringArray(value) &&
     value.every(
       (reason) => typeof reason === "string" && isParameterizedReason(reason, QUALITY_REASON_BASE, QUALITY_REASON_PREFIXES)
     )
@@ -779,11 +831,11 @@ function isRunEvidence(value: unknown, phaseCount: number): value is RunEvidence
   );
 }
 
-export function isScanRunV2(value: unknown): value is ScanRunV2 {
+export function isScanRunV2(value: unknown, schemaRevision: 1 | 2 = 1): value is ScanRunV2 {
   if (!record(value, RUN_KEYS)) return false;
   if (!isPhaseSpans(value.phases)) return false;
   const phaseCount = value.phases.length;
-  return (
+  const structurallyValid =
     isNonEmptyString(value.runId) &&
     isNonEmptyString(value.startedAt) &&
     isSubjectIdentity(value.subject) &&
@@ -797,8 +849,8 @@ export function isScanRunV2(value: unknown): value is ScanRunV2 {
     isDetectorLedger(value.detectors, phaseCount) &&
     isRunSummary(value.summary, phaseCount) &&
     isRunEvidence(value.evidence, phaseCount) &&
-    isStringArray(value.warnings)
-  );
+    isStringArray(value.warnings);
+  return structurallyValid && hasValidPageGraphUnsupportedSet(value as ScanRunV2, schemaRevision);
 }
 
 function isArmVerification(value: unknown, phaseCount: number): value is ArmVerification {
@@ -844,7 +896,7 @@ function isExperiment(value: unknown, baselinePhaseCount: number, variantPhaseCo
 
 function isComparabilityReasons(value: unknown): boolean {
   return (
-    Array.isArray(value) &&
+    isUniqueStringArray(value) &&
     value.every(
       (reason) =>
         typeof reason === "string" && isParameterizedReason(reason, COMPARABILITY_REASON_BASE, COMPARABILITY_REASON_PREFIXES)
@@ -894,8 +946,8 @@ function isComparisonDiff(value: unknown): value is ComparisonDiffV2 {
     typeof tracker.eligible === "boolean" &&
     record(tracker.metrics, DIFF_TRACKER_METRIC_KEYS) &&
     isMetricDelta((tracker.metrics as Record<string, unknown>).knownTrackerRequests) &&
-    isStringArray(tracker.addedTrackerDomains) &&
-    isStringArray(tracker.removedTrackerDomains);
+    isUniqueStringArray(tracker.addedTrackerDomains) &&
+    isUniqueStringArray(tracker.removedTrackerDomains);
 
   const shields = families["shields-simulation"];
   const shieldsOk =
@@ -912,8 +964,8 @@ function isComparisonDiff(value: unknown): value is ComparisonDiffV2 {
   const detectorOk =
     record(detector, DIFF_DETECTOR_KEYS) &&
     typeof detector.eligible === "boolean" &&
-    isStringArray(detector.addedDetectionKinds) &&
-    isStringArray(detector.removedDetectionKinds);
+    isUniqueStringArray(detector.addedDetectionKinds) &&
+    isUniqueStringArray(detector.removedDetectionKinds);
 
   return rawOk && trackerOk && shieldsOk && consentOk && detectorOk;
 }
@@ -922,27 +974,27 @@ function isReportShareLike(value: unknown): boolean {
   return record(value, SHARE_KEYS) && isNonEmptyString(value.id) && isNonEmptyString(value.path) && isNonEmptyString(value.jsonPath);
 }
 
-export function isPublicSingleReportV2(value: unknown): value is PublicSingleReportV2 {
+export function isPublicSingleReportV2(value: unknown, runSchemaRevision: 1 | 2 = 1): value is PublicSingleReportV2 {
   return (
     isRecord(value) &&
     only(value, REPORT_ROOT_KEYS_SINGLE) &&
     value.schemaVersion === SCAN_REPORT_V2_SCHEMA_VERSION &&
     value.schemaRevision === SCAN_REPORT_V2_SCHEMA_REVISION &&
     value.reportType === "single" &&
-    isScanRunV2(value.run) &&
+    isScanRunV2(value.run, runSchemaRevision) &&
     (value.share === undefined || isReportShareLike(value.share))
   );
 }
 
-export function isPublicComparisonReportV2(value: unknown): value is PublicComparisonReportV2 {
+export function isPublicComparisonReportV2(value: unknown, runSchemaRevision: 1 | 2 = 1): value is PublicComparisonReportV2 {
   if (
     !isRecord(value) ||
     !only(value, REPORT_ROOT_KEYS_COMPARISON) ||
     value.schemaVersion !== SCAN_REPORT_V2_SCHEMA_VERSION ||
     value.schemaRevision !== SCAN_REPORT_V2_SCHEMA_REVISION ||
     value.reportType !== "comparison" ||
-    !isScanRunV2(value.baseline) ||
-    !isScanRunV2(value.variant)
+    !isScanRunV2(value.baseline, runSchemaRevision) ||
+    !isScanRunV2(value.variant, runSchemaRevision)
   ) {
     return false;
   }

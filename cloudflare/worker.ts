@@ -18,6 +18,12 @@ import { REPORT_ID_PATTERN } from "../lib/report-validation";
 import { scanTokenFromHeaders } from "../lib/scan-token";
 import { asScanRuntimeHealth } from "../lib/scan-runtime-health";
 import { collectFingerprintObservationsFromFrames, fingerprintObserverInitScript } from "../lib/fingerprint-observer";
+import {
+  createGpcWorkerInjectionSession,
+  GPC_WORKER_CAPTURE_LOSS_WARNING,
+  GpcWorkerInjectionError,
+  installGlobalPrivacyControlWithWorkerRegistration
+} from "../lib/gpc-injection";
 import { safeParseUrl } from "../lib/report-url";
 import {
   collectStorageEntries,
@@ -37,7 +43,7 @@ import type {
   ScanResult
 } from "../lib/types";
 import { normalizeHttpUrlInput } from "../lib/url-normalization";
-import { PublicFacingError } from "../lib/public-errors";
+import { PublicFacingError, toPublicError } from "../lib/public-errors";
 import {
   assertEdgePublicHttpUrl,
   assertEdgePublicHttpUrlShape,
@@ -124,9 +130,8 @@ export default {
           throw new HttpError("Not found.", 404);
       }
     } catch (error) {
-      const status = error instanceof PublicFacingError ? error.status : 500;
-      const message = error instanceof Error ? error.message : "The scan failed.";
-      return jsonResponse({ ok: false, error: message }, request, env, status);
+      const publicError = toPublicError(error);
+      return jsonResponse({ ok: false, error: publicError.message }, request, env, publicError.status);
     }
   }
 };
@@ -350,21 +355,19 @@ async function scanWithBrowserSession(
   await withWorkerScanTimeout(assertWorkerPublicHttpUrl(targetUrl, env, publicHostChecks), deadlineStarted, maxDurationMs);
   const warnings = new ScanWarningCollector([
     "This Cloudflare report is one automated, headless Chromium visit from Cloudflare Browser Run. It does not scroll, click, sign in, or interact with consent prompts.",
-    "This Cloudflare scanner verifies public URL shape and DNS answers before navigation and resource loading, but Browser Run performs its own connection-time DNS resolution and this Worker cannot currently pin the browser connection to the verified IP. Brave Shields block simulation is not enabled in this deployment."
+    "This Cloudflare scanner verifies public URL shape and DNS answers before navigation and resource loading, but Browser Run performs its own connection-time DNS resolution and this Worker cannot currently pin the browser connection to the verified IP. Brave Shields block simulation is not enabled in this deployment. Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete."
   ]);
 
   let context: BrowserContext | null = null;
+  const gpcWorkerInjection = payload.gpcEnabled ? createGpcWorkerInjectionSession() : null;
 
   try {
     context = await withWorkerScanTimeout(browser.newContext(createContextOptions(payload)), deadlineStarted, maxDurationMs);
 
-    if (payload.gpcEnabled) {
+    if (gpcWorkerInjection) {
       await withWorkerScanTimeout(
-        context.addInitScript(() => {
-          Object.defineProperty(navigator, "globalPrivacyControl", {
-            configurable: true,
-            get: () => true
-          });
+        context.exposeBinding(gpcWorkerInjection.bindingName, (source, value) => {
+          gpcWorkerInjection.register(source, value);
         }),
         deadlineStarted,
         maxDurationMs
@@ -373,6 +376,19 @@ async function scanWithBrowserSession(
     }
 
     const page = await withWorkerScanTimeout(context.newPage(), deadlineStarted, maxDurationMs);
+    if (gpcWorkerInjection) {
+      // Keep registration and transformation on the same measured Page.
+      // Context-wide headers still advertise Sec-GPC, but out-of-evidence
+      // popups must not create tickets this page's route handler cannot serve.
+      await withWorkerScanTimeout(
+        page.addInitScript(
+          installGlobalPrivacyControlWithWorkerRegistration,
+          gpcWorkerInjection.initScriptArgs
+        ),
+        deadlineStarted,
+        maxDurationMs
+      );
+    }
     await withWorkerScanTimeout(installFingerprintObserver(page, targetUrl.hostname), deadlineStarted, maxDurationMs);
 
     const networkRecorder = new ScanNetworkRecorder<PlaywrightRequest>({
@@ -391,6 +407,21 @@ async function scanWithBrowserSession(
           verifyPublicUrl: (url) => assertWorkerPublicHttpUrl(url, env, publicHostChecks),
           unverifiedWarning: "Blocked a request that could not be verified as a public HTTP(S) URL"
         });
+        if (decision.action === "continue" && gpcWorkerInjection) {
+          try {
+            const fulfillment = await gpcWorkerInjection.buildRouteFulfillment(route);
+            if (fulfillment) {
+              await route.fulfill(fulfillment);
+              return;
+            }
+          } catch (error) {
+            if (!(error instanceof GpcWorkerInjectionError)) throw error;
+            warnings.add(GPC_WORKER_CAPTURE_LOSS_WARNING);
+            await route.abort().catch(() => undefined);
+            return;
+          }
+        }
+
         if (decision.action === "continue") {
           await route.continue();
           return;
@@ -451,6 +482,10 @@ async function scanWithBrowserSession(
       return null;
     });
 
+    if (gpcWorkerInjection && gpcWorkerInjection.diagnostics().captureLossCount > 0) {
+      warnings.add(GPC_WORKER_CAPTURE_LOSS_WARNING);
+    }
+
     const publicRequests = networkRecorder.publicRecords(finalParsed.hostname);
     const conditions = buildScanConditions({
       profile: "cloudflare-browser-run",
@@ -500,6 +535,11 @@ function createContextOptions(payload: ScanRequestPayload): BrowserContextOption
     isMobile: payload.device === "mobile",
     hasTouch: payload.device === "mobile",
     locale: "en-US",
+    // Browser Run cannot safely inject document init scripts into service
+    // workers before their first read. Match the production Node scanner and
+    // block registration so a GPC-enabled visit has no false worker-negative
+    // surface (and no route-invisible service-worker traffic).
+    serviceWorkers: "block",
     timezoneId: "UTC",
     colorScheme: "light",
     userAgent:

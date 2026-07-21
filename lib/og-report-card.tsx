@@ -1,6 +1,11 @@
 import { ImageResponse } from "next/og";
-import { buildReportHeadline, type HeadlineTone, type ReportHeadlineStat } from "./report-headline";
-import type { ReportView } from "./scan-report-views";
+import { shieldsRunMeasurement } from "./report-insights";
+import {
+  buildReportHeadline,
+  type HeadlineTone,
+  type ReportHeadlineStat
+} from "./report-headline";
+import { comparisonArmViews, type ReportView } from "./scan-report-views";
 
 /**
  * Shared `next/og` social-card renderers for report and homepage links.
@@ -12,6 +17,7 @@ import type { ReportView } from "./scan-report-views";
 
 export const OG_SIZE = { width: 1200, height: 630 } as const;
 export const OG_CONTENT_TYPE = "image/png";
+export const OG_REPORT_SUBHEAD_MAX_CHARACTERS = 300;
 
 const TONE_HEX: Record<HeadlineTone, string> = {
   alarm: "#fb7185",
@@ -30,10 +36,11 @@ const HOME_ACCENT = "#2dd4bf";
 
 export function renderReportCard(view: ReportView): ImageResponse {
   const headline = buildReportHeadline(view);
+  const subhead = buildReportCardSubhead(view, headline);
   const accent = TONE_HEX[headline.tone];
   const stats = headline.stats.slice(0, 3);
   const headlineSize = headline.headline.length > 64 ? 50 : headline.headline.length > 44 ? 58 : 66;
-  const subhead = truncate(headline.subhead, 150);
+  const subheadSize = subhead.length > 240 ? 18 : subhead.length > 180 ? 22 : 26;
 
   return new ImageResponse(
     (
@@ -93,7 +100,7 @@ export function renderReportCard(view: ReportView): ImageResponse {
           <div style={{ display: "flex", fontSize: headlineSize, fontWeight: 800, lineHeight: 1.1, marginTop: 14 }}>
             {headline.headline}
           </div>
-          <div style={{ display: "flex", fontSize: 26, color: MUTED, lineHeight: 1.4, marginTop: 18, maxWidth: 1000 }}>
+          <div style={{ display: "flex", fontSize: subheadSize, color: MUTED, lineHeight: 1.3, marginTop: 18, maxWidth: 1000 }}>
             {subhead}
           </div>
         </div>
@@ -115,6 +122,50 @@ export function renderReportCard(view: ReportView): ImageResponse {
     ),
     { ...OG_SIZE }
   );
+}
+
+/**
+ * Fit report copy semantically, never by cutting characters. Most report
+ * subheads already fit intact. The Shields comparison is intentionally more
+ * qualified, so restate the same measurements and limitations compactly:
+ * scanner simulation (not Brave), direct blocks versus follow-on requests,
+ * and pair-to-pair variance all remain visible on the card.
+ */
+export function buildReportCardSubhead(view: ReportView, headline = buildReportHeadline(view)): string {
+  if (headline.subhead.length <= OG_REPORT_SUBHEAD_MAX_CHARACTERS) return headline.subhead;
+
+  const arms = comparisonArmViews(view);
+  const isQualifiedShieldsFinding =
+    view.comparison?.axis === "shields" &&
+    headline.subhead.includes("a simulation in this scanner's browser, not a live Brave-browser visit");
+  if (arms && isQualifiedShieldsFinding) {
+    const total = arms.baseline.counts.totalRequests;
+    const removed = Math.max(0, arms.baseline.counts.thirdPartyRequests - arms.variant.counts.thirdPartyRequests);
+    const engineBlocks = shieldsRunMeasurement(arms.variant);
+    if (removed > 0) {
+      const directBlockNote =
+        engineBlocks?.kind === "engine-blocked"
+          ? ` The engine directly stopped ${pluralRequests(engineBlocks.count)}; the difference may also include prevented follow-on requests and run-to-run variance.`
+          : " This is an observed difference between two visits and may include run-to-run variance.";
+      const concise =
+        `Brave-list block simulation in this scanner—not a live Brave-browser visit: ` +
+        `${pluralRequests(total)} without blocking; ${pluralRequests(removed, "fewer third-party request")} in the blocking visit.` +
+        directBlockNote;
+      if (concise.length <= OG_REPORT_SUBHEAD_MAX_CHARACTERS) return concise;
+    }
+  }
+
+  // Default safe for an unexpectedly long future finding: do not publish a
+  // visually severed qualification. The full claim is explicitly withheld
+  // from the card and the viewer is directed to its evidence and limitations.
+  return (
+    "Automated-visit headline only; its claim-specific context does not fit this card. " +
+    "Open the report for the complete evidence and limitations, and do not treat this card alone as a verdict or general claim about the site."
+  );
+}
+
+function pluralRequests(count: number, singular = "request"): string {
+  return `${count.toLocaleString("en-US")} ${singular}${count === 1 ? "" : "s"}`;
 }
 
 export function renderMissingReportCard(): ImageResponse {

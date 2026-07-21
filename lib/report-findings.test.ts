@@ -367,7 +367,7 @@ test("the Shields comparison card hedges the residual beyond the direct engine b
   assert.match(card.detail, /run-to-run variance/);
 });
 
-test("a consent comparison flags trackers that survive Reject all", () => {
+test("a legacy consent pair stays attempt-only because v1 cannot verify either registered choice", () => {
   const acceptRun = {
     ...makeResult({
       firstPartyDomain: "shop.example",
@@ -393,23 +393,16 @@ test("a consent comparison flags trackers that survive Reject all", () => {
 
   assert.equal(findings[0].id, "bottom-line");
   const card = byId(findings, "consent-comparison");
-  assert.equal(card.level, "warn");
-  assert.match(card.title, /Requests were sent .* in the visit that clicked Reject all/);
-  assert.match(card.lead, /Google/);
-  assert.match(card.detail, /not a violation ruling/);
-  // The claim must stay observational: recording spans the whole visit and the
-  // click is dispatched, not verified.
-  assert.match(card.detail, /v1 report records only/);
-  assert.match(card.detail, /cannot verify/);
-  assert.match(card.detail, /before and after the click/);
-  assert.match(card.detail, /legitimate interest/);
-  // The diff pointer must describe set membership, not an effect of rejecting.
-  assert.match(card.detail, /appeared only in the visit that clicked Accept all/);
-  assert.doesNotMatch(card.detail, /did remove/);
-  assert.match(card.evidence, /30 with the accept-all click, 6 with the reject-all click/);
+  assert.equal(card.level, "info");
+  assert.match(card.title, /Consent choices were attempted, but not verified/);
+  assert.match(card.lead, /v1 report records only that the scanner dispatched the Accept all click/);
+  assert.match(card.lead, /v1 report records only that the scanner dispatched the Reject all click/);
+  assert.match(card.detail, /do not support an accept-versus-reject outcome/);
+  assert.match(card.detail, /both requested choices are verified as registered/);
+  assert.doesNotMatch(`${card.title} ${card.lead} ${card.detail}`, /survive Reject|appeared only|did remove/);
 });
 
-test("a consent finding never upgrades unanswered requests into receipt", () => {
+test("an unverified legacy consent pair never upgrades raw traffic into a consent outcome", () => {
   const quietTracker = {
     ...makeTrackerDomain("quiet-tracker.example", 2, "Quiet Analytics", "analytics"),
     statuses: []
@@ -424,8 +417,8 @@ test("a consent finding never upgrades unanswered requests into receipt", () => 
   };
 
   const card = byId(buildFindings(viewFromV1Report(consentPair(acceptRun, rejectRun)), null), "consent-comparison");
-  assert.match(card.title, /Requests were sent/);
-  assert.match(card.lead, /recorded no response, so receipt is unproven/);
+  assert.match(card.title, /attempted, but not verified/);
+  assert.match(card.lead, /records only that the scanner dispatched/);
   assert.doesNotMatch(`${card.title} ${card.lead}`, /received requests|loaded in/);
 });
 
@@ -447,6 +440,76 @@ test("a verified r2 consent finding reports registration and retains scope cavea
   assert.doesNotMatch(card.detail, /cannot verify|never verified/);
 });
 
+test("both v2 arms must verify registration before any consent outcome claim", () => {
+  for (const label of ["baseline", "variant"] as const) {
+    const view = viewFromV2(makeConsentInterventionReportV2R2(), 2);
+    const arm = view.runs.find((run) => run.label === label);
+    if (!arm?.consent) throw new Error("fixture invariant");
+    arm.consent.choiceState = "unavailable";
+    arm.consent.bannerTransition = null;
+
+    const card = byId(buildFindings(view, null), "consent-comparison");
+    assert.equal(card.level, "info");
+    assert.match(card.title, /choice was attempted, but not verified/);
+    assert.doesNotMatch(card.title, /had no catalogued trackers/);
+    assert.match(card.detail, /do not support an accept-versus-reject outcome/);
+  }
+});
+
+test("a banner-only v2 reject observation cannot earn an ok consent card", () => {
+  const view = viewFromV2(makeConsentInterventionReportV2R2(), 2);
+  const variant = view.runs.find((run) => run.label === "variant");
+  if (!variant?.consent) throw new Error("fixture invariant");
+  variant.consent.choiceState = "weak-signal";
+  variant.consent.reverifiedAfterReload = false;
+
+  const card = byId(buildFindings(view, null), "consent-comparison");
+  assert.equal(card.level, "info");
+  assert.match(card.title, /choice was attempted, but not verified/);
+  assert.match(card.lead, /no registered consent state was verified/);
+  assert.match(card.detail, /do not support an accept-versus-reject outcome/);
+});
+
+test("a contradicted registered state is disclosed as a warning, never an outcome", () => {
+  const view = viewFromV2(makeConsentInterventionReportV2R2(), 2);
+  const variant = view.runs.find((run) => run.label === "variant");
+  if (!variant?.consent) throw new Error("fixture invariant");
+  variant.consent.choiceState = "contradicted";
+
+  const card = byId(buildFindings(view, null), "consent-comparison");
+  assert.equal(card.level, "warn");
+  assert.equal(card.methodology, undefined);
+  assert.match(card.title, /registered consent state contradicted/);
+  assert.match(card.lead, /contradicted the Reject all click/);
+  assert.match(card.detail, /do not support an accept-versus-reject outcome/);
+
+  const bottomLine = byId(buildFindings(view, null), "bottom-line");
+  assert.equal(bottomLine.level, "warn");
+  assert.match(bottomLine.title, /review-worthy signals/);
+});
+
+test("a no-click contradiction is non-calm evidence with explicit no-dispatch copy", () => {
+  const view = viewFromV2(makeConsentInterventionReportV2R2(), 2);
+  const variant = view.runs.find((run) => run.label === "variant");
+  if (!variant?.consent) throw new Error("fixture invariant");
+  variant.consent.controlActivated = false;
+  variant.consent.choiceState = "contradicted";
+
+  const findings = buildFindings(view, null);
+  const card = byId(findings, "consent-comparison");
+  assert.equal(card.level, "warn");
+  assert.equal(card.methodology, undefined);
+  assert.match(card.title, /requested choice/);
+  assert.match(card.lead, /did not activate that control/);
+  assert.doesNotMatch(`${card.title} ${card.lead}`, /dispatched choice|contradicted the Reject all click/);
+  assert.notEqual(card.lead, "");
+  assert.match(card.evidence, /no choice dispatched/);
+
+  const bottomLine = byId(findings, "bottom-line");
+  assert.equal(bottomLine.level, "warn");
+  assert.doesNotMatch(bottomLine.title, /few review signals/);
+});
+
 test("a consent comparison with no clickable banner claims nothing", () => {
   const acceptRun = {
     ...makeResult({ firstPartyDomain: "shop.example", thirdPartyRequests: 10 }),
@@ -465,7 +528,7 @@ test("a consent comparison with no clickable banner claims nothing", () => {
   assert.match(card.lead, /pre-consent state/);
 });
 
-test("a clean reject run earns the ok consent card, and a missing reject control stays neutral", () => {
+test("a clean legacy reject attempt stays neutral, and a missing reject control is explicit", () => {
   const acceptRun = {
     ...makeResult({
       firstPartyDomain: "shop.example",
@@ -479,9 +542,10 @@ test("a clean reject run earns the ok consent card, and a missing reject control
     consentInteraction: { mode: "reject-all" as const, clicked: true, cmp: "Cookiebot" }
   };
 
-  const okCard = byId(buildFindings(viewFromV1Report(consentPair(acceptRun, cleanRejectRun)), null), "consent-comparison");
-  assert.equal(okCard.level, "ok");
-  assert.match(okCard.title, /The visit that clicked Reject all had no catalogued trackers/);
+  const neutralCard = byId(buildFindings(viewFromV1Report(consentPair(acceptRun, cleanRejectRun)), null), "consent-comparison");
+  assert.equal(neutralCard.level, "info");
+  assert.match(neutralCard.title, /attempted, but not verified/);
+  assert.doesNotMatch(neutralCard.title, /had no catalogued trackers/);
 
   const unclickedRejectRun = {
     ...makeResult({ firstPartyDomain: "shop.example", thirdPartyRequests: 19 }),
@@ -494,6 +558,13 @@ test("a clean reject run earns the ok consent card, and a missing reject control
   assert.equal(partialCard.level, "info");
   assert.match(partialCard.title, /Only the Accept all control could be clicked/);
   assert.match(partialCard.lead, /does not measure the reject all choice/);
+});
+
+test("a clean consent pair earns an ok card only when both registered choices are verified", () => {
+  const view = viewFromV2(makeConsentInterventionReportV2R2(), 2);
+  const card = byId(buildFindings(view, null), "consent-comparison");
+  assert.equal(card.level, "ok");
+  assert.match(card.title, /clicked Reject all had no catalogued trackers/);
 });
 
 test("the pre-consent CMP card is suppressed on consent-mode runs", () => {

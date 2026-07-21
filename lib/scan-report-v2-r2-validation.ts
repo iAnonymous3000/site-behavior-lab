@@ -216,7 +216,7 @@ function isSupportingPair(value: unknown): value is SupportingPairR2 {
   if (value.order !== "AB" && value.order !== "BA") return false;
   const baseline = validateAndStripRun(value.baseline);
   const variant = validateAndStripRun(value.variant);
-  if (baseline === null || variant === null || !isScanRunV2(baseline) || !isScanRunV2(variant)) return false;
+  if (baseline === null || variant === null || !isScanRunV2(baseline, 2) || !isScanRunV2(variant, 2)) return false;
   const verification = value.verification;
   return (
     isRecord(verification) &&
@@ -230,7 +230,7 @@ export function isPublicSingleReportV2R2(value: unknown): value is PublicSingleR
   if (!isRecord(value) || value.schemaRevision !== SCAN_REPORT_V2_SCHEMA_REVISION_2) return false;
   const strippedRun = validateAndStripRun(value.run);
   if (strippedRun === null) return false;
-  return isPublicSingleReportV2({ ...value, schemaRevision: 1, run: strippedRun });
+  return isPublicSingleReportV2({ ...value, schemaRevision: 1, run: strippedRun }, 2);
 }
 
 export function isPublicComparisonReportV2R2(value: unknown): value is PublicComparisonReportV2R2 {
@@ -250,7 +250,7 @@ export function isPublicComparisonReportV2R2(value: unknown): value is PublicCom
     experiment = withoutPairs;
   }
 
-  return isPublicComparisonReportV2({ ...value, schemaRevision: 1, baseline, variant, experiment });
+  return isPublicComparisonReportV2({ ...value, schemaRevision: 1, baseline, variant, experiment }, 2);
 }
 
 export function isPublicScanReportV2R2(value: unknown): value is PublicScanReportV2R2 {

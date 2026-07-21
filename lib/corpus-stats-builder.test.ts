@@ -33,6 +33,8 @@ function makeResult(overrides: {
   const base = makeScanReportV1();
   if (base.reportType === "comparison") throw new Error("fixture must be a single report");
   const thirdPartyRequests = overrides.thirdPartyRequests ?? base.summary.thirdPartyRequests;
+  const firstPartyDomain = overrides.firstPartyDomain ?? "shop-fixture.dev";
+  const subjectUrl = `https://${firstPartyDomain}/`;
   return {
     ...base,
     requests:
@@ -51,13 +53,15 @@ function makeResult(overrides: {
           })),
     summary: {
       ...base.summary,
-      firstPartyDomain: overrides.firstPartyDomain ?? "shop-fixture.dev",
+      firstPartyDomain,
       totalRequests: overrides.thirdPartyRequests === undefined ? base.summary.totalRequests : thirdPartyRequests,
       thirdPartyRequests,
       status: overrides.status ?? base.summary.status
     },
     conditions: {
       ...base.conditions,
+      requestedUrl: subjectUrl,
+      finalUrl: subjectUrl,
       scannedAt: overrides.scannedAt ?? base.conditions.scannedAt
     }
   };

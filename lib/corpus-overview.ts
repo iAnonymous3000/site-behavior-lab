@@ -249,9 +249,10 @@ async function buildCorpusOverview(): Promise<CorpusOverview> {
   const measured = measuredLoaded.map(({ entry }) => entry);
 
   // "Since last comparable visit": each site's newest report is paired only
-  // with a predecessor carrying the same versioned passive-history key used
-  // by the archive. The key is absent on failed, capped, simulated, unknown,
-  // or mismatched-subject visits.
+  // with a predecessor carrying the separate compatible passive-history key.
+  // This is deliberately broader than the archive's strict retention identity;
+  // the key is absent on failed, capped, simulated, unknown, or
+  // mismatched-subject visits.
   const deltas = computeComparableSinceLastScan(
     measuredLoaded.map(({ entry, comparisonHistoryKey }) => ({ ...entry, comparisonHistoryKey }))
   );

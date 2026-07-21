@@ -46,6 +46,7 @@ test("the CI bot-wall gate checks every primary and r2 supporting-pair arm", asy
       name: "primary baseline title",
       mutate: ({ primaryBaseline }) => {
         primaryBaseline.summary.pageTitle = "Attention Required";
+        primaryBaseline.qualityFacts.navigationSettled = false;
       },
       expected: /^primary baseline arm: landing page title matches/
     },
@@ -67,6 +68,7 @@ test("the CI bot-wall gate checks every primary and r2 supporting-pair arm", asy
       name: "supporting variant title",
       mutate: ({ supportingVariant }) => {
         supportingVariant.summary.pageTitle = "Checking your browser";
+        supportingVariant.qualityFacts.navigationSettled = false;
       },
       expected: /^supporting pair 1 variant arm: landing page title matches/
     }
@@ -147,6 +149,27 @@ test("the CI report gate rejects recorded navigation and quality failures", asyn
     botBlockReason(qualityFailure) ?? "",
     /^primary variant arm: report quality evaluator marked the run failed$/
   );
+});
+
+test("the CI bot-wall gate does not treat generic title prose as a failed visit", async () => {
+  const { botBlockReason } = await helpers;
+  const report = makeHealthySupportingComparison();
+  const { primaryBaseline, primaryVariant } = supportingArms(report);
+
+  primaryBaseline.summary.pageTitle = "Account security check results";
+  primaryBaseline.summary.counts.totalRequests = 20;
+  primaryVariant.summary.pageTitle = "How to enable JavaScript in your browser";
+  primaryVariant.summary.counts.totalRequests = 20;
+
+  assert.equal(botBlockReason(report), null);
+
+  primaryBaseline.summary.pageTitle = "Security check";
+  assert.equal(botBlockReason(report), null, "an otherwise dense, healthy visit needs more than title testimony");
+
+  primaryBaseline.summary.counts.totalRequests = 2;
+  primaryVariant.summary.counts.totalRequests = 2;
+  primaryVariant.summary.pageTitle = "Enable JavaScript";
+  assert.equal(botBlockReason(report), null, "generic exact titles and sparse pages are both site-controlled");
 });
 
 function makeHealthySupportingComparison() {

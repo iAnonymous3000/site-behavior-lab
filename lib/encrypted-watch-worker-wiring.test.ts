@@ -109,6 +109,11 @@ test("watch capabilities terminate at the edge and watch drift does not disable 
   );
   assert.match(watchHealth, /encryptedWatchIngressIsTokenGated/);
   assert.match(watchHealth, /Encrypted watches require access-token-gated scanner ingress\./);
+  const watchConfig = source.slice(
+    source.indexOf("function requireEncryptedWatchConfig("),
+    source.indexOf("function requireDurableScanJobInternalToken(")
+  );
+  assert.match(watchConfig, /SITE_BEHAVIOR_LAB_SYNTHETIC_MONITOR_TOKEN/);
   assert.match(
     source,
     /SITE_BEHAVIOR_LAB_ENCRYPTED_WATCHES: this\.env\.SITE_BEHAVIOR_LAB_ENCRYPTED_WATCHES \?\? "0"/

@@ -22,6 +22,21 @@
   X-Frame-Options: DENY
   Permissions-Policy: camera=(), geolocation=(), microphone=(), payment=(), serial=(), usb=()
 
+# Next's static image routes are extensionless PNG files. Declare their real
+# media type explicitly so Pages does not serve every social card as
+# application/octet-stream under nosniff.
+/opengraph-image
+  Content-Type: image/png
+
+/twitter-image
+  Content-Type: image/png
+
+/reports/*/opengraph-image
+  Content-Type: image/png
+
+/reports/*/twitter-image
+  Content-Type: image/png
+
 # Frozen schema bytes cannot carry post-publication corrections. Publish a
 # machine-discoverable companion link on every current schema response instead.
 /scan-report.schema.json

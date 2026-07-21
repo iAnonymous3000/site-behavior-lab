@@ -170,7 +170,7 @@ export function makeScanReportV1(): ScanReport {
       status: 200,
       durationMs: 1,
       firstPartyDomain: "example.com",
-      totalRequests: 1,
+      totalRequests: 0,
       thirdPartyRequests: 0,
       knownTrackerRequests: 0,
       thirdPartyDomains: 0,

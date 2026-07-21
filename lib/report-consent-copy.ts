@@ -1,5 +1,16 @@
 import type { ReportView, RunConsentView } from "./scan-report-views";
 
+/**
+ * Whether presentation may treat a visit as a verified consent choice.
+ * Dispatch, banner disappearance, and a contradictory registered state are
+ * useful observations, but none establishes that the requested choice was
+ * registered. Public accept-versus-reject outcomes require this stronger gate
+ * independently on both arms.
+ */
+export function consentChoiceVerified(consent: RunConsentView | null): boolean {
+  return consent?.controlActivated === true && consent.choiceState === "verified";
+}
+
 /** Compact, human-facing status for the methodology row; never expose wire tokens. */
 export function consentVerificationSummary(consent: RunConsentView): string {
   if (!consent.controlActivated) return "no choice dispatched";

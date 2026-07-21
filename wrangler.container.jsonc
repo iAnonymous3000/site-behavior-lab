@@ -35,6 +35,10 @@
     "SITE_BEHAVIOR_LAB_PUBLIC_SCAN_RATE_LIMIT_PER_MINUTE": "6",
     "SITE_BEHAVIOR_LAB_PUBLIC_SCAN_RATE_LIMIT_PER_DAY": "120",
 
+    // The hourly production synthetic uses the distinct Worker-only
+    // SITE_BEHAVIOR_LAB_SYNTHETIC_MONITOR_TOKEN secret. It bypasses Turnstile
+    // only for that authenticated request and never closes public ingress.
+
     // Public ScanReport v2/r2 is the durable production producer. Consent
     // readback is a hard prerequisite; a bad gate/build/store configuration
     // fails scans closed instead of silently falling back to v1. Private

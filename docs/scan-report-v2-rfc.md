@@ -361,7 +361,7 @@ type ArmVerification = {
   axis: InterventionAxis;
   expected: string;                  // "gpc:off", "shields:block-simulation", "consent:reject-all"
   observed: string | null;           // what the interpreter actually read; null = unobservable
-  method: string;                    // versioned: "gpc-header-readback@1", "shields-engine-status@1", "tcf-api@1"
+  method: string;                    // versioned: "gpc-header-readback@1", "shields-engine-status@1", "tcf-api@4"
   outcome: "passed" | "failed" | "inconclusive";
   phaseId: PhaseId;                  // when verification ran
 };
@@ -576,7 +576,7 @@ type ConsentEvidence = {
   // phase and one in the post-choice-reload phase.
   verificationObservations: Array<{
     phaseId: PhaseId;
-    method: string;                        // versioned interpreter id: "tcf-api@1", "onetrust-cookie@1"
+    method: string;                        // versioned interpreter id: "tcf-api@4", "onetrust-cookie@1"
     observed: string | null;               // the state read; null = interpreter ran, nothing readable
     consistentWithChoice: boolean | null;  // null when observed is null
   }>;
@@ -1613,8 +1613,30 @@ only a content type, and a report write plus a sidecar write is NOT atomic):
   deltas. New producer output records methodology component `consent-r2-v3`, so the
   projection change cannot compare as the same measurement instrument.
 
+- **E7 (2026-07-20, fixed by `tcf-api@4` and `consent-r2-v4`)**: `tcf-api@3`
+  collapsed purpose consent and legitimate-interest flags into one enabled vector.
+  A first-layer Reject all can lawfully withdraw every consent while leaving the
+  separately managed legitimate-interest objection state unchanged, so that mapping
+  could publish `contradicted` against the requested choice. It also omitted the
+  vendor-specific `publisher.restrictions` that the TCF requires consumers to apply
+  before legal-basis signals. `tcf-api@4` projects restrictions only as the bounded,
+  non-identifying summary `none | present | unknown`. An all-consent-false vector with
+  any retained legitimate interest is now `unknown`, never `partial` or
+  `accepted-all`; both legal-basis vectors unanimously false remain `rejected-all`.
+  Present or malformed restrictions make every other purpose-only conclusion
+  `unknown`, because applying them requires vendor declarations and the matching GVL,
+  neither of which this privacy-minimizing interpreter retains. Historical methods
+  remain readable, exact interpreter-set matching refuses cross-version deltas, and
+  new output carries `consent-r2-v4` in its methodology identity.
+
 ## Changelog
 
+- **r2-a6 addendum (2026-07-20, ACCEPTED)**: makes the TCF interpreter
+  publisher-restriction-aware and prevents retained legitimate interest after a
+  first-layer Reject all from becoming a fabricated contradiction. `tcf-api@4`
+  retains only a bounded restriction-presence summary, returns `unknown` where
+  vendor/GVL interpretation or the separate LI objection state is required, and
+  records `consent-r2-v4` so older and newer instruments cannot compare silently.
 - **r2-a5 addendum (2026-07-20, ACCEPTED)**: documents the complete TCF
   dual-legal-basis projection introduced by `tcf-api@3`: identical multi-purpose
   consent and legitimate-interest key sets are required before classification;

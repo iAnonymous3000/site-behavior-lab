@@ -18,12 +18,13 @@ import type { ComparisonType } from "./types";
  *
  * Retention policy: reports older than the max age are removed
  * unless they are one of the newest `keepPerSite` reports with the same site,
- * kind, subject, and versioned measurement/condition cohort. That is the same
- * fail-closed identity used by "changed since last scan", so an incompatible
- * intervening scan cannot evict the only compatible predecessor. Unknown
- * identities do not match one another; only the newest report of each broad
- * site/kind is protected as a disappearance guard. The count cap remains the
- * hard ceiling, trimming oldest-first but preferring unprotected reports.
+ * kind, subject, and versioned measurement/condition cohort. This strict
+ * retention identity is intentionally narrower than the compatible-history
+ * identity used by "changed since last scan"; protected generations preserve
+ * useful predecessors without declaring them comparable. Unknown identities
+ * do not match one another; only the newest report of each broad site/kind is
+ * protected as a disappearance guard. The count cap remains the hard ceiling,
+ * trimming oldest-first but preferring unprotected reports.
  *
  * A file the reader cannot read is NEVER deleted: retention must not destroy
  * evidence it cannot understand. It is skipped with a warning and counts

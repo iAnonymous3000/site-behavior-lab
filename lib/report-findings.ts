@@ -53,7 +53,12 @@ import {
 } from "./scan-report-views";
 import { humanList, plural } from "./text-format";
 import type { NetworkRequestRecord, PrivacyPolicyClaimKind, ProvenanceChange } from "./types";
-import { CONSENT_WHOLE_VISIT_CAVEAT, consentRegistrationSentence } from "./report-consent-copy";
+import {
+  CONSENT_WHOLE_VISIT_CAVEAT,
+  consentChoiceVerified,
+  consentRegistrationSentence,
+  consentVerificationSummary
+} from "./report-consent-copy";
 
 export type FindingLevel = "ok" | "quiet" | "info" | "warn" | "loud";
 
@@ -758,10 +763,18 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
     // whose arms are otherwise not comparable.
     const bothClicksDispatched =
       arms.baseline.consent?.controlActivated === true && arms.variant.consent?.controlActivated === true;
+    const bothChoicesVerified = consentChoiceVerified(arms.baseline.consent) && consentChoiceVerified(arms.variant.consent);
+    const contradicted =
+      arms.baseline.consent?.choiceState === "contradicted" || arms.variant.consent?.choiceState === "contradicted";
+    const unverifiedCompletedPair = bothClicksDispatched && !bothChoicesVerified;
     findings.unshift(
-      pairGate && !pairGate.allowed && bothClicksDispatched
-        ? ineligibleComparisonFinding("consent-comparison", "This consent comparison is not conclusive", pairGate)
-        : buildConsentComparisonFinding(view, arms.baseline, arms.variant, rawCountsAllowed, classificationAllowed)
+      contradicted
+        ? unconfirmedConsentInteractionFinding(view, arms.baseline, arms.variant)
+        : pairGate && !pairGate.allowed && bothClicksDispatched
+          ? ineligibleComparisonFinding("consent-comparison", "This consent comparison is not conclusive", pairGate)
+          : unverifiedCompletedPair
+            ? unconfirmedConsentInteractionFinding(view, arms.baseline, arms.variant)
+          : buildConsentComparisonFinding(view, arms.baseline, arms.variant, rawCountsAllowed, classificationAllowed)
     );
   }
 
@@ -885,6 +898,49 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
   return findings;
 }
 
+function unconfirmedConsentInteractionFinding(view: ReportView, baseline: RunView, variant: RunView): Finding {
+  const unresolved = [
+    { label: "Accept all" as const, consent: baseline.consent },
+    { label: "Reject all" as const, consent: variant.consent }
+  ].filter(
+    (entry) =>
+      entry.consent !== null &&
+      !consentChoiceVerified(entry.consent) &&
+      (entry.consent.controlActivated || entry.consent.choiceState === "contradicted")
+  );
+  const contradicted = unresolved.some((entry) => entry.consent?.choiceState === "contradicted");
+  const contradictionWithoutActivation = unresolved.some(
+    (entry) => entry.consent?.choiceState === "contradicted" && entry.consent.controlActivated !== true
+  );
+  return {
+    id: "consent-comparison",
+    icon: "alert",
+    level: contradicted ? "warn" : "info",
+    // A contradictory registered-state observation is site evidence, not
+    // merely a report-method caveat. Keep neutral unverified attempts out of
+    // the bottom-line severity calculation, but let contradictions prevent a
+    // reassuring bottom line.
+    ...(contradicted ? {} : { methodology: true as const }),
+    title: contradicted
+      ? contradictionWithoutActivation
+        ? "A registered consent-state observation contradicted a requested choice"
+        : "The registered consent state contradicted a dispatched choice"
+      : `${unresolved.length === 1 ? "A consent choice was" : "Consent choices were"} attempted, but not verified`,
+    lead: unresolved
+      .map((entry) =>
+        entry.consent?.choiceState === "contradicted" && entry.consent.controlActivated !== true
+          ? `The scanner read a registered state inconsistent with the requested ${entry.label} choice, but it did not activate that control.`
+          : consentRegistrationSentence(view, entry.consent, entry.label)
+      )
+      .join(" "),
+    detail:
+      "The raw visits remain available as separate observations, but they do not support an accept-versus-reject outcome or a reassuring consent result unless both requested choices are verified as registered.",
+    evidence: unresolved
+      .map((entry) => `${entry.label}: ${entry.consent ? consentVerificationSummary(entry.consent) : "not attempted"}`)
+      .join("; ")
+  };
+}
+
 /**
  * Catalogued tracker entities observed in one arm's domain table and not the
  * other's, busiest first: the same derivation the v1 wire's added/removed
@@ -1003,13 +1059,17 @@ function buildConsentComparisonFinding(
   // "No catalogued trackers" is an absence claim over the reject visit's
   // request evidence: censored collection makes it a floor, not reassurance.
   const rejectEvidenceCensored = familyCensoredOnRun(variant, "requests");
+  const rejectChoiceVerified = variant.consent?.choiceState === "verified";
+  const reassuring = !rejectEvidenceCensored && rejectChoiceVerified;
   return {
     id: "consent-comparison",
-    icon: rejectEvidenceCensored ? "alert" : "shield-check",
-    level: rejectEvidenceCensored ? "info" : "ok",
+    icon: reassuring ? "shield-check" : "alert",
+    level: reassuring ? "ok" : "info",
     title: rejectEvidenceCensored
       ? "No catalogued trackers before the reject-click visit was cut short"
-      : "The visit that clicked Reject all had no catalogued trackers",
+      : rejectChoiceVerified
+        ? "The visit that clicked Reject all had no catalogued trackers"
+        : "No catalogued trackers were recorded in the reject-click visit",
     lead:
       classificationAllowed && acceptTracking.length > 0
         ? `The visit where the scanner clicked Reject all recorded no request to a catalogued tracking company, while the visit that clicked Accept all recorded requests to ${plural(

@@ -89,6 +89,26 @@ test("real PageGraph capture emits one passive, request-only, valid r2 report", 
   assert.equal(report.run.warnings.some((warning) => warning.includes("quality and coverage declarations")), true);
 });
 
+test("PageGraph unsupported sentinels require the exact r2 producer and family set", () => {
+  const report = buildPageGraphScanReportV2R2(GRAPH_BYTES, metadata(), CONTEXT);
+
+  const missing = structuredClone(report);
+  missing.run.qualityFacts.captureLoss = missing.run.qualityFacts.captureLoss.filter(
+    (loss) => !(loss.family === "cookies" && loss.detail === "pagegraph-unsupported")
+  );
+  assert.equal(isPublicScanReportV2R2(missing), false, "a missing unsupported family is rejected");
+
+  const duplicate = structuredClone(report);
+  const sentinel = duplicate.run.qualityFacts.captureLoss.find((loss) => loss.detail === "pagegraph-unsupported");
+  assert.ok(sentinel);
+  duplicate.run.qualityFacts.captureLoss.push(structuredClone(sentinel));
+  assert.equal(isPublicScanReportV2R2(duplicate), false, "a duplicate unsupported family is rejected");
+
+  const wrongProducer = structuredClone(report);
+  wrongProducer.run.provenance.observer = "node-playwright";
+  assert.equal(isPublicScanReportV2R2(wrongProducer), false, "another producer cannot mint the sentinel");
+});
+
 test("request-only PageGraph reports render unsupported families as unavailable, never zero or interrupted", () => {
   const report = buildPageGraphScanReportV2R2(GRAPH_BYTES, metadata(), CONTEXT);
   const view = viewFromV2(report, 2);

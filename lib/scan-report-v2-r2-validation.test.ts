@@ -534,7 +534,7 @@ test("the consent-verification family is unknown for pairs that attempted nothin
 });
 
 test("historical TCF readers remain valid while mixed TCF interpreter versions refuse consent comparability", () => {
-  type TcfMethod = "tcf-api@1" | "tcf-api@2" | "tcf-api@3";
+  type TcfMethod = "tcf-api@1" | "tcf-api@2" | "tcf-api@3" | "tcf-api@4";
   const setTcfMethod = (
     report: PublicScanReportV2R2,
     arm: "baseline" | "variant",
@@ -552,7 +552,7 @@ test("historical TCF readers remain valid while mixed TCF interpreter versions r
     report.experiment.verification[arm] = { ...report.experiment.verification[arm], method };
   };
 
-  for (const method of ["tcf-api@1", "tcf-api@2", "tcf-api@3"] as const) {
+  for (const method of ["tcf-api@1", "tcf-api@2", "tcf-api@3", "tcf-api@4"] as const) {
     const sameVersion = makeConsentInterventionReportV2R2();
     setTcfMethod(sameVersion, "baseline", method);
     setTcfMethod(sameVersion, "variant", method);
@@ -572,8 +572,8 @@ test("historical TCF readers remain valid while mixed TCF interpreter versions r
   }
 
   const crossVersion = makeConsentInterventionReportV2R2();
-  setTcfMethod(crossVersion, "baseline", "tcf-api@2");
-  setTcfMethod(crossVersion, "variant", "tcf-api@3");
+  setTcfMethod(crossVersion, "baseline", "tcf-api@3");
+  setTcfMethod(crossVersion, "variant", "tcf-api@4");
   crossVersion.comparability = evaluateComparabilityR2(
     crossVersion.experiment,
     crossVersion.baseline,

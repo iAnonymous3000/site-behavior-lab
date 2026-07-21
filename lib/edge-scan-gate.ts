@@ -38,6 +38,7 @@ export const DEFAULT_PUBLIC_SCAN_RATE_LIMIT_PER_DAY = 120;
 
 const RATE_LIMIT_BUCKET_PREFIX = "rate-limits";
 const TURNSTILE_SITEVERIFY_URL = "https://challenges.cloudflare.com/turnstile/v0/siteverify";
+const TURNSTILE_CONFIGURATION_PROBE_TOKEN = "site-behavior-lab-health-probe-invalid-token";
 
 /** Comparison runs (GPC, Shields, or consent accept/reject) make two browser visits and cost two tokens. */
 export function scanTokenCost(payload: { compareGpc?: boolean; compareShields?: boolean; compareConsent?: boolean }): 1 | 2 {
@@ -175,6 +176,60 @@ export async function assertTurnstileToken(options: {
   if (!result.success) {
     throw new EdgeScanGateError("Turnstile verification failed.", 403);
   }
+}
+
+export type TurnstileConfigurationProbeResult = "verified" | "misconfigured" | "unavailable";
+
+/**
+ * Verify that the configured Turnstile secret is recognized by Siteverify
+ * without solving a challenge or admitting a scan. A deliberately invalid
+ * response token must be rejected specifically as `invalid-input-response`;
+ * secret errors prove misconfiguration, while transport/shape drift remains
+ * unavailable. No visitor quota is touched by this probe.
+ */
+export async function probeTurnstileConfiguration(options: {
+  secret: string;
+  fetchImpl?: typeof fetch;
+  signal?: AbortSignal;
+}): Promise<TurnstileConfigurationProbeResult> {
+  const secret = options.secret.trim();
+  if (!secret) return "misconfigured";
+
+  const body = new URLSearchParams();
+  body.set("secret", secret);
+  body.set("response", TURNSTILE_CONFIGURATION_PROBE_TOKEN);
+
+  let response: Response;
+  try {
+    response = await (options.fetchImpl ?? fetch)(TURNSTILE_SITEVERIFY_URL, {
+      method: "POST",
+      body,
+      redirect: "error",
+      signal: options.signal ?? AbortSignal.timeout(5_000)
+    });
+  } catch {
+    return "unavailable";
+  }
+  if (!response.ok) return "unavailable";
+
+  let result: unknown;
+  try {
+    result = await response.json();
+  } catch {
+    return "unavailable";
+  }
+  if (!result || typeof result !== "object" || Array.isArray(result)) return "unavailable";
+  const record = result as Record<string, unknown>;
+  const codes = Array.isArray(record["error-codes"])
+    ? record["error-codes"].filter((value): value is string => typeof value === "string")
+    : [];
+  if (codes.includes("missing-input-secret") || codes.includes("invalid-input-secret")) {
+    return "misconfigured";
+  }
+  if (record.success === false && codes.length === 1 && codes[0] === "invalid-input-response") {
+    return "verified";
+  }
+  return "unavailable";
 }
 
 /**

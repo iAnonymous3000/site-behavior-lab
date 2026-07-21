@@ -20,8 +20,12 @@ import {
   trackerResponseQualification,
   trackerEntitySummaries
 } from "./report-insights";
-import { plural } from "./text-format";
-import { CONSENT_WHOLE_VISIT_CAVEAT, consentRegistrationSentence } from "./report-consent-copy";
+import { displayHost, plural } from "./text-format";
+import {
+  CONSENT_WHOLE_VISIT_CAVEAT,
+  consentChoiceVerified,
+  consentRegistrationSentence
+} from "./report-consent-copy";
 
 /**
  * Plain-language "headline" layer.
@@ -208,13 +212,50 @@ export function buildReportHeadline(view: ReportView): ReportHeadline {
     );
   }
 
+  // A contradictory registered-state readback is affirmative evidence, not
+  // merely an ineligible-comparison footnote. It must prevent the ordinary
+  // quiet fall-through even when the request log itself contains no trackers.
+  // Keep no-click wording precise: a contradiction can be observed against a
+  // requested choice even when the scanner never activated that control.
+  if (arms && axis === "consent") {
+    const contradicted =
+      arms.variant.consent?.choiceState === "contradicted"
+        ? { run: arms.variant, label: "Reject all", focus: "variant" as const }
+        : arms.baseline.consent?.choiceState === "contradicted"
+          ? { run: arms.baseline, label: "Accept all", focus: "baseline" as const }
+          : null;
+    if (contradicted) {
+      const activated = contradicted.run.consent?.controlActivated === true;
+      const contradictedTracking = trackerEntitySummaries(contradicted.run.evidence).filter(
+        (entity) => !isOperationalEntity(entity)
+      );
+      return finish(
+        "warn",
+        activated
+          ? `${domain}'s registered consent state contradicted the ${contradicted.label} click.`
+          : `${domain}'s registered consent state was inconsistent with the requested ${contradicted.label} choice.`,
+        activated
+          ? `The scanner activated ${contradicted.label}, but the site's consent-state readback was inconsistent with that choice. This pair does not support an accept-versus-reject outcome or any reassuring consent conclusion.`
+          : `The scanner did not activate the ${contradicted.label} control, so this is not evidence of a completed consent interaction. It nevertheless read a registered state inconsistent with the requested choice, and the pair supports no reassuring consent conclusion.`,
+        buildStats(contradicted.run, contradictedTracking.length),
+        contradicted.focus
+      );
+    }
+  }
+
   // Consent comparison: the story is what changed between the two visits.
-  // Claims are gated on the reject click having really been dispatched AND on
-  // the pair claim gate; when either fails, the report falls through to the
-  // ordinary evidence-led headline instead of pretending the choice was
-  // measured. Registration wording comes from the recorded consent state;
+  // Claims are gated on both controls having observable effect AND on the pair
+  // claim gate; dispatch alone can hit a no-op/decoy control. When either gate
+  // fails, the report falls through to the ordinary evidence-led headline.
+  // Registration wording comes from the recorded consent state;
   // even verified r2 evidence does not make the whole request log post-choice.
-  if (classificationDeltasUsable && arms && axis === "consent" && arms.variant.consent?.controlActivated === true) {
+  if (
+    classificationDeltasUsable &&
+    arms &&
+    axis === "consent" &&
+    consentChoiceVerified(arms.baseline.consent) &&
+    consentChoiceVerified(arms.variant.consent)
+  ) {
     const rejectTracking = trackerEntitySummaries(arms.variant.evidence).filter((entity) => !isOperationalEntity(entity));
     const rejectResponded = respondedTrackerEntityNames(arms.variant.evidence);
     // Both consent headlines describe the Reject-all (variant) visit, so the
@@ -235,7 +276,7 @@ export function buildReportHeadline(view: ReportView): ReportHeadline {
         "variant"
       );
     }
-    if (rawCountDeltasUsable && arms.baseline.consent?.controlActivated === true && trackingEntities.length > 0) {
+    if (rawCountDeltasUsable && trackingEntities.length > 0) {
       return finish(
         "info",
         `${domain} recorded no requests to catalogued trackers in the visit that clicked Reject all.`,
@@ -410,6 +451,14 @@ export function buildReportHeadline(view: ReportView): ReportHeadline {
   }
 
   const calmStats: ReportHeadlineStat[] = stats.length > 0 ? stats : [{ label: "third-party requests", value: "0", emphasis: true }];
+  const rawFingerprintNote =
+    run.counts.fingerprintEvents > 0
+      ? ` The observer recorded ${plural(
+          run.counts.fingerprintEvents,
+          "browser-API event used by the fingerprinting heuristics",
+          "browser-API events used by the fingerprinting heuristics"
+        )}, but none met a detector's fingerprinting threshold.`
+      : "";
   return finish(
     "calm",
     `${domain} kept this visit relatively private.`,
@@ -417,8 +466,8 @@ export function buildReportHeadline(view: ReportView): ReportHeadline {
       ? `${plural(
           run.counts.thirdPartyDomains,
           "third-party domain"
-        )} appeared in the request log, but no catalogued tracking company, third-party cookie, or fingerprinting signal showed up in this visit.`
-      : "No third-party domains, tracking companies, cookies, or fingerprinting signals showed up in this visit.",
+        )} appeared in the request log, but no catalogued tracking company or third-party cookie showed up in this visit.${rawFingerprintNote || " No fingerprint-observer events showed up either."}`
+      : `No third-party domains, tracking companies, or third-party cookies showed up in this visit.${rawFingerprintNote || " No fingerprint-observer events showed up either."}`,
     calmStats
   );
 }
@@ -489,7 +538,9 @@ function n(value: number): string {
 }
 
 function joinNames(items: string[], limit = 3): string {
-  const visible = items.slice(0, limit);
+  // Host-shaped privacy markers are wire tokens, not reader-facing prose.
+  // Use the same wildcard presentation as evidence tables and CSV previews.
+  const visible = items.slice(0, limit).map(displayHost);
   const remaining = items.length - visible.length;
   if (visible.length === 0) return "";
   if (visible.length === 1) return remaining > 0 ? `${visible[0]} and ${remaining} more` : visible[0];

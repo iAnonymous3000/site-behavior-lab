@@ -16,6 +16,9 @@ junit.xml
 .env
 .env.*
 !.env.example
+.dev.vars
+.dev.vars.*
+!.dev.vars.example
 .wrangler
 *.pem
 *.key
@@ -48,3 +51,4 @@ CODEX.md
 .cursor
 .cursorrules
 .cursorignore
+tools/adblock-wasm/target

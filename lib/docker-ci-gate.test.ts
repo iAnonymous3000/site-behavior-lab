@@ -15,6 +15,22 @@ test("CI requires the deployable Docker image and public-v2/R2 smoke before prom
   assert.match(promoteJob, /needs:\n(?:\s+- [^\n]+\n)*\s+- docker\n/);
 });
 
+test("promotion fallback can repair a failed direct promotion but rechecks every CI gate", () => {
+  const workflow = readFileSync(path.join(root, ".github", "workflows", "promote-production.yml"), "utf8");
+
+  assert.match(workflow, /workflow_run\.conclusion == 'success' \|\| github\.event\.workflow_run\.conclusion == 'failure'/);
+  assert.match(workflow, /actions: read/);
+  assert.match(workflow, /actions\/runs\/\$\{CI_RUN_ID\}\/jobs\?per_page=100/);
+  for (const job of [
+    "Typecheck, Unit Tests, Build",
+    "Chromium Smoke Test",
+    "Docker Runtime and Public R2 Smoke"
+  ]) {
+    assert.match(workflow, new RegExp(job.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+  }
+  assert.match(workflow, /matches\[0\]\.conclusion !== "success"/);
+});
+
 test("Docker smoke preserves v1 and explicitly proves public v2/r2 bundles", () => {
   const smoke = readFileSync(path.join(root, "scripts", "smoke-docker.mjs"), "utf8");
   const seccomp = JSON.parse(
@@ -44,7 +60,7 @@ test("Docker smoke preserves v1 and explicitly proves public v2/r2 bundles", () 
   assert.doesNotMatch(r2SmokeServer, /server\.listen\(0, "0\.0\.0\.0"/);
 
   const deployedSmoke = readFileSync(path.join(root, "scripts", "smoke-deployed-scanner.mjs"), "utf8");
-  assert.match(deployedSmoke, /https:\/\/sitebehavior\.org\//);
-  assert.doesNotMatch(deployedSmoke, /iana\.org/);
+  assert.match(deployedSmoke, /https:\/\/www\.iana\.org\//);
+  assert.doesNotMatch(deployedSmoke, /SMOKE_SHIELDS_URL=https:\/\/sitebehavior\.org/);
   assert.doesNotMatch(deployedSmoke, /SMOKE_SHIELDS_URL=https:\/\/example\.com/);
 });

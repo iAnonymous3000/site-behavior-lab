@@ -35,6 +35,7 @@ const READY_ENV = {
   SITE_BEHAVIOR_LAB_DURABLE_JOBS_INTERNAL_TOKEN: "internal-token-".padEnd(43, "i"),
   SITE_BEHAVIOR_LAB_DURABLE_JOBS_COORDINATOR_URL: "https://scan-staging.sitebehavior.org",
   SITE_BEHAVIOR_LAB_ALLOW_UNAUTHENTICATED_SCANS: "0",
+  SITE_BEHAVIOR_LAB_SYNTHETIC_MONITOR_TOKEN: "synthetic-monitor-".padEnd(43, "m"),
   SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN: "access-token-".padEnd(43, "a"),
   TURNSTILE_SECRET_KEY: "turnstile-".padEnd(43, "t"),
   SITE_BEHAVIOR_LAB_R2_BUCKET: "site-behavior-lab-reports-staging",
@@ -121,6 +122,13 @@ test("fault configuration reports every staging isolation failure without a prod
       {
         SITE_BEHAVIOR_LAB_DURABLE_REPLAY_FAULT_TOKEN:
           READY_ENV.SITE_BEHAVIOR_LAB_DURABLE_JOBS_INTERNAL_TOKEN
+      },
+      /must not reuse/
+    ],
+    [
+      {
+        SITE_BEHAVIOR_LAB_SYNTHETIC_MONITOR_TOKEN:
+          ` ${READY_ENV.SITE_BEHAVIOR_LAB_DURABLE_REPLAY_FAULT_TOKEN} `
       },
       /must not reuse/
     ],

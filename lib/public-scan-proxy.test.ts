@@ -8,6 +8,7 @@ import {
   MAX_PUBLIC_SCAN_PROXY_RESPONSE_BYTE_LIMIT,
   MAX_PUBLIC_SCAN_PROXY_UNIQUE_TARGET_LIMIT,
   MAX_PUBLIC_SCAN_PROXY_UPLOAD_BYTE_LIMIT,
+  isValidPublicScanProxyUpstreamStatusLine,
   startPublicScanProxy
 } from "./public-scan-proxy";
 
@@ -104,6 +105,228 @@ test("public scan proxy records a non-standard port as blocked-port before resol
 
   assert.equal(resolveCalls, 0);
   assert.deepEqual(proxy.blockedTargets, [{ target: "http://ports.test:8080/", reason: "blocked-port" }]);
+});
+
+test("public scan proxy validates the upstream status line for ServerResponse compatibility", () => {
+  assert.equal(isValidPublicScanProxyUpstreamStatusLine(200, "OK"), true);
+  assert.equal(isValidPublicScanProxyUpstreamStatusLine(204, ""), true);
+  assert.equal(isValidPublicScanProxyUpstreamStatusLine(599, undefined), true);
+  assert.equal(isValidPublicScanProxyUpstreamStatusLine(undefined, "Bad Gateway"), false);
+  assert.equal(isValidPublicScanProxyUpstreamStatusLine(99, "Too Low"), false);
+  assert.equal(isValidPublicScanProxyUpstreamStatusLine(1_000, "Too High"), false);
+  assert.equal(isValidPublicScanProxyUpstreamStatusLine(200, "Bad\u0007Phrase"), false);
+  assert.equal(isValidPublicScanProxyUpstreamStatusLine(200, "Injected\r\nHeader: value"), false);
+});
+
+test("public scan proxy closes and records a malformed upstream status without poisoning later requests", async (t) => {
+  let upstreamHits = 0;
+  const upstream = net.createServer((socket) => {
+    upstreamHits += 1;
+    if (upstreamHits === 1) {
+      socket.end(Buffer.from("HTTP/1.1 200 Bad\x07Phrase\r\nContent-Length: 4\r\nConnection: close\r\n\r\nnope", "latin1"));
+      return;
+    }
+    socket.end("HTTP/1.1 200 OK\r\nContent-Length: 2\r\nConnection: close\r\n\r\nok");
+  });
+  const upstreamSockets = trackServerSockets(upstream);
+  await listen(upstream);
+  const upstreamPort = portOf(upstream);
+  const proxy = await budgetTestProxy(16);
+
+  t.after(async () => {
+    await proxy.close();
+    for (const socket of upstreamSockets) socket.destroy();
+    await closeServer(upstream);
+  });
+
+  const malformed = await rawProxyGet(proxy.server, `http://public.test:${upstreamPort}/malformed`);
+  assert.equal(malformed.byteLength, 0);
+  assert.deepEqual(proxy.blockedTargets, [
+    { target: `http://public.test:${upstreamPort}/`, reason: "invalid-upstream-response" }
+  ]);
+  assert.equal(proxy.getDiagnostics().invalidUpstreamResponseCount, 1);
+  assert.equal(proxy.getDiagnostics().responseByteBudget.forwardedBytes, 0);
+
+  const valid = await rawProxyGet(proxy.server, `http://public.test:${upstreamPort}/valid`);
+  assert.equal(rawResponseBody(valid).toString(), "ok");
+  assert.equal(proxy.getDiagnostics().responseByteBudget.forwardedBytes, 2);
+  assert.equal(upstreamHits, 2);
+});
+
+test("public scan proxy classifies an HTTP-parser rejection as an invalid upstream response", async (t) => {
+  const upstream = net.createServer((socket) => {
+    socket.end("HTTP/1.1 99 Too Low\r\nContent-Length: 0\r\nConnection: close\r\n\r\n");
+  });
+  const upstreamSockets = trackServerSockets(upstream);
+  await listen(upstream);
+  const upstreamPort = portOf(upstream);
+  const proxy = await budgetTestProxy(16);
+
+  t.after(async () => {
+    await proxy.close();
+    for (const socket of upstreamSockets) socket.destroy();
+    await closeServer(upstream);
+  });
+
+  assert.equal(
+    (await rawProxyGet(proxy.server, `http://public.test:${upstreamPort}/parser-rejected`)).byteLength,
+    0
+  );
+  assert.deepEqual(proxy.blockedTargets, [
+    { target: `http://public.test:${upstreamPort}/`, reason: "invalid-upstream-response" }
+  ]);
+  assert.equal(proxy.getDiagnostics().invalidUpstreamResponseCount, 1);
+});
+
+test("public scan proxy rejects an upstream 101 response without leaving the downstream request open", async (t) => {
+  let markUpstreamClosed: (() => void) | undefined;
+  const upstreamClosed = new Promise<void>((resolve) => {
+    markUpstreamClosed = resolve;
+  });
+  const upstream = net.createServer((socket) => {
+    socket.once("close", () => markUpstreamClosed?.());
+    socket.once("data", () => {
+      socket.write("HTTP/1.1 101 Switching Protocols\r\nConnection: Upgrade\r\nUpgrade: test\r\n\r\n");
+    });
+  });
+  const upstreamSockets = trackServerSockets(upstream);
+  await listen(upstream);
+  const upstreamPort = portOf(upstream);
+  const proxy = await budgetTestProxy(16);
+
+  t.after(async () => {
+    await proxy.close();
+    for (const socket of upstreamSockets) socket.destroy();
+    await closeServer(upstream);
+  });
+
+  const [wire] = await settleWithin(
+    Promise.all([
+      rawProxyGet(proxy.server, `http://public.test:${upstreamPort}/protocol-switch`),
+      upstreamClosed
+    ]),
+    1_000
+  );
+  assert.equal(wire.byteLength, 0);
+  assert.deepEqual(proxy.blockedTargets, [
+    { target: `http://public.test:${upstreamPort}/`, reason: "invalid-upstream-response" }
+  ]);
+  assert.equal(proxy.getDiagnostics().invalidUpstreamResponseCount, 1);
+  assert.equal(proxy.getDiagnostics().responseByteBudget.forwardedBytes, 0);
+});
+
+test("invalid upstream response diagnostics are target-free and not capped with blocked-target examples", async (t) => {
+  const requestCount = MAX_RECORDED_PROXY_BLOCKS + 5;
+  const upstream = net.createServer((socket) => {
+    socket.end(Buffer.from("HTTP/1.1 200 Bad\x07Phrase\r\nContent-Length: 0\r\nConnection: close\r\n\r\n", "latin1"));
+  });
+  const upstreamSockets = trackServerSockets(upstream);
+  await listen(upstream);
+  const upstreamPort = portOf(upstream);
+  const proxy = await budgetTestProxy(16);
+
+  t.after(async () => {
+    await proxy.close();
+    for (const socket of upstreamSockets) socket.destroy();
+    await closeServer(upstream);
+  });
+
+  await Promise.all(
+    Array.from({ length: requestCount }, (_, index) =>
+      rawProxyGet(proxy.server, `http://public.test:${upstreamPort}/malformed-${index}`)
+    )
+  );
+
+  assert.equal(proxy.blockedTargets.length, MAX_RECORDED_PROXY_BLOCKS);
+  assert.equal(
+    proxy.blockedTargets.every((entry) => entry.reason === "invalid-upstream-response"),
+    true
+  );
+  assert.equal(proxy.getDiagnostics().invalidUpstreamResponseCount, requestCount);
+});
+
+test("ordinary upstream connection failures remain distinct and do not increment invalid-response diagnostics", async (t) => {
+  const temporary = net.createServer();
+  await listen(temporary);
+  const unavailablePort = portOf(temporary);
+  await closeServer(temporary);
+  const proxy = await budgetTestProxy(16);
+  t.after(() => proxy.close());
+
+  assert.equal(
+    (await rawProxyGet(proxy.server, `http://public.test:${unavailablePort}/unavailable`)).byteLength,
+    0
+  );
+
+  assert.deepEqual(proxy.blockedTargets, [
+    { target: `http://public.test:${unavailablePort}/`, reason: "upstream-failed" }
+  ]);
+  assert.equal(proxy.getDiagnostics().invalidUpstreamResponseCount, 0);
+});
+
+test("public scan proxy close destroys an outstanding upstream socket", { timeout: 2_000 }, async () => {
+  let accepted: (() => void) | undefined;
+  let closed: (() => void) | undefined;
+  const upstreamAccepted = new Promise<void>((resolve) => {
+    accepted = resolve;
+  });
+  const upstreamClosed = new Promise<void>((resolve) => {
+    closed = resolve;
+  });
+  const upstreamSockets = new Set<net.Socket>();
+  const upstream = net.createServer((socket) => {
+    upstreamSockets.add(socket);
+    socket.resume();
+    socket.once("close", () => {
+      upstreamSockets.delete(socket);
+      closed?.();
+    });
+    accepted?.();
+  });
+  await listen(upstream);
+  const upstreamPort = portOf(upstream);
+  const proxy = await budgetTestProxy(16);
+  const pending = rawProxyGet(proxy.server, `http://public.test:${upstreamPort}/never-responds`);
+
+  await upstreamAccepted;
+  await proxy.close();
+  await pending;
+  await upstreamClosed;
+  assert.equal(upstreamSockets.size, 0);
+  await closeServer(upstream);
+});
+
+test("a downstream abort closes the still-streaming upstream response", async (t) => {
+  let markUpstreamClosed: (() => void) | undefined;
+  const upstreamClosed = new Promise<void>((resolve) => {
+    markUpstreamClosed = resolve;
+  });
+  const upstream = net.createServer((socket) => {
+    socket.once("close", () => markUpstreamClosed?.());
+    socket.once("data", () => {
+      socket.write(
+        "HTTP/1.1 200 OK\r\nContent-Length: 1000\r\nConnection: keep-alive\r\n\r\npartial"
+      );
+    });
+  });
+  const upstreamSockets = trackServerSockets(upstream);
+  await listen(upstream);
+  const upstreamPort = portOf(upstream);
+  const proxy = await budgetTestProxy(1024);
+
+  t.after(async () => {
+    await proxy.close();
+    for (const socket of upstreamSockets) socket.destroy();
+    await closeServer(upstream);
+  });
+
+  await abortProxyGetAfterFirstData(proxy.server, `http://public.test:${upstreamPort}/stream`);
+  await settleWithin(upstreamClosed, 1_000);
+
+  assert.deepEqual(proxy.blockedTargets, []);
+  assert.equal(proxy.getDiagnostics().invalidUpstreamResponseCount, 0);
+  assert.equal(proxy.getDiagnostics().responseByteBudget.captureLoss, null);
+  assert.equal(proxy.getDiagnostics().uploadByteBudget.captureLoss, null);
 });
 
 test("public scan proxy rejects response-byte overrides that could disable its safe cap", async () => {
@@ -594,6 +817,29 @@ async function closeServer(server: net.Server): Promise<void> {
   await new Promise<void>((resolve) => server.close(() => resolve()));
 }
 
+async function settleWithin<T>(operation: Promise<T>, timeoutMs: number): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    return await Promise.race([
+      operation,
+      new Promise<never>((_resolve, reject) => {
+        timer = setTimeout(() => reject(new Error(`Operation did not settle within ${timeoutMs}ms.`)), timeoutMs);
+      })
+    ]);
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
+}
+
+function trackServerSockets(server: net.Server): Set<net.Socket> {
+  const sockets = new Set<net.Socket>();
+  server.on("connection", (socket) => {
+    sockets.add(socket);
+    socket.once("close", () => sockets.delete(socket));
+  });
+  return sockets;
+}
+
 async function rawProxyGet(proxyServer: string, targetUrl: string): Promise<Buffer> {
   const proxy = new URL(proxyServer);
   const target = new URL(targetUrl);
@@ -607,6 +853,28 @@ async function rawProxyGet(proxyServer: string, targetUrl: string): Promise<Buff
       ""
     ].join("\r\n")
   );
+}
+
+async function abortProxyGetAfterFirstData(proxyServer: string, targetUrl: string): Promise<void> {
+  const proxy = new URL(proxyServer);
+  const target = new URL(targetUrl);
+  await new Promise<void>((resolve, reject) => {
+    const socket = net.connect({ host: proxy.hostname, port: Number(proxy.port) });
+    socket.once("connect", () => {
+      socket.write(
+        [
+          `GET ${target.toString()} HTTP/1.1`,
+          `Host: ${target.host}`,
+          "Connection: close",
+          "",
+          ""
+        ].join("\r\n")
+      );
+    });
+    socket.once("data", () => socket.destroy());
+    socket.once("close", () => resolve());
+    socket.once("error", reject);
+  });
 }
 
 async function rawProxyConnect(proxyServer: string, authority: string): Promise<Buffer> {

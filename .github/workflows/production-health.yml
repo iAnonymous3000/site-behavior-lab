@@ -2,13 +2,21 @@ name: Production Health
 
 on:
   schedule:
-    # GitHub-hosted monitoring with no external uptime service. A 15-minute
-    # interval is frequent enough to surface outages without creating noise.
-    - cron: "7,22,37,52 * * * *"
+    # GitHub schedule delivery is best-effort, not a 15-minute SLA. These still
+    # request four posture checks per hour; the :07 run also executes the
+    # bounded synthetic when its two matching operator secrets are activated.
+    - cron: "7 * * * *"
+    - cron: "22,37,52 * * * *"
   workflow_dispatch:
+  # An independent scheduler may dispatch this event when tighter delivery
+  # guarantees are required than GitHub's best-effort cron provides.
+  repository_dispatch:
+    types:
+      - production-health
 
 permissions:
   contents: read
+  issues: write
 
 concurrency:
   group: production-health
@@ -18,7 +26,10 @@ jobs:
   scanner:
     name: Verify scanner health and posture
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    # Rollout polling + contract fetches can use ~3 minutes and the synthetic
+    # owns a separate five-minute total deadline. Leave explicit alerting
+    # headroom instead of letting the job-level timeout race the canary.
+    timeout-minutes: 12
     steps:
       - name: Resolve expected production revision
         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
@@ -130,11 +141,26 @@ jobs:
             --retry-max-time 75 \
             "$SCHEMA_URL" > "$RUNNER_TEMP/production-scan-report-schema.json"
 
+      - name: Probe visitor-facing ingress dependencies without submitting a scan
+        env:
+          PUBLIC_INGRESS_URL: https://scan.sitebehavior.org/api/health/public-ingress
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error \
+            --connect-timeout 5 \
+            --max-time 10 \
+            --retry 2 \
+            --retry-all-errors \
+            --retry-delay 2 \
+            --retry-max-time 25 \
+            "$PUBLIC_INGRESS_URL" > "$RUNNER_TEMP/production-public-ingress.json"
+
       - name: Validate availability and production posture
         env:
           HEALTH_FILE: ${{ runner.temp }}/production-health.json
           PAGES_DEPLOYMENT_FILE: ${{ runner.temp }}/production-pages-deployment.json
           SCHEMA_FILE: ${{ runner.temp }}/production-scan-report-schema.json
+          PUBLIC_INGRESS_FILE: ${{ runner.temp }}/production-public-ingress.json
         run: |
           node <<'NODE'
           const fs = require("node:fs");
@@ -151,6 +177,7 @@ jobs:
           const health = readJson(process.env.HEALTH_FILE, "Health response");
           const pagesDeployment = readJson(process.env.PAGES_DEPLOYMENT_FILE, "Pages deployment provenance");
           const schema = readJson(process.env.SCHEMA_FILE, "Pages report schema");
+          const publicIngress = readJson(process.env.PUBLIC_INGRESS_FILE, "Public ingress preflight");
           const expectedDeployment = process.env.EXPECTED_PRODUCTION_SHA;
           const expectedDurableJobs = process.env.EXPECTED_DURABLE_JOBS;
           const expectedContainerSharding = process.env.EXPECTED_CONTAINER_SHARDING;
@@ -176,9 +203,9 @@ jobs:
           assertPosture(health?.checks?.reportStore?.kind === "r2", "report store check must report R2");
           assertPosture(health?.checks?.reportStore?.configuredPath === true, "R2 report path must be configured");
           assertPosture(health?.checks?.reportStore?.maxAgeDays === 7, "R2 report retention must be seven days");
-          // This endpoint intentionally proves configuration only. A future
-          // scoped synthetic scan/read/delete monitor must cover remote R2
-          // reachability without leaving test reports behind.
+          // This endpoint intentionally proves configuration only. The scoped
+          // synthetic lane below separately proves scan execution, remote R2
+          // write/readback, and report rendering when its credential is active.
           assertPosture(health?.checks?.scannerEgress === "configured", "scanner egress proxy must be configured");
           assertPosture(health?.checks?.scannerEgressRegion === "configured",
             "scanner egress region must be recorded so r2 comparison metrics remain eligible");
@@ -259,6 +286,28 @@ jobs:
             "per-minute public scan rate limit must be active");
           assertPosture(Number.isFinite(health?.limits?.publicScanRateLimitPerDay) && health.limits.publicScanRateLimitPerDay > 0,
             "daily public scan rate limit must be active");
+          // This visitor-facing preflight intentionally does not solve a
+          // CAPTCHA or submit a scan. It independently proves that Siteverify
+          // recognizes the configured secret and that the public quota ledger
+          // is reachable through a non-consuming, public-scope peek.
+          assertPosture(publicIngress?.ok === true && publicIngress?.status === "ready",
+            "visitor-facing public ingress preflight must be ready");
+          assertPosture(publicIngress?.scope === "public-ingress-preflight",
+            "public ingress preflight must report its exact limited scope");
+          assertPosture(publicIngress?.checks?.openAccess === true,
+            "public ingress preflight must observe open access");
+          assertPosture(publicIngress?.checks?.turnstile?.configuration === "verified",
+            "Siteverify must recognize the configured Turnstile secret");
+          assertPosture(publicIngress?.checks?.turnstile?.challengeSolved === false,
+            "public ingress preflight must not claim to solve a visitor challenge");
+          assertPosture(publicIngress?.checks?.quota?.readiness === "ready",
+            "public quota ledger must accept a non-consuming readiness peek");
+          assertPosture(publicIngress?.checks?.quota?.consumed === false,
+            "public ingress preflight must not consume visitor quota");
+          assertPosture(publicIngress?.checks?.monitorBypassUsed === false,
+            "public ingress preflight must not use the operator monitor bypass");
+          assertPosture(publicIngress?.checks?.scanSubmitted === false,
+            "public ingress preflight must not claim a visitor scan was submitted");
           assertPosture(typeof health?.deployment === "string" && /^[0-9a-f]{40}$/.test(health.deployment),
             "live deployment must report a full commit SHA");
           assertPosture(health?.deployment === expectedDeployment,
@@ -287,6 +336,8 @@ jobs:
             "",
             "- Status: **ok**",
             "- Public scanning: **available** (Turnstile protected)",
+            "- Visitor ingress preflight: **ready** (Siteverify secret recognized; public quota store reachable without consuming quota)",
+            "- Visitor challenge/scan: **not exercised** (no CAPTCHA solved and no public scan submitted)",
             "- Public report contract: **ScanReport v2/r2**",
             "- Scanner egress region: **configured**",
             "- Consent registration verification: **enabled**",
@@ -302,3 +353,161 @@ jobs:
           fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, `${summary}\n`);
           console.log(`Production scanner is healthy at ${health.timestamp}.`);
           NODE
+
+      - name: Resolve synthetic-monitor activation
+        id: synthetic_monitor
+        if: >-
+          github.event_name == 'workflow_dispatch' ||
+          github.event.schedule == '7 * * * *' ||
+          github.event.client_payload.synthetic == true
+        env:
+          PRODUCTION_SYNTHETIC_MONITOR_TOKEN: ${{ secrets.PRODUCTION_SYNTHETIC_MONITOR_TOKEN }}
+          PRODUCTION_SYNTHETIC_MONITOR_REQUIRED: ${{ vars.PRODUCTION_SYNTHETIC_MONITOR_REQUIRED }}
+        run: |
+          if [[ -n "$PRODUCTION_SYNTHETIC_MONITOR_TOKEN" ]]; then
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+            if [[ "$PRODUCTION_SYNTHETIC_MONITOR_REQUIRED" == "1" ]]; then
+              echo "::error title=Production synthetic credential missing::The monitor was activated but its GitHub secret is unavailable."
+              exit 1
+            fi
+            echo "::warning title=Operator synthetic not activated::Configure matching Cloudflare SITE_BEHAVIOR_LAB_SYNTHETIC_MONITOR_TOKEN and GitHub PRODUCTION_SYNTHETIC_MONITOR_TOKEN secrets."
+            echo "- Operator-only synthetic: **not activated** (operator secrets are missing)" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Run production scan, R2 readback, and report-page synthetic
+        if: steps.synthetic_monitor.outputs.configured == 'true'
+        env:
+          SCAN_BASE_URL: https://scan.sitebehavior.org
+          PRODUCTION_SYNTHETIC_MONITOR_TOKEN: ${{ secrets.PRODUCTION_SYNTHETIC_MONITOR_TOKEN }}
+          PRODUCTION_SYNTHETIC_REQUEST_TIMEOUT_MS: "15000"
+          PRODUCTION_SYNTHETIC_TOTAL_TIMEOUT_MS: "300000"
+        run: |
+          npm run test:smoke:production-synthetic
+          echo "- Operator-only synthetic: **passed** (fixed scan contract, persisted report, and render readback)" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Prepare public-safe production-health alert
+        id: production_health_alert
+        if: always()
+        env:
+          HEALTH_JOB_STATUS: ${{ job.status }}
+          HEALTH_REPORT_FILE: ${{ runner.temp }}/production-health-alert.md
+        run: |
+          set -euo pipefail
+          if [[ "$HEALTH_JOB_STATUS" == "success" ]]; then
+            failed=false
+            outcome=completed
+            summary="The delivered production posture checks, visitor-ingress preflight, and any activated operator synthetic completed successfully."
+          else
+            failed=true
+            outcome=failed
+            summary="A delivered production posture check, visitor-ingress preflight, activated operator synthetic, or required alerting step failed."
+          fi
+          run_url="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+          printf '%s\n' \
+            '<!-- site-behavior-lab:production-health -->' \
+            '# Production health monitor' \
+            '' \
+            "$summary" \
+            '' \
+            "- Outcome: **${outcome}**" \
+            "- Workflow run: [run ${GITHUB_RUN_ID}, attempt ${GITHUB_RUN_ATTEMPT}](${run_url})" \
+            '' \
+            'The issue intentionally contains only aggregate status; inspect the linked private workflow logs for bounded diagnostics.' \
+            > "$HEALTH_REPORT_FILE"
+          echo "failed=${failed}" >> "$GITHUB_OUTPUT"
+
+      - name: Reconcile the production-health issue
+        id: production_health_issue
+        if: always() && steps.production_health_alert.outcome == 'success'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE_TITLE: Repair the production health monitor
+          MANAGED_ISSUE_LABEL: site-behavior-lab-production-health
+          HEALTH_REPORT_FILE: ${{ runner.temp }}/production-health-alert.md
+          HEALTH_FAILED: ${{ steps.production_health_alert.outputs.failed }}
+        run: |
+          set -euo pipefail
+          if ! gh api --silent "repos/${GITHUB_REPOSITORY}/labels/${MANAGED_ISSUE_LABEL}"; then
+            gh api --silent --method POST "repos/${GITHUB_REPOSITORY}/labels" \
+              -f "name=${MANAGED_ISSUE_LABEL}" \
+              -f color=7a1fa2 \
+              -f description="Managed by the Site Behavior Lab production-health workflow" || \
+              gh api --silent "repos/${GITHUB_REPOSITORY}/labels/${MANAGED_ISSUE_LABEL}"
+          fi
+          candidates=$(gh api \
+            --paginate \
+            --slurp \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "repos/${GITHUB_REPOSITORY}/issues?state=all&per_page=100")
+          match=$(printf '%s' "$candidates" | node -e '
+            let source = "";
+            process.stdin.on("data", (chunk) => { source += chunk; });
+            process.stdin.on("end", () => {
+              const marker = "<!-- site-behavior-lab:production-health -->";
+              const managedLabel = process.env.MANAGED_ISSUE_LABEL;
+              const trusted = JSON.parse(source)
+                .flat()
+                .map((issue) => {
+                  const labels = Array.isArray(issue.labels)
+                    ? issue.labels.map((label) => typeof label === "string" ? label : label?.name)
+                    : [];
+                  return !issue.pull_request &&
+                    issue.user?.login === "github-actions[bot]" &&
+                    issue.user?.type === "Bot" &&
+                    typeof issue.body === "string" &&
+                    issue.body.includes(marker) ? { issue, labels } : null;
+                })
+                .filter(Boolean);
+              const managed = trusted.filter(({ labels }) => labels.includes(managedLabel));
+              const legacy = trusted.filter(({ issue, labels }) =>
+                !labels.includes(managedLabel) && issue.title === process.env.ISSUE_TITLE);
+              if (managed.length > 1 || legacy.length > 1 || (managed.length === 1 && legacy.length === 1)) {
+                throw new Error("Found conflicting canonical production-health issues; expected at most one trusted managed or legacy issue.");
+              }
+              const selected = managed[0] ?? legacy[0];
+              if (selected) {
+                process.stdout.write(`${selected.issue.number}|${selected.issue.state}|${legacy.length === 1 ? "true" : "false"}`);
+              }
+            });
+          ')
+          IFS='|' read -r issue_number issue_state issue_needs_label <<< "$match"
+          if [[ -z "$match" ]]; then
+            issue_number=""
+            issue_state=""
+            issue_needs_label="false"
+          elif [[ "$issue_needs_label" == "true" ]]; then
+            gh issue edit "$issue_number" --repo "$GITHUB_REPOSITORY" --add-label "$MANAGED_ISSUE_LABEL"
+          fi
+
+          if [[ "$HEALTH_FAILED" == "true" ]]; then
+            if [[ -z "$issue_number" ]]; then
+              gh issue create --repo "$GITHUB_REPOSITORY" --title "$ISSUE_TITLE" --body-file "$HEALTH_REPORT_FILE" --label "$MANAGED_ISSUE_LABEL"
+            else
+              gh issue edit "$issue_number" --repo "$GITHUB_REPOSITORY" --title "$ISSUE_TITLE" --body-file "$HEALTH_REPORT_FILE"
+              if [[ "$issue_state" == "closed" ]]; then
+                gh issue reopen "$issue_number" --repo "$GITHUB_REPOSITORY" --comment "Production health is failing again; the issue body links to the current run."
+              fi
+            fi
+          elif [[ "$HEALTH_FAILED" == "false" ]]; then
+            if [[ -n "$issue_number" && "$issue_state" == "open" ]]; then
+              gh issue edit "$issue_number" --repo "$GITHUB_REPOSITORY" --title "$ISSUE_TITLE" --body-file "$HEALTH_REPORT_FILE"
+              gh issue close "$issue_number" --repo "$GITHUB_REPOSITORY" --reason completed --comment "The production health monitor recovered."
+            fi
+          else
+            echo "::error title=Invalid production health status::The alert preparer returned an invalid failure status."
+            exit 1
+          fi
+
+      - name: Preserve production-health failure
+        if: >-
+          always() &&
+          (job.status != 'success' ||
+          steps.production_health_alert.outcome != 'success' ||
+          steps.production_health_issue.outcome != 'success' ||
+          steps.production_health_alert.outputs.failed == 'true')
+        run: |
+          echo "::error title=Production health failed::The delivered monitor or its canonical issue reconciliation did not complete."
+          exit 1

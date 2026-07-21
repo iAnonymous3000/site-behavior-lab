@@ -9,7 +9,7 @@
 // Usage:
 //   SCAN_BASE_URL=https://scan.sitebehavior.org \
 //   [SMOKE_SCAN_ACCESS_TOKEN=<token>] \
-//   [SMOKE_SHIELDS_URL=https://sitebehavior.org/] \
+//   [SMOKE_SHIELDS_URL=https://www.iana.org/] \
 //   [SMOKE_EXPECTED_STORAGE=r2|filesystem] \
 //   npm run test:smoke:scanner
 //
@@ -40,10 +40,10 @@ import {
 
 const baseUrl = (process.env.SCAN_BASE_URL || "").trim().replace(/\/+$/, "");
 const token = (process.env.SMOKE_SCAN_ACCESS_TOKEN || process.env.SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN || "").trim();
-// r2 verification requires at least one subresource to reach the engine. The
-// first-party Pages homepage ships static CSS/JS subresources, so the release
-// gate proves route evaluation without depending on an unrelated third party.
-const shieldsUrl = (process.env.SMOKE_SHIELDS_URL || "https://sitebehavior.org/").trim();
+// r2 verification requires at least one subresource to reach the engine. Use a
+// neutral, independently hosted standards site so a sitebehavior.org outage
+// cannot block promotion of the commit that repairs that outage.
+const shieldsUrl = (process.env.SMOKE_SHIELDS_URL || "https://www.iana.org/").trim();
 const expectedStorage = (process.env.SMOKE_EXPECTED_STORAGE || "r2").trim();
 const POLL_INTERVAL_MS = 2000;
 const MAX_POLLS = 120; // ~4 min ceiling for a Shields comparison (two visits)

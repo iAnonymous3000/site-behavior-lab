@@ -246,6 +246,12 @@ test("the Worker-only encryption key cannot alias the Node internal token", () =
   assert.equal(durableScanJobKeyIsIsolated("internal-token", ["internal-token", "r2-secret"]), false);
 });
 
+test("a synthetic-monitor credential cannot be reused as a durable key", () => {
+  const monitor = "synthetic-monitor-credential";
+  assert.equal(durableScanJobKeyIsIsolated(monitor, ["other", monitor]), false);
+  assert.equal(durableScanJobKeyIsIsolated(` ${monitor} `, [monitor]), false);
+});
+
 test("durable mode accepts only exact feature-flag wires", () => {
   assert.equal(durableScanJobsFlagState(undefined), "disabled");
   assert.equal(durableScanJobsFlagState(""), "disabled");
@@ -561,6 +567,15 @@ test("Worker health performs the edge key upgrade and fail-closed downgrade", as
   assert.match(source, /await durableJobsEdgeHealthCheck\(health\.checks, env\)/);
   assert.match(source, /await importDurableScanJobEncryptionKey\(config\.encryptionKey\)/);
   assert.match(source, /durableScanJobSecretsAreDistinct\(encryptionKey, internalToken\)/);
+  const durableConfig = source.slice(
+    source.indexOf("function requireDurableScanJobConfig"),
+    source.indexOf("function requireDurableContainerShardingPlan")
+  );
+  assert.equal(
+    (durableConfig.match(/SITE_BEHAVIOR_LAB_SYNTHETIC_MONITOR_TOKEN/g) ?? []).length,
+    2,
+    "both the durable encryption key and coordinator token must reject synthetic-monitor reuse"
+  );
   assert.match(source, /health\.scansAvailable = false/);
   assert.match(source, /readiness: "misconfigured"/);
   assert.match(source, /enabled in the Node scanner but disabled at the edge/);

@@ -9,7 +9,7 @@ import {
 } from "./legacy-methodology";
 import { redactScanReportV1, redactScanResultV1 } from "./redact-scan-report-v1";
 import { scannerDisclosure } from "./scan-condition-disclosure";
-import { aggregateByteBudgetWarning } from "./scan-runtime";
+import { aggregateByteBudgetWarning, INVALID_UPSTREAM_RESPONSE_WARNING } from "./scan-runtime";
 import { readStoredScanReport } from "./scan-report-reader";
 import { makeScanReportV1 } from "./scan-report-v2-fixtures";
 import { findTrackerMatch } from "./tracker-catalog";
@@ -274,6 +274,14 @@ test("the scanner's emitted byte-budget warnings survive redaction and still tri
   assert.deepEqual(report.warnings, input.warnings);
   assert.equal(runHitResponseByteCap(report), true);
   assert.equal(runHitUploadByteCap(report), true);
+});
+
+test("the invalid-upstream-response warning survives the public redaction boundary", () => {
+  const input = sensitiveSingle();
+  input.warnings = [INVALID_UPSTREAM_RESPONSE_WARNING];
+
+  const { report } = redactScanResultV1(input);
+  assert.deepEqual(report.warnings, [INVALID_UPSTREAM_RESPONSE_WARNING]);
 });
 
 test("valid generated consent and share literals survive exactly while invalid capability paths do not", () => {

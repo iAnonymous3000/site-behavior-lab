@@ -73,15 +73,22 @@ import { MeasurementKernel, deriveCookieMutations, deriveStorageMutations } from
 import {
   collectFingerprintObservationsWithCoverage,
   fingerprintObserverInitScript,
+  type FingerprintObservationCollection,
   type FingerprintObservations
 } from "./fingerprint-observer";
-import { startPublicScanProxy, type ResolvePublicHost } from "./public-scan-proxy";
+import {
+  startPublicScanProxy,
+  type PublicScanProxyDiagnostics,
+  type ResolvePublicHost
+} from "./public-scan-proxy";
 import { chromiumSandboxEnabled } from "./chromium-sandbox";
 import {
   aggregateByteBudgetWarning,
   collectStorageEntries,
+  INVALID_UPSTREAM_RESPONSE_WARNING,
   ScanNetworkRecorder,
   ScanRequestBudget,
+  type ScanRequestBudgetDiagnostics,
   scanTimeoutMs,
   ScanWarningCollector,
   verifyRoutedHttpRequest,
@@ -100,6 +107,14 @@ import type {
 } from "./scan-report-v2-r2";
 import type { ConditionVector } from "./scan-report-v2";
 import { scannerEgressRegion } from "./scanner-egress";
+import { isLikelyBotWallPage } from "./bot-wall-classifier";
+import {
+  createGpcWorkerInjectionSession,
+  GPC_WORKER_CAPTURE_LOSS_WARNING,
+  GpcWorkerInjectionError,
+  installGlobalPrivacyControlWithWorkerRegistration,
+  type GpcWorkerInjectionCheckpoint
+} from "./gpc-injection";
 
 export { redactUrlForReport } from "./report-url";
 export { scannerEgressRegion } from "./scanner-egress";
@@ -133,6 +148,13 @@ export type ScanRouteDecision = {
   /** Route-time classifier result, reused when the public request record is built. */
   shieldsMatched?: boolean;
 };
+
+export function fingerprintFrameCoverageStatus(
+  coverage: Pick<FingerprintObservationCollection, "attemptedFrames" | "readableFrames">
+): "complete" | "failed" | "partial" {
+  if (coverage.attemptedFrames <= 0 || coverage.readableFrames <= 0) return "failed";
+  return coverage.readableFrames === coverage.attemptedFrames ? "complete" : "partial";
+}
 
 const DESKTOP_VIEWPORT = { width: 1440, height: 980 };
 const MOBILE_VIEWPORT = { width: 390, height: 844 };
@@ -191,9 +213,6 @@ const PRIVACY_POLICY_RENDER_WAIT_MS = 1_000;
 const MAX_POLICY_LINK_CANDIDATES = 12;
 const MAX_POLICY_PAGE_REQUESTS = 150;
 const MAX_POLICY_TEXT_CHARS = 400_000;
-const BOT_WALL_TITLE_PATTERN =
-  /access denied|attention required|just a moment|pardon our interruption|are you (a )?(human|robot)|verify (you are|you'?re|your) (a )?human|checking your browser|unusual traffic|security check|request unsuccessful|captcha|enable javascript/i;
-
 let sharedBrowser: Browser | null = null;
 let browserLaunchPromise: Promise<Browser> | null = null;
 
@@ -263,6 +282,179 @@ export type ScanSiteOptions = {
     NonNullable<Parameters<typeof startPublicScanProxy>[0]>["transactionLimit"]
   >;
 };
+
+export type ScanEvidenceDiagnostics = {
+  proxy: PublicScanProxyDiagnostics;
+  requestCapture: ScanRequestBudgetDiagnostics;
+  gpcWorker: GpcWorkerInjectionCheckpoint | null;
+};
+
+type ExcludedScanDiagnosticsInterval = {
+  before: ScanEvidenceDiagnostics;
+  after: ScanEvidenceDiagnostics;
+};
+
+function retainedMonotonicCount(before: number, after: number, final: number): number {
+  return before + Math.max(0, final - after);
+}
+
+/**
+ * Remove one deliberately excluded interval from cumulative scanner-quality
+ * counters. The post-choice reload is interleaved before the retained active
+ * probe by the r2 phase plan, so the evidence boundary is `before +
+ * (final-after)`. The policy probe runs after `final` and never enters these
+ * snapshots.
+ */
+export function retainedScanEvidenceDiagnostics(
+  final: ScanEvidenceDiagnostics,
+  excluded?: ExcludedScanDiagnosticsInterval
+): ScanEvidenceDiagnostics {
+  if (!excluded) return final;
+
+  const { before, after } = excluded;
+  const retainedTrafficCaptureLoss = retainedMonotonicCount(
+    before.proxy.trafficBudget.captureLoss?.count ?? 0,
+    after.proxy.trafficBudget.captureLoss?.count ?? 0,
+    final.proxy.trafficBudget.captureLoss?.count ?? 0
+  );
+  const retainedResponseCaptureLoss = retainedMonotonicCount(
+    before.proxy.responseByteBudget.captureLoss?.count ?? 0,
+    after.proxy.responseByteBudget.captureLoss?.count ?? 0,
+    final.proxy.responseByteBudget.captureLoss?.count ?? 0
+  );
+  const retainedUploadCaptureLoss = retainedMonotonicCount(
+    before.proxy.uploadByteBudget.captureLoss?.count ?? 0,
+    after.proxy.uploadByteBudget.captureLoss?.count ?? 0,
+    final.proxy.uploadByteBudget.captureLoss?.count ?? 0
+  );
+  const retainedResponseBytes = retainedMonotonicCount(
+    before.proxy.responseByteBudget.forwardedBytes,
+    after.proxy.responseByteBudget.forwardedBytes,
+    final.proxy.responseByteBudget.forwardedBytes
+  );
+  const retainedUploadBytes = retainedMonotonicCount(
+    before.proxy.uploadByteBudget.forwardedBytes,
+    after.proxy.uploadByteBudget.forwardedBytes,
+    final.proxy.uploadByteBudget.forwardedBytes
+  );
+  const requestCaptureLossCount = retainedMonotonicCount(
+    before.requestCapture.captureLossCount,
+    after.requestCapture.captureLossCount,
+    final.requestCapture.captureLossCount
+  );
+
+  let gpcWorker: GpcWorkerInjectionCheckpoint | null = final.gpcWorker;
+  if (before.gpcWorker && after.gpcWorker && final.gpcWorker) {
+    const beforeGpc = before.gpcWorker.diagnostics;
+    const afterGpc = after.gpcWorker.diagnostics;
+    const finalGpc = final.gpcWorker.diagnostics;
+    const ambiguousWorkerRequestCount = retainedMonotonicCount(
+      beforeGpc.ambiguousWorkerRequestCount,
+      afterGpc.ambiguousWorkerRequestCount,
+      finalGpc.ambiguousWorkerRequestCount
+    );
+    const beforePendingIds = new Set(before.gpcWorker.pendingWorkerRegistrationIds);
+    const excludedPendingIds = new Set(
+      after.gpcWorker.pendingWorkerRegistrationIds.filter((registrationId) => !beforePendingIds.has(registrationId))
+    );
+    const pendingWorkerRegistrationIds = final.gpcWorker.pendingWorkerRegistrationIds.filter(
+      (registrationId) => !excludedPendingIds.has(registrationId)
+    );
+    const pendingWorkerRegistrationCount = pendingWorkerRegistrationIds.length;
+    const transformFailureCount = retainedMonotonicCount(
+      beforeGpc.transformFailureCount,
+      afterGpc.transformFailureCount,
+      finalGpc.transformFailureCount
+    );
+    const unsupportedWorkerCount = retainedMonotonicCount(
+      beforeGpc.unsupportedWorkerCount,
+      afterGpc.unsupportedWorkerCount,
+      finalGpc.unsupportedWorkerCount
+    );
+    gpcWorker = {
+      diagnostics: {
+        ambiguousWorkerRequestCount,
+        captureLossCount:
+          ambiguousWorkerRequestCount +
+          pendingWorkerRegistrationCount +
+          transformFailureCount +
+          unsupportedWorkerCount,
+        pendingWorkerRegistrationCount,
+        transformFailureCount,
+        unsupportedWorkerCount
+      },
+      pendingWorkerRegistrationIds
+    };
+  }
+
+  return {
+    proxy: {
+      invalidUpstreamResponseCount: retainedMonotonicCount(
+        before.proxy.invalidUpstreamResponseCount,
+        after.proxy.invalidUpstreamResponseCount,
+        final.proxy.invalidUpstreamResponseCount
+      ),
+      trafficBudget: {
+        ...final.proxy.trafficBudget,
+        transactionsSeen: retainedMonotonicCount(
+          before.proxy.trafficBudget.transactionsSeen,
+          after.proxy.trafficBudget.transactionsSeen,
+          final.proxy.trafficBudget.transactionsSeen
+        ),
+        uniqueTargetsSeen: retainedMonotonicCount(
+          before.proxy.trafficBudget.uniqueTargetsSeen,
+          after.proxy.trafficBudget.uniqueTargetsSeen,
+          final.proxy.trafficBudget.uniqueTargetsSeen
+        ),
+        captureLoss: retainedTrafficCaptureLoss > 0
+          ? {
+              family: "requests",
+              phaseId: null,
+              kind: "cap",
+              count: retainedTrafficCaptureLoss,
+              detail: final.proxy.trafficBudget.name
+            }
+          : null
+      },
+      responseByteBudget: {
+        ...final.proxy.responseByteBudget,
+        forwardedBytes: retainedResponseBytes,
+        remainingBytes: Math.max(0, final.proxy.responseByteBudget.limitBytes - retainedResponseBytes),
+        limitReached: retainedResponseBytes >= final.proxy.responseByteBudget.limitBytes,
+        captureLoss: retainedResponseCaptureLoss > 0
+          ? {
+              family: "requests",
+              phaseId: null,
+              kind: "cap",
+              count: retainedResponseCaptureLoss,
+              detail: final.proxy.responseByteBudget.name
+            }
+          : null
+      },
+      uploadByteBudget: {
+        ...final.proxy.uploadByteBudget,
+        forwardedBytes: retainedUploadBytes,
+        remainingBytes: Math.max(0, final.proxy.uploadByteBudget.limitBytes - retainedUploadBytes),
+        limitReached: retainedUploadBytes >= final.proxy.uploadByteBudget.limitBytes,
+        captureLoss: retainedUploadCaptureLoss > 0
+          ? {
+              family: "requests",
+              phaseId: null,
+              kind: "cap",
+              count: retainedUploadCaptureLoss,
+              detail: final.proxy.uploadByteBudget.name
+            }
+          : null
+      }
+    },
+    requestCapture: {
+      ...final.requestCapture,
+      captureLoss: requestCaptureLossCount > 0,
+      captureLossCount: requestCaptureLossCount
+    },
+    gpcWorker
+  };
+}
 
 /**
  * Phase-1 collection artifact for a live Node single visit. It has the exact
@@ -382,6 +574,7 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
   }
   const verificationFlagOn = consentVerificationEnabled();
   const consentShadowRootCapability = randomBytes(32).toString("hex");
+  const gpcWorkerInjection = payload.gpcEnabled ? createGpcWorkerInjectionSession() : null;
   let context: BrowserContext | null = null;
   const scanProxy = await startPublicScanProxy({
     resolveHost: options.resolvePublicHost,
@@ -406,17 +599,24 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
         consentShadowRootCaptureArgs(consentShadowRootCapability)
       );
     }
-    if (payload.gpcEnabled) {
-      await context.addInitScript(() => {
-        Object.defineProperty(navigator, "globalPrivacyControl", {
-          configurable: true,
-          get: () => true
-        });
+    if (gpcWorkerInjection) {
+      await context.exposeBinding(gpcWorkerInjection.bindingName, (source, value) => {
+        gpcWorkerInjection.register(source, value);
       });
       await context.setExtraHTTPHeaders({ "Sec-GPC": "1" });
     }
 
     const page = await context.newPage();
+    if (gpcWorkerInjection) {
+      // Scope the registration wrapper to the measured page and its child
+      // frames. Popups and the later out-of-evidence policy page do not share
+      // this page-local route transformer, so they must not create tickets in
+      // the measured session.
+      await page.addInitScript(
+        installGlobalPrivacyControlWithWorkerRegistration,
+        gpcWorkerInjection.initScriptArgs
+      );
+    }
     // Read environment metadata from the pristine about:blank page before any
     // target script can shadow Navigator getters. The configured locale is
     // producer-owned and must never be replaced with page testimony.
@@ -447,8 +647,16 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
     const networkRecorder = new ScanNetworkRecorder<Request>({
       firstPartyHostname: targetUrl.hostname,
       warnings,
-      trackerMatcher: findTrackerMatch
+      trackerMatcher: findTrackerMatch,
+      deferRequestBudgetWarning: true
     });
+    const snapshotScanEvidenceDiagnostics = (): ScanEvidenceDiagnostics => ({
+      proxy: scanProxy.getDiagnostics(),
+      requestCapture: networkRecorder.requestBudget.getDiagnostics(),
+      gpcWorker: gpcWorkerInjection?.checkpoint() ?? null
+    });
+    let beforeExcludedReloadDiagnostics: ScanEvidenceDiagnostics | null = null;
+    let afterExcludedReloadDiagnostics: ScanEvidenceDiagnostics | null = null;
     const cookieSnapshots: Array<{ phaseId: number; records: CookieRecord[] }> = [];
     const storageSnapshots: Array<{ phaseId: number; records: StorageRecord[] }> = [];
     let passiveCookiesForTrustedSubject: CookieRecord[] | null = null;
@@ -478,6 +686,20 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
         });
         if (decision.shieldsMatched !== undefined) {
           shieldsMatches.set(request, decision.shieldsMatched);
+        }
+
+        if (decision.action === "continue" && gpcWorkerInjection) {
+          try {
+            const fulfillment = await gpcWorkerInjection.buildRouteFulfillment(route);
+            if (fulfillment) {
+              await route.fulfill(fulfillment);
+              return;
+            }
+          } catch (error) {
+            if (!(error instanceof GpcWorkerInjectionError)) throw error;
+            await route.abort().catch(() => undefined);
+            return;
+          }
         }
 
         if (decision.action === "continue") {
@@ -816,15 +1038,22 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
           detail: "storage-snapshot"
         });
       }
+      const passiveFingerprintCoverage = passiveFingerprint.ok
+        ? fingerprintFrameCoverageStatus(passiveFingerprint.value)
+        : "failed";
       if (passiveFingerprint.ok && passiveFingerprint.value.readableFrames > 0) {
-        passiveBoundary.fingerprinting = true;
         passiveFingerprintObservations = passiveFingerprint.value.observations;
+      }
+      if (passiveFingerprint.ok && passiveFingerprintCoverage === "complete") {
+        passiveBoundary.fingerprinting = true;
       } else {
         measurementKernel.recordCaptureLoss({
           family: "fingerprinting",
           phaseId: passivePhaseId,
           kind: passiveFingerprint.ok ? "dropped" : passiveFingerprint.kind,
-          count: 1,
+          count: passiveFingerprint.ok
+            ? Math.max(1, passiveFingerprint.value.attemptedFrames - passiveFingerprint.value.readableFrames)
+            : 1,
           detail: "fingerprint-observer"
         });
       }
@@ -945,8 +1174,15 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
     const stateSnapshotPhaseId = consentPhaseId ?? passivePhaseId;
     let subjectStateTrusted =
       !consentInteractionLeftSubject && sameScanSubjectUrl(page.url(), trustedSubjectUrl);
-    if (!subjectStateTrusted && consentPhaseId !== null) {
-      markConsentInteractionSubjectLoss(consentPhaseId);
+    if (!subjectStateTrusted) {
+      if (consentPhaseId !== null) {
+        markConsentInteractionSubjectLoss(consentPhaseId);
+      } else {
+        warnings.add(ACTIVE_PROBE_SUBJECT_WARNING);
+        for (const family of ["requests", "cookies", "storage", "fingerprinting"] as const) {
+          measurementKernel.recordCaptureLoss({ family, phaseId: passivePhaseId, kind: "dropped", count: 1 });
+        }
+      }
     }
 
     let tentativePageTitle = trustedSubjectPageTitle;
@@ -1018,6 +1254,9 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
           readableFrames: passiveBoundary.fingerprinting ? 1 : 0
         };
     const fingerprintObservations = fingerprintCollection.observations;
+    const fingerprintFrameCoverage = fingerprintFrameCoverageStatus(fingerprintCollection);
+    const fingerprintCoverageIncomplete =
+      fingerprintFrameCoverage === "partial" || (consentPhaseId !== null && !passiveBoundary.fingerprinting);
     const canAttributeConsentFingerprinting =
       subjectStateTrusted && (consentPhaseId === null || passiveBoundary.fingerprinting);
     const fingerprintAttribution = subjectStateTrusted
@@ -1048,6 +1287,15 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
         count: 1
       });
     }
+    if (subjectStateTrusted && fingerprintFrameCoverage === "partial") {
+      measurementKernel.recordCaptureLoss({
+        family: "fingerprinting",
+        phaseId: stateSnapshotPhaseId,
+        kind: "dropped",
+        count: Math.max(1, fingerprintCollection.attemptedFrames - fingerprintCollection.readableFrames),
+        detail: "fingerprint-observer"
+      });
+    }
     if (subjectStateTrusted) {
       cookieSnapshots.push({ phaseId: stateSnapshotPhaseId, records: cookies });
       if (finalStorage.ok) {
@@ -1067,12 +1315,12 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
         reason: "load-failed",
         phaseId: stateSnapshotPhaseId
       });
-    } else if (fingerprintCollection.readableFrames === 0) {
+    } else if (fingerprintFrameCoverage === "failed") {
       measurementKernel.setDetector("fingerprint-heuristics", "failed", {
         reason: "engine-unavailable",
         phaseId: stateSnapshotPhaseId
       });
-    } else if (fingerprintAttribution.attributionIncomplete) {
+    } else if (fingerprintCoverageIncomplete || fingerprintAttribution.attributionIncomplete) {
       measurementKernel.setDetector("fingerprint-heuristics", "partial", {
         reason: "scan-failed",
         phaseId: stateSnapshotPhaseId
@@ -1082,11 +1330,10 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
     }
     const screenshot = subjectStateTrusted ? tentativeScreenshot : null;
     throwIfScanAborted(options.signal);
-    // Warn only for actual private/local-address guard blocks. The proxy's
-    // other recorded outcomes (DNS failures, refused upstream connects, policy
-    // refusals) are ordinary load failures already visible in the request log
-    // as requests without a response, and claiming they "resolved to local or
-    // private network addresses" would be false.
+    // Warn only for actual private/local-address guard blocks here. Other
+    // outcomes must not be mislabeled as private-network targets; upstream
+    // forwarding failures receive separate conservative quality accounting
+    // after every probe has finished below.
     if (scanProxy.blockedTargets.some((blocked) => blocked.reason === "non-public-address")) {
       warnings.add("Blocked one or more requests that resolved to local or private network addresses at connection time.");
     }
@@ -1124,6 +1371,12 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
     ) {
       const reloadBudgetAvailable = MAX_SCAN_DURATION_MS - (Date.now() - started) >= CONSENT_RELOAD_MIN_BUDGET_MS;
       if (reloadBudgetAvailable) {
+        // The r2 phase order puts this excluded v1 reload between retained
+        // consent and active-probe traffic. Bracket it with monotonic quality
+        // snapshots so only this interval can be subtracted at the final
+        // request-evidence boundary.
+        await settleRoutedRequests(inFlightRouteHandlers, started, options.signal);
+        beforeExcludedReloadDiagnostics = snapshotScanEvidenceDiagnostics();
         const reloadPhaseId = measurementKernel.beginPhase("post-choice-reload");
         consentReadState.reloadPhaseId = reloadPhaseId;
         warnings.add(CONSENT_RELOAD_DISCLOSURE);
@@ -1227,6 +1480,8 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
           // observations standing and the scan continues on the reloaded (or
           // original) document.
         }
+        await settleRoutedRequests(inFlightRouteHandlers, started, options.signal);
+        afterExcludedReloadDiagnostics = snapshotScanEvidenceDiagnostics();
       }
     }
 
@@ -1374,6 +1629,17 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
     // event should stretch the active phase after its evidence was frozen.
     page.off("request", recordRequest);
     measurementKernel.endPhase();
+    // Freeze every request-quality producer at the same boundary as retained
+    // request evidence. The bracketed post-choice reload delta is excluded,
+    // while later active-probe changes remain retained; the policy visit below
+    // occurs after this immutable snapshot and cannot contaminate it.
+    const finalEvidenceDiagnostics = snapshotScanEvidenceDiagnostics();
+    const evidenceDiagnostics = retainedScanEvidenceDiagnostics(
+      finalEvidenceDiagnostics,
+      beforeExcludedReloadDiagnostics && afterExcludedReloadDiagnostics
+        ? { before: beforeExcludedReloadDiagnostics, after: afterExcludedReloadDiagnostics }
+        : undefined
+    );
     const pixelEvents = summarizePixelEvents(pixelEventInputs);
     const phaseAwarePixelEvents = [...pixelEventInputsByPhase.entries()].flatMap(([phaseId, inputs]) =>
       summarizePixelEvents(inputs).map((event) => ({ ...event, phaseId }))
@@ -1472,7 +1738,26 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
     }
     throwIfScanAborted(options.signal);
 
-    const proxyDiagnostics = scanProxy.getDiagnostics();
+    const proxyDiagnostics = evidenceDiagnostics.proxy;
+    const gpcWorkerCaptureLoss = evidenceDiagnostics.gpcWorker?.diagnostics.captureLossCount ?? 0;
+    if (gpcWorkerCaptureLoss > 0) {
+      warnings.add(GPC_WORKER_CAPTURE_LOSS_WARNING);
+      measurementKernel.recordCaptureLoss({
+        family: "requests",
+        phaseId: null,
+        kind: "dropped",
+        count: gpcWorkerCaptureLoss
+      });
+    }
+    if (proxyDiagnostics.invalidUpstreamResponseCount > 0) {
+      warnings.add(INVALID_UPSTREAM_RESPONSE_WARNING);
+      measurementKernel.recordCaptureLoss({
+        family: "requests",
+        phaseId: null,
+        kind: "dropped",
+        count: proxyDiagnostics.invalidUpstreamResponseCount
+      });
+    }
     const trafficBudget = proxyDiagnostics.trafficBudget;
     if (trafficBudget.captureLoss) {
       warnings.add(PROXY_TRAFFIC_BUDGET_WARNING);
@@ -1486,13 +1771,16 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
       warnings.add(aggregateByteBudgetWarning("upload", uploadByteBudget.limitBytes));
     }
 
-    const requestCapture = networkRecorder.requestBudget.getDiagnostics();
+    const requestCapture = evidenceDiagnostics.requestCapture;
     const captureLossByBudget = new Map<string, { family: "requests"; count: number }>();
     const addBudgetLoss = (name: string, family: "requests", count: number) => {
       const existing = captureLossByBudget.get(name);
       captureLossByBudget.set(name, { family, count: (existing?.count ?? 0) + count });
     };
-    if (requestCapture.captureLoss) addBudgetLoss(requestCapture.name, requestCapture.family, 1);
+    if (requestCapture.captureLoss) {
+      networkRecorder.requestBudget.emitCaptureLossWarning();
+      addBudgetLoss(requestCapture.name, requestCapture.family, requestCapture.captureLossCount);
+    }
     if (trafficBudget.captureLoss) {
       addBudgetLoss(trafficBudget.name, trafficBudget.family, trafficBudget.captureLoss.count);
     }
@@ -1537,7 +1825,12 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
     throwIfScanAborted(options.signal);
     const qualityFacts = measurementKernel.qualityFacts({
       status: responseStatus,
-      botWallTitleMatched: BOT_WALL_TITLE_PATTERN.test(pageTitle),
+      botWallTitleMatched: isLikelyBotWallPage({
+        pageTitle,
+        status: responseStatus,
+        navigationSettled,
+        totalRequests: publicRequests.length
+      }),
       navigationSettled
     });
     const finishedMeasurement = measurementKernel.finish();

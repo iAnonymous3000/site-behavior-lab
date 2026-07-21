@@ -19,6 +19,7 @@ const reportsDir = path.join(process.cwd(), "public", "reports");
 const reportFilePattern = /^[0-9]{8}-[0-9a-f]{32}\.json$/;
 
 type CorpusVisit = {
+  id: string;
   domain: string;
   kind: string;
   device: "desktop" | "mobile";
@@ -27,7 +28,7 @@ type CorpusVisit = {
   comparisonHistoryKey: string | null;
 };
 
-test("the committed corpus exposes exactly the reviewed 59 safe passive history pairs", () => {
+test("every committed passive-history cohort exposes a safe loaded pair", () => {
   let files: string[];
   try {
     files = readdirSync(reportsDir).filter((name) => reportFilePattern.test(name));
@@ -73,6 +74,7 @@ test("the committed corpus exposes exactly the reviewed 59 safe passive history 
           : report.baseline
         : report;
     visits.push({
+      id: name,
       domain: lead.domain,
       kind: `${view.reportType}:${comparisonType ?? ""}`,
       device: lead.conditions.viewport.isMobile ? "mobile" : "desktop",
@@ -82,38 +84,130 @@ test("the committed corpus exposes exactly the reviewed 59 safe passive history 
     });
   }
 
-  const byHistoryKey = groupBy(visits.filter((visit) => visit.comparisonHistoryKey), (visit) => visit.comparisonHistoryKey!);
-  const historyPairs = [...byHistoryKey.values()].filter((group) => group.length >= 2);
-  assert.equal(historyPairs.length, 59);
-  assert.equal(historyPairs.reduce((sum, group) => sum + group.length, 0), 118);
-  assert.equal(historyPairs.every((group) => group.length === 2), true);
-
-  // The archive's broad site/kind/device candidate set has 66 pairs. The
-  // loaded preflight admits the same 59 and rejects only the seven reviewed
-  // failed/capped/subject-mismatch cohorts.
-  const broad = groupBy(visits, (visit) => `${visit.domain}|${visit.kind}|${visit.device}`);
-  const candidates = [...broad.values()].filter((group) => group.length >= 2);
-  assert.equal(candidates.length, 66);
-  const rejected = new Set<string>();
-  let accepted = 0;
-  for (const group of candidates) {
-    group.sort((left, right) => Date.parse(right.scannedAt) - Date.parse(left.scannedAt));
-    const ordered = orderTemporalPair(group[0].run, group[1].run);
-    assert.ok(ordered, `could not order ${group[0].domain}`);
-    const decision = legacyComparisonDecision(createTemporalComparisonReport(ordered[0], ordered[1]));
-    const usable =
-      decision.mode === "comparable" &&
-      (decision.families["raw-counts"].mode === "comparable" ||
-        decision.families["tracker-classification"].mode === "comparable");
-    if (usable) accepted += 1;
-    else rejected.add(group[0].domain);
+  // Build the expected set without consulting the production history key.
+  // The corpus scan workflow revisits each site/kind/device candidate under a
+  // fixed setup, while the loaded comparison decision independently rejects
+  // failed, capped, or otherwise incompatible pairs. Comparing exact member
+  // IDs (not just a non-zero count) means a regression that nulls or splits
+  // nearly every production cohort cannot leave this test green.
+  const candidates = groupBy(visits, independentCandidateKey);
+  const expectedEligibleCohorts: string[][] = [];
+  for (const group of candidates.values()) {
+    for (const cohort of independentCompatibilityCohorts(group)) {
+      if (cohort.length < 2) continue;
+      const newest = newestFirst(cohort);
+      expectedEligibleCohorts.push([newest[0].id, newest[1].id]);
+    }
   }
-  assert.equal(accepted, 59);
+  assert.ok(
+    expectedEligibleCohorts.length > 0,
+    "the committed corpus should expose at least one independently eligible passive-history cohort"
+  );
+
+  const byHistoryKey = groupBy(visits.filter((visit) => visit.comparisonHistoryKey), (visit) => visit.comparisonHistoryKey!);
+  const historyCohorts = [...byHistoryKey.values()].filter((group) => group.length >= 2);
+  const actualEligibleCohorts: string[][] = [];
+
+  // Corpus refreshes legitimately add or prune generations, so cardinality is
+  // data rather than a source-code invariant. Methodology or condition changes
+  // may also create multiple legitimate cohorts for one site/kind/device, so
+  // derive those components independently from pair compatibility instead of
+  // assuming the broad candidate has exactly one production key.
+  for (const group of historyCohorts) {
+    const candidateKeys = new Set(group.map(independentCandidateKey));
+    assert.equal(candidateKeys.size, 1, "one production history key merged independent corpus candidates");
+
+    // A refresh can legitimately add a third (or later) generation. Check
+    // every member pair, not only the newest two: otherwise a key regression
+    // could merge an older incompatible visit while today's displayed pair
+    // remained safe and leave this corpus gate green.
+    for (let left = 0; left < group.length; left += 1) {
+      for (let right = left + 1; right < group.length; right += 1) {
+        assert.equal(
+          loadedPairIsUsable(group[left], group[right]),
+          true,
+          `${[...candidateKeys][0]} history key merged incompatible reports ${group[left].id} and ${group[right].id}`
+        );
+      }
+    }
+
+    const newest = newestFirst(group);
+    actualEligibleCohorts.push([newest[0].id, newest[1].id]);
+  }
+
   assert.deepEqual(
-    [...rejected].sort(),
-    ["my.gov.au", "www.etsy.com", "www.goodrx.com", "www.reuters.com", "www.usatoday.com", "www.wayfair.com", "www.zocdoc.com"]
+    sortedCohorts(actualEligibleCohorts),
+    sortedCohorts(expectedEligibleCohorts),
+    "production history keys must retain every independently eligible candidate and its newest pair"
   );
 });
+
+function independentCandidateKey(visit: CorpusVisit): string {
+  return `${visit.domain.toLowerCase()}|${visit.kind}|${visit.device}`;
+}
+
+function newestFirst(visits: CorpusVisit[]): CorpusVisit[] {
+  return [...visits].sort(
+    (left, right) => Date.parse(right.scannedAt) - Date.parse(left.scannedAt) || left.id.localeCompare(right.id)
+  );
+}
+
+function loadedPairIsUsable(left: CorpusVisit, right: CorpusVisit): boolean {
+  const ordered = orderTemporalPair(left.run, right.run);
+  assert.ok(ordered, `could not order ${left.domain}`);
+  const decision = legacyComparisonDecision(createTemporalComparisonReport(ordered[0], ordered[1]));
+  return (
+    decision.mode === "comparable" &&
+    (decision.families["raw-counts"].mode === "comparable" ||
+      decision.families["tracker-classification"].mode === "comparable")
+  );
+}
+
+/**
+ * Connected components under the same loaded comparison decision used by the
+ * UI, without consulting `comparisonHistoryKey`. A future methodology change
+ * can therefore create a second legitimate cohort for one broad site key
+ * without making this regression test a permanent deploy blocker.
+ */
+function independentCompatibilityCohorts(visits: CorpusVisit[]): CorpusVisit[][] {
+  const parents = visits.map((_, index) => index);
+  const find = (index: number): number => {
+    let root = index;
+    while (parents[root] !== root) root = parents[root];
+    while (parents[index] !== index) {
+      const parent = parents[index];
+      parents[index] = root;
+      index = parent;
+    }
+    return root;
+  };
+  const union = (left: number, right: number): void => {
+    const leftRoot = find(left);
+    const rightRoot = find(right);
+    if (leftRoot !== rightRoot) parents[rightRoot] = leftRoot;
+  };
+
+  for (let left = 0; left < visits.length; left += 1) {
+    for (let right = left + 1; right < visits.length; right += 1) {
+      if (loadedPairIsUsable(visits[left], visits[right])) union(left, right);
+    }
+  }
+
+  const groups = new Map<number, CorpusVisit[]>();
+  for (let index = 0; index < visits.length; index += 1) {
+    const root = find(index);
+    const group = groups.get(root);
+    if (group) group.push(visits[index]);
+    else groups.set(root, [visits[index]]);
+  }
+  return [...groups.values()];
+}
+
+function sortedCohorts(cohorts: string[][]): string[][] {
+  return cohorts
+    .map((members) => [...members].sort())
+    .sort((left, right) => left.join("|").localeCompare(right.join("|")));
+}
 
 function groupBy<T>(items: T[], keyFor: (item: T) => string): Map<string, T[]> {
   const groups = new Map<string, T[]>();

@@ -5,6 +5,8 @@ import type { NetworkRequestRecord, StorageRecord, TrackerMatch } from "./types"
 
 export const MAX_RECORDED_REQUESTS = 1_000;
 export const NON_HTTP_WARNING_EXAMPLE_LIMIT = 5;
+export const INVALID_UPSTREAM_RESPONSE_WARNING =
+  "The scan proxy rejected one or more invalid upstream responses; request evidence may be incomplete.";
 const SCAN_TIMEOUT_MESSAGE = "The scan exceeded the maximum scan duration.";
 
 export class ScanWarningCollector {
@@ -67,14 +69,23 @@ export class ScanWarningCollector {
   }
 }
 
+export type ScanRequestBudgetDiagnostics = {
+  name: "request-capture";
+  family: "requests";
+  captureLoss: boolean;
+  captureLossCount: number;
+};
+
 export class ScanRequestBudget {
   private routedHttpRequestCount = 0;
   private recordedRequestCount = 0;
+  private captureLossCount = 0;
   private capWarningAdded = false;
 
   constructor(
     private readonly warnings: ScanWarningCollector,
-    private readonly maxRequests = MAX_RECORDED_REQUESTS
+    private readonly maxRequests = MAX_RECORDED_REQUESTS,
+    private readonly deferWarning = false
   ) {}
 
   allowRoutedHttpRequest(): boolean {
@@ -83,7 +94,7 @@ export class ScanRequestBudget {
       return true;
     }
 
-    this.addRequestCapWarning();
+    this.recordCaptureLoss();
     return false;
   }
 
@@ -93,7 +104,7 @@ export class ScanRequestBudget {
       return true;
     }
 
-    this.addRequestCapWarning();
+    this.recordCaptureLoss();
     return false;
   }
 
@@ -106,18 +117,30 @@ export class ScanRequestBudget {
    * warning is the legacy v1 disclosure; this boolean is the corresponding
    * structured fact and deliberately does not expose request URLs.
    */
-  getDiagnostics(): { name: "request-capture"; family: "requests"; captureLoss: boolean } {
+  getDiagnostics(): ScanRequestBudgetDiagnostics {
     return {
       name: "request-capture",
       family: "requests",
-      captureLoss: this.capWarningAdded
+      captureLoss: this.captureLossCount > 0,
+      captureLossCount: this.captureLossCount
     };
   }
 
-  private addRequestCapWarning(): void {
+  /**
+   * Emit the legacy disclosure at a caller-owned evidence boundary. Scanner
+   * runs defer this until excluded reload/policy traffic has been removed from
+   * the monotonic loss counters; direct users retain the historical immediate
+   * warning behavior.
+   */
+  emitCaptureLossWarning(): void {
     if (this.capWarningAdded) return;
     this.capWarningAdded = true;
     this.warnings.add(`The scan stopped recording or loading additional requests after ${this.maxRequests} requests.`);
+  }
+
+  private recordCaptureLoss(): void {
+    this.captureLossCount += 1;
+    if (!this.deferWarning) this.emitCaptureLossWarning();
   }
 }
 
@@ -205,9 +228,14 @@ export class ScanNetworkRecorder<RequestT extends RecordedRequestLike> {
       warnings: ScanWarningCollector;
       trackerMatcher?: TrackerMatcher;
       maxRequests?: number;
+      deferRequestBudgetWarning?: boolean;
     }
   ) {
-    this.requestBudget = new ScanRequestBudget(options.warnings, options.maxRequests);
+    this.requestBudget = new ScanRequestBudget(
+      options.warnings,
+      options.maxRequests,
+      options.deferRequestBudgetWarning === true
+    );
   }
 
   recordRequest(request: RequestT, startedAtMs: number): void {
@@ -270,7 +298,8 @@ function buildRecordedRequestRecord({
   startedAtMs: number;
   trackerMatcher?: TrackerMatcher;
 }): NetworkRequestRecord | null {
-  const parsed = safeParseUrl(request.url());
+  const requestUrl = request.url();
+  const parsed = safeParseUrl(requestUrl);
   if (!parsed || !isHttpUrl(parsed)) return null;
 
   const domain = parsed.hostname;
@@ -281,7 +310,7 @@ function buildRecordedRequestRecord({
     // Keep the raw URL only inside the bounded in-memory recorder. The domain
     // and tracker match above must see raw evidence; buildScanResult is the one
     // public seam that redacts the completed record and accounts for removals.
-    url: request.url(),
+    url: requestUrl,
     domain,
     method: request.method(),
     resourceType: request.resourceType(),

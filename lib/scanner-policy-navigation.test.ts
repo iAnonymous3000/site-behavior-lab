@@ -88,3 +88,74 @@ test("privacy-policy probing rejects server redirects and render-time navigation
     await new Promise<void>((resolve) => upstream.close(() => resolve()));
   }
 });
+
+test("observe-mode consent probing ignores page-owned geometry navigation hooks", { timeout: 30_000 }, async () => {
+  const upstream = createServer((request, response) => {
+    const host = request.headers.host?.split(":")[0];
+    if (host === "other-observe-subject.test") {
+      response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+      response.end(`<!doctype html><title>Other observe subject</title><script>
+        document.cookie = "other-subject-cookie=must-not-be-retained; path=/";
+        localStorage.setItem("other-subject-storage", "must-not-be-retained");
+      </script>`);
+      return;
+    }
+
+    response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+    response.end(`<!doctype html><title>Trusted observe subject</title>
+      <button id="onetrust-accept-btn-handler">Accept all</button>
+      <script>
+        const control = document.getElementById("onetrust-accept-btn-handler");
+        control.getBoundingClientRect = () => {
+          location.replace("http://other-observe-subject.test/");
+          return { x: 0, y: 0, top: 0, left: 0, right: 100, bottom: 30, width: 100, height: 30, toJSON() {} };
+        };
+      </script>`);
+  });
+  await new Promise<void>((resolve, reject) => {
+    upstream.once("error", reject);
+    upstream.listen(0, "127.0.0.1", resolve);
+  });
+  const address = upstream.address();
+  assert.ok(address && typeof address === "object");
+
+  process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION = "1";
+  try {
+    const result = await scanSite(
+      {
+        url: "http://observe-subject.test/",
+        device: "desktop",
+        gpcEnabled: false,
+        consentMode: "observe"
+      },
+      {
+        publicUrlAlreadyVerified: true,
+        verifyPublicUrl: async () => undefined,
+        resolvePublicHost: async () => [{ address: "93.184.216.34", family: 4 }],
+        connectProxyUpstreamForTests: () => connect(address.port, "127.0.0.1"),
+        resolveCnameChain: async () => []
+      }
+    );
+
+    assert.equal(result.summary.pageTitle, "Trusted observe subject");
+    assert.equal(result.cookies.some((cookie) => cookie.name === "other-subject-cookie"), false);
+    assert.equal(result.storage.some((entry) => entry.key === "other-subject-storage"), false);
+    assert.equal(result.warnings.some((warning) => warning.includes("left the recorded site")), false);
+
+    const staged = stagedSingleVisitMeasurement(result);
+    assert.notEqual(staged, null);
+    for (const family of ["requests", "cookies", "storage", "fingerprinting"] as const) {
+      assert.equal(
+        staged!.measurement.qualityFacts.captureLoss.some(
+          (loss) => loss.family === family && loss.phaseId === 0 && loss.kind === "dropped"
+        ),
+        false,
+        `page-owned geometry must not cause ${family} capture loss`
+      );
+    }
+  } finally {
+    delete process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION;
+    await closeSharedBrowserForTests();
+    await new Promise<void>((resolve) => upstream.close(() => resolve()));
+  }
+});

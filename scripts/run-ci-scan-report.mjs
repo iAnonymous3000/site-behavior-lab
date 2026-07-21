@@ -1,7 +1,4 @@
-// Titles served by common bot walls (Cloudflare, Akamai, PerimeterX, Google).
-// Never include the matched title in the returned reason: CI logs are public.
-const BLOCK_TITLE_PATTERN =
-  /access denied|attention required|just a moment|pardon our interruption|are you (a )?(human|robot)|verify (you are|you'?re|your) (a )?human|checking your browser|unusual traffic|security check|request unsuccessful|captcha|enable javascript/i;
+import { isLikelyBotWallPage } from "../lib/bot-wall-classifier.ts";
 
 /**
  * The CI lane publishes frozen v1 and the current v2/r2 revision. V2 roots do
@@ -26,14 +23,22 @@ export function isPublishableScanReport(response) {
  */
 export function botBlockReason(report) {
   for (const run of reportRuns(report)) {
+    const title = String(run.summary?.pageTitle || "").trim();
+    const totalRequests = Number(run.summary?.counts?.totalRequests ?? run.summary?.totalRequests) || 0;
+    if (
+      isLikelyBotWallPage({
+        pageTitle: title,
+        status: typeof run.summary?.status === "number" ? run.summary.status : null,
+        navigationSettled: run.qualityFacts?.navigationSettled !== false,
+        totalRequests
+      })
+    ) {
+      return `${run.label}: landing page title matches a bot-block/challenge page`;
+    }
+
     const recordedFailure = runFailureReason(run);
     if (recordedFailure) return recordedFailure;
 
-    const title = String(run.summary?.pageTitle || "").trim();
-    const totalRequests = Number(run.summary?.counts?.totalRequests ?? run.summary?.totalRequests) || 0;
-    if (title && BLOCK_TITLE_PATTERN.test(title)) {
-      return `${run.label}: landing page title matches a bot-block/challenge page`;
-    }
     if (totalRequests <= 1) {
       return `${run.label}: only ${totalRequests} network request(s) observed, navigation likely failed or was blocked`;
     }

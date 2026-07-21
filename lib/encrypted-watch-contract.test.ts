@@ -84,6 +84,8 @@ test("key, watch, and capability wires are canonical", () => {
   assert.equal(isCanonicalEncryptedWatchKeyWire(KEY.slice(1)), false);
   assert.equal(encryptedWatchKeyIsIsolated(KEY, ["different-secret"]), true);
   assert.equal(encryptedWatchKeyIsIsolated(KEY, [KEY]), false);
+  const syntheticMonitorCredential = KEY;
+  assert.equal(encryptedWatchKeyIsIsolated(KEY, [syntheticMonitorCredential]), false);
   assert.equal(encryptedWatchKeyIsIsolated("not-a-key", []), false);
   assert.equal(isEncryptedWatchId("a".repeat(32)), true);
   assert.equal(isEncryptedWatchId("A".repeat(32)), false);

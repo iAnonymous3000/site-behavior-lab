@@ -82,16 +82,26 @@ test("featured refresh failures publish only validated successes, stay loud, and
   const workflow = source(".github/workflows/scan-featured.yml");
   const runner = source("scripts/run-featured-scans.mjs");
 
-  assert.match(runner, /successRateEnv\("FEATURED_MIN_SUCCESS_RATE", 0\.9\)/);
+  assert.match(runner, /featuredMinimumSuccessRate\(process\.env\.FEATURED_MIN_SUCCESS_RATE, 0\.9, 0\.8\)/);
+  assert.match(workflow, /FEATURED_MIN_SUCCESS_RATE: \$\{\{ vars\.FEATURED_MIN_SUCCESS_RATE \|\| '0\.8' \}\}/);
   assert.match(workflow, /permissions:[\s\S]*?issues: write/);
   assert.match(workflow, /id: featured_scan\n\s+continue-on-error: true/);
   assert.match(workflow, /--classify-publication/);
-  assert.match(workflow, /- name: Prune retained static reports[\s\S]*?if: steps\.refresh_policy\.outputs\.healthy == 'true'/);
+  assert.match(workflow, /- name: Prune retained static reports[\s\S]*?if: steps\.refresh_policy\.outputs\.publishable == 'true'/);
   assert.match(workflow, /- name: Verify report redaction and provenance[\s\S]*?steps\.refresh_policy\.outputs\.publishable == 'true'/);
   assert.match(workflow, /- name: Build corpus stats[\s\S]*?steps\.report_manifest\.outcome == 'success'/);
   assert.match(workflow, /- name: Commit static reports[\s\S]*?steps\.corpus_stats\.outcome == 'success'/);
   assert.match(workflow, /steps\.refresh_alert\.outputs\.authoritative == 'true'/);
   assert.match(workflow, /site-behavior-lab:featured-corpus-refresh/);
+  assert.match(workflow, /MANAGED_ISSUE_LABEL: site-behavior-lab-featured-refresh/);
+  assert.match(workflow, /issue\.user\?\.login === "github-actions\[bot\]"/);
+  assert.match(workflow, /issue\.user\?\.type === "Bot"/);
+  assert.match(workflow, /labels\.includes\(managedLabel\)/);
+  assert.match(workflow, /issue\.title === process\.env\.ISSUE_TITLE/);
+  assert.match(workflow, /issue_needs_label/);
+  assert.match(workflow, /--add-label "\$MANAGED_ISSUE_LABEL"/);
+  assert.match(workflow, /gh api --silent --method POST "repos\/\$\{GITHUB_REPOSITORY\}\/labels"/);
+  assert.match(workflow, /--label "\$MANAGED_ISSUE_LABEL"/);
   assert.match(workflow, /gh issue create/);
   assert.match(workflow, /gh issue edit/);
   assert.match(workflow, /gh issue reopen/);

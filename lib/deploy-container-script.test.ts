@@ -136,7 +136,13 @@ test("local container deployment rejects dirty provenance while CI pins an expli
   assert.match(source, /resolveBuildCommit\(\{ requireClean: !check \}\)/);
 });
 
-test("container images exclude the transient generated deployment config", () => {
+test("container images exclude transient configs, local secrets, and Rust build output", () => {
   const dockerignore = readFileSync(path.join(ROOT, ".dockerignore"), "utf8");
+  const gitignore = readFileSync(path.join(ROOT, ".gitignore"), "utf8");
   assert.match(dockerignore, /^wrangler\.container\.generated\.\*\.jsonc$/m);
+  assert.match(dockerignore, /^\.dev\.vars$/m);
+  assert.match(dockerignore, /^\.dev\.vars\.\*$/m);
+  assert.match(dockerignore, /^tools\/adblock-wasm\/target$/m);
+  assert.match(gitignore, /^\.dev\.vars$/m);
+  assert.match(gitignore, /^\.dev\.vars\.\*$/m);
 });

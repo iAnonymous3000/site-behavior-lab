@@ -38,6 +38,22 @@ function boundedRate(value) {
   return typeof value === "number" && Number.isFinite(value) && value >= 0 && value <= 1 ? value : null;
 }
 
+export function featuredMinimumSuccessRate(raw, fallback = 0.9, floor = 0.8) {
+  const normalized = typeof raw === "string" ? raw.trim() : "";
+  const value = normalized === "" ? fallback : Number(normalized);
+  if (
+    !Number.isFinite(value) ||
+    !Number.isFinite(floor) ||
+    floor < 0 ||
+    floor > 1 ||
+    value < floor ||
+    value > 1
+  ) {
+    throw new Error(`FEATURED_MIN_SUCCESS_RATE must be a number from ${floor} to 1.`);
+  }
+  return value;
+}
+
 /**
  * Extract only aggregate, public-safe fields from the detailed diagnostics
  * artifact. Per-target names and child failure reasons stay in the artifact;

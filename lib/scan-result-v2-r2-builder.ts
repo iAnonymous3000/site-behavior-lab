@@ -112,7 +112,7 @@ import type { FingerprintDetectionSummary, PrivacyPolicySummary, TrackerMatch } 
 export const NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION =
   `redaction-v${REDACTION_VERSION}+${REDACTION_ALLOWLISTS_VERSION}:${REDACTION_ALLOWLISTS_DIGEST}+${PUBLIC_STRING_POLICY_VERSION}:${PUBLIC_STRING_POLICY_DIGEST}+${PUBLIC_SUFFIX_ENGINE_VERSION}+node-evidence-policy-v1`;
 export const NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION =
-  `${NODE_SCANNER_METHODOLOGY_VERSION}+phase-kernel-v2+boundary-state-v1+consent-r2-v3+resource-budget-v1+proxy-traffic-v1+service-worker-block-v1`;
+  `${NODE_SCANNER_METHODOLOGY_VERSION}+phase-kernel-v2+boundary-state-v1+consent-r2-v4+resource-budget-v1+proxy-traffic-v1+service-worker-block-v1`;
 
 export { NODE_SCAN_REPORT_V2_R2_MAX_PUBLIC_BYTES } from "./scan-report-v2-r2-limits";
 const MAX_PHASES = 16;

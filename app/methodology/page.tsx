@@ -192,7 +192,8 @@ export default function MethodologyPage() {
           The wording is anchored to the stored percentile mark, not the percentage of sites strictly below a value,
           because ties can make those different. The corpus is curated, not a random sample of the web. Site history
           pages compare a site only against its own earlier reports with a compatible schema, method, browser, device,
-          and filter snapshot; retention alone never makes two reports comparable.
+          filter-list engine/source/count, and known snapshot dates. The dates may differ so the history can describe a
+          list refresh; retention alone never makes two reports comparable.
         </p>
       </section>
 

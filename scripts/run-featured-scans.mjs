@@ -29,7 +29,10 @@ import { spawn } from "node:child_process";
 import { appendFile, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { failureDiagnosticFromStderr } from "./run-featured-scans-diagnostics.mjs";
+import {
+  failureDiagnosticFromStderr,
+  featuredMinimumSuccessRate
+} from "./run-featured-scans-diagnostics.mjs";
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const sitesFileEnv = process.env.FEATURED_SITES_FILE?.trim();
@@ -85,7 +88,7 @@ async function main() {
     }
   }
 
-  const minSuccessRate = successRateEnv("FEATURED_MIN_SUCCESS_RATE", 0.9);
+  const minSuccessRate = featuredMinimumSuccessRate(process.env.FEATURED_MIN_SUCCESS_RATE, 0.9, 0.8);
   const successRate = succeeded / sites.length;
   await publishRunDiagnostics({ sites, succeeded, failures, minSuccessRate, successRate });
 
@@ -145,16 +148,6 @@ async function publishRunDiagnostics({ sites, succeeded, failures, minSuccessRat
     for (const failure of failures) lines.push(`- **${failure.site}:** ${failure.message}`);
   }
   await appendFile(githubSummary, `${lines.join("\n")}\n`, "utf8");
-}
-
-function successRateEnv(name, fallback) {
-  const raw = process.env[name]?.trim();
-  if (!raw) return fallback;
-  const value = Number(raw);
-  if (!Number.isFinite(value) || value < 0 || value > 1) {
-    throw new Error(`${name} must be a number between 0 and 1, got "${raw}".`);
-  }
-  return value;
 }
 
 async function readConfig() {
