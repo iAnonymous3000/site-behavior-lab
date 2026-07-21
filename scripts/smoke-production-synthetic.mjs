@@ -113,6 +113,7 @@ async function guardedFetch(url, options, label) {
   const remaining = remainingTotalMs();
   if (remaining <= 0) fail(`Synthetic scan exceeded its ${totalTimeoutMs}ms total deadline.`);
   const timeout = Math.min(requestTimeoutMs, remaining);
+  const boundedByTotalDeadline = remaining <= requestTimeoutMs;
   try {
     return await fetch(url, {
       ...options,
@@ -120,6 +121,9 @@ async function guardedFetch(url, options, label) {
       signal: AbortSignal.timeout(timeout)
     });
   } catch {
+    if (boundedByTotalDeadline) {
+      fail(`Synthetic scan exceeded its ${totalTimeoutMs}ms total deadline.`);
+    }
     fail(`${label} request failed or exceeded its ${timeout}ms deadline.`);
   }
 }
