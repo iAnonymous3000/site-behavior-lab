@@ -362,7 +362,10 @@ test("production synthetic enforces both per-request and total deadlines", async
   try {
     const totalStart = Date.now();
     const totalResult = await runSynthetic(polling.origin, {
-      PRODUCTION_SYNTHETIC_REQUEST_TIMEOUT_MS: "100",
+      // Keep the per-request budget above the total budget so this case
+      // deterministically exercises the total deadline even on a loaded CI
+      // host. The preceding hanging-server case owns per-request coverage.
+      PRODUCTION_SYNTHETIC_REQUEST_TIMEOUT_MS: "1000",
       PRODUCTION_SYNTHETIC_TOTAL_TIMEOUT_MS: "500",
       PRODUCTION_SYNTHETIC_POLL_INTERVAL_MS: "10"
     });
