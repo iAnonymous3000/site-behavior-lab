@@ -75,7 +75,7 @@ test("Turnstile configuration probe distinguishes a valid secret from secret and
     requestInit = init;
     return new Response(
       JSON.stringify({ success: false, "error-codes": ["invalid-input-response"] }),
-      { status: 400, headers: { "content-type": "application/json" } }
+      { status: 403, headers: { "content-type": "application/json" } }
     );
   }) as typeof fetch;
   assert.equal(
@@ -84,7 +84,7 @@ test("Turnstile configuration probe distinguishes a valid secret from secret and
   );
   assert.equal(requestedUrl, "https://challenges.cloudflare.com/turnstile/v0/siteverify");
   assert.equal(requestInit?.method, "POST");
-  assert.equal(requestInit?.redirect, "error");
+  assert.equal(requestInit?.redirect, undefined);
   assert.ok(requestInit?.signal instanceof AbortSignal);
   const body = requestInit?.body as URLSearchParams;
   assert.equal(body.get("secret"), "valid-secret");

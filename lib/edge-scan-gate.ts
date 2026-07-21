@@ -206,17 +206,20 @@ export async function probeTurnstileConfiguration(options: {
     response = await (options.fetchImpl ?? fetch)(TURNSTILE_SITEVERIFY_URL, {
       method: "POST",
       body,
-      redirect: "error",
       signal: options.signal ?? AbortSignal.timeout(5_000)
     });
   } catch {
     return "unavailable";
   }
-  // Siteverify currently returns its structured input-validation errors with
-  // HTTP 400 as well as HTTP 200. Parse that documented client-error response
-  // so a recognized secret can be distinguished from an invalid one, while
-  // continuing to treat every other HTTP failure as unavailable.
-  if (!response.ok && response.status !== 400) return "unavailable";
+  // Siteverify returns structured input-validation errors with both successful
+  // and client-error HTTP statuses. Parse any non-rate-limit 4xx response so a
+  // recognized secret can be distinguished from an invalid one, while keeping
+  // redirects, throttling, and server failures unavailable. Use the same
+  // redirect behavior as the visitor validation path: Cloudflare may route the
+  // fixed Siteverify origin internally before returning its JSON response.
+  const structuredValidationResponse =
+    response.ok || (response.status >= 400 && response.status < 500 && response.status !== 429);
+  if (!structuredValidationResponse) return "unavailable";
 
   let result: unknown;
   try {
