@@ -7,7 +7,8 @@ name: Update Brave Shields Lists
 #      still block known ad URLs) before the refresh is committed. Scheduled
 #      failures are tracked in a separate canonical issue and remain job-red.
 #   2. A measurement-toolchain drift check against crates.io, npm, and Chrome's
-#      consumer stable channel. Expected drift is tracked in one canonical issue;
+#      consumer stable channel. Actionable drift is tracked in one canonical issue;
+#      browser-channel lag without a stable Playwright upgrade remains informational.
 #      malformed local pins or unavailable upstream metadata fail the job.
 
 on:
@@ -311,7 +312,7 @@ jobs:
               gh issue close "$issue_number" \
                 --repo "$GITHUB_REPOSITORY" \
                 --reason completed \
-                --comment "All monitored measurement-toolchain pins now match their upstream stable references."
+                --comment "No actionable measurement-toolchain upgrades remain. The issue body retains any informational browser-channel lag until stable Playwright catches up."
             fi
           else
             echo "::error::The drift checker returned an invalid drift output: ${HAS_DRIFT}"

@@ -231,6 +231,7 @@ export function driftRows(pinned, upstream) {
       pinned: pinned.adblock,
       upstream: upstream.adblock,
       drift: pinned.adblock !== upstream.adblock,
+      actionable: pinned.adblock !== upstream.adblock,
       action: "Rebuild tools/adblock-wasm, re-vendor the WASM output, and update the disclosed engine version."
     },
     {
@@ -238,6 +239,7 @@ export function driftRows(pinned, upstream) {
       pinned: pinned.playwright,
       upstream: upstream.playwright,
       drift: pinned.playwright !== upstream.playwright,
+      actionable: pinned.playwright !== upstream.playwright,
       action: "Update the exact npm pin, lockfile, reviewed container base, and version-tagged seccomp profile together."
     },
     {
@@ -245,6 +247,10 @@ export function driftRows(pinned, upstream) {
       pinned: pinned.chromium.version,
       upstream: upstream.chromeStable,
       drift: major(pinned.chromium.version) !== major(upstream.chromeStable),
+      // Chrome Stable often moves before a stable Playwright release bundles
+      // the same major. Keep that lag visible without proposing an unpinned
+      // system browser or opening an issue that cannot yet be resolved.
+      actionable: false,
       action: "Upgrade through a stable Playwright release; do not substitute an unpinned system Chrome binary."
     },
     {
@@ -252,6 +258,7 @@ export function driftRows(pinned, upstream) {
       pinned: pinned.tldts,
       upstream: upstream.tldts,
       drift: pinned.tldts !== upstream.tldts,
+      actionable: pinned.tldts !== upstream.tldts,
       action: "Update the exact npm pin, lockfile, and public-suffix provenance disclosure together."
     }
   ];
@@ -266,18 +273,23 @@ export function assertPinnedSeccompProfile(playwrightVersion, localProfile, tagg
   }
 }
 
-function markdownReport(rows, checkedAt) {
+export function markdownReport(rows, checkedAt) {
   const drifted = rows.filter((row) => row.drift);
+  const actionable = rows.filter((row) => row.actionable);
   const table = rows
     .map(
       (row) =>
-        `| ${row.component} | \`${row.pinned}\` | \`${row.upstream}\` | ${row.drift ? "drift" : "current"} |`
+        `| ${row.component} | \`${row.pinned}\` | \`${row.upstream}\` | ${
+          !row.drift ? "current" : row.actionable ? "upgrade available" : "waiting on stable Playwright"
+        } |`
     )
     .join("\n");
   const actions =
-    drifted.length === 0
+    actionable.length > 0
+      ? actionable.map((row) => `- **${row.component}:** ${row.action}`).join("\n")
+      : drifted.length === 0
       ? "All monitored measurement-toolchain pins match their upstream stable references."
-      : drifted.map((row) => `- **${row.component}:** ${row.action}`).join("\n");
+      : "All monitored pins match the latest versions available through their supported upgrade paths. The bundled Chromium release may trail Chrome Stable until a newer stable Playwright release is available.";
 
   return `<!-- site-behavior-lab:measurement-toolchain-drift -->
 # Measurement toolchain drift
@@ -291,6 +303,8 @@ ${table}
 ${actions}
 
 The adblock version comes from the exact resolved package in \`tools/adblock-wasm/Cargo.lock\`. npm pins must match exactly across \`package.json\`, \`package-lock.json\`, and the resolved lockfile packages. The bundled browser comes from the integrity-checked Playwright package and must match \`playwright-core/browsers.json\` at the exact pinned Playwright Git tag. The Docker seccomp profile must likewise match \`utils/docker/seccomp_profile.json\` at that tag. Chrome Stable is the Linux consumer stable channel from Google's VersionHistory API and is compared by major version only.
+
+Only rows marked \`upgrade available\` open or reopen the maintenance issue. Browser-channel lag remains visible here, but is informational until a newer stable Playwright release provides the supported upgrade path.
 
 This issue is a maintenance signal, not authorization to update automatically. Measurement-version changes require the repository's provenance, comparability, and validation gates.
 `;
@@ -329,13 +343,18 @@ async function main() {
   }
   assertPinnedSeccompProfile(pinned.playwright, pinned.seccompProfile, upstream.taggedSeccompProfile);
   const rows = driftRows(pinned, upstream);
-  const driftCount = rows.filter((row) => row.drift).length;
+  const driftCount = rows.filter((row) => row.actionable).length;
+  const informationalCount = rows.filter((row) => row.drift && !row.actionable).length;
   const report = markdownReport(rows, new Date().toISOString());
   await publishOutputs(report, reportPath, driftCount > 0, driftCount);
   console.log(
     driftCount > 0
-      ? `Measurement toolchain drift detected in ${driftCount} component(s).`
-      : "Measurement toolchain pins match upstream stable references."
+      ? `Actionable measurement toolchain drift detected in ${driftCount} component(s).`
+      : informationalCount > 0
+        ? `No actionable measurement toolchain drift; ${informationalCount} informational ${
+            informationalCount === 1 ? "difference remains" : "differences remain"
+          } visible.`
+        : "Measurement toolchain pins match upstream stable references."
   );
 }
 

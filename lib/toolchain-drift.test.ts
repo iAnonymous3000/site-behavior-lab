@@ -7,6 +7,35 @@ import { pathToFileURL } from "node:url";
 
 type ToolchainDriftHelpers = {
   assertPinnedSeccompProfile(playwrightVersion: string, localProfile: unknown, taggedProfile: unknown): void;
+  driftRows(
+    pinned: {
+      adblock: string;
+      playwright: string;
+      chromium: { version: string };
+      tldts: string;
+    },
+    upstream: {
+      adblock: string;
+      playwright: string;
+      chromeStable: string;
+      tldts: string;
+    }
+  ): Array<{
+    component: string;
+    drift: boolean;
+    actionable: boolean;
+  }>;
+  markdownReport(
+    rows: Array<{
+      component: string;
+      pinned: string;
+      upstream: string;
+      drift: boolean;
+      actionable: boolean;
+      action: string;
+    }>,
+    checkedAt: string
+  ): string;
 };
 
 const nativeImport = new Function("specifier", "return import(specifier)") as (
@@ -51,5 +80,77 @@ test("Playwright's seccomp profile stays locked to the exact package tag", async
   assert.throws(
     () => assertPinnedSeccompProfile("1.61.1", localProfile, matchingTaggedProfile),
     /does not match Playwright v1\.61\.1/
+  );
+});
+
+test("browser-channel lag stays visible without opening an unactionable maintenance issue", async () => {
+  const { driftRows, markdownReport } = await helpers;
+  const rows = driftRows(
+    {
+      adblock: "0.13.2",
+      playwright: "1.61.1",
+      chromium: { version: "149.0.7827.55" },
+      tldts: "7.4.9"
+    },
+    {
+      adblock: "0.13.2",
+      playwright: "1.61.1",
+      chromeStable: "150.0.7871.128",
+      tldts: "7.4.9"
+    }
+  );
+
+  const chromium = rows.find((row) => row.component.startsWith("Bundled Chromium"));
+  assert.deepEqual(chromium && { drift: chromium.drift, actionable: chromium.actionable }, {
+    drift: true,
+    actionable: false
+  });
+  assert.equal(rows.some((row) => row.actionable), false);
+
+  const reportRows = driftRows(
+    {
+      adblock: "0.13.2",
+      playwright: "1.61.1",
+      chromium: { version: "149.0.7827.55" },
+      tldts: "7.4.9"
+    },
+    {
+      adblock: "0.13.2",
+      playwright: "1.61.1",
+      chromeStable: "150.0.7871.128",
+      tldts: "7.4.9"
+    }
+  ).map((row) => ({ ...row, pinned: "pinned", upstream: "upstream", action: "upgrade" }));
+  const report = markdownReport(reportRows, "2026-07-21T00:00:00.000Z");
+  assert.match(report, /waiting on stable Playwright/);
+  assert.match(report, /supported upgrade paths/);
+  assert.doesNotMatch(report, /\*\*Bundled Chromium/);
+});
+
+test("supported package upgrades remain actionable", async () => {
+  const { driftRows } = await helpers;
+  const rows = driftRows(
+    {
+      adblock: "0.13.1",
+      playwright: "1.60.0",
+      chromium: { version: "148.0.0.0" },
+      tldts: "7.4.8"
+    },
+    {
+      adblock: "0.13.2",
+      playwright: "1.61.1",
+      chromeStable: "150.0.0.0",
+      tldts: "7.4.9"
+    }
+  );
+
+  assert.deepEqual(
+    rows.map((row) => [row.component, row.actionable]),
+    [
+      ["adblock-rust", true],
+      ["Playwright", true],
+      ["Bundled Chromium / Chrome Stable (Linux)", false],
+      ["tldts", true]
+    ]
   );
 });
