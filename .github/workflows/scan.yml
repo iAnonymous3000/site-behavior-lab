@@ -129,6 +129,12 @@ jobs:
             echo "::error::Port 3100 was already occupied before startup; refusing a stale scanner process."
             exit 1
           fi
+          if [[ -z "$SITE_BEHAVIOR_LAB_SCANNER_EGRESS_REGION" ]]; then
+            # Actions exports configured empty strings. The scanner treats an
+            # explicit blank as invalid, so omit it for this truthful v1-only
+            # runner whose region is intentionally unrecorded.
+            unset SITE_BEHAVIOR_LAB_SCANNER_EGRESS_REGION
+          fi
           node node_modules/next/dist/bin/next start --port 3100 > /tmp/site-behavior-lab-scan.log 2>&1 &
           app_pid=$!
           echo "$app_pid" > /tmp/site-behavior-lab-scan.pid

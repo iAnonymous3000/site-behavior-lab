@@ -128,11 +128,14 @@ test("scanner workflow startup gates reject stale port owners and mismatched hea
     assert.equal(workflow.includes('kill -0 "$app_pid"'), true);
     assert.equal(workflow.includes("health?.deployment === expectedSha.toLowerCase()"), true);
     assert.equal(workflow.includes("health?.scansAvailable === true"), true);
+    const unsetRegion = workflow.indexOf("unset SITE_BEHAVIOR_LAB_SCANNER_EGRESS_REGION");
+    const startScanner = workflow.indexOf("node node_modules/next/dist/bin/next start --port 3100");
+    assert.equal(unsetRegion >= 0 && unsetRegion < startScanner, true);
     assert.match(workflow, /SITE_BEHAVIOR_LAB_BUILD_COMMIT: \$\{\{ github\.sha \}\}/);
   }
 
   assert.equal(featured.includes('"$FEATURED_REPORT_MODE"'), true);
-  assert.equal(featured.includes('"$SITE_BEHAVIOR_LAB_SCANNER_EGRESS_REGION"'), true);
+  assert.equal(featured.includes('"$expected_egress_region"'), true);
   assert.equal(featured.includes("health?.checks?.scannerEgressRegion === expectedRegionStatus"), true);
   assert.equal(featured.includes("health?.checks?.consentVerification === expectedConsentStatus"), true);
   assert.equal(featured.includes("health?.checks?.publicR2Reports?.status === expectedR2Status"), true);

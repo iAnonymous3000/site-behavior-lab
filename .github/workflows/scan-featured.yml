@@ -169,6 +169,13 @@ jobs:
             echo "::error::Port 3100 was already occupied before startup; refusing a stale scanner process."
             exit 1
           fi
+          expected_egress_region="$SITE_BEHAVIOR_LAB_SCANNER_EGRESS_REGION"
+          if [[ -z "$expected_egress_region" ]]; then
+            # An empty Actions env entry is still present in Node's process
+            # environment. Remove it so the v1 runner truthfully reports the
+            # region as unrecorded instead of rejecting a blank declaration.
+            unset SITE_BEHAVIOR_LAB_SCANNER_EGRESS_REGION
+          fi
           node node_modules/next/dist/bin/next start --port 3100 > /tmp/site-behavior-lab-featured.log 2>&1 &
           app_pid=$!
           echo "$app_pid" > /tmp/site-behavior-lab-featured.pid
@@ -209,7 +216,7 @@ jobs:
                   console.error(`Scanner health contract rejected: ${failures.join("; ")}`);
                   process.exit(1);
                 }
-              ' "$health_path" "$GITHUB_SHA" "$FEATURED_REPORT_MODE" "$SITE_BEHAVIOR_LAB_SCANNER_EGRESS_REGION" && \
+              ' "$health_path" "$GITHUB_SHA" "$FEATURED_REPORT_MODE" "$expected_egress_region" && \
                 kill -0 "$app_pid" 2>/dev/null; then
                 exit 0
               fi
