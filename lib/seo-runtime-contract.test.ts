@@ -47,3 +47,15 @@ test("public page metadata is base-path aware through the shared absolute helper
     assert.match(source, /publicPageMetadata\(/, `${file} bypasses complete absolute page metadata`);
   }
 });
+
+test("the static sitemap reuses the validated corpus overview", () => {
+  const sitemapRoute = readFileSync(path.join(root, "app", "sitemap.ts"), "utf8");
+  const corpusOverview = readFileSync(path.join(root, "lib", "corpus-overview.ts"), "utf8");
+
+  assert.match(sitemapRoute, /for \(const report of overview\.sitemapReports\)/);
+  assert.match(sitemapRoute, /reportPagePath\(report\.id\)/);
+  assert.doesNotMatch(sitemapRoute, /listStaticReportIds/);
+  assert.doesNotMatch(sitemapRoute, /readStoredReportForId/);
+  assert.doesNotMatch(sitemapRoute, /toReportView/);
+  assert.match(corpusOverview, /lastModifiedAt: view\.latestRunAt \?\? view\.scannedAt \?\? ""/);
+});

@@ -1,9 +1,5 @@
 import type { MetadataRoute } from "next";
 import { reportPagePath } from "@/lib/report-locator";
-import { readStoredReportForId } from "@/lib/report-source";
-import { displayRunView, toReportView } from "@/lib/scan-report-views";
-import { isReservedReportDomain } from "@/lib/reserved-report-domains";
-import { listStaticReportIds } from "@/lib/static-report-files";
 import { siteBaseUrl } from "@/lib/site-url";
 import { siteProfilePath } from "@/lib/site-profile";
 import { loadCorpusOverview } from "@/lib/corpus-overview";
@@ -93,17 +89,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Node app's share permalinks are random-ID and short-lived, so they are not
   // listed here. Runtime shares stay crawlable only so their noindex directive
   // can be read; they never enter this permanent discovery surface.
-  for (const id of await listStaticReportIds()) {
-    const read = await readStoredReportForId(id);
-    // Any readable schema generation lists; unreadable entries are skipped
-    // rather than failing the whole sitemap build.
-    if (read.outcome !== "found") continue;
-    // Reserved/test domains stay out of the sitemap, matching the gallery and directory.
-    const view = toReportView(read.stored);
-    if (isReservedReportDomain(displayRunView(view).domain)) continue;
-    const lastModified = sitemapLastModified(view.latestRunAt ?? view.scannedAt, generatedAt);
+  // loadCorpusOverview already validated and filtered every committed report.
+  // Reuse it here so the static route does not reread the full corpus during
+  // export, which can exceed hosted build-route time limits as the corpus grows.
+  for (const report of overview.sitemapReports) {
+    const lastModified = sitemapLastModified(report.lastModifiedAt, generatedAt);
     entries.push({
-      url: `${base}${reportPagePath(id)}/`,
+      url: `${base}${reportPagePath(report.id)}/`,
       ...(lastModified ? { lastModified } : {}),
       changeFrequency: "monthly",
       priority: 0.7

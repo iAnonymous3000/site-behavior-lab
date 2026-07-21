@@ -162,6 +162,8 @@ export function corpusExportMetadataForView(view: ReportView): CorpusExportMetad
 
 export type CorpusOverview = {
   entries: DirectoryEntry[];
+  /** Valid public report routes and their newest recorded run, sorted by ID for stable sitemap output. */
+  sitemapReports: { id: string; lastModifiedAt: string }[];
   rollups: CategoryRollup[];
   heaviest: DirectoryEntry[];
   /**
@@ -283,8 +285,11 @@ async function buildCorpusOverview(): Promise<CorpusOverview> {
     .slice(0, 5);
 
   const siteCounts = summarizeCorpusSiteCounts(entries);
+  const sitemapReports = loadedEntries
+    .map(({ entry, lastModifiedAt }) => ({ id: entry.id, lastModifiedAt }))
+    .sort((left, right) => left.id.localeCompare(right.id));
 
-  return { entries, rollups, heaviest, siteCount: sites.length, ...siteCounts };
+  return { entries, sitemapReports, rollups, heaviest, siteCount: sites.length, ...siteCounts };
 }
 
 /**
@@ -353,7 +358,11 @@ function categoryFor(domain: string, catalog: CatalogEntry[]): { id: string; lab
   return hit ? { id: hit.id, label: hit.label } : { id: "", label: "Other" };
 }
 
-type LoadedDirectoryEntry = { entry: DirectoryEntry; comparisonHistoryKey: string | null };
+type LoadedDirectoryEntry = {
+  entry: DirectoryEntry;
+  comparisonHistoryKey: string | null;
+  lastModifiedAt: string;
+};
 
 async function loadDirectoryEntries(catalog: CatalogEntry[]): Promise<LoadedDirectoryEntry[]> {
   const ids = await listStaticReportIds();
@@ -452,7 +461,11 @@ async function loadDirectoryEntries(catalog: CatalogEntry[]): Promise<LoadedDire
       finalUrl: entry.finalUrl,
       comparisonHistoryCohort: comparisonHistoryCohortForStoredReport(readResult.stored, view)
     });
-    entries.push({ entry, comparisonHistoryKey });
+    entries.push({
+      entry,
+      comparisonHistoryKey,
+      lastModifiedAt: view.latestRunAt ?? view.scannedAt ?? ""
+    });
   }
 
   return entries.sort(

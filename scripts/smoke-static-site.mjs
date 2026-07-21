@@ -640,6 +640,17 @@ async function assertStaticSeoContract(manifest, firstReport) {
   if (sitemapXml.includes("localhost") || sitemapXml.includes("127.0.0.1")) {
     fail("sitemap contains a development origin");
   }
+  const sitemapReportUrls = [...sitemapXml.matchAll(/<loc>([^<]*\/reports\/[^/]+\/)<\/loc>/g)]
+    .map((match) => match[1])
+    .sort();
+  const expectedReportUrls = manifest.reports
+    .map((report) => `${publicBase}/reports/${report.id}/`)
+    .sort();
+  if (JSON.stringify(sitemapReportUrls) !== JSON.stringify(expectedReportUrls)) {
+    fail(
+      `sitemap report URL set differs from the public manifest (${sitemapReportUrls.length} sitemap, ${expectedReportUrls.length} manifest)`
+    );
+  }
   const reportEntry = sitemapUrlEntry(sitemapXml, reportUrl);
   const profileEntry = sitemapUrlEntry(sitemapXml, profileUrl);
   const expectedScanDate = firstReport.scannedAt.slice(0, 10);
