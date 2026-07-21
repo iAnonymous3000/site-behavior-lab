@@ -88,7 +88,7 @@ test("Turnstile configuration probe distinguishes a valid secret from secret and
   assert.ok(requestInit?.signal instanceof AbortSignal);
   const body = requestInit?.body as URLSearchParams;
   assert.equal(body.get("secret"), "valid-secret");
-  assert.match(body.get("response") ?? "", /health-probe-invalid-token/);
+  assert.equal(body.get("response"), "XXXX.DUMMY.TOKEN.XXXX");
 
   const invalidSecretFetch = (async () =>
     new Response(

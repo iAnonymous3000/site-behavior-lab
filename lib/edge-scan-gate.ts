@@ -38,7 +38,9 @@ export const DEFAULT_PUBLIC_SCAN_RATE_LIMIT_PER_DAY = 120;
 
 const RATE_LIMIT_BUCKET_PREFIX = "rate-limits";
 const TURNSTILE_SITEVERIFY_URL = "https://challenges.cloudflare.com/turnstile/v0/siteverify";
-const TURNSTILE_CONFIGURATION_PROBE_TOKEN = "site-behavior-lab-health-probe-invalid-token";
+// Cloudflare documents this as the dummy token: production secrets reject it
+// deterministically without requiring or redeeming a visitor challenge.
+const TURNSTILE_CONFIGURATION_PROBE_TOKEN = "XXXX.DUMMY.TOKEN.XXXX";
 
 /** Comparison runs (GPC, Shields, or consent accept/reject) make two browser visits and cost two tokens. */
 export function scanTokenCost(payload: { compareGpc?: boolean; compareShields?: boolean; compareConsent?: boolean }): 1 | 2 {
