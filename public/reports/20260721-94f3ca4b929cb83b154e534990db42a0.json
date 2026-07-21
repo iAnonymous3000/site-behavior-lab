@@ -1,0 +1,5370 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "reportType": "comparison",
+  "comparisonType": "shields",
+  "title": "Brave-list blocking off/on comparison",
+  "runLabels": {
+    "baseline": "No blocking",
+    "variant": "Brave-list blocking"
+  },
+  "requestedUrl": "https://www.bbc.com/",
+  "scannedAt": "2026-07-21T21:12:51.363Z",
+  "device": "desktop",
+  "baseline": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "BBC Home - Breaking News, World News, US News, Sports, Business, Innovation, Climate, Culture, Travel, Video & Audio",
+      "status": 200,
+      "durationMs": 6054,
+      "firstPartyDomain": "www.bbc.com",
+      "totalRequests": 201,
+      "thirdPartyRequests": 185,
+      "knownTrackerRequests": 32,
+      "thirdPartyDomains": 29,
+      "cookies": 37,
+      "thirdPartyCookies": 8,
+      "storageEntries": 20,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 81
+    },
+    "conditions": {
+      "requestedUrl": "https://www.bbc.com/",
+      "finalUrl": "https://www.bbc.com/",
+      "scannedAt": "2026-07-21T21:12:55.492Z",
+      "chromiumVersion": "149.0.7827.55",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": true,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "classification",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-13T09:47:59.645Z"
+      },
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.06",
+        "region": "US-biased",
+        "entries": 133,
+        "curatedOverrides": 133,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan using Playwright 1.61.1 from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Brave-list matching uses each route-evaluated request's initiating document (the parent document for a subframe navigation), under methodology shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.61.1; main-frame navigations are not blocked or counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.bbc.com/",
+        "domain": "www.bbc.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 51
+      },
+      {
+        "id": 2,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}/static/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 89
+      },
+      {
+        "id": 3,
+        "url": "https://static.bbci.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 89
+      },
+      {
+        "id": 4,
+        "url": "https://{label}.api.bbc.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.api.bbc.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 93
+      },
+      {
+        "id": 5,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 95
+      },
+      {
+        "id": 6,
+        "url": "https://cdn.optimizely.com/{seg}/{n}/{seg}/{seg}",
+        "domain": "cdn.optimizely.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "optimizely.com",
+          "entity": "Optimizely",
+          "category": "experimentation",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 101
+      },
+      {
+        "id": 7,
+        "url": "https://cdn.tinypass.com/api/{seg}",
+        "domain": "cdn.tinypass.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 101
+      },
+      {
+        "id": 8,
+        "url": "https://{label}.bbci.co.uk/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 102
+      },
+      {
+        "id": 9,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}/static/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 107
+      },
+      {
+        "id": 10,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}/static/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 108
+      },
+      {
+        "id": 11,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}/static/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 108
+      },
+      {
+        "id": 12,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}/static/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 108
+      },
+      {
+        "id": 13,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}/static/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 109
+      },
+      {
+        "id": 14,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}/static/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 109
+      },
+      {
+        "id": 15,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}/static/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 109
+      },
+      {
+        "id": 16,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}/static/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 109
+      },
+      {
+        "id": 17,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}/static/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 110
+      },
+      {
+        "id": 18,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}/static/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 110
+      },
+      {
+        "id": 19,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}/static/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 110
+      },
+      {
+        "id": 20,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}/static/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 111
+      },
+      {
+        "id": 21,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}/static/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 111
+      },
+      {
+        "id": 22,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}/static/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 111
+      },
+      {
+        "id": 23,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}/static/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 112
+      },
+      {
+        "id": 24,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}/static/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 112
+      },
+      {
+        "id": 25,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}/static/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 117
+      },
+      {
+        "id": 26,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}/static/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 117
+      },
+      {
+        "id": 27,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}/static/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 118
+      },
+      {
+        "id": 28,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}/static/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 118
+      },
+      {
+        "id": 29,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}/static/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 121
+      },
+      {
+        "id": 30,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}/static/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 122
+      },
+      {
+        "id": 31,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}/static/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 122
+      },
+      {
+        "id": 32,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}/static/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 122
+      },
+      {
+        "id": 33,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}/static/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 123
+      },
+      {
+        "id": 34,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}/static/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 123
+      },
+      {
+        "id": 35,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}/static/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 123
+      },
+      {
+        "id": 36,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}/static/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 123
+      },
+      {
+        "id": 37,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}/static/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 124
+      },
+      {
+        "id": 38,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}/static/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 124
+      },
+      {
+        "id": 39,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}/static/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 124
+      },
+      {
+        "id": 40,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}/static/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 124
+      },
+      {
+        "id": 41,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}/static/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 125
+      },
+      {
+        "id": 42,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}/static/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 129
+      },
+      {
+        "id": 43,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}/static/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 129
+      },
+      {
+        "id": 44,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}/static/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 129
+      },
+      {
+        "id": 45,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}/static/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 130
+      },
+      {
+        "id": 46,
+        "url": "https://www.bbc.co.uk/{seg}",
+        "domain": "www.bbc.co.uk",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 203
+      },
+      {
+        "id": 47,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 282
+      },
+      {
+        "id": 48,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 288
+      },
+      {
+        "id": 49,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 288
+      },
+      {
+        "id": 50,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 289
+      },
+      {
+        "id": 51,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 289
+      },
+      {
+        "id": 52,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 290
+      },
+      {
+        "id": 53,
+        "url": "https://{label}.bbci.co.uk/news/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 290
+      },
+      {
+        "id": 54,
+        "url": "https://{label}.bbci.co.uk/{seg}/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 290
+      },
+      {
+        "id": 55,
+        "url": "https://{label}.bbci.co.uk/news/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 290
+      },
+      {
+        "id": 56,
+        "url": "https://{label}.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 290
+      },
+      {
+        "id": 57,
+        "url": "https://{label}.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 291
+      },
+      {
+        "id": 58,
+        "url": "https://{label}.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 291
+      },
+      {
+        "id": 59,
+        "url": "https://{label}.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 291
+      },
+      {
+        "id": 60,
+        "url": "https://{label}.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 291
+      },
+      {
+        "id": 61,
+        "url": "https://{label}.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 291
+      },
+      {
+        "id": 62,
+        "url": "https://{label}.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 291
+      },
+      {
+        "id": 63,
+        "url": "https://{label}.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 298
+      },
+      {
+        "id": 64,
+        "url": "https://{label}.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 298
+      },
+      {
+        "id": 65,
+        "url": "https://{label}.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 298
+      },
+      {
+        "id": 66,
+        "url": "https://{label}.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 299
+      },
+      {
+        "id": 67,
+        "url": "https://{label}.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 299
+      },
+      {
+        "id": 68,
+        "url": "https://{label}.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 299
+      },
+      {
+        "id": 69,
+        "url": "https://{label}.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 299
+      },
+      {
+        "id": 70,
+        "url": "https://{label}.bbci.co.uk/news/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 300
+      },
+      {
+        "id": 71,
+        "url": "https://{label}.bbci.co.uk/news/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 300
+      },
+      {
+        "id": 72,
+        "url": "https://{label}.bbci.co.uk/news/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 300
+      },
+      {
+        "id": 73,
+        "url": "https://{label}.bbci.co.uk/news/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 301
+      },
+      {
+        "id": 74,
+        "url": "https://{label}.bbci.co.uk/news/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 301
+      },
+      {
+        "id": 75,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}/static/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 632
+      },
+      {
+        "id": 76,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}/static/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 633
+      },
+      {
+        "id": 77,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}/static/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 633
+      },
+      {
+        "id": 78,
+        "url": "https://{label}.api.bbci.co.uk/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.api.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 633
+      },
+      {
+        "id": 79,
+        "url": "https://cdn.cxense.com/{seg}",
+        "domain": "cdn.cxense.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 647
+      },
+      {
+        "id": 80,
+        "url": "https://cdn.optimizely.com/{seg}/{seg}",
+        "domain": "cdn.optimizely.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "optimizely.com",
+          "entity": "Optimizely",
+          "category": "experimentation",
+          "confidence": "curated"
+        },
+        "blockedByShields": false,
+        "startedAtMs": 748
+      },
+      {
+        "id": 81,
+        "url": "https://{label}.dotmetrics.net/{seg}?%5Bredacted%5D=&t=",
+        "domain": "{label}.dotmetrics.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 982
+      },
+      {
+        "id": 82,
+        "url": "https://{label}.cdn.optimizely.com/{seg}/{seg}",
+        "domain": "{label}.cdn.optimizely.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "optimizely.com",
+          "entity": "Optimizely",
+          "category": "experimentation",
+          "confidence": "curated"
+        },
+        "blockedByShields": false,
+        "startedAtMs": 1038
+      },
+      {
+        "id": 83,
+        "url": "https://{label}.files.bbci.co.uk/{seg}/{seg}",
+        "domain": "{label}.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1094
+      },
+      {
+        "id": 84,
+        "url": "https://{label}.webcontentassessor.com/{seg}/{seg}",
+        "domain": "{label}.webcontentassessor.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 1148
+      },
+      {
+        "id": 85,
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.doubleclick.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 1148
+      },
+      {
+        "id": 86,
+        "url": "https://cdn.privacy-mgmt.com/{seg}/{seg}",
+        "domain": "cdn.privacy-mgmt.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 1157
+      },
+      {
+        "id": 87,
+        "url": "https://{label}.files.bbci.co.uk/{seg}/{seg}",
+        "domain": "{label}.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1278
+      },
+      {
+        "id": 88,
+        "url": "https://{label}.files.bbci.co.uk/{seg}/{seg}",
+        "domain": "{label}.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1280
+      },
+      {
+        "id": 89,
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.googlesyndication.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googlesyndication.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 1281
+      },
+      {
+        "id": 90,
+        "url": "https://{label}.api.bbc.com/{seg}",
+        "domain": "{label}.api.bbc.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 1283
+      },
+      {
+        "id": 91,
+        "url": "https://{label}.api.bbc.com/{seg}",
+        "domain": "{label}.api.bbc.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 1286
+      },
+      {
+        "id": 92,
+        "url": "https://{label}.api.bbc.com/{seg}",
+        "domain": "{label}.api.bbc.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 1364
+      },
+      {
+        "id": 93,
+        "url": "https://{label}.api.bbc.com/{seg}",
+        "domain": "{label}.api.bbc.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 1374
+      },
+      {
+        "id": 94,
+        "url": "https://{label}.api.bbc.com/{seg}",
+        "domain": "{label}.api.bbc.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 1378
+      },
+      {
+        "id": 95,
+        "url": "https://{label}.api.bbc.com/{seg}",
+        "domain": "{label}.api.bbc.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 1379
+      },
+      {
+        "id": 96,
+        "url": "https://cdn.privacy-mgmt.com/{seg}/{seg}/{seg}",
+        "domain": "cdn.privacy-mgmt.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1395
+      },
+      {
+        "id": 97,
+        "url": "https://cdn.privacy-mgmt.com/{seg}/{seg}/{seg}",
+        "domain": "cdn.privacy-mgmt.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1395
+      },
+      {
+        "id": 98,
+        "url": "https://cdn.privacy-mgmt.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "cdn.privacy-mgmt.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1395
+      },
+      {
+        "id": 99,
+        "url": "https://cdn.privacy-mgmt.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "cdn.privacy-mgmt.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1415
+      },
+      {
+        "id": 100,
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.doubleclick.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 1439
+      },
+      {
+        "id": 101,
+        "url": "https://cdn.privacy-mgmt.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "cdn.privacy-mgmt.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1443
+      },
+      {
+        "id": 102,
+        "url": "https://{label}.dotmetrics.net/{seg}?id=&%5Bredacted%5D=&ver=",
+        "domain": "{label}.dotmetrics.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 1489
+      },
+      {
+        "id": 103,
+        "url": "https://{label}.dotmetrics.net/{seg}?id=&%5Bredacted%5D=",
+        "domain": "{label}.dotmetrics.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 1490
+      },
+      {
+        "id": 104,
+        "url": "https://{label}.doubleverify.com/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.doubleverify.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1490
+      },
+      {
+        "id": 105,
+        "url": "https://{label}.api.bbc.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.api.bbc.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1491
+      },
+      {
+        "id": 106,
+        "url": "https://{label}.api.bbc.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.api.bbc.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1494
+      },
+      {
+        "id": 107,
+        "url": "https://cdn.privacy-mgmt.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "cdn.privacy-mgmt.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 1495
+      },
+      {
+        "id": 108,
+        "url": "https://cdn.cxense.com/{seg}",
+        "domain": "cdn.cxense.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 1589
+      },
+      {
+        "id": 109,
+        "url": "https://{label}.piano.io/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.piano.io",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1590
+      },
+      {
+        "id": 110,
+        "url": "https://{label}.dotmetrics.net/{seg}/{seg}?v=",
+        "domain": "{label}.dotmetrics.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 1654
+      },
+      {
+        "id": 111,
+        "url": "https://{label}.api.bbc.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.api.bbc.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1668
+      },
+      {
+        "id": 112,
+        "url": "https://{label}.api.bbc.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.api.bbc.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1684
+      },
+      {
+        "id": 113,
+        "url": "https://{label}.doubleverify.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.doubleverify.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 1781
+      },
+      {
+        "id": 114,
+        "url": "https://{label}.doubleverify.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.doubleverify.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 1782
+      },
+      {
+        "id": 115,
+        "url": "https://{label}.doubleverify.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.doubleverify.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 1795
+      },
+      {
+        "id": 116,
+        "url": "https://{label}.{label}.doubleclick.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 1797
+      },
+      {
+        "id": 117,
+        "url": "https://cdn.cxense.com/{seg}",
+        "domain": "cdn.cxense.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 1806
+      },
+      {
+        "id": 118,
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.doubleclick.net",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 1816
+      },
+      {
+        "id": 119,
+        "url": "https://cdn.speedcurve.com/{seg}/{seg}?id=",
+        "domain": "cdn.speedcurve.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 1817
+      },
+      {
+        "id": 120,
+        "url": "https://{label}.dv.tech/?%5Bredacted%5D=&cid=&t=&v=",
+        "domain": "{label}.dv.tech",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 1879
+      },
+      {
+        "id": 121,
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 1880
+      },
+      {
+        "id": 122,
+        "url": "https://{label}.{label}.googlesyndication.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.googlesyndication.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googlesyndication.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": false,
+        "startedAtMs": 1882
+      },
+      {
+        "id": 123,
+        "url": "https://{label}.piano.io/checkout/{seg}/{seg}?%5Bredacted%5D=&width=",
+        "domain": "{label}.piano.io",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1902
+      },
+      {
+        "id": 124,
+        "url": "https://{label}.cxense.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&callback=",
+        "domain": "{label}.cxense.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 1906
+      },
+      {
+        "id": 125,
+        "url": "https://{label}.cxense.com/{seg}/{seg}?ver=&%5Bredacted%5D=&source=&ref=&dpr=",
+        "domain": "{label}.cxense.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 1906
+      },
+      {
+        "id": 126,
+        "url": "https://{label}.api.bbc.com/{seg}",
+        "domain": "{label}.api.bbc.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 1915
+      },
+      {
+        "id": 127,
+        "url": "https://{label}.dotmetrics.net/{seg}?%5Bredacted%5D=&v=",
+        "domain": "{label}.dotmetrics.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 1928
+      },
+      {
+        "id": 128,
+        "url": "https://{label}.optimizely.com/{seg}/{seg}",
+        "domain": "{label}.optimizely.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "optimizely.com",
+          "entity": "Optimizely",
+          "category": "experimentation",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 2040
+      },
+      {
+        "id": 129,
+        "url": "https://{label}.piano.io/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.piano.io",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2126
+      },
+      {
+        "id": 130,
+        "url": "https://{label}.piano.io/{seg}/{seg}/checkout/{seg}/{seg}",
+        "domain": "{label}.piano.io",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2127
+      },
+      {
+        "id": 131,
+        "url": "https://{label}.piano.io/checkout/{seg}/{seg}?%5Bredacted%5D=&version=",
+        "domain": "{label}.piano.io",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2127
+      },
+      {
+        "id": 132,
+        "url": "https://{label}.piano.io/{seg}/{seg}/{seg}/{seg}?version=",
+        "domain": "{label}.piano.io",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2128
+      },
+      {
+        "id": 133,
+        "url": "https://{label}.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.cloudflare.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2128
+      },
+      {
+        "id": 134,
+        "url": "https://{label}.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.cloudflare.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2130
+      },
+      {
+        "id": 135,
+        "url": "https://{label}.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.cloudflare.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2130
+      },
+      {
+        "id": 136,
+        "url": "https://{label}.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.cloudflare.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2130
+      },
+      {
+        "id": 137,
+        "url": "https://{label}.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.cloudflare.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2130
+      },
+      {
+        "id": 138,
+        "url": "https://{label}.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.cloudflare.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2130
+      },
+      {
+        "id": 139,
+        "url": "https://{label}.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.cloudflare.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2130
+      },
+      {
+        "id": 140,
+        "url": "https://{label}.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.cloudflare.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2131
+      },
+      {
+        "id": 141,
+        "url": "https://{label}.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.cloudflare.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2131
+      },
+      {
+        "id": 142,
+        "url": "https://{label}.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.cloudflare.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2131
+      },
+      {
+        "id": 143,
+        "url": "https://{label}.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.cloudflare.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2131
+      },
+      {
+        "id": 144,
+        "url": "https://{label}.piano.io/{seg}/{seg}?%5Bredacted%5D=&v=",
+        "domain": "{label}.piano.io",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2133
+      },
+      {
+        "id": 145,
+        "url": "https://cdn.undertone.com/{seg}/{seg}",
+        "domain": "cdn.undertone.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 2272
+      },
+      {
+        "id": 146,
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 2273
+      },
+      {
+        "id": 147,
+        "url": "https://cdn.doubleverify.com/{seg}",
+        "domain": "cdn.doubleverify.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 2277
+      },
+      {
+        "id": 148,
+        "url": "https://{label}.doubleverify.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.doubleverify.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 2290
+      },
+      {
+        "id": 149,
+        "url": "https://{label}.webcontentassessor.com/{seg}/{seg}",
+        "domain": "{label}.webcontentassessor.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 2388
+      },
+      {
+        "id": 150,
+        "url": "https://{label}.googlesyndication.com/{seg}/{n}",
+        "domain": "{label}.googlesyndication.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googlesyndication.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 2389
+      },
+      {
+        "id": 151,
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.googlesyndication.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googlesyndication.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 2390
+      },
+      {
+        "id": 152,
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.googlesyndication.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googlesyndication.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 2390
+      },
+      {
+        "id": 153,
+        "url": "https://{label}.cxense.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&t=",
+        "domain": "{label}.cxense.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 2390
+      },
+      {
+        "id": 154,
+        "url": "https://cdn.doubleverify.com/{seg}",
+        "domain": "cdn.doubleverify.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 2397
+      },
+      {
+        "id": 155,
+        "url": "https://ads.undertone.com/{seg}?%5Bredacted%5D=&cb=&t=",
+        "domain": "ads.undertone.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 2424
+      },
+      {
+        "id": 156,
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 2567
+      },
+      {
+        "id": 157,
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 2568
+      },
+      {
+        "id": 158,
+        "url": "https://cdn.doubleverify.com/{seg}",
+        "domain": "cdn.doubleverify.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 2611
+      },
+      {
+        "id": 159,
+        "url": "https://cdn.doubleverify.com/{seg}",
+        "domain": "cdn.doubleverify.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 2623
+      },
+      {
+        "id": 160,
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}?id=&type=",
+        "domain": "{label}.googlesyndication.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googlesyndication.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 2683
+      },
+      {
+        "id": 161,
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}?id=&type=&%5Bredacted%5D=",
+        "domain": "{label}.googlesyndication.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googlesyndication.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 2684
+      },
+      {
+        "id": 162,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2696
+      },
+      {
+        "id": 163,
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}?id=&type=&%5Bredacted%5D=",
+        "domain": "{label}.googlesyndication.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googlesyndication.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 2700
+      },
+      {
+        "id": 164,
+        "url": "https://{label}.api.bbc.com/{seg}",
+        "domain": "{label}.api.bbc.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 2703
+      },
+      {
+        "id": 165,
+        "url": "https://{label}.adtrafficquality.google/{seg}/{seg}?%5Bredacted%5D=&tid=",
+        "domain": "{label}.adtrafficquality.google",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 2759
+      },
+      {
+        "id": 166,
+        "url": "https://{label}.doubleverify.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.doubleverify.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 2812
+      },
+      {
+        "id": 167,
+        "url": "https://{label}.doubleverify.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.doubleverify.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 2826
+      },
+      {
+        "id": 168,
+        "url": "https://{label}.api.bbc.com/{seg}",
+        "domain": "{label}.api.bbc.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 2828
+      },
+      {
+        "id": 169,
+        "url": "https://edigitalsurvey.com/{seg}?id=&v=&%5Bredacted%5D=",
+        "domain": "edigitalsurvey.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 2841
+      },
+      {
+        "id": 170,
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.googlesyndication.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googlesyndication.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 2843
+      },
+      {
+        "id": 171,
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 2862
+      },
+      {
+        "id": 172,
+        "url": "https://{label}.adtrafficquality.google/{seg}/{seg}",
+        "domain": "{label}.adtrafficquality.google",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 2864
+      },
+      {
+        "id": 173,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2925
+      },
+      {
+        "id": 174,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2926
+      },
+      {
+        "id": 175,
+        "url": "https://{label}.piano.io/checkout/{seg}/{seg}",
+        "domain": "{label}.piano.io",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2933
+      },
+      {
+        "id": 176,
+        "url": "https://{label}.piano.io/checkout/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.piano.io",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2934
+      },
+      {
+        "id": 177,
+        "url": "https://{label}.piano.io/{seg}/{seg}/checkout/{seg}/{seg}/{seg}",
+        "domain": "{label}.piano.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2934
+      },
+      {
+        "id": 178,
+        "url": "https://{label}.piano.io/api/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.piano.io",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2943
+      },
+      {
+        "id": 179,
+        "url": "https://{label}.webcontentassessor.com/{seg}/{seg}",
+        "domain": "{label}.webcontentassessor.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 2987
+      },
+      {
+        "id": 180,
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.googlesyndication.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googlesyndication.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 2988
+      },
+      {
+        "id": 181,
+        "url": "https://{label}.cxense.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&t=",
+        "domain": "{label}.cxense.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 2989
+      },
+      {
+        "id": 182,
+        "url": "https://cdn.doubleverify.com/{seg}",
+        "domain": "cdn.doubleverify.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 2992
+      },
+      {
+        "id": 183,
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 3115
+      },
+      {
+        "id": 184,
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}?id=&type=",
+        "domain": "{label}.googlesyndication.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googlesyndication.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 3116
+      },
+      {
+        "id": 185,
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}?id=&type=&%5Bredacted%5D=",
+        "domain": "{label}.googlesyndication.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googlesyndication.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 3117
+      },
+      {
+        "id": 186,
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 3121
+      },
+      {
+        "id": 187,
+        "url": "https://cdn.doubleverify.com/{seg}",
+        "domain": "cdn.doubleverify.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 3133
+      },
+      {
+        "id": 188,
+        "url": "https://{label}.bbci.co.uk/news/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3145
+      },
+      {
+        "id": 189,
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}?id=&type=&%5Bredacted%5D=",
+        "domain": "{label}.googlesyndication.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googlesyndication.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 3149
+      },
+      {
+        "id": 190,
+        "url": "https://{label}.doubleverify.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.doubleverify.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 3190
+      },
+      {
+        "id": 191,
+        "url": "https://{label}.adtrafficquality.google/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.adtrafficquality.google",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 3200
+      },
+      {
+        "id": 192,
+        "url": "https://www.google.com/{seg}/{seg}/{seg}",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3201
+      },
+      {
+        "id": 193,
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}",
+        "domain": "{label}.googlesyndication.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googlesyndication.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 3221
+      },
+      {
+        "id": 194,
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}?id=&v=&%5Bredacted%5D=",
+        "domain": "{label}.googlesyndication.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googlesyndication.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 3271
+      },
+      {
+        "id": 195,
+        "url": "https://{label}.adtrafficquality.google/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.adtrafficquality.google",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 3310
+      },
+      {
+        "id": 196,
+        "url": "https://{label}.cxense.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&t=",
+        "domain": "{label}.cxense.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 3416
+      },
+      {
+        "id": 197,
+        "url": "https://{label}.api.bbc.com/{seg}",
+        "domain": "{label}.api.bbc.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 3417
+      },
+      {
+        "id": 198,
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}?%5Bredacted%5D=&id=&v=",
+        "domain": "{label}.googlesyndication.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googlesyndication.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 3698
+      },
+      {
+        "id": 199,
+        "url": "https://{label}.adtrafficquality.google/{seg}/{seg}?id=&v=&t=&%5Bredacted%5D=",
+        "domain": "{label}.adtrafficquality.google",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 3834
+      },
+      {
+        "id": 200,
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.googlesyndication.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googlesyndication.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 3847
+      },
+      {
+        "id": 201,
+        "url": "https://{label}.cxense.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&t=",
+        "domain": "{label}.cxense.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 4417
+      }
+    ],
+    "domains": [
+      {
+        "domain": "{label}.googlesyndication.com",
+        "requests": 16,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googlesyndication.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          204
+        ],
+        "resourceTypes": [
+          "fetch",
+          "image",
+          "script"
+        ]
+      },
+      {
+        "domain": "{label}.{label}.doubleclick.net",
+        "requests": 11,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "document",
+          "other",
+          "fetch",
+          "image"
+        ]
+      },
+      {
+        "domain": "cdn.optimizely.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "optimizely.com",
+          "entity": "Optimizely",
+          "category": "experimentation",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "{label}.cdn.optimizely.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "optimizely.com",
+          "entity": "Optimizely",
+          "category": "experimentation",
+          "confidence": "curated"
+        },
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document"
+        ]
+      },
+      {
+        "domain": "{label}.{label}.googlesyndication.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googlesyndication.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document"
+        ]
+      },
+      {
+        "domain": "{label}.optimizely.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "optimizely.com",
+          "entity": "Optimizely",
+          "category": "experimentation",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          204
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "static.files.bbci.co.uk",
+        "requests": 51,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "stylesheet",
+          "image",
+          "script",
+          "font"
+        ]
+      },
+      {
+        "domain": "{label}.bbci.co.uk",
+        "requests": 24,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "image"
+        ]
+      },
+      {
+        "domain": "{label}.piano.io",
+        "requests": 11,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr",
+          "document",
+          "stylesheet",
+          "script",
+          "image"
+        ]
+      },
+      {
+        "domain": "{label}.cloudflare.com",
+        "requests": 11,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "{label}.doubleverify.com",
+        "requests": 8,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "fetch"
+        ]
+      },
+      {
+        "domain": "cdn.privacy-mgmt.com",
+        "requests": 7,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "{label}.cxense.com",
+        "requests": 6,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "image",
+          "fetch"
+        ]
+      },
+      {
+        "domain": "cdn.doubleverify.com",
+        "requests": 6,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "{label}.dotmetrics.net",
+        "requests": 5,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "image"
+        ]
+      },
+      {
+        "domain": "{label}.adtrafficquality.google",
+        "requests": 5,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          204
+        ],
+        "resourceTypes": [
+          "xhr",
+          "script",
+          "document",
+          "image"
+        ]
+      },
+      {
+        "domain": "cdn.cxense.com",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "{label}.files.bbci.co.uk",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "{label}.webcontentassessor.com",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "static.bbci.co.uk",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "cdn.tinypass.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "www.bbc.co.uk",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "{label}.api.bbci.co.uk",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "cdn.speedcurve.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "{label}.dv.tech",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          204
+        ],
+        "resourceTypes": [
+          "ping"
+        ]
+      },
+      {
+        "domain": "cdn.undertone.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "ads.undertone.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          204
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "edigitalsurvey.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document"
+        ]
+      },
+      {
+        "domain": "www.google.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document"
+        ]
+      },
+      {
+        "domain": "{label}.api.bbc.com",
+        "requests": 15,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          204
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "www.bbc.com",
+        "requests": 1,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "[redacted]",
+        "domain": ".cxense.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".dotmetrics.net",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".dotmetrics.net",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "IDE",
+        "domain": ".doubleclick.net",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "__cf_bm",
+        "domain": ".piano.io",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".piano.io",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".piano.io",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": "{label}.cdn.optimizely.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".bbc.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".bbc.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".bbc.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".bbc.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".bbc.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".bbc.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".bbc.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".bbc.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".bbc.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".bbc.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".bbc.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".bbc.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".bbc.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".bbc.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".bbc.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".bbc.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".bbc.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".bbc.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".bbc.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".bbc.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".bbc.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".bbc.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".www.bbc.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.bbc.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.bbc.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted:long-token]",
+        "domain": "www.bbc.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.bbc.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.bbc.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.bbc.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      }
+    ],
+    "storage": [
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 2
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 4
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 424
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 8
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 13
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 2
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 96
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 2
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 2
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 61
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 118
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 0
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 2
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 2
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 208
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted:long-token]",
+        "valueBytes": 4598
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 71
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 89
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 114
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 16
+      }
+    ],
+    "fingerprintEvents": [],
+    "fingerprintDetections": [
+      {
+        "kind": "input-monitoring",
+        "heuristic": "input-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "change",
+            "input",
+            "keydown",
+            "keypress",
+            "keyup",
+            "paste"
+          ],
+          "listenerTargets": [
+            "document",
+            "other",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://cdn.cxense.com/",
+            "https://cdn.doubleverify.com/",
+            "https://cdn.speedcurve.com/",
+            "https://cdn.tinypass.com/",
+            "https://{label}.{label}.doubleclick.net/",
+            "https://static.files.bbci.co.uk/"
+          ],
+          "totalListenerCalls": 98
+        }
+      },
+      {
+        "kind": "session-recording",
+        "heuristic": "interaction-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "click",
+            "input",
+            "keydown",
+            "keyup",
+            "mousedown",
+            "mousemove",
+            "mouseup",
+            "pointerdown",
+            "pointermove",
+            "pointerup",
+            "scroll",
+            "selectionchange",
+            "touchmove",
+            "touchstart",
+            "visibilitychange",
+            "wheel"
+          ],
+          "listenerTargets": [
+            "document",
+            "other",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://cdn.cxense.com/",
+            "https://cdn.doubleverify.com/",
+            "https://cdn.speedcurve.com/",
+            "https://cdn.tinypass.com/",
+            "https://{label}.doubleverify.com/",
+            "https://{label}.{label}.doubleclick.net/",
+            "https://static.files.bbci.co.uk/",
+            "https://{label}.dotmetrics.net/"
+          ],
+          "totalListenerCalls": 289
+        }
+      }
+    ],
+    "cnameCloaks": [
+      {
+        "host": "{label}.api.bbc.com",
+        "cname": "{label}.at-o.net",
+        "tracker": {
+          "domain": "at-o.net",
+          "entity": "at-o.net",
+          "category": "tracking (Brave Shields list)",
+          "confidence": "shields-list"
+        }
+      }
+    ],
+    "privacyPolicy": {
+      "url": "https://www.bbc.com/{seg}/privacy-policy",
+      "claims": [
+        {
+          "kind": "no-selling-or-sharing",
+          "quote": "We do not knowingly “sell” or “share” the personal information of minors under 16 years of age."
+        }
+      ],
+      "mentionedEntities": [
+        "Google"
+      ],
+      "unmentionedEntities": [
+        "Optimizely"
+      ],
+      "policyTextLength": 51419
+    },
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+      "Resolved 1 first-party subdomain that is a CNAME alias for a third-party tracker (CNAME cloaking), which request-URL matching alone would miss.",
+      "Read the site's privacy policy (https://www.bbc.com/{seg}/privacy-policy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ]
+  },
+  "variant": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "BBC Home - Breaking News, World News, US News, Sports, Business, Innovation, Climate, Culture, Travel, Video & Audio",
+      "status": 200,
+      "durationMs": 4117,
+      "firstPartyDomain": "www.bbc.com",
+      "totalRequests": 86,
+      "thirdPartyRequests": 80,
+      "knownTrackerRequests": 1,
+      "thirdPartyDomains": 9,
+      "cookies": 8,
+      "thirdPartyCookies": 0,
+      "storageEntries": 1,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 21
+    },
+    "conditions": {
+      "requestedUrl": "https://www.bbc.com/",
+      "finalUrl": "https://www.bbc.com/",
+      "scannedAt": "2026-07-21T21:12:51.363Z",
+      "chromiumVersion": "149.0.7827.55",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": true,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "block-simulation",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-13T09:47:59.645Z"
+      },
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.06",
+        "region": "US-biased",
+        "entries": 133,
+        "curatedOverrides": 133,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan using Playwright 1.61.1 from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Brave-list matching uses each route-evaluated request's initiating document (the parent document for a subframe navigation), under methodology shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.61.1; main-frame navigations are not blocked or counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.bbc.com/",
+        "domain": "www.bbc.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 45
+      },
+      {
+        "id": 2,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}/static/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 145
+      },
+      {
+        "id": 3,
+        "url": "https://static.bbci.co.uk/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 145
+      },
+      {
+        "id": 4,
+        "url": "https://{label}.api.bbc.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.api.bbc.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 145
+      },
+      {
+        "id": 5,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 147
+      },
+      {
+        "id": 7,
+        "url": "https://cdn.tinypass.com/api/{seg}",
+        "domain": "cdn.tinypass.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 153
+      },
+      {
+        "id": 8,
+        "url": "https://{label}.bbci.co.uk/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 153
+      },
+      {
+        "id": 9,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}/static/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 159
+      },
+      {
+        "id": 10,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}/static/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 160
+      },
+      {
+        "id": 11,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}/static/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 160
+      },
+      {
+        "id": 12,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}/static/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 160
+      },
+      {
+        "id": 13,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}/static/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 161
+      },
+      {
+        "id": 14,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}/static/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 161
+      },
+      {
+        "id": 15,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}/static/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 164
+      },
+      {
+        "id": 16,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}/static/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 164
+      },
+      {
+        "id": 17,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}/static/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 164
+      },
+      {
+        "id": 18,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}/static/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 164
+      },
+      {
+        "id": 19,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}/static/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 164
+      },
+      {
+        "id": 20,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}/static/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 165
+      },
+      {
+        "id": 21,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}/static/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 165
+      },
+      {
+        "id": 22,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}/static/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 165
+      },
+      {
+        "id": 23,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}/static/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 165
+      },
+      {
+        "id": 24,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}/static/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 165
+      },
+      {
+        "id": 25,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}/static/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 166
+      },
+      {
+        "id": 26,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}/static/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 166
+      },
+      {
+        "id": 27,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}/static/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 166
+      },
+      {
+        "id": 28,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}/static/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 166
+      },
+      {
+        "id": 29,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}/static/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 166
+      },
+      {
+        "id": 30,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}/static/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 167
+      },
+      {
+        "id": 31,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}/static/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 167
+      },
+      {
+        "id": 32,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}/static/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 170
+      },
+      {
+        "id": 33,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}/static/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 171
+      },
+      {
+        "id": 34,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}/static/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 171
+      },
+      {
+        "id": 35,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}/static/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 171
+      },
+      {
+        "id": 36,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}/static/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 171
+      },
+      {
+        "id": 37,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}/static/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 172
+      },
+      {
+        "id": 38,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}/static/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 172
+      },
+      {
+        "id": 39,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}/static/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 172
+      },
+      {
+        "id": 40,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}/static/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 173
+      },
+      {
+        "id": 41,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}/static/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 173
+      },
+      {
+        "id": 42,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}/static/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 173
+      },
+      {
+        "id": 43,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}/static/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 173
+      },
+      {
+        "id": 44,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}/static/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 174
+      },
+      {
+        "id": 45,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}/static/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 174
+      },
+      {
+        "id": 46,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 497
+      },
+      {
+        "id": 47,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 497
+      },
+      {
+        "id": 48,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 505
+      },
+      {
+        "id": 49,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 507
+      },
+      {
+        "id": 50,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 508
+      },
+      {
+        "id": 51,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 508
+      },
+      {
+        "id": 52,
+        "url": "https://{label}.bbci.co.uk/news/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 509
+      },
+      {
+        "id": 53,
+        "url": "https://{label}.bbci.co.uk/{seg}/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 509
+      },
+      {
+        "id": 54,
+        "url": "https://{label}.bbci.co.uk/news/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 509
+      },
+      {
+        "id": 55,
+        "url": "https://{label}.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 509
+      },
+      {
+        "id": 56,
+        "url": "https://{label}.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 509
+      },
+      {
+        "id": 57,
+        "url": "https://{label}.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 509
+      },
+      {
+        "id": 58,
+        "url": "https://{label}.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 509
+      },
+      {
+        "id": 59,
+        "url": "https://{label}.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 509
+      },
+      {
+        "id": 60,
+        "url": "https://{label}.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 510
+      },
+      {
+        "id": 61,
+        "url": "https://{label}.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 510
+      },
+      {
+        "id": 62,
+        "url": "https://{label}.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 510
+      },
+      {
+        "id": 63,
+        "url": "https://{label}.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 510
+      },
+      {
+        "id": 64,
+        "url": "https://{label}.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 511
+      },
+      {
+        "id": 65,
+        "url": "https://{label}.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 511
+      },
+      {
+        "id": 66,
+        "url": "https://{label}.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 511
+      },
+      {
+        "id": 67,
+        "url": "https://{label}.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 511
+      },
+      {
+        "id": 68,
+        "url": "https://{label}.bbci.co.uk/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 511
+      },
+      {
+        "id": 69,
+        "url": "https://{label}.bbci.co.uk/news/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 512
+      },
+      {
+        "id": 70,
+        "url": "https://{label}.bbci.co.uk/news/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 512
+      },
+      {
+        "id": 71,
+        "url": "https://{label}.bbci.co.uk/news/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 512
+      },
+      {
+        "id": 72,
+        "url": "https://{label}.bbci.co.uk/news/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 517
+      },
+      {
+        "id": 73,
+        "url": "https://{label}.bbci.co.uk/news/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 517
+      },
+      {
+        "id": 74,
+        "url": "https://www.bbc.co.uk/{seg}",
+        "domain": "www.bbc.co.uk",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 744
+      },
+      {
+        "id": 75,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}/static/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 889
+      },
+      {
+        "id": 76,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}/static/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 891
+      },
+      {
+        "id": 77,
+        "url": "https://static.files.bbci.co.uk/{seg}/{seg}/{seg}/{seg}/static/{seg}",
+        "domain": "static.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 891
+      },
+      {
+        "id": 78,
+        "url": "https://{label}.api.bbci.co.uk/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.api.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 891
+      },
+      {
+        "id": 79,
+        "url": "https://cdn.optimizely.com/{seg}/{seg}",
+        "domain": "cdn.optimizely.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "optimizely.com",
+          "entity": "Optimizely",
+          "category": "experimentation",
+          "confidence": "curated"
+        },
+        "blockedByShields": false,
+        "startedAtMs": 1012
+      },
+      {
+        "id": 85,
+        "url": "https://{label}.files.bbci.co.uk/{seg}/{seg}",
+        "domain": "{label}.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1343
+      },
+      {
+        "id": 87,
+        "url": "https://{label}.api.bbc.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.api.bbc.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1363
+      },
+      {
+        "id": 88,
+        "url": "https://{label}.doubleverify.com/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.doubleverify.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1363
+      },
+      {
+        "id": 89,
+        "url": "https://{label}.api.bbc.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.api.bbc.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1364
+      },
+      {
+        "id": 90,
+        "url": "https://{label}.api.bbc.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.api.bbc.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1389
+      },
+      {
+        "id": 91,
+        "url": "https://{label}.api.bbc.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.api.bbc.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1406
+      },
+      {
+        "id": 94,
+        "url": "https://{label}.files.bbci.co.uk/{seg}/{seg}",
+        "domain": "{label}.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1517
+      },
+      {
+        "id": 95,
+        "url": "https://{label}.files.bbci.co.uk/{seg}/{seg}",
+        "domain": "{label}.files.bbci.co.uk",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1518
+      }
+    ],
+    "domains": [
+      {
+        "domain": "cdn.optimizely.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "optimizely.com",
+          "entity": "Optimizely",
+          "category": "experimentation",
+          "confidence": "curated"
+        },
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "static.files.bbci.co.uk",
+        "requests": 48,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "stylesheet",
+          "image",
+          "script",
+          "font"
+        ]
+      },
+      {
+        "domain": "{label}.bbci.co.uk",
+        "requests": 23,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "image"
+        ]
+      },
+      {
+        "domain": "{label}.files.bbci.co.uk",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "static.bbci.co.uk",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "cdn.tinypass.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "www.bbc.co.uk",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "{label}.api.bbci.co.uk",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "{label}.doubleverify.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "{label}.api.bbc.com",
+        "requests": 5,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "www.bbc.com",
+        "requests": 1,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "[redacted]",
+        "domain": ".bbc.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".bbc.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".bbc.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".bbc.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".bbc.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".bbc.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".bbc.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".www.bbc.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      }
+    ],
+    "storage": [
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 4
+      }
+    ],
+    "fingerprintEvents": [],
+    "fingerprintDetections": [
+      {
+        "kind": "input-monitoring",
+        "heuristic": "input-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "change",
+            "input",
+            "keydown",
+            "keypress",
+            "keyup",
+            "paste"
+          ],
+          "listenerTargets": [
+            "document",
+            "other",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://static.files.bbci.co.uk/"
+          ],
+          "totalListenerCalls": 82
+        }
+      },
+      {
+        "kind": "session-recording",
+        "heuristic": "interaction-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "click",
+            "input",
+            "keydown",
+            "keyup",
+            "mousedown",
+            "mousemove",
+            "mouseup",
+            "pointerdown",
+            "pointermove",
+            "pointerup",
+            "scroll",
+            "selectionchange",
+            "touchmove",
+            "touchstart",
+            "visibilitychange",
+            "wheel"
+          ],
+          "listenerTargets": [
+            "document",
+            "other",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://cdn.tinypass.com/",
+            "https://{label}.doubleverify.com/",
+            "https://static.files.bbci.co.uk/"
+          ],
+          "totalListenerCalls": 214
+        }
+      }
+    ],
+    "privacyPolicy": {
+      "url": "https://www.bbc.com/{seg}/privacy-policy",
+      "claims": [
+        {
+          "kind": "no-selling-or-sharing",
+          "quote": "We do not knowingly “sell” or “share” the personal information of minors under 16 years of age."
+        }
+      ],
+      "mentionedEntities": [],
+      "unmentionedEntities": [
+        "Optimizely"
+      ],
+      "policyTextLength": 51419
+    },
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+      "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+      "Read the site's privacy policy (https://www.bbc.com/{seg}/privacy-policy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ]
+  },
+  "diff": {
+    "totalRequests": {
+      "before": 201,
+      "after": 86,
+      "delta": -115
+    },
+    "thirdPartyRequests": {
+      "before": 185,
+      "after": 80,
+      "delta": -105
+    },
+    "knownTrackerRequests": {
+      "before": 32,
+      "after": 1,
+      "delta": -31
+    },
+    "thirdPartyDomains": {
+      "before": 29,
+      "after": 9,
+      "delta": -20
+    },
+    "cookies": {
+      "before": 37,
+      "after": 8,
+      "delta": -29
+    },
+    "thirdPartyCookies": {
+      "before": 8,
+      "after": 0,
+      "delta": -8
+    },
+    "storageEntries": {
+      "before": 20,
+      "after": 1,
+      "delta": -19
+    },
+    "fingerprintEvents": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "addedDomains": [],
+    "removedDomains": [
+      {
+        "domain": "{label}.googlesyndication.com",
+        "requests": 16,
+        "tracker": {
+          "domain": "googlesyndication.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "{label}.{label}.doubleclick.net",
+        "requests": 11,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "{label}.cloudflare.com",
+        "requests": 11,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.piano.io",
+        "requests": 11,
+        "tracker": null
+      },
+      {
+        "domain": "cdn.privacy-mgmt.com",
+        "requests": 7,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.cxense.com",
+        "requests": 6,
+        "tracker": null
+      },
+      {
+        "domain": "cdn.doubleverify.com",
+        "requests": 6,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.adtrafficquality.google",
+        "requests": 5,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.dotmetrics.net",
+        "requests": 5,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.webcontentassessor.com",
+        "requests": 3,
+        "tracker": null
+      },
+      {
+        "domain": "cdn.cxense.com",
+        "requests": 3,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.{label}.googlesyndication.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "googlesyndication.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "{label}.cdn.optimizely.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "optimizely.com",
+          "entity": "Optimizely",
+          "category": "experimentation",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "{label}.dv.tech",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.optimizely.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "optimizely.com",
+          "entity": "Optimizely",
+          "category": "experimentation",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "ads.undertone.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "cdn.speedcurve.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "cdn.undertone.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "edigitalsurvey.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "www.google.com",
+        "requests": 1,
+        "tracker": null
+      }
+    ],
+    "addedEntities": [],
+    "removedEntities": [
+      {
+        "entity": "Google",
+        "requests": 28,
+        "domains": 3
+      }
+    ],
+    "addedCookies": [],
+    "removedCookies": [
+      {
+        "name": "[redacted]",
+        "domain": ".cxense.com",
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".dotmetrics.net",
+        "thirdParty": true
+      },
+      {
+        "name": "IDE",
+        "domain": ".doubleclick.net",
+        "thirdParty": true
+      },
+      {
+        "name": "__cf_bm",
+        "domain": ".piano.io",
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".piano.io",
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": "{label}.cdn.optimizely.com",
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted:long-token]",
+        "domain": "www.bbc.com",
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.bbc.com",
+        "thirdParty": false
+      }
+    ],
+    "addedStorageKeys": [],
+    "removedStorageKeys": [
+      {
+        "area": "localStorage",
+        "key": "[redacted:long-token]"
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]"
+      }
+    ],
+    "addedFingerprinting": [],
+    "removedFingerprinting": [],
+    "addedProvenance": [],
+    "removedProvenance": [],
+    "shieldsBlockedRequests": {
+      "before": 81,
+      "after": 21,
+      "delta": -60
+    }
+  },
+  "warnings": [
+    "Brave-list blocking comparison runs should be collected under matched crawl conditions, and the blocking run is a simulation with Brave's engine and default lists in this scanner's browser, not a live Brave visit. Differences can still reflect timing, experiments, cache state, consent state, or bot detection.",
+    "The two visits ran in randomized order; the \"Brave-list blocking\" visit ran first.",
+    "No blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "No blocking: Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+    "No blocking: Resolved 1 first-party subdomain that is a CNAME alias for a third-party tracker (CNAME cloaking), which request-URL matching alone would miss.",
+    "No blocking: Read the site's privacy policy (https://www.bbc.com/{seg}/privacy-policy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
+    "Brave-list blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Brave-list blocking: Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+    "Brave-list blocking: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+    "Brave-list blocking: Read the site's privacy policy (https://www.bbc.com/{seg}/privacy-policy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+  ],
+  "share": {
+    "id": "20260721-94f3ca4b929cb83b154e534990db42a0",
+    "path": "/reports/20260721-94f3ca4b929cb83b154e534990db42a0/",
+    "jsonPath": "/reports/20260721-94f3ca4b929cb83b154e534990db42a0.json"
+  }
+}

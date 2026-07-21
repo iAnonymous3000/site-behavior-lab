@@ -1,0 +1,6050 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "reportType": "comparison",
+  "comparisonType": "shields",
+  "title": "Brave-list blocking off/on comparison",
+  "runLabels": {
+    "baseline": "No blocking",
+    "variant": "Brave-list blocking"
+  },
+  "requestedUrl": "https://www.walgreens.com/",
+  "scannedAt": "2026-07-21T20:48:51.695Z",
+  "device": "desktop",
+  "baseline": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "Walgreens: Pharmacy, Health & Wellness, Photo & More for You",
+      "status": 200,
+      "durationMs": 9817,
+      "firstPartyDomain": "www.walgreens.com",
+      "totalRequests": 206,
+      "thirdPartyRequests": 98,
+      "knownTrackerRequests": 41,
+      "thirdPartyDomains": 21,
+      "cookies": 36,
+      "thirdPartyCookies": 3,
+      "storageEntries": 18,
+      "fingerprintEvents": 1,
+      "shieldsBlockedRequests": 45
+    },
+    "conditions": {
+      "requestedUrl": "https://www.walgreens.com/",
+      "finalUrl": "https://www.walgreens.com/",
+      "scannedAt": "2026-07-21T20:48:59.153Z",
+      "chromiumVersion": "149.0.7827.55",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": true,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "classification",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-13T09:47:59.645Z"
+      },
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.06",
+        "region": "US-biased",
+        "entries": 133,
+        "curatedOverrides": 133,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan using Playwright 1.61.1 from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Brave-list matching uses each route-evaluated request's initiating document (the parent document for a subframe navigation), under methodology shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.61.1; main-frame navigations are not blocked or counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.walgreens.com/",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 47
+      },
+      {
+        "id": 2,
+        "url": "https://rum.hlx.page/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "rum.hlx.page",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 200
+      },
+      {
+        "id": 3,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 201
+      },
+      {
+        "id": 4,
+        "url": "https://fonts.googleapis.com/{seg}?%5Bredacted%5D=",
+        "domain": "fonts.googleapis.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 201
+      },
+      {
+        "id": 5,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 201
+      },
+      {
+        "id": 6,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 202
+      },
+      {
+        "id": 7,
+        "url": "https://{label}.{label}.dynatrace.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.dynatrace.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 215
+      },
+      {
+        "id": 8,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/us/en",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 240
+      },
+      {
+        "id": 9,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/us/en",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 254
+      },
+      {
+        "id": 10,
+        "url": "https://fonts.googleapis.com/{seg}?%5Bredacted%5D=",
+        "domain": "fonts.googleapis.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 298
+      },
+      {
+        "id": 11,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/us/en",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 299
+      },
+      {
+        "id": 12,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/us/en",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 353
+      },
+      {
+        "id": 13,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 354
+      },
+      {
+        "id": 14,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 354
+      },
+      {
+        "id": 15,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 355
+      },
+      {
+        "id": 16,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 356
+      },
+      {
+        "id": 17,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 358
+      },
+      {
+        "id": 18,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 359
+      },
+      {
+        "id": 19,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/us/en",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 359
+      },
+      {
+        "id": 20,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/us/en",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 359
+      },
+      {
+        "id": 21,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/us/en",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 360
+      },
+      {
+        "id": 22,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/us/en",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 360
+      },
+      {
+        "id": 23,
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.doubleclick.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 360
+      },
+      {
+        "id": 24,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 360
+      },
+      {
+        "id": 25,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 360
+      },
+      {
+        "id": 26,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/us/en",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 361
+      },
+      {
+        "id": 27,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/us/en",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 361
+      },
+      {
+        "id": 28,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/us/en",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 361
+      },
+      {
+        "id": 29,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/us/en",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 362
+      },
+      {
+        "id": 30,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/us/en",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 362
+      },
+      {
+        "id": 31,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/us/en",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 362
+      },
+      {
+        "id": 32,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/us/en",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 362
+      },
+      {
+        "id": 33,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/us/en",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 362
+      },
+      {
+        "id": 34,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/us/en",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 363
+      },
+      {
+        "id": 35,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/us/en",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 363
+      },
+      {
+        "id": 36,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/us/en",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 363
+      },
+      {
+        "id": 37,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/us/en",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 364
+      },
+      {
+        "id": 38,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/us/en",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 364
+      },
+      {
+        "id": 39,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/us/en",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 364
+      },
+      {
+        "id": 40,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/us/en",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 364
+      },
+      {
+        "id": 41,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/us/en",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 365
+      },
+      {
+        "id": 42,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/us/en",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 365
+      },
+      {
+        "id": 43,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/us/en",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 365
+      },
+      {
+        "id": 44,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/us/en",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 366
+      },
+      {
+        "id": 45,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/us/en",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 366
+      },
+      {
+        "id": 46,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/us/en",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 366
+      },
+      {
+        "id": 47,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/us/en",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 367
+      },
+      {
+        "id": 48,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/us/en",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 367
+      },
+      {
+        "id": 49,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/us/en",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 367
+      },
+      {
+        "id": 50,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/us/en",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 367
+      },
+      {
+        "id": 51,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/us/en",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 368
+      },
+      {
+        "id": 52,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/us/en",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 368
+      },
+      {
+        "id": 53,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/us/en",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 368
+      },
+      {
+        "id": 54,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/us/en",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 369
+      },
+      {
+        "id": 55,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 369
+      },
+      {
+        "id": 56,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 369
+      },
+      {
+        "id": 57,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 369
+      },
+      {
+        "id": 58,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 374
+      },
+      {
+        "id": 59,
+        "url": "https://assets.adobedtm.com/{seg}",
+        "domain": "assets.adobedtm.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adobedtm.com",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": false,
+        "startedAtMs": 374
+      },
+      {
+        "id": 60,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 374
+      },
+      {
+        "id": 61,
+        "url": "https://{label}.go-mpulse.net/{seg}/{seg}",
+        "domain": "{label}.go-mpulse.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 394
+      },
+      {
+        "id": 62,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 394
+      },
+      {
+        "id": 63,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 395
+      },
+      {
+        "id": 64,
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 425
+      },
+      {
+        "id": 65,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 465
+      },
+      {
+        "id": 66,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/us/en",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 465
+      },
+      {
+        "id": 67,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/us/en",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 466
+      },
+      {
+        "id": 68,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/us/en",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 469
+      },
+      {
+        "id": 69,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/us/en",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 473
+      },
+      {
+        "id": 70,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 693
+      },
+      {
+        "id": 71,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 694
+      },
+      {
+        "id": 72,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 694
+      },
+      {
+        "id": 73,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 400,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 694
+      },
+      {
+        "id": 74,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 695
+      },
+      {
+        "id": 75,
+        "url": "https://www.walgreens.com/{seg}/search/articles/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 695
+      },
+      {
+        "id": 76,
+        "url": "https://cdn.cookielaw.org/{seg}/{seg}",
+        "domain": "cdn.cookielaw.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 800
+      },
+      {
+        "id": 77,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 800
+      },
+      {
+        "id": 78,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 827
+      },
+      {
+        "id": 79,
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.doubleclick.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 848
+      },
+      {
+        "id": 80,
+        "url": "https://{label}.demdex.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.demdex.net",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 302,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "demdex.net",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 916
+      },
+      {
+        "id": 81,
+        "url": "https://assets.adobedtm.com/{seg}/{seg}/{seg}",
+        "domain": "assets.adobedtm.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adobedtm.com",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 916
+      },
+      {
+        "id": 82,
+        "url": "https://assets.adobedtm.com/{seg}/{seg}/{seg}",
+        "domain": "assets.adobedtm.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adobedtm.com",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 918
+      },
+      {
+        "id": 83,
+        "url": "https://assets.adobedtm.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.adobedtm.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adobedtm.com",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": false,
+        "startedAtMs": 944
+      },
+      {
+        "id": 84,
+        "url": "https://assets.adobedtm.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.adobedtm.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adobedtm.com",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": false,
+        "startedAtMs": 945
+      },
+      {
+        "id": 85,
+        "url": "https://assets.adobedtm.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.adobedtm.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adobedtm.com",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": false,
+        "startedAtMs": 946
+      },
+      {
+        "id": 86,
+        "url": "https://assets.adobedtm.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.adobedtm.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adobedtm.com",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": false,
+        "startedAtMs": 946
+      },
+      {
+        "id": 87,
+        "url": "https://assets.adobedtm.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.adobedtm.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adobedtm.com",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": false,
+        "startedAtMs": 947
+      },
+      {
+        "id": 88,
+        "url": "https://assets.adobedtm.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.adobedtm.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adobedtm.com",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": false,
+        "startedAtMs": 947
+      },
+      {
+        "id": 89,
+        "url": "https://assets.adobedtm.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.adobedtm.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adobedtm.com",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": false,
+        "startedAtMs": 947
+      },
+      {
+        "id": 90,
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1038
+      },
+      {
+        "id": 91,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1040
+      },
+      {
+        "id": 92,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1040
+      },
+      {
+        "id": 93,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1050
+      },
+      {
+        "id": 94,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1051
+      },
+      {
+        "id": 95,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1053
+      },
+      {
+        "id": 96,
+        "url": "https://cdn.cpnscdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{n}",
+        "domain": "cdn.cpnscdn.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1053
+      },
+      {
+        "id": 97,
+        "url": "https://cdn.cpnscdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{n}",
+        "domain": "cdn.cpnscdn.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1053
+      },
+      {
+        "id": 98,
+        "url": "https://cdn.cpnscdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{n}",
+        "domain": "cdn.cpnscdn.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1053
+      },
+      {
+        "id": 99,
+        "url": "https://{label}.przone.net/{seg}/{seg}",
+        "domain": "{label}.przone.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1054
+      },
+      {
+        "id": 100,
+        "url": "https://cdn.cpnscdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{n}",
+        "domain": "cdn.cpnscdn.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1054
+      },
+      {
+        "id": 101,
+        "url": "https://cdn.cpnscdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{n}",
+        "domain": "cdn.cpnscdn.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1054
+      },
+      {
+        "id": 102,
+        "url": "https://cdn.cpnscdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{n}",
+        "domain": "cdn.cpnscdn.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1054
+      },
+      {
+        "id": 103,
+        "url": "https://cdn.cpnscdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{n}",
+        "domain": "cdn.cpnscdn.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1054
+      },
+      {
+        "id": 104,
+        "url": "https://{label}.demdex.net/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.demdex.net",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "demdex.net",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1056
+      },
+      {
+        "id": 105,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1081
+      },
+      {
+        "id": 106,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1086
+      },
+      {
+        "id": 107,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1092
+      },
+      {
+        "id": 108,
+        "url": "https://{label}.przone.net/{seg}/{seg}?v=",
+        "domain": "{label}.przone.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1108
+      },
+      {
+        "id": 109,
+        "url": "https://{label}.przone.net/{seg}/{seg}?v=",
+        "domain": "{label}.przone.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1109
+      },
+      {
+        "id": 110,
+        "url": "https://{label}.przone.net/{seg}/{seg}?v=",
+        "domain": "{label}.przone.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1109
+      },
+      {
+        "id": 111,
+        "url": "https://{label}.przone.net/{seg}/{seg}?v=",
+        "domain": "{label}.przone.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1110
+      },
+      {
+        "id": 112,
+        "url": "https://{label}.przone.net/{seg}/{seg}?v=",
+        "domain": "{label}.przone.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1110
+      },
+      {
+        "id": 113,
+        "url": "https://{label}.przone.net/{seg}/{seg}?v=",
+        "domain": "{label}.przone.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1110
+      },
+      {
+        "id": 114,
+        "url": "https://{label}.przone.net/{seg}/{seg}?v=",
+        "domain": "{label}.przone.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1111
+      },
+      {
+        "id": 115,
+        "url": "https://{label}.przone.net/{seg}/{seg}",
+        "domain": "{label}.przone.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1111
+      },
+      {
+        "id": 116,
+        "url": "https://{label}.przone.net/{seg}/{seg}",
+        "domain": "{label}.przone.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1111
+      },
+      {
+        "id": 117,
+        "url": "https://{label}.przone.net/{seg}/{seg}?v=",
+        "domain": "{label}.przone.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1112
+      },
+      {
+        "id": 118,
+        "url": "https://{label}.przone.net/{seg}/{seg}?v=",
+        "domain": "{label}.przone.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1112
+      },
+      {
+        "id": 119,
+        "url": "https://{label}.demdex.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.demdex.net",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "demdex.net",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": false,
+        "startedAtMs": 1121
+      },
+      {
+        "id": 120,
+        "url": "https://{label}.everesttech.net/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.everesttech.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 302,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 1125
+      },
+      {
+        "id": 121,
+        "url": "https://{label}.walgreens.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.walgreens.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 1125
+      },
+      {
+        "id": 122,
+        "url": "https://cdn.cookielaw.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.cookielaw.org",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1160
+      },
+      {
+        "id": 123,
+        "url": "https://{label}.demdex.net/{seg}",
+        "domain": "{label}.demdex.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "demdex.net",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1237
+      },
+      {
+        "id": 124,
+        "url": "https://{label}.onetrust.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.onetrust.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 1248
+      },
+      {
+        "id": 125,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1284
+      },
+      {
+        "id": 126,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1285
+      },
+      {
+        "id": 127,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1285
+      },
+      {
+        "id": 128,
+        "url": "https://cdn.cookielaw.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.cookielaw.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 1293
+      },
+      {
+        "id": 129,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1367
+      },
+      {
+        "id": 130,
+        "url": "https://fonts.googleapis.com/{seg}?%5Bredacted%5D=",
+        "domain": "fonts.googleapis.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1386
+      },
+      {
+        "id": 131,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1388
+      },
+      {
+        "id": 132,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1389
+      },
+      {
+        "id": 133,
+        "url": "https://assets.adobedtm.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.adobedtm.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adobedtm.com",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": false,
+        "startedAtMs": 1413
+      },
+      {
+        "id": 134,
+        "url": "https://assets.adobedtm.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.adobedtm.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adobedtm.com",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": false,
+        "startedAtMs": 1414
+      },
+      {
+        "id": 135,
+        "url": "https://assets.adobedtm.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.adobedtm.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adobedtm.com",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": false,
+        "startedAtMs": 1414
+      },
+      {
+        "id": 136,
+        "url": "https://cdn.cookielaw.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.cookielaw.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1436
+      },
+      {
+        "id": 137,
+        "url": "https://{label}.{label}.medallia.com/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.{label}.medallia.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1444
+      },
+      {
+        "id": 138,
+        "url": "https://assets.adobedtm.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.adobedtm.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adobedtm.com",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": false,
+        "startedAtMs": 1444
+      },
+      {
+        "id": 139,
+        "url": "https://{label}.go-mpulse.net/api/{seg}?%5Bredacted%5D=&t=&v=",
+        "domain": "{label}.go-mpulse.net",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 1448
+      },
+      {
+        "id": 140,
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.doubleclick.net",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 1448
+      },
+      {
+        "id": 141,
+        "url": "https://{label}.walgreens.com/{seg}/{seg}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.walgreens.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 1469
+      },
+      {
+        "id": 142,
+        "url": "https://cdn.cookielaw.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.cookielaw.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1503
+      },
+      {
+        "id": 143,
+        "url": "https://cdn.cookielaw.org/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.cookielaw.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1503
+      },
+      {
+        "id": 144,
+        "url": "https://cdn.cookielaw.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.cookielaw.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1504
+      },
+      {
+        "id": 145,
+        "url": "https://www.walgreens.com/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1535
+      },
+      {
+        "id": 146,
+        "url": "https://{label}.walgreens.com/{seg}/{seg}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.walgreens.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 1691
+      },
+      {
+        "id": 147,
+        "url": "https://cdn.cookielaw.org/{seg}/static/{seg}",
+        "domain": "cdn.cookielaw.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1702
+      },
+      {
+        "id": 148,
+        "url": "https://cdn.cookielaw.org/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.cookielaw.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1715
+      },
+      {
+        "id": 149,
+        "url": "https://cdn.cookielaw.org/{seg}/static/{seg}",
+        "domain": "cdn.cookielaw.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1716
+      },
+      {
+        "id": 150,
+        "url": "https://{label}.walgreens.com/{seg}/{seg}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.walgreens.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 1740
+      },
+      {
+        "id": 151,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1796
+      },
+      {
+        "id": 152,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1812
+      },
+      {
+        "id": 153,
+        "url": "https://{label}.{label}.doubleclick.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 1815
+      },
+      {
+        "id": 154,
+        "url": "https://{label}.adtrafficquality.google/{seg}/{seg}?%5Bredacted%5D=&tid=",
+        "domain": "{label}.adtrafficquality.google",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 1848
+      },
+      {
+        "id": 155,
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 1848
+      },
+      {
+        "id": 156,
+        "url": "https://{label}.{label}.googlesyndication.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.googlesyndication.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googlesyndication.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": false,
+        "startedAtMs": 1851
+      },
+      {
+        "id": 157,
+        "url": "https://assets.adobedtm.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.adobedtm.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adobedtm.com",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": false,
+        "startedAtMs": 1859
+      },
+      {
+        "id": 158,
+        "url": "https://{label}.{label}.medallia.com/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.{label}.medallia.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1860
+      },
+      {
+        "id": 159,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1905
+      },
+      {
+        "id": 160,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1906
+      },
+      {
+        "id": 161,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1907
+      },
+      {
+        "id": 162,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1907
+      },
+      {
+        "id": 163,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1908
+      },
+      {
+        "id": 164,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1908
+      },
+      {
+        "id": 165,
+        "url": "https://assets.adobedtm.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.adobedtm.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adobedtm.com",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": false,
+        "startedAtMs": 1929
+      },
+      {
+        "id": 166,
+        "url": "https://assets.adobedtm.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.adobedtm.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adobedtm.com",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": false,
+        "startedAtMs": 1930
+      },
+      {
+        "id": 167,
+        "url": "https://{label}.{label}.medallia.com/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.{label}.medallia.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1964
+      },
+      {
+        "id": 168,
+        "url": "https://{label}.adtrafficquality.google/{seg}/{seg}",
+        "domain": "{label}.adtrafficquality.google",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 1998
+      },
+      {
+        "id": 169,
+        "url": "https://{label}.{label}.medallia.com/api/{seg}/{seg}",
+        "domain": "{label}.{label}.medallia.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2024
+      },
+      {
+        "id": 170,
+        "url": "https://{label}.{label}.googlesyndication.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.googlesyndication.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googlesyndication.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": false,
+        "startedAtMs": 2058
+      },
+      {
+        "id": 171,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2075
+      },
+      {
+        "id": 172,
+        "url": "https://cdn.jsdelivr.net/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.jsdelivr.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2086
+      },
+      {
+        "id": 173,
+        "url": "https://{label}.walgreens.com/{seg}/{seg}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.walgreens.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 2086
+      },
+      {
+        "id": 174,
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.googlesyndication.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googlesyndication.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 2095
+      },
+      {
+        "id": 175,
+        "url": "https://{label}.googlesyndication.com/{seg}/{n}",
+        "domain": "{label}.googlesyndication.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googlesyndication.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 2096
+      },
+      {
+        "id": 176,
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.googlesyndication.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googlesyndication.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 2096
+      },
+      {
+        "id": 177,
+        "url": "https://{label}.adtrafficquality.google/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.adtrafficquality.google",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 2105
+      },
+      {
+        "id": 178,
+        "url": "https://www.google.com/{seg}/{seg}/{seg}",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2105
+      },
+      {
+        "id": 179,
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}",
+        "domain": "{label}.googlesyndication.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googlesyndication.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 2144
+      },
+      {
+        "id": 180,
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 2210
+      },
+      {
+        "id": 181,
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 2211
+      },
+      {
+        "id": 182,
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}?id=&type=",
+        "domain": "{label}.googlesyndication.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googlesyndication.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 2211
+      },
+      {
+        "id": 183,
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}?id=&type=&%5Bredacted%5D=",
+        "domain": "{label}.googlesyndication.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googlesyndication.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 2212
+      },
+      {
+        "id": 184,
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}?id=&type=&%5Bredacted%5D=",
+        "domain": "{label}.googlesyndication.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googlesyndication.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 2222
+      },
+      {
+        "id": 185,
+        "url": "https://cdn.doubleverify.com/{seg}",
+        "domain": "cdn.doubleverify.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 2234
+      },
+      {
+        "id": 186,
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.googlesyndication.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googlesyndication.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 2263
+      },
+      {
+        "id": 187,
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}?id=&v=&%5Bredacted%5D=",
+        "domain": "{label}.googlesyndication.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googlesyndication.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 2288
+      },
+      {
+        "id": 188,
+        "url": "https://cdn.doubleverify.com/{seg}",
+        "domain": "cdn.doubleverify.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 2334
+      },
+      {
+        "id": 189,
+        "url": "https://{label}.doubleverify.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.doubleverify.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 2401
+      },
+      {
+        "id": 190,
+        "url": "https://{label}.adtrafficquality.google/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.adtrafficquality.google",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 2418
+      },
+      {
+        "id": 191,
+        "url": "https://{label}.adtrafficquality.google/{seg}/{seg}?id=&v=&t=&%5Bredacted%5D=",
+        "domain": "{label}.adtrafficquality.google",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 2958
+      },
+      {
+        "id": 192,
+        "url": "https://www.walgreens.com/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3389
+      },
+      {
+        "id": 193,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 4362
+      },
+      {
+        "id": 194,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 4383
+      },
+      {
+        "id": 195,
+        "url": "https://www.walgreens.com/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 4667
+      },
+      {
+        "id": 196,
+        "url": "https://www.walgreens.com/{seg}/{seg}/products/search",
+        "domain": "www.walgreens.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 4765
+      },
+      {
+        "id": 197,
+        "url": "https://{label}.doubleverify.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.doubleverify.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 5563
+      },
+      {
+        "id": 198,
+        "url": "https://www.walgreens.com/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 5602
+      },
+      {
+        "id": 199,
+        "url": "https://{label}.walgreens.com/{seg}/{seg}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.walgreens.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 6040
+      },
+      {
+        "id": 200,
+        "url": "https://www.walgreens.com/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 7012
+      },
+      {
+        "id": 201,
+        "url": "https://www.walgreens.com/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 7013
+      },
+      {
+        "id": 202,
+        "url": "https://{label}.onetrust.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.onetrust.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": null,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 7014
+      },
+      {
+        "id": 203,
+        "url": "https://{label}.doubleverify.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.doubleverify.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": null,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 7014
+      },
+      {
+        "id": 204,
+        "url": "https://www.walgreens.com/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 7028
+      },
+      {
+        "id": 205,
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}?id=&type=",
+        "domain": "{label}.googlesyndication.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googlesyndication.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 7029
+      },
+      {
+        "id": 206,
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}?%5Bredacted%5D=&id=&v=",
+        "domain": "{label}.googlesyndication.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googlesyndication.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 7031
+      }
+    ],
+    "domains": [
+      {
+        "domain": "assets.adobedtm.com",
+        "requests": 17,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adobedtm.com",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "{label}.googlesyndication.com",
+        "requests": 11,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googlesyndication.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          204
+        ],
+        "resourceTypes": [
+          "script",
+          "image",
+          "fetch"
+        ]
+      },
+      {
+        "domain": "{label}.{label}.doubleclick.net",
+        "requests": 7,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "other",
+          "document",
+          "fetch"
+        ]
+      },
+      {
+        "domain": "{label}.demdex.net",
+        "requests": 4,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "demdex.net",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          302,
+          200
+        ],
+        "resourceTypes": [
+          "xhr",
+          "document",
+          "image"
+        ]
+      },
+      {
+        "domain": "{label}.{label}.googlesyndication.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googlesyndication.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document"
+        ]
+      },
+      {
+        "domain": "{label}.przone.net",
+        "requests": 12,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "cdn.cookielaw.org",
+        "requests": 10,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr",
+          "fetch",
+          "image"
+        ]
+      },
+      {
+        "domain": "cdn.cpnscdn.com",
+        "requests": 7,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "{label}.adtrafficquality.google",
+        "requests": 5,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          204
+        ],
+        "resourceTypes": [
+          "xhr",
+          "script",
+          "document",
+          "image"
+        ]
+      },
+      {
+        "domain": "{label}.{label}.medallia.com",
+        "requests": 4,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "fonts.googleapis.com",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "stylesheet"
+        ]
+      },
+      {
+        "domain": "{label}.doubleverify.com",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          204
+        ],
+        "resourceTypes": [
+          "script",
+          "ping"
+        ]
+      },
+      {
+        "domain": "{label}.go-mpulse.net",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          204
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "{label}.gstatic.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "font"
+        ]
+      },
+      {
+        "domain": "{label}.onetrust.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr",
+          "ping"
+        ]
+      },
+      {
+        "domain": "cdn.doubleverify.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "rum.hlx.page",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "{label}.{label}.dynatrace.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "{label}.everesttech.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          302
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "cdn.jsdelivr.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "www.google.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document"
+        ]
+      },
+      {
+        "domain": "www.walgreens.com",
+        "requests": 102,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200,
+          400
+        ],
+        "resourceTypes": [
+          "document",
+          "stylesheet",
+          "image",
+          "script",
+          "other",
+          "font",
+          "fetch",
+          "xhr",
+          "ping"
+        ]
+      },
+      {
+        "domain": "{label}.walgreens.com",
+        "requests": 6,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr",
+          "script",
+          "ping"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "[redacted]",
+        "domain": ".demdex.net",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "IDE",
+        "domain": ".doubleclick.net",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".{label}.demdex.net",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".walgreens.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted:long-token]",
+        "domain": ".walgreens.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".walgreens.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".walgreens.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".walgreens.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted:long-token]",
+        "domain": ".walgreens.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".walgreens.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".walgreens.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".walgreens.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "XSRF-TOKEN",
+        "domain": ".walgreens.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": true,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".walgreens.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".walgreens.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".walgreens.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".walgreens.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".walgreens.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".walgreens.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".walgreens.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "s_cc",
+        "domain": ".walgreens.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "OptanonConsent",
+        "domain": ".walgreens.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".walgreens.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".walgreens.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".walgreens.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".walgreens.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".walgreens.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".walgreens.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".walgreens.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".walgreens.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".walgreens.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.walgreens.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.walgreens.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.walgreens.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.walgreens.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.walgreens.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": true,
+        "thirdParty": false
+      }
+    ],
+    "storage": [
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 1
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 383
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 4
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 39
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 1
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 1
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 1
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted:long-token]",
+        "valueBytes": 45
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted:long-token]",
+        "valueBytes": 4
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted:long-token]",
+        "valueBytes": 34
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 26
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 202
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 27
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 13
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 4
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 0
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 1
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 1
+      }
+    ],
+    "fingerprintEvents": [
+      {
+        "api": "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
+        "count": 1
+      }
+    ],
+    "fingerprintDetections": [
+      {
+        "kind": "session-recording",
+        "heuristic": "interaction-listener-coverage-v1",
+        "count": 2,
+        "evidence": {
+          "eventTypes": [
+            "click",
+            "input",
+            "keydown",
+            "keyup",
+            "mousedown",
+            "mousemove",
+            "mouseup",
+            "pointerdown",
+            "pointermove",
+            "pointerup",
+            "scroll",
+            "selectionchange",
+            "touchmove",
+            "touchstart",
+            "visibilitychange",
+            "wheel"
+          ],
+          "listenerTargets": [
+            "body",
+            "document",
+            "documentElement",
+            "input",
+            "other",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://assets.adobedtm.com/",
+            "https://cdn.doubleverify.com/",
+            "https://{label}.{label}.dynatrace.com/",
+            "https://{label}.googlesyndication.com/",
+            "https://{label}.go-mpulse.net/"
+          ],
+          "totalListenerCalls": 480
+        }
+      },
+      {
+        "kind": "input-monitoring",
+        "heuristic": "input-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "change",
+            "input",
+            "keydown",
+            "keypress",
+            "keyup",
+            "paste"
+          ],
+          "listenerTargets": [
+            "body",
+            "document",
+            "documentElement",
+            "other"
+          ],
+          "thirdPartyOrigins": [
+            "https://{label}.{label}.dynatrace.com/",
+            "https://{label}.go-mpulse.net/"
+          ],
+          "totalListenerCalls": 280
+        }
+      }
+    ],
+    "cnameCloaks": [
+      {
+        "host": "{label}.walgreens.com",
+        "cname": "{label}.{label}.omtrdc.net",
+        "tracker": {
+          "domain": "omtrdc.net",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "host": "{label}.walgreens.com",
+        "cname": "{label}.{label}.{label}.{label}.{label}.omtrdc.net",
+        "tracker": {
+          "domain": "omtrdc.net",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        }
+      }
+    ],
+    "privacyPolicy": {
+      "url": "https://www.walgreens.com/{seg}",
+      "claims": [],
+      "mentionedEntities": [],
+      "unmentionedEntities": [
+        "Adobe",
+        "Google"
+      ],
+      "policyTextLength": 2910
+    },
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+      "This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored. Requests the page sent during and after this typing, including any unload beacons, are part of the recorded request log and counts.",
+      "Resolved 2 first-party subdomains that are CNAME aliases for third-party trackers (CNAME cloaking), which request-URL matching alone would miss.",
+      "Read the site's privacy policy (https://www.walgreens.com/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ]
+  },
+  "variant": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "Walgreens: Pharmacy, Health & Wellness, Photo & More for You",
+      "status": 200,
+      "durationMs": 7443,
+      "firstPartyDomain": "www.walgreens.com",
+      "totalRequests": 134,
+      "thirdPartyRequests": 46,
+      "knownTrackerRequests": 15,
+      "thirdPartyDomains": 8,
+      "cookies": 21,
+      "thirdPartyCookies": 0,
+      "storageEntries": 9,
+      "fingerprintEvents": 1,
+      "shieldsBlockedRequests": 12
+    },
+    "conditions": {
+      "requestedUrl": "https://www.walgreens.com/",
+      "finalUrl": "https://www.walgreens.com/",
+      "scannedAt": "2026-07-21T20:48:51.695Z",
+      "chromiumVersion": "149.0.7827.55",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": true,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "block-simulation",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-13T09:47:59.645Z"
+      },
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.06",
+        "region": "US-biased",
+        "entries": 133,
+        "curatedOverrides": 133,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan using Playwright 1.61.1 from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Brave-list matching uses each route-evaluated request's initiating document (the parent document for a subframe navigation), under methodology shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.61.1; main-frame navigations are not blocked or counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.walgreens.com/",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 50
+      },
+      {
+        "id": 3,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 110
+      },
+      {
+        "id": 4,
+        "url": "https://fonts.googleapis.com/{seg}?%5Bredacted%5D=",
+        "domain": "fonts.googleapis.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 111
+      },
+      {
+        "id": 5,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 113
+      },
+      {
+        "id": 6,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 113
+      },
+      {
+        "id": 8,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/us/en",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 131
+      },
+      {
+        "id": 9,
+        "url": "https://fonts.googleapis.com/{seg}?%5Bredacted%5D=",
+        "domain": "fonts.googleapis.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 218
+      },
+      {
+        "id": 10,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/us/en",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 219
+      },
+      {
+        "id": 11,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/us/en",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 220
+      },
+      {
+        "id": 12,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/us/en",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 239
+      },
+      {
+        "id": 13,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 254
+      },
+      {
+        "id": 14,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 275
+      },
+      {
+        "id": 15,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 275
+      },
+      {
+        "id": 16,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 276
+      },
+      {
+        "id": 17,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 276
+      },
+      {
+        "id": 18,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 276
+      },
+      {
+        "id": 19,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/us/en",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 279
+      },
+      {
+        "id": 20,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/us/en",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 283
+      },
+      {
+        "id": 21,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/us/en",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 283
+      },
+      {
+        "id": 22,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/us/en",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 284
+      },
+      {
+        "id": 24,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 284
+      },
+      {
+        "id": 25,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 285
+      },
+      {
+        "id": 26,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/us/en",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 285
+      },
+      {
+        "id": 27,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/us/en",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 285
+      },
+      {
+        "id": 28,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/us/en",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 286
+      },
+      {
+        "id": 29,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/us/en",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 286
+      },
+      {
+        "id": 30,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/us/en",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 286
+      },
+      {
+        "id": 31,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/us/en",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 286
+      },
+      {
+        "id": 32,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/us/en",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 286
+      },
+      {
+        "id": 33,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/us/en",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 287
+      },
+      {
+        "id": 34,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/us/en",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 287
+      },
+      {
+        "id": 35,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/us/en",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 287
+      },
+      {
+        "id": 36,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/us/en",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 287
+      },
+      {
+        "id": 37,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/us/en",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 287
+      },
+      {
+        "id": 38,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/us/en",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 288
+      },
+      {
+        "id": 39,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/us/en",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 288
+      },
+      {
+        "id": 40,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/us/en",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 288
+      },
+      {
+        "id": 41,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/us/en",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 288
+      },
+      {
+        "id": 42,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/us/en",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 289
+      },
+      {
+        "id": 43,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/us/en",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 289
+      },
+      {
+        "id": 44,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/us/en",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 289
+      },
+      {
+        "id": 45,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/us/en",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 290
+      },
+      {
+        "id": 46,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/us/en",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 290
+      },
+      {
+        "id": 47,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/us/en",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 290
+      },
+      {
+        "id": 48,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/us/en",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 291
+      },
+      {
+        "id": 49,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/us/en",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 291
+      },
+      {
+        "id": 50,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/us/en",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 291
+      },
+      {
+        "id": 51,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/us/en",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 291
+      },
+      {
+        "id": 52,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/us/en",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 292
+      },
+      {
+        "id": 53,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/us/en",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 292
+      },
+      {
+        "id": 54,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/us/en",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 292
+      },
+      {
+        "id": 55,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 292
+      },
+      {
+        "id": 56,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 293
+      },
+      {
+        "id": 57,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 293
+      },
+      {
+        "id": 58,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 297
+      },
+      {
+        "id": 59,
+        "url": "https://assets.adobedtm.com/{seg}",
+        "domain": "assets.adobedtm.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adobedtm.com",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": false,
+        "startedAtMs": 297
+      },
+      {
+        "id": 60,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 298
+      },
+      {
+        "id": 62,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 299
+      },
+      {
+        "id": 63,
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 312
+      },
+      {
+        "id": 64,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 317
+      },
+      {
+        "id": 65,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 365
+      },
+      {
+        "id": 66,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/us/en",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 372
+      },
+      {
+        "id": 67,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/us/en",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 374
+      },
+      {
+        "id": 68,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/us/en",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 374
+      },
+      {
+        "id": 69,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/us/en",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 375
+      },
+      {
+        "id": 71,
+        "url": "https://cdn.cookielaw.org/{seg}/{seg}",
+        "domain": "cdn.cookielaw.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 527
+      },
+      {
+        "id": 72,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 527
+      },
+      {
+        "id": 73,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 649
+      },
+      {
+        "id": 74,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 649
+      },
+      {
+        "id": 75,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 650
+      },
+      {
+        "id": 76,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 400,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 650
+      },
+      {
+        "id": 77,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 650
+      },
+      {
+        "id": 78,
+        "url": "https://www.walgreens.com/{seg}/search/articles/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 654
+      },
+      {
+        "id": 79,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 765
+      },
+      {
+        "id": 80,
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 781
+      },
+      {
+        "id": 81,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 808
+      },
+      {
+        "id": 82,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 810
+      },
+      {
+        "id": 83,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 833
+      },
+      {
+        "id": 87,
+        "url": "https://assets.adobedtm.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.adobedtm.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adobedtm.com",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": false,
+        "startedAtMs": 896
+      },
+      {
+        "id": 88,
+        "url": "https://assets.adobedtm.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.adobedtm.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adobedtm.com",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": false,
+        "startedAtMs": 897
+      },
+      {
+        "id": 89,
+        "url": "https://assets.adobedtm.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.adobedtm.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adobedtm.com",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": false,
+        "startedAtMs": 898
+      },
+      {
+        "id": 90,
+        "url": "https://assets.adobedtm.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.adobedtm.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adobedtm.com",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": false,
+        "startedAtMs": 898
+      },
+      {
+        "id": 91,
+        "url": "https://assets.adobedtm.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.adobedtm.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adobedtm.com",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": false,
+        "startedAtMs": 898
+      },
+      {
+        "id": 92,
+        "url": "https://assets.adobedtm.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.adobedtm.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adobedtm.com",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": false,
+        "startedAtMs": 899
+      },
+      {
+        "id": 93,
+        "url": "https://assets.adobedtm.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.adobedtm.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adobedtm.com",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": false,
+        "startedAtMs": 899
+      },
+      {
+        "id": 96,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 929
+      },
+      {
+        "id": 97,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 930
+      },
+      {
+        "id": 98,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 930
+      },
+      {
+        "id": 99,
+        "url": "https://cdn.cpnscdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{n}",
+        "domain": "cdn.cpnscdn.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 930
+      },
+      {
+        "id": 100,
+        "url": "https://cdn.cpnscdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{n}",
+        "domain": "cdn.cpnscdn.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 930
+      },
+      {
+        "id": 101,
+        "url": "https://cdn.cpnscdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{n}",
+        "domain": "cdn.cpnscdn.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 931
+      },
+      {
+        "id": 102,
+        "url": "https://{label}.przone.net/{seg}/{seg}",
+        "domain": "{label}.przone.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 931
+      },
+      {
+        "id": 103,
+        "url": "https://cdn.cpnscdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{n}",
+        "domain": "cdn.cpnscdn.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 932
+      },
+      {
+        "id": 104,
+        "url": "https://cdn.cpnscdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{n}",
+        "domain": "cdn.cpnscdn.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 932
+      },
+      {
+        "id": 105,
+        "url": "https://cdn.cpnscdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{n}",
+        "domain": "cdn.cpnscdn.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 932
+      },
+      {
+        "id": 106,
+        "url": "https://cdn.cpnscdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{n}",
+        "domain": "cdn.cpnscdn.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 932
+      },
+      {
+        "id": 107,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 937
+      },
+      {
+        "id": 108,
+        "url": "https://{label}.przone.net/{seg}/{seg}?v=",
+        "domain": "{label}.przone.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 959
+      },
+      {
+        "id": 109,
+        "url": "https://{label}.przone.net/{seg}/{seg}?v=",
+        "domain": "{label}.przone.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 959
+      },
+      {
+        "id": 110,
+        "url": "https://{label}.przone.net/{seg}/{seg}?v=",
+        "domain": "{label}.przone.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 959
+      },
+      {
+        "id": 111,
+        "url": "https://{label}.przone.net/{seg}/{seg}?v=",
+        "domain": "{label}.przone.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 959
+      },
+      {
+        "id": 112,
+        "url": "https://{label}.przone.net/{seg}/{seg}?v=",
+        "domain": "{label}.przone.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 959
+      },
+      {
+        "id": 113,
+        "url": "https://{label}.przone.net/{seg}/{seg}?v=",
+        "domain": "{label}.przone.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 959
+      },
+      {
+        "id": 114,
+        "url": "https://{label}.przone.net/{seg}/{seg}?v=",
+        "domain": "{label}.przone.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 960
+      },
+      {
+        "id": 115,
+        "url": "https://{label}.przone.net/{seg}/{seg}",
+        "domain": "{label}.przone.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 960
+      },
+      {
+        "id": 116,
+        "url": "https://{label}.przone.net/{seg}/{seg}",
+        "domain": "{label}.przone.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 960
+      },
+      {
+        "id": 117,
+        "url": "https://{label}.przone.net/{seg}/{seg}?v=",
+        "domain": "{label}.przone.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 961
+      },
+      {
+        "id": 118,
+        "url": "https://{label}.przone.net/{seg}/{seg}?v=",
+        "domain": "{label}.przone.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 961
+      },
+      {
+        "id": 119,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 971
+      },
+      {
+        "id": 120,
+        "url": "https://cdn.cookielaw.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.cookielaw.org",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 974
+      },
+      {
+        "id": 121,
+        "url": "https://assets.adobedtm.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.adobedtm.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adobedtm.com",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": false,
+        "startedAtMs": 993
+      },
+      {
+        "id": 122,
+        "url": "https://assets.adobedtm.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.adobedtm.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adobedtm.com",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": false,
+        "startedAtMs": 994
+      },
+      {
+        "id": 123,
+        "url": "https://assets.adobedtm.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.adobedtm.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adobedtm.com",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": false,
+        "startedAtMs": 994
+      },
+      {
+        "id": 125,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1017
+      },
+      {
+        "id": 127,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1127
+      },
+      {
+        "id": 128,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1129
+      },
+      {
+        "id": 129,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1130
+      },
+      {
+        "id": 130,
+        "url": "https://{label}.{label}.medallia.com/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.{label}.medallia.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1134
+      },
+      {
+        "id": 131,
+        "url": "https://assets.adobedtm.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.adobedtm.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adobedtm.com",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": false,
+        "startedAtMs": 1134
+      },
+      {
+        "id": 132,
+        "url": "https://fonts.googleapis.com/{seg}?%5Bredacted%5D=",
+        "domain": "fonts.googleapis.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1150
+      },
+      {
+        "id": 133,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1487
+      },
+      {
+        "id": 134,
+        "url": "https://assets.adobedtm.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.adobedtm.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adobedtm.com",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": false,
+        "startedAtMs": 1491
+      },
+      {
+        "id": 135,
+        "url": "https://{label}.{label}.medallia.com/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.{label}.medallia.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1492
+      },
+      {
+        "id": 136,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1502
+      },
+      {
+        "id": 137,
+        "url": "https://assets.adobedtm.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.adobedtm.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adobedtm.com",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": false,
+        "startedAtMs": 1514
+      },
+      {
+        "id": 138,
+        "url": "https://assets.adobedtm.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.adobedtm.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adobedtm.com",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": false,
+        "startedAtMs": 1516
+      },
+      {
+        "id": 139,
+        "url": "https://{label}.{label}.medallia.com/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.{label}.medallia.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1529
+      },
+      {
+        "id": 140,
+        "url": "https://cdn.jsdelivr.net/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.jsdelivr.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1534
+      },
+      {
+        "id": 141,
+        "url": "https://{label}.{label}.medallia.com/api/{seg}/{seg}",
+        "domain": "{label}.{label}.medallia.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1554
+      },
+      {
+        "id": 142,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1617
+      },
+      {
+        "id": 143,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2367
+      },
+      {
+        "id": 144,
+        "url": "https://www.walgreens.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2388
+      },
+      {
+        "id": 145,
+        "url": "https://www.walgreens.com/{seg}/{seg}",
+        "domain": "www.walgreens.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2677
+      },
+      {
+        "id": 146,
+        "url": "https://www.walgreens.com/{seg}/{seg}/products/search",
+        "domain": "www.walgreens.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2781
+      }
+    ],
+    "domains": [
+      {
+        "domain": "assets.adobedtm.com",
+        "requests": 15,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adobedtm.com",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "{label}.przone.net",
+        "requests": 12,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "cdn.cpnscdn.com",
+        "requests": 7,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "{label}.{label}.medallia.com",
+        "requests": 4,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "fonts.googleapis.com",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "stylesheet"
+        ]
+      },
+      {
+        "domain": "{label}.gstatic.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "font"
+        ]
+      },
+      {
+        "domain": "cdn.cookielaw.org",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "cdn.jsdelivr.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "www.walgreens.com",
+        "requests": 88,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200,
+          400
+        ],
+        "resourceTypes": [
+          "document",
+          "stylesheet",
+          "image",
+          "script",
+          "other",
+          "font",
+          "fetch",
+          "xhr"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "[redacted]",
+        "domain": ".walgreens.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".walgreens.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".walgreens.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "XSRF-TOKEN",
+        "domain": ".walgreens.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": true,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".walgreens.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".walgreens.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".walgreens.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".walgreens.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".walgreens.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted:long-token]",
+        "domain": ".walgreens.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".walgreens.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".walgreens.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".walgreens.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".walgreens.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".walgreens.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".walgreens.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.walgreens.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.walgreens.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.walgreens.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.walgreens.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.walgreens.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 4
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 39
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 1
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 1
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 202
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 13
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 26
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 0
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 1
+      }
+    ],
+    "fingerprintEvents": [
+      {
+        "api": "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
+        "count": 1
+      }
+    ],
+    "fingerprintDetections": [],
+    "privacyPolicy": {
+      "url": "https://www.walgreens.com/{seg}",
+      "claims": [],
+      "mentionedEntities": [],
+      "unmentionedEntities": [
+        "Adobe"
+      ],
+      "policyTextLength": 2910
+    },
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+      "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+      "This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored. Requests the page sent during and after this typing, including any unload beacons, are part of the recorded request log and counts.",
+      "Read the site's privacy policy (https://www.walgreens.com/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ]
+  },
+  "diff": {
+    "totalRequests": {
+      "before": 206,
+      "after": 134,
+      "delta": -72
+    },
+    "thirdPartyRequests": {
+      "before": 98,
+      "after": 46,
+      "delta": -52
+    },
+    "knownTrackerRequests": {
+      "before": 41,
+      "after": 15,
+      "delta": -26
+    },
+    "thirdPartyDomains": {
+      "before": 21,
+      "after": 8,
+      "delta": -13
+    },
+    "cookies": {
+      "before": 36,
+      "after": 21,
+      "delta": -15
+    },
+    "thirdPartyCookies": {
+      "before": 3,
+      "after": 0,
+      "delta": -3
+    },
+    "storageEntries": {
+      "before": 18,
+      "after": 9,
+      "delta": -9
+    },
+    "fingerprintEvents": {
+      "before": 1,
+      "after": 1,
+      "delta": 0
+    },
+    "addedDomains": [],
+    "removedDomains": [
+      {
+        "domain": "{label}.googlesyndication.com",
+        "requests": 11,
+        "tracker": {
+          "domain": "googlesyndication.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "{label}.{label}.doubleclick.net",
+        "requests": 7,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "{label}.walgreens.com",
+        "requests": 6,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.adtrafficquality.google",
+        "requests": 5,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.demdex.net",
+        "requests": 4,
+        "tracker": {
+          "domain": "demdex.net",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "{label}.doubleverify.com",
+        "requests": 3,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.{label}.googlesyndication.com",
+        "requests": 2,
+        "tracker": {
+          "domain": "googlesyndication.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "{label}.go-mpulse.net",
+        "requests": 2,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.onetrust.com",
+        "requests": 2,
+        "tracker": null
+      },
+      {
+        "domain": "cdn.doubleverify.com",
+        "requests": 2,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.{label}.dynatrace.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.everesttech.net",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "rum.hlx.page",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "www.google.com",
+        "requests": 1,
+        "tracker": null
+      }
+    ],
+    "addedEntities": [],
+    "removedEntities": [
+      {
+        "entity": "Google",
+        "requests": 20,
+        "domains": 3
+      }
+    ],
+    "addedCookies": [],
+    "removedCookies": [
+      {
+        "name": "[redacted]",
+        "domain": ".{label}.demdex.net",
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".demdex.net",
+        "thirdParty": true
+      },
+      {
+        "name": "IDE",
+        "domain": ".doubleclick.net",
+        "thirdParty": true
+      },
+      {
+        "name": "OptanonConsent",
+        "domain": ".walgreens.com",
+        "thirdParty": false
+      },
+      {
+        "name": "s_cc",
+        "domain": ".walgreens.com",
+        "thirdParty": false
+      }
+    ],
+    "addedStorageKeys": [],
+    "removedStorageKeys": [
+      {
+        "area": "sessionStorage",
+        "key": "[redacted:long-token]"
+      }
+    ],
+    "addedFingerprinting": [],
+    "removedFingerprinting": [
+      {
+        "kind": "session-recording",
+        "heuristic": "interaction-listener-coverage-v1",
+        "count": 2
+      },
+      {
+        "kind": "input-monitoring",
+        "heuristic": "input-listener-coverage-v1",
+        "count": 1
+      }
+    ],
+    "addedProvenance": [],
+    "removedProvenance": [],
+    "shieldsBlockedRequests": {
+      "before": 45,
+      "after": 12,
+      "delta": -33
+    }
+  },
+  "warnings": [
+    "Brave-list blocking comparison runs should be collected under matched crawl conditions, and the blocking run is a simulation with Brave's engine and default lists in this scanner's browser, not a live Brave visit. Differences can still reflect timing, experiments, cache state, consent state, or bot detection.",
+    "The two visits ran in randomized order; the \"Brave-list blocking\" visit ran first.",
+    "No blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "No blocking: Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+    "No blocking: This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored. Requests the page sent during and after this typing, including any unload beacons, are part of the recorded request log and counts.",
+    "No blocking: Resolved 2 first-party subdomains that are CNAME aliases for third-party trackers (CNAME cloaking), which request-URL matching alone would miss.",
+    "No blocking: Read the site's privacy policy (https://www.walgreens.com/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
+    "Brave-list blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Brave-list blocking: Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+    "Brave-list blocking: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+    "Brave-list blocking: This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored. Requests the page sent during and after this typing, including any unload beacons, are part of the recorded request log and counts.",
+    "Brave-list blocking: Read the site's privacy policy (https://www.walgreens.com/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+  ],
+  "share": {
+    "id": "20260721-67f5cd703343d4919fa8a2e1312b5a44",
+    "path": "/reports/20260721-67f5cd703343d4919fa8a2e1312b5a44/",
+    "jsonPath": "/reports/20260721-67f5cd703343d4919fa8a2e1312b5a44.json"
+  }
+}

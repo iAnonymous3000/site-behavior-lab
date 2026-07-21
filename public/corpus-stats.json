@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-07-21T05:02:53.914Z",
+  "generatedAt": "2026-07-21T21:52:45.594Z",
   "sampleSize": 97,
   "coverageSiteCount": 98,
   "cappedSiteCount": 2,
@@ -10,18 +10,18 @@
       "min": 0,
       "max": 815,
       "p50": 24,
-      "p75": 93,
-      "p90": 177,
-      "p95": 238
+      "p75": 107,
+      "p90": 185,
+      "p95": 288
     },
     "thirdPartyDomains": {
       "count": 97,
       "min": 0,
       "max": 159,
       "p50": 6,
-      "p75": 14,
-      "p90": 30,
-      "p95": 49
+      "p75": 15,
+      "p90": 29,
+      "p95": 43
     },
     "knownTrackerRequests": {
       "count": 97,
@@ -30,16 +30,16 @@
       "p50": 3,
       "p75": 17,
       "p90": 39,
-      "p95": 50
+      "p95": 46
     },
     "thirdPartyCookies": {
       "count": 97,
       "min": 0,
       "max": 91,
       "p50": 0,
-      "p75": 2,
+      "p75": 3,
       "p90": 10,
-      "p95": 18
+      "p95": 19
     },
     "fingerprintEvents": {
       "count": 97,

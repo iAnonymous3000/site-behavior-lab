@@ -1,0 +1,5848 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "reportType": "comparison",
+  "comparisonType": "shields",
+  "title": "Brave-list blocking off/on comparison",
+  "runLabels": {
+    "baseline": "No blocking",
+    "variant": "Brave-list blocking"
+  },
+  "requestedUrl": "https://www.bankofamerica.com/",
+  "scannedAt": "2026-07-21T20:37:42.924Z",
+  "device": "desktop",
+  "baseline": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "Bank of America - Banking, Credit Cards, Loans and Merrill Investing",
+      "status": 200,
+      "durationMs": 10317,
+      "firstPartyDomain": "www.bankofamerica.com",
+      "totalRequests": 204,
+      "thirdPartyRequests": 111,
+      "knownTrackerRequests": 1,
+      "thirdPartyDomains": 9,
+      "cookies": 54,
+      "thirdPartyCookies": 5,
+      "storageEntries": 24,
+      "fingerprintEvents": 60,
+      "shieldsBlockedRequests": 44
+    },
+    "conditions": {
+      "requestedUrl": "https://www.bankofamerica.com/",
+      "finalUrl": "https://www.bankofamerica.com/",
+      "scannedAt": "2026-07-21T20:37:32.587Z",
+      "chromiumVersion": "149.0.7827.55",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": true,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "classification",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-13T09:47:59.645Z"
+      },
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.06",
+        "region": "US-biased",
+        "entries": 133,
+        "curatedOverrides": 133,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan using Playwright 1.61.1 from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Brave-list matching uses each route-evaluated request's initiating document (the parent document for a subframe navigation), under methodology shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.61.1; main-frame navigations are not blocked or counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.bankofamerica.com/",
+        "domain": "www.bankofamerica.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 42
+      },
+      {
+        "id": 2,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 89
+      },
+      {
+        "id": 3,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 89
+      },
+      {
+        "id": 4,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 89
+      },
+      {
+        "id": 5,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 89
+      },
+      {
+        "id": 6,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 91
+      },
+      {
+        "id": 7,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 91
+      },
+      {
+        "id": 8,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 92
+      },
+      {
+        "id": 9,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 92
+      },
+      {
+        "id": 10,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 92
+      },
+      {
+        "id": 11,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 92
+      },
+      {
+        "id": 12,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 93
+      },
+      {
+        "id": 13,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 93
+      },
+      {
+        "id": 14,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 93
+      },
+      {
+        "id": 15,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 93
+      },
+      {
+        "id": 16,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 194
+      },
+      {
+        "id": 17,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 194
+      },
+      {
+        "id": 18,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 195
+      },
+      {
+        "id": 19,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 195
+      },
+      {
+        "id": 20,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 195
+      },
+      {
+        "id": 21,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 196
+      },
+      {
+        "id": 22,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 196
+      },
+      {
+        "id": 23,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 196
+      },
+      {
+        "id": 24,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 198
+      },
+      {
+        "id": 25,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 198
+      },
+      {
+        "id": 26,
+        "url": "https://{label}.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 490
+      },
+      {
+        "id": 27,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 490
+      },
+      {
+        "id": 28,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 491
+      },
+      {
+        "id": 29,
+        "url": "https://cdn.cookielaw.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.cookielaw.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 577
+      },
+      {
+        "id": 30,
+        "url": "https://{label}.tiqcdn.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 577
+      },
+      {
+        "id": 31,
+        "url": "https://{label}.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 578
+      },
+      {
+        "id": 32,
+        "url": "https://{label}.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 579
+      },
+      {
+        "id": 33,
+        "url": "https://{label}.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 581
+      },
+      {
+        "id": 34,
+        "url": "https://{label}.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 582
+      },
+      {
+        "id": 35,
+        "url": "https://{label}.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 583
+      },
+      {
+        "id": 36,
+        "url": "https://{label}.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 583
+      },
+      {
+        "id": 37,
+        "url": "https://{label}.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 583
+      },
+      {
+        "id": 38,
+        "url": "https://{label}.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 584
+      },
+      {
+        "id": 39,
+        "url": "https://{label}.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 585
+      },
+      {
+        "id": 40,
+        "url": "https://{label}.tiqcdn.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&cb=",
+        "domain": "{label}.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 651
+      },
+      {
+        "id": 41,
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 652
+      },
+      {
+        "id": 42,
+        "url": "https://{label}.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 652
+      },
+      {
+        "id": 43,
+        "url": "https://{label}.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 654
+      },
+      {
+        "id": 44,
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.bac-assets.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 715
+      },
+      {
+        "id": 45,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 715
+      },
+      {
+        "id": 46,
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 715
+      },
+      {
+        "id": 47,
+        "url": "https://secure.bankofamerica.com/login/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "secure.bankofamerica.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 716
+      },
+      {
+        "id": 48,
+        "url": "https://{label}.bankofamerica.com/{n}/{seg}",
+        "domain": "{label}.bankofamerica.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 718
+      },
+      {
+        "id": 49,
+        "url": "https://secure.bankofamerica.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "secure.bankofamerica.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 718
+      },
+      {
+        "id": 50,
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 718
+      },
+      {
+        "id": 51,
+        "url": "https://{label}.demdex.net/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.demdex.net",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "demdex.net",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 718
+      },
+      {
+        "id": 52,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 719
+      },
+      {
+        "id": 53,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 720
+      },
+      {
+        "id": 54,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 720
+      },
+      {
+        "id": 55,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 720
+      },
+      {
+        "id": 56,
+        "url": "https://secure.bankofamerica.com/login/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "secure.bankofamerica.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 722
+      },
+      {
+        "id": 57,
+        "url": "https://cdn.cookielaw.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.cookielaw.org",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 724
+      },
+      {
+        "id": 58,
+        "url": "https://{label}.glancecdn.net/{seg}/{seg}/{seg}",
+        "domain": "{label}.glancecdn.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 726
+      },
+      {
+        "id": 59,
+        "url": "https://{label}.onetrust.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.onetrust.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 743
+      },
+      {
+        "id": 60,
+        "url": "https://secure.bankofamerica.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "secure.bankofamerica.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 905
+      },
+      {
+        "id": 61,
+        "url": "https://cdn.cookielaw.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.cookielaw.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 908
+      },
+      {
+        "id": 62,
+        "url": "https://cdn.cookielaw.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.cookielaw.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 1028
+      },
+      {
+        "id": 63,
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 1051
+      },
+      {
+        "id": 64,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1051
+      },
+      {
+        "id": 65,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1053
+      },
+      {
+        "id": 66,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1053
+      },
+      {
+        "id": 67,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1054
+      },
+      {
+        "id": 68,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1055
+      },
+      {
+        "id": 69,
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 1055
+      },
+      {
+        "id": 70,
+        "url": "https://secure.bankofamerica.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "secure.bankofamerica.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1063
+      },
+      {
+        "id": 71,
+        "url": "https://cdn.cookielaw.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.cookielaw.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1101
+      },
+      {
+        "id": 72,
+        "url": "https://secure.bankofamerica.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "secure.bankofamerica.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1116
+      },
+      {
+        "id": 73,
+        "url": "https://secure.bankofamerica.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "secure.bankofamerica.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1118
+      },
+      {
+        "id": 74,
+        "url": "https://secure.bankofamerica.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "secure.bankofamerica.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1121
+      },
+      {
+        "id": 75,
+        "url": "https://secure.bankofamerica.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "secure.bankofamerica.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1121
+      },
+      {
+        "id": 76,
+        "url": "https://secure.bankofamerica.com/login/{seg}/{seg}/{seg}/{seg}",
+        "domain": "secure.bankofamerica.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1139
+      },
+      {
+        "id": 77,
+        "url": "https://{label}.bankofamerica.com/{n}/{seg}",
+        "domain": "{label}.bankofamerica.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 1140
+      },
+      {
+        "id": 78,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1150
+      },
+      {
+        "id": 79,
+        "url": "https://cdn.cookielaw.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.cookielaw.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1185
+      },
+      {
+        "id": 80,
+        "url": "https://cdn.cookielaw.org/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.cookielaw.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1186
+      },
+      {
+        "id": 81,
+        "url": "https://cdn.cookielaw.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.cookielaw.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1188
+      },
+      {
+        "id": 82,
+        "url": "https://{label}.bankofamerica.com/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 1221
+      },
+      {
+        "id": 83,
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 1224
+      },
+      {
+        "id": 84,
+        "url": "https://cdn.cookielaw.org/{seg}/static/{seg}",
+        "domain": "cdn.cookielaw.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1251
+      },
+      {
+        "id": 85,
+        "url": "https://cdn.cookielaw.org/{seg}/static/{seg}",
+        "domain": "cdn.cookielaw.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1253
+      },
+      {
+        "id": 86,
+        "url": "https://cdn.cookielaw.org/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.cookielaw.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1267
+      },
+      {
+        "id": 87,
+        "url": "https://cdn.cookielaw.org/{seg}/static/{seg}",
+        "domain": "cdn.cookielaw.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1267
+      },
+      {
+        "id": 88,
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1273
+      },
+      {
+        "id": 89,
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1274
+      },
+      {
+        "id": 90,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1305
+      },
+      {
+        "id": 91,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1306
+      },
+      {
+        "id": 92,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1307
+      },
+      {
+        "id": 93,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1307
+      },
+      {
+        "id": 94,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1308
+      },
+      {
+        "id": 95,
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 1310
+      },
+      {
+        "id": 96,
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1373
+      },
+      {
+        "id": 97,
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1374
+      },
+      {
+        "id": 98,
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1374
+      },
+      {
+        "id": 99,
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1375
+      },
+      {
+        "id": 100,
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1375
+      },
+      {
+        "id": 101,
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1376
+      },
+      {
+        "id": 102,
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1404
+      },
+      {
+        "id": 103,
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1406
+      },
+      {
+        "id": 104,
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1407
+      },
+      {
+        "id": 105,
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1407
+      },
+      {
+        "id": 106,
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1408
+      },
+      {
+        "id": 107,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1408
+      },
+      {
+        "id": 108,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1408
+      },
+      {
+        "id": 109,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1409
+      },
+      {
+        "id": 110,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1412
+      },
+      {
+        "id": 111,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1413
+      },
+      {
+        "id": 112,
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1470
+      },
+      {
+        "id": 113,
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1470
+      },
+      {
+        "id": 114,
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1470
+      },
+      {
+        "id": 115,
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1471
+      },
+      {
+        "id": 116,
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1471
+      },
+      {
+        "id": 117,
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 1650
+      },
+      {
+        "id": 118,
+        "url": "https://{label}.bankofamerica.com/{n}/{seg}",
+        "domain": "{label}.bankofamerica.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1665
+      },
+      {
+        "id": 119,
+        "url": "https://{label}.bankofamerica.com/{n}/{seg}",
+        "domain": "{label}.bankofamerica.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1665
+      },
+      {
+        "id": 120,
+        "url": "https://{label}.bankofamerica.com/{n}/{seg}",
+        "domain": "{label}.bankofamerica.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1666
+      },
+      {
+        "id": 121,
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1666
+      },
+      {
+        "id": 122,
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 1689
+      },
+      {
+        "id": 123,
+        "url": "https://{label}.bankofamerica.com/{n}/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 1713
+      },
+      {
+        "id": 124,
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1730
+      },
+      {
+        "id": 125,
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1734
+      },
+      {
+        "id": 126,
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 1746
+      },
+      {
+        "id": 127,
+        "url": "https://{label}.agkn.com/{seg}/{n}?%5Bredacted%5D=",
+        "domain": "{label}.agkn.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 1757
+      },
+      {
+        "id": 128,
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 1784
+      },
+      {
+        "id": 129,
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 1844
+      },
+      {
+        "id": 130,
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1987
+      },
+      {
+        "id": 131,
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 1992
+      },
+      {
+        "id": 132,
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2103
+      },
+      {
+        "id": 133,
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 2150
+      },
+      {
+        "id": 134,
+        "url": "https://{label}.bankofamerica.com/{n}/{seg}",
+        "domain": "{label}.bankofamerica.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2170
+      },
+      {
+        "id": 135,
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2187
+      },
+      {
+        "id": 136,
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2226
+      },
+      {
+        "id": 137,
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 2232
+      },
+      {
+        "id": 138,
+        "url": "https://{label}.advanced-web-analytics.com/{n}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.advanced-web-analytics.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 2240
+      },
+      {
+        "id": 139,
+        "url": "https://{label}.bankofamerica.com/{n}/{seg}",
+        "domain": "{label}.bankofamerica.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2339
+      },
+      {
+        "id": 140,
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2344
+      },
+      {
+        "id": 141,
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 2346
+      },
+      {
+        "id": 142,
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.bac-assets.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2383
+      },
+      {
+        "id": 143,
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2384
+      },
+      {
+        "id": 144,
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2384
+      },
+      {
+        "id": 145,
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2394
+      },
+      {
+        "id": 146,
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 2434
+      },
+      {
+        "id": 147,
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2456
+      },
+      {
+        "id": 148,
+        "url": "https://{label}.bankofamerica.com/{n}/{seg}",
+        "domain": "{label}.bankofamerica.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2472
+      },
+      {
+        "id": 149,
+        "url": "https://{label}.bankofamerica.com/{n}/{seg}",
+        "domain": "{label}.bankofamerica.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2477
+      },
+      {
+        "id": 150,
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 2483
+      },
+      {
+        "id": 151,
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 2814
+      },
+      {
+        "id": 152,
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 2821
+      },
+      {
+        "id": 153,
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 2832
+      },
+      {
+        "id": 154,
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2838
+      },
+      {
+        "id": 155,
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2840
+      },
+      {
+        "id": 156,
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 2889
+      },
+      {
+        "id": 157,
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 2953
+      },
+      {
+        "id": 158,
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 2992
+      },
+      {
+        "id": 159,
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 3049
+      },
+      {
+        "id": 160,
+        "url": "https://{label}.glancecdn.net/{seg}/{seg}/{seg}",
+        "domain": "{label}.glancecdn.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 3094
+      },
+      {
+        "id": 161,
+        "url": "https://{label}.bankofamerica.com/{n}/{seg}",
+        "domain": "{label}.bankofamerica.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3114
+      },
+      {
+        "id": 162,
+        "url": "https://{label}.bankofamerica.com/{n}/{seg}",
+        "domain": "{label}.bankofamerica.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3115
+      },
+      {
+        "id": 163,
+        "url": "https://{label}.bankofamerica.com/{n}/{seg}",
+        "domain": "{label}.bankofamerica.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3121
+      },
+      {
+        "id": 164,
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 3160
+      },
+      {
+        "id": 165,
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3180
+      },
+      {
+        "id": 166,
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3273
+      },
+      {
+        "id": 167,
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3345
+      },
+      {
+        "id": 168,
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3504
+      },
+      {
+        "id": 169,
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3595
+      },
+      {
+        "id": 170,
+        "url": "https://{label}.bankofamerica.com/{n}/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 3821
+      },
+      {
+        "id": 171,
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 4470
+      },
+      {
+        "id": 172,
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 4563
+      },
+      {
+        "id": 173,
+        "url": "https://secure.bankofamerica.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "secure.bankofamerica.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 4578
+      },
+      {
+        "id": 174,
+        "url": "https://secure.bankofamerica.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "secure.bankofamerica.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 4587
+      },
+      {
+        "id": 175,
+        "url": "https://secure.bankofamerica.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "secure.bankofamerica.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 4593
+      },
+      {
+        "id": 176,
+        "url": "https://secure.bankofamerica.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "secure.bankofamerica.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 4597
+      },
+      {
+        "id": 177,
+        "url": "https://secure.bankofamerica.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "secure.bankofamerica.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 4602
+      },
+      {
+        "id": 178,
+        "url": "https://secure.bankofamerica.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "secure.bankofamerica.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 4606
+      },
+      {
+        "id": 179,
+        "url": "https://secure.bankofamerica.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "secure.bankofamerica.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 4612
+      },
+      {
+        "id": 180,
+        "url": "https://secure.bankofamerica.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "secure.bankofamerica.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 4616
+      },
+      {
+        "id": 181,
+        "url": "https://secure.bankofamerica.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "secure.bankofamerica.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 4621
+      },
+      {
+        "id": 182,
+        "url": "https://secure.bankofamerica.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "secure.bankofamerica.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 4625
+      },
+      {
+        "id": 183,
+        "url": "https://secure.bankofamerica.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "secure.bankofamerica.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 4630
+      },
+      {
+        "id": 184,
+        "url": "https://secure.bankofamerica.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "secure.bankofamerica.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 4634
+      },
+      {
+        "id": 185,
+        "url": "https://secure.bankofamerica.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "secure.bankofamerica.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 4638
+      },
+      {
+        "id": 186,
+        "url": "https://secure.bankofamerica.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "secure.bankofamerica.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 4642
+      },
+      {
+        "id": 187,
+        "url": "https://secure.bankofamerica.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "secure.bankofamerica.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 4647
+      },
+      {
+        "id": 188,
+        "url": "https://secure.bankofamerica.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "secure.bankofamerica.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 4651
+      },
+      {
+        "id": 189,
+        "url": "https://secure.bankofamerica.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "secure.bankofamerica.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 4655
+      },
+      {
+        "id": 190,
+        "url": "https://secure.bankofamerica.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "secure.bankofamerica.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 4660
+      },
+      {
+        "id": 191,
+        "url": "https://secure.bankofamerica.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "secure.bankofamerica.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 4664
+      },
+      {
+        "id": 192,
+        "url": "https://secure.bankofamerica.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "secure.bankofamerica.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 4668
+      },
+      {
+        "id": 193,
+        "url": "https://secure.bankofamerica.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "secure.bankofamerica.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 4672
+      },
+      {
+        "id": 194,
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 4706
+      },
+      {
+        "id": 195,
+        "url": "https://secure.bankofamerica.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "secure.bankofamerica.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 4782
+      },
+      {
+        "id": 196,
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 5376
+      },
+      {
+        "id": 197,
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 5467
+      },
+      {
+        "id": 198,
+        "url": "https://secure.bankofamerica.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "secure.bankofamerica.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 5724
+      },
+      {
+        "id": 199,
+        "url": "https://{label}.bankofamerica.com/{n}/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 5925
+      },
+      {
+        "id": 200,
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 7533
+      },
+      {
+        "id": 201,
+        "url": "https://{label}.bankofamerica.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 7534
+      },
+      {
+        "id": 202,
+        "url": "https://{label}.bankofamerica.com/{n}/{seg}",
+        "domain": "{label}.bankofamerica.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 7535
+      },
+      {
+        "id": 203,
+        "url": "https://{label}.bankofamerica.com/{n}/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 7541
+      },
+      {
+        "id": 204,
+        "url": "https://{label}.bankofamerica.com/{n}/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bankofamerica.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 7542
+      }
+    ],
+    "domains": [
+      {
+        "domain": "{label}.demdex.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "demdex.net",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "www1.bac-assets.com",
+        "requests": 47,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "stylesheet",
+          "image",
+          "script",
+          "font"
+        ]
+      },
+      {
+        "domain": "{label}.bac-assets.com",
+        "requests": 32,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr",
+          "script",
+          "stylesheet",
+          "image",
+          "font"
+        ]
+      },
+      {
+        "domain": "{label}.tiqcdn.com",
+        "requests": 14,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "cdn.cookielaw.org",
+        "requests": 12,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr",
+          "fetch",
+          "image"
+        ]
+      },
+      {
+        "domain": "{label}.glancecdn.net",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "{label}.onetrust.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "{label}.agkn.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "{label}.advanced-web-analytics.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document"
+        ]
+      },
+      {
+        "domain": "{label}.bankofamerica.com",
+        "requests": 59,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "fetch",
+          "xhr",
+          "document"
+        ]
+      },
+      {
+        "domain": "secure.bankofamerica.com",
+        "requests": 33,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr",
+          "script",
+          "fetch"
+        ]
+      },
+      {
+        "domain": "www.bankofamerica.com",
+        "requests": 1,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "[redacted]",
+        "domain": ".advanced-web-analytics.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".agkn.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".agkn.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".agkn.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".demdex.net",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".bankofamerica.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".bankofamerica.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".bankofamerica.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".bankofamerica.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".bankofamerica.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".bankofamerica.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".bankofamerica.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".bankofamerica.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".bankofamerica.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".bankofamerica.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".bankofamerica.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted:long-token]",
+        "domain": ".bankofamerica.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted:long-token]",
+        "domain": ".bankofamerica.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".bankofamerica.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".bankofamerica.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".bankofamerica.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".bankofamerica.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": true,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".bankofamerica.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".bankofamerica.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": true,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".bankofamerica.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": true,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "SID",
+        "domain": ".bankofamerica.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".bankofamerica.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".bankofamerica.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": true,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".bankofamerica.com",
+        "path": "/",
+        "sameSite": "Strict",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".bankofamerica.com",
+        "path": "/",
+        "sameSite": "Strict",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".bankofamerica.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": true,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".bankofamerica.com",
+        "path": "/",
+        "sameSite": "Strict",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".bankofamerica.com",
+        "path": "/",
+        "sameSite": "Strict",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".bankofamerica.com",
+        "path": "/",
+        "sameSite": "Strict",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".bankofamerica.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".bankofamerica.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".bankofamerica.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".secure.bankofamerica.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": true,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "OptanonConsent",
+        "domain": ".www.bankofamerica.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "{label}.bankofamerica.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "{label}.bankofamerica.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "{label}.bankofamerica.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "{label}.bankofamerica.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "{label}.bankofamerica.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": true,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "secure.bankofamerica.com",
+        "path": "/login/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": true,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "secure.bankofamerica.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": true,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "secure.bankofamerica.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "secure.bankofamerica.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "{label}.bankofamerica.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "{label}.bankofamerica.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": true,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "{label}.bankofamerica.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.bankofamerica.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.bankofamerica.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.bankofamerica.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 10
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 24
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 4
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 5
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 4
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 24
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 38
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 1
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 24
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 5
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 1
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 13
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 1
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 36
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 13
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 1
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted:long-token]",
+        "valueBytes": 7
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 1
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 13
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 19
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 4
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 24
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 1
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 600
+      }
+    ],
+    "fingerprintEvents": [
+      {
+        "api": "audio.OfflineAudioContext.createOscillator",
+        "count": 1
+      },
+      {
+        "api": "audio.OfflineAudioContext.startRendering",
+        "count": 1
+      },
+      {
+        "api": "canvas.measureText",
+        "count": 31
+      },
+      {
+        "api": "canvas.toDataURL",
+        "count": 5
+      },
+      {
+        "api": "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
+        "count": 2
+      },
+      {
+        "api": "webgl.getParameter.UNMASKED_VENDOR_WEBGL",
+        "count": 2
+      },
+      {
+        "api": "webgl2.getParameter.UNMASKED_RENDERER_WEBGL",
+        "count": 1
+      },
+      {
+        "api": "webgl2.getParameter.UNMASKED_VENDOR_WEBGL",
+        "count": 1
+      },
+      {
+        "api": "webrtc.RTCPeerConnection",
+        "count": 4
+      },
+      {
+        "api": "webrtc.RTCPeerConnection.createDataChannel",
+        "count": 4
+      },
+      {
+        "api": "webrtc.RTCPeerConnection.createOffer",
+        "count": 4
+      },
+      {
+        "api": "webrtc.RTCPeerConnection.setLocalDescription",
+        "count": 4
+      }
+    ],
+    "fingerprintDetections": [
+      {
+        "kind": "canvas-fingerprinting",
+        "heuristic": "openwpm-canvas-v1",
+        "count": 3,
+        "evidence": {
+          "readApis": [
+            "canvas.toDataURL"
+          ],
+          "maxCanvasWidth": 999,
+          "maxCanvasHeight": 250,
+          "maxDistinctTextCharacters": 65,
+          "maxTextWriteCalls": 3
+        }
+      },
+      {
+        "kind": "audio-fingerprinting",
+        "heuristic": "audio-rendering-v1",
+        "count": 1,
+        "evidence": {
+          "apis": [
+            "audio.OfflineAudioContext.createOscillator",
+            "audio.OfflineAudioContext.startRendering"
+          ],
+          "offlineRenderCalls": 1,
+          "oscillatorCalls": 1,
+          "compressorCalls": 0,
+          "analyserCalls": 0
+        }
+      },
+      {
+        "kind": "canvas-font-fingerprinting",
+        "heuristic": "canvas-font-probing-v1",
+        "count": 1,
+        "evidence": {
+          "measureTextCalls": 31,
+          "maxDistinctFonts": 16,
+          "maxDistinctTextSamples": 2,
+          "maxTextLength": 62
+        }
+      },
+      {
+        "kind": "input-monitoring",
+        "heuristic": "input-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "change",
+            "input",
+            "keydown",
+            "keyup",
+            "paste"
+          ],
+          "listenerTargets": [
+            "document",
+            "documentElement",
+            "input",
+            "other",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://cdn.cookielaw.org/",
+            "https://{label}.bac-assets.com/",
+            "https://{label}.tiqcdn.com/",
+            "https://www1.bac-assets.com/"
+          ],
+          "totalListenerCalls": 179
+        }
+      },
+      {
+        "kind": "session-recording",
+        "heuristic": "interaction-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "click",
+            "input",
+            "keydown",
+            "keyup",
+            "mousedown",
+            "mousemove",
+            "mouseup",
+            "scroll",
+            "touchmove",
+            "touchstart",
+            "visibilitychange"
+          ],
+          "listenerTargets": [
+            "body",
+            "document",
+            "documentElement",
+            "input",
+            "other",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://cdn.cookielaw.org/",
+            "https://{label}.bac-assets.com/",
+            "https://{label}.tiqcdn.com/",
+            "https://www1.bac-assets.com/"
+          ],
+          "totalListenerCalls": 426
+        }
+      },
+      {
+        "kind": "webrtc-fingerprinting",
+        "heuristic": "webrtc-peerconnection-v1",
+        "count": 1,
+        "evidence": {
+          "constructorCalls": 4,
+          "createDataChannelCalls": 4,
+          "createOfferCalls": 4,
+          "setLocalDescriptionCalls": 4
+        }
+      }
+    ],
+    "privacyPolicy": {
+      "url": "https://{label}.bankofamerica.com/en/privacy",
+      "claims": [],
+      "mentionedEntities": [],
+      "unmentionedEntities": [
+        "Adobe"
+      ],
+      "policyTextLength": 4104
+    },
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+      "This scan typed a synthetic test value into 3 form fields (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored. Requests the page sent during and after this typing, including any unload beacons, are part of the recorded request log and counts.",
+      "Read the site's privacy policy (https://{label}.bankofamerica.com/en/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
+      "The scan blocked or could not verify one or more Web Workers while applying the simulated GPC signal; request evidence may be incomplete."
+    ]
+  },
+  "variant": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "Bank of America - Banking, Credit Cards, Loans and Merrill Investing",
+      "status": 200,
+      "durationMs": 8324,
+      "firstPartyDomain": "www.bankofamerica.com",
+      "totalRequests": 128,
+      "thirdPartyRequests": 93,
+      "knownTrackerRequests": 0,
+      "thirdPartyDomains": 4,
+      "cookies": 26,
+      "thirdPartyCookies": 0,
+      "storageEntries": 5,
+      "fingerprintEvents": 57,
+      "shieldsBlockedRequests": 10
+    },
+    "conditions": {
+      "requestedUrl": "https://www.bankofamerica.com/",
+      "finalUrl": "https://www.bankofamerica.com/",
+      "scannedAt": "2026-07-21T20:37:42.924Z",
+      "chromiumVersion": "149.0.7827.55",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": true,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "block-simulation",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-13T09:47:59.645Z"
+      },
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.06",
+        "region": "US-biased",
+        "entries": 133,
+        "curatedOverrides": 133,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan using Playwright 1.61.1 from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Brave-list matching uses each route-evaluated request's initiating document (the parent document for a subframe navigation), under methodology shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.61.1; main-frame navigations are not blocked or counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.bankofamerica.com/",
+        "domain": "www.bankofamerica.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 58
+      },
+      {
+        "id": 2,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 104
+      },
+      {
+        "id": 3,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 104
+      },
+      {
+        "id": 4,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 105
+      },
+      {
+        "id": 5,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 105
+      },
+      {
+        "id": 6,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 106
+      },
+      {
+        "id": 7,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 106
+      },
+      {
+        "id": 8,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 106
+      },
+      {
+        "id": 9,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 107
+      },
+      {
+        "id": 10,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 107
+      },
+      {
+        "id": 11,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 107
+      },
+      {
+        "id": 12,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 107
+      },
+      {
+        "id": 13,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 107
+      },
+      {
+        "id": 14,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 107
+      },
+      {
+        "id": 15,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 108
+      },
+      {
+        "id": 16,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 193
+      },
+      {
+        "id": 17,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 194
+      },
+      {
+        "id": 18,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 194
+      },
+      {
+        "id": 19,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 195
+      },
+      {
+        "id": 20,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 195
+      },
+      {
+        "id": 21,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 197
+      },
+      {
+        "id": 22,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 198
+      },
+      {
+        "id": 23,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 198
+      },
+      {
+        "id": 24,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 199
+      },
+      {
+        "id": 25,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 199
+      },
+      {
+        "id": 26,
+        "url": "https://{label}.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 750
+      },
+      {
+        "id": 27,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 751
+      },
+      {
+        "id": 28,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 751
+      },
+      {
+        "id": 29,
+        "url": "https://cdn.cookielaw.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.cookielaw.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 821
+      },
+      {
+        "id": 30,
+        "url": "https://{label}.tiqcdn.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 821
+      },
+      {
+        "id": 31,
+        "url": "https://{label}.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 825
+      },
+      {
+        "id": 32,
+        "url": "https://{label}.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 826
+      },
+      {
+        "id": 33,
+        "url": "https://{label}.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 828
+      },
+      {
+        "id": 34,
+        "url": "https://{label}.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 829
+      },
+      {
+        "id": 35,
+        "url": "https://{label}.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 829
+      },
+      {
+        "id": 36,
+        "url": "https://{label}.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 829
+      },
+      {
+        "id": 37,
+        "url": "https://{label}.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 830
+      },
+      {
+        "id": 38,
+        "url": "https://{label}.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 830
+      },
+      {
+        "id": 39,
+        "url": "https://{label}.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 830
+      },
+      {
+        "id": 40,
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.bac-assets.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 897
+      },
+      {
+        "id": 41,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 899
+      },
+      {
+        "id": 42,
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 899
+      },
+      {
+        "id": 43,
+        "url": "https://secure.bankofamerica.com/login/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "secure.bankofamerica.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 899
+      },
+      {
+        "id": 45,
+        "url": "https://secure.bankofamerica.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "secure.bankofamerica.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 900
+      },
+      {
+        "id": 46,
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 900
+      },
+      {
+        "id": 48,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 905
+      },
+      {
+        "id": 49,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 908
+      },
+      {
+        "id": 50,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 908
+      },
+      {
+        "id": 51,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 908
+      },
+      {
+        "id": 52,
+        "url": "https://secure.bankofamerica.com/login/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "secure.bankofamerica.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 913
+      },
+      {
+        "id": 54,
+        "url": "https://secure.bankofamerica.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "secure.bankofamerica.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 983
+      },
+      {
+        "id": 55,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1017
+      },
+      {
+        "id": 56,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1017
+      },
+      {
+        "id": 57,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1018
+      },
+      {
+        "id": 58,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1018
+      },
+      {
+        "id": 59,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1018
+      },
+      {
+        "id": 60,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1019
+      },
+      {
+        "id": 61,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1019
+      },
+      {
+        "id": 62,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1020
+      },
+      {
+        "id": 63,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1020
+      },
+      {
+        "id": 64,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1021
+      },
+      {
+        "id": 65,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1021
+      },
+      {
+        "id": 66,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1025
+      },
+      {
+        "id": 67,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1025
+      },
+      {
+        "id": 68,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1026
+      },
+      {
+        "id": 69,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1026
+      },
+      {
+        "id": 70,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1027
+      },
+      {
+        "id": 71,
+        "url": "https://{label}.tiqcdn.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&cb=",
+        "domain": "{label}.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1046
+      },
+      {
+        "id": 73,
+        "url": "https://{label}.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1048
+      },
+      {
+        "id": 74,
+        "url": "https://{label}.tiqcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.tiqcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1048
+      },
+      {
+        "id": 75,
+        "url": "https://cdn.cookielaw.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.cookielaw.org",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1055
+      },
+      {
+        "id": 76,
+        "url": "https://secure.bankofamerica.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "secure.bankofamerica.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1074
+      },
+      {
+        "id": 78,
+        "url": "https://secure.bankofamerica.com/login/{seg}/{seg}/{seg}/{seg}",
+        "domain": "secure.bankofamerica.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1255
+      },
+      {
+        "id": 80,
+        "url": "https://secure.bankofamerica.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "secure.bankofamerica.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1257
+      },
+      {
+        "id": 81,
+        "url": "https://secure.bankofamerica.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "secure.bankofamerica.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1257
+      },
+      {
+        "id": 82,
+        "url": "https://secure.bankofamerica.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "secure.bankofamerica.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1262
+      },
+      {
+        "id": 83,
+        "url": "https://secure.bankofamerica.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "secure.bankofamerica.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1263
+      },
+      {
+        "id": 85,
+        "url": "https://www1.bac-assets.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www1.bac-assets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1266
+      },
+      {
+        "id": 86,
+        "url": "https://cdn.cookielaw.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.cookielaw.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1267
+      },
+      {
+        "id": 90,
+        "url": "https://secure.bankofamerica.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "secure.bankofamerica.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1315
+      },
+      {
+        "id": 91,
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1547
+      },
+      {
+        "id": 92,
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1548
+      },
+      {
+        "id": 93,
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1549
+      },
+      {
+        "id": 94,
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1549
+      },
+      {
+        "id": 95,
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1550
+      },
+      {
+        "id": 96,
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1550
+      },
+      {
+        "id": 97,
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1553
+      },
+      {
+        "id": 98,
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1554
+      },
+      {
+        "id": 99,
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1634
+      },
+      {
+        "id": 100,
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1635
+      },
+      {
+        "id": 101,
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1711
+      },
+      {
+        "id": 102,
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1711
+      },
+      {
+        "id": 103,
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1712
+      },
+      {
+        "id": 104,
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1713
+      },
+      {
+        "id": 105,
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1714
+      },
+      {
+        "id": 106,
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1794
+      },
+      {
+        "id": 107,
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1806
+      },
+      {
+        "id": 108,
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1914
+      },
+      {
+        "id": 109,
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1935
+      },
+      {
+        "id": 110,
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1984
+      },
+      {
+        "id": 111,
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.bac-assets.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2020
+      },
+      {
+        "id": 112,
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2020
+      },
+      {
+        "id": 113,
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2021
+      },
+      {
+        "id": 114,
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2028
+      },
+      {
+        "id": 115,
+        "url": "https://{label}.bac-assets.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bac-assets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2296
+      },
+      {
+        "id": 116,
+        "url": "https://secure.bankofamerica.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "secure.bankofamerica.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3012
+      },
+      {
+        "id": 117,
+        "url": "https://secure.bankofamerica.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "secure.bankofamerica.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3019
+      },
+      {
+        "id": 118,
+        "url": "https://secure.bankofamerica.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "secure.bankofamerica.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3024
+      },
+      {
+        "id": 119,
+        "url": "https://secure.bankofamerica.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "secure.bankofamerica.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3026
+      },
+      {
+        "id": 120,
+        "url": "https://secure.bankofamerica.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "secure.bankofamerica.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3030
+      },
+      {
+        "id": 121,
+        "url": "https://secure.bankofamerica.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "secure.bankofamerica.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3032
+      },
+      {
+        "id": 122,
+        "url": "https://secure.bankofamerica.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "secure.bankofamerica.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3036
+      },
+      {
+        "id": 123,
+        "url": "https://secure.bankofamerica.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "secure.bankofamerica.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3040
+      },
+      {
+        "id": 124,
+        "url": "https://secure.bankofamerica.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "secure.bankofamerica.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3043
+      },
+      {
+        "id": 125,
+        "url": "https://secure.bankofamerica.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "secure.bankofamerica.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3047
+      },
+      {
+        "id": 126,
+        "url": "https://secure.bankofamerica.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "secure.bankofamerica.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3049
+      },
+      {
+        "id": 127,
+        "url": "https://secure.bankofamerica.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "secure.bankofamerica.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3053
+      },
+      {
+        "id": 128,
+        "url": "https://secure.bankofamerica.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "secure.bankofamerica.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3057
+      },
+      {
+        "id": 129,
+        "url": "https://secure.bankofamerica.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "secure.bankofamerica.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3060
+      },
+      {
+        "id": 130,
+        "url": "https://secure.bankofamerica.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "secure.bankofamerica.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3062
+      },
+      {
+        "id": 131,
+        "url": "https://secure.bankofamerica.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "secure.bankofamerica.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3066
+      },
+      {
+        "id": 132,
+        "url": "https://secure.bankofamerica.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "secure.bankofamerica.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3069
+      },
+      {
+        "id": 133,
+        "url": "https://secure.bankofamerica.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "secure.bankofamerica.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3072
+      },
+      {
+        "id": 134,
+        "url": "https://secure.bankofamerica.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "secure.bankofamerica.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3076
+      },
+      {
+        "id": 135,
+        "url": "https://secure.bankofamerica.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "secure.bankofamerica.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3079
+      },
+      {
+        "id": 136,
+        "url": "https://secure.bankofamerica.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "secure.bankofamerica.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3083
+      },
+      {
+        "id": 137,
+        "url": "https://secure.bankofamerica.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "secure.bankofamerica.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3162
+      },
+      {
+        "id": 138,
+        "url": "https://secure.bankofamerica.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "secure.bankofamerica.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3903
+      }
+    ],
+    "domains": [
+      {
+        "domain": "www1.bac-assets.com",
+        "requests": 48,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "stylesheet",
+          "image",
+          "script",
+          "font"
+        ]
+      },
+      {
+        "domain": "{label}.bac-assets.com",
+        "requests": 28,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr",
+          "script",
+          "image",
+          "stylesheet",
+          "font"
+        ]
+      },
+      {
+        "domain": "{label}.tiqcdn.com",
+        "requests": 14,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "cdn.cookielaw.org",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr",
+          "fetch"
+        ]
+      },
+      {
+        "domain": "secure.bankofamerica.com",
+        "requests": 34,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr",
+          "script",
+          "fetch"
+        ]
+      },
+      {
+        "domain": "www.bankofamerica.com",
+        "requests": 1,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "[redacted]",
+        "domain": ".bankofamerica.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".bankofamerica.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".bankofamerica.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".bankofamerica.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".bankofamerica.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".bankofamerica.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".bankofamerica.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".bankofamerica.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".bankofamerica.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".bankofamerica.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".bankofamerica.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".bankofamerica.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".bankofamerica.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": true,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".bankofamerica.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": true,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".bankofamerica.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": true,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".bankofamerica.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "SID",
+        "domain": ".bankofamerica.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".bankofamerica.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": true,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".secure.bankofamerica.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": true,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "secure.bankofamerica.com",
+        "path": "/login/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": true,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "secure.bankofamerica.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": true,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "secure.bankofamerica.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "secure.bankofamerica.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.bankofamerica.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.bankofamerica.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.bankofamerica.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 24
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 10
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 24
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 24
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 24
+      }
+    ],
+    "fingerprintEvents": [
+      {
+        "api": "audio.OfflineAudioContext.createOscillator",
+        "count": 1
+      },
+      {
+        "api": "audio.OfflineAudioContext.startRendering",
+        "count": 1
+      },
+      {
+        "api": "canvas.measureText",
+        "count": 31
+      },
+      {
+        "api": "canvas.toDataURL",
+        "count": 4
+      },
+      {
+        "api": "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
+        "count": 2
+      },
+      {
+        "api": "webgl.getParameter.UNMASKED_VENDOR_WEBGL",
+        "count": 2
+      },
+      {
+        "api": "webrtc.RTCPeerConnection",
+        "count": 4
+      },
+      {
+        "api": "webrtc.RTCPeerConnection.createDataChannel",
+        "count": 4
+      },
+      {
+        "api": "webrtc.RTCPeerConnection.createOffer",
+        "count": 4
+      },
+      {
+        "api": "webrtc.RTCPeerConnection.setLocalDescription",
+        "count": 4
+      }
+    ],
+    "fingerprintDetections": [
+      {
+        "kind": "canvas-fingerprinting",
+        "heuristic": "openwpm-canvas-v1",
+        "count": 2,
+        "evidence": {
+          "readApis": [
+            "canvas.toDataURL"
+          ],
+          "maxCanvasWidth": 999,
+          "maxCanvasHeight": 150,
+          "maxDistinctTextCharacters": 65,
+          "maxTextWriteCalls": 3
+        }
+      },
+      {
+        "kind": "audio-fingerprinting",
+        "heuristic": "audio-rendering-v1",
+        "count": 1,
+        "evidence": {
+          "apis": [
+            "audio.OfflineAudioContext.createOscillator",
+            "audio.OfflineAudioContext.startRendering"
+          ],
+          "offlineRenderCalls": 1,
+          "oscillatorCalls": 1,
+          "compressorCalls": 0,
+          "analyserCalls": 0
+        }
+      },
+      {
+        "kind": "canvas-font-fingerprinting",
+        "heuristic": "canvas-font-probing-v1",
+        "count": 1,
+        "evidence": {
+          "measureTextCalls": 31,
+          "maxDistinctFonts": 16,
+          "maxDistinctTextSamples": 2,
+          "maxTextLength": 62
+        }
+      },
+      {
+        "kind": "input-monitoring",
+        "heuristic": "input-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "change",
+            "input",
+            "keydown",
+            "keyup",
+            "paste"
+          ],
+          "listenerTargets": [
+            "document",
+            "input",
+            "other",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://{label}.bac-assets.com/",
+            "https://www1.bac-assets.com/"
+          ],
+          "totalListenerCalls": 154
+        }
+      },
+      {
+        "kind": "session-recording",
+        "heuristic": "interaction-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "click",
+            "input",
+            "keydown",
+            "keyup",
+            "mousedown",
+            "mousemove",
+            "mouseup",
+            "scroll",
+            "touchstart",
+            "visibilitychange"
+          ],
+          "listenerTargets": [
+            "document",
+            "input",
+            "other",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://{label}.bac-assets.com/",
+            "https://{label}.tiqcdn.com/",
+            "https://www1.bac-assets.com/"
+          ],
+          "totalListenerCalls": 377
+        }
+      },
+      {
+        "kind": "webrtc-fingerprinting",
+        "heuristic": "webrtc-peerconnection-v1",
+        "count": 1,
+        "evidence": {
+          "constructorCalls": 4,
+          "createDataChannelCalls": 4,
+          "createOfferCalls": 4,
+          "setLocalDescriptionCalls": 4
+        }
+      }
+    ],
+    "privacyPolicy": {
+      "url": "https://{label}.bankofamerica.com/en/privacy",
+      "claims": [],
+      "mentionedEntities": [],
+      "unmentionedEntities": [],
+      "policyTextLength": 4104
+    },
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+      "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+      "This scan typed a synthetic test value into 3 form fields (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored. Requests the page sent during and after this typing, including any unload beacons, are part of the recorded request log and counts.",
+      "Read the site's privacy policy (https://{label}.bankofamerica.com/en/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
+      "The scan blocked or could not verify one or more Web Workers while applying the simulated GPC signal; request evidence may be incomplete."
+    ]
+  },
+  "diff": {
+    "totalRequests": {
+      "before": 204,
+      "after": 128,
+      "delta": -76
+    },
+    "thirdPartyRequests": {
+      "before": 111,
+      "after": 93,
+      "delta": -18
+    },
+    "knownTrackerRequests": {
+      "before": 1,
+      "after": 0,
+      "delta": -1
+    },
+    "thirdPartyDomains": {
+      "before": 9,
+      "after": 4,
+      "delta": -5
+    },
+    "cookies": {
+      "before": 54,
+      "after": 26,
+      "delta": -28
+    },
+    "thirdPartyCookies": {
+      "before": 5,
+      "after": 0,
+      "delta": -5
+    },
+    "storageEntries": {
+      "before": 24,
+      "after": 5,
+      "delta": -19
+    },
+    "fingerprintEvents": {
+      "before": 60,
+      "after": 57,
+      "delta": -3
+    },
+    "addedDomains": [],
+    "removedDomains": [
+      {
+        "domain": "{label}.bankofamerica.com",
+        "requests": 59,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.glancecdn.net",
+        "requests": 2,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.advanced-web-analytics.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.agkn.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.demdex.net",
+        "requests": 1,
+        "tracker": {
+          "domain": "demdex.net",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "{label}.onetrust.com",
+        "requests": 1,
+        "tracker": null
+      }
+    ],
+    "addedEntities": [],
+    "removedEntities": [
+      {
+        "entity": "Adobe",
+        "requests": 1,
+        "domains": 1
+      }
+    ],
+    "addedCookies": [],
+    "removedCookies": [
+      {
+        "name": "[redacted]",
+        "domain": ".advanced-web-analytics.com",
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".agkn.com",
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".demdex.net",
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted:long-token]",
+        "domain": ".bankofamerica.com",
+        "thirdParty": false
+      },
+      {
+        "name": "OptanonConsent",
+        "domain": ".www.bankofamerica.com",
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "{label}.bankofamerica.com",
+        "thirdParty": false
+      }
+    ],
+    "addedStorageKeys": [],
+    "removedStorageKeys": [
+      {
+        "area": "sessionStorage",
+        "key": "[redacted:long-token]"
+      }
+    ],
+    "addedFingerprinting": [],
+    "removedFingerprinting": [],
+    "addedProvenance": [],
+    "removedProvenance": [],
+    "shieldsBlockedRequests": {
+      "before": 44,
+      "after": 10,
+      "delta": -34
+    }
+  },
+  "warnings": [
+    "Brave-list blocking comparison runs should be collected under matched crawl conditions, and the blocking run is a simulation with Brave's engine and default lists in this scanner's browser, not a live Brave visit. Differences can still reflect timing, experiments, cache state, consent state, or bot detection.",
+    "The two visits ran in randomized order; the \"No blocking\" visit ran first.",
+    "No blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "No blocking: Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+    "No blocking: This scan typed a synthetic test value into 3 form fields (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored. Requests the page sent during and after this typing, including any unload beacons, are part of the recorded request log and counts.",
+    "No blocking: Read the site's privacy policy (https://{label}.bankofamerica.com/en/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
+    "No blocking: The scan blocked or could not verify one or more Web Workers while applying the simulated GPC signal; request evidence may be incomplete.",
+    "Brave-list blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Brave-list blocking: Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+    "Brave-list blocking: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+    "Brave-list blocking: This scan typed a synthetic test value into 3 form fields (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored. Requests the page sent during and after this typing, including any unload beacons, are part of the recorded request log and counts.",
+    "Brave-list blocking: Read the site's privacy policy (https://{label}.bankofamerica.com/en/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
+    "Brave-list blocking: The scan blocked or could not verify one or more Web Workers while applying the simulated GPC signal; request evidence may be incomplete."
+  ],
+  "share": {
+    "id": "20260721-fbcade7e9b8a181c2ba2daab8b2422ac",
+    "path": "/reports/20260721-fbcade7e9b8a181c2ba2daab8b2422ac/",
+    "jsonPath": "/reports/20260721-fbcade7e9b8a181c2ba2daab8b2422ac.json"
+  }
+}

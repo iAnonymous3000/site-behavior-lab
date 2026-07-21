@@ -1,0 +1,6262 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "reportType": "comparison",
+  "comparisonType": "shields",
+  "title": "Brave-list blocking off/on comparison",
+  "runLabels": {
+    "baseline": "No blocking",
+    "variant": "Brave-list blocking"
+  },
+  "requestedUrl": "https://www.nike.com/",
+  "scannedAt": "2026-07-21T21:28:36.465Z",
+  "device": "desktop",
+  "baseline": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "Nike. Just Do It. Nike.com",
+      "status": 200,
+      "durationMs": 9466,
+      "firstPartyDomain": "www.nike.com",
+      "totalRequests": 229,
+      "thirdPartyRequests": 66,
+      "knownTrackerRequests": 41,
+      "thirdPartyDomains": 14,
+      "cookies": 22,
+      "thirdPartyCookies": 3,
+      "storageEntries": 24,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 60
+    },
+    "conditions": {
+      "requestedUrl": "https://www.nike.com/",
+      "finalUrl": "https://www.nike.com/",
+      "scannedAt": "2026-07-21T21:28:26.985Z",
+      "chromiumVersion": "149.0.7827.55",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": true,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "classification",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-13T09:47:59.645Z"
+      },
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.06",
+        "region": "US-biased",
+        "entries": 133,
+        "curatedOverrides": 133,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan using Playwright 1.61.1 from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Brave-list matching uses each route-evaluated request's initiating document (the parent document for a subframe navigation), under methodology shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.61.1; main-frame navigations are not blocked or counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.nike.com/",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 47
+      },
+      {
+        "id": 2,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 417
+      },
+      {
+        "id": 3,
+        "url": "https://www.nike.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 417
+      },
+      {
+        "id": 4,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 417
+      },
+      {
+        "id": 5,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 419
+      },
+      {
+        "id": 6,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 419
+      },
+      {
+        "id": 7,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 419
+      },
+      {
+        "id": 8,
+        "url": "https://{label}.nike.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.nike.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 420
+      },
+      {
+        "id": 9,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 420
+      },
+      {
+        "id": 10,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 420
+      },
+      {
+        "id": 11,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 420
+      },
+      {
+        "id": 12,
+        "url": "https://www.nike.com/{seg}/static/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 421
+      },
+      {
+        "id": 13,
+        "url": "https://www.nike.com/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 421
+      },
+      {
+        "id": 14,
+        "url": "https://www.nike.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 421
+      },
+      {
+        "id": 15,
+        "url": "https://www.nike.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 422
+      },
+      {
+        "id": 16,
+        "url": "https://www.nike.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 422
+      },
+      {
+        "id": 17,
+        "url": "https://www.nike.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 422
+      },
+      {
+        "id": 18,
+        "url": "https://www.nike.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 422
+      },
+      {
+        "id": 19,
+        "url": "https://{label}.nike.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 422
+      },
+      {
+        "id": 20,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 443
+      },
+      {
+        "id": 21,
+        "url": "https://static.nike.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.nike.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 539
+      },
+      {
+        "id": 22,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 540
+      },
+      {
+        "id": 23,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 602
+      },
+      {
+        "id": 24,
+        "url": "https://www.nike.com/{seg}/static/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 603
+      },
+      {
+        "id": 25,
+        "url": "https://www.nike.com/{seg}/static/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 603
+      },
+      {
+        "id": 26,
+        "url": "https://www.nike.com/{seg}/static/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 603
+      },
+      {
+        "id": 27,
+        "url": "https://www.nike.com/{seg}/static/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 603
+      },
+      {
+        "id": 28,
+        "url": "https://www.nike.com/{seg}/static/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 604
+      },
+      {
+        "id": 29,
+        "url": "https://www.nike.com/{seg}/static/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 604
+      },
+      {
+        "id": 30,
+        "url": "https://www.nike.com/{seg}/static/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 604
+      },
+      {
+        "id": 31,
+        "url": "https://www.nike.com/{seg}/static/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 605
+      },
+      {
+        "id": 32,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 605
+      },
+      {
+        "id": 33,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 605
+      },
+      {
+        "id": 34,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 605
+      },
+      {
+        "id": 35,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 606
+      },
+      {
+        "id": 36,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 607
+      },
+      {
+        "id": 37,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 607
+      },
+      {
+        "id": 38,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 607
+      },
+      {
+        "id": 39,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 607
+      },
+      {
+        "id": 40,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 607
+      },
+      {
+        "id": 41,
+        "url": "https://www.nike.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 608
+      },
+      {
+        "id": 42,
+        "url": "https://{label}.go-mpulse.net/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.go-mpulse.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 621
+      },
+      {
+        "id": 43,
+        "url": "https://www.nike.com/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 639
+      },
+      {
+        "id": 44,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 643
+      },
+      {
+        "id": 45,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 903
+      },
+      {
+        "id": 46,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 904
+      },
+      {
+        "id": 47,
+        "url": "https://static.nike.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.nike.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 932
+      },
+      {
+        "id": 48,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 932
+      },
+      {
+        "id": 49,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 933
+      },
+      {
+        "id": 50,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 933
+      },
+      {
+        "id": 51,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 934
+      },
+      {
+        "id": 52,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/us/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1148
+      },
+      {
+        "id": 53,
+        "url": "https://api.nike.com/search/{seg}/{seg}",
+        "domain": "api.nike.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1152
+      },
+      {
+        "id": 54,
+        "url": "https://www.nike.com/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 429,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1212
+      },
+      {
+        "id": 55,
+        "url": "https://www.nike.com/{seg}/static/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1348
+      },
+      {
+        "id": 56,
+        "url": "https://www.nike.com/{seg}/static/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1349
+      },
+      {
+        "id": 57,
+        "url": "https://www.nike.com/{seg}/static/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1349
+      },
+      {
+        "id": 58,
+        "url": "https://www.nike.com/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1371
+      },
+      {
+        "id": 59,
+        "url": "https://www.nike.com/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1371
+      },
+      {
+        "id": 60,
+        "url": "https://www.nike.com/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1372
+      },
+      {
+        "id": 61,
+        "url": "https://www.nike.com/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1372
+      },
+      {
+        "id": 62,
+        "url": "https://www.nike.com/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1447
+      },
+      {
+        "id": 63,
+        "url": "https://www.nike.com/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1472
+      },
+      {
+        "id": 64,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1483
+      },
+      {
+        "id": 65,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1484
+      },
+      {
+        "id": 66,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1485
+      },
+      {
+        "id": 67,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1485
+      },
+      {
+        "id": 68,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1577
+      },
+      {
+        "id": 69,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1578
+      },
+      {
+        "id": 70,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1579
+      },
+      {
+        "id": 71,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1579
+      },
+      {
+        "id": 72,
+        "url": "https://static.nike.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.nike.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1585
+      },
+      {
+        "id": 73,
+        "url": "https://static.nike.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.nike.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1585
+      },
+      {
+        "id": 74,
+        "url": "https://static.nike.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.nike.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1586
+      },
+      {
+        "id": 75,
+        "url": "https://static.nike.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.nike.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1586
+      },
+      {
+        "id": 76,
+        "url": "https://static.nike.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.nike.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1586
+      },
+      {
+        "id": 77,
+        "url": "https://static.nike.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.nike.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1587
+      },
+      {
+        "id": 78,
+        "url": "https://static.nike.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.nike.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1592
+      },
+      {
+        "id": 79,
+        "url": "https://static.nike.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.nike.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1593
+      },
+      {
+        "id": 80,
+        "url": "https://static.nike.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.nike.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1593
+      },
+      {
+        "id": 81,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1624
+      },
+      {
+        "id": 82,
+        "url": "https://api.nike.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "api.nike.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1634
+      },
+      {
+        "id": 83,
+        "url": "https://api.nike.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "api.nike.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1635
+      },
+      {
+        "id": 84,
+        "url": "https://api.nike.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "api.nike.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1636
+      },
+      {
+        "id": 85,
+        "url": "https://api.nike.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "api.nike.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1636
+      },
+      {
+        "id": 86,
+        "url": "https://api.nike.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "api.nike.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1681
+      },
+      {
+        "id": 87,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1819
+      },
+      {
+        "id": 88,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1819
+      },
+      {
+        "id": 89,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1820
+      },
+      {
+        "id": 90,
+        "url": "https://static.nike.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.nike.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1927
+      },
+      {
+        "id": 91,
+        "url": "https://static.nike.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.nike.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1952
+      },
+      {
+        "id": 92,
+        "url": "https://{label}.cdndex.io/{seg}",
+        "domain": "{label}.cdndex.io",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 2347
+      },
+      {
+        "id": 93,
+        "url": "https://{label}.go-mpulse.net/api/{seg}?%5Bredacted%5D=&t=&v=",
+        "domain": "{label}.go-mpulse.net",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 2395
+      },
+      {
+        "id": 94,
+        "url": "https://static.nike.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.nike.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2459
+      },
+      {
+        "id": 95,
+        "url": "https://static.nike.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.nike.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2461
+      },
+      {
+        "id": 96,
+        "url": "https://www.nike.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2514
+      },
+      {
+        "id": 97,
+        "url": "https://www.nike.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2515
+      },
+      {
+        "id": 98,
+        "url": "https://api.nike.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "api.nike.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2535
+      },
+      {
+        "id": 99,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2548
+      },
+      {
+        "id": 100,
+        "url": "https://{label}.newrelic.com/{seg}",
+        "domain": "{label}.newrelic.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "newrelic.com",
+          "entity": "New Relic",
+          "category": "performance monitoring",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 2548
+      },
+      {
+        "id": 101,
+        "url": "https://www.nike.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2553
+      },
+      {
+        "id": 102,
+        "url": "https://{label}.{label}.site.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.site.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2717
+      },
+      {
+        "id": 103,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2762
+      },
+      {
+        "id": 104,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2763
+      },
+      {
+        "id": 105,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2763
+      },
+      {
+        "id": 106,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2763
+      },
+      {
+        "id": 107,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2763
+      },
+      {
+        "id": 108,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2764
+      },
+      {
+        "id": 109,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2765
+      },
+      {
+        "id": 110,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2766
+      },
+      {
+        "id": 111,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2766
+      },
+      {
+        "id": 112,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2766
+      },
+      {
+        "id": 113,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2766
+      },
+      {
+        "id": 114,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2767
+      },
+      {
+        "id": 115,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2767
+      },
+      {
+        "id": 116,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2767
+      },
+      {
+        "id": 117,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2767
+      },
+      {
+        "id": 118,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2768
+      },
+      {
+        "id": 119,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2768
+      },
+      {
+        "id": 120,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2768
+      },
+      {
+        "id": 121,
+        "url": "https://www.googletagmanager.com/{seg}?id=&%5Bredacted%5D=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 2787
+      },
+      {
+        "id": 122,
+        "url": "https://{label}.{label}.nike.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.nike.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2787
+      },
+      {
+        "id": 123,
+        "url": "https://{label}.newrelic.com/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.newrelic.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "newrelic.com",
+          "entity": "New Relic",
+          "category": "performance monitoring",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 2788
+      },
+      {
+        "id": 124,
+        "url": "https://www.nike.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2800
+      },
+      {
+        "id": 125,
+        "url": "https://{label}.nr-data.net/{n}/{seg}?%5Bredacted%5D=&v=&ref=",
+        "domain": "{label}.nr-data.net",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "nr-data.net",
+          "entity": "New Relic",
+          "category": "performance monitoring",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 2823
+      },
+      {
+        "id": 126,
+        "url": "https://{label}.{label}.site.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.site.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2833
+      },
+      {
+        "id": 127,
+        "url": "https://{label}.{label}.salesforce-scrt.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.salesforce-scrt.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2833
+      },
+      {
+        "id": 128,
+        "url": "https://{label}.{label}.salesforce-scrt.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.salesforce-scrt.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2834
+      },
+      {
+        "id": 129,
+        "url": "https://{label}.{label}.nike.com/{seg}/{seg}",
+        "domain": "{label}.{label}.nike.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2897
+      },
+      {
+        "id": 130,
+        "url": "https://{label}.{label}.nike.com/{seg}/{seg}",
+        "domain": "{label}.{label}.nike.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2897
+      },
+      {
+        "id": 131,
+        "url": "https://{label}.{label}.nike.com/{seg}/{seg}",
+        "domain": "{label}.{label}.nike.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2901
+      },
+      {
+        "id": 132,
+        "url": "https://analytics.nike.com/{seg}/{seg}",
+        "domain": "analytics.nike.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 2901
+      },
+      {
+        "id": 133,
+        "url": "https://{label}.{label}.nike.com/{seg}/{seg}",
+        "domain": "{label}.{label}.nike.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2901
+      },
+      {
+        "id": 134,
+        "url": "https://analytics.nike.com/{seg}/{seg}",
+        "domain": "analytics.nike.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 2902
+      },
+      {
+        "id": 135,
+        "url": "https://{label}.{label}.nike.com/{seg}/{seg}",
+        "domain": "{label}.{label}.nike.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2902
+      },
+      {
+        "id": 136,
+        "url": "https://analytics.nike.com/{seg}/{seg}",
+        "domain": "analytics.nike.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 2902
+      },
+      {
+        "id": 137,
+        "url": "https://{label}.{label}.nike.com/{seg}/{seg}",
+        "domain": "{label}.{label}.nike.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2902
+      },
+      {
+        "id": 138,
+        "url": "https://analytics.nike.com/{seg}/{seg}",
+        "domain": "analytics.nike.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 2902
+      },
+      {
+        "id": 139,
+        "url": "https://analytics.nike.com/{seg}/{seg}",
+        "domain": "analytics.nike.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 2903
+      },
+      {
+        "id": 140,
+        "url": "https://{label}.{label}.nike.com/{seg}/{seg}",
+        "domain": "{label}.{label}.nike.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2903
+      },
+      {
+        "id": 141,
+        "url": "https://analytics.nike.com/{seg}/{seg}",
+        "domain": "analytics.nike.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 2905
+      },
+      {
+        "id": 142,
+        "url": "https://www.nike.com/{seg}/{seg}/{seg}/static/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2973
+      },
+      {
+        "id": 143,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2973
+      },
+      {
+        "id": 144,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2976
+      },
+      {
+        "id": 145,
+        "url": "https://{label}.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&v=&ref=",
+        "domain": "{label}.nr-data.net",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "nr-data.net",
+          "entity": "New Relic",
+          "category": "performance monitoring",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 2998
+      },
+      {
+        "id": 146,
+        "url": "https://{label}.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&v=&ref=",
+        "domain": "{label}.nr-data.net",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "nr-data.net",
+          "entity": "New Relic",
+          "category": "performance monitoring",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 2998
+      },
+      {
+        "id": 147,
+        "url": "https://{label}.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&v=&ref=",
+        "domain": "{label}.nr-data.net",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "nr-data.net",
+          "entity": "New Relic",
+          "category": "performance monitoring",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 2999
+      },
+      {
+        "id": 148,
+        "url": "https://{label}.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&v=&ref=",
+        "domain": "{label}.nr-data.net",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "nr-data.net",
+          "entity": "New Relic",
+          "category": "performance monitoring",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 3001
+      },
+      {
+        "id": 149,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3002
+      },
+      {
+        "id": 150,
+        "url": "https://{label}.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&v=&ref=",
+        "domain": "{label}.nr-data.net",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "nr-data.net",
+          "entity": "New Relic",
+          "category": "performance monitoring",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 3006
+      },
+      {
+        "id": 151,
+        "url": "https://{label}.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&v=&ref=",
+        "domain": "{label}.nr-data.net",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "nr-data.net",
+          "entity": "New Relic",
+          "category": "performance monitoring",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 3007
+      },
+      {
+        "id": 152,
+        "url": "https://{label}.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&v=&ref=",
+        "domain": "{label}.nr-data.net",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "nr-data.net",
+          "entity": "New Relic",
+          "category": "performance monitoring",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 3010
+      },
+      {
+        "id": 153,
+        "url": "https://{label}.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&v=&ref=",
+        "domain": "{label}.nr-data.net",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "nr-data.net",
+          "entity": "New Relic",
+          "category": "performance monitoring",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 3011
+      },
+      {
+        "id": 154,
+        "url": "https://{label}.nr-data.net/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.nr-data.net",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "nr-data.net",
+          "entity": "New Relic",
+          "category": "performance monitoring",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 3012
+      },
+      {
+        "id": 155,
+        "url": "https://{label}.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&v=&ref=",
+        "domain": "{label}.nr-data.net",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "nr-data.net",
+          "entity": "New Relic",
+          "category": "performance monitoring",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 3014
+      },
+      {
+        "id": 156,
+        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 3137
+      },
+      {
+        "id": 157,
+        "url": "https://{label}.adsrvr.org/{seg}",
+        "domain": "{label}.adsrvr.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adsrvr.org",
+          "entity": "The Trade Desk",
+          "category": "advertising / demand-side platform",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 3138
+      },
+      {
+        "id": 158,
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.googlesyndication.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googlesyndication.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 3138
+      },
+      {
+        "id": 159,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3147
+      },
+      {
+        "id": 160,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3150
+      },
+      {
+        "id": 161,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3150
+      },
+      {
+        "id": 162,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3150
+      },
+      {
+        "id": 163,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3153
+      },
+      {
+        "id": 164,
+        "url": "https://{label}.{label}.site.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.site.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3158
+      },
+      {
+        "id": 165,
+        "url": "https://www.nike.com/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3182
+      },
+      {
+        "id": 166,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3184
+      },
+      {
+        "id": 167,
+        "url": "https://{label}.{label}.site.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.site.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3201
+      },
+      {
+        "id": 168,
+        "url": "https://api.nike.com/{seg}/{seg}/{seg}/us/{seg}/{seg}",
+        "domain": "api.nike.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 404,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3207
+      },
+      {
+        "id": 169,
+        "url": "https://{label}.nike.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.nike.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 3216
+      },
+      {
+        "id": 170,
+        "url": "https://{label}.nike.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.nike.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 3217
+      },
+      {
+        "id": 171,
+        "url": "https://{label}.nike.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.nike.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 3217
+      },
+      {
+        "id": 172,
+        "url": "https://{label}.nike.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.nike.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 3217
+      },
+      {
+        "id": 173,
+        "url": "https://{label}.adsrvr.org/{seg}/{seg}?%5Bredacted%5D=&ref=",
+        "domain": "{label}.adsrvr.org",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 302,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adsrvr.org",
+          "entity": "The Trade Desk",
+          "category": "advertising / demand-side platform",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 3222
+      },
+      {
+        "id": 174,
+        "url": "https://{label}.adsrvr.org/{seg}/{seg}?%5Bredacted%5D=&ref=",
+        "domain": "{label}.adsrvr.org",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adsrvr.org",
+          "entity": "The Trade Desk",
+          "category": "advertising / demand-side platform",
+          "confidence": "curated"
+        },
+        "startedAtMs": 3299
+      },
+      {
+        "id": 175,
+        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 3306
+      },
+      {
+        "id": 176,
+        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 3307
+      },
+      {
+        "id": 177,
+        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 3307
+      },
+      {
+        "id": 178,
+        "url": "https://{label}.{label}.nike.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.nike.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 3308
+      },
+      {
+        "id": 179,
+        "url": "https://{label}.{label}.nike.com/{seg}/{seg}",
+        "domain": "{label}.{label}.nike.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3318
+      },
+      {
+        "id": 180,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3324
+      },
+      {
+        "id": 181,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3325
+      },
+      {
+        "id": 182,
+        "url": "https://{label}.{label}.site.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.site.com",
+        "method": "HEAD",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3326
+      },
+      {
+        "id": 183,
+        "url": "https://{label}.nike.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.nike.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 3330
+      },
+      {
+        "id": 184,
+        "url": "https://{label}.{label}.site.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.site.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3333
+      },
+      {
+        "id": 185,
+        "url": "https://{label}.{label}.site.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.site.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3365
+      },
+      {
+        "id": 186,
+        "url": "https://{label}.{label}.site.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.site.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3367
+      },
+      {
+        "id": 187,
+        "url": "https://{label}.{label}.site.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.site.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3370
+      },
+      {
+        "id": 188,
+        "url": "https://{label}.{label}.site.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.site.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3371
+      },
+      {
+        "id": 189,
+        "url": "https://{label}.{label}.site.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.site.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3375
+      },
+      {
+        "id": 190,
+        "url": "https://{label}.{label}.site.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.site.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3375
+      },
+      {
+        "id": 191,
+        "url": "https://{label}.{label}.site.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.site.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3377
+      },
+      {
+        "id": 192,
+        "url": "https://{label}.{label}.site.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.site.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3377
+      },
+      {
+        "id": 193,
+        "url": "https://{label}.{label}.site.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.site.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3378
+      },
+      {
+        "id": 194,
+        "url": "https://{label}.{label}.site.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.site.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3378
+      },
+      {
+        "id": 195,
+        "url": "https://{label}.{label}.site.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.site.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3378
+      },
+      {
+        "id": 196,
+        "url": "https://{label}.nike.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.nike.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 3389
+      },
+      {
+        "id": 197,
+        "url": "https://{label}.adsrvr.org/{seg}",
+        "domain": "{label}.adsrvr.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adsrvr.org",
+          "entity": "The Trade Desk",
+          "category": "advertising / demand-side platform",
+          "confidence": "curated"
+        },
+        "blockedByShields": false,
+        "startedAtMs": 3414
+      },
+      {
+        "id": 198,
+        "url": "https://pixel.rubiconproject.com/{seg}?v=&%5Bredacted%5D=",
+        "domain": "pixel.rubiconproject.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 302,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "rubiconproject.com",
+          "entity": "Magnite",
+          "category": "advertising / supply-side platform",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 3422
+      },
+      {
+        "id": 199,
+        "url": "https://{label}.{label}.doubleclick.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 302,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 3423
+      },
+      {
+        "id": 200,
+        "url": "https://{label}.adnxs.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.adnxs.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 3424
+      },
+      {
+        "id": 201,
+        "url": "https://{label}.adsrvr.org/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.adsrvr.org",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adsrvr.org",
+          "entity": "The Trade Desk",
+          "category": "advertising / demand-side platform",
+          "confidence": "curated"
+        },
+        "startedAtMs": 3471
+      },
+      {
+        "id": 202,
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.googlesyndication.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 302,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googlesyndication.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 3488
+      },
+      {
+        "id": 203,
+        "url": "https://{label}.{label}.doubleclick.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 302,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 3510
+      },
+      {
+        "id": 204,
+        "url": "https://{label}.adsrvr.org/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.adsrvr.org",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adsrvr.org",
+          "entity": "The Trade Desk",
+          "category": "advertising / demand-side platform",
+          "confidence": "curated"
+        },
+        "startedAtMs": 3535
+      },
+      {
+        "id": 205,
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}?%5Bredacted%5D=&tid=",
+        "domain": "{label}.googlesyndication.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googlesyndication.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 3552
+      },
+      {
+        "id": 206,
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}?%5Bredacted%5D=&tid=",
+        "domain": "{label}.googlesyndication.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googlesyndication.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 3610
+      },
+      {
+        "id": 207,
+        "url": "https://{label}.googlesyndication.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.googlesyndication.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googlesyndication.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 3611
+      },
+      {
+        "id": 208,
+        "url": "https://api.nike.com/{seg}/{seg}/{seg}/us/{seg}/{seg}",
+        "domain": "api.nike.com",
+        "method": "PUT",
+        "resourceType": "fetch",
+        "status": 403,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3746
+      },
+      {
+        "id": 209,
+        "url": "https://analytics.nike.com/{seg}/{seg}",
+        "domain": "analytics.nike.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 3773
+      },
+      {
+        "id": 210,
+        "url": "https://{label}.{label}.nike.com/{seg}/{seg}",
+        "domain": "{label}.{label}.nike.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3774
+      },
+      {
+        "id": 211,
+        "url": "https://api.nike.com/{seg}/{seg}",
+        "domain": "api.nike.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3782
+      },
+      {
+        "id": 212,
+        "url": "https://{label}.nike.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.nike.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 3880
+      },
+      {
+        "id": 213,
+        "url": "https://{label}.nike.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.nike.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 3982
+      },
+      {
+        "id": 214,
+        "url": "https://analytics.nike.com/{seg}/{seg}",
+        "domain": "analytics.nike.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 4093
+      },
+      {
+        "id": 215,
+        "url": "https://{label}.{label}.nike.com/{seg}/{seg}",
+        "domain": "{label}.{label}.nike.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 4093
+      },
+      {
+        "id": 216,
+        "url": "https://{label}.adsrvr.org/{seg}/{seg}",
+        "domain": "{label}.adsrvr.org",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adsrvr.org",
+          "entity": "The Trade Desk",
+          "category": "advertising / demand-side platform",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 4221
+      },
+      {
+        "id": 217,
+        "url": "https://analytics.nike.com/{seg}/{seg}",
+        "domain": "analytics.nike.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 4915
+      },
+      {
+        "id": 218,
+        "url": "https://{label}.{label}.nike.com/{seg}/{seg}",
+        "domain": "{label}.{label}.nike.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 4916
+      },
+      {
+        "id": 219,
+        "url": "https://{label}.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&v=&ref=",
+        "domain": "{label}.nr-data.net",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "nr-data.net",
+          "entity": "New Relic",
+          "category": "performance monitoring",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 5056
+      },
+      {
+        "id": 220,
+        "url": "https://api.nike.com/search/{seg}/{seg}",
+        "domain": "api.nike.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 5230
+      },
+      {
+        "id": 221,
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
+        "domain": "www.google-analytics.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 7582
+      },
+      {
+        "id": 222,
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
+        "domain": "www.google-analytics.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 7583
+      },
+      {
+        "id": 223,
+        "url": "https://{label}.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&v=&ref=",
+        "domain": "{label}.nr-data.net",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": null,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "nr-data.net",
+          "entity": "New Relic",
+          "category": "performance monitoring",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 7583
+      },
+      {
+        "id": 224,
+        "url": "https://{label}.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&v=&ref=",
+        "domain": "{label}.nr-data.net",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": null,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "nr-data.net",
+          "entity": "New Relic",
+          "category": "performance monitoring",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 7584
+      },
+      {
+        "id": 225,
+        "url": "https://{label}.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&v=&ref=",
+        "domain": "{label}.nr-data.net",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": null,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "nr-data.net",
+          "entity": "New Relic",
+          "category": "performance monitoring",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 7585
+      },
+      {
+        "id": 226,
+        "url": "https://{label}.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&v=&ref=",
+        "domain": "{label}.nr-data.net",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": null,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "nr-data.net",
+          "entity": "New Relic",
+          "category": "performance monitoring",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 7586
+      },
+      {
+        "id": 227,
+        "url": "https://{label}.nr-data.net/{seg}/{n}/{seg}?%5Bredacted%5D=&v=&ref=",
+        "domain": "{label}.nr-data.net",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": null,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "nr-data.net",
+          "entity": "New Relic",
+          "category": "performance monitoring",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 7586
+      },
+      {
+        "id": 228,
+        "url": "https://www.google.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 7588
+      },
+      {
+        "id": 229,
+        "url": "https://www.google.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 7588
+      }
+    ],
+    "domains": [
+      {
+        "domain": "{label}.nr-data.net",
+        "requests": 17,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "nr-data.net",
+          "entity": "New Relic",
+          "category": "performance monitoring",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          204
+        ],
+        "resourceTypes": [
+          "xhr",
+          "ping"
+        ]
+      },
+      {
+        "domain": "{label}.adsrvr.org",
+        "requests": 7,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adsrvr.org",
+          "entity": "The Trade Desk",
+          "category": "advertising / demand-side platform",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          302
+        ],
+        "resourceTypes": [
+          "script",
+          "document",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 5,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "{label}.googlesyndication.com",
+        "requests": 5,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googlesyndication.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          302
+        ],
+        "resourceTypes": [
+          "fetch",
+          "image"
+        ]
+      },
+      {
+        "domain": "{label}.newrelic.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "newrelic.com",
+          "entity": "New Relic",
+          "category": "performance monitoring",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "fetch"
+        ]
+      },
+      {
+        "domain": "{label}.{label}.doubleclick.net",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          302
+        ],
+        "resourceTypes": [
+          "document"
+        ]
+      },
+      {
+        "domain": "www.google-analytics.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "pixel.rubiconproject.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "rubiconproject.com",
+          "entity": "Magnite",
+          "category": "advertising / supply-side platform",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          302
+        ],
+        "resourceTypes": [
+          "document"
+        ]
+      },
+      {
+        "domain": "{label}.{label}.site.com",
+        "requests": 17,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "stylesheet",
+          "document",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "{label}.go-mpulse.net",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          204
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "{label}.{label}.salesforce-scrt.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200,
+          204
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "www.google.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "{label}.cdndex.io",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "{label}.adnxs.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document"
+        ]
+      },
+      {
+        "domain": "www.nike.com",
+        "requests": 105,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          429
+        ],
+        "resourceTypes": [
+          "document",
+          "font",
+          "stylesheet",
+          "script",
+          "fetch",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "static.nike.com",
+        "requests": 15,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "{label}.{label}.nike.com",
+        "requests": 13,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "ping",
+          "fetch"
+        ]
+      },
+      {
+        "domain": "api.nike.com",
+        "requests": 11,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200,
+          404,
+          403
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "{label}.nike.com",
+        "requests": 10,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "stylesheet",
+          "script",
+          "fetch"
+        ]
+      },
+      {
+        "domain": "analytics.nike.com",
+        "requests": 9,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "ping",
+          "fetch"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "[redacted]",
+        "domain": ".adsrvr.org",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".adsrvr.org",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "test_cookie",
+        "domain": ".doubleclick.net",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".nike.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted:long-token]",
+        "domain": ".nike.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted:long-token]",
+        "domain": ".nike.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".nike.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".nike.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".nike.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".nike.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".nike.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".nike.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".nike.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".nike.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".nike.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".{label}.nike.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".{label}.nike.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "api.nike.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "api.nike.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.nike.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.nike.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.nike.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 36
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 530
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 6
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 45521
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 51
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted:long-token]",
+        "valueBytes": 424
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 2284
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 64
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 69
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted:long-token]",
+        "valueBytes": 2
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 2
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted:long-token]",
+        "valueBytes": 80
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 9
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 4
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 1
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 2
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 36
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted:long-token]",
+        "valueBytes": 2
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 13
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 13
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 21
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 2
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted:long-token]",
+        "valueBytes": 106
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted:long-token]",
+        "valueBytes": 93
+      }
+    ],
+    "fingerprintEvents": [],
+    "fingerprintDetections": [],
+    "cnameCloaks": [
+      {
+        "host": "{label}.nike.com",
+        "cname": "{label}.{label}.omtrdc.net",
+        "tracker": {
+          "domain": "omtrdc.net",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        }
+      }
+    ],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+      "This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored. Requests the page sent during and after this typing, including any unload beacons, are part of the recorded request log and counts.",
+      "Resolved 1 first-party subdomain that is a CNAME alias for a third-party tracker (CNAME cloaking), which request-URL matching alone would miss.",
+      "The scan blocked or could not verify one or more Web Workers while applying the simulated GPC signal; request evidence may be incomplete."
+    ]
+  },
+  "variant": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "Nike. Just Do It. Nike.com",
+      "status": 200,
+      "durationMs": 9226,
+      "firstPartyDomain": "www.nike.com",
+      "totalRequests": 159,
+      "thirdPartyRequests": 19,
+      "knownTrackerRequests": 0,
+      "thirdPartyDomains": 2,
+      "cookies": 17,
+      "thirdPartyCookies": 0,
+      "storageEntries": 15,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 19
+    },
+    "conditions": {
+      "requestedUrl": "https://www.nike.com/",
+      "finalUrl": "https://www.nike.com/",
+      "scannedAt": "2026-07-21T21:28:36.465Z",
+      "chromiumVersion": "149.0.7827.55",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": true,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "block-simulation",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-13T09:47:59.645Z"
+      },
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.06",
+        "region": "US-biased",
+        "entries": 133,
+        "curatedOverrides": 133,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan using Playwright 1.61.1 from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Brave-list matching uses each route-evaluated request's initiating document (the parent document for a subframe navigation), under methodology shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.61.1; main-frame navigations are not blocked or counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.nike.com/",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 52
+      },
+      {
+        "id": 2,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 574
+      },
+      {
+        "id": 3,
+        "url": "https://www.nike.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 575
+      },
+      {
+        "id": 4,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 576
+      },
+      {
+        "id": 5,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 576
+      },
+      {
+        "id": 6,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 577
+      },
+      {
+        "id": 7,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 577
+      },
+      {
+        "id": 8,
+        "url": "https://{label}.nike.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.nike.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 577
+      },
+      {
+        "id": 9,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 579
+      },
+      {
+        "id": 10,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 580
+      },
+      {
+        "id": 11,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 580
+      },
+      {
+        "id": 12,
+        "url": "https://www.nike.com/{seg}/static/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 581
+      },
+      {
+        "id": 13,
+        "url": "https://www.nike.com/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 581
+      },
+      {
+        "id": 14,
+        "url": "https://www.nike.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 581
+      },
+      {
+        "id": 15,
+        "url": "https://www.nike.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 582
+      },
+      {
+        "id": 16,
+        "url": "https://www.nike.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 582
+      },
+      {
+        "id": 17,
+        "url": "https://www.nike.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 582
+      },
+      {
+        "id": 18,
+        "url": "https://www.nike.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 582
+      },
+      {
+        "id": 19,
+        "url": "https://{label}.nike.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 583
+      },
+      {
+        "id": 20,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 603
+      },
+      {
+        "id": 21,
+        "url": "https://www.nike.com/{seg}/static/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 735
+      },
+      {
+        "id": 22,
+        "url": "https://www.nike.com/{seg}/static/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 736
+      },
+      {
+        "id": 24,
+        "url": "https://www.nike.com/{seg}/static/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 804
+      },
+      {
+        "id": 25,
+        "url": "https://www.nike.com/{seg}/static/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 805
+      },
+      {
+        "id": 26,
+        "url": "https://www.nike.com/{seg}/static/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 807
+      },
+      {
+        "id": 27,
+        "url": "https://www.nike.com/{seg}/static/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 807
+      },
+      {
+        "id": 28,
+        "url": "https://www.nike.com/{seg}/static/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 808
+      },
+      {
+        "id": 29,
+        "url": "https://www.nike.com/{seg}/static/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 808
+      },
+      {
+        "id": 30,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 808
+      },
+      {
+        "id": 31,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 809
+      },
+      {
+        "id": 32,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 809
+      },
+      {
+        "id": 33,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 809
+      },
+      {
+        "id": 34,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 809
+      },
+      {
+        "id": 35,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 810
+      },
+      {
+        "id": 36,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 810
+      },
+      {
+        "id": 37,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 810
+      },
+      {
+        "id": 38,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 810
+      },
+      {
+        "id": 39,
+        "url": "https://www.nike.com/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 833
+      },
+      {
+        "id": 40,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 834
+      },
+      {
+        "id": 42,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 947
+      },
+      {
+        "id": 43,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 948
+      },
+      {
+        "id": 44,
+        "url": "https://static.nike.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.nike.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 981
+      },
+      {
+        "id": 45,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 981
+      },
+      {
+        "id": 46,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 982
+      },
+      {
+        "id": 47,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1127
+      },
+      {
+        "id": 48,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1127
+      },
+      {
+        "id": 49,
+        "url": "https://static.nike.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.nike.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1174
+      },
+      {
+        "id": 50,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1174
+      },
+      {
+        "id": 51,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1175
+      },
+      {
+        "id": 53,
+        "url": "https://api.nike.com/search/{seg}/{seg}",
+        "domain": "api.nike.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1346
+      },
+      {
+        "id": 55,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/us/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1372
+      },
+      {
+        "id": 56,
+        "url": "https://www.nike.com/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 429,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1431
+      },
+      {
+        "id": 57,
+        "url": "https://www.nike.com/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1453
+      },
+      {
+        "id": 58,
+        "url": "https://www.nike.com/{seg}/static/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1516
+      },
+      {
+        "id": 59,
+        "url": "https://www.nike.com/{seg}/static/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1517
+      },
+      {
+        "id": 60,
+        "url": "https://www.nike.com/{seg}/static/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1517
+      },
+      {
+        "id": 61,
+        "url": "https://www.nike.com/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1536
+      },
+      {
+        "id": 62,
+        "url": "https://www.nike.com/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1536
+      },
+      {
+        "id": 63,
+        "url": "https://www.nike.com/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1537
+      },
+      {
+        "id": 64,
+        "url": "https://www.nike.com/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1538
+      },
+      {
+        "id": 65,
+        "url": "https://www.nike.com/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1644
+      },
+      {
+        "id": 66,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1658
+      },
+      {
+        "id": 67,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1659
+      },
+      {
+        "id": 68,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1659
+      },
+      {
+        "id": 69,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1659
+      },
+      {
+        "id": 70,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1708
+      },
+      {
+        "id": 71,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1784
+      },
+      {
+        "id": 72,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1785
+      },
+      {
+        "id": 73,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1786
+      },
+      {
+        "id": 74,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1786
+      },
+      {
+        "id": 75,
+        "url": "https://static.nike.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.nike.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1792
+      },
+      {
+        "id": 76,
+        "url": "https://static.nike.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.nike.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1792
+      },
+      {
+        "id": 77,
+        "url": "https://static.nike.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.nike.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1793
+      },
+      {
+        "id": 78,
+        "url": "https://static.nike.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.nike.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1793
+      },
+      {
+        "id": 79,
+        "url": "https://static.nike.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.nike.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1793
+      },
+      {
+        "id": 80,
+        "url": "https://static.nike.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.nike.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1795
+      },
+      {
+        "id": 81,
+        "url": "https://static.nike.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.nike.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1795
+      },
+      {
+        "id": 82,
+        "url": "https://static.nike.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.nike.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1796
+      },
+      {
+        "id": 83,
+        "url": "https://static.nike.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.nike.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1796
+      },
+      {
+        "id": 84,
+        "url": "https://api.nike.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "api.nike.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1834
+      },
+      {
+        "id": 85,
+        "url": "https://api.nike.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "api.nike.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1836
+      },
+      {
+        "id": 86,
+        "url": "https://api.nike.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "api.nike.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1836
+      },
+      {
+        "id": 87,
+        "url": "https://api.nike.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "api.nike.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1837
+      },
+      {
+        "id": 88,
+        "url": "https://www.nike.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1921
+      },
+      {
+        "id": 89,
+        "url": "https://www.nike.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1922
+      },
+      {
+        "id": 90,
+        "url": "https://api.nike.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "api.nike.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1922
+      },
+      {
+        "id": 91,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2063
+      },
+      {
+        "id": 92,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2064
+      },
+      {
+        "id": 93,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2065
+      },
+      {
+        "id": 94,
+        "url": "https://www.nike.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2077
+      },
+      {
+        "id": 95,
+        "url": "https://{label}.{label}.site.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.site.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2200
+      },
+      {
+        "id": 96,
+        "url": "https://static.nike.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.nike.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2201
+      },
+      {
+        "id": 97,
+        "url": "https://static.nike.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.nike.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2202
+      },
+      {
+        "id": 98,
+        "url": "https://static.nike.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.nike.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2218
+      },
+      {
+        "id": 100,
+        "url": "https://api.nike.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "api.nike.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2732
+      },
+      {
+        "id": 101,
+        "url": "https://static.nike.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.nike.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2768
+      },
+      {
+        "id": 102,
+        "url": "https://www.nike.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2802
+      },
+      {
+        "id": 103,
+        "url": "https://{label}.{label}.nike.com/{seg}/{seg}",
+        "domain": "{label}.{label}.nike.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3010
+      },
+      {
+        "id": 104,
+        "url": "https://{label}.{label}.nike.com/{seg}/{seg}",
+        "domain": "{label}.{label}.nike.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3010
+      },
+      {
+        "id": 105,
+        "url": "https://{label}.{label}.nike.com/{seg}/{seg}",
+        "domain": "{label}.{label}.nike.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3011
+      },
+      {
+        "id": 107,
+        "url": "https://{label}.{label}.nike.com/{seg}/{seg}",
+        "domain": "{label}.{label}.nike.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3011
+      },
+      {
+        "id": 109,
+        "url": "https://{label}.{label}.nike.com/{seg}/{seg}",
+        "domain": "{label}.{label}.nike.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3012
+      },
+      {
+        "id": 111,
+        "url": "https://{label}.{label}.nike.com/{seg}/{seg}",
+        "domain": "{label}.{label}.nike.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3014
+      },
+      {
+        "id": 114,
+        "url": "https://{label}.{label}.nike.com/{seg}/{seg}",
+        "domain": "{label}.{label}.nike.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3015
+      },
+      {
+        "id": 116,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3023
+      },
+      {
+        "id": 117,
+        "url": "https://{label}.{label}.salesforce-scrt.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.salesforce-scrt.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3029
+      },
+      {
+        "id": 118,
+        "url": "https://{label}.{label}.site.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.site.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3029
+      },
+      {
+        "id": 119,
+        "url": "https://{label}.{label}.salesforce-scrt.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.salesforce-scrt.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3030
+      },
+      {
+        "id": 123,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3055
+      },
+      {
+        "id": 125,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3086
+      },
+      {
+        "id": 126,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3087
+      },
+      {
+        "id": 127,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3087
+      },
+      {
+        "id": 128,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3087
+      },
+      {
+        "id": 129,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3088
+      },
+      {
+        "id": 130,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3088
+      },
+      {
+        "id": 131,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3089
+      },
+      {
+        "id": 132,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3090
+      },
+      {
+        "id": 133,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3090
+      },
+      {
+        "id": 134,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3090
+      },
+      {
+        "id": 135,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3091
+      },
+      {
+        "id": 136,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3093
+      },
+      {
+        "id": 137,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3094
+      },
+      {
+        "id": 138,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3094
+      },
+      {
+        "id": 139,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3094
+      },
+      {
+        "id": 140,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3094
+      },
+      {
+        "id": 141,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3094
+      },
+      {
+        "id": 142,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3094
+      },
+      {
+        "id": 144,
+        "url": "https://{label}.{label}.nike.com/{seg}/{seg}",
+        "domain": "{label}.{label}.nike.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3161
+      },
+      {
+        "id": 145,
+        "url": "https://www.nike.com/{seg}/{seg}/{seg}/static/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3227
+      },
+      {
+        "id": 146,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3228
+      },
+      {
+        "id": 148,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3231
+      },
+      {
+        "id": 149,
+        "url": "https://{label}.{label}.site.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.site.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3265
+      },
+      {
+        "id": 150,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3276
+      },
+      {
+        "id": 151,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3276
+      },
+      {
+        "id": 152,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3277
+      },
+      {
+        "id": 153,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3277
+      },
+      {
+        "id": 154,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3277
+      },
+      {
+        "id": 155,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3279
+      },
+      {
+        "id": 156,
+        "url": "https://{label}.{label}.site.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.site.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3287
+      },
+      {
+        "id": 157,
+        "url": "https://api.nike.com/{seg}/{seg}/{seg}/us/{seg}/{seg}",
+        "domain": "api.nike.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 404,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3311
+      },
+      {
+        "id": 158,
+        "url": "https://{label}.{label}.site.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.site.com",
+        "method": "HEAD",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3312
+      },
+      {
+        "id": 159,
+        "url": "https://{label}.{label}.site.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.site.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3315
+      },
+      {
+        "id": 160,
+        "url": "https://{label}.{label}.site.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.site.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3339
+      },
+      {
+        "id": 161,
+        "url": "https://{label}.{label}.site.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.site.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3339
+      },
+      {
+        "id": 162,
+        "url": "https://{label}.{label}.site.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.site.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3341
+      },
+      {
+        "id": 163,
+        "url": "https://{label}.{label}.site.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.site.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3341
+      },
+      {
+        "id": 164,
+        "url": "https://{label}.{label}.site.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.site.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3341
+      },
+      {
+        "id": 165,
+        "url": "https://{label}.{label}.site.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.site.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3341
+      },
+      {
+        "id": 166,
+        "url": "https://{label}.{label}.site.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.site.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3341
+      },
+      {
+        "id": 167,
+        "url": "https://{label}.{label}.site.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.site.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3342
+      },
+      {
+        "id": 168,
+        "url": "https://{label}.{label}.site.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.site.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3342
+      },
+      {
+        "id": 169,
+        "url": "https://{label}.{label}.site.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.site.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3342
+      },
+      {
+        "id": 170,
+        "url": "https://{label}.{label}.site.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.site.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3342
+      },
+      {
+        "id": 171,
+        "url": "https://www.nike.com/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3418
+      },
+      {
+        "id": 172,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3429
+      },
+      {
+        "id": 173,
+        "url": "https://www.nike.com/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nike.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3430
+      },
+      {
+        "id": 175,
+        "url": "https://api.nike.com/{seg}/{seg}/{seg}/us/{seg}/{seg}",
+        "domain": "api.nike.com",
+        "method": "PUT",
+        "resourceType": "fetch",
+        "status": 403,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3783
+      },
+      {
+        "id": 177,
+        "url": "https://{label}.{label}.nike.com/{seg}/{seg}",
+        "domain": "{label}.{label}.nike.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 4800
+      },
+      {
+        "id": 178,
+        "url": "https://api.nike.com/search/{seg}/{seg}",
+        "domain": "api.nike.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 5105
+      }
+    ],
+    "domains": [
+      {
+        "domain": "{label}.{label}.site.com",
+        "requests": 17,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "stylesheet",
+          "document",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "{label}.{label}.salesforce-scrt.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200,
+          204
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "www.nike.com",
+        "requests": 104,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200,
+          429
+        ],
+        "resourceTypes": [
+          "document",
+          "font",
+          "stylesheet",
+          "script",
+          "fetch",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "static.nike.com",
+        "requests": 15,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "api.nike.com",
+        "requests": 10,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200,
+          404,
+          403
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "{label}.{label}.nike.com",
+        "requests": 9,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "{label}.nike.com",
+        "requests": 2,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "stylesheet",
+          "script"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "[redacted]",
+        "domain": ".nike.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted:long-token]",
+        "domain": ".nike.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted:long-token]",
+        "domain": ".nike.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".nike.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".nike.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".nike.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".nike.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".nike.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".nike.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".nike.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".nike.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".nike.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "api.nike.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "api.nike.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.nike.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.nike.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.nike.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 36
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 6
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 45521
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 51
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted:long-token]",
+        "valueBytes": 424
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 2284
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 64
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 69
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted:long-token]",
+        "valueBytes": 2
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted:long-token]",
+        "valueBytes": 80
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 9
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 4
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 2
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 2
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted:long-token]",
+        "valueBytes": 2
+      }
+    ],
+    "fingerprintEvents": [],
+    "fingerprintDetections": [],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+      "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+      "This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored. Requests the page sent during and after this typing, including any unload beacons, are part of the recorded request log and counts.",
+      "The scan blocked or could not verify one or more Web Workers while applying the simulated GPC signal; request evidence may be incomplete."
+    ]
+  },
+  "diff": {
+    "totalRequests": {
+      "before": 229,
+      "after": 159,
+      "delta": -70
+    },
+    "thirdPartyRequests": {
+      "before": 66,
+      "after": 19,
+      "delta": -47
+    },
+    "knownTrackerRequests": {
+      "before": 41,
+      "after": 0,
+      "delta": -41
+    },
+    "thirdPartyDomains": {
+      "before": 14,
+      "after": 2,
+      "delta": -12
+    },
+    "cookies": {
+      "before": 22,
+      "after": 17,
+      "delta": -5
+    },
+    "thirdPartyCookies": {
+      "before": 3,
+      "after": 0,
+      "delta": -3
+    },
+    "storageEntries": {
+      "before": 24,
+      "after": 15,
+      "delta": -9
+    },
+    "fingerprintEvents": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "addedDomains": [],
+    "removedDomains": [
+      {
+        "domain": "{label}.nr-data.net",
+        "requests": 17,
+        "tracker": {
+          "domain": "nr-data.net",
+          "entity": "New Relic",
+          "category": "performance monitoring",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "analytics.nike.com",
+        "requests": 9,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.adsrvr.org",
+        "requests": 7,
+        "tracker": {
+          "domain": "adsrvr.org",
+          "entity": "The Trade Desk",
+          "category": "advertising / demand-side platform",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "{label}.googlesyndication.com",
+        "requests": 5,
+        "tracker": {
+          "domain": "googlesyndication.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 5,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "{label}.{label}.doubleclick.net",
+        "requests": 2,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "{label}.go-mpulse.net",
+        "requests": 2,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.newrelic.com",
+        "requests": 2,
+        "tracker": {
+          "domain": "newrelic.com",
+          "entity": "New Relic",
+          "category": "performance monitoring",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "www.google-analytics.com",
+        "requests": 2,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "www.google.com",
+        "requests": 2,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.adnxs.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.cdndex.io",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "pixel.rubiconproject.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "rubiconproject.com",
+          "entity": "Magnite",
+          "category": "advertising / supply-side platform",
+          "confidence": "curated"
+        }
+      }
+    ],
+    "addedEntities": [],
+    "removedEntities": [
+      {
+        "entity": "New Relic",
+        "requests": 19,
+        "domains": 2
+      },
+      {
+        "entity": "Google",
+        "requests": 14,
+        "domains": 4
+      },
+      {
+        "entity": "The Trade Desk",
+        "requests": 7,
+        "domains": 1
+      },
+      {
+        "entity": "Magnite",
+        "requests": 1,
+        "domains": 1
+      }
+    ],
+    "addedCookies": [],
+    "removedCookies": [
+      {
+        "name": "[redacted]",
+        "domain": ".adsrvr.org",
+        "thirdParty": true
+      },
+      {
+        "name": "test_cookie",
+        "domain": ".doubleclick.net",
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".{label}.nike.com",
+        "thirdParty": false
+      }
+    ],
+    "addedStorageKeys": [],
+    "removedStorageKeys": [],
+    "addedFingerprinting": [],
+    "removedFingerprinting": [],
+    "addedProvenance": [],
+    "removedProvenance": [],
+    "shieldsBlockedRequests": {
+      "before": 60,
+      "after": 19,
+      "delta": -41
+    }
+  },
+  "warnings": [
+    "Brave-list blocking comparison runs should be collected under matched crawl conditions, and the blocking run is a simulation with Brave's engine and default lists in this scanner's browser, not a live Brave visit. Differences can still reflect timing, experiments, cache state, consent state, or bot detection.",
+    "The two visits ran in randomized order; the \"No blocking\" visit ran first.",
+    "No blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "No blocking: Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+    "No blocking: This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored. Requests the page sent during and after this typing, including any unload beacons, are part of the recorded request log and counts.",
+    "No blocking: Resolved 1 first-party subdomain that is a CNAME alias for a third-party tracker (CNAME cloaking), which request-URL matching alone would miss.",
+    "No blocking: The scan blocked or could not verify one or more Web Workers while applying the simulated GPC signal; request evidence may be incomplete.",
+    "Brave-list blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Brave-list blocking: Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+    "Brave-list blocking: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+    "Brave-list blocking: This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored. Requests the page sent during and after this typing, including any unload beacons, are part of the recorded request log and counts.",
+    "Brave-list blocking: The scan blocked or could not verify one or more Web Workers while applying the simulated GPC signal; request evidence may be incomplete."
+  ],
+  "share": {
+    "id": "20260721-dd8750dd0ebebe5867a18fedb4aacafb",
+    "path": "/reports/20260721-dd8750dd0ebebe5867a18fedb4aacafb/",
+    "jsonPath": "/reports/20260721-dd8750dd0ebebe5867a18fedb4aacafb.json"
+  }
+}
