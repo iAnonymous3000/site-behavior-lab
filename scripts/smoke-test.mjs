@@ -262,10 +262,16 @@ async function uiChecks() {
     pass("copy share link writes an absolute report URL");
 
     await page.goto(`${baseUrl}${shareHref}`, { waitUntil: "networkidle" });
+    await page.waitForSelector(".report-header", { timeout: 30_000 });
+    await expectText(page.locator(".report-header"), "https://example.com/");
+    if ((await page.locator(".report-grid").count()) !== 0) {
+      fail("share permalink eagerly rendered the full evidence explorer");
+    }
+    await page.getByRole("button", { name: "Explore full evidence" }).click();
     await waitForReportOrError(page, 30_000);
     await expectText(page.locator(".report-header"), "GPC off/on comparison");
     await expectText(page.locator(".report-header"), "https://example.com/");
-    pass("share permalink renders saved report");
+    pass("share permalink renders its compact summary and lazy evidence explorer");
 
     // Report permalinks intentionally lead with evidence and do not embed the
     // scanner form. Return to the scanner before exercising its validation UI.
