@@ -1,0 +1,63 @@
+name: Evidence problem or correction
+description: Dispute a report artifact, label, explanation, or methodology disclosure.
+title: "[Evidence] "
+labels:
+  - evidence-review
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Reports describe one controlled visit. A different result on another visit is useful context, but is not by itself proof that the stored observation is wrong.
+  - type: input
+    id: report
+    attributes:
+      label: Report URL or ID
+      placeholder: https://sitebehavior.org/reports/...
+    validations:
+      required: true
+  - type: input
+    id: scan_date
+    attributes:
+      label: Scan date shown in the report
+    validations:
+      required: true
+  - type: textarea
+    id: disputed
+    attributes:
+      label: Exact disputed statement or artifact field
+      description: Quote only the smallest necessary passage or name the JSON path.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected correction
+      description: Explain what should change and why.
+    validations:
+      required: true
+  - type: textarea
+    id: support
+    attributes:
+      label: Supporting evidence
+      description: Link public sources or provide privacy-reduced reproduction details.
+    validations:
+      required: true
+  - type: dropdown
+    id: category
+    attributes:
+      label: Problem category
+      options:
+        - Stored artifact or provenance
+        - Report presentation or wording
+        - Service or tracker catalog label
+        - Methodology disclosure
+        - Other
+    validations:
+      required: true
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Public-data check
+      options:
+        - label: This report contains no vulnerability details, secrets, personal data, or sensitive unredacted URLs.
+          required: true

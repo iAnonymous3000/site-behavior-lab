@@ -51,6 +51,14 @@ on:
         options:
           - desktop
           - mobile
+      report_mode:
+        description: Report contract (r2 requires controlled self-hosted egress)
+        required: true
+        default: v1
+        type: choice
+        options:
+          - v1
+          - r2
   repository_dispatch:
     types:
       - site-behavior-featured-scan
@@ -78,6 +86,11 @@ concurrency:
 env:
   CI: "1"
   NEXT_TELEMETRY_DISABLED: "1"
+  # Internal scanner builds still render canonical metadata. Keep the build
+  # fail-closed on the same public origin as CI and the deployed Pages site.
+  NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SITE_URL: "https://sitebehavior.org"
+  # `/api/health` must identify the exact checkout before a scan can start.
+  SITE_BEHAVIOR_LAB_BUILD_COMMIT: ${{ github.sha }}
   FEATURED_SITES_FILE: ${{ github.event.inputs.sites_file || github.event.client_payload.sites_file || '' }}
   FEATURED_CATEGORIES: ${{ github.event.inputs.categories || github.event.client_payload.categories || '' }}
   FEATURED_LIMIT: ${{ github.event.inputs.limit || github.event.client_payload.limit || '' }}
@@ -85,22 +98,33 @@ env:
   FEATURED_COMPARE_SHIELDS: ${{ github.event.inputs.compare_shields || github.event.client_payload.compare_shields || 'true' }}
   FEATURED_COMPARE_CONSENT: ${{ github.event.inputs.compare_consent || github.event.client_payload.compare_consent || 'false' }}
   FEATURED_DEVICE: ${{ github.event.inputs.device || github.event.client_payload.device || 'desktop' }}
-  # The scheduled catalog contains sites that intermittently refuse automation.
-  # Treat at least 80% as a healthy refresh while keeping lower-yield runs red;
-  # operators can deliberately raise this with a repository Actions variable.
+  # Scheduled runs remain on frozen v1 until a controlled runner is configured.
+  # GitHub-hosted refreshes remain v1. The r2 gate requires operator-attested
+  # self-hosted egress with a stable region, so the default Shields comparison
+  # never invents placement or weakens comparison eligibility.
+  FEATURED_REPORT_MODE: ${{ github.event.inputs.report_mode || github.event.client_payload.report_mode || vars.FEATURED_REPORT_MODE || 'v1' }}
+  FEATURED_R2_EGRESS_ATTESTED: ${{ vars.FEATURED_R2_EGRESS_ATTESTED || '' }}
+  # This adjustable gate measures success among currently eligible sites.
+  # Operators can raise it, but never lower its 80% floor. A separate fixed,
+  # non-overridable gate in the orchestrator also requires at least 80% of the
+  # whole featured catalog and at least 50 sites to remain eligible.
   FEATURED_MIN_SUCCESS_RATE: ${{ vars.FEATURED_MIN_SUCCESS_RATE || '0.8' }}
   # Disclose that the corpus was scanned from CI (GitHub-hosted runner egress).
   # Override with a repo Actions variable named SCANNER_EGRESS if you scan elsewhere.
   SITE_BEHAVIOR_LAB_SCANNER_EGRESS: ${{ vars.SCANNER_EGRESS || 'github-actions-ubuntu' }}
-  # GitHub-hosted runners have no reliable region metadata, so the recorded r2
-  # egress region stays empty (and comparison deltas stay refused) unless the
-  # operator declares one that truthfully names the runner egress.
+  # GitHub-hosted runners have no reliable region metadata and remain v1. An r2
+  # run reaches the scanner only after the preflight verifies the controlled
+  # self-hosted runner's operator-declared stable region.
   SITE_BEHAVIOR_LAB_SCANNER_EGRESS_REGION: ${{ vars.SCANNER_EGRESS_REGION || '' }}
 
 jobs:
   scan-featured:
     name: Populate Featured Gallery
-    runs-on: ubuntu-latest
+    # Keep the zero-configuration path on GitHub-hosted Ubuntu. To activate r2
+    # comparisons, point FEATURED_RUNNER_LABEL at a controlled self-hosted
+    # runner, configure SCANNER_EGRESS + SCANNER_EGRESS_REGION, then set the
+    # explicit egress-attestation variable checked below.
+    runs-on: ${{ vars.FEATURED_RUNNER_LABEL || 'ubuntu-latest' }}
     steps:
       - name: Checkout
         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
@@ -114,30 +138,85 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # One dist/schema build for the WHOLE job (RFC 10.3): every later step
+      # (preflight, featured scans, prune, manifest, corpus stats) sees the env
+      # flag and skips its own compile of the same artifact.
+      - name: Build the dist/schema artifact once
+        run: |
+          node node_modules/typescript/bin/tsc -p tsconfig.schema.json
+          echo "SITE_BEHAVIOR_LAB_SCHEMA_DIST_READY=1" >> "$GITHUB_ENV"
+
+      - name: Prepare featured report production
+        # Exact HEAD, a clean checkout, consent verification, and truthful
+        # comparison egress are checked before Next or Chromium can scan.
+        run: node dist/schema/lib/featured-report-preflight-cli.js
+
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
 
       - name: Build scanner app
         run: npm run build
 
-      # One dist/schema build for the WHOLE job (RFC 10.3): every later step
-      # (featured scans, prune, manifest, corpus stats) sees the env flag and
-      # skips its own compile of the same artifact.
-      - name: Build the dist/schema artifact once
-        run: |
-          node node_modules/typescript/bin/tsc -p tsconfig.schema.json
-          echo "SITE_BEHAVIOR_LAB_SCHEMA_DIST_READY=1" >> "$GITHUB_ENV"
-
       - name: Start scanner app
         run: |
-          npm run start -- --port 3100 > /tmp/site-behavior-lab-featured.log 2>&1 &
-          echo $! > /tmp/site-behavior-lab-featured.pid
+          if node -e '
+            const socket = require("node:net").createConnection({ host: "127.0.0.1", port: 3100 });
+            socket.setTimeout(1000);
+            socket.once("connect", () => { socket.destroy(); process.exit(0); });
+            socket.once("error", () => process.exit(1));
+            socket.once("timeout", () => { socket.destroy(); process.exit(1); });
+          '; then
+            echo "::error::Port 3100 was already occupied before startup; refusing a stale scanner process."
+            exit 1
+          fi
+          node node_modules/next/dist/bin/next start --port 3100 > /tmp/site-behavior-lab-featured.log 2>&1 &
+          app_pid=$!
+          echo "$app_pid" > /tmp/site-behavior-lab-featured.pid
+          health_path="${RUNNER_TEMP}/site-behavior-lab-featured-health.json"
           for attempt in {1..30}; do
-            if curl -fsS http://127.0.0.1:3100/api/health >/dev/null; then
-              exit 0
+            if ! kill -0 "$app_pid" 2>/dev/null; then
+              echo "::error::The scanner process exited before it became ready; refusing a response from any stale port owner."
+              cat /tmp/site-behavior-lab-featured.log
+              exit 1
+            fi
+            if curl -fsS --connect-timeout 2 --max-time 5 \
+              --output "$health_path" http://127.0.0.1:3100/api/health; then
+              if node -e '
+                const fs = require("node:fs");
+                const [file, expectedSha, requestedMode, expectedRegion] = process.argv.slice(1);
+                let health;
+                try {
+                  health = JSON.parse(fs.readFileSync(file, "utf8"));
+                } catch (error) {
+                  console.error(`Health response is not valid JSON: ${error instanceof Error ? error.message : error}`);
+                  process.exit(1);
+                }
+                const mode = requestedMode.trim().toLowerCase();
+                const failures = [];
+                const expect = (condition, message) => { if (!condition) failures.push(message); };
+                expect(mode === "v1" || mode === "r2", `unsupported requested mode ${requestedMode}`);
+                expect(health?.ok === true, "health.ok is not true");
+                expect(health?.deployment === expectedSha.toLowerCase(), `deployment is ${health?.deployment ?? "missing"}, expected ${expectedSha}`);
+                expect(health?.scansAvailable === true, "scansAvailable is not true");
+                const expectedR2Status = mode === "r2" ? "enabled" : "disabled";
+                expect(health?.checks?.publicR2Reports?.status === expectedR2Status, `public r2 status is ${health?.checks?.publicR2Reports?.status ?? "missing"}, expected ${expectedR2Status}`);
+                const expectedRegionStatus = expectedRegion.trim() ? "configured" : "unrecorded";
+                expect(health?.checks?.scannerEgressRegion === expectedRegionStatus, `egress-region status is ${health?.checks?.scannerEgressRegion ?? "missing"}, expected ${expectedRegionStatus}`);
+                const expectedConsentStatus = mode === "r2" ? "enabled" : "disabled";
+                expect(health?.checks?.consentVerification === expectedConsentStatus, `consent-verification status is ${health?.checks?.consentVerification ?? "missing"}, expected ${expectedConsentStatus}`);
+                if (mode === "r2") expect(expectedRegion.trim() !== "", "r2 requires an expected stable egress region");
+                if (failures.length) {
+                  console.error(`Scanner health contract rejected: ${failures.join("; ")}`);
+                  process.exit(1);
+                }
+              ' "$health_path" "$GITHUB_SHA" "$FEATURED_REPORT_MODE" "$SITE_BEHAVIOR_LAB_SCANNER_EGRESS_REGION" && \
+                kill -0 "$app_pid" 2>/dev/null; then
+                exit 0
+              fi
             fi
             sleep 1
           done
+          echo "::error::The scanner did not satisfy the expected process and health contract."
           cat /tmp/site-behavior-lab-featured.log
           exit 1
 
@@ -232,17 +311,13 @@ jobs:
             exit 0
           fi
           git commit -m "Add featured site behavior scan reports"
-          # An expensive refresh must not be lost to a non-fast-forward race
-          # with a push that landed after checkout: rebase and retry.
-          for attempt in 1 2 3; do
-            if git push; then
-              echo "pushed=true" >> "$GITHUB_OUTPUT"
-              exit 0
-            fi
-            echo "Push rejected (attempt ${attempt}); rebasing onto the latest ${GITHUB_REF_NAME}."
-            git pull --rebase origin "${GITHUB_REF_NAME}"
-          done
-          git push
+          # Reports and pruning were validated against this exact checkout. If
+          # the branch advanced, fail safely and rerun rather than transplanting
+          # stale generated output onto a source tree it was never checked with.
+          if ! git push; then
+            echo "::error::The branch advanced after report validation; refusing to rebase stale generated output. Rerun this workflow from the latest branch head."
+            exit 1
+          fi
           echo "pushed=true" >> "$GITHUB_OUTPUT"
 
       - name: Trigger CI on the pushed commit

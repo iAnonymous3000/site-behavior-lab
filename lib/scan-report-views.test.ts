@@ -37,6 +37,7 @@ test("v1 views null every never-recorded block, on singles and comparisons", () 
   assert.equal(run.detectors, null);
   assert.equal(run.fingerprints, null);
   assert.equal(run.provenance, null);
+  assert.equal(run.redactionVersion, null);
   assert.equal(run.toolchainIdentity, null);
   assert.equal(run.verificationFacts, null);
   assert.equal(run.evidence.cookieMutations, null);
@@ -78,6 +79,7 @@ test("v2 run views carry the recorded phases, ledgers, identity, and quality fac
   const report = makePublicSingleReportV2();
   const view = viewFromV2(report, 1);
   const run = view.runs[0];
+  assert.equal(run.redactionVersion, report.run.privacy.redactionVersion);
   const wire = report.run;
 
   assert.deepEqual(run.phases, wire.phases);

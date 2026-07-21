@@ -18,11 +18,18 @@
  *   FEATURED_COMPARE_GPC              "true"/"false" GPC off/on comparison per site (default: true).
  *   FEATURED_DEVICE                   "desktop"/"mobile" (default: desktop).
  *   FEATURED_DELAY_MS                 Delay between sites in ms (default: 1500).
+ *   FEATURED_TRANSIENT_RETRIES        Extra attempts for explicitly transient failures (default: 1, max: 2).
+ *   FEATURED_TRANSIENT_RETRY_DELAY_MS Delay before the first transient retry (default: 5000).
+ *   FEATURED_INCLUDE_UNAVAILABLE      Include versioned temporarily-unavailable catalog entries for manual review (default: false).
  *   FEATURED_MIN_SUCCESS_RATE         Minimum fraction of sites that must scan
  *                                     successfully for the run to succeed
- *                                     (default: 0.9). Below it the run exits
+ *                                     (default: 0.9, hard floor: 0.8). Below it the run exits
  *                                     nonzero, even though independently
  *                                     validated successes can still publish.
+ *
+ * A full featured-catalog run also has fixed, non-overridable eligibility
+ * gates: at least 80% of the whole catalog and at least 50 sites must remain
+ * active. Temporarily unavailable entries stay in that denominator.
  */
 
 import { spawn } from "node:child_process";
@@ -31,7 +38,13 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   failureDiagnosticFromStderr,
-  featuredMinimumSuccessRate
+  featuredCatalogEligibility,
+  featuredCatalogVersion,
+  featuredMinimumSuccessRate,
+  featuredScanRetryReason,
+  featuredSiteUnavailability,
+  featuredTransientRetryLimit,
+  isFullFeaturedCatalogSelection
 } from "./run-featured-scans-diagnostics.mjs";
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -42,7 +55,7 @@ const manifestScript = path.join(rootDir, "scripts", "build-static-report-manife
 
 async function main() {
   const config = await readConfig();
-  const sites = selectSites(config);
+  const { sites, unavailable, catalogTotal, catalogVersion, fullCatalog, eligibility } = selectSites(config);
 
   if (sites.length === 0) {
     console.error("No featured sites matched the requested filters.");
@@ -54,10 +67,17 @@ async function main() {
   const compareGpc = !compareShields && !compareConsent && booleanEnv("FEATURED_COMPARE_GPC", true);
   const device = process.env.FEATURED_DEVICE === "mobile" ? "mobile" : "desktop";
   const delayMs = positiveIntEnv("FEATURED_DELAY_MS", 1500);
+  const transientRetries = featuredTransientRetryLimit(process.env.FEATURED_TRANSIENT_RETRIES);
+  const transientRetryDelayMs = positiveIntEnv("FEATURED_TRANSIENT_RETRY_DELAY_MS", 5000);
 
   console.log(
-    `Scanning ${sites.length} featured site${sites.length === 1 ? "" : "s"} (compareShields=${compareShields}, compareConsent=${compareConsent}, compareGpc=${compareGpc}, device=${device}).`
+    `Scanning ${sites.length} eligible featured site${sites.length === 1 ? "" : "s"} (compareShields=${compareShields}, compareConsent=${compareConsent}, compareGpc=${compareGpc}, device=${device}, transientRetries=${transientRetries}).`
   );
+  if (unavailable.length > 0) {
+    console.log(
+      `Deferring ${unavailable.length} versioned temporarily-unavailable catalog entr${unavailable.length === 1 ? "y" : "ies"}; each remains public with a mandatory review date.`
+    );
+  }
 
   // Build the dist/schema production artifact ONCE for the whole run (RFC
   // 10.3: one build step in CI); every child publisher/manifest invocation
@@ -70,12 +90,18 @@ async function main() {
   }
 
   let succeeded = 0;
+  let retried = 0;
   const failures = [];
 
   for (const [index, site] of sites.entries()) {
     console.log(`\n[${index + 1}/${sites.length}] ${site.domain}`);
     try {
-      await runOneScan(site, { compareGpc, compareShields, compareConsent, device });
+      const result = await runOneScanWithRetry(
+        site,
+        { compareGpc, compareShields, compareConsent, device },
+        { transientRetries, transientRetryDelayMs }
+      );
+      if (result.attempts > 1) retried += 1;
       succeeded += 1;
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
@@ -90,7 +116,19 @@ async function main() {
 
   const minSuccessRate = featuredMinimumSuccessRate(process.env.FEATURED_MIN_SUCCESS_RATE, 0.9, 0.8);
   const successRate = succeeded / sites.length;
-  await publishRunDiagnostics({ sites, succeeded, failures, minSuccessRate, successRate });
+  await publishRunDiagnostics({
+    sites,
+    unavailable,
+    catalogTotal,
+    catalogVersion,
+    fullCatalog,
+    eligibility,
+    succeeded,
+    failures,
+    retried,
+    minSuccessRate,
+    successRate
+  });
 
   console.log("\nVerifying report redaction and provenance...");
   await run(process.platform === "win32" ? "npm.cmd" : "npm", ["run", "reports:remediate", "--", "--check"], {
@@ -101,6 +139,7 @@ async function main() {
   await run(process.execPath, [manifestScript], {});
 
   console.log(`\nFeatured scan complete: ${succeeded} succeeded, ${failures.length} failed.`);
+  if (retried > 0) console.log(`  ${retried} site${retried === 1 ? "" : "s"} succeeded after a bounded transient retry.`);
   for (const failure of failures) {
     console.log(`  - ${failure.site}: ${failure.message}`);
   }
@@ -119,14 +158,35 @@ async function main() {
   }
 }
 
-async function publishRunDiagnostics({ sites, succeeded, failures, minSuccessRate, successRate }) {
+async function publishRunDiagnostics({
+  sites,
+  unavailable,
+  catalogTotal,
+  catalogVersion,
+  fullCatalog,
+  eligibility,
+  succeeded,
+  failures,
+  retried,
+  minSuccessRate,
+  successRate
+}) {
   const summary = {
     generatedAt: new Date().toISOString(),
+    catalogVersion,
+    fullCatalog,
+    catalogTotal,
+    unavailable: unavailable.length,
+    unavailableSites: unavailable,
     total: sites.length,
     succeeded,
     failed: failures.length,
+    retried,
     successRate,
     requiredSuccessRate: minSuccessRate,
+    catalogCoverage: eligibility.catalogCoverage,
+    requiredCatalogCoverage: eligibility.requiredCatalogCoverage,
+    minimumEligibleSites: eligibility.minimumEligibleSites,
     failures
   };
   const outputPath = process.env.FEATURED_SUMMARY_PATH?.trim();
@@ -139,10 +199,23 @@ async function publishRunDiagnostics({ sites, succeeded, failures, minSuccessRat
   const lines = [
     "## Featured scan result",
     "",
-    `- Succeeded: **${succeeded}/${sites.length}** (${Math.round(successRate * 100)}%)`,
-    `- Required success rate: **${Math.round(minSuccessRate * 100)}%**`,
-    `- Failed: **${failures.length}**`
+    `- Eligible scan success: **${succeeded}/${sites.length}** (${Math.round(successRate * 100)}%)`,
+    `- Required eligible success rate: **${Math.round(minSuccessRate * 100)}%**`,
+    `- Failed eligible targets: **${failures.length}**`,
+    `- Active eligible catalog coverage: **${sites.length}/${catalogTotal}** (${Math.round(eligibility.catalogCoverage * 100)}%)`,
+    `- Fixed full-catalog coverage gate: **${Math.round(eligibility.requiredCatalogCoverage * 100)}% and at least ${eligibility.minimumEligibleSites} active sites**`,
+    `- Catalog entries temporarily unavailable: **${unavailable.length}/${catalogTotal}**`,
+    "- Scope note: passing these gates does not mean every catalog entry was freshly scanned.",
+    `- Sites recovered by bounded retry: **${retried}**`
   ];
+  if (unavailable.length > 0) {
+    lines.push("", "### Temporarily unavailable catalog entries", "");
+    for (const entry of unavailable) {
+      lines.push(
+        `- **${entry.site}:** ${entry.reason}; observed ${entry.observedAt}; mandatory review by ${entry.reviewAfter}`
+      );
+    }
+  }
   if (failures.length > 0) {
     lines.push("", "### Failed targets", "");
     for (const failure of failures) lines.push(`- **${failure.site}:** ${failure.message}`);
@@ -165,26 +238,67 @@ async function readConfig() {
   return parsed;
 }
 
-function selectSites(config) {
-  const categoryFilter = (process.env.FEATURED_CATEGORIES || "")
+export function selectSites(config, environment = process.env, today = new Date().toISOString().slice(0, 10)) {
+  const categoryFilter = (environment.FEATURED_CATEGORIES || "")
     .split(",")
     .map((value) => value.trim().toLowerCase())
     .filter(Boolean);
 
-  let sites = config.sites.filter(
-    (site) => site && typeof site.url === "string" && typeof site.domain === "string" && typeof site.category === "string"
-  );
+  const validSite = (site) =>
+    site && typeof site.url === "string" && typeof site.domain === "string" && typeof site.category === "string";
+  const fullCatalog = isFullFeaturedCatalogSelection(environment);
+  if (fullCatalog && !config.sites.every(validSite)) {
+    throw new Error("The full featured catalog contains an invalid site entry.");
+  }
+  let candidates = config.sites.filter(validSite);
 
   if (categoryFilter.length > 0) {
-    sites = sites.filter((site) => categoryFilter.includes(site.category.toLowerCase()));
+    candidates = candidates.filter((site) => categoryFilter.includes(site.category.toLowerCase()));
   }
 
-  const limit = positiveIntEnv("FEATURED_LIMIT", 0);
+  const limit = positiveIntEnv("FEATURED_LIMIT", 0, environment);
   if (limit > 0) {
-    sites = sites.slice(0, limit);
+    candidates = candidates.slice(0, limit);
   }
 
-  return sites.map((site) => ({ ...site, label: site.label || site.domain }));
+  const includeUnavailable = booleanEnv("FEATURED_INCLUDE_UNAVAILABLE", false, environment);
+  const hasAvailabilityMetadata = config.sites.some((site) => site?.scanAvailability !== undefined);
+  const catalogVersion =
+    hasAvailabilityMetadata || fullCatalog
+      ? featuredCatalogVersion(config.version)
+      : Number.isSafeInteger(config.version)
+        ? config.version
+        : null;
+  const sites = [];
+  const unavailable = [];
+  for (const site of candidates) {
+    const availability = featuredSiteUnavailability(site, today);
+    if (availability && !includeUnavailable) {
+      unavailable.push({ site: site.domain, ...availability });
+      continue;
+    }
+    sites.push({ ...site, label: site.label || site.domain });
+  }
+  const catalogTotal = candidates.length;
+  const eligibility = featuredCatalogEligibility(catalogTotal, sites.length, fullCatalog);
+  return { sites, unavailable, catalogTotal, catalogVersion, fullCatalog, eligibility };
+}
+
+async function runOneScanWithRetry(site, scanOptions, { transientRetries, transientRetryDelayMs }) {
+  for (let attempt = 0; ; attempt += 1) {
+    try {
+      await runOneScan(site, scanOptions);
+      return { attempts: attempt + 1 };
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      const reason = featuredScanRetryReason(message);
+      if (!reason || attempt >= transientRetries) throw error;
+      const retryNumber = attempt + 1;
+      const waitMs = Math.min(transientRetryDelayMs * 2 ** (retryNumber - 1), 30_000);
+      console.warn(`  Transient ${reason}; retry ${retryNumber}/${transientRetries} in ${waitMs}ms.`);
+      await delay(waitMs);
+    }
+  }
 }
 
 function runOneScan(site, { compareGpc, compareShields, compareConsent, device }) {
@@ -245,18 +359,21 @@ function delay(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-function booleanEnv(name, fallback) {
-  const value = process.env[name];
+function booleanEnv(name, fallback, environment = process.env) {
+  const value = environment[name];
   if (value === undefined || value === "") return fallback;
   return /^(1|true|yes|on)$/i.test(value);
 }
 
-function positiveIntEnv(name, fallback) {
-  const value = Number(process.env[name]);
+function positiveIntEnv(name, fallback, environment = process.env) {
+  const value = Number(environment[name]);
   return Number.isInteger(value) && value > 0 ? value : fallback;
 }
 
-main().catch((error) => {
-  console.error(error instanceof Error ? error.message : error);
-  process.exit(1);
-});
+const invokedPath = process.argv[1] ? path.resolve(process.argv[1]) : null;
+if (invokedPath === fileURLToPath(import.meta.url)) {
+  main().catch((error) => {
+    console.error(error instanceof Error ? error.message : error);
+    process.exit(1);
+  });
+}

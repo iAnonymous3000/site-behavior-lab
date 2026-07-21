@@ -2,6 +2,30 @@ import { resolvePublicBuildCommit } from "./scripts/public-build-commit.mjs";
 
 const isStaticExport = process.env.SITE_BEHAVIOR_LAB_STATIC_EXPORT === "1";
 const publicBuildCommit = resolvePublicBuildCommit();
+const publicLibraryOrigin = normalizePublicLibraryOrigin(
+  process.env.NEXT_PUBLIC_SITE_BEHAVIOR_LAB_LIBRARY_ORIGIN
+);
+
+function normalizePublicLibraryOrigin(value) {
+  const raw = value?.trim() || "https://sitebehavior.org";
+  let parsed;
+  try {
+    parsed = new URL(raw);
+  } catch {
+    throw new Error("NEXT_PUBLIC_SITE_BEHAVIOR_LAB_LIBRARY_ORIGIN must be an absolute HTTPS origin.");
+  }
+  if (
+    parsed.protocol !== "https:" ||
+    parsed.username ||
+    parsed.password ||
+    (parsed.pathname && parsed.pathname !== "/") ||
+    parsed.search ||
+    parsed.hash
+  ) {
+    throw new Error("NEXT_PUBLIC_SITE_BEHAVIOR_LAB_LIBRARY_ORIGIN must contain only an HTTPS scheme and host.");
+  }
+  return parsed.origin;
+}
 
 function normalizeBasePath(value) {
   if (!value) return "";
@@ -32,6 +56,7 @@ const nextConfig = {
   env: {
     NEXT_PUBLIC_SITE_BEHAVIOR_LAB_STATIC_EXPORT: isStaticExport ? "1" : "0",
     NEXT_PUBLIC_SITE_BEHAVIOR_LAB_PAGES_BASE_PATH: pagesBasePath,
+    NEXT_PUBLIC_SITE_BEHAVIOR_LAB_LIBRARY_ORIGIN: publicLibraryOrigin,
     NEXT_PUBLIC_SITE_BEHAVIOR_LAB_GITHUB_REPOSITORY: process.env.GITHUB_REPOSITORY || "",
     NEXT_PUBLIC_SITE_BEHAVIOR_LAB_BUILD_COMMIT: publicBuildCommit
   },
@@ -72,7 +97,7 @@ const nextConfig = {
               value: [
                 "default-src 'self'",
                 "base-uri 'self'",
-                "connect-src 'self'",
+                `connect-src 'self' ${publicLibraryOrigin}`,
                 "form-action 'self'",
                 "frame-ancestors 'none'",
                 "frame-src https://challenges.cloudflare.com",
@@ -96,6 +121,11 @@ const nextConfig = {
             { key: "Cache-Control", value: "no-store" },
             ...securityHeaders
           ];
+          const expiringReportHeaders = [
+            { key: "Cache-Control", value: "no-store" },
+            { key: "X-Robots-Tag", value: "noindex, follow, noarchive" },
+            ...securityHeaders
+          ];
 
           return [
             {
@@ -108,7 +138,7 @@ const nextConfig = {
             },
             {
               source: "/reports/:path*",
-              headers: noStoreHeaders
+              headers: expiringReportHeaders
             }
           ];
         }

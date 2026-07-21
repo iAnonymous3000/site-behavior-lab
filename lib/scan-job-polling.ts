@@ -1,8 +1,10 @@
 import { readLoadedReport } from "./client-report-reader";
 import { REPORT_ID_PATTERN } from "./report-validation";
 import { recoverSavedReport } from "./saved-report-recovery";
+import { readScanJobProgress } from "./scan-job-progress";
 import type { LoadedReport } from "./scan-report-view";
 import type { RuntimeScanJobApiResponse } from "./runtime-scan-report";
+import type { ScanJobProgress } from "./types";
 
 const TRANSIENT_HTTP_STATUSES = new Set([429, 502, 503]);
 const MAX_TRANSIENT_BACKOFF_MS = 30_000;
@@ -20,12 +22,13 @@ export type AcceptedScanJobPoll = {
   fetcher?: ScanJobPollFetcher;
   wait?: ScanJobPollWait;
   now?: () => number;
+  onProgress?: (progress: ScanJobProgress) => void;
 };
 
 /**
- * A real terminal state from the job coordinator. Poll transport, auth, and
- * payload failures deliberately use ordinary Error so the client retains the
- * accepted job capability and can resume status checks or request cancellation.
+ * A definitive unsuccessful terminal state from the job coordinator. Poll
+ * transport, auth, payload, and succeeded-but-unreadable report failures use
+ * ordinary Error so the client retains recovery identifiers for retry/dismiss.
  */
 export class ScanJobEndedError extends Error {
   readonly status: "failed" | "expired" | "cancelled";
@@ -83,10 +86,16 @@ export async function pollAcceptedScanJob(options: AcceptedScanJobPoll): Promise
       throw new Error(payload.error);
     }
 
+    const progress = readScanJobProgress(payload.progress);
+    if (progress) options.onProgress?.(progress);
+
     if (payload.status === "succeeded") {
       if (payload.report) {
         const read = await readLoadedReport(payload.report, "The completed scan's report");
         if (read.ok) return read.loaded;
+        // The coordinator is done, but its public report may still be briefly
+        // unavailable or unreadable. Keep recovery identifiers so the visitor
+        // can retry the report read or explicitly dismiss this tab recovery.
         throw new Error(read.message);
       }
       if (savedReportId) {
@@ -99,7 +108,7 @@ export async function pollAcceptedScanJob(options: AcceptedScanJobPoll): Promise
         });
         if (recovered) return recovered;
       }
-      throw new Error("Completed scan did not include a report.");
+      throw new Error("Completed scan did not include a readable report yet. Retry status checks shortly.");
     }
 
     if (payload.status === "failed" || payload.status === "expired" || payload.status === "cancelled") {

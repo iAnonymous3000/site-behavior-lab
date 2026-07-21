@@ -14,7 +14,14 @@ import {
 } from "lucide-react";
 import type { Dispatch, FormEventHandler, SetStateAction } from "react";
 import { useEffect, useRef } from "react";
-import { LIVE_SCAN_TURNSTILE_SITE_KEY, STATIC_LIVE_SCAN_ENABLED } from "../client-runtime";
+import {
+  LIVE_SCAN_TURNSTILE_SITE_KEY,
+  STATIC_LIVE_SCAN_ENABLED,
+  clientReportRuntime,
+  staticAssetPath
+} from "../client-runtime";
+import type { HomepageKnownSite } from "@/lib/homepage-discovery";
+import { committedReportLocation } from "@/lib/report-locator";
 import { RUN_MODE_LABELS, RUN_MODE_TITLES, runModeHint, type RunMode } from "@/lib/run-mode-copy";
 import type { ScanDevice } from "@/lib/types";
 
@@ -52,6 +59,9 @@ type ScanControlsProps = {
   consentComparisonEnabled: boolean;
   scannerRequiresAccessKey: boolean;
   onAccessKeyChange: (accessKey: string) => void;
+  examples: { url: string; hint: string }[];
+  onPickExample: (url: string) => void;
+  knownSites: HomepageKnownSite[];
 };
 
 const TURNSTILE_SCRIPT_SRC = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
@@ -89,6 +99,24 @@ function selectedRunMode(form: ScanFormState): RunMode {
   return form.compareShields ? "shields" : form.compareGpc ? "gpc" : form.compareConsent ? "consent" : "single";
 }
 
+function hostnameFromInput(value: string): string | null {
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+  try {
+    const parsed = new URL(/^[a-z][a-z0-9+.-]*:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`);
+    if (parsed.protocol !== "http:" && parsed.protocol !== "https:") return null;
+    return parsed.hostname.toLowerCase().replace(/\.$/, "");
+  } catch {
+    return null;
+  }
+}
+
+function matchingKnownSite(value: string, knownSites: HomepageKnownSite[]): HomepageKnownSite | null {
+  const hostname = hostnameFromInput(value);
+  if (!hostname) return null;
+  return knownSites.find((site) => hostname === site.domain || hostname.endsWith(`.${site.domain}`)) ?? null;
+}
+
 export function ScanControls({
   form,
   setForm,
@@ -112,9 +140,13 @@ export function ScanControls({
   shieldsComparisonEnabled,
   consentComparisonEnabled,
   scannerRequiresAccessKey,
-  onAccessKeyChange
+  onAccessKeyChange,
+  examples,
+  onPickExample,
+  knownSites
 }: ScanControlsProps) {
   const turnstileSiteKeyConfigured = Boolean(LIVE_SCAN_TURNSTILE_SITE_KEY);
+  const knownSite = matchingKnownSite(form.url, knownSites);
 
   return (
     <form className="scan-panel" onSubmit={onSubmit}>
@@ -149,6 +181,30 @@ export function ScanControls({
 
       {urlNotice && <p className="scanner-status-note url-privacy-note" id="url-notice">{urlNotice}</p>}
       {urlError && <p className="scanner-status-note scanner-status-note-error" id="url-error">{urlError}</p>}
+
+      {knownSite ? (
+        <div className="known-evidence" role="status">
+          <span>
+            Evidence already exists for <strong>{knownSite.domain}</strong> from {formatKnownEvidenceDate(knownSite.scannedAt)}.
+          </span>
+          <span className="known-evidence-actions">
+            <a href={committedReportLocation(knownSite.latestReportId, clientReportRuntime()).pagePath}>
+              Open latest evidence
+            </a>
+            <a href={staticAssetPath(`/sites/${encodeURIComponent(knownSite.domain)}/`)}>View history</a>
+          </span>
+        </div>
+      ) : (
+        <div className="scan-examples" aria-label="Example sites">
+          <span>Try</span>
+          {examples.map((example) => (
+            <button key={example.url} type="button" onClick={() => onPickExample(example.url)}>
+              {example.url}
+              <small>{example.hint}</small>
+            </button>
+          ))}
+        </div>
+      )}
 
       <div className="scanner-health-row">
         <p
@@ -189,7 +245,7 @@ export function ScanControls({
         </p>
       )}
 
-      <details className="options-disclosure" open={STATIC_LIVE_SCAN_ENABLED}>
+      <details className="options-disclosure">
         <summary>
           <SlidersHorizontal size={15} aria-hidden="true" />
           <span>Options</span>
@@ -340,6 +396,12 @@ export function ScanControls({
       </details>
     </form>
   );
+}
+
+function formatKnownEvidenceDate(value: string): string {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "an earlier scan";
+  return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" });
 }
 
 function loadTurnstileScript(): Promise<void> {

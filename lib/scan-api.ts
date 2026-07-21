@@ -28,7 +28,14 @@ import {
   type RuntimeScanReport
 } from "./runtime-scan-report";
 import { scanSite, type ScanSiteOptions } from "./scanner";
-import type { ConsentMode, ScanDevice, ScanReport, ScanRequestPayload, ScanResult } from "./types";
+import type {
+  ConsentMode,
+  ScanDevice,
+  ScanJobProgress,
+  ScanReport,
+  ScanRequestPayload,
+  ScanResult
+} from "./types";
 import { prepareScanRequest, type PreparedScanRequest } from "./scan-gate";
 
 export { prepareScanRequest, ScanGate, scanRateLimitCost, type PreparedScanRequest } from "./scan-gate";
@@ -45,6 +52,8 @@ export type ScanExecutionControl = {
    * controller can additionally negotiate its fenced publishing transition.
    */
   beforeSave?: (report: RuntimeScanReport) => void | Promise<void>;
+  /** Validated coarse lifecycle progress for accepted asynchronous jobs. */
+  onProgress?: (progress: ScanJobProgress) => void;
   /** Deterministic counterbalancing draw for tests; production draws randomly. */
   drawComparisonFirstArm?: () => ComparisonExecutedFirst;
   /**
@@ -78,6 +87,20 @@ export async function executePreparedScan(
   const reportMode = requireRuntimeScanReportModeForSaver(saveReport);
   const releaseScanSlot = await acquireScanSlot(queueTimeoutMs, control.signal);
   try {
+    let completedRuns = 0;
+    const totalRuns = prepared.compareGpc || prepared.compareShields || prepared.compareConsent ? 2 : 1;
+    const scanWithProgress: ScanRunner = async (payload, options) => {
+      const result = await scan(payload, {
+        ...options,
+        onProgress: (phase) => {
+          control.onProgress?.({ phase, completedRuns, totalRuns });
+        }
+      });
+      completedRuns += 1;
+      control.onProgress?.({ phase: "collecting", completedRuns, totalRuns });
+      return result;
+    };
+
     throwIfCancelled(control.signal);
     // Async jobs charge the rate limit at enqueue time, so they opt out here to
     // avoid double counting; the synchronous path charges after taking a slot.
@@ -91,12 +114,12 @@ export async function executePreparedScan(
         executedFirst,
         {
           baseline: () =>
-            scan(createScanPayload(prepared.url, prepared.device, false), {
+            scanWithProgress(createScanPayload(prepared.url, prepared.device, false), {
               publicUrlAlreadyVerified: true,
               signal: control.signal
             }),
           variant: () =>
-            scan(createScanPayload(prepared.url, prepared.device, true), {
+            scanWithProgress(createScanPayload(prepared.url, prepared.device, true), {
               publicUrlAlreadyVerified: true,
               signal: control.signal
             })
@@ -125,12 +148,12 @@ export async function executePreparedScan(
         executedFirst,
         {
           baseline: () =>
-            scan(createScanPayload(prepared.url, prepared.device, prepared.gpcEnabled), {
+            scanWithProgress(createScanPayload(prepared.url, prepared.device, prepared.gpcEnabled), {
               publicUrlAlreadyVerified: true,
               signal: control.signal
             }),
           variant: () =>
-            scan(createScanPayload(prepared.url, prepared.device, prepared.gpcEnabled), {
+            scanWithProgress(createScanPayload(prepared.url, prepared.device, prepared.gpcEnabled), {
               publicUrlAlreadyVerified: true,
               shieldsBlockingEnabled: true,
               signal: control.signal
@@ -160,12 +183,12 @@ export async function executePreparedScan(
         executedFirst,
         {
           baseline: () =>
-            scan(createScanPayload(prepared.url, prepared.device, prepared.gpcEnabled, "accept-all"), {
+            scanWithProgress(createScanPayload(prepared.url, prepared.device, prepared.gpcEnabled, "accept-all"), {
               publicUrlAlreadyVerified: true,
               signal: control.signal
             }),
           variant: () =>
-            scan(createScanPayload(prepared.url, prepared.device, prepared.gpcEnabled, "reject-all"), {
+            scanWithProgress(createScanPayload(prepared.url, prepared.device, prepared.gpcEnabled, "reject-all"), {
               publicUrlAlreadyVerified: true,
               signal: control.signal
             })
@@ -188,7 +211,7 @@ export async function executePreparedScan(
       return saved;
     }
 
-    const result = await scan(createScanPayload(prepared.url, prepared.device, prepared.gpcEnabled), {
+    const result = await scanWithProgress(createScanPayload(prepared.url, prepared.device, prepared.gpcEnabled), {
       publicUrlAlreadyVerified: true,
       signal: control.signal
     });

@@ -1,0 +1,34 @@
+name: Feature request
+description: Propose a focused improvement to usefulness, accessibility, evidence quality, or reproducibility.
+title: "[Feature] "
+labels:
+  - enhancement
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: User problem
+      description: What task is difficult or impossible today?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed outcome
+      description: Describe the result, not only a preferred implementation.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence and tradeoffs
+      description: Include affected users, privacy or reputation risks, and alternatives considered.
+    validations:
+      required: true
+  - type: checkboxes
+    id: claim
+    attributes:
+      label: Evidence standard
+      options:
+        - label: The proposal keeps observations separate from grades, verdicts, and universal claims.
+          required: true

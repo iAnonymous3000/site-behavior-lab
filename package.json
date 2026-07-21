@@ -1,6 +1,23 @@
 {
   "name": "site-behavior-lab",
   "version": "0.1.0",
+  "description": "Evidence-first, reproducible web behavior scans with privacy-reduced reports.",
+  "homepage": "https://sitebehavior.org",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/iAnonymous3000/site-behavior-lab.git"
+  },
+  "bugs": {
+    "url": "https://github.com/iAnonymous3000/site-behavior-lab/issues"
+  },
+  "keywords": [
+    "web-transparency",
+    "privacy",
+    "trackers",
+    "browser-automation",
+    "playwright",
+    "research"
+  ],
   "license": "AGPL-3.0-or-later",
   "private": true,
   "engines": {
@@ -28,6 +45,7 @@
     "corpus:stats": "node scripts/build-corpus-stats.mjs",
     "reports:manifest": "node scripts/build-static-report-manifest.mjs",
     "reports:prune": "node scripts/prune-static-reports.mjs",
+    "corrections:verify-history": "tsc -p tsconfig.schema.json && node dist/schema/lib/corrections-ledger-history-cli.js",
     "scan:ci": "node scripts/run-ci-scan.mjs",
     "scan:featured": "node scripts/run-featured-scans.mjs",
     "start": "next start",

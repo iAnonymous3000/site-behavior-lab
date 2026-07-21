@@ -15,28 +15,12 @@ import {
   Shield,
   Sun
 } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
-import { CausalityGraph } from "./_components/causality-graph";
-import { ComparisonPanel } from "./_components/comparison-panel";
+import { lazy, Suspense, useEffect, useState } from "react";
 import {
   PageGraphR2UploadButton,
   ReportUploadButton,
   type PageGraphUploadSelection
 } from "./_components/file-upload-button";
-import { FindingsBoard, HeadlineBanner, MetricGrid, TrafficViz } from "./_components/report-overview";
-import { ReportHeader } from "./_components/report-header";
-import {
-  CookieList,
-  DomainTable,
-  FingerprintList,
-  PixelEventsList,
-  RequestTable,
-  StorageList,
-  TopThirdParties,
-  Warnings
-} from "./_components/report-tables";
-import { StaticReportGallery } from "./_components/static-gallery";
-import { VisitPhasesAndStateChanges } from "./_components/visit-phases-and-state-changes";
 import { ScanControls } from "./_components/scan-controls";
 import { ScanRecoveryBanner } from "./_components/scan-recovery-banner";
 import { ScheduledRescans } from "./_components/scheduled-rescans";
@@ -48,32 +32,28 @@ import {
   clientReportRuntime,
   staticAssetPath
 } from "./client-runtime";
-import { consentChoiceLabel } from "@/lib/consent-interaction";
-import { requestLogToCsv } from "@/lib/csv-export";
-import { displayableScreenshot, gpcRunMeasurement } from "@/lib/report-insights";
-import { consentVerificationSummary } from "@/lib/report-consent-copy";
-import { buildReportHeadline, reportPageTitle } from "@/lib/report-headline";
 import { committedReportLocation } from "@/lib/report-locator";
+import { scanJobProgressCopy } from "@/lib/scan-job-progress";
+import type { HomepageDiscovery, HomepageFeaturedGroup } from "@/lib/homepage-discovery";
 import { plural } from "@/lib/text-format";
 import { readLoadedReport, withoutLoadedReportShare } from "@/lib/client-report-reader";
-import {
-  comparisonArmViews,
-  displayRunView,
-  familyUnsupportedOnRun,
-  runQualitySummary,
-  schemaProvenanceLabel,
-  viewFromV1Report,
-  type ReportView,
-  type RunView
-} from "@/lib/scan-report-views";
+import { viewFromV1Report } from "@/lib/scan-report-views";
 // Type-only: the deep reader module stays lazy-loaded (client-report-reader);
 // a type import is erased at build time and adds nothing to the bundle.
 import type { LoadedReport } from "@/lib/scan-report-view";
 import type {
   ComparisonScanResult,
+  ScanJobProgress,
   ScanReport,
   StaticReportManifestEntry
 } from "@/lib/types";
+
+const LazyStaticReportGallery = lazy(() =>
+  import("./_components/static-gallery").then((module) => ({ default: module.StaticReportGallery }))
+);
+const LazyReportRenderer = lazy(() =>
+  import("./_components/report-renderer").then((module) => ({ default: module.ReportRenderer }))
+);
 
 const EXAMPLES: { url: string; hint: string }[] = [
   { url: "youtube.com", hint: "one mega-entity" },
@@ -97,21 +77,14 @@ export type CorpusHighlights = {
 };
 
 type SiteBehaviorAppProps = {
-  /** A pre-loaded report (the saved-report permalink page's read result). */
-  initialLoaded?: LoadedReport | null;
-  initialError?: string | null;
-  initialLoading?: boolean;
   corpusHighlights?: CorpusHighlights | null;
-  /** Evidence-first permalink: render the report directly, without the scanner workbench. */
-  reportPage?: boolean;
+  /** Small server-selected homepage payload; never the full report manifest. */
+  homepageDiscovery?: HomepageDiscovery | null;
 };
 
 export function SiteBehaviorApp({
-  initialLoaded = null,
-  initialError = null,
-  initialLoading = false,
   corpusHighlights = null,
-  reportPage = false
+  homepageDiscovery = null
 }: SiteBehaviorAppProps) {
   const {
     form,
@@ -124,6 +97,7 @@ export function SiteBehaviorApp({
     setLoading,
     scanning,
     activeScanJob,
+    activeScanProgress,
     cancellingScan,
     cancelScanError,
     scheduledRescanCreateBusy,
@@ -144,8 +118,9 @@ export function SiteBehaviorApp({
     acceptScheduledRescanTarget,
     resetTurnstileAfterScheduledRescanAttempt,
     resumeActiveScan,
-    cancelActiveScan
-  } = useScanRuntime({ reportPage, initialLoaded, initialError, initialLoading });
+    cancelActiveScan,
+    dismissActiveScan
+  } = useScanRuntime({ reportPage: false, initialLoaded: null, initialError: null, initialLoading: false });
   const {
     gpcComparisonEnabled,
     shieldsComparisonEnabled,
@@ -159,38 +134,25 @@ export function SiteBehaviorApp({
     scannerUnavailable,
     scanBlocked
   } = policy;
-  const [staticReports, setStaticReports] = useState<StaticReportManifestEntry[] | null>(STATIC_EXPORT ? null : []);
+  const [staticReports, setStaticReports] = useState<StaticReportManifestEntry[] | null>(null);
   const [staticReportsError, setStaticReportsError] = useState<string | null>(null);
+  const [archiveRequested, setArchiveRequested] = useState(false);
 
-  useEffect(() => {
-    if (reportPage) return;
-    if (!STATIC_EXPORT) return;
+  async function loadStaticArchive() {
+    setArchiveRequested(true);
+    if (!STATIC_EXPORT || staticReports !== null) return;
 
-    let cancelled = false;
-
-    async function loadStaticReports() {
-      try {
-        const response = await fetch(staticAssetPath("/reports/index.json"), { cache: "no-store" });
-        if (!response.ok) throw new Error("Report manifest unavailable.");
-        const payload = (await response.json()) as unknown;
-        const reports = isStaticReportManifest(payload) ? payload.reports : [];
-        if (!cancelled) {
-          setStaticReports(reports);
-          setStaticReportsError(null);
-        }
-      } catch {
-        if (!cancelled) {
-          setStaticReports([]);
-          setStaticReportsError("Generated report index is not available.");
-        }
-      }
+    try {
+      const response = await fetch(staticAssetPath("/reports/index.json"), { cache: "no-store" });
+      if (!response.ok) throw new Error("Report manifest unavailable.");
+      const payload = (await response.json()) as unknown;
+      setStaticReports(isStaticReportManifest(payload) ? payload.reports : []);
+      setStaticReportsError(null);
+    } catch {
+      setStaticReports([]);
+      setStaticReportsError("Generated report index is not available.");
     }
-
-    void loadStaticReports();
-    return () => {
-      cancelled = true;
-    };
-  }, [reportPage]);
+  }
 
   async function loadReportFile(file: File | null) {
     if (!file) return;
@@ -229,67 +191,6 @@ export function SiteBehaviorApp({
     }
   }
 
-  // The version-independent view every renderer consumes; the wire form stays
-  // on `loaded` for share links and exports only (RFC 14.8).
-  const reportView = loaded ? loaded.view : null;
-  const primaryRun = reportView ? displayRunView(reportView) : null;
-  const arms = reportView ? comparisonArmViews(reportView) : null;
-  // Two-arm evidence audit: on comparisons every per-run surface (tables,
-  // sidebar, methodology, CSV) can show EITHER visit, so the protected or
-  // rejected arm is inspectable without downloading the JSON. Defaults to the
-  // arm the headline's lead finding describes (headline.focusArm), else the
-  // lead run; report-level surfaces (headline, findings, panel) stay pair-fed.
-  const [selectedArm, setSelectedArm] = useState<"baseline" | "variant" | null>(null);
-  // A new report must not inherit the previous report's arm selection.
-  useEffect(() => {
-    setSelectedArm(null);
-  }, [loaded]);
-  const headlineFocusArm = useMemo(
-    () => (reportView && arms ? buildReportHeadline(reportView).focusArm ?? null : null),
-    [reportView, arms]
-  );
-  const defaultArm: "baseline" | "variant" =
-    headlineFocusArm ?? (reportView?.comparison?.temporalPair ? "variant" : "baseline");
-  const displayedArmLabel: "baseline" | "variant" = selectedArm ?? defaultArm;
-  const displayedRun = arms ? arms[displayedArmLabel] : primaryRun;
-
-  async function downloadReport() {
-    if (!loaded || !primaryRun) return;
-    // THE serialization boundary (RFC 14.8): the original public wire per
-    // generation (deep-projected v1, projection for ephemeral shells), never a
-    // view. Lazy-loaded with the deep reader so downloads stay off first-load.
-    const { publicWireForExportOrPersistence } = await import("@/lib/scan-report-view");
-    const blob = new Blob([JSON.stringify(publicWireForExportOrPersistence(loaded), null, 2)], {
-      type: "application/json"
-    });
-    const url = URL.createObjectURL(blob);
-    const anchor = document.createElement("a");
-    anchor.href = url;
-    anchor.download = `site-behavior-lab-${safeFilenamePart(primaryRun.domain)}.json`;
-    anchor.click();
-    URL.revokeObjectURL(url);
-  }
-
-  function downloadCsv() {
-    if (!loaded || !displayedRun) return;
-    // The CSV is per-visit evidence: it exports the ARM the page is showing,
-    // and a comparison's filename names that arm so two exports never mix up.
-    const csv = requestLogToCsv(displayedRun.evidence.requests);
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const anchor = document.createElement("a");
-    const armPart = arms ? `-${safeFilenamePart(armDisplayLabel(reportView, displayedArmLabel))}` : "";
-    anchor.href = url;
-    anchor.download = `site-behavior-lab-${safeFilenamePart(displayedRun.domain)}${armPart}-requests.csv`;
-    anchor.click();
-    URL.revokeObjectURL(url);
-  }
-
-  const reportReadyMessage =
-    loaded && primaryRun && !loading && !error
-      ? `Scan report ready for ${primaryRun.domain}: ${plural(primaryRun.counts.totalRequests, "request")} observed.`
-      : "";
-  const permalinkHeadline = reportPage && reportView ? buildReportHeadline(reportView) : null;
   const statusClassName = `status-pill${STATIC_EXPORT ? " status-pill-static" : ""}${
     LIVE_SCAN_ENABLED ? " status-pill-live" : ""
   }`;
@@ -318,6 +219,9 @@ export function SiteBehaviorApp({
       consentComparisonEnabled={consentComparisonEnabled}
       scannerRequiresAccessKey={scannerRequiresAccessKey}
       onAccessKeyChange={updateAccessKey}
+      examples={EXAMPLES}
+      onPickExample={useExample}
+      knownSites={homepageDiscovery?.knownSites ?? []}
     />
   );
   const scanForm = (
@@ -344,45 +248,27 @@ export function SiteBehaviorApp({
       <a className="skip-link" href="#report">
         Skip to results
       </a>
-      <main className={`app-shell${reportPage ? " report-page-shell" : ""}`}>
+      <main className="app-shell">
         <header className="topbar">
           <a className="brand" href={staticAssetPath("/")} aria-label="Site Behavior Lab home">
             <span className="brand-mark">
               <FlaskConical size={22} aria-hidden="true" />
             </span>
             <div>
-              <p className="eyebrow">{reportPage ? "Site Behavior Lab · Evidence" : "Site Behavior Lab"}</p>
-              <h1>
-                {permalinkHeadline
-                  ? reportPageTitle(permalinkHeadline)
-                  : reportPage
-                    ? "Saved site behavior report"
-                    : "See what a site does, not just what it says."}
-              </h1>
+              <p className="eyebrow">Site Behavior Lab</p>
+              <h1>See what a site does, not just what it says.</h1>
             </div>
           </a>
           <div className="topbar-actions">
-            {reportPage ? (
-              <>
-                <a className="topbar-link" href={staticAssetPath("/directory/")}>Directory</a>
-                <a className="secondary-button" href={staticAssetPath("/")}>Scan a site</a>
-              </>
-            ) : (
-              <span className={statusClassName}>
-                <span className="status-dot" />
-                {statusLabel}
-              </span>
-            )}
+            <span className={statusClassName}>
+              <span className="status-dot" />
+              {statusLabel}
+            </span>
             <ThemeToggle />
           </div>
         </header>
 
-        {corpusHighlights && corpusHighlights.attemptedSiteCount > 0 && !loaded && !loading && !error && (
-          <CorpusHero highlights={corpusHighlights} />
-        )}
-
-        {!reportPage && (
-          <section className="scan-workbench" id="scan">
+        <section className="scan-workbench" id="scan">
             {LIVE_SCAN_ENABLED ? (
               scanForm
             ) : (
@@ -401,7 +287,10 @@ export function SiteBehaviorApp({
                 </p>
               </div>
             </aside>
-          </section>
+        </section>
+
+        {corpusHighlights && corpusHighlights.attemptedSiteCount > 0 && !loaded && !loading && !error && (
+          <CorpusHero highlights={corpusHighlights} />
         )}
 
         <ScanRecoveryBanner
@@ -412,15 +301,12 @@ export function SiteBehaviorApp({
           cancellationError={cancelScanError}
           onResume={() => void resumeActiveScan()}
           onCancel={() => void cancelActiveScan()}
+          onDismiss={dismissActiveScan}
         />
 
         <div id="report">
-          <p className="visually-hidden" role="status" aria-live="polite">
-            {reportReadyMessage}
-          </p>
           {!loaded && !loading && !activeScanJob && (
             <EmptyState
-              onPick={useExample}
               onUploadReport={loadReportFile}
               onUploadPageGraph={loadPageGraphFile}
               onUploadError={setError}
@@ -438,6 +324,9 @@ export function SiteBehaviorApp({
               staticExport={STATIC_EXPORT}
               staticReports={staticReports}
               staticReportsError={staticReportsError}
+              homepageDiscovery={homepageDiscovery}
+              archiveRequested={archiveRequested}
+              onLoadArchive={() => void loadStaticArchive()}
             />
           )}
           {loading && (
@@ -456,210 +345,13 @@ export function SiteBehaviorApp({
               onCancel={activeScanJob ? () => void cancelActiveScan() : undefined}
               cancelling={cancellingScan}
               cancellationError={cancelScanError}
+              progress={activeScanProgress}
             />
           )}
-          {loaded && reportView && primaryRun && displayedRun && (
-            <section className="report-grid">
-              <div className="report-main">
-                <ReportHeader
-                  share={loaded.wire.share ?? null}
-                  view={reportView}
-                  run={primaryRun}
-                  evidenceRun={displayedRun}
-                  csvArmLabel={arms ? armDisplayLabel(reportView, displayedArmLabel) : null}
-                  onDownload={() => void downloadReport()}
-                  onDownloadCsv={downloadCsv}
-                  liveApiServesReportPages={liveApiServesReportPages}
-                />
-                <HeadlineBanner share={loaded.wire.share ?? null} view={reportView} liveApiServesReportPages={liveApiServesReportPages} />
-                <FindingsBoard view={reportView} />
-                {reportView.reportType === "comparison" && <ComparisonPanel view={reportView} />}
-                {arms && (
-                  // Two-arm audit switcher: every per-visit surface below (and
-                  // the sidebar and CSV export) follows the selected arm, so
-                  // the protected or rejected visit's evidence is inspectable
-                  // without opening the JSON. The headline, findings, and
-                  // comparison panel above stay pair-level.
-                  <div className="arm-switcher" role="group" aria-label="Which visit's evidence the tables below show">
-                    <span>Evidence shown:</span>
-                    {(["baseline", "variant"] as const).map((arm) => (
-                      <button
-                        key={arm}
-                        type="button"
-                        className={`arm-option${displayedArmLabel === arm ? " is-active" : ""}`}
-                        aria-pressed={displayedArmLabel === arm}
-                        onClick={() => setSelectedArm(arm)}
-                      >
-                        {armDisplayLabel(reportView, arm)}
-                      </button>
-                    ))}
-                    {/* Announce arm switches to assistive technology: the
-                        tables below swap silently otherwise. */}
-                    <p className="visually-hidden" role="status" aria-live="polite">
-                      {`Showing evidence from the ${armDisplayLabel(reportView, displayedArmLabel)} visit.`}
-                    </p>
-                  </div>
-                )}
-                <CausalityGraph requests={displayedRun.evidence.requests} />
-                <MetricGrid run={displayedRun} />
-                <TrafficViz run={displayedRun} />
-                <VisitPhasesAndStateChanges run={displayedRun} />
-                <Warnings warnings={reportView.warnings} />
-              </div>
-
-              <aside className="report-sidebar">
-                {displayableScreenshot(displayedRun.screenshot) && (
-                  <section className="side-card screenshot-card">
-                    <h2>Viewport</h2>
-                    {/* Only inline data URIs render: an uploaded report's
-                        screenshot field must never drive a network request. */}
-                    <img
-                      src={displayableScreenshot(displayedRun.screenshot)!}
-                      alt={`Screenshot of ${displayedRun.domain}`}
-                      loading="lazy"
-                      decoding="async"
-                    />
-                  </section>
-                )}
-
-                <section className="side-card">
-                  <h2>Top Third Parties</h2>
-                  <TopThirdParties domains={displayedRun.evidence.domains} />
-                </section>
-
-                {displayedRun.evidence.pixelEvents.length > 0 && (
-                  <section className="side-card">
-                    <h2>Advertising Pixels</h2>
-                    <PixelEventsList pixels={displayedRun.evidence.pixelEvents} />
-                  </section>
-                )}
-
-                <section className="side-card">
-                  <h2>Cookies</h2>
-                  <CookieList
-                    cookies={displayedRun.evidence.cookies}
-                    unsupported={familyUnsupportedOnRun(displayedRun, "cookies")}
-                  />
-                </section>
-
-                <section className="side-card">
-                  <h2>Storage</h2>
-                  <StorageList
-                    storage={displayedRun.evidence.storage}
-                    unsupported={familyUnsupportedOnRun(displayedRun, "storage")}
-                  />
-                </section>
-
-                <section className="side-card">
-                  <h2>Browser Behavior Signals</h2>
-                  <FingerprintList
-                    events={displayedRun.evidence.fingerprintEvents}
-                    detections={displayedRun.evidence.fingerprintDetections}
-                    unsupported={
-                      familyUnsupportedOnRun(displayedRun, "fingerprinting") ||
-                      familyUnsupportedOnRun(displayedRun, "detector-output")
-                    }
-                  />
-                </section>
-
-                <section className="side-card methodology">
-                  <h2>Methodology</h2>
-                  <dl>
-                    <div>
-                      <dt>Schema</dt>
-                      <dd>{schemaProvenanceLabel(reportView)}</dd>
-                    </div>
-                    <div>
-                      <dt>Run quality</dt>
-                      <dd>{runQualitySummary(displayedRun)}</dd>
-                    </div>
-                    <div>
-                      <dt>Scanner</dt>
-                      <dd>{displayedRun.conditions.automation}</dd>
-                    </div>
-                    {displayedRun.conditions.automation === "playwright-chromium" && (
-                      <div>
-                        <dt>Playwright</dt>
-                        <dd>{displayedRun.conditions.playwrightVersion ?? "not recorded"}</dd>
-                      </div>
-                    )}
-                    <div>
-                      <dt>Browser</dt>
-                      <dd>{displayedRun.conditions.browserVersion ?? "not recorded"}</dd>
-                    </div>
-                    <div>
-                      <dt>Timezone</dt>
-                      <dd>{displayedRun.conditions.timezone}</dd>
-                    </div>
-                    <div>
-                      <dt>Headless</dt>
-                      <dd>{displayedRun.conditions.headless ? "yes" : "no"}</dd>
-                    </div>
-                    <div>
-                      <dt>Viewport</dt>
-                      <dd>
-                        {displayedRun.conditions.viewport.width}×{displayedRun.conditions.viewport.height}
-                      </dd>
-                    </div>
-                    <div>
-                      <dt>GPC</dt>
-                      <dd>{gpcMethodologyLabel(displayedRun)}</dd>
-                    </div>
-                    {displayedRun.consent && (
-                      <div>
-                        <dt>Consent</dt>
-                        <dd>
-                          {displayedRun.consent.controlActivated
-                            ? `clicked "${consentChoiceLabel(displayedRun.consent.mode)}"${
-                                displayedRun.consent.cmp ? ` (${displayedRun.consent.cmp})` : ""
-                              }`
-                            : "no banner control found; pre-consent"}
-                          {/* Dispatch vs verification stay distinct, and the
-                              reader-facing summary never exposes wire tokens. */}
-                          {` · ${consentVerificationSummary(displayedRun.consent)}`}
-                        </dd>
-                      </div>
-                    )}
-                    <div>
-                      <dt>Egress</dt>
-                      <dd>{displayedRun.conditions.scannerEgress}</dd>
-                    </div>
-                    {displayedRun.conditions.trackerCatalog && (
-                      <div>
-                        <dt>Catalog</dt>
-                        <dd>
-                          {displayedRun.conditions.trackerCatalog.source}
-                          <br />
-                          {displayedRun.conditions.trackerCatalog.region
-                            ? `${displayedRun.conditions.trackerCatalog.region} · `
-                            : ""}
-                          {displayedRun.conditions.trackerCatalog.version}
-                          <br />
-                          {displayedRun.conditions.trackerCatalog.entries.toLocaleString("en-US")} entries
-                        </dd>
-                      </div>
-                    )}
-                    {displayedRun.conditions.adblockLists && (
-                      <div>
-                        <dt>Brave Shields lists</dt>
-                        <dd>
-                          {displayedRun.conditions.adblockLists.source}
-                          <br />
-                          {displayedRun.conditions.adblockLists.lists.toLocaleString("en-US")} lists · fetched{" "}
-                          {new Date(displayedRun.conditions.adblockLists.fetchedAt).toLocaleDateString("en-US", { timeZone: "UTC" })}
-                        </dd>
-                      </div>
-                    )}
-                  </dl>
-                  {displayedRun.conditions.disclosure && <p>{displayedRun.conditions.disclosure}</p>}
-                </section>
-              </aside>
-
-              <div className="report-evidence-tables" aria-label="Raw report evidence">
-                <DomainTable domains={displayedRun.evidence.domains} />
-                <RequestTable requests={displayedRun.evidence.requests} phases={displayedRun.phases} />
-              </div>
-            </section>
+          {loaded && (
+            <Suspense fallback={<p className="muted">Preparing the evidence explorer…</p>}>
+              <LazyReportRenderer loaded={loaded} liveApiServesReportPages={liveApiServesReportPages} />
+            </Suspense>
           )}
         </div>
 
@@ -676,6 +368,22 @@ export function SiteBehaviorApp({
             {" · "}
             <a className="footer-link" href={staticAssetPath("/privacy/")}>
               Privacy
+            </a>
+            {" · "}
+            <a className="footer-link" href={staticAssetPath("/catalog/")}>
+              Catalog
+            </a>
+            {" · "}
+            <a className="footer-link" href={staticAssetPath("/status/")}>
+              Status
+            </a>
+            {" · "}
+            <a className="footer-link" href={staticAssetPath("/security/")}>
+              Security
+            </a>
+            {" · "}
+            <a className="footer-link" href={staticAssetPath("/corrections/")}>
+              Corrections
             </a>
           </span>
           <span>
@@ -731,10 +439,9 @@ function CorpusHero({ highlights }: { highlights: CorpusHighlights }) {
       <p className="eyebrow">Transparency index</p>
       <h2 id="corpus-hero-title">What websites actually load: measured, not claimed.</h2>
       <p className="corpus-hero-lead">
-        Across the committed library, we attempted controlled visits to {plural(highlights.attemptedSiteCount, "real site")}: {plural(highlights.loadedSiteCount, "site")} {highlights.loadedSiteCount === 1 ? "has" : "have"} at least one successful single run or primary comparison arm, while {plural(highlights.failedSiteCount, "site")} {highlights.failedSiteCount === 1 ? "has" : "have"} only failed or block-page primary visits. {plural(highlights.cappedSiteCount, "successfully loaded site")} {highlights.cappedSiteCount === 1 ? "has" : "have"} a request-capped recording in at least one successful primary arm, which remains visible as lower-bound evidence; each site counts once even when both primary arms loaded. The category medians below use {plural(highlights.eligibleSiteCount, "site")} with an eligible, request-complete passive lead visit. For each visit, we record the requests, cookies, and
-        trackers it observes, then run its requests through <strong>Brave&rsquo;s own ad-block engine</strong> (the open-source{" "}
-        <code>adblock-rust</code>, with Brave&rsquo;s default lists) to show which requests match the filter lists of
-        Brave Shields, the ad and tracker blocker built into the Brave browser. Reproducible evidence, not a score.
+        The public library covers {plural(highlights.loadedSiteCount, "successfully loaded site")} from controlled
+        visits. Each report records observable requests, cookies, and catalogued services from one visit—reproducible
+        evidence, not a privacy score or verdict.
       </p>
       {highlights.topCategories.length > 0 && (
         <div className="corpus-hero-cats">
@@ -755,26 +462,14 @@ function CorpusHero({ highlights }: { highlights: CorpusHighlights }) {
           Browse the report library
         </a>
       </div>
+      <details className="corpus-counting-disclosure">
+        <summary>How coverage and category medians are counted</summary>
+        <p>
+          The committed library attempted {plural(highlights.attemptedSiteCount, "real site")}. {plural(highlights.failedSiteCount, "site")} only produced failed or block-page primary visits, and {plural(highlights.cappedSiteCount, "successfully loaded site")} had at least one request-capped recording that remains visible as lower-bound evidence. Category medians use {plural(highlights.eligibleSiteCount, "site")} with an eligible, request-complete passive lead visit. Each site counts once, even when a comparison loaded both arms. Requests are also evaluated with the open-source <code>adblock-rust</code> engine and Brave&rsquo;s default filter lists.
+        </p>
+      </details>
     </section>
   );
-}
-
-function safeFilenamePart(value: string): string {
-  return value.replace(/[^a-z0-9.-]+/gi, "-").replace(/^-+|-+$/g, "") || "report";
-}
-
-function gpcMethodologyLabel(run: RunView): string {
-  const measurement = gpcRunMeasurement(run);
-  if (measurement.outcome === "verified") {
-    return `${measurement.configured ? "configured on" : "configured off"} · readback verified`;
-  }
-  if (measurement.outcome === "contradicted") {
-    return `${measurement.configured ? "configured on" : "configured off"} · readback contradicted`;
-  }
-  if (measurement.outcome === "unverified") {
-    return `${measurement.configured ? "configured on" : "configured off"} · readback inconclusive`;
-  }
-  return `${measurement.configured ? "configured on" : "configured off"} · readback not recorded`;
 }
 
 function isStaticReportManifest(value: unknown): value is { reports: StaticReportManifestEntry[] } {
@@ -805,11 +500,6 @@ function isStaticReportManifestEntry(value: unknown): value is StaticReportManif
     typeof metrics.totalRequests === "number" &&
     typeof metrics.thirdPartyRequests === "number"
   );
-}
-
-/** Display label for one arm of a comparison view ("Shields off"). */
-function armDisplayLabel(view: ReportView | null, arm: "baseline" | "variant"): string {
-  return view?.comparison?.runLabels[arm] ?? arm;
 }
 
 /**
@@ -852,7 +542,6 @@ function ThemeToggle() {
 }
 
 function EmptyState({
-  onPick,
   onUploadReport,
   onUploadPageGraph,
   onUploadError,
@@ -861,9 +550,11 @@ function EmptyState({
   liveScanEnabled,
   staticExport,
   staticReports,
-  staticReportsError
+  staticReportsError,
+  homepageDiscovery,
+  archiveRequested,
+  onLoadArchive
 }: {
-  onPick: (url: string) => void;
   onUploadReport: (file: File | null) => Promise<void>;
   onUploadPageGraph: (selection: PageGraphUploadSelection) => Promise<void>;
   /** Surfaces picker-side rejections (e.g. the size cap) that never reach the upload handlers. */
@@ -874,72 +565,117 @@ function EmptyState({
   staticExport: boolean;
   staticReports: StaticReportManifestEntry[] | null;
   staticReportsError: string | null;
+  homepageDiscovery: HomepageDiscovery | null;
+  archiveRequested: boolean;
+  onLoadArchive: () => void;
 }) {
-  const latestReport = staticReports?.[0] ?? null;
+  const latestReport = homepageDiscovery?.latestReport ?? null;
 
   return (
     <section className={`empty-state${staticExport ? " static-library-state" : ""}`}>
       <div className="empty-icon">
         <Radar size={28} aria-hidden="true" />
       </div>
-      <h2>{liveScanEnabled ? "Ready to scan" : staticExport ? "Saved site reports" : "Ready to scan"}</h2>
+      <h2>{homepageDiscovery ? "Explore measured evidence" : liveScanEnabled ? "Ready to scan" : "Saved site reports"}</h2>
       <p>
-        {liveScanEnabled
-          ? "Run a controlled browser visit and inspect the observable behavior from that one session."
-          : staticExport
-            ? "Open a saved report below, or open a report file someone shared with you."
-            : "Run a controlled browser visit and inspect the observable behavior from that one session."}
+        {homepageDiscovery
+          ? `${plural(homepageDiscovery.reportCount, "public report")} are available now. Open existing evidence instantly, or scan a site above for a new controlled visit.`
+          : liveScanEnabled
+            ? "Run a controlled browser visit and inspect the observable behavior from that one session."
+            : "Open a saved report, or open a report file someone shared with you."}
       </p>
-      {liveScanEnabled && (
-        <div className="example-row">
-          <span>Try</span>
-          {EXAMPLES.map((example) => (
-            <button key={example.url} type="button" className="example-chip" onClick={() => onPick(example.url)}>
-              <span className="example-chip-url">{example.url}</span>
-              <span className="example-chip-hint">{example.hint}</span>
-            </button>
-          ))}
-        </div>
-      )}
-      {staticExport ? (
-        <div className="static-tools">
+      {homepageDiscovery && <HomepageFeaturedGallery groups={homepageDiscovery.featuredGroups} />}
+      <div className="homepage-discovery-actions">
+        {latestReport && (
+          <a
+            className="primary-button"
+            href={committedReportLocation(latestReport.latestReportId, clientReportRuntime()).pagePath}
+          >
+            <FileJson size={17} aria-hidden="true" />
+            Open latest report
+          </a>
+        )}
+        <a className="secondary-button" href={staticAssetPath("/directory/")}>Browse all sites</a>
+      </div>
+
+      <details className="homepage-tools-disclosure">
+        <summary>Open report files, PageGraph captures, or comparison tools</summary>
+        <div className="homepage-tools">
           <div className="static-action-row">
-            {latestReport && (
-              <a className="primary-button" href={committedReportLocation(latestReport.id, clientReportRuntime()).pagePath}>
-                <FileJson size={17} aria-hidden="true" />
-                Open latest report
-              </a>
-            )}
             <ReportUploadButton onUploadReport={onUploadReport} onError={onUploadError}>
               Open report file
             </ReportUploadButton>
+            <PageGraphR2UploadButton onUploadPair={onUploadPageGraph} onError={onUploadError}>
+              Open GraphML + meta.json
+            </PageGraphR2UploadButton>
             {SCAN_WORKFLOW_URL && (
               <a className="secondary-button" href={SCAN_WORKFLOW_URL} target="_blank" rel="noreferrer" title="Requires repository access">
                 <Github size={17} aria-hidden="true" />
                 Maintainer scan
               </a>
             )}
+            {staticExport && !archiveRequested && (
+              <button className="secondary-button" type="button" onClick={onLoadArchive}>
+                Load saved-report tools
+              </button>
+            )}
           </div>
-          <StaticReportGallery
-            reports={staticReports}
-            error={staticReportsError}
-            onCreateComparison={onCreateComparison}
-            onComparisonError={onComparisonError}
-          />
+          <p className="homepage-tools-note">
+            PageGraph imports require a <code>.graphml</code> file and its matching <code>.meta.json</code> sidecar.
+            Unsupported evidence families remain censored rather than guessed.
+          </p>
+          {staticExport && archiveRequested && (
+            <Suspense fallback={<p className="muted">Loading saved-report tools…</p>}>
+              <LazyStaticReportGallery
+                reports={staticReports}
+                error={staticReportsError}
+                onCreateComparison={onCreateComparison}
+                onComparisonError={onComparisonError}
+              />
+            </Suspense>
+          )}
         </div>
-      ) : null}
-      <div className="pagegraph-ingest">
-        <div className="pagegraph-ingest-text">
-          <Network size={16} aria-hidden="true" />
-          <span>
-            Have a Brave <strong>PageGraph</strong> capture? Open its <code>.graphml</code> and matching{" "}
-            <code>.meta.json</code> sidecar for a request-only r2 report. Unsupported evidence families stay censored,
-            never guessed.
-          </span>
-        </div>
-        <PageGraphR2UploadButton onUploadPair={onUploadPageGraph} onError={onUploadError}>
-          Open GraphML + meta.json
-        </PageGraphR2UploadButton>
+      </details>
+    </section>
+  );
+}
+
+function HomepageFeaturedGallery({ groups }: { groups: HomepageFeaturedGroup[] }) {
+  if (groups.length === 0) return null;
+
+  return (
+    <section className="featured-gallery homepage-featured-gallery" aria-labelledby="featured-title">
+      <div className="featured-heading">
+        <p className="eyebrow">Start here</p>
+        <h3 id="featured-title">Real sites, already scanned</h3>
+        <p>Each category gets a place before any category receives a second card.</p>
+      </div>
+      <div className="homepage-featured-groups">
+        {groups.map((group) => (
+          <div className="featured-group" key={group.id}>
+            <h4>{group.label}</h4>
+            <div className="featured-cards">
+              {group.items.map((item) => (
+                <a
+                  className={`featured-card tone-${item.tone}`}
+                  href={committedReportLocation(item.id, clientReportRuntime()).pagePath}
+                  key={item.id}
+                >
+                  <span className="featured-card-top">
+                    <span className="featured-card-site">{item.siteLabel}</span>
+                    {item.requestCapped && <span className="capped-chip">recording capped</span>}
+                    <span className="featured-card-dot" aria-hidden="true" />
+                  </span>
+                  <span className="featured-card-headline">{item.headline}</span>
+                  <span className="featured-card-stats">
+                    <span className="featured-card-stat"><b>{item.thirdPartyRequests.toLocaleString("en-US")}</b> third-party</span>
+                    <span className="featured-card-stat"><b>{item.trackerRequests.toLocaleString("en-US")}</b> catalogued-service</span>
+                  </span>
+                </a>
+              ))}
+            </div>
+          </div>
+        ))}
       </div>
     </section>
   );
@@ -959,23 +695,16 @@ function LoadingState({
   mode,
   onCancel,
   cancelling = false,
-  cancellationError = null
+  cancellationError = null,
+  progress = null
 }: {
   mode: "single" | "gpc" | "shields" | "consent" | "opening";
   onCancel?: () => void;
   cancelling?: boolean;
   cancellationError?: string | null;
+  progress?: ScanJobProgress | null;
 }) {
-  const [elapsed, setElapsed] = useState(0);
-  const isComparison = mode === "gpc" || mode === "shields" || mode === "consent";
   const isScanning = mode !== "opening";
-
-  useEffect(() => {
-    if (!isScanning) return;
-    const startedAt = Date.now();
-    const timer = setInterval(() => setElapsed(Math.floor((Date.now() - startedAt) / 1000)), 1000);
-    return () => clearInterval(timer);
-  }, [isScanning]);
 
   // Opening a saved report is a quick fetch, not a controlled browser visit, so it
   // gets a lightweight state without the elapsed timer or the "what we check" list.
@@ -992,33 +721,20 @@ function LoadingState({
     );
   }
 
+  const progressCopy = scanJobProgressCopy(progress);
+
   return (
     <section className="loading-state" aria-labelledby="scan-loading-title">
-      <p className="visually-hidden" role="status">
-        Scan started. Progress details are shown below.
+      <p className="visually-hidden" role="status" aria-live="polite">
+        {progressCopy.title}. {progressCopy.completedRuns ?? "Progress details are shown below."}
       </p>
       <span className="pulse-dot" />
-      <h2 id="scan-loading-title">
-        {isComparison ? "Preparing two controlled browser visits" : "Preparing a controlled browser visit"}
-      </h2>
-      <p>
-        {mode === "gpc"
-          ? "Comparing GPC off and on runs for requests, cookies, storage, and browser API observations."
-          : mode === "shields"
-            ? "Comparing a normal visit against one with Brave Shields (the ad and tracker blocker built into the Brave browser) simulated on, across requests, cookies, storage, and browser API observations."
-            : mode === "consent"
-              ? 'Comparing a visit asked to click "Accept all" on the cookie banner against one asked to click "Reject all", across requests, cookies, storage, and browser API observations.'
-              : "Collecting network requests, cookies, storage, and browser API observations."}
-      </p>
+      <h2 id="scan-loading-title">{progressCopy.title}</h2>
+      <p>{progressCopy.detail}</p>
       <div className="progress-track" aria-hidden="true">
         <div className="progress-fill" />
       </div>
-      <p className="loading-elapsed">
-        {elapsed}s elapsed
-        {isComparison
-          ? " · usually two visits, up to ~90s; queueing can take longer, as can one retry on restart-safe deployments"
-          : " · usually up to ~45s; queueing can take longer, as can one retry on restart-safe deployments"}
-      </p>
+      {progressCopy.completedRuns && <p className="loading-elapsed">{progressCopy.completedRuns}</p>}
       {onCancel && (
         <button className="secondary-button" type="button" onClick={onCancel} disabled={cancelling}>
           {cancelling ? <Loader2 className="spin" size={16} aria-hidden="true" /> : null}

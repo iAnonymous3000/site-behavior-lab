@@ -1,0 +1,6 @@
+{
+  "$schema": "https://sitebehavior.org/corrections.schema.json",
+  "schemaVersion": 1,
+  "policy": "https://sitebehavior.org/corrections/",
+  "entries": []
+}

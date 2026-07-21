@@ -1,4 +1,10 @@
 import type { TrackerMatch } from "./types";
+import { sha256Hex } from "./sha256";
+import {
+  TRACKER_CATALOG_REVIEW_VERSION,
+  catalogProvenanceFor,
+  type CatalogProvenance
+} from "./tracker-catalog-provenance";
 
 type CatalogEntry = {
   suffixes: string[];
@@ -24,6 +30,14 @@ type CanonicalCatalogEntry = {
   prevalence: number | null;
   fingerprinting: number | null;
   cookiePrevalence: number | null;
+};
+
+export type TrackerCatalogRecord = {
+  domain: string;
+  entity: string;
+  category: string;
+  confidence: TrackerMatch["confidence"];
+  provenance: CatalogProvenance;
 };
 
 /*
@@ -379,6 +393,12 @@ const catalog: CatalogEntry[] = [
 
 const catalogIndex = buildCatalogIndex();
 const curatedOverrideCount = catalog.reduce((total, entry) => total + entry.suffixes.length, 0);
+const reviewedCatalogRecords = buildReviewedCatalogRecords();
+const catalogValidationIssues = validateTrackerCatalogRecords(reviewedCatalogRecords);
+
+if (catalogValidationIssues.length > 0) {
+  throw new Error(`Invalid tracker catalog provenance:\n${catalogValidationIssues.join("\n")}`);
+}
 
 export const trackerCatalogMetadata = {
   source: "Hand-curated service catalog",
@@ -387,6 +407,9 @@ export const trackerCatalogMetadata = {
   entries: curatedOverrideCount,
   curatedOverrides: curatedOverrideCount,
   license: "AGPL-3.0-or-later",
+  provenanceVersion: TRACKER_CATALOG_REVIEW_VERSION,
+  reviewedEntries: reviewedCatalogRecords.length,
+  provenanceDigest: sha256Hex(canonicalTrackerCatalogProvenanceContents()),
   // SHA-256 of canonicalTrackerCatalogContents(). Kept as a checked-in
   // constant so this shared Node/Cloudflare module does not require a
   // runtime-specific crypto API merely to expose immutable build metadata.
@@ -412,6 +435,75 @@ export function canonicalTrackerCatalogContents(): string {
     .sort((left, right) => left.domain < right.domain ? -1 : left.domain > right.domain ? 1 : 0);
 
   return JSON.stringify(entries);
+}
+
+/**
+ * Review metadata is versioned and digested separately so adding references
+ * does not change the detector-facing effective-catalog digest embedded in
+ * existing reports.
+ */
+export function canonicalTrackerCatalogProvenanceContents(): string {
+  return JSON.stringify(reviewedCatalogRecords);
+}
+
+/** Return detached records for the public catalog UI and data consumers. */
+export function trackerCatalogRecords(): TrackerCatalogRecord[] {
+  return reviewedCatalogRecords.map((record) => ({
+    ...record,
+    provenance: {
+      ...record.provenance,
+      entityReferences: record.provenance.entityReferences.map((reference) => ({ ...reference }))
+    }
+  }));
+}
+
+/**
+ * CI-facing validator. It intentionally checks only mechanically enforceable
+ * review rules. Entity references do not claim source support for each domain
+ * suffix or maintainer-assigned functional category.
+ */
+export function validateTrackerCatalogRecords(records: readonly TrackerCatalogRecord[]): string[] {
+  const issues: string[] = [];
+  const seenDomains = new Set<string>();
+
+  for (const [index, record] of records.entries()) {
+    const label = record.domain || `record ${index + 1}`;
+    if (!normalizeDomain(record.domain) || normalizeDomain(record.domain) !== record.domain) {
+      issues.push(`${label}: domain must be a normalized hostname`);
+    }
+    if (seenDomains.has(record.domain)) issues.push(`${label}: duplicate domain`);
+    seenDomains.add(record.domain);
+    if (!record.entity.trim()) issues.push(`${label}: entity is required`);
+    if (!record.category.trim()) issues.push(`${label}: category is required`);
+    if (record.confidence !== "curated") issues.push(`${label}: catalog confidence must be curated`);
+
+    const provenance = record.provenance;
+    if (!provenance || provenance.status !== "maintainer-reviewed") {
+      issues.push(`${label}: maintainer review provenance is required`);
+      continue;
+    }
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(provenance.reviewedAt)) {
+      issues.push(`${label}: reviewedAt must use YYYY-MM-DD`);
+    }
+    if (!provenance.reviewer.trim()) issues.push(`${label}: reviewer is required`);
+    if (!provenance.categoryRationale.trim()) issues.push(`${label}: category rationale is required`);
+    if (!provenance.limitations.trim()) issues.push(`${label}: limitations are required`);
+    if (provenance.entityReferences.length === 0) {
+      issues.push(`${label}: at least one entity reference is required`);
+    }
+    for (const [referenceIndex, reference] of provenance.entityReferences.entries()) {
+      if (!reference.title.trim()) issues.push(`${label}: entity reference ${referenceIndex + 1} needs a title`);
+      try {
+        const url = new URL(reference.url);
+        if (url.protocol !== "https:") issues.push(`${label}: entity reference ${referenceIndex + 1} must use HTTPS`);
+        if (url.username || url.password) issues.push(`${label}: entity reference ${referenceIndex + 1} must not include credentials`);
+      } catch {
+        issues.push(`${label}: entity reference ${referenceIndex + 1} must be an absolute URL`);
+      }
+    }
+  }
+
+  return issues;
 }
 
 export function findTrackerMatch(domain: string): TrackerMatch | null {
@@ -451,6 +543,24 @@ function buildCatalogIndex(): Map<string, IndexedCatalogEntry> {
   }
 
   return index;
+}
+
+function buildReviewedCatalogRecords(): TrackerCatalogRecord[] {
+  return [...catalogIndex.values()]
+    .map((entry) => {
+      const provenance = catalogProvenanceFor(entry.entity, entry.category);
+      if (!provenance) {
+        throw new Error(`Tracker catalog entry for ${entry.domain} (${entry.entity}) has no entity reference.`);
+      }
+      return {
+        domain: entry.domain,
+        entity: entry.entity,
+        category: entry.category,
+        confidence: entry.confidence,
+        provenance
+      };
+    })
+    .sort((left, right) => left.domain.localeCompare(right.domain));
 }
 
 function findIndexedMatch(domain: string): IndexedCatalogEntry | null {

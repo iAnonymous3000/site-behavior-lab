@@ -7,8 +7,10 @@ take them seriously and appreciate responsible disclosure.
 ## Reporting a vulnerability
 
 Please do not disclose security problems publicly before there is a fix or
-mitigation. Use GitHub's private vulnerability reporting if it is enabled on the
-repository, or contact the maintainer privately.
+mitigation. Use the repository's
+[private vulnerability report](https://github.com/iAnonymous3000/site-behavior-lab/security/advisories/new).
+Do not put a vulnerability, personal data, access token, or sensitive
+unredacted URL in a public issue.
 
 Please include:
 

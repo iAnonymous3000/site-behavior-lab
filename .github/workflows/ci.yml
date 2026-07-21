@@ -29,6 +29,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+        with:
+          fetch-depth: 0
 
       - name: Set up Node
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
@@ -38,6 +40,11 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Verify append-only corrections history
+        env:
+          CORRECTIONS_BASE_REVISION: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: npm run corrections:verify-history -- "${CORRECTIONS_BASE_REVISION:-HEAD^}"
 
       - name: Full dependency audit
         run: npm audit

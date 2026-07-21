@@ -25,6 +25,13 @@
     // use "*" for an intentionally open scanner (the scan API uses no cookies).
     "SITE_BEHAVIOR_LAB_ALLOWED_ORIGIN": "https://sitebehavior.org",
 
+    // Privacy-safe aggregate product observability. Keep disabled until the
+    // public privacy/methodology disclosure, event instrumentation, dashboard
+    // queries, WAF limit, and activation review in
+    // docs/privacy-safe-observability.md are complete. Missing bindings/config
+    // fail closed; there is no raw-log fallback.
+    "SITE_BEHAVIOR_LAB_AGGREGATE_METRICS": "0",
+
     // Public scanner (see docs/go-live-public-scanner.md): open to unauthenticated
     // visitors. container-worker.ts enforces Turnstile (the TURNSTILE_SECRET_KEY
     // secret) plus the atomic Durable Object quota before any request reaches
@@ -78,6 +85,16 @@
     // effective launch state to be "enabled" in /api/health.
     "SITE_BEHAVIOR_LAB_CHROMIUM_SANDBOX": "1"
   },
+
+  // Stores only fixed event-name/dimension enums plus count=1. It never
+  // receives a target URL/domain, report id, query, evidence, cookie, or
+  // user/session identifier. Writes remain disabled by the flag above.
+  "analytics_engine_datasets": [
+    {
+      "binding": "AGGREGATE_METRICS",
+      "dataset": "site_behavior_lab_aggregate_metrics"
+    }
+  ],
 
   "containers": [
     {

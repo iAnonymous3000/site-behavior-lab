@@ -780,6 +780,7 @@ async function runScanJob(record: InternalScanJobRecord): Promise<void> {
       : record.saveReport ?? ((report) => saveScanReport(report, { shareId: record.reportId }));
     const report = await executePreparedScan(record.prepared, record.scan, saveReport, QUEUE_TIMEOUT_MS, false, {
       signal: record.abortController.signal,
+      onProgress: (progress) => updateRunningProgress(record, progress),
       beforeSave: record.durable
         ? (pendingReport) => beginDurablePublication(record, pendingReport)
         : () => markPublicationStarted(record)
@@ -1136,6 +1137,12 @@ function markRunning(record: InternalScanJobRecord): boolean {
   record.updatedAt = now;
   record.progress = createProgress("waiting", record.prepared, 0);
   return true;
+}
+
+function updateRunningProgress(record: InternalScanJobRecord, progress: ScanJobProgress): void {
+  if (record.status !== "running" || record.publicationStarted) return;
+  record.progress = { ...progress };
+  record.updatedAt = new Date().toISOString();
 }
 
 function markSucceeded(record: InternalScanJobRecord, report: RuntimeScanReport): void {

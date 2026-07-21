@@ -1,15 +1,26 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { buildReportHeadline, reportPageTitle } from "@/lib/report-headline";
+import corrections from "@/public/corrections.json";
+import { buildReportHeadline, reportPageTitle, type ReportHeadline } from "@/lib/report-headline";
+import { parseCorrectionsLedger, reportCorrections } from "@/lib/corrections-ledger";
 import { serializeJsonLd } from "@/lib/jsonld-script";
 import { buildReportDataset } from "@/lib/report-jsonld";
 import { readStoredReportForId } from "@/lib/report-source";
-import { toReportView } from "@/lib/scan-report-views";
-import { siteBaseUrl, siteOrigin } from "@/lib/site-url";
+import { conciseMetadataText, reportMetadataDescription, reportMetadataTitle } from "@/lib/seo-metadata";
+import {
+  displayRunView,
+  runQualitySummary,
+  schemaProvenanceLabel,
+  toReportView,
+  type ReportView
+} from "@/lib/scan-report-views";
+import { siteBaseUrl, siteOrigin, sitePagesBasePath } from "@/lib/site-url";
 import { listStaticReportIds } from "@/lib/static-report-files";
+import { ReportPageContext } from "@/app/_components/report-page-context";
 import { SavedReportClient } from "./saved-report-client";
 
 const STATIC_EXPORT = process.env.NEXT_PUBLIC_SITE_BEHAVIOR_LAB_STATIC_EXPORT === "1";
+const correctionsLedger = parseCorrectionsLedger(corrections);
 
 export async function generateStaticParams() {
   const ids = await listStaticReportIds();
@@ -24,6 +35,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
     return {
       title: { absolute: "Report not found · Site Behavior Lab" },
       description: "This Site Behavior Lab report is unavailable.",
+      alternates: { canonical: null },
       robots: { index: false, follow: false }
     };
   }
@@ -31,17 +43,38 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   // The headline builds from the version-independent view, so the metadata
   // works for any readable schema generation, matching the view-based client
   // renderer below.
-  const headline = buildReportHeadline(toReportView(result.stored));
-  const title = reportPageTitle(headline);
-  const description = headline.subhead;
+  const view = toReportView(result.stored);
+  const headline = buildReportHeadline(view);
+  const correction = reportCorrections(correctionsLedger, id);
+  const title = reportMetadataTitle({
+    domain: headline.domain,
+    reportId: id,
+    scannedAt: view.scannedAt,
+    reportType: view.reportType,
+    comparisonAxis: view.comparison?.axis
+  });
+  const description = correction.currentSubjectEvent
+    ? conciseMetadataText(
+        `Correction ledger status: ${correction.currentSubjectEvent.state}. ${correction.currentSubjectEvent.summary}`,
+        160
+      )
+    : reportMetadataDescription(headline);
+  const reportUrl = publicReportUrl(id);
 
   return {
     title,
     description,
+    alternates: { canonical: STATIC_EXPORT ? reportUrl : null },
+    robots: STATIC_EXPORT && !correction.suppressIndexing
+      ? { index: true, follow: true }
+      : { index: false, follow: true, noarchive: true },
     openGraph: {
       title,
       description,
-      type: "article"
+      type: "article",
+      // Runtime shares are noindex and have no canonical, but their social
+      // unfurl still needs the exact report URL rather than the scanner root.
+      url: reportUrl
     },
     twitter: {
       card: "summary_large_image",
@@ -72,17 +105,99 @@ export default async function SavedReportPage({ params }: { params: Promise<{ id
   // Every readable generation renders through the view-based client below
   // (RFC 14.8 atomic consumer migration); unreadable and newer-revision
   // reports were already answered above.
-  const dataset = buildReportDataset(toReportView(result.stored), {
-    url: `${siteBaseUrl()}/reports/${id}/`,
-    jsonUrl: STATIC_EXPORT ? `${siteBaseUrl()}/reports/${id}.json` : `${siteOrigin()}/api/reports/${id}`
-  });
+  const view = toReportView(result.stored);
+  const headline = buildReportHeadline(view);
+  const correction = reportCorrections(correctionsLedger, id);
+  const reportUrl = publicReportUrl(id);
+  const jsonUrl = STATIC_EXPORT ? `${siteBaseUrl()}/reports/${id}.json` : `${siteOrigin()}/api/reports/${id}`;
+  const evidenceHref = STATIC_EXPORT ? `${sitePagesBasePath()}/reports/${id}.json` : `/api/reports/${id}`;
+  const dataset = correction.suppressIndexing
+    ? null
+    : buildReportDataset(view, {
+        url: reportUrl,
+        jsonUrl
+      });
 
   return (
     <>
       {dataset && (
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(dataset) }} />
       )}
-      <SavedReportClient id={id} stored={result.stored} />
+      <SavedReportClient
+        id={id}
+        evidenceHref={evidenceHref}
+        title={reportPageTitle(headline)}
+        context={
+          <ReportPageContext
+            id={id}
+            corrections={correction}
+            jsonHref={jsonUrl}
+            permanent={result.origin === "committed"}
+            provenanceHref={
+              result.origin === "committed" ? `${siteBaseUrl()}/reports/${id}.provenance.json` : null
+            }
+            reportUrl={reportUrl}
+            view={view}
+          />
+        }
+        summary={<ReportPageSummary headline={headline} view={view} />}
+      />
     </>
   );
+}
+
+/** Compact, crawlable report content. Raw evidence arrays stay server-side. */
+function ReportPageSummary({ headline, view }: { headline: ReportHeadline; view: ReportView }) {
+  const run = displayRunView(view);
+  return (
+    <div className="report-page-summary">
+      <section className="report-header" aria-label="Report summary">
+        <div className="report-title-block">
+          <p className="eyebrow">Recorded visit <span className="report-provenance">{schemaProvenanceLabel(view)}</span></p>
+          <h2>{run.domain}</h2>
+          <p className="report-url">{run.conditions.requestedUrl}</p>
+        </div>
+        <div className="report-summary-facts" aria-label="Visit facts">
+          <span>{runQualitySummary(run)}</span>
+          <span>{formatReportTimestamp(run.startedAt ?? view.scannedAt)}</span>
+        </div>
+      </section>
+
+      <section className={`headline-banner tone-${headline.tone}`} aria-label="Plain-language summary">
+        <p className="headline-kicker">{headline.kicker}</p>
+        <h2 className="headline-title">{headline.headline}</h2>
+        <p className="headline-subhead">{headline.subhead}</p>
+        {headline.stats.length > 0 && (
+          <div className="headline-stats">
+            {headline.stats.map((stat) => (
+              <div className={`headline-stat${stat.emphasis ? " is-emphasis" : ""}`} key={stat.label}>
+                <span className="headline-stat-value">{stat.value}</span>
+                <span className="headline-stat-label">{stat.label}</span>
+              </div>
+            ))}
+          </div>
+        )}
+        <div className="headline-footer"><span className="headline-caveat">{headline.caveat}</span></div>
+      </section>
+    </div>
+  );
+}
+
+function formatReportTimestamp(value: string | null): string {
+  if (!value) return "time not recorded";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "time not recorded";
+  return date.toLocaleString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    timeZone: "UTC",
+    timeZoneName: "short"
+  });
+}
+
+function publicReportUrl(id: string): string {
+  return `${siteBaseUrl()}/reports/${id}${STATIC_EXPORT ? "/" : ""}`;
 }

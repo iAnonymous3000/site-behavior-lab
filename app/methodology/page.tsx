@@ -1,14 +1,14 @@
-import type { Metadata } from "next";
 import Link from "next/link";
+import { publicPageMetadata } from "@/lib/seo-metadata";
 
 export const dynamic = "force-static";
 
-export const metadata: Metadata = {
+export const metadata = publicPageMetadata({
   title: "Methodology",
   description:
     "How a Site Behavior Lab scan works: what the automated visit does, what is recorded, how comparisons are paired, what the Brave-list blocking simulation means, and what the reports can and cannot claim.",
-  alternates: { canonical: "/methodology/" }
-};
+  path: "/methodology/"
+});
 
 export default function MethodologyPage() {
   return (
@@ -155,7 +155,8 @@ export default function MethodologyPage() {
           exact literals for paths, query keys, subdomain labels, cookie names, and storage keys, generalizing
           everything else. Report warnings come from a closed scanner vocabulary, so page-controlled text cannot
           impersonate the scanner. Shared reports live behind unguessable IDs and expire; reports published into
-          the public corpus are deliberately permanent evidence.
+          the versioned public corpus are retained under disclosed age, count, and cohort rules. Reports cited by
+          the corrections ledger are pinned against automated corpus pruning.
         </p>
         <p>
           Restart-safe queue data, when explicitly enabled, is infrastructure state rather than report evidence. The

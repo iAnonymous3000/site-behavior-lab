@@ -800,6 +800,42 @@ test("executePreparedScan awaits the publication fence before invoking the saver
   assert.deepEqual(events, ["fence:1", "save"]);
 });
 
+test("executePreparedScan reports observed browser stages and completed comparison visits", async () => {
+  const prepared: PreparedScanRequest = {
+    clientKey: "already-charged",
+    url: "https://1.1.1.1/",
+    device: "desktop",
+    gpcEnabled: true,
+    compareGpc: true,
+    compareShields: false,
+    compareConsent: false,
+    rateLimitCost: 2
+  };
+  const progress: Array<{ phase: string; completedRuns: number; totalRuns: number }> = [];
+  const scan: ScanRunner = async (payload, options) => {
+    options?.onProgress?.("launching");
+    options?.onProgress?.("navigating");
+    options?.onProgress?.("collecting");
+    return makeScanResult(payload);
+  };
+
+  await executePreparedScan(prepared, scan, async (report) => report, undefined, false, {
+    drawComparisonFirstArm: () => "baseline",
+    onProgress: (next) => progress.push(next)
+  });
+
+  assert.deepEqual(progress, [
+    { phase: "launching", completedRuns: 0, totalRuns: 2 },
+    { phase: "navigating", completedRuns: 0, totalRuns: 2 },
+    { phase: "collecting", completedRuns: 0, totalRuns: 2 },
+    { phase: "collecting", completedRuns: 1, totalRuns: 2 },
+    { phase: "launching", completedRuns: 1, totalRuns: 2 },
+    { phase: "navigating", completedRuns: 1, totalRuns: 2 },
+    { phase: "collecting", completedRuns: 1, totalRuns: 2 },
+    { phase: "collecting", completedRuns: 2, totalRuns: 2 }
+  ]);
+});
+
 function expectV1Report(report: RuntimeScanReport): ScanReport {
   assert.equal(report.schemaVersion, 1);
   if (report.schemaVersion !== 1) throw new Error("expected frozen v1 report");

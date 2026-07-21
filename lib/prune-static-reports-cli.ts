@@ -1,5 +1,5 @@
 import path from "node:path";
-import { pruneStaticReports } from "./prune-static-reports";
+import { pruneStaticReportsWithCorrections } from "./prune-static-reports";
 
 /**
  * CLI wrapper for corpus retention pruning. Invoked (compiled to the
@@ -9,9 +9,10 @@ import { pruneStaticReports } from "./prune-static-reports";
  * Node-only CLI: never imported by app, worker, or browser code.
  */
 const DEFAULT_MAX_AGE_DAYS = 7;
-// Hard ceiling on committed reports. Exact subject/cohort retention may keep
-// multiple compatible histories per site, so this remains the non-negotiable
-// bound; at ~150 KB per report it caps the repo at roughly 150 MB of JSON.
+// Normal ceiling on committed reports. Exact subject/cohort retention may keep
+// multiple compatible histories per site; correction-linked immutable
+// evidence is the sole override and is reported when it exceeds this bound.
+// At ~150 KB per unpinned report this otherwise caps JSON near 150 MB.
 const DEFAULT_MAX_COUNT = 1_000;
 // The newest reports per exact site/kind/subject/versioned cohort stay exempt
 // from AGE pruning so "changed since last scan" keeps compatible history.
@@ -22,6 +23,7 @@ const DEFAULT_KEEP_PER_SITE = 2;
 async function main(): Promise<void> {
   // The launcher runs this with cwd = repo root.
   const reportsDir = path.join(process.cwd(), "public", "reports");
+  const correctionsLedgerPath = path.join(process.cwd(), "public", "corrections.json");
 
   const maxAgeMs =
     positiveNumberFromEnv(
@@ -46,7 +48,11 @@ async function main(): Promise<void> {
     Math.floor(nonNegativeNumberFromEnv("SITE_BEHAVIOR_LAB_STATIC_REPORT_KEEP_PER_SITE", DEFAULT_KEEP_PER_SITE))
   );
 
-  const { removed, warnings } = await pruneStaticReports(reportsDir, { maxAgeMs, maxCount, keepPerSite });
+  const { removed, warnings } = await pruneStaticReportsWithCorrections(reportsDir, correctionsLedgerPath, {
+    maxAgeMs,
+    maxCount,
+    keepPerSite
+  });
   for (const warning of warnings) {
     console.warn(warning);
   }

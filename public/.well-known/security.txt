@@ -1,0 +1,5 @@
+Contact: https://github.com/iAnonymous3000/site-behavior-lab/security/advisories/new
+Expires: 2027-07-21T23:59:59Z
+Preferred-Languages: en
+Canonical: https://sitebehavior.org/.well-known/security.txt
+Policy: https://github.com/iAnonymous3000/site-behavior-lab/security/policy

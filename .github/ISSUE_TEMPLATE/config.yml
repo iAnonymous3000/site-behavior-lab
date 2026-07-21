@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Private security report
+    url: https://github.com/iAnonymous3000/site-behavior-lab/security/advisories/new
+    about: Report vulnerabilities, personal data exposure, secrets, or sensitive URLs privately.
+  - name: Methodology and evidence limits
+    url: https://sitebehavior.org/methodology/
+    about: Check what a controlled visit can and cannot establish before filing.

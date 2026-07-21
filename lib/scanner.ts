@@ -269,6 +269,8 @@ export type ScanSiteOptions = {
   shieldsBlockingEnabled?: boolean;
   /** Cooperatively stops the browser visit and closes its isolated context. */
   signal?: AbortSignal;
+  /** Coarse, observed browser lifecycle stages; never a percentage or ETA. */
+  onProgress?: (phase: "launching" | "navigating" | "collecting") => void;
   resolvePublicHost?: ResolvePublicHost;
   verifyPublicUrl?: (url: URL) => Promise<void>;
   /** Override CNAME-chain resolution (defaults to node:dns); injected in tests. */
@@ -558,6 +560,7 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
       : "Counts are a lower bound: trackers that load only after further interaction are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only."
   ]);
 
+  options.onProgress?.("launching");
   const browser = await getSharedBrowser();
   throwIfScanAborted(options.signal);
   const chromiumVersion = browser.version();
@@ -771,6 +774,7 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
       }
     });
 
+    options.onProgress?.("navigating");
     const response = await page
       .goto(targetUrl.toString(), {
         waitUntil: "domcontentloaded",
@@ -803,6 +807,7 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
         );
       });
 
+    options.onProgress?.("collecting");
     let navigationSettled = true;
     await withScanTimeout(page.waitForLoadState("networkidle", { timeout: scanTimeout(started, NETWORK_IDLE_TIMEOUT_MS) }), started).catch(
       (error) => {

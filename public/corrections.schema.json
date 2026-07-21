@@ -1,0 +1,84 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sitebehavior.org/corrections.schema.json",
+  "title": "Site Behavior Lab corrections ledger",
+  "description": "Append-only public events that qualify, correct, supersede, or withdraw published evidence.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["$schema", "schemaVersion", "policy", "entries"],
+  "properties": {
+    "$schema": {
+      "const": "https://sitebehavior.org/corrections.schema.json"
+    },
+    "schemaVersion": {
+      "const": 1
+    },
+    "policy": {
+      "const": "https://sitebehavior.org/corrections/"
+    },
+    "entries": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/event"
+      }
+    }
+  },
+  "$defs": {
+    "event": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "eventId",
+        "publishedAt",
+        "state",
+        "reportIds",
+        "summary",
+        "detailsUrl"
+      ],
+      "properties": {
+        "eventId": {
+          "type": "string",
+          "pattern": "^SBL-CORR-[0-9]{4}-[0-9]{3,}$"
+        },
+        "publishedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "state": {
+          "enum": ["active", "corrected", "superseded", "withdrawn"]
+        },
+        "reportIds": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[0-9]{8}-[0-9a-f]{32}$"
+          }
+        },
+        "summary": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "detailsUrl": {
+          "type": "string",
+          "format": "uri",
+          "pattern": "^https://"
+        },
+        "replacementReportIds": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[0-9]{8}-[0-9a-f]{32}$"
+          }
+        },
+        "supersedesEventId": {
+          "type": "string",
+          "pattern": "^SBL-CORR-[0-9]{4}-[0-9]{3,}$"
+        }
+      }
+    }
+  }
+}

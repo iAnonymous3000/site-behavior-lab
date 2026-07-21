@@ -19,6 +19,17 @@ test("privacy page pins the durable-queue data boundary", () => {
   assert.match(privacyPage, /recovery snapshots.*copies remain application-encrypted/);
 });
 
+test("privacy page pins tab recovery and memory-only access-key boundaries", () => {
+  const privacyPage = readNormalized("app/privacy/page.tsx");
+
+  assert.match(privacyPage, /keeps it in memory while open/);
+  assert.match(privacyPage, /not placed in local or session storage/);
+  assert.match(privacyPage, /opaque job ID.*scanner-relative status path.*separate report ID.*acceptance\/expiry timestamps/);
+  assert.match(privacyPage, /never contains the scanned address, options, access key, Turnstile token, report, screenshot, or page evidence/);
+  assert.match(privacyPage, /valid for at most 75 minutes/);
+  assert.match(privacyPage, /Dismiss recovery/);
+});
+
 test("methodology page discloses retry behavior without merging attempts", () => {
   const methodologyPage = readNormalized("app/methodology/page.tsx");
 

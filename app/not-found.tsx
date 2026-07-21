@@ -13,7 +13,7 @@ export default function NotFound() {
         <h1 id="not-found-title">This report or page is not available.</h1>
         <p>
           The link may be incomplete, expired, or point to a report that was not published. You can return to the
-          scanner or browse the permanent public evidence library.
+          scanner or browse the currently retained public evidence library.
         </p>
         <div className="route-state-actions">
           <a className="primary-button" href={staticAssetPath("/")}>Scan a site</a>

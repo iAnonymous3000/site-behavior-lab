@@ -12,6 +12,11 @@
 // Full runbook: docs/go-live-public-scanner.md
 import { Container, getContainer } from "@cloudflare/containers";
 import { scanCorsHeaders } from "../lib/cors";
+import {
+  handleAggregateMetricsRequest,
+  type AggregateMetricsDataset
+} from "../lib/privacy-safe-observability-edge";
+import { PRIVACY_SAFE_OBSERVABILITY_PATH } from "../lib/privacy-safe-observability";
 import { scansAvailableAfterEdgeOverlay } from "../lib/container-health-overlay";
 import { toPublicError } from "../lib/public-errors";
 import {
@@ -184,6 +189,10 @@ import {
 
 type Env = {
   SCANNER: DurableObjectNamespace<ScannerContainer>;
+  // Optional, aggregate-only product metrics sink. The endpoint remains a hard
+  // 404 unless the explicit flag is "1" and fails closed if this is absent.
+  AGGREGATE_METRICS?: AggregateMetricsDataset;
+  SITE_BEHAVIOR_LAB_AGGREGATE_METRICS?: string;
   // Non-secret browser CORS allow-list, set via `vars` in wrangler.container.jsonc.
   SITE_BEHAVIOR_LAB_ALLOWED_ORIGIN?: string;
   // "1" opens the scanner to unauthenticated public scans (Turnstile + rate limit
@@ -2113,6 +2122,14 @@ export default {
       if (!(await scanAccessTokenMatches(request.headers, expectedToken))) {
         return gateErrorResponse(new EdgeScanGateError("Unauthorized staging request.", 401), request, env);
       }
+    }
+
+    if (url.pathname === PRIVACY_SAFE_OBSERVABILITY_PATH) {
+      return handleAggregateMetricsRequest(request, {
+        enabledFlag: env.SITE_BEHAVIOR_LAB_AGGREGATE_METRICS,
+        allowedOrigin: env.SITE_BEHAVIOR_LAB_ALLOWED_ORIGIN,
+        dataset: env.AGGREGATE_METRICS
+      });
     }
 
     const encryptedWatchPath = parseEncryptedWatchPublicPath(url.pathname);

@@ -1,34 +1,47 @@
 import type { Metadata } from "next";
 import { serializeJsonLd } from "@/lib/jsonld-script";
-import { siteOrigin } from "@/lib/site-url";
+import { SITE_TITLE_SUFFIX } from "@/lib/seo-metadata";
+import { siteBaseUrl, siteUrl } from "@/lib/site-url";
 import "./globals.css";
 
-const TITLE = "Site Behavior Lab";
-const DESCRIPTION = "See what a site does, not just what it says. Reproducible, evidence-first web behavior scans.";
+const BRAND = "Site Behavior Lab";
+const HOME_TITLE = "Website privacy scanner and evidence library";
+const HOME_PAGE_TITLE = `${HOME_TITLE}${SITE_TITLE_SUFFIX}`;
+const DESCRIPTION =
+  "Scan a website to see the third parties, tracking requests, cookies, privacy signals, and browser behavior observed during one controlled visit.";
+const STATIC_EXPORT = process.env.NEXT_PUBLIC_SITE_BEHAVIOR_LAB_STATIC_EXPORT === "1";
 
-// Resolve social-card URLs against the canonical origin when
-// NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SITE_URL is set, else an explicit localhost
-// fallback (siteOrigin handles validation). Setting it unconditionally avoids
-// Next's "metadataBase is not set" warning without hardcoding any one origin.
+// Resolve canonical and social-card URLs against one validated origin.
+// Development can use the explicit localhost fallback; production builds fail
+// closed when the public HTTPS origin is absent or invalid.
 export const metadata: Metadata = {
-  metadataBase: new URL(siteOrigin()),
+  metadataBase: new URL(`${siteBaseUrl()}/`),
   title: {
-    default: TITLE,
-    template: "%s · Site Behavior Lab"
+    default: HOME_PAGE_TITLE,
+    template: `%s${SITE_TITLE_SUFFIX}`
   },
   description: DESCRIPTION,
-  applicationName: TITLE,
+  applicationName: BRAND,
+  alternates: {
+    canonical: siteUrl("/")
+  },
   openGraph: {
-    title: TITLE,
+    title: HOME_PAGE_TITLE,
     description: DESCRIPTION,
-    siteName: TITLE,
-    type: "website"
+    siteName: BRAND,
+    type: "website",
+    url: siteUrl("/")
   },
   twitter: {
     card: "summary_large_image",
-    title: TITLE,
+    title: HOME_PAGE_TITLE,
     description: DESCRIPTION
-  }
+  },
+  // The container hostname is an execution origin, not a second public copy
+  // of the evidence library. Static Pages output is the indexable surface.
+  robots: STATIC_EXPORT
+    ? { index: true, follow: true }
+    : { index: false, follow: false, noarchive: true }
 };
 
 // Set the theme before first paint to avoid a flash of the wrong colour scheme.
@@ -40,17 +53,17 @@ const structuredData = [
   {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    name: TITLE,
-    url: siteOrigin(),
+    name: BRAND,
+    url: siteUrl("/"),
     description: DESCRIPTION
   },
   {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
-    name: TITLE,
+    name: BRAND,
     applicationCategory: "SecurityApplication",
     operatingSystem: "Web",
-    url: siteOrigin(),
+    url: siteUrl("/"),
     description: DESCRIPTION,
     isAccessibleForFree: true,
     license: "https://www.gnu.org/licenses/agpl-3.0.html"

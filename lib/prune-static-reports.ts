@@ -1,4 +1,5 @@
 import path from "node:path";
+import { readCorrectionsLedgerReportIds } from "./corrections-ledger";
 import { displayRunView, toReportView, type ReportView } from "./scan-report-view";
 import {
   listDanglingStaticSidecarIds,
@@ -23,8 +24,9 @@ import type { ComparisonType } from "./types";
  * identity used by "changed since last scan"; protected generations preserve
  * useful predecessors without declaring them comparable. Unknown identities
  * do not match one another; only the newest report of each broad site/kind is
- * protected as a disappearance guard. The count cap remains the hard ceiling,
- * trimming oldest-first but preferring unprotected reports.
+ * protected as a disappearance guard. The normal count cap trims oldest-first
+ * while preferring unprotected reports; immutable correction-linked evidence
+ * overrides that cap rather than being silently deleted.
  *
  * A file the reader cannot read is NEVER deleted: retention must not destroy
  * evidence it cannot understand. It is skipped with a warning and counts
@@ -38,6 +40,8 @@ export type PruneOptions = {
   maxAgeMs: number;
   maxCount: number;
   keepPerSite: number;
+  /** Public correction evidence is immutable and exempt from every retention limit. */
+  pinnedReportIds: ReadonlySet<string>;
   now?: number;
 };
 
@@ -46,6 +50,31 @@ export type PruneResult = {
   /** One line per skipped file, already formatted for the log. */
   warnings: string[];
 };
+
+/**
+ * Production retention entry point. The complete corrections ledger is read
+ * before report discovery or deletion, so invalid correction state aborts the
+ * operation without a partial prune.
+ */
+export async function pruneStaticReportsWithCorrections(
+  reportsDir: string,
+  correctionsLedgerPath: string,
+  options: Omit<PruneOptions, "pinnedReportIds">
+): Promise<PruneResult> {
+  const pinnedReportIds = await readCorrectionsLedgerReportIds(correctionsLedgerPath);
+  // A ledger reference is a promise that the immutable static bundle exists.
+  // Verify every promise before retention can remove any unrelated report.
+  for (const reportId of pinnedReportIds) {
+    const read = await readStaticReportBundle(reportsDir, reportId);
+    if (read.outcome !== "found") {
+      const reason = read.outcome === "not-found" ? "missing-report" : read.reason;
+      throw new Error(
+        `Correction-linked report ${reportId} is not a valid committed static report bundle (${reason}); pruning aborted.`
+      );
+    }
+  }
+  return pruneStaticReports(reportsDir, { ...options, pinnedReportIds });
+}
 
 type ReportRecord = {
   id: string;
@@ -66,19 +95,31 @@ export async function pruneStaticReports(reportsDir: string, options: PruneOptio
   const removePaths = new Set<string>();
 
   for (const record of records) {
-    if (now - record.scannedAtMs > options.maxAgeMs && !ageExempt.has(record)) {
+    if (
+      now - record.scannedAtMs > options.maxAgeMs &&
+      !ageExempt.has(record) &&
+      !options.pinnedReportIds.has(record.id)
+    ) {
       removePaths.add(record.path);
     } else {
       kept.push(record);
     }
   }
 
-  // The count cap is the hard ceiling: trim oldest first, but prefer removing
-  // reports that are not a site's protected newest generations.
+  // Enforce the normal count ceiling by trimming oldest first while preferring
+  // to keep protected generations. Correction pins are absolute exemptions.
+  const pinnedCount = kept.filter((record) => options.pinnedReportIds.has(record.id)).length;
   kept
+    .filter((record) => !options.pinnedReportIds.has(record.id))
     .sort((a, b) => Number(ageExempt.has(b)) - Number(ageExempt.has(a)) || b.scannedAtMs - a.scannedAtMs)
-    .slice(options.maxCount)
+    .slice(Math.max(0, options.maxCount - pinnedCount))
     .forEach((record) => removePaths.add(record.path));
+
+  if (pinnedCount > options.maxCount) {
+    warnings.push(
+      `Keeping ${pinnedCount} correction-linked static reports even though the configured count cap is ${options.maxCount}.`
+    );
+  }
 
   await Promise.all(
     [...removePaths].map(async (filePath) => {

@@ -1,0 +1,424 @@
+.page {
+  margin: 0 auto;
+  max-width: 1040px;
+  min-height: 100vh;
+  padding: 44px 24px 80px;
+}
+
+.header {
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 22px;
+  padding-bottom: 22px;
+}
+
+.header h1 {
+  font-size: clamp(30px, 5vw, 48px);
+  letter-spacing: -0.035em;
+  margin: 5px 0 10px;
+}
+
+.header > p:not(:global(.eyebrow)) {
+  color: var(--text-muted);
+  line-height: 1.55;
+  margin: 0 0 8px;
+  max-width: 76ch;
+}
+
+.exportLine {
+  font-size: 13px;
+}
+
+.exportLine a,
+.backLink,
+.cardActions a,
+.pagination a {
+  color: var(--accent);
+  font-weight: 650;
+  text-decoration: none;
+}
+
+.exportLine a {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.backLink {
+  display: inline-block;
+  margin-top: 8px;
+}
+
+.backLink:hover,
+.cardActions a:hover,
+.pagination a:hover {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.controls {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  display: grid;
+  gap: 24px;
+  grid-template-columns: minmax(0, 1.2fr) minmax(220px, 0.8fr);
+  margin-bottom: 32px;
+  padding: 18px;
+}
+
+.searchForm,
+.categoryControl {
+  min-width: 0;
+}
+
+.searchForm > label,
+.categoryControl > label {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 7px;
+}
+
+.searchForm > div {
+  display: flex;
+  gap: 8px;
+}
+
+.searchForm input,
+.categoryControl select {
+  background: var(--surface-2);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font: inherit;
+  min-height: 44px;
+  padding: 9px 11px;
+  width: 100%;
+}
+
+.searchForm input:focus,
+.categoryControl select:focus {
+  border-color: var(--accent);
+  outline: 3px solid color-mix(in srgb, var(--accent) 22%, transparent);
+}
+
+.searchForm button {
+  background: var(--accent);
+  border: 0;
+  border-radius: var(--radius-sm);
+  color: var(--button-text, #fff);
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  min-height: 44px;
+  padding: 9px 14px;
+  white-space: nowrap;
+}
+
+.searchForm button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.searchForm > p,
+.categoryControl > p {
+  color: var(--text-subtle);
+  font-size: 12px;
+  line-height: 1.4;
+  margin: 7px 0 0;
+}
+
+.searchMatches {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  display: grid;
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 5px 10px;
+}
+
+.searchMatches li {
+  align-items: baseline;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+  padding: 7px 2px;
+}
+
+.searchMatches li:last-child {
+  border-bottom: 0;
+}
+
+.searchMatches a {
+  color: var(--accent);
+  font-weight: 650;
+  overflow-wrap: anywhere;
+  text-decoration: none;
+}
+
+.searchMatches span {
+  color: var(--text-subtle);
+  font-size: 11px;
+  text-align: right;
+}
+
+.categories,
+.sites {
+  margin: 0 0 34px;
+}
+
+.sectionHeading {
+  align-items: flex-end;
+  display: flex;
+  gap: 20px;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.sectionHeading h2 {
+  font-size: clamp(22px, 3vw, 29px);
+  letter-spacing: -0.02em;
+  margin: 3px 0 0;
+}
+
+.sectionHeading > p {
+  color: var(--text-subtle);
+  font-size: 12px;
+  margin: 0;
+  max-width: 43ch;
+  text-align: right;
+}
+
+.categoryGrid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+}
+
+.categoryCard {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  display: grid;
+  font-size: 13px;
+  gap: 9px;
+  line-height: 1.45;
+  padding: 14px 15px;
+  text-decoration: none;
+}
+
+.categoryCard:hover {
+  border-color: var(--border-strong);
+  box-shadow: var(--shadow-sm);
+}
+
+.categoryCard b,
+.categoryTop strong {
+  color: var(--text);
+}
+
+.categoryCard > small,
+.categoryTop small {
+  color: var(--text-subtle);
+}
+
+.categoryTop {
+  align-items: baseline;
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+}
+
+.siteList {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.siteCard {
+  --card-tone: var(--sig-quiet);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--card-tone);
+  border-radius: var(--radius-sm);
+  min-width: 0;
+}
+
+.siteCard:global(.tone-alarm) { --card-tone: var(--sig-loud); }
+.siteCard:global(.tone-warn) { --card-tone: var(--sig-warn); }
+.siteCard:global(.tone-info) { --card-tone: var(--sig-info); }
+.siteCard:global(.tone-calm) { --card-tone: var(--sig-ok); }
+
+.profileLink {
+  color: inherit;
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  padding: 15px 16px;
+  text-decoration: none;
+}
+
+.profileLink:hover .siteTop strong {
+  color: var(--accent-strong);
+}
+
+.siteTop {
+  align-items: baseline;
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+}
+
+.siteTop strong {
+  font-size: 16px;
+  overflow-wrap: anywhere;
+}
+
+.siteTop small {
+  color: var(--text-subtle);
+  white-space: nowrap;
+}
+
+.headline {
+  color: var(--text-muted);
+  font-size: 13.5px;
+  line-height: 1.42;
+  overflow-wrap: anywhere;
+}
+
+.metrics {
+  color: var(--text-subtle);
+  display: flex;
+  flex-wrap: wrap;
+  font-size: 12px;
+  gap: 6px 13px;
+}
+
+.metrics b {
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+.reportMeta {
+  color: var(--text-subtle);
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.cardActions {
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-wrap: wrap;
+  font-size: 12px;
+  gap: 8px 16px;
+  justify-content: space-between;
+  padding: 9px 16px 10px;
+}
+
+.pagination {
+  align-items: center;
+  display: grid;
+  gap: 14px;
+  grid-template-columns: minmax(90px, 1fr) auto minmax(90px, 1fr);
+  margin-top: 22px;
+}
+
+.pagination > a:last-child {
+  justify-self: end;
+}
+
+.pageLinks {
+  align-items: center;
+  display: flex;
+  gap: 5px;
+}
+
+.pageLinks a,
+.currentPage {
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  display: inline-flex;
+  height: 36px;
+  justify-content: center;
+  min-width: 36px;
+  padding: 0 8px;
+}
+
+.currentPage {
+  background: var(--surface-2);
+  border-color: var(--border-strong);
+  font-weight: 750;
+}
+
+.caveat {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  font-size: 12.5px;
+  line-height: 1.55;
+  padding: 14px 16px;
+}
+
+@media (max-width: 720px) {
+  .page {
+    padding: 26px 14px 52px;
+  }
+
+  .controls {
+    grid-template-columns: 1fr;
+  }
+
+  .sectionHeading {
+    align-items: start;
+    flex-direction: column;
+    gap: 7px;
+  }
+
+  .sectionHeading > p {
+    text-align: left;
+  }
+
+  .siteList {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .pagination {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .pageLinks {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    justify-content: center;
+  }
+
+  .pagination > a:last-child {
+    grid-column: 2;
+  }
+}
+
+@media (max-width: 420px) {
+  .searchForm > div,
+  .siteTop,
+  .cardActions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .siteTop {
+    gap: 4px;
+  }
+
+  .siteTop small {
+    white-space: normal;
+  }
+}

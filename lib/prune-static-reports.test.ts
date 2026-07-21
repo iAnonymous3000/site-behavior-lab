@@ -3,7 +3,7 @@ import { access, mkdtemp, readdir, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, test } from "node:test";
-import { pruneStaticReports } from "./prune-static-reports";
+import { pruneStaticReports, pruneStaticReportsWithCorrections } from "./prune-static-reports";
 import { buildProvenanceEntry, committedSidecarFilename } from "./redaction-provenance";
 import { redactScanReportV1 } from "./redact-scan-report-v1";
 import { REDACTION_VERSION } from "./redaction-v2";
@@ -13,6 +13,7 @@ import type { PublicScanReportV2 } from "./scan-report-v2";
 import type { ScanReport, ScanResult } from "./types";
 
 const DAY_MS = 24 * 60 * 60 * 1_000;
+const NO_CORRECTION_PINS = new Set<string>();
 
 let reportsDir = "";
 
@@ -101,6 +102,7 @@ test("age pruning removes stale reports but keeps each exact cohort's newest gen
     maxAgeMs: 7 * DAY_MS,
     maxCount: 1_000,
     keepPerSite: 2,
+    pinnedReportIds: NO_CORRECTION_PINS,
     now
   });
 
@@ -170,6 +172,7 @@ for (const mismatch of COHORT_MISMATCHES) {
       maxAgeMs: 7 * DAY_MS,
       maxCount: 1_000,
       keepPerSite: 2,
+      pinnedReportIds: NO_CORRECTION_PINS,
       now
     });
 
@@ -204,6 +207,7 @@ test("a forged tracker catalog cannot evict the only compatible predecessor", as
     maxAgeMs: 7 * DAY_MS,
     maxCount: 1_000,
     keepPerSite: 2,
+    pinnedReportIds: NO_CORRECTION_PINS,
     now
   });
 
@@ -237,6 +241,7 @@ test("schema mismatch cannot evict the only compatible predecessor", async () =>
     maxAgeMs: 7 * DAY_MS,
     maxCount: 1_000,
     keepPerSite: 2,
+    pinnedReportIds: NO_CORRECTION_PINS,
     now
   });
 
@@ -264,6 +269,7 @@ test("null cohorts never compare, while the newest broad report keeps the site p
     maxAgeMs: 7 * DAY_MS,
     maxCount: 1_000,
     keepPerSite: 2,
+    pinnedReportIds: NO_CORRECTION_PINS,
     now
   });
 
@@ -294,6 +300,7 @@ test("generalized v1 subjects never compare, while the newest broad report keeps
     maxAgeMs: 7 * DAY_MS,
     maxCount: 1_000,
     keepPerSite: 2,
+    pinnedReportIds: NO_CORRECTION_PINS,
     now
   });
 
@@ -317,6 +324,7 @@ test("a file the reader cannot read is never deleted", async () => {
     maxAgeMs: 7 * DAY_MS,
     maxCount: 1,
     keepPerSite: 0,
+    pinnedReportIds: NO_CORRECTION_PINS,
     now
   });
 
@@ -337,11 +345,102 @@ test("the count cap trims oldest unprotected reports first", async () => {
     maxAgeMs: 365 * DAY_MS,
     maxCount: 2,
     keepPerSite: 0,
+    pinnedReportIds: NO_CORRECTION_PINS,
     now
   });
 
   assert.equal(removed.length, 1);
   assert.match(removed[0], /20260708-a+\.json$/);
+});
+
+test("correction-linked evidence and replacement reports survive age and count pruning", async () => {
+  const now = Date.parse("2026-07-10T00:00:00.000Z");
+  const evidenceId = "20250101-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+  const replacementId = "20250102-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
+  const unpinnedId = "20260710-cccccccccccccccccccccccccccccccc";
+  await writeReport(evidenceId, makeResult("evidence.example.dev", "2025-01-01T00:00:00.000Z"));
+  await writeReport(replacementId, makeResult("replacement.example.dev", "2025-01-02T00:00:00.000Z"));
+  await writeReport(unpinnedId, makeResult("unpinned.example.dev", "2026-07-10T00:00:00.000Z"));
+  const ledgerPath = path.join(reportsDir, "corrections.json");
+  await writeFile(ledgerPath, `${JSON.stringify({
+    $schema: "https://sitebehavior.org/corrections.schema.json",
+    schemaVersion: 1,
+    policy: "https://sitebehavior.org/corrections/",
+    entries: [{
+      eventId: "SBL-CORR-2026-001",
+      publishedAt: "2026-07-09T00:00:00.000Z",
+      state: "corrected",
+      reportIds: [evidenceId],
+      replacementReportIds: [replacementId],
+      summary: "A corrected test fixture keeps both immutable evidence bundles.",
+      detailsUrl: "https://example.test/corrections/1"
+    }]
+  })}\n`);
+
+  const { removed, warnings } = await pruneStaticReportsWithCorrections(reportsDir, ledgerPath, {
+    maxAgeMs: 7 * DAY_MS,
+    maxCount: 1,
+    keepPerSite: 0,
+    now
+  });
+
+  assert.deepEqual(removed, [path.join(reportsDir, `${unpinnedId}.json`)]);
+  assert.match(warnings.at(-1) ?? "", /Keeping 2 correction-linked static reports.*count cap is 1/);
+  for (const id of [evidenceId, replacementId]) {
+    await access(path.join(reportsDir, `${id}.json`));
+    await access(path.join(reportsDir, committedSidecarFilename(id)));
+  }
+});
+
+test("a corrections ledger cannot reference an absent static evidence bundle", async () => {
+  const existingId = "20250101-eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";
+  const missingId = "20250102-ffffffffffffffffffffffffffffffff";
+  await writeReport(existingId, makeResult("preserved.example.dev", "2025-01-01T00:00:00.000Z"));
+  const ledgerPath = path.join(reportsDir, "corrections.json");
+  await writeFile(ledgerPath, `${JSON.stringify({
+    $schema: "https://sitebehavior.org/corrections.schema.json",
+    schemaVersion: 1,
+    policy: "https://sitebehavior.org/corrections/",
+    entries: [{
+      eventId: "SBL-CORR-2026-001",
+      publishedAt: "2026-07-09T00:00:00.000Z",
+      state: "active",
+      reportIds: [missingId],
+      summary: "This deliberately broken fixture references absent evidence.",
+      detailsUrl: "https://example.test/corrections/1"
+    }]
+  })}\n`);
+
+  await assert.rejects(
+    () => pruneStaticReportsWithCorrections(reportsDir, ledgerPath, {
+      maxAgeMs: 1,
+      maxCount: 1,
+      keepPerSite: 0,
+      now: Date.parse("2026-07-10T00:00:00.000Z")
+    }),
+    new RegExp(`Correction-linked report ${missingId}.*pruning aborted`)
+  );
+  await access(path.join(reportsDir, `${existingId}.json`));
+  await access(path.join(reportsDir, committedSidecarFilename(existingId)));
+});
+
+test("a malformed corrections ledger aborts before any report is pruned", async () => {
+  const reportId = "20250101-dddddddddddddddddddddddddddddddd";
+  await writeReport(reportId, makeResult("preserved.example.dev", "2025-01-01T00:00:00.000Z"));
+  const ledgerPath = path.join(reportsDir, "corrections.json");
+  await writeFile(ledgerPath, '{"schemaVersion":1,"entries":"malformed"}\n');
+
+  await assert.rejects(
+    () => pruneStaticReportsWithCorrections(reportsDir, ledgerPath, {
+      maxAgeMs: 1,
+      maxCount: 1,
+      keepPerSite: 0,
+      now: Date.parse("2026-07-10T00:00:00.000Z")
+    }),
+    /Corrections ledger .* is invalid/
+  );
+  await access(path.join(reportsDir, `${reportId}.json`));
+  await access(path.join(reportsDir, committedSidecarFilename(reportId)));
 });
 
 test("unknown provenance is retained while verified pruning removes the whole bundle", async () => {
@@ -359,6 +458,7 @@ test("unknown provenance is retained while verified pruning removes the whole bu
     maxAgeMs: 7 * DAY_MS,
     maxCount: 100,
     keepPerSite: 0,
+    pinnedReportIds: NO_CORRECTION_PINS,
     now
   });
 

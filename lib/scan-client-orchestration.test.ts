@@ -8,7 +8,7 @@ import {
   isAbortError,
   liveScannerStatusLabel,
   resumeRuntimeScan,
-  shouldLoadSavedScanAccessKey,
+  scanJobWithCurrentAccessKey,
   shouldReleaseAcceptedScanJob,
   submitRuntimeScan,
   type ActiveScanJob,
@@ -140,7 +140,7 @@ test("runtime policy trusts advertised capabilities and blocks until required Tu
   assert.equal(dynamicResolvedFalse.consentComparisonEnabled, false);
 });
 
-test("resolved gated health overrides an open-access build hint and restores saved-key eligibility", () => {
+test("resolved gated health overrides an open-access build hint", () => {
   const policy = deriveScanRuntimePolicy({
     liveScanEnabled: true,
     staticExport: true,
@@ -162,13 +162,23 @@ test("resolved gated health overrides an open-access build hint and restores sav
 
   assert.equal(policy.openAccessScanner, false);
   assert.equal(policy.scannerRequiresAccessKey, true);
-  assert.equal(
-    shouldLoadSavedScanAccessKey({ liveScanEnabled: true, reportPage: false }),
-    true,
-    "every live scan surface must recover a key before health can change its posture"
-  );
-  assert.equal(shouldLoadSavedScanAccessKey({ liveScanEnabled: true, reportPage: true }), false);
-  assert.equal(shouldLoadSavedScanAccessKey({ liveScanEnabled: false, reportPage: false }), false);
+});
+
+test("resume authentication uses a newly entered in-memory key without changing recovery identifiers", () => {
+  const job: ActiveScanJob = {
+    jobId: JOB_ID,
+    statusPath: STATUS_PATH,
+    reportId: REPORT_ID,
+    accessKey: ""
+  };
+  assert.deepEqual(scanJobWithCurrentAccessKey(job, "  replacement-key  "), {
+    ...job,
+    accessKey: "replacement-key"
+  });
+  assert.deepEqual(scanJobWithCurrentAccessKey({ ...job, accessKey: "admission-key" }, ""), {
+    ...job,
+    accessKey: "admission-key"
+  });
 });
 
 test("submission captures the accepted job capability before polling and retains it on resumable faults", async () => {
@@ -236,11 +246,13 @@ test("submission captures the accepted job capability before polling and retains
     turnstileToken: "one-shot-token"
   });
   assert.deepEqual(accepted, {
+    jobId: JOB_ID,
     statusPath: STATUS_PATH,
     accessKey: "secret-key",
     reportId: REPORT_ID
   });
   assert.equal(shouldReleaseAcceptedScanJob(new Error("transport failed")), false);
+  assert.equal(shouldReleaseAcceptedScanJob(new Error("Unauthorized.")), false);
   assert.equal(shouldReleaseAcceptedScanJob(new ScanJobEndedError("expired", "deadline elapsed")), true);
 });
 
@@ -277,7 +289,12 @@ test("synchronous scan reports still pass through the canonical reader", async (
 });
 
 test("resume and cancel use the access key captured at admission and preserve abort signals", async () => {
-  const job: ActiveScanJob = { statusPath: STATUS_PATH, accessKey: "admission-key", reportId: REPORT_ID };
+  const job: ActiveScanJob = {
+    jobId: JOB_ID,
+    statusPath: STATUS_PATH,
+    accessKey: "admission-key",
+    reportId: REPORT_ID
+  };
   const controller = new AbortController();
   const resumed = await resumeRuntimeScan({
     job,

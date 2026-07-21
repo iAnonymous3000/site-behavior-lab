@@ -40,6 +40,61 @@ test("an accepted job keeps polling past the old 180-second client limit", async
   assert.equal(waits.at(-1), 5_000, "long-lived jobs should back off after three minutes");
 });
 
+test("polling forwards only validated server progress in observed order", async () => {
+  const seen: unknown[] = [];
+  let calls = 0;
+  const loaded = await pollAcceptedScanJob({
+    statusPath: STATUS_PATH,
+    reportId: REPORT_ID,
+    fetcher: async () => {
+      calls += 1;
+      if (calls === 1) {
+        return jobResponse("queued", {
+          progress: { phase: "queued", completedRuns: 0, totalRuns: 2 }
+        });
+      }
+      if (calls === 2) {
+        return jobResponse("running", {
+          progress: { phase: "navigating", completedRuns: 1, totalRuns: 2 }
+        });
+      }
+      return jobResponse("succeeded", {
+        progress: { phase: "saving", completedRuns: 2, totalRuns: 2 },
+        report: makeScanReportV1()
+      });
+    },
+    wait: async () => undefined,
+    onProgress: (progress) => seen.push(progress)
+  });
+
+  assert.equal(loaded.source, "v1");
+  assert.deepEqual(seen, [
+    { phase: "queued", completedRuns: 0, totalRuns: 2 },
+    { phase: "navigating", completedRuns: 1, totalRuns: 2 },
+    { phase: "saving", completedRuns: 2, totalRuns: 2 }
+  ]);
+});
+
+test("polling ignores malformed progress instead of exposing untrusted fields", async () => {
+  let calls = 0;
+  const seen: unknown[] = [];
+  await pollAcceptedScanJob({
+    statusPath: STATUS_PATH,
+    reportId: REPORT_ID,
+    fetcher: async () => {
+      calls += 1;
+      return calls === 1
+        ? jobResponse("running", {
+            progress: { phase: "collecting", completedRuns: 0, totalRuns: 1, leaked: "secret" }
+          })
+        : jobResponse("succeeded", { report: makeScanReportV1() });
+    },
+    wait: async () => undefined,
+    onProgress: (progress) => seen.push(progress)
+  });
+  assert.deepEqual(seen, []);
+});
+
 test("status polling retries 429/502/503 and honors bounded Retry-After", async () => {
   let calls = 0;
   const waits: number[] = [];
@@ -157,6 +212,14 @@ test("non-transient polling faults remain resumable errors, while real job endin
     }),
     (error: unknown) =>
       error instanceof ScanJobEndedError && error.status === "expired" && /deadline elapsed/.test(error.message)
+  );
+
+  await assert.rejects(
+    pollAcceptedScanJob({
+      statusPath: STATUS_PATH,
+      fetcher: async () => jobResponse("succeeded", { report: { secret: "not a report" } })
+    }),
+    (error: unknown) => error instanceof Error && !(error instanceof ScanJobEndedError)
   );
 });
 

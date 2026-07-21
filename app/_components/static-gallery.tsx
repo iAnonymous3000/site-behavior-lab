@@ -7,7 +7,6 @@ import { FileUploadButton } from "./file-upload-button";
 import { comparableSubjectHosts, comparisonEligibility } from "@/lib/comparison-eligibility";
 import { legacyComparisonDecision } from "@/lib/comparison-decision";
 import { createTemporalComparisonReport, orderTemporalPair } from "@/lib/compare-reports";
-import { domainsMatch, isFeaturedSiteConfig, type FeaturedSite, type FeaturedSiteConfig } from "@/lib/featured-sites";
 import { committedReportLocation, withoutReportShare } from "@/lib/report-locator";
 import { readLoadedReport } from "@/lib/client-report-reader";
 import { plural } from "@/lib/text-format";
@@ -20,143 +19,7 @@ import type { ComparisonScanResult, ScanDevice, ScanResult, StaticReportManifest
  * report rendering.
  */
 
-const FEATURED_MAX_PER_CATEGORY = 4;
-const FEATURED_MAX_TOTAL = 12;
 const ARCHIVE_PAGE_SIZE = 24;
-
-type FeaturedGroup = {
-  category: FeaturedSiteConfig["categories"][number];
-  items: { site: FeaturedSite; entry: StaticReportManifestEntry }[];
-};
-
-function pickFeaturedEntry(
-  reports: StaticReportManifestEntry[],
-  site: FeaturedSite,
-  used: Set<string>
-): StaticReportManifestEntry | null {
-  const matches = reports.filter((report) => !used.has(report.id) && domainsMatch(report.domain, site.domain));
-  if (matches.length === 0) return null;
-
-  // Prefer comparisons (the GPC off/on gotcha makes the strongest card), then newest.
-  return matches.sort((a, b) => {
-    const aRank = a.reportType === "comparison" ? 0 : 1;
-    const bRank = b.reportType === "comparison" ? 0 : 1;
-    if (aRank !== bRank) return aRank - bRank;
-    return Date.parse(b.scannedAt) - Date.parse(a.scannedAt);
-  })[0];
-}
-
-function buildFeaturedGroups(config: FeaturedSiteConfig, reports: StaticReportManifestEntry[]): FeaturedGroup[] {
-  const used = new Set<string>();
-  const groups: FeaturedGroup[] = [];
-  let total = 0;
-
-  for (const category of config.categories) {
-    if (total >= FEATURED_MAX_TOTAL) break;
-
-    const items: FeaturedGroup["items"] = [];
-    for (const site of config.sites.filter((candidate) => candidate.category === category.id)) {
-      if (items.length >= FEATURED_MAX_PER_CATEGORY || total >= FEATURED_MAX_TOTAL) break;
-      const entry = pickFeaturedEntry(reports, site, used);
-      if (!entry) continue;
-      used.add(entry.id);
-      items.push({ site, entry });
-      total += 1;
-    }
-
-    if (items.length > 0) groups.push({ category, items });
-  }
-
-  return groups;
-}
-
-function FeaturedGallery({ reports }: { reports: StaticReportManifestEntry[] }) {
-  const [config, setConfig] = useState<FeaturedSiteConfig | null>(null);
-  const [ready, setReady] = useState(false);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    async function loadConfig() {
-      try {
-        const response = await fetch(staticAssetPath("/featured-sites.json"), { cache: "no-store" });
-        if (!response.ok) throw new Error("Featured config unavailable.");
-        const payload = (await response.json()) as unknown;
-        if (!cancelled) setConfig(isFeaturedSiteConfig(payload) ? payload : null);
-      } catch {
-        if (!cancelled) setConfig(null);
-      } finally {
-        if (!cancelled) setReady(true);
-      }
-    }
-
-    void loadConfig();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  const groups = useMemo(() => (config ? buildFeaturedGroups(config, reports) : []), [config, reports]);
-
-  if (!ready || groups.length === 0) return null;
-
-  return (
-    <section className="featured-gallery" aria-labelledby="featured-title">
-      <div className="featured-heading">
-        <p className="eyebrow">Start here</p>
-        <h3 id="featured-title">Real sites, already scanned</h3>
-        <p>Open one to see what it actually did during a controlled visit. No scan needed.</p>
-      </div>
-      {groups.map((group) => (
-        <div className="featured-group" key={group.category.id}>
-          <h4>{group.category.label}</h4>
-          <div className="featured-cards">
-            {group.items.map(({ site, entry }) => (
-              <FeaturedReportCard key={entry.id} site={site} entry={entry} />
-            ))}
-          </div>
-        </div>
-      ))}
-    </section>
-  );
-}
-
-function FeaturedReportCard({
-  site,
-  entry
-}: {
-  site: FeaturedSite;
-  entry: StaticReportManifestEntry;
-}) {
-  return (
-    <a
-      className={`featured-card tone-${entry.tone}`}
-      href={committedReportLocation(entry.id, clientReportRuntime()).pagePath}
-    >
-      <span className="featured-card-top">
-        <span className="featured-card-site">{site.label}</span>
-        {entry.requestCapped && (
-          <span
-            className="capped-chip"
-            title="This visit hit the 1,000-request recording cap: its counts are truncated, and it is excluded from corpus statistics."
-          >
-            recording capped
-          </span>
-        )}
-        <span className="featured-card-dot" aria-hidden="true" />
-      </span>
-      <span className="featured-card-headline">{entry.headline}</span>
-      <span className="featured-card-stats">
-        <span className="featured-card-stat">
-          <b>{entry.metrics.thirdPartyRequests.toLocaleString("en-US")}</b> third-party
-        </span>
-        <span className="featured-card-stat">
-          <b>{entry.metrics.knownTrackerRequests.toLocaleString("en-US")}</b> catalogued-service
-        </span>
-      </span>
-    </a>
-  );
-}
 
 function StaticReportGallery({
   reports,
@@ -326,7 +189,6 @@ function StaticReportGallery({
 
   return (
     <div className="static-gallery">
-      <FeaturedGallery reports={reports} />
       <div className="static-gallery-heading">
         <div>
           <h3>Saved reports</h3>

@@ -61,6 +61,7 @@ test("measures both labeled runs and top-level dates for comparison reports", ()
   const dataset = buildReportDataset(viewFromV1Report(comparison), { url: "https://example.org/reports/cmp/" });
   assert.equal(dataset.name, "Site Behavior Lab scan of news.example");
   assert.equal(dataset.dateCreated, comparison.scannedAt);
+  assert.equal(dataset.datePublished, undefined, "scan time is not claimed as publication time");
 
   // A comparison headline can describe either arm, so the structured data must
   // carry BOTH runs' numbers with the run label in each variable name; an

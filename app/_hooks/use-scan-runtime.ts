@@ -13,6 +13,13 @@ import {
 } from "../client-runtime";
 import { normalizeScanUrl } from "../scan-form";
 import {
+  ACTIVE_SCAN_SESSION_MAX_AGE_MS,
+  clearActiveScanSession,
+  persistActiveScanSession,
+  restoreActiveScanSession,
+  type ActiveScanSession
+} from "@/lib/active-scan-session";
+import {
   cancelRuntimeScan,
   deriveScanRuntimePolicy,
   fetchRuntimeScannerHealth,
@@ -20,14 +27,16 @@ import {
   isAbortError,
   liveScannerStatusLabel,
   resumeRuntimeScan,
+  scanJobWithCurrentAccessKey,
   scannerStatusText,
-  shouldLoadSavedScanAccessKey,
   shouldReleaseAcceptedScanJob,
   submitRuntimeScan,
   type ActiveScanJob
 } from "@/lib/scan-client-orchestration";
 import type { ScanRuntimeHealth } from "@/lib/scan-runtime-health";
+import { acceptedScanJobProgress } from "@/lib/scan-job-progress";
 import type { LoadedReport } from "@/lib/scan-report-view";
+import type { ScanJobProgress } from "@/lib/types";
 
 const INITIAL_SCAN_FORM: ScanFormState = {
   url: "",
@@ -64,6 +73,8 @@ export function useScanRuntime({
   const [loading, setLoading] = useState(initialLoading);
   const [scanning, setScanning] = useState(false);
   const [activeScanJob, setActiveScanJob] = useState<ActiveScanJob | null>(null);
+  const [activeScanExpiresAt, setActiveScanExpiresAt] = useState<number | null>(null);
+  const [activeScanProgress, setActiveScanProgress] = useState<ScanJobProgress | null>(null);
   const [cancellingScan, setCancellingScan] = useState(false);
   const [cancelScanError, setCancelScanError] = useState<string | null>(null);
   const scanControllerRef = useRef<AbortController | null>(null);
@@ -78,10 +89,11 @@ export function useScanRuntime({
   const [urlError, setUrlError] = useState("");
 
   useEffect(() => {
-    if (!shouldLoadSavedScanAccessKey({ liveScanEnabled: LIVE_SCAN_ENABLED, reportPage })) return;
+    if (reportPage) return;
     try {
-      const savedAccessKey = localStorage.getItem("sbl-access-key");
-      if (savedAccessKey) setForm((current) => ({ ...current, accessKey: savedAccessKey }));
+      // Older builds retained this deployment-wide credential across tabs.
+      // Recovery is identifier-only now, so remove any legacy browser copy.
+      localStorage.removeItem("sbl-access-key");
     } catch {
       /* localStorage unavailable */
     }
@@ -108,6 +120,84 @@ export function useScanRuntime({
   }, [initialLoading]);
 
   useEffect(() => () => scanControllerRef.current?.abort(), []);
+
+  useEffect(() => {
+    if (reportPage || !LIVE_SCAN_ENABLED || typeof window === "undefined") return;
+    let recovered: ActiveScanSession | null = null;
+    try {
+      recovered = restoreActiveScanSession(window.sessionStorage);
+    } catch {
+      return;
+    }
+    if (!recovered) return;
+
+    const recoveredJob: ActiveScanJob = { ...recovered.job, accessKey: "" };
+    let disposed = false;
+    const controller = new AbortController();
+    scanControllerRef.current = controller;
+    setActiveScanJob(recoveredJob);
+    setActiveScanExpiresAt(recovered.expiresAt);
+    // A recovered capability was already accepted in the earlier page load.
+    setActiveScanProgress(acceptedScanJobProgress());
+    setLoading(true);
+    setScanning(true);
+    setLoaded(null);
+    setError(null);
+    setCancelScanError(null);
+
+    void resumeRuntimeScan({
+      job: recoveredJob,
+      signal: controller.signal,
+      resolveApiUrl: scannerApiUrl,
+      onProgress: (progress) => {
+        if (!disposed) setActiveScanProgress(progress);
+      }
+    })
+      .then((nextLoaded) => {
+        if (disposed) return;
+        setLoaded(nextLoaded);
+        releaseActiveScanSession();
+      })
+      .catch((scanError: unknown) => {
+        if (disposed || isAbortError(scanError)) return;
+        if (shouldReleaseAcceptedScanJob(scanError)) releaseActiveScanSession();
+        setError(
+          scanError instanceof Error
+            ? friendlyScanError(scanError.message, OPEN_ACCESS_SCANNER)
+            : "Scan status checks failed."
+        );
+      })
+      .finally(() => {
+        if (disposed) return;
+        if (scanControllerRef.current === controller) scanControllerRef.current = null;
+        setLoading(false);
+        setScanning(false);
+      });
+
+    return () => {
+      disposed = true;
+      controller.abort();
+      if (scanControllerRef.current === controller) scanControllerRef.current = null;
+    };
+  }, [reportPage]);
+
+  useEffect(() => {
+    if (!activeScanJob || activeScanExpiresAt === null || typeof window === "undefined") return;
+    const expire = () => {
+      scanControllerRef.current?.abort();
+      releaseActiveScanSession();
+      setLoading(false);
+      setScanning(false);
+      setError("This accepted scan expired before it could be recovered.");
+    };
+    const remainingMs = activeScanExpiresAt - Date.now();
+    if (remainingMs <= 0) {
+      expire();
+      return;
+    }
+    const timer = window.setTimeout(expire, remainingMs);
+    return () => window.clearTimeout(timer);
+  }, [activeScanExpiresAt, activeScanJob]);
 
   useEffect(() => {
     if (reportPage || !LIVE_SCAN_ENABLED) return;
@@ -146,6 +236,46 @@ export function useScanRuntime({
       compareConsent: current.compareConsent && policy.consentComparisonEnabled
     }));
   }, [policy.consentComparisonEnabled, policy.gpcComparisonEnabled, policy.shieldsComparisonEnabled]);
+
+  function retainActiveScanSession(job: ActiveScanJob): void {
+    const acceptedAt = Date.now();
+    let session: ActiveScanSession = {
+      job,
+      acceptedAt,
+      expiresAt: acceptedAt + ACTIVE_SCAN_SESSION_MAX_AGE_MS
+    };
+    if (typeof window !== "undefined") {
+      try {
+        session = persistActiveScanSession(window.sessionStorage, job, acceptedAt);
+      } catch {
+        /* sessionStorage unavailable; retain the accepted job in memory */
+      }
+    }
+    setActiveScanJob(job);
+    setActiveScanExpiresAt(session.expiresAt);
+    setActiveScanProgress(
+      acceptedScanJobProgress(
+        (policy.gpcComparisonEnabled && form.compareGpc) ||
+          (policy.shieldsComparisonEnabled && form.compareShields) ||
+          (policy.consentComparisonEnabled && form.compareConsent)
+          ? 2
+          : 1
+      )
+    );
+  }
+
+  function releaseActiveScanSession(): void {
+    if (typeof window !== "undefined") {
+      try {
+        clearActiveScanSession(window.sessionStorage);
+      } catch {
+        /* sessionStorage unavailable */
+      }
+    }
+    setActiveScanJob(null);
+    setActiveScanExpiresAt(null);
+    setActiveScanProgress(null);
+  }
 
   async function runScan(targetUrl: string) {
     if (cancellingScan) {
@@ -200,6 +330,8 @@ export function useScanRuntime({
     setError(null);
     setLoaded(null);
     setCancelScanError(null);
+    // Until onAccepted runs, the POST is only a request for admission.
+    setActiveScanProgress(null);
 
     try {
       const nextLoaded = await submitRuntimeScan({
@@ -213,13 +345,14 @@ export function useScanRuntime({
         turnstileToken,
         signal: controller.signal,
         resolveApiUrl: scannerApiUrl,
-        onAccepted: setActiveScanJob
+        onAccepted: retainActiveScanSession,
+        onProgress: setActiveScanProgress
       });
       setLoaded(nextLoaded);
-      setActiveScanJob(null);
+      releaseActiveScanSession();
     } catch (scanError) {
       if (isAbortError(scanError)) return;
-      if (shouldReleaseAcceptedScanJob(scanError)) setActiveScanJob(null);
+      if (shouldReleaseAcceptedScanJob(scanError)) releaseActiveScanSession();
       setError(
         scanError instanceof Error
           ? friendlyScanError(scanError.message, policy.openAccessScanner)
@@ -238,7 +371,7 @@ export function useScanRuntime({
 
   async function resumeActiveScan() {
     if (!activeScanJob || loading || cancellingScan) return;
-    const job = activeScanJob;
+    const job = scanJobWithCurrentAccessKey(activeScanJob, form.accessKey);
     const controller = new AbortController();
     scanControllerRef.current = controller;
     setLoading(true);
@@ -246,19 +379,21 @@ export function useScanRuntime({
     setLoaded(null);
     setError(null);
     setCancelScanError(null);
+    setActiveScanProgress((current) => current ?? acceptedScanJobProgress());
 
     try {
       setLoaded(
         await resumeRuntimeScan({
           job,
           signal: controller.signal,
-          resolveApiUrl: scannerApiUrl
+          resolveApiUrl: scannerApiUrl,
+          onProgress: setActiveScanProgress
         })
       );
-      setActiveScanJob(null);
+      releaseActiveScanSession();
     } catch (scanError) {
       if (isAbortError(scanError)) return;
-      if (shouldReleaseAcceptedScanJob(scanError)) setActiveScanJob(null);
+      if (shouldReleaseAcceptedScanJob(scanError)) releaseActiveScanSession();
       setError(
         scanError instanceof Error
           ? friendlyScanError(scanError.message, policy.openAccessScanner)
@@ -273,7 +408,7 @@ export function useScanRuntime({
 
   async function cancelActiveScan() {
     if (!activeScanJob || cancellingScan) return;
-    const job = activeScanJob;
+    const job = scanJobWithCurrentAccessKey(activeScanJob, form.accessKey);
     scanControllerRef.current?.abort();
     const controller = new AbortController();
     scanControllerRef.current = controller;
@@ -284,7 +419,7 @@ export function useScanRuntime({
 
     try {
       const message = await cancelRuntimeScan({ job, resolveApiUrl: scannerApiUrl, signal: controller.signal });
-      setActiveScanJob(null);
+      releaseActiveScanSession();
       setLoading(false);
       setScanning(false);
       setError(message);
@@ -300,6 +435,17 @@ export function useScanRuntime({
       if (scanControllerRef.current === controller) scanControllerRef.current = null;
       setCancellingScan(false);
     }
+  }
+
+  function dismissActiveScan(): void {
+    scanControllerRef.current?.abort();
+    scanControllerRef.current = null;
+    releaseActiveScanSession();
+    setLoading(false);
+    setScanning(false);
+    setCancellingScan(false);
+    setCancelScanError(null);
+    setError(null);
   }
 
   function retryScannerHealth() {
@@ -347,12 +493,6 @@ export function useScanRuntime({
 
   function updateAccessKey(accessKey: string) {
     setForm((current) => ({ ...current, accessKey }));
-    try {
-      if (accessKey) localStorage.setItem("sbl-access-key", accessKey);
-      else localStorage.removeItem("sbl-access-key");
-    } catch {
-      /* localStorage unavailable */
-    }
   }
 
   function acceptScheduledRescanTarget(targetUrl: string, removedPrivateParts: boolean) {
@@ -382,6 +522,7 @@ export function useScanRuntime({
     setLoading,
     scanning,
     activeScanJob,
+    activeScanProgress,
     cancellingScan,
     cancelScanError,
     scheduledRescanCreateBusy,
@@ -410,7 +551,8 @@ export function useScanRuntime({
     acceptScheduledRescanTarget,
     resetTurnstileAfterScheduledRescanAttempt,
     resumeActiveScan,
-    cancelActiveScan
+    cancelActiveScan,
+    dismissActiveScan
   };
 }
 

@@ -1,0 +1,17 @@
+cff-version: 1.2.0
+message: "If you use Site Behavior Lab or its published corpus, cite this software and identify the exact source revision and corpus snapshot."
+title: "Site Behavior Lab"
+type: software
+authors:
+  - name: "iAnonymous3000"
+abstract: "Evidence-first web transparency tooling for reproducible, privacy-reduced observations from controlled browser visits."
+repository-code: "https://github.com/iAnonymous3000/site-behavior-lab"
+url: "https://sitebehavior.org"
+license: "AGPL-3.0-or-later"
+version: "0.1.0"
+keywords:
+  - web transparency
+  - privacy
+  - browser measurement
+  - trackers
+  - reproducible research

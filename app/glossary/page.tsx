@@ -1,14 +1,14 @@
-import type { Metadata } from "next";
 import Link from "next/link";
+import { publicPageMetadata } from "@/lib/seo-metadata";
 
 export const dynamic = "force-static";
 
-export const metadata: Metadata = {
+export const metadata = publicPageMetadata({
   title: "Glossary: the terms reports use",
   description:
     "Plain-language definitions of the terms Site Behavior Lab reports use: Brave Shields, Global Privacy Control, third parties, known services, provenance, fingerprinting, and more.",
-  alternates: { canonical: "/glossary/" }
-};
+  path: "/glossary/"
+});
 
 type GlossaryEntry = {
   id: string;

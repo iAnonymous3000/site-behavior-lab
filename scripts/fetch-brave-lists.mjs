@@ -5,13 +5,18 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import { gzipSync } from "node:zlib";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { sha256Hex, sourceManifestDigest } from "./brave-list-digests.mjs";
 
 const CATALOG_URL =
   "https://raw.githubusercontent.com/brave/adblock-resources/master/filter_lists/list_catalog.json";
 const OUT_DIR = path.join(process.cwd(), "lib", "adblock-wasm");
+const DEFAULT_FETCH_TIMEOUT_MS = 45_000;
+const DEFAULT_TRANSIENT_RETRIES = 2;
+const MAX_TRANSIENT_RETRIES = 2;
+const MAX_RETRY_DELAY_MS = 30_000;
 
-function collectDefaultSources(catalog) {
+export function collectDefaultSources(catalog) {
   const lists = Array.isArray(catalog)
     ? catalog
     : Object.values(catalog).find(Array.isArray) ?? [];
@@ -23,11 +28,98 @@ function collectDefaultSources(catalog) {
   return [...new Set(urls)];
 }
 
+export function isTransientHttpStatus(status) {
+  return status === 429 || (Number.isInteger(status) && status >= 500 && status <= 599);
+}
+
+export function retryAfterMs(value, now = Date.now()) {
+  if (typeof value !== "string") return null;
+  const trimmed = value.trim();
+  if (/^\d+$/.test(trimmed)) {
+    const seconds = Number(trimmed);
+    return Number.isSafeInteger(seconds) ? Math.min(seconds * 1_000, MAX_RETRY_DELAY_MS) : MAX_RETRY_DELAY_MS;
+  }
+  const timestamp = Date.parse(trimmed);
+  if (!Number.isFinite(timestamp)) return null;
+  return Math.min(Math.max(0, timestamp - now), MAX_RETRY_DELAY_MS);
+}
+
+/**
+ * Fetch one complete text resource with a bounded deadline and retries. Only
+ * transport/body-read failures, HTTP 429, and HTTP 5xx are retried; permanent
+ * 4xx responses and malformed catalog data fail immediately. A source only
+ * enters the snapshot after its entire body has been read successfully.
+ */
+export async function fetchTextWithRetry(
+  url,
+  {
+    fetcher = fetch,
+    wait = delay,
+    now = Date.now,
+    timeoutMs = DEFAULT_FETCH_TIMEOUT_MS,
+    transientRetries = DEFAULT_TRANSIENT_RETRIES,
+    onRetry = () => {}
+  } = {}
+) {
+  if (!Number.isSafeInteger(timeoutMs) || timeoutMs < 1) throw new Error("Fetch timeout must be a positive integer.");
+  if (!Number.isSafeInteger(transientRetries) || transientRetries < 0 || transientRetries > MAX_TRANSIENT_RETRIES) {
+    throw new Error(`Transient retry count must be an integer from 0 to ${MAX_TRANSIENT_RETRIES}.`);
+  }
+
+  for (let attempt = 0; ; attempt += 1) {
+    let response;
+    try {
+      response = await fetcher(url, { redirect: "follow", signal: AbortSignal.timeout(timeoutMs) });
+    } catch (error) {
+      if (attempt >= transientRetries) throw error;
+      const retryNumber = attempt + 1;
+      const delayMs = exponentialRetryDelayMs(retryNumber);
+      onRetry({ attempt: retryNumber, delayMs, reason: transportErrorMessage(error) });
+      await wait(delayMs);
+      continue;
+    }
+
+    if (!response.ok) {
+      const status = response.status;
+      await discardResponse(response);
+      if (!isTransientHttpStatus(status) || attempt >= transientRetries) {
+        throw new Error(`HTTP ${status}`);
+      }
+      const retryNumber = attempt + 1;
+      const delayMs = retryAfterMs(response.headers.get("Retry-After"), now()) ?? exponentialRetryDelayMs(retryNumber);
+      onRetry({ attempt: retryNumber, delayMs, reason: `HTTP ${status}` });
+      await wait(delayMs);
+      continue;
+    }
+
+    try {
+      return await response.text();
+    } catch (error) {
+      if (attempt >= transientRetries) throw error;
+      const retryNumber = attempt + 1;
+      const delayMs = exponentialRetryDelayMs(retryNumber);
+      onRetry({ attempt: retryNumber, delayMs, reason: transportErrorMessage(error) });
+      await wait(delayMs);
+    }
+  }
+}
+
 async function main() {
   console.log(`Fetching Brave list catalog: ${CATALOG_URL}`);
-  const catalogResponse = await fetch(CATALOG_URL);
-  if (!catalogResponse.ok) throw new Error(`catalog HTTP ${catalogResponse.status}`);
-  const catalog = await catalogResponse.json();
+  const fetchOptions = {
+    timeoutMs: positiveIntEnv("BRAVE_LIST_FETCH_TIMEOUT_MS", DEFAULT_FETCH_TIMEOUT_MS),
+    transientRetries: boundedIntEnv("BRAVE_LIST_FETCH_RETRIES", DEFAULT_TRANSIENT_RETRIES, 0, MAX_TRANSIENT_RETRIES),
+    onRetry: ({ attempt, delayMs, reason }) => {
+      console.warn(`  retry ${attempt}: ${reason}; waiting ${delayMs}ms`);
+    }
+  };
+  const catalogText = await fetchTextWithRetry(CATALOG_URL, fetchOptions);
+  let catalog;
+  try {
+    catalog = JSON.parse(catalogText);
+  } catch {
+    throw new Error("Brave list catalog returned malformed JSON.");
+  }
 
   const urls = collectDefaultSources(catalog);
   if (urls.length === 0) throw new Error("No default_enabled source URLs found in catalog.");
@@ -38,9 +130,7 @@ async function main() {
   const failures = [];
   for (const url of urls) {
     try {
-      const response = await fetch(url);
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      const text = await response.text();
+      const text = await fetchTextWithRetry(url, fetchOptions);
       const bytes = Buffer.from(text, "utf8");
       parts.push(`! ===== source: ${url} =====\n${text}`);
       sources.push({ url, bytes: bytes.length, sha256: sha256Hex(bytes) });
@@ -78,7 +168,46 @@ async function main() {
   );
 }
 
-main().catch((error) => {
-  console.error(error);
-  process.exit(1);
-});
+function exponentialRetryDelayMs(retryNumber) {
+  return Math.min(1_000 * 2 ** (retryNumber - 1), MAX_RETRY_DELAY_MS);
+}
+
+async function discardResponse(response) {
+  try {
+    await response.body?.cancel();
+  } catch {
+    // A failed body cancellation does not make a permanent status retryable.
+  }
+}
+
+function transportErrorMessage(error) {
+  if (error instanceof Error && error.name === "TimeoutError") return "request deadline exceeded";
+  return "transport or response-body failure";
+}
+
+function positiveIntEnv(name, fallback) {
+  const value = Number(process.env[name]);
+  return Number.isSafeInteger(value) && value > 0 ? value : fallback;
+}
+
+function boundedIntEnv(name, fallback, minimum, maximum) {
+  const raw = process.env[name];
+  if (raw === undefined || raw === "") return fallback;
+  const value = Number(raw);
+  if (!Number.isSafeInteger(value) || value < minimum || value > maximum) {
+    throw new Error(`${name} must be an integer from ${minimum} to ${maximum}.`);
+  }
+  return value;
+}
+
+function delay(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+const invokedPath = process.argv[1] ? path.resolve(process.argv[1]) : null;
+if (invokedPath === fileURLToPath(import.meta.url)) {
+  main().catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });
+}

@@ -8,6 +8,19 @@ const CONTROL_CHARACTER_PATTERN = /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f
 const URL_PATTERN = /https?:\/\/\S+/gi;
 const MAX_DIAGNOSTIC_LENGTH = 500;
 const FEATURED_REFRESH_MARKER = "<!-- site-behavior-lab:featured-corpus-refresh -->";
+const FEATURED_UNAVAILABLE_REASONS = new Set([
+  "automation-blocked",
+  "navigation-incomplete",
+  "authentication-required",
+  "access-denied",
+  "rate-limited"
+]);
+const ISO_DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
+const DAY_MS = 24 * 60 * 60 * 1_000;
+export const FEATURED_CATALOG_VERSION_FLOOR = 2;
+export const FEATURED_CATALOG_COVERAGE_FLOOR = 0.8;
+export const FEATURED_ACTIVE_SITE_FLOOR = 50;
+export const FEATURED_UNAVAILABILITY_MAX_DAYS = 28;
 
 /**
  * Preserve the child scanner's final public-safe error without copying an
@@ -54,6 +67,153 @@ export function featuredMinimumSuccessRate(raw, fallback = 0.9, floor = 0.8) {
   return value;
 }
 
+export function featuredTransientRetryLimit(raw, fallback = 1, maximum = 2) {
+  const normalized = typeof raw === "string" ? raw.trim() : "";
+  const value = normalized === "" ? fallback : Number(normalized);
+  if (!Number.isSafeInteger(value) || value < 0 || value > maximum) {
+    throw new Error(`FEATURED_TRANSIENT_RETRIES must be an integer from 0 to ${maximum}.`);
+  }
+  return value;
+}
+
+/**
+ * Classify the final public-safe child diagnostic conservatively. A retry is
+ * allowed only for explicit capacity/transport failures, scan deadlines, HTTP
+ * 429, or HTTP 5xx. Bot/challenge pages, sparse/capped observations, permanent
+ * HTTP errors, and validation/publishing failures are never retried.
+ */
+export function featuredScanRetryReason(diagnostic) {
+  if (typeof diagnostic !== "string") return null;
+  const message = diagnostic.trim();
+  if (!message) return null;
+
+  if (
+    /bot-block|challenge page|likely failed or was blocked|request(?:-| )cap|capped|invalid|publishable report|quality evaluator marked the run failed/i.test(
+      message
+    )
+  ) {
+    return null;
+  }
+  if (/\bHTTP 429\b/i.test(message)) return "HTTP 429";
+  const serverStatus = message.match(/\bHTTP (5\d\d)\b/i);
+  if (serverStatus) return `HTTP ${serverStatus[1]}`;
+  const nonJsonServerStatus = message.match(/\bExpected JSON\b.*\bgot (5\d\d)\b/i);
+  if (nonJsonServerStatus) return `HTTP ${nonJsonServerStatus[1]}`;
+  if (/page did not load before the scan timeout|scan exceeded the maximum scan duration/i.test(message)) {
+    return "scan deadline";
+  }
+  if (/scanner (?:is busy|queue is full|execution capacity is full)/i.test(message)) {
+    return "scanner capacity";
+  }
+  if (/scan job status remained temporarily unavailable/i.test(message)) {
+    return "scan status transport";
+  }
+  if (/\bfetch failed\b|\bECONN(?:RESET|REFUSED|ABORTED)\b|\bEAI_AGAIN\b|\bUND_ERR_[A-Z_]+\b|socket hang up/i.test(message)) {
+    return "transport failure";
+  }
+  return null;
+}
+
+/**
+ * Validate a versioned, public catalog deferral. Expired or malformed entries
+ * fail closed so a target cannot disappear from the active denominator
+ * indefinitely without an explicit review.
+ */
+export function featuredSiteUnavailability(site, today = new Date().toISOString().slice(0, 10)) {
+  if (!site || typeof site !== "object" || Array.isArray(site) || site.scanAvailability === undefined) return null;
+  const value = site.scanAvailability;
+  const domain = typeof site.domain === "string" && site.domain.trim() ? site.domain.trim() : "unknown site";
+  const invalid = () => {
+    throw new Error(`Invalid scanAvailability metadata for ${domain}.`);
+  };
+  if (!value || typeof value !== "object" || Array.isArray(value)) return invalid();
+  if (value.status !== "temporarily-unavailable" || !FEATURED_UNAVAILABLE_REASONS.has(value.reason)) return invalid();
+  if (!validIsoDate(value.observedAt) || !validIsoDate(value.reviewAfter) || !validIsoDate(today)) return invalid();
+  const observedAt = Date.parse(`${value.observedAt}T00:00:00.000Z`);
+  const reviewAfter = Date.parse(`${value.reviewAfter}T00:00:00.000Z`);
+  if (
+    value.observedAt > today ||
+    value.reviewAfter <= value.observedAt ||
+    value.reviewAfter < today ||
+    reviewAfter - observedAt > FEATURED_UNAVAILABILITY_MAX_DAYS * DAY_MS
+  ) {
+    return invalid();
+  }
+  const workflowRunIds = Array.isArray(value.workflowRunIds) ? [...new Set(value.workflowRunIds)] : [];
+  if (
+    workflowRunIds.length < 2 ||
+    !workflowRunIds.every((id) => typeof id === "string" && /^\d{6,20}$/.test(id))
+  ) {
+    return invalid();
+  }
+  return {
+    status: value.status,
+    reason: value.reason,
+    observedAt: value.observedAt,
+    reviewAfter: value.reviewAfter,
+    workflowRunIds
+  };
+}
+
+/**
+ * Availability metadata can only alter a versioned catalog. Requiring an
+ * actual integer prevents strings, fractions and NaN-like values from
+ * silently passing a numeric coercion check.
+ */
+export function featuredCatalogVersion(value) {
+  if (!Number.isSafeInteger(value) || value < FEATURED_CATALOG_VERSION_FLOOR) {
+    throw new Error(
+      `Featured-site catalogs with scanAvailability metadata must use an integer version of ${FEATURED_CATALOG_VERSION_FLOOR} or newer.`
+    );
+  }
+  return value;
+}
+
+/**
+ * Keep the full-catalog denominator honest. These floors are deliberately
+ * constants rather than environment options: a run cannot make itself green
+ * by temporarily excluding more catalog entries.
+ */
+export function featuredCatalogEligibility(catalogTotal, eligibleTotal, enforceFloor = false) {
+  const catalog = boundedCount(catalogTotal);
+  const eligible = boundedCount(eligibleTotal, catalog ?? -1);
+  if (catalog === null || catalog === 0 || eligible === null) {
+    throw new Error("Featured catalog coverage requires positive, internally consistent counts.");
+  }
+  const catalogCoverage = eligible / catalog;
+  const meetsFloor =
+    eligible >= FEATURED_ACTIVE_SITE_FLOOR && catalogCoverage >= FEATURED_CATALOG_COVERAGE_FLOOR;
+  if (enforceFloor && !meetsFloor) {
+    throw new Error(
+      `Refusing the full featured catalog: ${eligible}/${catalog} entries remain eligible (${Math.round(
+        catalogCoverage * 100
+      )}%); fixed policy requires at least ${FEATURED_ACTIVE_SITE_FLOOR} eligible sites and ${Math.round(
+        FEATURED_CATALOG_COVERAGE_FLOOR * 100
+      )}% whole-catalog coverage.`
+    );
+  }
+  return {
+    catalogCoverage,
+    requiredCatalogCoverage: FEATURED_CATALOG_COVERAGE_FLOOR,
+    minimumEligibleSites: FEATURED_ACTIVE_SITE_FLOOR,
+    meetsFloor
+  };
+}
+
+function isEnabled(value) {
+  return /^(1|true|yes|on)$/i.test(typeof value === "string" ? value.trim() : "");
+}
+
+export function isFullFeaturedCatalogSelection(environment) {
+  const sitesFile = environment.FEATURED_SITES_FILE?.trim() ?? "";
+  return (
+    (sitesFile === "" || sitesFile === "public/featured-sites.json") &&
+    (environment.FEATURED_CATEGORIES?.trim() ?? "") === "" &&
+    (environment.FEATURED_LIMIT?.trim() ?? "") === "" &&
+    !isEnabled(environment.FEATURED_INCLUDE_UNAVAILABLE)
+  );
+}
+
 /**
  * Extract only aggregate, public-safe fields from the detailed diagnostics
  * artifact. Per-target names and child failure reasons stay in the artifact;
@@ -66,6 +226,10 @@ export function publicFeaturedScanSummary(value) {
   const failed = boundedCount(value.failed, total ?? -1);
   const successRate = boundedRate(value.successRate);
   const requiredSuccessRate = boundedRate(value.requiredSuccessRate);
+  const hasAvailabilityCounts = value.catalogTotal !== undefined || value.unavailable !== undefined;
+  const catalogTotal = hasAvailabilityCounts ? boundedCount(value.catalogTotal) : total;
+  const unavailable = hasAvailabilityCounts ? boundedCount(value.unavailable, catalogTotal ?? -1) : 0;
+  const fullCatalog = value.fullCatalog === true;
   if (
     total === null ||
     total === 0 ||
@@ -74,11 +238,56 @@ export function publicFeaturedScanSummary(value) {
     succeeded + failed !== total ||
     successRate === null ||
     requiredSuccessRate === null ||
-    Math.abs(successRate - succeeded / total) > 1e-12
+    Math.abs(successRate - succeeded / total) > 1e-12 ||
+    catalogTotal === null ||
+    unavailable === null ||
+    catalogTotal !== total + unavailable
   ) {
     return null;
   }
-  return { total, succeeded, failed, successRate, requiredSuccessRate };
+  const eligibility = featuredCatalogEligibility(catalogTotal, total);
+  if (
+    value.catalogCoverage !== undefined &&
+    (boundedRate(value.catalogCoverage) === null ||
+      Math.abs(value.catalogCoverage - eligibility.catalogCoverage) > 1e-12)
+  ) {
+    return null;
+  }
+  if (
+    value.requiredCatalogCoverage !== undefined &&
+    value.requiredCatalogCoverage !== FEATURED_CATALOG_COVERAGE_FLOOR
+  ) {
+    return null;
+  }
+  if (value.minimumEligibleSites !== undefined && value.minimumEligibleSites !== FEATURED_ACTIVE_SITE_FLOOR) {
+    return null;
+  }
+  if (fullCatalog) {
+    try {
+      featuredCatalogVersion(value.catalogVersion);
+    } catch {
+      return null;
+    }
+    if (
+      value.catalogCoverage === undefined ||
+      value.requiredCatalogCoverage === undefined ||
+      value.minimumEligibleSites === undefined
+    ) {
+      return null;
+    }
+  }
+  return {
+    catalogVersion: fullCatalog ? value.catalogVersion : null,
+    fullCatalog,
+    catalogTotal,
+    unavailable,
+    total,
+    succeeded,
+    failed,
+    successRate,
+    requiredSuccessRate,
+    ...eligibility
+  };
 }
 
 /**
@@ -92,7 +301,10 @@ export function featuredPublicationDecision(value, scanOutcome) {
   const summary = publicFeaturedScanSummary(value);
   const publishable = summary !== null && summary.succeeded > 0;
   const healthy =
-    publishable && scanOutcome === "success" && summary.successRate >= summary.requiredSuccessRate;
+    publishable &&
+    scanOutcome === "success" &&
+    summary.successRate >= summary.requiredSuccessRate &&
+    (!summary.fullCatalog || summary.meetsFloor);
   return { publishable, healthy };
 }
 
@@ -122,17 +334,21 @@ export function buildFeaturedRefreshIssueReport({ failed, summary, branch, serve
     "# Featured corpus refresh status",
     "",
     failed
-      ? "The authoritative featured-corpus refresh did not complete successfully."
-      : "The authoritative featured-corpus refresh completed successfully.",
+      ? "The authoritative featured-corpus run did not meet every health gate."
+      : "The authoritative featured-corpus run met its health gates.",
     "",
     `- Branch: \`${safeBranch}\``
   ];
   if (runUrl) lines.push(`- Workflow run: [view run](${runUrl})`);
   if (aggregate) {
     lines.push(
-      `- Sites succeeded: **${aggregate.succeeded}/${aggregate.total}** (${Math.round(aggregate.successRate * 100)}%)`,
-      `- Required success rate: **${Math.round(aggregate.requiredSuccessRate * 100)}%**`,
-      `- Failed targets: **${aggregate.failed}**`
+      `- Eligible scan success: **${aggregate.succeeded}/${aggregate.total}** (${Math.round(aggregate.successRate * 100)}%)`,
+      `- Required eligible success rate: **${Math.round(aggregate.requiredSuccessRate * 100)}%**`,
+      `- Failed eligible targets: **${aggregate.failed}**`,
+      `- Active eligible catalog coverage: **${aggregate.total}/${aggregate.catalogTotal}** (${Math.round(aggregate.catalogCoverage * 100)}%)`,
+      `- Fixed full-catalog coverage gate: **${Math.round(aggregate.requiredCatalogCoverage * 100)}% and at least ${aggregate.minimumEligibleSites} active sites**`,
+      `- Catalog entries temporarily unavailable: **${aggregate.unavailable}/${aggregate.catalogTotal}**`,
+      "- Scope note: passing these gates does not mean every catalog entry was freshly scanned."
     );
   } else {
     lines.push("- Aggregate scan summary: **unavailable or invalid**");
@@ -147,14 +363,17 @@ export function buildFeaturedRefreshIssueReport({ failed, summary, branch, serve
   return `${lines.join("\n")}\n`;
 }
 
+function validIsoDate(value) {
+  if (typeof value !== "string" || !ISO_DATE_PATTERN.test(value)) return false;
+  const parsed = new Date(`${value}T00:00:00.000Z`);
+  return Number.isFinite(parsed.getTime()) && parsed.toISOString().slice(0, 10) === value;
+}
+
 export function isAuthoritativeFeaturedRefresh(environment) {
-  const sitesFile = environment.FEATURED_SITES_FILE?.trim() ?? "";
   return (
     environment.GITHUB_REF_TYPE === "branch" &&
     environment.GITHUB_REF_NAME === environment.FEATURED_DEFAULT_BRANCH &&
-    (sitesFile === "" || sitesFile === "public/featured-sites.json") &&
-    (environment.FEATURED_CATEGORIES?.trim() ?? "") === "" &&
-    (environment.FEATURED_LIMIT?.trim() ?? "") === "" &&
+    isFullFeaturedCatalogSelection(environment) &&
     environment.FEATURED_COMPARE_SHIELDS === "true" &&
     environment.FEATURED_COMPARE_CONSENT === "false" &&
     environment.FEATURED_COMPARE_GPC === "false" &&
@@ -177,11 +396,12 @@ async function prepareAlertFromEnvironment() {
     }
   }
   const aggregate = publicFeaturedScanSummary(summary);
+  const authoritative = isAuthoritativeFeaturedRefresh(process.env);
   const failed =
     process.env.FEATURED_SCAN_OUTCOME !== "success" ||
     process.env.FEATURED_JOB_STATUS !== "success" ||
-    aggregate === null;
-  const authoritative = isAuthoritativeFeaturedRefresh(process.env);
+    aggregate === null ||
+    (authoritative && (!aggregate.fullCatalog || !aggregate.meetsFloor));
   const report = buildFeaturedRefreshIssueReport({
     failed,
     summary: aggregate,

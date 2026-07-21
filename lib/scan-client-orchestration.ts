@@ -1,4 +1,8 @@
 import { readLoadedReport } from "./client-report-reader";
+import {
+  isRecoverableScanJob,
+  type ActiveScanJob
+} from "./active-scan-session";
 import { isRecord } from "./guards";
 import {
   pollAcceptedScanJob,
@@ -7,13 +11,15 @@ import {
 } from "./scan-job-polling";
 import { isScanRuntimeHealth, type ScanRuntimeHealth } from "./scan-runtime-health";
 import type { LoadedReport } from "./scan-report-view";
-import type { ScanDevice, ScanJobSubmissionResponse } from "./types";
+import type { ScanDevice, ScanJobProgress, ScanJobSubmissionResponse } from "./types";
 
-export type ActiveScanJob = {
-  statusPath: string;
-  accessKey: string;
-  reportId: string;
-};
+export type { ActiveScanJob } from "./active-scan-session";
+
+/** Prefer a newly entered gated-deployment key without persisting it. */
+export function scanJobWithCurrentAccessKey(job: ActiveScanJob, currentAccessKey: string): ActiveScanJob {
+  const accessKey = currentAccessKey.trim();
+  return { ...job, accessKey: accessKey || job.accessKey };
+}
 
 export type RuntimeScanForm = {
   device: ScanDevice;
@@ -111,13 +117,6 @@ export function deriveScanRuntimePolicy(input: {
   };
 }
 
-export function shouldLoadSavedScanAccessKey(input: {
-  liveScanEnabled: boolean;
-  reportPage: boolean;
-}): boolean {
-  return input.liveScanEnabled && !input.reportPage;
-}
-
 export async function fetchRuntimeScannerHealth(options: {
   resolveApiUrl: (path: string) => string;
   fetcher?: RuntimeScanFetcher;
@@ -169,6 +168,7 @@ export async function submitRuntimeScan(options: {
   fetcher?: RuntimeScanFetcher;
   poller?: RuntimeScanPoller;
   onAccepted: (job: ActiveScanJob) => void;
+  onProgress?: (progress: ScanJobProgress) => void;
 }): Promise<LoadedReport> {
   const fetcher = options.fetcher ?? ((input, init) => fetch(input, init));
   const poller = options.poller ?? pollAcceptedScanJob;
@@ -199,10 +199,11 @@ export async function submitRuntimeScan(options: {
 
   if (isRuntimeScanError(payload)) throw new Error(payload.error);
   if (isScanJobSubmissionResponse(payload)) {
-    // The status path is a recovery capability. Capture the exact admission
-    // access key before the first poll so a transport fault never loses it and
-    // later edits to the form cannot corrupt resume/cancel authentication.
+    // The status path is a recovery capability. Keep the admission access key
+    // in memory for this page lifetime only; tab recovery persists identifiers
+    // but deliberately omits this deployment-wide credential.
     const acceptedJob: ActiveScanJob = {
+      jobId: payload.jobId,
       statusPath: payload.statusPath,
       accessKey: options.scannerRequiresAccessKey ? accessKey : "",
       reportId: payload.reportId
@@ -211,7 +212,8 @@ export async function submitRuntimeScan(options: {
     return poller({
       ...acceptedJob,
       signal: options.signal,
-      resolveApiUrl: options.resolveApiUrl
+      resolveApiUrl: options.resolveApiUrl,
+      onProgress: options.onProgress
     });
   }
 
@@ -227,12 +229,14 @@ export function resumeRuntimeScan(options: {
   signal?: AbortSignal;
   resolveApiUrl: (path: string) => string;
   poller?: RuntimeScanPoller;
+  onProgress?: (progress: ScanJobProgress) => void;
 }): Promise<LoadedReport> {
   const poller = options.poller ?? pollAcceptedScanJob;
   return poller({
     ...options.job,
     signal: options.signal,
-    resolveApiUrl: options.resolveApiUrl
+    resolveApiUrl: options.resolveApiUrl,
+    onProgress: options.onProgress
   });
 }
 
@@ -270,7 +274,7 @@ export async function cancelRuntimeScan(options: {
   return typeof payload.error === "string" && payload.error ? payload.error : "Scan cancelled.";
 }
 
-/** Only an authoritative terminal coordinator state invalidates recovery. */
+/** Definitive failure endings invalidate recovery; readable success is cleared by the caller. */
 export function shouldReleaseAcceptedScanJob(error: unknown): boolean {
   return error instanceof ScanJobEndedError;
 }
@@ -411,12 +415,17 @@ function isRuntimeScanError(value: unknown): value is { ok: false; error: string
 }
 
 function isScanJobSubmissionResponse(value: unknown): value is ScanJobSubmissionResponse {
-  return (
+  if (!(
     isRecord(value) &&
     value.ok === true &&
     typeof value.jobId === "string" &&
     value.status === "queued" &&
     typeof value.statusPath === "string" &&
     typeof value.reportId === "string"
-  );
+  )) return false;
+  return isRecoverableScanJob({
+    jobId: value.jobId,
+    statusPath: value.statusPath,
+    reportId: value.reportId
+  });
 }

@@ -3,10 +3,11 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { entryEligibleForCorpusRollups, loadCorpusOverview, type DirectoryEntry } from "@/lib/corpus-overview";
 import { reportPagePath } from "@/lib/report-locator";
+import { conciseMetadataText, publicPageMetadata } from "@/lib/seo-metadata";
 import { siteProfileKey, siteProfilePath } from "@/lib/site-profile";
 import { formatDelta } from "@/lib/temporal-deltas";
 import { safeNavigableHttpUrl } from "@/lib/report-url";
-import { sitePagesBasePath } from "@/lib/site-url";
+import { sitePagesBasePath, siteUrl } from "@/lib/site-url";
 import { reportKindLabel } from "@/lib/text-format";
 
 export const dynamic = "force-static";
@@ -20,19 +21,29 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: { params: Promise<{ domain: string }> }): Promise<Metadata> {
   const profile = await loadProfile((await params).domain);
-  if (!profile) return { title: "Site history not found", robots: { index: false, follow: false } };
-  const compatibleChanges = profile.entries.filter((entry) => entry.sinceLastScan).length;
-  return {
-    title: `${profile.domain} site behavior history`,
-    description: `${profile.entries.length} controlled Site Behavior Lab ${
+  if (!profile) {
+    return {
+      title: "Site history not found",
+      alternates: { canonical: null },
+      robots: { index: false, follow: false }
+    };
+  }
+  const latest = profile.entries[0];
+  const profilePath = siteProfilePath(profile.domain);
+  const canonical = siteUrl(`${profilePath}/`);
+  const title = `What ${profile.domain} loaded: website behavior history`;
+  const description = conciseMetadataText(
+    `Controlled-visit evidence, not a verdict. Browse ${profile.entries.length} ${
       profile.entries.length === 1 ? "report" : "reports"
-    } for ${profile.domain}, with reproducible evidence${
-      compatibleChanges > 0 ? " and observed differences across comparable visits" : " from the curated public corpus"
-    }.`,
+    } for ${profile.domain}; latest ${formatDate(latest.scannedAt)}: ${latest.headline}`,
+    160
+  );
+  return {
+    ...publicPageMetadata({ title, description, path: `${profilePath}/` }),
     alternates: {
-      canonical: `${sitePagesBasePath()}${siteProfilePath(profile.domain)}/`,
+      canonical,
       types: {
-        "application/atom+xml": `${sitePagesBasePath()}${siteProfilePath(profile.domain)}/feed.xml`
+        "application/atom+xml": siteUrl(`${profilePath}/feed.xml`)
       }
     }
   };
@@ -48,6 +59,15 @@ export default async function SiteProfilePage({ params }: { params: Promise<{ do
 
   return (
     <main className="site-profile-page">
+      <nav className="report-breadcrumbs" aria-label="Breadcrumb">
+        <ol>
+          <li><Link href="/">Home</Link></li>
+          <li aria-hidden="true">/</li>
+          <li><Link href="/directory/">Scanned sites</Link></li>
+          <li aria-hidden="true">/</li>
+          <li aria-current="page">{profile.domain}</li>
+        </ol>
+      </nav>
       <header className="site-profile-header">
         <p className="eyebrow">Curated public corpus · Site history</p>
         <h1>{profile.domain}</h1>
@@ -59,6 +79,7 @@ export default async function SiteProfilePage({ params }: { params: Promise<{ do
           <Link className="secondary-button" href={`${reportPagePath(latest.id)}/`}>
             Open latest evidence
           </Link>
+          <a className="topbar-link" href="#history">Browse report history</a>
           <Link className="topbar-link" href="/directory/">All scanned sites</Link>
           <a className="topbar-link" href={`${sitePagesBasePath()}${siteProfilePath(profile.domain)}/feed.xml`}>
             Atom feed
@@ -108,7 +129,7 @@ export default async function SiteProfilePage({ params }: { params: Promise<{ do
         </section>
       )}
 
-      <section className="site-profile-section" aria-labelledby="history-title">
+      <section className="site-profile-section" id="history" aria-labelledby="history-title">
         <p className="eyebrow">Evidence timeline</p>
         <h2 id="history-title">{profile.entries.length} {profile.entries.length === 1 ? "report" : "reports"}</h2>
         <HistorySparkline entries={profile.entries.filter(entryEligibleForCorpusRollups)} />

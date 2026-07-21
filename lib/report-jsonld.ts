@@ -50,7 +50,6 @@ export function buildReportDataset(view: ReportView, options: { url: string; jso
     isAccessibleForFree: true,
     creator: { "@type": "Organization", name: "Site Behavior Lab" },
     dateCreated: scannedAt,
-    datePublished: scannedAt,
     measurementTechnique: "Automated Chromium visit",
     keywords: ["web tracking", "third-party trackers", "cookies", "browser fingerprinting", headline.domain],
     // v2 route shapes deliberately contain privacy placeholders such as

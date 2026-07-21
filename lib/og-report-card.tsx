@@ -37,6 +37,7 @@ const HOME_ACCENT = "#2dd4bf";
 export function renderReportCard(view: ReportView): ImageResponse {
   const headline = buildReportHeadline(view);
   const subhead = buildReportCardSubhead(view, headline);
+  const attribution = buildReportCardAttribution(view, headline.domain);
   const accent = TONE_HEX[headline.tone];
   const stats = headline.stats.slice(0, 3);
   const headlineSize = headline.headline.length > 64 ? 50 : headline.headline.length > 44 ? 58 : 66;
@@ -112,6 +113,7 @@ export function renderReportCard(view: ReportView): ImageResponse {
             ))}
           </div>
           <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
+            <div style={{ display: "flex", fontSize: 19, color: TEXT }}>{attribution}</div>
             <div style={{ display: "flex", fontSize: 18, color: SUBTLE }}>open source · reproducible</div>
             <div style={{ display: "flex", fontSize: 16, color: SUBTLE, marginTop: 4, maxWidth: 360, textAlign: "right" }}>
               {headline.caveat}
@@ -122,6 +124,16 @@ export function renderReportCard(view: ReportView): ImageResponse {
     ),
     { ...OG_SIZE }
   );
+}
+
+/** Permanent social cards always name both the observed site and scan date. */
+export function buildReportCardAttribution(view: ReportView, domain = buildReportHeadline(view).domain): string {
+  const timestamp = view.reportType === "comparison" ? view.latestRunAt ?? view.scannedAt : view.scannedAt;
+  const date = timestamp ? new Date(timestamp) : null;
+  const scanDate = date && !Number.isNaN(date.getTime())
+    ? date.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric", timeZone: "UTC" })
+    : "date not recorded";
+  return `${truncate(domain, 42)} · ${view.reportType === "comparison" ? "latest visit" : "scanned"} ${scanDate}`;
 }
 
 /**

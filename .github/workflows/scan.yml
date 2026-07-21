@@ -57,8 +57,8 @@ permissions:
   actions: write
 
 # All three repo-writing workflows (scan, scan-featured, update-brave-lists)
-# share one concurrency group per ref so their commit+push steps never race;
-# the push step still rebase-retries in case a human push lands in between.
+# share one concurrency group per ref so their commit+push steps never race.
+# A human push can still land mid-run, so publication fails closed on NFF.
 concurrency:
   group: site-behavior-repo-writers-${{ github.ref }}
   cancel-in-progress: false
@@ -66,6 +66,13 @@ concurrency:
 env:
   CI: "1"
   NEXT_TELEMETRY_DISABLED: "1"
+  # Internal scanner builds still render canonical metadata. Keep the build
+  # fail-closed on the same public origin as CI and the deployed Pages site.
+  NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SITE_URL: "https://sitebehavior.org"
+  # This workflow intentionally emits frozen v1 reports. Make both the mode and
+  # exact source revision observable through `/api/health` before scanning.
+  SITE_BEHAVIOR_LAB_PUBLIC_R2_REPORTS: "0"
+  SITE_BEHAVIOR_LAB_BUILD_COMMIT: ${{ github.sha }}
   SCAN_URL: ${{ github.event.inputs.url || github.event.client_payload.url }}
   SCAN_DEVICE: ${{ github.event.inputs.device || github.event.client_payload.device || 'desktop' }}
   SCAN_GPC_ENABLED: ${{ github.event.inputs.gpc_enabled || github.event.client_payload.gpc_enabled || 'true' }}
@@ -112,14 +119,55 @@ jobs:
 
       - name: Start scanner app
         run: |
-          npm run start -- --port 3100 > /tmp/site-behavior-lab-scan.log 2>&1 &
-          echo $! > /tmp/site-behavior-lab-scan.pid
+          if node -e '
+            const socket = require("node:net").createConnection({ host: "127.0.0.1", port: 3100 });
+            socket.setTimeout(1000);
+            socket.once("connect", () => { socket.destroy(); process.exit(0); });
+            socket.once("error", () => process.exit(1));
+            socket.once("timeout", () => { socket.destroy(); process.exit(1); });
+          '; then
+            echo "::error::Port 3100 was already occupied before startup; refusing a stale scanner process."
+            exit 1
+          fi
+          node node_modules/next/dist/bin/next start --port 3100 > /tmp/site-behavior-lab-scan.log 2>&1 &
+          app_pid=$!
+          echo "$app_pid" > /tmp/site-behavior-lab-scan.pid
+          health_path="${RUNNER_TEMP}/site-behavior-lab-scan-health.json"
           for attempt in {1..30}; do
-            if curl -fsS http://127.0.0.1:3100/api/health >/dev/null; then
-              exit 0
+            if ! kill -0 "$app_pid" 2>/dev/null; then
+              echo "::error::The scanner process exited before it became ready; refusing a response from any stale port owner."
+              cat /tmp/site-behavior-lab-scan.log
+              exit 1
+            fi
+            if curl -fsS --connect-timeout 2 --max-time 5 \
+              --output "$health_path" http://127.0.0.1:3100/api/health; then
+              if node -e '
+                const fs = require("node:fs");
+                const [file, expectedSha] = process.argv.slice(1);
+                let health;
+                try {
+                  health = JSON.parse(fs.readFileSync(file, "utf8"));
+                } catch (error) {
+                  console.error(`Health response is not valid JSON: ${error instanceof Error ? error.message : error}`);
+                  process.exit(1);
+                }
+                const failures = [];
+                const expect = (condition, message) => { if (!condition) failures.push(message); };
+                expect(health?.ok === true, "health.ok is not true");
+                expect(health?.deployment === expectedSha.toLowerCase(), `deployment is ${health?.deployment ?? "missing"}, expected ${expectedSha}`);
+                expect(health?.scansAvailable === true, "scansAvailable is not true");
+                expect(health?.checks?.publicR2Reports?.status === "disabled", `report mode is ${health?.checks?.publicR2Reports?.status ?? "missing"}, expected v1/disabled`);
+                if (failures.length) {
+                  console.error(`Scanner health contract rejected: ${failures.join("; ")}`);
+                  process.exit(1);
+                }
+              ' "$health_path" "$GITHUB_SHA" && kill -0 "$app_pid" 2>/dev/null; then
+                exit 0
+              fi
             fi
             sleep 1
           done
+          echo "::error::The scanner did not satisfy the expected process and health contract."
           cat /tmp/site-behavior-lab-scan.log
           exit 1
 
@@ -164,17 +212,13 @@ jobs:
             exit 0
           fi
           git commit -m "Add site behavior scan report"
-          # A finished scan must not be lost to a non-fast-forward race with a
-          # push that landed after checkout: rebase and retry.
-          for attempt in 1 2 3; do
-            if git push; then
-              echo "pushed=true" >> "$GITHUB_OUTPUT"
-              exit 0
-            fi
-            echo "Push rejected (attempt ${attempt}); rebasing onto the latest ${GITHUB_REF_NAME}."
-            git pull --rebase origin "${GITHUB_REF_NAME}"
-          done
-          git push
+          # Reports and pruning were validated against this exact checkout. If
+          # the branch advanced, fail safely and rerun rather than transplanting
+          # stale generated output onto a source tree it was never checked with.
+          if ! git push; then
+            echo "::error::The branch advanced after report validation; refusing to rebase stale generated output. Rerun this workflow from the latest branch head."
+            exit 1
+          fi
           echo "pushed=true" >> "$GITHUB_OUTPUT"
 
       - name: Trigger CI on the pushed commit

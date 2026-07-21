@@ -1,0 +1,53 @@
+name: Bug report
+description: Report a reproducible product, scanner, or data-pipeline defect.
+title: "[Bug] "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Do not include secrets, personal data, sensitive URLs, or vulnerability details. Use private security reporting for those.
+  - type: input
+    id: surface
+    attributes:
+      label: Affected surface
+      description: Page, report, API route, workflow, or command.
+      placeholder: /reports/... or Scan Featured Sites
+    validations:
+      required: true
+  - type: textarea
+    id: observed
+    attributes:
+      label: What happened?
+      description: Include the exact error or behavior, with sensitive values removed.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect?
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Reproduction steps
+      placeholder: |
+        1. Open...
+        2. Select...
+        3. Observe...
+    validations:
+      required: true
+  - type: input
+    id: revision
+    attributes:
+      label: Deployment revision or report ID
+      description: Copy it from the report or status page when available.
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Public-data check
+      options:
+        - label: I removed secrets, personal data, access tokens, and sensitive unredacted URLs.
+          required: true

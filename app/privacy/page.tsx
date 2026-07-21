@@ -1,14 +1,15 @@
-import type { Metadata } from "next";
 import Link from "next/link";
+import { publicPageMetadata } from "@/lib/seo-metadata";
+import { TrustLinks } from "../_components/trust-links";
 
 export const dynamic = "force-static";
 
-export const metadata: Metadata = {
+export const metadata = publicPageMetadata({
   title: "Privacy & data handling",
   description:
     "How Site Behavior Lab treats the URLs you scan: what leaves your browser, what is stored, how long it is kept, and what is never collected.",
-  alternates: { canonical: "/privacy/" }
-};
+  path: "/privacy/"
+});
 
 // Mirrors lib/report-store.ts DEFAULT_REPORT_MAX_AGE_DAYS so the copy stays
 // truthful if the default ever changes here it should change there too.
@@ -49,6 +50,11 @@ export default function PrivacyPage() {
           <li>
             <strong>A Cloudflare Turnstile token</strong>, used to confirm the request is not automated abuse (see
             Third parties below).
+          </li>
+          <li>
+            <strong>A scanner access key, only on a gated deployment.</strong> If an operator requires this key, it is
+            sent only to that scanner for admission, status, or cancellation. The page keeps it in memory while open;
+            it is not placed in local or session storage, and a reload requires it again.
           </li>
         </ul>
       </section>
@@ -118,8 +124,19 @@ export default function PrivacyPage() {
           </li>
           <li>
             A separate, deliberately published research corpus appears in the public directory. Those curated
-            reports are committed as permanent site artifacts with provenance sidecars; they do not use the
-            live-share expiry policy.
+            reports are versioned files with provenance sidecars and do not use the live-share expiry policy. The
+            public directory describes the corpus currently retained under its own age, count, and cohort rules;
+            reports cited by the corrections ledger are pinned against that automated pruning.
+          </li>
+          <li>
+            <strong>This tab keeps a short-lived recovery pointer after a scan is accepted.</strong> Its browser
+            <code> sessionStorage</code> record contains only the opaque job ID, the strict scanner-relative status
+            path derived from that ID, a separate report ID, and acceptance/expiry timestamps. It never contains the
+            scanned address, options, access key, Turnstile token, report, screenshot, or page evidence. The record is
+            valid for at most 75 minutes and is deleted earlier after a readable result, failure, expiry,
+            cancellation, or when you choose &ldquo;Dismiss recovery.&rdquo; It belongs to the current tab&rsquo;s page
+            session; treat the tab as private while recovery is active because the status identifier controls polling
+            and cancellation on an open-access scanner.
           </li>
           <li>
             <strong>Optional restart-safe queue state is separate from a report.</strong> This mode remains disabled
@@ -204,6 +221,8 @@ export default function PrivacyPage() {
           reference deployment&rsquo;s defaults and may be updated as the tool changes.
         </p>
       </section>
+
+      <TrustLinks />
     </main>
   );
 }

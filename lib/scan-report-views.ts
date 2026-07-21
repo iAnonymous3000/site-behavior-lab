@@ -271,6 +271,8 @@ export type RunView = {
   fingerprints: Fingerprints | null;
   /** Recorded measurement identity (RFC 5.1); null on v1. */
   provenance: RunProvenanceView | null;
+  /** Public redaction algorithm version recorded by v2; null on legacy v1. */
+  redactionVersion: number | null;
   /** Instrument digests (RFC 3.5); null on v1. */
   toolchainIdentity: ToolchainIdentityView | null;
   /** Configured-vs-verified axis readbacks (r2, RFC 15.3); null on v1 and r1. */
@@ -435,6 +437,7 @@ function runViewFromV2(run: ScanRunV2 | ScanRunV2R2, label: RunView["label"]): R
       detectorRegistry: { ...run.provenance.detectorRegistry },
       sourceArtifactDigest: run.provenance.sourceArtifactDigest ?? null
     },
+    redactionVersion: run.privacy.redactionVersion,
     toolchainIdentity: {
       trackerCatalogDigest: run.toolchain.trackerCatalog.digest,
       adblock: run.toolchain.adblock
@@ -569,6 +572,7 @@ function runViewFromV1(result: ScanResult, label: RunView["label"], scannedAt: s
     detectors: null,
     fingerprints: null,
     provenance: null,
+    redactionVersion: null,
     toolchainIdentity: null,
     verificationFacts: null,
     evidence: {

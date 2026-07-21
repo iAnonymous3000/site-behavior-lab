@@ -4,7 +4,9 @@ import { createServer } from "node:http";
 import { readFile, stat } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { gzipSync } from "node:zlib";
 import { chromium } from "playwright";
+import { parse as parseDomain } from "tldts";
 import { resolveExactStaticDeploymentCommit } from "./static-deployment-provenance.mjs";
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -17,7 +19,9 @@ const basePath = normalizeBasePath(
 const liveScanApiBase = process.env.NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SCAN_API_BASE?.trim() || "";
 const openAccessScanner = process.env.NEXT_PUBLIC_SITE_BEHAVIOR_LAB_OPEN_ACCESS === "1";
 const archivePageSize = 24;
-const maxReportHtmlBytes = 4 * 1024 * 1024;
+const maxHomeHtmlBytes = 160 * 1024;
+const maxReportHtmlBytes = 200 * 1024;
+const maxInitialJsGzipBytes = 200 * 1024;
 const fullCommitPattern = /^[0-9a-f]{40}$/;
 const corpusJsonDecisionFields = [
   "consentChoiceState",
@@ -82,12 +86,30 @@ async function main() {
   const browser = await chromium.launch({ headless: true });
   const context = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
   const page = await context.newPage();
+  const failedStaticPrefetches = new Set();
+  page.on("response", (response) => {
+    try {
+      const pathname = new URL(response.url()).pathname;
+      if (response.status() >= 400 && pathname.endsWith(".txt")) {
+        failedStaticPrefetches.add(`${response.status()} ${pathname}`);
+      }
+    } catch {
+      // Ignore malformed browser diagnostics; route assertions still fail independently.
+    }
+  });
 
   try {
     await page.goto(`${baseUrl}/`, { waitUntil: "networkidle" });
     await expectText(page.locator("h1"), "See what a site does, not just what it says.");
-    await expectText(page.locator(".static-gallery"), "Saved reports");
-    pass("static home renders archive shell");
+    if ((await page.locator(".static-gallery, .static-report-card").count()) !== 0) {
+      fail("static home eagerly rendered the saved-report archive before the visitor requested it");
+    }
+    await assertStaticRouteBudgets(path.join(outDir, "index.html"), {
+      label: "homepage",
+      maxHtmlBytes: maxHomeHtmlBytes,
+      maxInitialJsGzipBytes
+    });
+    pass("static home defers saved-report tools on first load");
 
     const themeToggle = page.getByRole("button", { name: "Toggle colour theme" });
     const themeRestingShadow = await themeToggle.evaluate((button) => getComputedStyle(button).boxShadow);
@@ -277,6 +299,10 @@ async function main() {
         : "scheduled-rescan UI stays absent while capability is disabled"
     );
 
+    await loadStaticArchive(page);
+    await expectText(page.locator(".static-gallery"), "Saved reports");
+    pass("static home loads saved-report tools on demand");
+
     const cardCount = await page.locator(".static-report-card").count();
     if (cardCount !== Math.min(archivePageSize, manifest.reports.length)) {
       fail(`static archive rendered ${cardCount} initial report cards for ${manifest.reports.length} manifest entries`);
@@ -285,6 +311,8 @@ async function main() {
 
     const firstReport = manifest.reports[0];
     if (typeof firstReport.headline !== "string" || !firstReport.headline) fail("manifest report lacks its canonical headline");
+    await assertStaticSeoContract(manifest, firstReport);
+    pass("static canonicals, social URLs, indexability, and sitemap dates satisfy the SEO contract");
     await page.getByLabel("Search reports").fill(firstReport.domain);
     const matchingDomainCount = manifest.reports.filter((report) => searchableReportText(report).includes(firstReport.domain.toLowerCase())).length;
     await expectCardCount(page, Math.min(archivePageSize, matchingDomainCount));
@@ -358,6 +386,7 @@ async function main() {
     pass("static archive compares uploaded reports");
 
     await page.goto(`${baseUrl}/`, { waitUntil: "networkidle" });
+    await loadStaticArchive(page);
     await page.locator(".static-report-card").first().click();
     await page.waitForSelector(".report-header", { timeout: 10_000 });
     await expectText(page.locator(".report-header"), "https://");
@@ -370,9 +399,12 @@ async function main() {
       fail("saved report evidence is absent from the generated initial HTML");
     }
     if (reportHtml.includes("scan-workbench")) fail("generated report HTML contains the scanner workbench");
-    if (Buffer.byteLength(reportHtml, "utf8") > maxReportHtmlBytes) {
-      fail(`saved report HTML exceeds the ${maxReportHtmlBytes}-byte evidence-page budget`);
-    }
+    if (reportHtml.includes('"evidence":{"requests"')) fail("generated report HTML inlines raw request evidence");
+    await assertStaticRouteBudgets(reportHtmlPath, {
+      label: "saved report",
+      maxHtmlBytes: maxReportHtmlBytes,
+      maxInitialJsGzipBytes
+    });
     const noScriptContext = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 1440, height: 1000 } });
     const noScriptPage = await noScriptContext.newPage();
     await noScriptPage.goto(`${baseUrl}/reports/${firstReport.id}/`, { waitUntil: "domcontentloaded" });
@@ -381,15 +413,15 @@ async function main() {
 
     const phaseReportHtmlPath = path.join(outDir, "reports", phaseReport.id, "index.html");
     const phaseReportHtml = await readFile(phaseReportHtmlPath, "utf8");
-    if (!phaseReportHtml.includes("visit-phase-evidence")) {
-      fail("generated r2 report HTML omits the recorded phase evidence section");
-    }
+    if (phaseReportHtml.includes("visit-phase-evidence")) fail("generated r2 report HTML eagerly inlines raw phase evidence");
     await noScriptPage.goto(`${baseUrl}/reports/${phaseReport.id}/`, { waitUntil: "domcontentloaded" });
-    await expectText(noScriptPage.locator(".visit-phase-evidence"), "Visit phases & state changes");
+    await expectText(noScriptPage.locator(".headline-banner"), "Observed in");
+    await expectText(noScriptPage.getByRole("link", { name: "Open report JSON" }), "Open report JSON");
     await noScriptContext.close();
-    pass("static report permalink ships bounded evidence in initial HTML without JavaScript");
+    pass("static report permalink ships a compact summary and direct download without JavaScript");
 
     await page.goto(`${baseUrl}/reports/${phaseReport.id}/`, { waitUntil: "networkidle" });
+    await page.getByRole("button", { name: "Explore full evidence" }).click();
     const phaseEvidence = page.locator(".visit-phase-evidence");
     await expectText(phaseEvidence, "Visit phases & state changes");
     await expectText(phaseEvidence, "P0 · passive-load");
@@ -405,7 +437,8 @@ async function main() {
     await expectText(r2RequestLog, "P0 · Initial page load");
     pass("committed r2 report renders phase spans, snapshot changes, and request phase labels");
 
-    const profileKey = firstReport.domain.toLowerCase().replace(/\.$/, "").replace(/^www\./, "");
+    const profileKey = staticProfileKey(firstReport.domain);
+    if (!profileKey) fail(`cannot derive a canonical site profile from ${firstReport.domain}`);
     await page.goto(`${baseUrl}/sites/${encodeURIComponent(profileKey)}/`, { waitUntil: "networkidle" });
     await expectText(page.locator("h1"), profileKey);
     await expectText(page.locator(".site-profile-page"), "Curated public corpus");
@@ -422,6 +455,7 @@ async function main() {
     // known service (an xhr, not a script), so third-party=2, known-service=1, and
     // known-service+script=0.
     await page.goto(`${baseUrl}/`, { waitUntil: "networkidle" });
+    await openHomepageTools(page);
     const reportUploadLabel = page.locator("label.file-button", { hasText: "Open report file" }).first();
     const reportUploadInput = reportUploadLabel.locator('input[type="file"]');
     await reportUploadInput.evaluate((input) => input.focus());
@@ -435,7 +469,15 @@ async function main() {
     if ((await domainTableRegion.getAttribute("tabindex")) !== "0") {
       fail("domain evidence horizontal scroller is not keyboard-focusable");
     }
-    await domainTableRegion.focus();
+    let tableHasKeyboardFocus = false;
+    for (let step = 0; step < 60; step += 1) {
+      await page.keyboard.press("Tab");
+      tableHasKeyboardFocus = await domainTableRegion.evaluate(
+        (region) => region === document.activeElement && region.matches(":focus-visible")
+      );
+      if (tableHasKeyboardFocus) break;
+    }
+    if (!tableHasKeyboardFocus) fail("evidence table scroller is not reachable with keyboard navigation");
     const tableFocusShadow = await domainTableRegion.evaluate((region) => getComputedStyle(region).boxShadow);
     if (tableFocusShadow === "none") fail("evidence table scroller has no visible keyboard focus treatment");
     pass("report labels traffic remainder accurately and exposes a focusable evidence scroller");
@@ -481,25 +523,36 @@ async function main() {
 
     await page.setViewportSize({ width: 390, height: 900 });
     await page.goto(`${baseUrl}/`, { waitUntil: "networkidle" });
-    await page.waitForSelector(".static-report-card", { timeout: 10_000 });
+    await loadStaticArchive(page);
     await assertNoHorizontalOverflow(page, "static mobile archive");
     pass("static mobile archive fits viewport");
     await page.goto(`${baseUrl}/sites/${encodeURIComponent(profileKey)}/`, { waitUntil: "networkidle" });
     await assertNoHorizontalOverflow(page, "static mobile site profile");
     pass("static mobile site profile fits viewport");
     await page.goto(`${baseUrl}/reports/${phaseReport.id}/`, { waitUntil: "networkidle" });
+    await page.getByRole("button", { name: "Explore full evidence" }).click();
     await page.waitForSelector(".visit-phase-evidence", { timeout: 10_000 });
     await assertNoHorizontalOverflow(page, "static mobile r2 report");
     pass("static mobile r2 phase report fits viewport");
 
     await page.setViewportSize({ width: 320, height: 900 });
     await page.goto(`${baseUrl}/`, { waitUntil: "networkidle" });
-    await page.waitForSelector(".static-report-card", { timeout: 10_000 });
+    await loadStaticArchive(page);
     await assertNoHorizontalOverflow(page, "static narrow-mobile archive");
     pass("static archive fits a 320px viewport");
     await page.goto(`${baseUrl}/directory/`, { waitUntil: "networkidle" });
     await assertNoHorizontalOverflow(page, "static narrow-mobile directory");
     pass("static directory fits a 320px viewport");
+    await page.goto(`${baseUrl}/reports/${phaseReport.id}/`, { waitUntil: "networkidle" });
+    const narrowReceiptDetails = page.locator("details.evidence-receipt-details");
+    await narrowReceiptDetails.locator("summary").click();
+    await narrowReceiptDetails.locator(".evidence-receipt-run").first().waitFor({ state: "visible" });
+    await assertNoHorizontalOverflow(page, "open evidence receipt at 320px");
+    pass("open evidence receipt fits a 320px viewport");
+    if (failedStaticPrefetches.size > 0) {
+      fail(`static navigation emitted failed RSC prefetches: ${[...failedStaticPrefetches].join(", ")}`);
+    }
+    pass("static navigation emits no failed RSC prefetches");
   } finally {
     await browser.close();
     await new Promise((resolve, reject) => server.close((error) => (error ? reject(error) : resolve())));
@@ -512,6 +565,180 @@ async function readManifest() {
     fail("static report manifest is missing reports");
   }
   return payload;
+}
+
+async function assertStaticRouteBudgets(htmlPath, { label, maxHtmlBytes, maxInitialJsGzipBytes }) {
+  const html = await readFile(htmlPath, "utf8");
+  const htmlBytes = Buffer.byteLength(html, "utf8");
+  if (htmlBytes > maxHtmlBytes) {
+    fail(`${label} HTML is ${htmlBytes} bytes; budget is ${maxHtmlBytes} bytes`);
+  }
+
+  const scripts = Array.from(
+    new Set(Array.from(html.matchAll(/<script\b[^>]*\bsrc="([^"]+\.js(?:\?[^\"]*)?)"/g), (match) => match[1]))
+  );
+  let compressedBytes = 0;
+  for (const source of scripts) {
+    let pathname;
+    try {
+      pathname = decodeURIComponent(new URL(source, "https://sitebehavior.org").pathname);
+    } catch {
+      fail(`${label} emitted an invalid initial script URL: ${source}`);
+    }
+    const relative = pathname.replace(/^\/+/, "").replace(new RegExp(`^${escapeRegex(basePath.replace(/^\/+/, ""))}/`), "");
+    const assetPath = path.join(outDir, relative);
+    const asset = await readFile(assetPath);
+    compressedBytes += gzipSync(asset, { level: 9 }).byteLength;
+  }
+  if (compressedBytes > maxInitialJsGzipBytes) {
+    fail(`${label} initial JavaScript is ${compressedBytes} gzip bytes; budget is ${maxInitialJsGzipBytes} bytes`);
+  }
+  pass(`${label} stays within HTML and initial-JavaScript budgets`);
+}
+
+function escapeRegex(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+async function assertStaticSeoContract(manifest, firstReport) {
+  const configuredOrigin = process.env.NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SITE_URL?.trim();
+  if (!configuredOrigin) fail("static SEO contract requires NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SITE_URL");
+  const origin = new URL(configuredOrigin).origin;
+  if (origin.startsWith("http://") || /\/\/(?:localhost|127\.0\.0\.1)(?::|$)/.test(origin)) {
+    fail("static SEO contract received a non-public origin");
+  }
+  const publicBase = `${origin}${basePath}`;
+  const homeUrl = `${publicBase}/`;
+  const reportUrl = `${publicBase}/reports/${firstReport.id}/`;
+  const profileKey = staticProfileKey(firstReport.domain);
+  if (!profileKey) fail(`cannot derive a canonical site profile from ${firstReport.domain}`);
+  const profileUrl = `${publicBase}/sites/${encodeURIComponent(profileKey)}/`;
+
+  const homeHtml = await readFile(path.join(outDir, "index.html"), "utf8");
+  const reportHtml = await readFile(path.join(outDir, "reports", firstReport.id, "index.html"), "utf8");
+  const profileHtml = await readFile(path.join(outDir, "sites", profileKey, "index.html"), "utf8");
+  assertCanonicalAndSocialUrl(homeHtml, homeUrl, "home");
+  assertCanonicalAndSocialUrl(reportHtml, reportUrl, "permanent report");
+  assertCanonicalAndSocialUrl(profileHtml, profileUrl, "site profile");
+  assertTrailingSlashProfileLinks(reportHtml, "permanent report");
+  for (const route of ["directory", "glossary", "methodology", "privacy", "status", "security", "corrections", "catalog"]) {
+    const routeUrl = `${publicBase}/${route}/`;
+    const routeHtml = await readFile(path.join(outDir, route, "index.html"), "utf8");
+    assertCanonicalAndSocialUrl(routeHtml, routeUrl, route);
+  }
+  const directoryHtml = await readFile(path.join(outDir, "directory", "index.html"), "utf8");
+  assertTrailingSlashProfileLinks(directoryHtml, "directory");
+  if (/name="robots" content="[^"]*noindex/i.test(reportHtml)) {
+    fail("permanent report was emitted with noindex");
+  }
+  const reportDescription = metaContent(reportHtml, "name", "description");
+  if (!reportDescription || reportDescription.length > 160 || !reportDescription.includes("not a verdict")) {
+    fail("permanent report description is missing, too long, or omits the evidence caveat");
+  }
+
+  const sitemapXml = await readFile(path.join(outDir, "sitemap.xml"), "utf8");
+  if (sitemapXml.includes("localhost") || sitemapXml.includes("127.0.0.1")) {
+    fail("sitemap contains a development origin");
+  }
+  const reportEntry = sitemapUrlEntry(sitemapXml, reportUrl);
+  const profileEntry = sitemapUrlEntry(sitemapXml, profileUrl);
+  const expectedScanDate = firstReport.scannedAt.slice(0, 10);
+  const expectedProfileDate = manifest.reports
+    .filter((report) => staticProfileKey(report.domain) === profileKey)
+    .map((report) => report.scannedAt)
+    .filter((value) => Number.isFinite(Date.parse(value)))
+    .sort((left, right) => Date.parse(right) - Date.parse(left))[0]
+    ?.slice(0, 10);
+  if (!reportEntry.includes(`<lastmod>${expectedScanDate}`)) fail("report sitemap date is not derived from its scan");
+  if (!expectedProfileDate || !profileEntry.includes(`<lastmod>${expectedProfileDate}`)) {
+    fail("profile sitemap date is not derived from its latest scan");
+  }
+  for (const route of ["status", "security", "corrections", "catalog"]) {
+    sitemapUrlEntry(sitemapXml, `${publicBase}/${route}/`);
+  }
+  const paginatedDirectoryMatch = sitemapXml.match(/<loc>([^<]*\/directory\/page\/2\/)<\/loc>/);
+  if (paginatedDirectoryMatch) {
+    const paginatedHtml = await readFile(path.join(outDir, "directory", "page", "2", "index.html"), "utf8");
+    assertCanonicalAndSocialUrl(paginatedHtml, paginatedDirectoryMatch[1], "paginated directory");
+  }
+  const categoryMatch = sitemapXml.match(/<loc>([^<]*\/categories\/[^<]+\/)<\/loc>/);
+  if (!categoryMatch) fail("sitemap omits every quality-gated category page");
+  const categoryPath = new URL(categoryMatch[1]).pathname.replace(basePath, "").replace(/^\//, "").replace(/\/$/, "");
+  const categoryHtml = await readFile(path.join(outDir, ...categoryPath.split("/"), "index.html"), "utf8");
+  assertCanonicalAndSocialUrl(categoryHtml, categoryMatch[1], "category evidence page");
+  assertTrailingSlashProfileLinks(categoryHtml, "category evidence page");
+  const now = Date.now();
+  for (const match of sitemapXml.matchAll(/<lastmod>([^<]+)<\/lastmod>/g)) {
+    const timestamp = Date.parse(match[1]);
+    if (!Number.isFinite(timestamp) || timestamp > now) fail(`sitemap contains an invalid or future lastmod: ${match[1]}`);
+  }
+}
+
+function assertTrailingSlashProfileLinks(html, label) {
+  const hrefs = [...html.matchAll(/href="([^"]*\/sites\/[^"?#]+)"/g)].map((match) => match[1]);
+  if (hrefs.length === 0) fail(`${label} contains no crawlable site-profile links`);
+  const malformed = hrefs.find((href) => !href.endsWith("/"));
+  if (malformed) fail(`${label} emitted a site-profile link without a trailing slash: ${malformed}`);
+}
+
+/** Mirror lib/site-profile.ts without importing TypeScript into this ESM smoke. */
+function staticProfileKey(domain) {
+  const normalized = String(domain ?? "").trim().toLowerCase().replace(/\.+$/, "");
+  if (
+    !normalized ||
+    normalized.length > 253 ||
+    normalized === "unknown" ||
+    normalized.includes("/") ||
+    normalized.includes("\\")
+  ) return null;
+  const labels = normalized.split(".");
+  if (
+    labels.some(
+      (label) =>
+        label === "" ||
+        (label !== "{label}" && !/^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/.test(label))
+    )
+  ) {
+    return null;
+  }
+  const markerSafeHostname = labels.map((label) => (label === "{label}" ? "redacted-label" : label)).join(".");
+  const parsed = parseDomain(markerSafeHostname, { allowPrivateDomains: true });
+  if (!parsed.isIcann && !parsed.isPrivate) return null;
+  if (parsed.domain) {
+    const profile = labels.slice(-parsed.domain.split(".").length).join(".");
+    return profile.includes("{") ? null : profile;
+  }
+  return parsed.publicSuffix === markerSafeHostname && !normalized.includes("{")
+    ? normalized
+    : null;
+}
+
+function assertCanonicalAndSocialUrl(html, expectedUrl, label) {
+  if (!html.includes(`<link rel="canonical" href="${expectedUrl}"`)) {
+    fail(`${label} canonical is missing or does not match ${expectedUrl}`);
+  }
+  if (metaContent(html, "property", "og:url") !== expectedUrl) {
+    fail(`${label} og:url is missing or does not match its canonical`);
+  }
+  if (html.includes("localhost") || html.includes("127.0.0.1")) {
+    fail(`${label} metadata contains a development origin`);
+  }
+}
+
+function metaContent(html, attribute, value) {
+  const escapedValue = value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const match = html.match(new RegExp(`<meta ${attribute}="${escapedValue}" content="([^"]*)"`));
+  return match ? decodeHtmlAttribute(match[1]) : null;
+}
+
+function sitemapUrlEntry(xml, expectedUrl) {
+  const marker = `<loc>${expectedUrl}</loc>`;
+  const markerIndex = xml.indexOf(marker);
+  if (markerIndex < 0) fail(`sitemap omits ${expectedUrl}`);
+  const start = xml.lastIndexOf("<url>", markerIndex);
+  const end = xml.indexOf("</url>", markerIndex);
+  if (start < 0 || end < 0) fail(`sitemap has a malformed entry for ${expectedUrl}`);
+  return xml.slice(start, end + "</url>".length);
 }
 
 /** Select the current longest generated description without depending on any retained claim family. */
@@ -656,6 +883,21 @@ async function expectText(locator, expected) {
     const excerpt = text && text.length > 1_000 ? `${text.slice(0, 500)} ... ${text.slice(-500)}` : (text ?? "");
     fail(`expected text "${expected}" was not found in ${JSON.stringify(excerpt)}`);
   }
+}
+
+async function openHomepageTools(page) {
+  const disclosure = page.locator("details.homepage-tools-disclosure");
+  if ((await disclosure.count()) !== 1) fail("static home is missing its saved-report tools disclosure");
+  if (!(await disclosure.evaluate((element) => element.open))) {
+    await disclosure.locator("summary").click();
+  }
+}
+
+async function loadStaticArchive(page) {
+  await openHomepageTools(page);
+  const loadButton = page.getByRole("button", { name: "Load saved-report tools", exact: true });
+  if ((await loadButton.count()) === 1) await loadButton.click();
+  await page.waitForSelector(".static-gallery, .static-gallery-empty", { timeout: 10_000 });
 }
 
 async function expectCardCount(page, expected) {

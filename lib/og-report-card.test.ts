@@ -14,6 +14,7 @@ import { comparisonArmViews, type ReportView } from "./scan-report-views";
 type OgReportCardModule = {
   OG_REPORT_SUBHEAD_MAX_CHARACTERS: number;
   buildReportCardSubhead: (view: ReportView, headline?: ReportHeadline) => string;
+  buildReportCardAttribution: (view: ReportView, domain?: string) => string;
 };
 
 const reportsDir = path.join(process.cwd(), "public", "reports");
@@ -99,6 +100,22 @@ test("an over-limit Shields OG report keeps its complete qualification in bounde
   assert.match(subhead, /run-to-run variance/);
   assert.ok(subhead.length <= og.OG_REPORT_SUBHEAD_MAX_CHARACTERS);
   assert.doesNotMatch(subhead, /(?:\.\.\.|…)$/);
+});
+
+test("report social-card attribution names the observed site and UTC scan date", () => {
+  const og = loadOgReportCardModule();
+  const view = stableOverLimitShieldsView();
+  const attribution = og.buildReportCardAttribution(view);
+  assert.match(attribution, new RegExp(`^${view.domain.replace(".", "\\.")} · latest visit `));
+  assert.doesNotMatch(attribution, /date not recorded/);
+
+  const withoutDate = structuredClone(view);
+  withoutDate.scannedAt = null;
+  withoutDate.latestRunAt = null;
+  assert.equal(
+    og.buildReportCardAttribution(withoutDate, "example.com"),
+    "example.com · latest visit date not recorded"
+  );
 });
 
 test("every committed OG report has bounded, non-truncated subhead copy", () => {
