@@ -210,7 +210,11 @@ export async function probeTurnstileConfiguration(options: {
   } catch {
     return "unavailable";
   }
-  if (!response.ok) return "unavailable";
+  // Siteverify currently returns its structured input-validation errors with
+  // HTTP 400 as well as HTTP 200. Parse that documented client-error response
+  // so a recognized secret can be distinguished from an invalid one, while
+  // continuing to treat every other HTTP failure as unavailable.
+  if (!response.ok && response.status !== 400) return "unavailable";
 
   let result: unknown;
   try {

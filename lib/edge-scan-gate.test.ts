@@ -75,7 +75,7 @@ test("Turnstile configuration probe distinguishes a valid secret from secret and
     requestInit = init;
     return new Response(
       JSON.stringify({ success: false, "error-codes": ["invalid-input-response"] }),
-      { status: 200, headers: { "content-type": "application/json" } }
+      { status: 400, headers: { "content-type": "application/json" } }
     );
   }) as typeof fetch;
   assert.equal(
@@ -93,7 +93,7 @@ test("Turnstile configuration probe distinguishes a valid secret from secret and
   const invalidSecretFetch = (async () =>
     new Response(
       JSON.stringify({ success: false, "error-codes": ["invalid-input-secret"] }),
-      { status: 200, headers: { "content-type": "application/json" } }
+      { status: 400, headers: { "content-type": "application/json" } }
     )) as typeof fetch;
   assert.equal(
     await probeTurnstileConfiguration({ secret: "wrong-secret", fetchImpl: invalidSecretFetch }),
@@ -112,6 +112,17 @@ test("Turnstile configuration probe distinguishes a valid secret from secret and
     await probeTurnstileConfiguration({
       secret: "valid-secret",
       fetchImpl: (async () => new Response("oops", { status: 502 })) as typeof fetch
+    }),
+    "unavailable"
+  );
+  assert.equal(
+    await probeTurnstileConfiguration({
+      secret: "valid-secret",
+      fetchImpl: (async () =>
+        new Response(
+          JSON.stringify({ success: false, "error-codes": ["invalid-input-response"] }),
+          { status: 429, headers: { "content-type": "application/json" } }
+        )) as typeof fetch
     }),
     "unavailable"
   );
