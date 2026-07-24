@@ -82,6 +82,7 @@
     "tldts": "7.4.9"
   },
   "overrides": {
+    "brace-expansion": "5.0.8",
     "postcss": "8.5.22",
     "sharp": "0.35.3"
   },
