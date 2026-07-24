@@ -1,25 +1,32 @@
 import { loadCorpusOverview } from "@/lib/corpus-overview";
+import { buildCategoryEvidencePages } from "@/lib/directory-view";
 import { isFeaturedSiteConfig } from "@/lib/featured-sites";
 import { buildHomepageDiscovery, type HomepageReportSource } from "@/lib/homepage-discovery";
 import featuredSiteConfigJson from "@/public/featured-sites.json";
 import { SiteBehaviorApp } from "./site-behavior-app";
 
 export default async function Home() {
-  const {
-    entries,
-    rollups,
-    coverageSiteCount,
-    attemptedSiteCount,
-    failedSiteCount,
-    cappedSiteCount
-  } = await loadCorpusOverview();
+  const { entries, coverageSiteCount, attemptedSiteCount, failedSiteCount, cappedSiteCount } =
+    await loadCorpusOverview();
+  // The hero's category medians must be the SAME numbers the reader finds on
+  // /directory/ and on each /categories/<id>/ page. Those pages publish one
+  // cohort per category (the largest), while a corpus-wide rollup mixes a
+  // different site set, so deriving the hero from anything else publishes two
+  // different medians under one label.
+  const categoryPages = buildCategoryEvidencePages(entries);
   const corpusHighlights = {
     attemptedSiteCount,
     loadedSiteCount: coverageSiteCount,
     failedSiteCount,
     cappedSiteCount,
-    eligibleSiteCount: rollups.reduce((total, rollup) => total + rollup.siteCount, 0),
-    topCategories: rollups.slice(0, 4).map((rollup) => ({ label: rollup.label, medianTrackers: rollup.medianTrackers }))
+    eligibleSiteCount: categoryPages.reduce((total, category) => total + category.rollup.siteCount, 0),
+    topCategories: [...categoryPages]
+      .sort(
+        (left, right) =>
+          right.rollup.medianTrackers - left.rollup.medianTrackers || left.label.localeCompare(right.label)
+      )
+      .slice(0, 4)
+      .map((category) => ({ label: category.label, medianTrackers: category.rollup.medianTrackers }))
   };
   if (!isFeaturedSiteConfig(featuredSiteConfigJson)) {
     throw new Error("public/featured-sites.json is not a valid featured site configuration.");

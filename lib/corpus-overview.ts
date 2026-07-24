@@ -1,6 +1,5 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
-import { buildCategoryRollups, type CategoryRollup } from "./category-rollups";
 import type { CompatibilityFingerprint, ComparisonDecision } from "./comparison-decision";
 import { corpusCohortIdentityForView, type CorpusCohortIdentity } from "./corpus-cohort";
 import { preferCorpusRepresentative } from "./corpus-representative";
@@ -37,8 +36,11 @@ export type { ConsentClicks } from "./temporal-report-identity";
 /**
  * Server-only: loads the committed report corpus and derives the index-level views
  * shared by the directory page and the homepage hero, per-report entries, the
- * per-category rollups, the heaviest sites, and the distinct-site count. Metrics
- * use the baseline (off / unprotected) run; one data point per site.
+ * heaviest sites, and the distinct-site count. Per-category medians are NOT
+ * derived here: `buildCategoryEvidencePages` owns them so the homepage,
+ * directory, and category routes cannot publish different numbers for one
+ * category. Metrics use the baseline (off / unprotected) run; one data point
+ * per site.
  *
  * Imported only by server components (it reads the filesystem), so it is never
  * bundled into the client.
@@ -198,13 +200,12 @@ export type CorpusOverview = {
   entries: DirectoryEntry[];
   /** Valid public report routes and their newest recorded run, sorted by ID for stable sitemap output. */
   sitemapReports: { id: string; lastModifiedAt: string }[];
-  rollups: CategoryRollup[];
   heaviest: DirectoryEntry[];
-  /** Exact cohort used for rollups, leaderboard, and siteCount; null when no eligible rows exist. */
+  /** Exact cohort used for the leaderboard and siteCount; null when no eligible rows exist. */
   aggregateCohort: CorpusCohortIdentity | null;
   /**
    * Distinct sites in aggregateCohort's passive sample (loaded, uncapped, no
-   * post-choice consent lead): the basis of rollups and the leaderboard.
+   * post-choice consent lead): the basis of the leaderboard.
    */
   siteCount: number;
   /**
@@ -304,16 +305,6 @@ async function buildCorpusOverview(): Promise<CorpusOverview> {
   const aggregate = selectAggregateCorpusCohort(measuredLoaded.map(({ entry }) => entry));
   const sites = selectSiteDataPoints(aggregate.entries);
 
-  const rollups = buildCategoryRollups(
-    sites.map((site) => ({
-      category: site.category,
-      categoryLabel: site.categoryLabel,
-      trackerRequests: site.trackerRequests,
-      thirdPartyRequests: site.thirdPartyRequests,
-      thirdPartyCookies: site.cookieEvidenceComplete ? site.thirdPartyCookies : null,
-      shieldsThirdPartyChange: site.shieldsThirdPartyChange
-    }))
-  );
   const heaviest = [...sites]
     .filter((site) => site.trackerRequests > 0)
     .sort((a, b) => b.trackerRequests - a.trackerRequests)
@@ -327,7 +318,6 @@ async function buildCorpusOverview(): Promise<CorpusOverview> {
   return {
     entries,
     sitemapReports,
-    rollups,
     heaviest,
     aggregateCohort: aggregate.cohort,
     siteCount: sites.length,

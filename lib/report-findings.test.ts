@@ -14,7 +14,14 @@ import {
   makeShieldsInterventionReportV2R2
 } from "./scan-report-v2-r2-fixtures";
 import { makePublicSingleReportV2 } from "./scan-report-v2-fixtures";
-import { viewFromV1Report, viewFromV2 } from "./scan-report-views";
+import {
+  displayRunView,
+  familyCensoredOnRun,
+  requestEvidenceState,
+  runCensorshipNotes,
+  viewFromV1Report,
+  viewFromV2
+} from "./scan-report-views";
 import {
   SCAN_REPORT_SCHEMA_VERSION,
   type DomainSummary,
@@ -1154,4 +1161,69 @@ test("an ineligible pair is a methodology note: prose reasons, and no bottom-lin
   const bottom = byId(findings, "bottom-line");
   assert.equal(bottom.title, "Bottom line: few review signals in this visit");
   assert.equal(bottom.level, "ok");
+});
+
+test("a post-choice consent arm is never ranked against the plain-first-visit distribution", () => {
+  // corpus-stats-builder, entryEligibleForCorpusRollups, and the researcher
+  // export all exclude an accept-all or reject-all lead from the denominator.
+  // The findings board is the fourth consumer and must apply the same rule, or
+  // it ranks an accepted-cookies state against a pre-consent population.
+  const corpus = makeCorpus(60);
+  const observed = makeResult({
+    firstPartyDomain: "consented.example",
+    domains: [makeTrackerDomain("ads.example", 40, "AdCo", "advertising")],
+    thirdPartyDomains: 24,
+    thirdPartyCookies: 14
+  });
+  const observedFindings = buildFindings(viewFromV1Report(observed), corpus);
+  assert.notEqual(byId(observedFindings, "third-party-services").benchmark, undefined);
+  assert.notEqual(byId(observedFindings, "third-party-cookies").benchmark, undefined);
+
+  for (const consentMode of ["accept-all", "reject-all"] as const) {
+    const postChoice: ScanResult = { ...observed, conditions: { ...observed.conditions, consentMode } };
+    const findings = buildFindings(viewFromV1Report(postChoice), corpus);
+    assert.equal(byId(findings, "third-party-services").benchmark, undefined);
+    assert.equal(byId(findings, "third-party-cookies").benchmark, undefined);
+  }
+});
+
+test("every exhausted v1 budget censors the evidence families, not only the request cap", () => {
+  // The response-byte and upload-byte budgets tear down proxied traffic the
+  // same way the request cap does, so a byte-capped run must not be ranked or
+  // allowed to publish an unhedged absence claim either.
+  const corpus = makeCorpus(60);
+  const budgets = [
+    "The scan stopped loading additional response bytes after reaching the 64 MiB aggregate response-byte budget.",
+    "The scan stopped forwarding additional request bytes after reaching the 8 MiB aggregate upload-byte budget."
+  ];
+
+  for (const warning of budgets) {
+    const result = makeResult({ firstPartyDomain: "truncated.example", thirdPartyDomains: 7 });
+    const capped: ScanResult = { ...result, warnings: [warning] };
+    const view = viewFromV1Report(capped);
+    assert.equal(familyCensoredOnRun(displayRunView(view), "requests"), true);
+    assert.equal(requestEvidenceState(displayRunView(view)), "incomplete");
+
+    const findings = buildFindings(view, corpus);
+    assert.equal(byId(findings, "third-party-services").benchmark, undefined);
+    assert.match(byId(findings, "third-party-cookies").detail, /cut short/);
+  }
+});
+
+test("a budget reason the note table does not enumerate still reads as prose", () => {
+  const result = makeResult({ firstPartyDomain: "truncated.example" });
+  const capped: ScanResult = {
+    ...result,
+    warnings: ["The scan stopped loading additional response bytes after reaching the 64 MiB aggregate response-byte budget."]
+  };
+  const notes = runCensorshipNotes(displayRunView(viewFromV1Report(capped)));
+  assert.equal(notes.length > 0, true);
+  for (const note of notes) {
+    // The raw wire slug must never reach the reader.
+    assert.doesNotMatch(note, /budget-exhausted:/);
+  }
+  assert.equal(
+    notes.some((note) => note.includes("response-byte budget")),
+    true
+  );
 });

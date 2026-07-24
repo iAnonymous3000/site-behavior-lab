@@ -1016,8 +1016,29 @@ export function comparisonDiffView(view: ReportView): ComparisonDiff | null {
 
 /** Human phrasing for the recorded quality-reason vocabulary (RFC 5.3). */
 const QUALITY_REASON_NOTES: Record<string, string> = {
-  "budget-exhausted:request-cap": "the visit hit the scanner's request-recording cap, so its counts are truncated"
+  "budget-exhausted:request-cap": "the visit hit the scanner's request-recording cap, so its counts are truncated",
+  "budget-exhausted:response-byte-cap":
+    "the visit hit the scanner's total response-byte budget, so it stopped loading further content",
+  "budget-exhausted:upload-byte-cap":
+    "the visit hit the scanner's total request-byte budget, so it stopped forwarding further uploads"
 };
+
+/**
+ * v2 records a budget per named collection (`budget-exhausted:public-pixel-events`
+ * and similar), an open vocabulary no lookup table can enumerate. Say what
+ * happened in plain words rather than printing the slug at the reader, and do
+ * not claim a v1 run "recorded" anything: its quality is derived from status
+ * and warnings, never observed.
+ */
+function qualityReasonNote(run: RunView, reason: string): string {
+  const mapped = QUALITY_REASON_NOTES[reason];
+  if (mapped) return mapped;
+  const budget = reason.startsWith("budget-exhausted:") ? reason.slice("budget-exhausted:".length) : null;
+  if (budget) return `the visit exhausted its ${budget.replace(/-/g, " ")} collection budget`;
+  return run.quality.origin === "legacy-derived"
+    ? `the visit shows a quality limitation derived from its status and warnings (${reason})`
+    : `the run recorded a quality limitation (${reason})`;
+}
 
 /**
  * Human-readable notes on evidence the run did NOT finish collecting: budget
@@ -1031,7 +1052,7 @@ export function runCensorshipNotes(run: RunView): string[] {
   const notes: string[] = [];
   for (const reason of run.quality.reasons) {
     if (reason === "http-error-status") continue;
-    notes.push(QUALITY_REASON_NOTES[reason] ?? `the run recorded a quality limitation (${reason})`);
+    notes.push(qualityReasonNote(run, reason));
   }
   if (run.quality.byFamily) {
     for (const [family, entry] of Object.entries(run.quality.byFamily)) {
@@ -1094,11 +1115,17 @@ export function runUnsupportedEvidenceNotes(run: RunView): string[] {
  */
 export function familyCensoredOnRun(run: RunView, family: string): boolean {
   if (run.quality.byFamily) return run.quality.byFamily[family]?.outcome === "censored";
-  // The v1 request cap aborts every subsequent network load, which also
-  // suppresses the scripts that would have set cookies, written storage,
-  // fired pixels, or called fingerprinting APIs, so a capped v1 run censors
-  // EVERY evidence family, not just the request log.
-  return run.quality.reasons.includes("budget-exhausted:request-cap");
+  // ANY exhausted v1 budget aborts the rest of the load, which also suppresses
+  // the scripts that would have set cookies, written storage, fired pixels, or
+  // called fingerprinting APIs, so a budgeted v1 run censors EVERY evidence
+  // family, not just the request log. The request cap is only the most common
+  // of the three: the response-byte and upload-byte budgets tear down proxied
+  // traffic the same way (lib/public-scan-proxy.ts), and v2 records exactly
+  // that as a `requests` capture loss. Restricting this to the request cap
+  // left one definition of "incomplete request evidence" here and a wider one
+  // in `runRequestEvidenceCapped`, so a byte-capped run was simultaneously
+  // published as "cut short" and ranked against a corpus percentile.
+  return run.quality.reasons.some((reason) => reason.startsWith("budget-exhausted:"));
 }
 
 const REQUEST_RECORDING_CAP_WARNING_FRAGMENT = "stopped recording or loading additional requests";

@@ -26,8 +26,13 @@ const ISSUES_URL = "https://github.com/iAnonymous3000/site-behavior-lab/issues";
 
 export default async function StatusPage() {
   const overview = await loadCorpusOverview();
+  // The card's own sentence reports `siteCount`, which counts only the
+  // aggregate cohort. Dating it from any eligible row would certify the
+  // freshness of the aggregates using a report those aggregates exclude, so
+  // the timestamp is scoped to the same cohort the number describes.
+  const aggregateCohortId = overview.aggregateCohort?.id ?? null;
   const latestEligibleEvidence = overview.entries
-    .filter(entryEligibleForCorpusRollups)
+    .filter((entry) => entryEligibleForCorpusRollups(entry) && entry.corpusCohort.id === aggregateCohortId)
     .map((entry) => entry.scannedAt)
     .filter((value) => Number.isFinite(Date.parse(value)))
     .sort((left, right) => Date.parse(right) - Date.parse(left))[0] ?? null;
@@ -60,7 +65,7 @@ export default async function StatusPage() {
               {overview.siteCount.toLocaleString()} distinct sites currently qualify for corpus aggregates;{" "}
               {overview.coverageSiteCount.toLocaleString()} sites have at least one successful load.
             </p>
-            <p className="status-note">Current means no more than eight days old. It does not mean every site was refreshed in that window.</p>
+            <p className="status-note">This date and this site count both describe the single measurement cohort the corpus aggregates use. Current means no more than eight days old. It does not mean every site was refreshed in that window.</p>
           </article>
 
           <article className="status-card">

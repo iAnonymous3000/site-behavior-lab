@@ -186,8 +186,17 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
   // both, so censoring in either hedges it.
   const detectorCensored = familyCensoredOnRun(run, "detector-output") || familyCensoredOnRun(run, "fingerprinting");
   const runCompleted = run.quality.outcome === "complete";
-  const domainsBenchmarkAllowed = runCompleted && !requestsCensored;
-  const cookiesBenchmarkAllowed = runCompleted && !cookiesUnsupported && !cookiesCensored;
+  // The distribution these percentiles rank against is built from plain first
+  // visits only: corpus-stats-builder, entryEligibleForCorpusRollups, and the
+  // researcher export all drop a post-choice consent arm from the denominator.
+  // Ranking such an arm against it compares an accepted-cookies state to a
+  // pre-consent population, in the direction that inflates the rank, on the
+  // very page whose own bottom line says post-choice visits are excluded.
+  const postChoiceConsentLead =
+    run.conditions.consentMode === "accept-all" || run.conditions.consentMode === "reject-all";
+  const benchmarkPopulationMatches = runCompleted && !postChoiceConsentLead;
+  const domainsBenchmarkAllowed = benchmarkPopulationMatches && !requestsCensored;
+  const cookiesBenchmarkAllowed = benchmarkPopulationMatches && !cookiesUnsupported && !cookiesCensored;
   // Corpus percentiles when available + large enough; otherwise fixed thresholds.
   const domainsBenchmark = domainsBenchmarkAllowed
     ? corpusBenchmark(corpus, "thirdPartyDomains", run.counts.thirdPartyDomains)

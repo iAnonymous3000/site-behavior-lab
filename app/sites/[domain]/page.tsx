@@ -106,7 +106,15 @@ export default async function SiteProfilePage({ params }: { params: Promise<{ do
         <dl className="site-profile-metrics">
           <div><dt>Third-party requests</dt><dd>{latest.thirdPartyRequests.toLocaleString()}</dd></div>
           <div><dt>Catalogued tracking requests</dt><dd>{latest.trackerRequests.toLocaleString()}</dd></div>
-          <div><dt>Third-party cookies</dt><dd>{latest.thirdPartyCookies.toLocaleString()}</dd></div>
+          {/* The directory and the category pages already withhold this count
+              when the cookie family was censored mid-collection. Publishing a
+              bare number here made the two surfaces disagree about the same
+              record (live example: /sites/usatoday.com/ showed 208 while
+              /directory/ showed "Not measured" for that exact report). */}
+          <div>
+            <dt>Third-party cookies</dt>
+            <dd>{latest.cookieEvidenceComplete ? latest.thirdPartyCookies.toLocaleString() : "Not measured"}</dd>
+          </div>
         </dl>
       </section>
 
