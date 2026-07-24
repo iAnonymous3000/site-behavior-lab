@@ -35,24 +35,26 @@ function registry1ShieldsReport() {
   return report;
 }
 
-function evaluator1ConsentMissingClickReport() {
+function evaluator1ConsentMissingClickReport(missingArms: ("baseline" | "variant")[] = ["variant"]) {
   const report = makeConsentInterventionReportV2R2();
   if (report.experiment.kind !== "intervention") throw new Error("expected intervention fixture");
-  const consent = report.variant.evidence.consent;
-  if (consent === undefined) throw new Error("expected consent evidence");
-  consent.controlActivated = false;
-  consent.verificationObservations = [];
-  consent.choiceState = "unavailable";
-  consent.reverifiedAfterReload = false;
-  delete consent.bannerTransition;
-  report.experiment.verification.variant = {
-    axis: "consent",
-    expected: "consent:reject-all",
-    observed: null,
-    method: "consent-verification-unavailable@1",
-    outcome: "inconclusive",
-    phaseId: 1
-  };
+  for (const arm of missingArms) {
+    const consent = report[arm].evidence.consent;
+    if (consent === undefined) throw new Error("expected consent evidence");
+    consent.controlActivated = false;
+    consent.verificationObservations = [];
+    consent.choiceState = "unavailable";
+    consent.reverifiedAfterReload = false;
+    delete consent.bannerTransition;
+    report.experiment.verification[arm] = {
+      axis: "consent",
+      expected: arm === "baseline" ? "consent:accept-all" : "consent:reject-all",
+      observed: null,
+      method: "consent-verification-unavailable@1",
+      outcome: "inconclusive",
+      phaseId: 1
+    };
+  }
   report.comparability = evaluateComparabilityR2(
     report.experiment,
     report.baseline,
@@ -123,6 +125,34 @@ test("evaluator-1 consent reports stay readable but a missing click exposes no d
     true
   );
   assert.match(view.claims.decision?.reasons.join(" ") ?? "", /controls were not activated/);
+});
+
+test("the evaluator-1 consent backstop refuses whichever arm's click is missing", () => {
+  // The reader-side gate is a disjunction, so a fixture that only ever drops
+  // the reject arm's click cannot exercise the accept term. A regression that
+  // deleted the baseline check would publish a pair whose accept-all click was
+  // never dispatched as a comparable accept-versus-reject delta, and the whole
+  // suite would stay green.
+  for (const missingArms of [["baseline"], ["variant"], ["baseline", "variant"]] as ("baseline" | "variant")[][]) {
+    const label = missingArms.join("+");
+    const historical = evaluator1ConsentMissingClickReport(missingArms);
+    assert.equal(historical.comparability.evaluatorVersion, "1", label);
+    assert.equal(historical.comparability.pairValidity.eligible, true, label);
+
+    const read = readStoredScanReport(historical);
+    assert.equal(read.ok, true, `${label}: ${JSON.stringify(!read.ok ? read.violations : [])}`);
+    if (!read.ok) continue;
+
+    const view = toReportView(read.stored);
+    assert.equal(view.claims.decision?.mode, "raw-only", label);
+    assert.equal(view.claims.familyDeltas?.["raw-counts"].allowed, false, label);
+    assert.equal(
+      Object.values(view.claims.decision?.families ?? {}).every((family) => family.mode === "raw-only"),
+      true,
+      label
+    );
+    assert.match(view.claims.decision?.reasons.join(" ") ?? "", /controls were not activated/, label);
+  }
 });
 
 test("registry-2 rejects a forged comparable Shields family", () => {

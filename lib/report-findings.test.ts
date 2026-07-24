@@ -1227,3 +1227,29 @@ test("a budget reason the note table does not enumerate still reads as prose", (
     true
   );
 });
+
+test("a reject arm whose request evidence was cut short never gets the reassuring consent card", () => {
+  // "No catalogued trackers" is an absence claim over the reject visit's
+  // request log. Censored collection makes that a floor, not reassurance, and
+  // nothing in the suite covered the guard that says so: it could be deleted
+  // outright and every test stayed green.
+  const baseline = viewFromV2(makeConsentInterventionReportV2R2(), 2);
+  const reassuringCard = byId(buildFindings(baseline, null), "consent-comparison");
+  assert.equal(reassuringCard.icon, "shield-check");
+  assert.equal(reassuringCard.level, "ok");
+  assert.match(reassuringCard.title, /had no catalogued trackers/);
+
+  const view = viewFromV2(makeConsentInterventionReportV2R2(), 2);
+  const variant = view.runs.find((run) => run.label === "variant");
+  if (!variant) throw new Error("fixture invariant");
+  variant.quality.byFamily = {
+    ...(variant.quality.byFamily ?? {}),
+    requests: { outcome: "censored", reasons: ["budget-exhausted:public-request-records"] }
+  };
+
+  const card = byId(buildFindings(view, null), "consent-comparison");
+  assert.notEqual(card.icon, "shield-check");
+  assert.equal(card.level, "info");
+  assert.match(card.title, /cut short/);
+  assert.match(card.detail, /covers only what was recorded before the cutoff/);
+});
