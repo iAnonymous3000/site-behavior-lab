@@ -9,6 +9,18 @@ const ROOT = process.cwd();
 const RELEASE_SCRIPT = path.join(ROOT, "scripts", "release-evidence.mjs");
 const PROVENANCE_SCRIPT = path.join(ROOT, "scripts", "static-deployment-provenance.mjs");
 
+// scripts/release-evidence.mjs is a host-only release tool: it refuses to run
+// under any runtime other than the declared repository toolchain, by design.
+// The runtime container image pins its own newer Node from the Playwright
+// base, so inside the image's `npm run check` that refusal fires before the
+// behaviors below can be reached. State that environmental precondition as an
+// explicit skip; every host lane (CI runners, release machines) runs these.
+const HOST_TOOLCHAIN_NODE = "24.14.1";
+const hostToolchainSkip =
+  process.versions.node === HOST_TOOLCHAIN_NODE
+    ? false
+    : `release evidence runs only under the declared host Node ${HOST_TOOLCHAIN_NODE}; this runtime is ${process.versions.node}`;
+
 test("repository metadata truthfully describes one private development line", async () => {
   const manifest = JSON.parse(await source("package.json"));
   const lock = JSON.parse(await source("package-lock.json"));
@@ -103,7 +115,7 @@ test("container and CI source contracts preserve exact-SHA evidence after the re
   );
 });
 
-test("static evidence is deterministic and changes on artifact tampering", async (t) => {
+test("static evidence is deterministic and changes on artifact tampering", { skip: hostToolchainSkip }, async (t) => {
   const fixture = await makeFixture(t);
   const firstPath = await temporaryReceipt(t);
   const secondPath = await temporaryReceipt(t);
@@ -144,7 +156,7 @@ test("static evidence is deterministic and changes on artifact tampering", async
   assert.match(wrongMarker.stderr, /deployment\.json must identify the exact clean source commit/);
 });
 
-test("evidence refuses dirty source and inconsistent release metadata", async (t) => {
+test("evidence refuses dirty source and inconsistent release metadata", { skip: hostToolchainSkip }, async (t) => {
   const dirtyFixture = await makeFixture(t);
   await writeFile(path.join(dirtyFixture.root, "package.json"), "{}\n");
   const dirty = runEvidence(dirtyFixture.root, ["--static-dir", "out"]);
@@ -163,7 +175,7 @@ test("evidence refuses dirty source and inconsistent release metadata", async (t
   assert.match(taggedResult.stderr, /Development release policy conflicts with existing tag v0\.1\.0/);
 });
 
-test("container evidence requires exact identity and isolated Node/npm runtime probes", async (t) => {
+test("container evidence requires exact identity and isolated Node/npm runtime probes", { skip: hostToolchainSkip }, async (t) => {
   const fixture = await makeFixture(t);
   const helperRoot = await mkdtemp(path.join(os.tmpdir(), "site-behavior-lab-fake-docker-"));
   t.after(() => rm(helperRoot, { recursive: true, force: true }));
@@ -301,7 +313,7 @@ process.stdout.write(JSON.stringify([{
   assert.match(wrongNpm.stderr, /requires npm 11\.13\.0, not 11\.14\.0/);
 });
 
-test("evidence paths cannot escape through artifact or output symlinks", async (t) => {
+test("evidence paths cannot escape through artifact or output symlinks", { skip: hostToolchainSkip }, async (t) => {
   const fixture = await makeFixture(t);
   const external = await mkdtemp(path.join(os.tmpdir(), "site-behavior-lab-release-links-"));
   t.after(() => rm(external, { recursive: true, force: true }));
@@ -352,7 +364,7 @@ test("evidence paths cannot escape through artifact or output symlinks", async (
   assert.equal(await readFile(existingRegular, "utf8"), "keep me\n");
 });
 
-test("evidence rejects source mutation during container inspection and leaves no receipt", async (t) => {
+test("evidence rejects source mutation during container inspection and leaves no receipt", { skip: hostToolchainSkip }, async (t) => {
   const fixture = await makeFixture(t);
   const helperRoot = await mkdtemp(path.join(os.tmpdir(), "site-behavior-lab-mutating-docker-"));
   t.after(() => rm(helperRoot, { recursive: true, force: true }));
