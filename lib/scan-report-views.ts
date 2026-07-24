@@ -14,7 +14,12 @@ import {
   v2ComparisonDecision,
   type ComparisonDecision
 } from "./comparison-decision";
-import { runHitRequestCap, runHitResponseByteCap, runHitUploadByteCap } from "./comparison-eligibility";
+import {
+  runHitFingerprintObserverCaptureLoss,
+  runHitRequestCap,
+  runHitResponseByteCap,
+  runHitUploadByteCap
+} from "./comparison-eligibility";
 import { summarizeDomains } from "./domain-summaries";
 import { recordedPlaywrightVersion } from "./legacy-methodology";
 import type {
@@ -550,6 +555,9 @@ function runViewFromV1(result: ScanResult, label: RunView["label"], scannedAt: s
   if (runHitRequestCap(result)) reasons.push("budget-exhausted:request-cap");
   if (runHitResponseByteCap(result)) reasons.push("budget-exhausted:response-byte-cap");
   if (runHitUploadByteCap(result)) reasons.push("budget-exhausted:upload-byte-cap");
+  // Not a budget: the instrument itself did not run. Scoped to the families it
+  // actually covers rather than censoring the whole run.
+  if (runHitFingerprintObserverCaptureLoss(result)) reasons.push("capture-loss:fingerprint-observer");
   return {
     label,
     domain: result.summary.firstPartyDomain,
@@ -1020,7 +1028,9 @@ const QUALITY_REASON_NOTES: Record<string, string> = {
   "budget-exhausted:response-byte-cap":
     "the visit hit the scanner's total response-byte budget, so it stopped loading further content",
   "budget-exhausted:upload-byte-cap":
-    "the visit hit the scanner's total request-byte budget, so it stopped forwarding further uploads"
+    "the visit hit the scanner's total request-byte budget, so it stopped forwarding further uploads",
+  "capture-loss:fingerprint-observer":
+    "the in-page fingerprint observer could not read every frame, so the fingerprinting evidence is incomplete"
 };
 
 /**
@@ -1125,7 +1135,14 @@ export function familyCensoredOnRun(run: RunView, family: string): boolean {
   // left one definition of "incomplete request evidence" here and a wider one
   // in `runRequestEvidenceCapped`, so a byte-capped run was simultaneously
   // published as "cut short" and ranked against a corpus percentile.
-  return run.quality.reasons.some((reason) => reason.startsWith("budget-exhausted:"));
+  if (run.quality.reasons.some((reason) => reason.startsWith("budget-exhausted:"))) return true;
+  // A capture loss is narrower than an exhausted budget: it names the one
+  // instrument that failed, so it censors only the families that instrument
+  // feeds. A dead fingerprint observer says nothing about the request log.
+  return (
+    (family === "fingerprinting" || family === "detector-output") &&
+    run.quality.reasons.includes("capture-loss:fingerprint-observer")
+  );
 }
 
 const REQUEST_RECORDING_CAP_WARNING_FRAGMENT = "stopped recording or loading additional requests";

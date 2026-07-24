@@ -372,6 +372,24 @@ does not reuse `PreparedScanRequest` verbatim.
   and is hard-bounded to 75 minutes. Cloudflare platform recovery snapshots may
   retain application-encrypted copies until their own retention window expires.
 
+#### Activation gate: bound in-flight uncommitted preparations
+
+The durable admission path preflights quota with a *peek*
+(`assertDeferredScanRateLimitAvailable`) and charges it atomically only inside
+`admitDurablePreparation`, which runs after the request has crossed to Node
+`/prepare`. Quota integrity is preserved because the Durable Object serializes
+the commits, but the preparation work between the peek and the commit is not
+bounded by anything: N concurrent requests can all clear the peek, all perform
+preparation (including a fresh DNS resolution of the caller's target), and only
+then lose the race. Turnstile redemption is idempotent per capability by
+design, so a single solved token replayed concurrently reaches the peek N times
+and no committed admission exists yet to deduplicate them.
+
+Before `SITE_BEHAVIOR_LAB_DURABLE_JOBS=1`, either reserve the quota slot at
+admission time and release it on failure, or cap concurrent uncommitted
+preparations per capability hash. The live synchronous path is unaffected: it
+charges atomically up front (`chargeMode: "charge"`).
+
 #### Scheduled liveness and fenced leases
 
 - The Durable Object enforces the aggregate queue cap and claims oldest-first.

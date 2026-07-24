@@ -26,6 +26,7 @@ import { corpusBenchmark, corpusIsUsable, selectCorpusStatsCohort, type CorpusSt
 import {
   HEADLINE_PLATFORMS,
   crossSiteListenerDetection,
+  type CrossSiteListenerDetection,
   detectionEvidence,
   detectionLabel,
   fingerprintDetection,
@@ -583,13 +584,24 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
   const sessionRecordingDetection = crossSiteListenerDetection(run.evidence, "session-recording");
   const inputMonitoringDetection = crossSiteListenerDetection(run.evidence, "input-monitoring");
   if (sessionRecordingDetection || inputMonitoringDetection || sessionReplayNames.length > 0) {
+    // The probe reports one listener-call total across every origin it
+    // attributed. When same-site origins were filtered out of that set, the
+    // total still covers them, so binding it to the narrowed names would
+    // credit calls to third parties that did not make them.
+    const listenerNote = (
+      entry: CrossSiteListenerDetection | undefined,
+      noun: "third-party interaction listener" | "third-party input listener"
+    ): string => {
+      if (!entry) return "";
+      const names = humanList(entry.detection.evidence.thirdPartyOrigins);
+      const calls = entry.detection.evidence.totalListenerCalls;
+      return entry.originsNarrowed
+        ? `${plural(calls, noun.replace("third-party ", ""))} attributed across ${names} and same-site origins the probe could not separate`
+        : `${plural(calls, noun)} from ${names}`;
+    };
     const behaviorNotes = [
-      sessionRecordingDetection
-        ? `${plural(sessionRecordingDetection.evidence.totalListenerCalls, "third-party interaction listener")} from ${humanList(sessionRecordingDetection.evidence.thirdPartyOrigins)}`
-        : "",
-      inputMonitoringDetection
-        ? `${plural(inputMonitoringDetection.evidence.totalListenerCalls, "third-party input listener")} from ${humanList(inputMonitoringDetection.evidence.thirdPartyOrigins)}`
-        : "",
+      listenerNote(sessionRecordingDetection, "third-party interaction listener"),
+      listenerNote(inputMonitoringDetection, "third-party input listener"),
       sessionReplayNames.length > 0 ? `known session-replay vendor(s): ${humanList(sessionReplayNames)}` : ""
     ].filter(Boolean);
     const replayCorroborated = Boolean(sessionRecordingDetection && sessionReplayNames.length > 0);

@@ -37,6 +37,7 @@ const UPLOAD_BYTE_CAP_WARNING_FRAGMENT = "stopped forwarding additional request 
 // would pull scanner-only dependencies into every report reader. Tests pin the
 // fragments to the producer's exact warning vocabulary.
 const GPC_WORKER_CAPTURE_LOSS_WARNING_FRAGMENT = "Web Workers while applying the simulated GPC signal";
+const FINGERPRINT_OBSERVER_WARNING_FRAGMENT = "in-page fingerprint observer could not read one or more frames";
 const INVALID_UPSTREAM_RESPONSE_WARNING_FRAGMENT = "scan proxy rejected one or more invalid upstream responses";
 const PROXY_TRAFFIC_BUDGET_WARNING_FRAGMENT = "connection and target safety budget";
 
@@ -372,6 +373,16 @@ function runHitProxyTrafficBudget(run: ScanResult): boolean {
  * "Capped" export name is retained for reader compatibility; capture loss can
  * also come from Worker instrumentation or an invalid upstream response.
  */
+/**
+ * Whether a legacy run's in-page fingerprint observer failed to read every
+ * frame it attempted. v2 records this as a `fingerprinting` capture loss; on
+ * v1 the warning is the only channel, and without it a dead observer is
+ * indistinguishable from a clean observation of nothing.
+ */
+export function runHitFingerprintObserverCaptureLoss(run: Pick<ScanResult, "warnings">): boolean {
+  return run.warnings.some((warning) => warning.includes(FINGERPRINT_OBSERVER_WARNING_FRAGMENT));
+}
+
 export function runRequestEvidenceCapped(run: ScanResult): boolean {
   return (
     runHitRequestCap(run) ||

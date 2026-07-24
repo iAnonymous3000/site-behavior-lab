@@ -5,7 +5,7 @@ import { corpusCohortIdentityForView } from "./corpus-cohort";
 import { GPC_WORKER_CAPTURE_LOSS_WARNING } from "./gpc-injection";
 import { buildFindings, type Finding, type FindingIconKey } from "./report-findings";
 import type { CorpusStats } from "./corpus-stats";
-import { INVALID_UPSTREAM_RESPONSE_WARNING } from "./scan-runtime";
+import { FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING, INVALID_UPSTREAM_RESPONSE_WARNING } from "./scan-runtime";
 import { evaluateQuality } from "./scan-report-v2-evaluators";
 import { R2_NAVIGATION_STATUS_UNREPRESENTABLE } from "./scan-report-v2-http-status";
 import {
@@ -899,6 +899,22 @@ test("listener-coverage cards are restricted to cross-site origins", () => {
   const mixedCard = byId(buildFindings(viewFromV1Report(mixed), null), "session-recording-input-monitoring");
   assert.match(mixedCard.evidence, /recorder\.example\.net/);
   assert.doesNotMatch(mixedCard.evidence, /verified\.shop\.example/);
+  // The probe reports ONE call total across every origin it attributed and no
+  // per-origin breakdown, so a narrowed origin list cannot carry the whole
+  // count as if the retained names made every call.
+  assert.match(mixedCard.evidence, /attributed across/);
+  assert.match(mixedCard.evidence, /same-site origins the probe could not separate/);
+  assert.doesNotMatch(mixedCard.evidence, /4 third-party input listeners from/);
+
+  // Nothing was filtered, so the direct attribution stands unqualified.
+  const crossSiteOnly = makeResult({
+    firstPartyDomain: "www.shop.example",
+    domains: [sameSiteDomain],
+    fingerprintDetections: [makeListenerDetection("input-monitoring", ["https://recorder.example.net"])]
+  });
+  const cleanCard = byId(buildFindings(viewFromV1Report(crossSiteOnly), null), "session-recording-input-monitoring");
+  assert.match(cleanCard.evidence, /4 third-party input listeners from/);
+  assert.doesNotMatch(cleanCard.evidence, /attributed across/);
 });
 
 function makeListenerDetection(
@@ -1252,4 +1268,42 @@ test("a reject arm whose request evidence was cut short never gets the reassurin
   assert.equal(card.level, "info");
   assert.match(card.title, /cut short/);
   assert.match(card.detail, /covers only what was recorded before the cutoff/);
+});
+
+test("a fingerprint observer that never read a frame cannot publish a clean absence", () => {
+  // The observer failing is not a budget: it is the instrument not running.
+  // On v1 the scanner warning is the only channel that records it, and without
+  // it the card published "No fingerprint-like API calls observed" at level
+  // "ok" for a scan that never looked.
+  const observed = makeResult({ firstPartyDomain: "quiet.example" });
+  const clean = byId(buildFindings(viewFromV1Report(observed), null), "fingerprint-apis");
+  assert.equal(clean.level, "ok");
+  assert.match(clean.title, /No fingerprint-like API calls observed/);
+  assert.doesNotMatch(clean.detail, /cut short/);
+
+  const blindfolded: ScanResult = {
+    ...observed,
+    warnings: [FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING]
+  };
+  const view = viewFromV1Report(blindfolded);
+  const run = displayRunView(view);
+  assert.equal(familyCensoredOnRun(run, "fingerprinting"), true);
+  assert.equal(familyCensoredOnRun(run, "detector-output"), true);
+  // Scoped: a dead fingerprint observer says nothing about the request log.
+  assert.equal(familyCensoredOnRun(run, "requests"), false);
+  assert.equal(familyCensoredOnRun(run, "cookies"), false);
+  assert.equal(requestEvidenceState(run), "complete");
+
+  const card = byId(buildFindings(view, null), "fingerprint-apis");
+  assert.notEqual(card.level, "ok");
+  assert.match(card.detail, /covers only what was recorded before the cutoff/);
+
+  // The reason reaches the reader as prose, never as a wire slug.
+  for (const note of runCensorshipNotes(run)) {
+    assert.doesNotMatch(note, /capture-loss:/);
+  }
+  assert.equal(
+    runCensorshipNotes(run).some((note) => note.includes("in-page fingerprint observer")),
+    true
+  );
 });

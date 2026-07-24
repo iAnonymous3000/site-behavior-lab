@@ -21,10 +21,18 @@ import type {
 } from "./types";
 import { SCAN_REPORT_SCHEMA_VERSION } from "./types";
 
-// Upper bound on entries kept in each diff list. High enough to be effectively
-// "complete" for realistic pages while keeping stored comparison JSON bounded;
-// the UI collapses long lists and offers a "show all" toggle up to this cap.
-const MAX_DIFF_LIST = 100;
+/**
+ * Upper bound on entries kept in each diff list, keeping stored comparison
+ * JSON and rendered DOM bounded. Entries are sorted by request volume first,
+ * so a capped list keeps the largest changes.
+ *
+ * Exported because the cap is not recoverable from the list afterwards: a
+ * clipped list is indistinguishable from a complete one, so any reader that
+ * would otherwise present a capped list as the whole set has to say it is
+ * capped. Compare `bounded-page-collector`, which can carry `omittedCount`
+ * because it is not a frozen wire shape.
+ */
+export const MAX_DIFF_LIST = 100;
 
 /** Which comparison arm the producer actually executed first (counterbalancing). */
 export type ComparisonExecutedFirst = "baseline" | "variant";

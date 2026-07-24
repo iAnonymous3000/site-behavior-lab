@@ -5,7 +5,8 @@ import {
   type BrowserContext,
   type BrowserContextOptions,
   type Page,
-  type Request
+  type Request,
+  type Response
 } from "playwright";
 import { randomBytes } from "node:crypto";
 import { isDeepStrictEqual } from "node:util";
@@ -90,6 +91,7 @@ import {
   aggregateByteBudgetWarning,
   collectBoundedPageTitle,
   collectStorageEntriesWithCoverage,
+  FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING,
   INVALID_UPSTREAM_RESPONSE_WARNING,
   MAX_RECORDED_REQUEST_URL_CHARS,
   ScanNetworkRecorder,
@@ -802,7 +804,7 @@ export async function scanSiteWithMeasurement(
     };
     page.on("request", recordRequest);
     const passiveNavigation = { latestResponseRequest: null as Request | null };
-    page.on("response", (response) => {
+    const recordResponse = (response: Response) => {
       networkRecorder.recordResponse(response);
       const request = response.request();
       if (
@@ -813,7 +815,8 @@ export async function scanSiteWithMeasurement(
       ) {
         passiveNavigation.latestResponseRequest = request;
       }
-    });
+    };
+    page.on("response", recordResponse);
 
     options.onProgress?.("navigating");
     const response = await page
@@ -1339,6 +1342,13 @@ export async function scanSiteWithMeasurement(
         };
     const fingerprintObservations = fingerprintCollection.observations;
     const fingerprintFrameCoverage = fingerprintFrameCoverageStatus(fingerprintCollection);
+    // v2 carries this as a `fingerprinting` capture loss in its quality facts.
+    // v1 has no quality block, so without a warning a run whose observer never
+    // executed looks exactly like a run that looked and found nothing, and the
+    // report publishes an unhedged "No fingerprint-like API calls observed".
+    if (fingerprintFrameCoverage !== "complete") {
+      warnings.add(FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING);
+    }
     const fingerprintCoverageIncomplete =
       fingerprintFrameCoverage === "partial" || (consentPhaseId !== null && !passiveBoundary.fingerprinting);
     const canAttributeConsentFingerprinting =
@@ -1734,7 +1744,12 @@ export async function scanSiteWithMeasurement(
     // This is the existing v1 request-log snapshot boundary. Requests from the
     // later policy visit are intentionally excluded, and no late main-page
     // event should stretch the active phase after its evidence was frozen.
+    // Both listeners retire together: a late response cannot corrupt the frozen
+    // snapshot (publicRecords already mapped to fresh objects), but leaving one
+    // attached keeps its closure alive on the page and rescans up to a thousand
+    // records per straggler for the rest of the context's life.
     page.off("request", recordRequest);
+    page.off("response", recordResponse);
     measurementKernel.endPhase();
     // Freeze every request-quality producer at the same boundary as retained
     // request evidence. The bracketed post-choice reload delta is excluded,

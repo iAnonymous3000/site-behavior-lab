@@ -75,7 +75,14 @@ export async function runScanRequest(
   saveReport: ReportSaver = saveScanReport
 ): Promise<RuntimeScanReport> {
   const prepared = await prepareScanRequest(request);
-  return executePreparedScan(prepared, scan, saveReport);
+  // Forward the client's disconnect. Without it a caller that hangs up leaves
+  // Chromium and the per-scan proxy running to the full scan deadline while
+  // holding one of the two concurrency slots, and a comparison holds it across
+  // two sequential arms. The async job path has always passed a signal; this is
+  // the synchronous path the documented self-host default takes.
+  return executePreparedScan(prepared, scan, saveReport, undefined, undefined, {
+    signal: request.signal
+  });
 }
 
 export async function executePreparedScan(

@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
+  MAX_DIFF_LIST,
   compareScanResults,
   createComparisonReport,
   createShieldsComparisonReport,
@@ -385,3 +386,26 @@ function makeScanResult(domains: DomainSummary[], extras: ScanResultExtras = {})
     warnings: []
   };
 }
+
+test("a diff list clipped at its cap keeps the largest changes and records no drop", () => {
+  // The cap is applied at build time and the shape carries no omittedCount, so
+  // a clipped list is indistinguishable from a complete one. This pins the
+  // boundary the reader keys its disclosure on.
+  const before = makeScanResult([]);
+  const after = makeScanResult(
+    Array.from({ length: MAX_DIFF_LIST + 40 }, (_, index) =>
+      makeDomain(`tracker-${String(index).padStart(3, "0")}.example`, MAX_DIFF_LIST + 40 - index, `Co${index}`)
+    )
+  );
+
+  const diff = compareScanResults(before, after);
+  assert.equal(diff.addedDomains.length, MAX_DIFF_LIST);
+  // Largest first: the clip keeps the heaviest changes, never an arbitrary slice.
+  assert.equal(diff.addedDomains[0].requests, MAX_DIFF_LIST + 40);
+  assert.equal(diff.addedDomains[MAX_DIFF_LIST - 1].requests, 41);
+  // The dropped domains leave no trace anywhere in the diff.
+  assert.equal(JSON.stringify(diff).includes("tracker-139.example"), false);
+  const raw = diff as unknown as Record<string, unknown>;
+  assert.equal("omittedCount" in raw, false);
+  assert.equal("truncated" in raw, false);
+});

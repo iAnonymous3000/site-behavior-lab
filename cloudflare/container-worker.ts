@@ -4545,6 +4545,25 @@ async function gateScanRequest(
   return null;
 }
 
+/**
+ * ADVISORY quota preflight for the durable admission path, not a charge.
+ *
+ * The authoritative charge happens inside `admitDurablePreparation`, after the
+ * request has crossed to Node `/prepare`. Quota integrity therefore holds: the
+ * Durable Object serializes the commits and rejects the surplus. What is NOT
+ * bounded is the work in between. N concurrent requests can all clear this peek,
+ * all perform preparation (including a fresh DNS resolution of the caller's
+ * target), and only then lose the race, so the preparation cost amplifies by the
+ * concurrency the caller chooses. Turnstile redemption is deliberately
+ * idempotent per capability, so one solved token replayed concurrently reaches
+ * here N times and `findCommittedScanAdmission` answers "not found" for all of
+ * them because none has committed yet.
+ *
+ * This is acceptable only while `SITE_BEHAVIOR_LAB_DURABLE_JOBS=0`. Bounding
+ * in-flight uncommitted preparations per capability is an ACTIVATION GATE for
+ * that flag; see docs/scan-job-model.md. The live path does not use this
+ * function: it charges atomically up front with chargeMode "charge".
+ */
 async function assertDeferredScanRateLimitAvailable(
   rateLimit: PublicScanRateLimitCharge,
   env: Env

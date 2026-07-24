@@ -11,6 +11,7 @@ import {
   type DomainRequestDelta,
   type EvidenceArm
 } from "@/lib/report-evidence-navigation";
+import { MAX_DIFF_LIST } from "@/lib/compare-reports";
 import { comparisonDeltaHeading, displayHost, plural } from "@/lib/text-format";
 import {
   isReviewedCookieName,
@@ -317,6 +318,11 @@ function DiffList<T>({
 }) {
   const [expanded, setExpanded] = useState(false);
   const visible = expanded ? items : items.slice(0, DIFF_COLLAPSED_COUNT);
+  // A diff list is built with a hard cap and carries no record of how many
+  // entries it dropped, so a full list is indistinguishable from a clipped
+  // one. Saying "show all N" over a capped list would assert a completeness
+  // the report cannot support.
+  const capped = items.length >= MAX_DIFF_LIST;
 
   return (
     <div className={`change-list${className ? ` ${className}` : ""}`}>
@@ -333,8 +339,14 @@ function DiffList<T>({
               aria-expanded={expanded}
               onClick={() => setExpanded((value) => !value)}
             >
-              {expanded ? "Show fewer" : `Show all ${items.length}`}
+              {expanded ? "Show fewer" : capped ? `Show the ${items.length} retained` : `Show all ${items.length}`}
             </button>
+          )}
+          {capped && (
+            <p className="muted change-list-cap-note">
+              This list is capped at {MAX_DIFF_LIST.toLocaleString("en-US")} entries, kept largest first by request
+              volume. Any further changes were not retained and are not recoverable from this report.
+            </p>
           )}
         </>
       )}

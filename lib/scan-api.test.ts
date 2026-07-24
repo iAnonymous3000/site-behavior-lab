@@ -1023,3 +1023,33 @@ function makeSensitiveScanResult(payload: ScanRequestPayload): ScanResult {
   result.storage = [{ area: "localStorage", key: "patient_private_record", valueBytes: 24 }];
   return result;
 }
+
+test("runScanRequest hands the client's disconnect to the scanner", async () => {
+  // A caller that hangs up mid-scan must not leave Chromium and the per-scan
+  // proxy running to the full deadline while holding a concurrency slot. The
+  // async job path has always supplied a signal; the synchronous path is the
+  // one the documented self-host default takes.
+  process.env[SCAN_ACCESS_TOKEN_ENV] = "secret-key";
+  const seen: (AbortSignal | undefined)[] = [];
+  const scan: ScanRunner = async (payload, options) => {
+    seen.push(options?.signal);
+    return testMeasurementEnvelopeForResult(makeScanResult(payload));
+  };
+
+  const controller = new AbortController();
+  const request = new Request("http://localhost/api/scan", {
+    method: "POST",
+    headers: { "content-type": "application/json", "x-site-behavior-lab-access-token": "secret-key" },
+    body: JSON.stringify({ url: "https://1.1.1.1/", device: "desktop", gpcEnabled: true }),
+    signal: controller.signal
+  });
+
+  await runScanRequest(request, scan);
+
+  assert.equal(seen.length, 1);
+  const forwarded = seen[0];
+  assert.ok(forwarded, "the scanner received no abort signal");
+  assert.equal(forwarded.aborted, false);
+  controller.abort();
+  assert.equal(forwarded.aborted, true, "aborting the request did not reach the scanner's signal");
+});

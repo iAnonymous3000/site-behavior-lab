@@ -169,26 +169,39 @@ export function crossSiteListenerOrigins(result: Pick<ScanResult, "domains">, or
   return origins.filter((origin) => !firstPartyHosts.has(normalizeOriginHost(origin)));
 }
 
+export type CrossSiteListenerDetection = {
+  detection: Extract<FingerprintDetectionSummary, { kind: "session-recording" | "input-monitoring" }>;
+  /**
+   * True when same-site origins were removed from the attributed set. The
+   * in-page probe reports ONE listener-call total across every origin it
+   * attributed and no per-origin breakdown, so the retained count cannot be
+   * recomputed for the narrowed set: it still covers the dropped origins.
+   * A reader that prints the count beside the narrowed origin names without
+   * this flag attributes calls to third parties that did not make them.
+   */
+  originsNarrowed: boolean;
+};
+
 /**
  * A session-recording / input-monitoring detection restricted to cross-site
  * origins, or undefined when every attributed origin turned out to be
- * same-site (the detection then supports no third-party claim). When origins
- * were dropped, the listener-call counts still cover every origin the in-page
- * probe attributed; consumers should say so.
+ * same-site (the detection then supports no third-party claim).
  */
 export function crossSiteListenerDetection(
   result: Pick<ScanResult, "domains" | "fingerprintDetections">,
   kind: "session-recording" | "input-monitoring"
-): Extract<FingerprintDetectionSummary, { kind: "session-recording" | "input-monitoring" }> | undefined {
+): CrossSiteListenerDetection | undefined {
   const detection = fingerprintDetection(result, kind);
   if (!detection) return undefined;
   const origins = crossSiteListenerOrigins(result, detection.evidence.thirdPartyOrigins);
   if (origins.length === 0) return undefined;
-  if (origins.length === detection.evidence.thirdPartyOrigins.length) return detection;
-  if (detection.kind === "session-recording") {
-    return { ...detection, evidence: { ...detection.evidence, thirdPartyOrigins: origins } };
+  if (origins.length === detection.evidence.thirdPartyOrigins.length) {
+    return { detection, originsNarrowed: false };
   }
-  return { ...detection, evidence: { ...detection.evidence, thirdPartyOrigins: origins } };
+  return {
+    detection: { ...detection, evidence: { ...detection.evidence, thirdPartyOrigins: origins } },
+    originsNarrowed: true
+  };
 }
 
 function normalizeOriginHost(value: string): string {

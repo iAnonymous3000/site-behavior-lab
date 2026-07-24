@@ -22,6 +22,18 @@ export const MAX_CAPTURED_STORAGE_TOTAL_VALUE_CHARS = 1024 * 1024;
 export const NON_HTTP_WARNING_EXAMPLE_LIMIT = 5;
 export const INVALID_UPSTREAM_RESPONSE_WARNING =
   "The scan proxy rejected one or more invalid upstream responses; request evidence may be incomplete.";
+/**
+ * The in-page fingerprint observer could not read every frame it attempted.
+ *
+ * v2 records this as a `fingerprinting` capture loss in its quality facts, but
+ * v1 has no quality block at all: its run quality is derived entirely from the
+ * HTTP status and the scanner's warnings. Without this line a run whose
+ * observer never executed is indistinguishable on the v1 wire from a run that
+ * looked and found nothing, and the report publishes "No fingerprint-like API
+ * calls observed" as an unhedged absence claim.
+ */
+export const FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING =
+  "The in-page fingerprint observer could not read one or more frames, so fingerprint-like API calls and heuristics for this visit are incomplete.";
 const SCAN_TIMEOUT_MESSAGE = "The scan exceeded the maximum scan duration.";
 
 export class ScanWarningCollector {
