@@ -30,8 +30,13 @@ export function resolveExactStaticDeploymentCommit({ cwd = process.cwd(), env = 
 
   const status = git(cwd, ["status", "--porcelain=v1", "--untracked-files=all", "--ignore-submodules=none"]);
   if (status.trim() !== "") {
+    // Name the first offending entries so a refusal in a CI annotation is
+    // actionable without authenticated log access. Paths only, bounded.
+    const entries = status.trimEnd().split("\n").slice(0, 8).map((line) => line.trim());
+    const suffix = status.trimEnd().split("\n").length > 8 ? ", ..." : "";
     throw new Error(
-      "Static deployment provenance requires a clean Git worktree; commit or remove staged, tracked, and untracked changes before building"
+      "Static deployment provenance requires a clean Git worktree; commit or remove staged, tracked, and untracked changes " +
+        `before building (dirty: ${entries.join(", ")}${suffix})`
     );
   }
 
