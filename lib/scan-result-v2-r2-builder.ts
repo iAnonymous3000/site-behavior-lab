@@ -266,7 +266,7 @@ export function buildNodeScanReportV2R2(
   const conditions = structuredClone(input.conditions);
   const phases = structuredClone(input.measurement.phases);
   const detectors = structuredClone(input.measurement.detectors);
-  assertPhasePlan(input.conditions, phases, detectors);
+  assertPhasePlan(input.conditions, phases, detectors, input.consent);
   assertPhaseEvidence(phases, detectors, statusNormalized.evidence);
   const qualityFacts = structuredClone(statusNormalized.qualityFacts);
   const verificationFacts = input.verificationFacts === undefined ? undefined : structuredClone(input.verificationFacts);
@@ -504,7 +504,12 @@ function assertVerificationFacts(
   }
 }
 
-function assertPhasePlan(conditions: ConditionVector, phases: PhaseSpan[], detectors: DetectorLedger): void {
+function assertPhasePlan(
+  conditions: ConditionVector,
+  phases: PhaseSpan[],
+  detectors: DetectorLedger,
+  consent: ConsentFactsR2 | undefined
+): void {
   for (const [index, phase] of phases.entries()) {
     if (
       phase.phaseId !== index ||
@@ -538,7 +543,21 @@ function assertPhasePlan(conditions: ConditionVector, phases: PhaseSpan[], detec
     throw new Error("Observe-mode runs cannot carry consent interaction or reload phases.");
   }
   if (conditions.consent !== "observe" && !hasConsent) {
-    throw new Error("Consent-mode runs require a consent-interaction phase.");
+    // A bot wall, a failed navigation, or a probe that ran out of budget means
+    // the interaction never happened, so there is no phase to record. That is
+    // representable only if the run says so on BOTH channels: the detector
+    // accountably explains the absence and the consent facts claim no attempt
+    // and no activation. Otherwise a consent-mode run really is missing a
+    // phase it should have, which stays a hard refusal. This mirrors the
+    // accountable-skip rule the keystroke and policy probes already use.
+    const accountablyAbsent =
+      accountableSkippedDetector(detectors["consent-banner"]) &&
+      consent !== undefined &&
+      consent.interactionAttempted === false &&
+      consent.controlActivated === false;
+    if (!accountablyAbsent) {
+      throw new Error("Consent-mode runs require a consent-interaction phase.");
+    }
   }
   if (hasReload && !hasConsent) throw new Error("A post-choice reload requires a consent-interaction phase.");
   const hasActiveProbe = kinds.includes("active-probe");
@@ -606,7 +625,7 @@ function accountableSkippedDetector(entry: DetectorLedger[keyof DetectorLedger])
     entry.status !== "complete" &&
     entry.status !== "partial" &&
     entry.reason !== undefined &&
-    ["budget-unavailable", "unsupported", "load-failed", "scan-failed"].includes(entry.reason)
+    ["budget-unavailable", "unsupported", "load-failed", "scan-failed", "engine-unavailable"].includes(entry.reason)
   );
 }
 

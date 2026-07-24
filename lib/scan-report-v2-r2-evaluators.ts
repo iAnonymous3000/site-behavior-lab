@@ -250,6 +250,19 @@ function bannerViolations(run: ScanRunV2R2, transition: BannerTransitionR2, labe
   return violations;
 }
 
+/**
+ * Detector reasons that can stand in for a consent interaction that never
+ * happened. Same vocabulary the producer's accountable-skip rule accepts, so
+ * the two ends cannot disagree about which absences are explainable.
+ */
+const ACCOUNTABLE_ABSENT_CONSENT_REASONS = new Set([
+  "budget-unavailable",
+  "unsupported",
+  "load-failed",
+  "scan-failed",
+  "engine-unavailable"
+]);
+
 function consentViolationsR2(run: ScanRunV2R2, label: string): string[] {
   const violations: string[] = [];
   const consent = run.evidence.consent;
@@ -268,14 +281,40 @@ function consentViolationsR2(run: ScanRunV2R2, label: string): string[] {
   if (!consent.interactionAttempted && consent.controlActivated) {
     violations.push(`${label}: a control was activated without an interaction attempt`);
   }
-  if (run.detectors["consent-banner"].status !== "complete" && run.detectors["consent-banner"].status !== "partial") {
+  const detector = run.detectors["consent-banner"];
+  const detectorReportedActivity = detector.status === "complete" || detector.status === "partial";
+  // A bot wall, a failed navigation, or an exhausted probe budget means the
+  // interaction never happened. That is a real and honest outcome, so it is
+  // representable, but ONLY when the run declares it on both channels: the
+  // detector carries an accountable reason and the consent evidence claims no
+  // attempt and no activation. Requiring activity unconditionally left no
+  // legal encoding for a degraded consent run, so the producer could not build
+  // one at all and the whole scan failed instead.
+  const accountablyAbsent =
+    !detectorReportedActivity &&
+    detector.reason !== undefined &&
+    ACCOUNTABLE_ABSENT_CONSENT_REASONS.has(detector.reason) &&
+    consent.interactionAttempted === false &&
+    !consent.controlActivated;
+  if (!detectorReportedActivity && !accountablyAbsent) {
     violations.push(`${label}: consent evidence present but the consent-banner detector did not report activity`);
   }
-  // RFC 15.4: every consent-mode run carries a consent-interaction phase (the
-  // interaction was at least attempted). The zero-observation placeholder's
-  // phaseId also anchors to it, so its absence must reject, never default.
+  // RFC 15.4: a consent-mode run that ATTEMPTED the interaction carries a
+  // consent-interaction phase, and the zero-observation placeholder's phaseId
+  // anchors to it, so its absence must reject rather than default. An
+  // accountably absent interaction has no phase to anchor to and must equally
+  // carry no observations.
   if (!run.phases.some((span) => span.kind === "consent-interaction")) {
-    violations.push(`${label}: consent-mode run has no consent-interaction phase`);
+    if (accountablyAbsent) {
+      if (consent.verificationObservations.length > 0) {
+        violations.push(`${label}: consent observations recorded without a consent-interaction phase`);
+      }
+      if (consent.bannerTransition !== undefined) {
+        violations.push(`${label}: banner transition recorded without a consent-interaction phase`);
+      }
+    } else {
+      violations.push(`${label}: consent-mode run has no consent-interaction phase`);
+    }
   }
 
   const observations = consent.verificationObservations;

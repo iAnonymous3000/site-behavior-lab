@@ -1255,3 +1255,71 @@ test("phase plans follow enabled conditions and cannot smuggle impossible phases
   };
   assert.throws(() => buildNodeScanReportV2R2(unrunAlwaysOn), /Always-on detector pixel-events/);
 });
+
+test("a consent run whose interaction never happened still builds a degraded, accountable report", () => {
+  // Two invariants used to be jointly unsatisfiable. The contract requires
+  // consent evidence on every consent-mode run, a consent-interaction phase,
+  // and a consent-banner detector reporting activity; a bot-walled page or a
+  // probe that ran out of budget produces none of the last two. The builder
+  // then threw, so the whole scan failed instead of publishing an honest
+  // "the interaction did not happen" report.
+  const blockedByWall = baseInput();
+  blockedByWall.conditions.consent = "accept-all";
+  blockedByWall.measurement.detectors["consent-banner"] = {
+    version: DETECTOR_VERSIONS["consent-banner"],
+    status: "skipped",
+    reason: "load-failed"
+  };
+  blockedByWall.consent = {
+    interactionAttempted: false,
+    controlActivated: false,
+    verificationObservations: []
+  };
+
+  const report = buildNodeScanReportV2R2(blockedByWall);
+  assert.equal(report.reportType, "single");
+  const run = report.run;
+  assert.equal(run.evidence.consent?.interactionAttempted, false);
+  assert.equal(run.evidence.consent?.controlActivated, false);
+  assert.equal(run.phases.some((span) => span.kind === "consent-interaction"), false);
+  assert.deepEqual(scanReportV2R2SemanticViolations(report), []);
+
+  // A probe that broke mid-run is the same shape with a different reason. The
+  // detector registry decides which reason is legal for which status, so this
+  // walks the pairs the scanner actually emits.
+  for (const { status, reason } of [
+    { status: "failed", reason: "scan-failed" },
+    { status: "failed", reason: "engine-unavailable" },
+    { status: "skipped", reason: "budget-unavailable" }
+  ] as const) {
+    const brokenProbe = baseInput();
+    brokenProbe.conditions.consent = "reject-all";
+    brokenProbe.measurement.detectors["consent-banner"] = {
+      version: DETECTOR_VERSIONS["consent-banner"],
+      status,
+      reason
+    };
+    brokenProbe.consent = { interactionAttempted: false, controlActivated: false, verificationObservations: [] };
+    assert.deepEqual(scanReportV2R2SemanticViolations(buildNodeScanReportV2R2(brokenProbe)), [], `${status}/${reason}`);
+  }
+});
+
+test("an unexplained missing consent interaction is still refused", () => {
+  // The escape hatch is accountability, not absence: a consent-mode run that
+  // simply omits the phase with a complete detector, or claims an attempt it
+  // has no phase for, must still reject.
+  const unexplained = baseInput();
+  unexplained.conditions.consent = "accept-all";
+  unexplained.consent = { interactionAttempted: false, controlActivated: false, verificationObservations: [] };
+  assert.throws(() => buildNodeScanReportV2R2(unexplained), /consent-interaction phase/);
+
+  const claimsAnAttempt = baseInput();
+  claimsAnAttempt.conditions.consent = "accept-all";
+  claimsAnAttempt.measurement.detectors["consent-banner"] = {
+    version: DETECTOR_VERSIONS["consent-banner"],
+    status: "skipped",
+    reason: "load-failed"
+  };
+  claimsAnAttempt.consent = { interactionAttempted: true, controlActivated: false, verificationObservations: [] };
+  assert.throws(() => buildNodeScanReportV2R2(claimsAnAttempt), /consent-interaction phase/);
+});
