@@ -73,13 +73,24 @@ if (!/^[\x21-\x7e]{32,256}$/.test(token)) {
 
 const baseUrl = exactScannerOrigin(configuredBaseUrl);
 const totalDeadline = Date.now() + totalTimeoutMs;
-// Each candidate target gets a bounded share of the total budget so a hung
-// primary target cannot starve the fallback candidate of any time.
-const attemptTimeoutMs = Math.max(30_000, Math.floor(totalTimeoutMs / syntheticTargets.length));
+// The primary target keeps almost the whole budget: a cold container start
+// alone can spend minutes before a scan completes, and the ordered fallback
+// exists for target-attributable failures, which surface quickly. Reserve one
+// bounded slice per remaining fallback candidate so a hung primary cannot
+// starve them completely; the fatal total deadline still bounds the run, so
+// the attempt floor can never extend it.
+const fallbackReserveMs = 45_000;
+const attemptFloorMs = 30_000;
 let attemptDeadline = Infinity;
 
 function fail(message) {
   console.error(`FAIL ${message}`);
+  // Mirror the refusal into a checks-API annotation: workflow logs need
+  // authentication, annotations do not, and the message carries only the
+  // fixed public targets and contract wording, never the monitor credential.
+  if (process.env.GITHUB_ACTIONS === "true") {
+    console.error(`::error title=Production synthetic failed::${message.replace(/\r?\n/g, " ").slice(0, 800)}`);
+  }
   process.exit(1);
 }
 
@@ -244,7 +255,7 @@ async function resolveReport(payload, submissionStatus) {
     await sleep(pollIntervalMs);
   }
   if (remainingTotalMs() <= 0) fail(`Synthetic scan did not finish within ${totalTimeoutMs / 1_000}s.`);
-  throw new TargetScanFailure(`scan did not finish within its ${attemptTimeoutMs / 1_000}s attempt budget`);
+  throw new TargetScanFailure("scan did not finish within this target's attempt budget");
 }
 
 function assertFixedSyntheticReport(report, target, submissionStartedAt, expectedReportId = null, expectedStartedAt = null) {
@@ -371,8 +382,15 @@ async function runSyntheticAttempt(target) {
 
 const targetFailures = [];
 let completedTotalRequests = null;
-for (const target of syntheticTargets) {
-  attemptDeadline = Date.now() + attemptTimeoutMs;
+for (let targetIndex = 0; targetIndex < syntheticTargets.length; targetIndex += 1) {
+  const target = syntheticTargets[targetIndex];
+  const remainingMs = totalDeadline - Date.now();
+  if (remainingMs <= 0) {
+    targetFailures.push(`${target.url}: no attempt budget remained`);
+    continue;
+  }
+  const reserveMs = fallbackReserveMs * (syntheticTargets.length - targetIndex - 1);
+  attemptDeadline = Date.now() + Math.max(attemptFloorMs, remainingMs - reserveMs);
   try {
     completedTotalRequests = await runSyntheticAttempt(target);
     break;
