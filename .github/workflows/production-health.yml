@@ -147,20 +147,23 @@ jobs:
               break
             fi
             if [[ "$attempt" == 6 ]]; then
-              # An in-flight rollout is provable, not assumed: both live
-              # revisions must be the SAME commit and that commit must be a
-              # real ancestor of the promoted head, so an unknown, forked, or
-              # hand-rolled-back revision still fails immediately.
+              # An in-flight rollout is provable, not assumed. Pages and the
+              # scanner are independent Cloudflare builds, so they routinely
+              # cross over one at a time; each live revision must therefore be
+              # the promoted head or a proven ANCESTOR of it. An unknown,
+              # forked, or hand-rolled-back revision is not an ancestor and
+              # still fails immediately.
               promoted_at=$(git log -1 --format=%ct HEAD)
               age_minutes=$(( ( $(date +%s) - promoted_at ) / 60 ))
-              if [[ -n "$scanner" && "$scanner" == "$pages" ]] &&
+              if [[ -n "$scanner" && -n "$pages" ]] &&
                 git merge-base --is-ancestor "$scanner" HEAD 2>/dev/null &&
+                git merge-base --is-ancestor "$pages" HEAD 2>/dev/null &&
                 (( age_minutes < ROLLOUT_BUDGET_MINUTES )); then
                 echo "pending=true" >> "$GITHUB_OUTPUT"
-                echo "::warning title=Production rollout in progress::production serves ${scanner}; ${EXPECTED_PRODUCTION_SHA} was promoted ${age_minutes}m ago and is still deploying (budget ${ROLLOUT_BUDGET_MINUTES}m)."
+                echo "::warning title=Production rollout in progress::scanner serves ${scanner}, Pages serves ${pages}; ${EXPECTED_PRODUCTION_SHA} was promoted ${age_minutes}m ago and is still deploying (budget ${ROLLOUT_BUDGET_MINUTES}m)."
                 {
-                  echo "- Rollout: **in progress** (production serves \`${scanner}\`, promoted \`${EXPECTED_PRODUCTION_SHA}\` is ${age_minutes}m old)"
-                  echo "- Posture checks: **deferred** until the promoted revision is live"
+                  echo "- Rollout: **in progress** (scanner \`${scanner}\`, Pages \`${pages}\`, promoted \`${EXPECTED_PRODUCTION_SHA}\` is ${age_minutes}m old)"
+                  echo "- Posture checks: **deferred** until the promoted revision is live on both"
                 } >> "$GITHUB_STEP_SUMMARY"
                 break
               fi

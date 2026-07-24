@@ -313,8 +313,12 @@ test("production health treats an in-flight rollout as pending, not as a product
   // deploy, which is what happened on every promotion in the 2026-07-24 wave.
   assert.match(workflow, /id: rollout/);
   assert.match(workflow, /fetch-depth: 0/);
+  // Pages and the scanner are independent builds and cross over one at a time,
+  // so a staggered rollout must be tolerated; each side is checked for
+  // ancestry separately rather than requiring the two to agree.
   assert.match(workflow, /git merge-base --is-ancestor "\$scanner" HEAD/);
-  assert.match(workflow, /\[\[ -n "\$scanner" && "\$scanner" == "\$pages" \]\]/);
+  assert.match(workflow, /git merge-base --is-ancestor "\$pages" HEAD/);
+  assert.match(workflow, /\[\[ -n "\$scanner" && -n "\$pages" \]\]/);
   assert.match(workflow, /\(\( age_minutes < ROLLOUT_BUDGET_MINUTES \)\)/);
   assert.match(workflow, /ROLLOUT_BUDGET_MINUTES: \$\{\{ vars\.PRODUCTION_ROLLOUT_BUDGET_MINUTES \|\| '45' \}\}/);
   assert.match(workflow, /Production rollout in progress/);
