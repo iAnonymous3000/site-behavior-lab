@@ -1,3 +1,11 @@
+/// <reference types="@cloudflare/workers-types" />
+// Worker globals (DurableObjectNamespace, R2Bucket, KVNamespace) come from this
+// reference. tsconfig.cloudflare.json supplies them via "types", but the
+// whole-project app typecheck compiles cloudflare/**/*.ts too and has no such
+// setting, so each entrypoint declares it. Until 2026-07-24 exactly one file
+// carried this line and every other worker inherited it by accident; deleting
+// that file broke the app typecheck.
+
 import { R2_DELETE_CANARY_PREFIX, runR2DeleteCanary, type R2DeleteCanaryBucket } from "../lib/r2-delete-canary";
 
 type Env = {

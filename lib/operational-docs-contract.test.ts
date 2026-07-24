@@ -112,21 +112,37 @@ test("operator commands and topology names target explicit Wrangler configs", ()
   const envExample = source(".env.example");
   const productionConfig = source("wrangler.container.jsonc");
 
-  assert.match(
-    readme,
-    /wrangler secret put SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN \\\s*\n\s*-c wrangler\.browser-run\.jsonc/
-  );
-  assert.match(
-    readme,
-    /wrangler secret put TURNSTILE_SECRET_KEY \\\s*\n\s*-c wrangler\.browser-run\.jsonc/
-  );
+  // Every operator secret command names its config explicitly: no root
+  // wrangler.jsonc exists, so a defaulted command would target nothing.
   assert.match(
     envExample,
-    /wrangler secret put SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN -c wrangler\.browser-run\.jsonc/
+    /wrangler secret put SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN -c wrangler\.container\.jsonc/
   );
-  assert.match(envExample, /wrangler secret put TURNSTILE_SECRET_KEY -c wrangler\.browser-run\.jsonc/);
-  assert.match(productionConfig, /retired Browser Run self-host path/i);
-  assert.doesNotMatch(productionConfig, /wrangler\.jsonc \(the Browser Run/i);
+  assert.match(envExample, /wrangler secret put TURNSTILE_SECRET_KEY -c wrangler\.container\.jsonc/);
+  assert.match(
+    envExample,
+    /wrangler secret put -c wrangler\.container\.jsonc SITE_BEHAVIOR_LAB_SYNTHETIC_MONITOR_TOKEN/
+  );
+  assert.match(productionConfig, /the only scanner deployment/i);
+
+  // The Browser Run worker was deleted, not gated. Nothing may reference its
+  // config, its risk-acceptance flag, or its npm scripts again: a stale command
+  // would silently target a file that does not exist.
+  const packageJson = source("package.json");
+  for (const [name, text] of [
+    ["README.md", readme],
+    [".env.example", envExample],
+    ["wrangler.container.jsonc", productionConfig],
+    ["package.json", packageJson]
+  ] as const) {
+    assert.doesNotMatch(text, /-c wrangler\.browser-run\.jsonc/, `${name} still runs a deleted config`);
+    assert.doesNotMatch(
+      text,
+      /SITE_BEHAVIOR_LAB_ACCEPT_BROWSER_RUN_DNS_REBINDING_RISK/,
+      `${name} still documents the deleted risk flag`
+    );
+  }
+  assert.doesNotMatch(packageJson, /"cf:(deploy|dev|kv:create)"/);
 });
 
 test("release runbook matches the current Wrangler and three-gate CI contract", () => {

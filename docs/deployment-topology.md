@@ -1,6 +1,9 @@
 # Deployment Topology Decision
 
-> Status: **Option B DEPLOYED, 2026-06-21; Browser Run Worker retired and deleted from Cloudflare 2026-07-09.**
+> Status: **Option B DEPLOYED, 2026-06-21; Browser Run Worker retired and deleted
+> from Cloudflare 2026-07-09, and its source deleted from this repo 2026-07-24.**
+> The comparison below is kept as the decision record for why the Node container
+> is the only supported producer; the Worker code it describes no longer exists.
 > Workers Paid is active, and the recommended Node/Playwright container (Option B
 > below) runs on **Cloudflare Containers** at `scan.sitebehavior.org` (public behind
 > Turnstile and rate limits, with R2-backed report storage), so the Shields
@@ -38,10 +41,10 @@ on opposite sides of these blockers.
 
 ### Where the producers stand today
 
-| Capability | Node / Playwright | Retired Worker / Browser Run self-host path |
+| Capability | Node / Playwright (current) | Browser Run Worker (deleted 2026-07-24) |
 |---|---|---|
-| SSRF defense | **connect-time** resolve + validate + **pin** to a public IP via a per-scan local proxy ([lib/public-scan-proxy.ts](../lib/public-scan-proxy.ts)) | DNS-over-HTTPS **preflight only**; Browser Run re-resolves at connect time with no proxy/IP-pin primitive ([cloudflare/worker.ts](../cloudflare/worker.ts)) |
-| Open unauthenticated scans | supported behind external egress firewall | **disabled by default**; require `ACCEPT_BROWSER_RUN_DNS_REBINDING_RISK=1` because the preflight can be rebound |
+| SSRF defense | **connect-time** resolve + validate + **pin** to a public IP via a per-scan local proxy ([lib/public-scan-proxy.ts](../lib/public-scan-proxy.ts)) | DNS-over-HTTPS **preflight only**; Browser Run re-resolved at connect time with no proxy/IP-pin primitive, which is why the worker was deleted rather than kept gated |
+| Open unauthenticated scans | supported behind external egress firewall | were disabled unless an operator waived the rebinding risk explicitly; the waiver flag was deleted with the worker |
 | Shields "tried vs blocked" diff | yes (vendored Brave adblock-wasm) | no |
 | Async job queue | yes (in-process) | no |
 | Tracker/service catalog | full curated catalog | none |
@@ -74,7 +77,7 @@ volume. Cloudflare WAF rate rules front the endpoint.
 Run the **Node/Playwright scanner as a container** behind a trusted reverse proxy
 (the path already documented in the README "Production Deployment" section). Keep
 Cloudflare in front for the **static UI, CDN, WAF, and report store** (R2). The
-Browser Run code remains a gated legacy self-host option, not a deployed edge
+Browser Run code has now been deleted outright rather than kept as a gated edge
 fallback or part of the production topology.
 
 - **Pros:** launches on our **most complete and safest** producer. Blocker #1 is

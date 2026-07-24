@@ -41,7 +41,7 @@ import {
   type ScanEvidenceDiagnostics
 } from "./scanner";
 import { createNodeScanMeasurementEnvelope } from "./node-scan-measurement";
-import { INVALID_UPSTREAM_RESPONSE_WARNING } from "./scan-runtime";
+import { FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING, INVALID_UPSTREAM_RESPONSE_WARNING } from "./scan-runtime";
 import { resolveScannerEgressRegion } from "./scanner-egress";
 
 test("scannerEgressRegion records only r2-safe explicit regions or complete Cloudflare placement", () => {
@@ -1477,7 +1477,7 @@ test("scanSite marks fingerprint coverage partial when a poisoned main frame is 
   assert.ok(address && typeof address === "object");
 
   try {
-    const { measurement: staged } = await scanSiteWithMeasurement(
+    const { result, measurement: staged } = await scanSiteWithMeasurement(
       {
         url: "http://fingerprint-partial.test/",
         device: "desktop",
@@ -1498,6 +1498,14 @@ test("scanSite marks fingerprint coverage partial when a poisoned main frame is 
       reason: "scan-failed",
       phaseId: 0
     });
+    // v1 has no quality block, so this warning is the ONLY channel that records
+    // the loss on that wire. Without it the reader cannot tell a dead observer
+    // from a clean observation of nothing, and publishes an unhedged absence.
+    assert.equal(
+      result.warnings.includes(FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING),
+      true,
+      "incomplete fingerprint frame coverage must be disclosed on the v1 wire"
+    );
     assert.equal(
       staged!.measurement.qualityFacts.captureLoss.some(
         (loss) =>
@@ -1610,6 +1618,20 @@ test("an ordinary upstream subresource failure does not censor request evidence"
     assert.equal(result.summary.pageTitle, "", "page-authored titles are withheld by redaction policy");
     assert.equal(result.summary.status, 200, "the ordinary subresource failure does not fail the recorded visit");
     assert.equal(result.warnings.includes(INVALID_UPSTREAM_RESPONSE_WARNING), false);
+    // The counterpart to the partial-coverage disclosure: a run whose observer
+    // read every frame must NOT carry the hedge, or the hedge stops meaning
+    // anything and every clean report reads as degraded.
+    assert.equal(
+      result.warnings.includes(FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING),
+      false,
+      "complete fingerprint frame coverage must not be disclosed as a capture loss"
+    );
+    assert.equal(
+      staged!.measurement.qualityFacts.captureLoss.some(
+        (loss) => loss.detail === "fingerprint-observer"
+      ),
+      false
+    );
     assert.equal(
       staged!.measurement.qualityFacts.captureLoss.some(
         (loss) => loss.family === "requests" && loss.phaseId === null && loss.kind === "dropped"

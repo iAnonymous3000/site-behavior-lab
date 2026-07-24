@@ -7,7 +7,7 @@
 
 Site Behavior Lab runs controlled Chromium visits and reports observable site behavior: network requests, third-party domains, curated service labels, cookies, storage keys, an ephemeral viewport screenshot in the immediate result, scan conditions, high-entropy browser API calls, behavioral fingerprinting heuristics, third-party session/input-monitoring listener signals, an active keystroke/input-capture probe, DNS-based CNAME-uncloaking of disguised trackers, consent-banner (pre-consent tracking) detection, advertising-pixel event decoding (the events Meta/TikTok/X pixels fire, and whether their personal-identifier fields were populated; each value is checked only transiently for being non-empty and is never stored, decoded, or reported, so identifier delivery is not asserted), and a privacy-policy cross-check (the site's own policy text compared against the observed evidence). Screenshots are stripped before reports are saved or shared.
 
-> **Deployment status.** The public site at [https://sitebehavior.org](https://sitebehavior.org) is the static **Cloudflare Pages** front door. Live scans use the full **Node/Playwright scanner** on **Cloudflare Containers** at `scan.sitebehavior.org`, including the Brave-list block simulation (not a live Brave visit), with R2-backed reports, public r2 output, consent verification, Turnstile, and atomic per-client rate limiting. Shared report links resolve to the scanner origin. The exact revision currently served by the scanner is published by [`/api/health`](https://scan.sitebehavior.org/api/health), and the Pages revision by [`/deployment.json`](https://sitebehavior.org/deployment.json). Production deployments track the CI-gated `production` branch. Scanner non-production builds are disabled; Pages automatic preview deployments are currently enabled and public by default, so they must be disabled or Access-restricted before a critical release. The lighter **Browser Run Worker** is retired as a public deployment and remains a gated legacy-v1 self-host path. See [docs/go-live-public-scanner.md](docs/go-live-public-scanner.md), [docs/deploy-cloudflare-containers.md](docs/deploy-cloudflare-containers.md), and [docs/deployment-topology.md](docs/deployment-topology.md).
+> **Deployment status.** The public site at [https://sitebehavior.org](https://sitebehavior.org) is the static **Cloudflare Pages** front door. Live scans use the full **Node/Playwright scanner** on **Cloudflare Containers** at `scan.sitebehavior.org`, including the Brave-list block simulation (not a live Brave visit), with R2-backed reports, public r2 output, consent verification, Turnstile, and atomic per-client rate limiting. Shared report links resolve to the scanner origin. The exact revision currently served by the scanner is published by [`/api/health`](https://scan.sitebehavior.org/api/health), and the Pages revision by [`/deployment.json`](https://sitebehavior.org/deployment.json). Production deployments track the CI-gated `production` branch. Scanner non-production builds are disabled; Pages automatic preview deployments are currently enabled and public by default, so they must be disabled or Access-restricted before a critical release. The lighter **Browser Run Worker** was retired and its source deleted on 2026-07-24; the container scanner is the only supported producer. See [docs/go-live-public-scanner.md](docs/go-live-public-scanner.md), [docs/deploy-cloudflare-containers.md](docs/deploy-cloudflare-containers.md), and [docs/deployment-topology.md](docs/deployment-topology.md).
 
 > **Durable execution status.** Restart-safe queued/running execution is implemented behind `SITE_BEHAVIOR_LAB_DURABLE_JOBS=1`, but the committed production configuration keeps durable jobs and container sharding at `0`. Production therefore uses the in-process queue plus the IDs-only restart-recovery registry. Activation still requires the external secrets/private coordinator setup and the staged replay and no-polling lease-expiry receipts; missing prerequisites fail closed.
 
@@ -104,11 +104,10 @@ The digest-pinned Playwright container base is verified at Node 24.17.0 with npm
 |---|---|---|
 | `SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN` | unset | When set, `/api/scan` requires the token in `Authorization: Bearer ...` or `x-site-behavior-lab-access-token`. Leave unset only for trusted local development or intentionally public deployments with external abuse controls. |
 | `SITE_BEHAVIOR_LAB_SYNTHETIC_MONITOR_TOKEN` | unset | Cloudflare Containers front Worker only. Distinct Worker-only credential for the scheduled production synthetic. It bypasses Turnstile only for the fixed IANA desktop/GPC-on/observe single-scan contract, is stripped before forwarding to Node, and does not close or weaken the visitor Turnstile path. Configure the same value as the repository secret `PRODUCTION_SYNTHETIC_MONITOR_TOKEN`, then set `PRODUCTION_SYNTHETIC_MONITOR_REQUIRED=1` as a repository variable so later credential loss fails loudly. |
-| `SITE_BEHAVIOR_LAB_ALLOW_UNAUTHENTICATED_SCANS` | unset | Cloudflare Workers only (Browser Run and Containers). Set to `1` only for an intentionally open public scanner, with no scan token set. On the Browser Run worker it also requires the DNS-rebinding risk flag below; the Containers scanner pins DNS at connect time, so it does not. The Containers front Worker still enforces Turnstile (when configured) and an atomic Durable Object quota. See [docs/go-live-public-scanner.md](docs/go-live-public-scanner.md). |
-| `SITE_BEHAVIOR_LAB_ACCEPT_BROWSER_RUN_DNS_REBINDING_RISK` | unset | Browser Run worker only. Must be `1` before unauthenticated Browser Run scans are enabled, because Browser Run cannot currently pin the browser connection to the DNS answer verified by the Worker. Not used by the Containers scanner. |
+| `SITE_BEHAVIOR_LAB_ALLOW_UNAUTHENTICATED_SCANS` | unset | Containers front Worker only. Set to `1` only for an intentionally open public scanner, with no scan token set. The front Worker still enforces Turnstile (when configured) and an atomic Durable Object quota, and the container pins DNS at connect time. See [docs/go-live-public-scanner.md](docs/go-live-public-scanner.md). |
 | `SITE_BEHAVIOR_LAB_ACCEPT_NO_TURNSTILE_RISK` | unset | Containers front Worker only. Open public scans fail closed with `503` when no `TURNSTILE_SECRET_KEY` is configured. Set to `1` only to consciously waive human verification and run an open scanner on atomic rate limiting alone. See [docs/go-live-public-scanner.md](docs/go-live-public-scanner.md). |
 | `TURNSTILE_SECRET_KEY` | unset | Cloudflare Worker secret used to verify scan-submission Turnstile tokens. The open Containers scanner fails closed without it unless `SITE_BEHAVIOR_LAB_ACCEPT_NO_TURNSTILE_RISK=1` explicitly waives that control. Pair it with the matching public site key below; never expose this secret to the browser or Node container. |
-| `SITE_BEHAVIOR_LAB_PUBLIC_SCAN_RATE_LIMIT_PER_MINUTE` | `6` | Cloudflare Workers only. Maximum public scan tokens per client per minute. GPC, Shields, and consent comparisons cost two tokens. The Containers front Worker accounts atomically in the scanner Durable Object's SQLite storage; the retired Browser Run worker uses `REPORTS_KV`. |
+| `SITE_BEHAVIOR_LAB_PUBLIC_SCAN_RATE_LIMIT_PER_MINUTE` | `6` | Cloudflare Workers only. Maximum public scan tokens per client per minute. GPC, Shields, and consent comparisons cost two tokens. The Containers front Worker accounts atomically in the scanner Durable Object's SQLite storage. |
 | `SITE_BEHAVIOR_LAB_PUBLIC_SCAN_RATE_LIMIT_PER_DAY` | `120` | Cloudflare Workers only. Maximum public scan tokens per client per day. GPC, Shields, and consent comparisons cost two tokens. |
 | `SITE_BEHAVIOR_LAB_TRUST_PROXY_HEADERS` | unset | Set to `1` only when traffic reaches the app through a trusted proxy that controls forwarding headers and blocks direct origin access. Rate limiting uses in-memory counters per Node process. |
 | `SITE_BEHAVIOR_LAB_ALLOWED_ORIGIN` | `*` | Browser CORS allow-list for the `/api` routes (also honored by the Cloudflare Worker). Default `*` lets any site invoke the scanner from a browser, fine for a single-origin (B1) deployment or an intentionally open scanner. Set it to one origin (for example `https://sitebehavior.org`) to allow only that site's cross-origin browser requests; others are denied. The scan API uses no cookies, so `*` is safe by default. |
@@ -164,9 +163,9 @@ The verifier accepts only public v2/r2 artifacts from the expected full build SH
 
 ## Architecture
 
-![Site Behavior Lab architecture: a visitor loads the static Cloudflare Pages UI and submits a scan to the Front Worker (Turnstile and rate limits), which forwards to the Node and Playwright container scanner. The scanner reaches the target site only over public HTTP(S) on standard ports through an SSRF egress proxy that pins a public IP at connect time, records its detections, and writes durable saved reports to R2. The live Containers API and single-site Actions dispatch emit public r2, the scheduled corpus refresh emits r2 once its controlled runner variable is configured and otherwise takes a disclosed frozen-v1 fallback, and explicit manual Actions dispatch may select frozen v1 deliberately; the paired PageGraph importer emits request-only r2; and the retired Browser Run Worker remains a legacy v1 self-host path.](docs/architecture.svg)
+![Site Behavior Lab architecture: a visitor loads the static Cloudflare Pages UI and submits a scan to the Front Worker (Turnstile and rate limits), which forwards to the Node and Playwright container scanner. The scanner reaches the target site only over public HTTP(S) on standard ports through an SSRF egress proxy that pins a public IP at connect time, records its detections, and writes durable saved reports to R2. The live Containers API and single-site Actions dispatch emit public r2, the scheduled corpus refresh emits r2 once its controlled runner variable is configured and otherwise takes a disclosed frozen-v1 fallback, and explicit manual Actions dispatch may select frozen v1 deliberately; the paired PageGraph importer emits request-only r2.](docs/architecture.svg)
 
-The Cloudflare Pages site is the static front door; live scans run on the Node/Playwright container behind a Turnstile/rate-limit Worker, reach the public web only through a connect-time SSRF proxy, persist to R2, and emit public r2. GitHub Actions invokes the same Node scanner: single-site repository-dispatch production is unconditionally r2, and the scheduled featured refresh emits r2 once the controlled self-hosted runner variable (`FEATURED_RUNNER_LABEL`) is configured, otherwise a loudly disclosed frozen-v1 fallback. Only an explicit human workflow dispatch may select frozen v1 deliberately. Paired PageGraph uploads emit request-only r2 reports locally, while the retired Browser Run Worker remains a gated legacy-v1 self-host path. See [docs/deployment-topology.md](docs/deployment-topology.md) for the decision record.
+The Cloudflare Pages site is the static front door; live scans run on the Node/Playwright container behind a Turnstile/rate-limit Worker, reach the public web only through a connect-time SSRF proxy, persist to R2, and emit public r2. GitHub Actions invokes the same Node scanner: single-site repository-dispatch production is unconditionally r2, and the scheduled featured refresh emits r2 once the controlled self-hosted runner variable (`FEATURED_RUNNER_LABEL`) is configured, otherwise a loudly disclosed frozen-v1 fallback. Only an explicit human workflow dispatch may select frozen v1 deliberately. Paired PageGraph uploads emit request-only r2 reports locally. See [docs/deployment-topology.md](docs/deployment-topology.md) for the decision record.
 
 ## Production Deployment
 
@@ -313,58 +312,32 @@ Rows with a null status or status `>= 400`, rows with `request_evidence_complete
 
 `shields_third_party_change` is the signed third-party request change for an eligible Brave-list blocking pair (blocking minus unblocked baseline), not a count of individually blocked requests: negative means fewer with blocking, positive means more. Pair-level `comparable` never makes every metric family comparable or authorizes causal wording; consult the linked report's family gates and reasons. This is a curated measured corpus, not a random sample of the web. Licensed AGPL-3.0-or-later with the repository.
 
-## Cloudflare Worker Deployment
+## Cloudflare Worker Deployment (removed)
 
-The repo also includes a Cloudflare-native scanner in `cloudflare/worker.ts`, built on Cloudflare Browser Run with KV-backed report storage, DNS-over-HTTPS public-address checks, public scan quotas, and GPC comparison support. It no longer powers the public scan form: sitebehavior.org runs the full Node/Playwright container scanner (see the note below), and this Worker is retired as a public deployment because its preflight-only DNS check cannot pin the browser's eventual connection. It remains a lightweight self-hosted option for token-gated GPC/trackers scans.
+The repo used to ship a second, Cloudflare-native scanner built on Browser Run
+(`cloudflare/worker.ts` plus `wrangler.browser-run.jsonc`). It was retired as a
+public deployment, deleted from Cloudflare on 2026-07-09, and its source was
+deleted from this repo on 2026-07-24.
 
-> For the **full Node/Playwright scanner with the Brave-list blocking simulation** running on Cloudflare (Containers, fronted by a Worker, with R2 report storage), see [docs/deploy-cloudflare-containers.md](docs/deploy-cloudflare-containers.md). That is the Cloudflare-native version of the Node container path and the one serving production; this Browser Run Worker stays a lightweight self-hosted GPC/trackers option.
+The reason is structural rather than incidental: Browser Run exposes no proxy or
+IP-pinned navigation primitive, so that worker could only do a DNS-over-HTTPS
+**preflight** and Browser Run then re-resolved the name at connect time. A
+name that resolves public during the check and private at connect time defeats
+it, and no configuration closes that gap. Keeping it as a gated self-host option
+meant shipping a second scanner with a known SSRF weakness that was one
+environment flag away from being reachable.
 
-One-time Cloudflare setup:
+The supported deployment is the Node/Playwright container, which resolves,
+validates, and **pins** to a public IP through a per-scan local proxy
+([lib/public-scan-proxy.ts](lib/public-scan-proxy.ts)). See
+[docs/deploy-cloudflare-containers.md](docs/deploy-cloudflare-containers.md) for
+Cloudflare Containers, or [docs/deploy-node-container.md](docs/deploy-node-container.md)
+for a plain Node container. The decision record is
+[docs/deployment-topology.md](docs/deployment-topology.md).
 
-1. Create the KV namespace used by the report store and public scan rate limiter:
-
-```bash
-npm run cf:kv:create
-```
-
-2. Put the returned namespace id in `wrangler.browser-run.jsonc` under the `REPORTS_KV` binding.
-3. The committed `wrangler.browser-run.jsonc` ships gated: `SITE_BEHAVIOR_LAB_ALLOW_UNAUTHENTICATED_SCANS` and the DNS-rebinding risk flag are both `0`, the safer default for self-hosting. (An intentionally open instance flips both to `1`, see step 5.) For a gated instance, set a scan token:
-
-```bash
-npx wrangler secret put SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN \
-  -c wrangler.browser-run.jsonc
-```
-
-4. Optional for gated deployments: create a Turnstile site in Cloudflare and set the secret key:
-
-```bash
-npx wrangler secret put TURNSTILE_SECRET_KEY \
-  -c wrangler.browser-run.jsonc
-```
-
-   If the static UI drives this Worker, also build it with the matching public site key so the UI can render the Turnstile widget and send its token; otherwise the scan button stays disabled with an explanation:
-
-```bash
-NEXT_PUBLIC_SITE_BEHAVIOR_LAB_TURNSTILE_SITE_KEY=<turnstile-site-key> npm run build:pages
-```
-
-5. If you intentionally want an open public Worker, set both `SITE_BEHAVIOR_LAB_ALLOW_UNAUTHENTICATED_SCANS=1` and `SITE_BEHAVIOR_LAB_ACCEPT_BROWSER_RUN_DNS_REBINDING_RISK=1`, keep the KV-backed public scan quotas, and add Cloudflare WAF/rate limiting for abuse-sensitive deployments. If open access is set without the risk-acceptance flag, `/api/scan` returns `503` instead of falling back to token-gated access.
-
-6. Deploy the Worker:
-
-```bash
-npm run cf:deploy
-```
-
-The Worker exposes:
-
-- `GET /api/health`
-- `POST /api/scan`
-- `GET /api/reports/:id`
-
-The Worker returns Cloudflare Browser Run reports and stores screenshot-stripped copies in KV. It performs public URL shape checks plus DNS-over-HTTPS public-address checks before navigation and resource loading, using Cloudflare DNS by default or `SITE_BEHAVIOR_LAB_DNS_RESOLVER_URL` when set. Current `@cloudflare/playwright` Browser Run launch options do not expose a proxy or IP-pinned navigation primitive, so the Worker DNS guard is preflight-only: Browser Run still performs its own connection-time DNS resolution. Open unauthenticated Worker scans therefore stay disabled unless the deployment explicitly sets the risk-acceptance flag. GPC comparison runs two sequential Browser Run visits and costs two public scan tokens. KV public-scan quotas are best-effort read-then-write counters and can be exceeded by concurrent requests, so abuse-sensitive public deployments should add Cloudflare WAF/rate limiting or another atomic cost-control layer. R2 is still the better long-term report store, but the account must enable R2 in the Cloudflare dashboard before `npm run cf:bucket:create` can create `site-behavior-lab-reports`. Shields block simulation, queued Cloudflare jobs, richer catalog parity, and Worker-side connect-time DNS pinning remain future parity work.
-
-Set `NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SCAN_API_BASE` during `npm run build:pages` to expose this Worker from the static UI. Set `NEXT_PUBLIC_SITE_BEHAVIOR_LAB_OPEN_ACCESS=1` only when that Worker is intentionally open so the static UI does not show the access key field.
+Reports produced by the retired worker remain readable: `browser-run-worker` is
+still a recognized `observer` in the frozen v2 schema vocabulary, and the
+`cloudflare-browser-run` conditions profile is still honored by the readers.
 
 ## Report Contract
 
@@ -375,7 +348,6 @@ Runtime capability parity is intentionally explicit:
 | Producer | Single scan | GPC comparison | Shields comparison | Consent comparison | Async jobs | DNS guard | Tracker catalog | Store |
 |---|---:|---:|---:|---:|---:|---|---|---|
 | Node / Playwright | yes | yes | yes | yes | yes | connect-time public-address proxy | hand-curated service catalog | filesystem or R2 |
-| Cloudflare Worker / Browser Run | yes | yes | no | no | no | DNS-over-HTTPS preflight only | none | KV or R2 |
 | Paired GraphML + sidecar r2 import | yes (requests only) | no | no | no | no | no navigation; source artifact only | bundled curated catalog | local / caller-managed |
 
 ## Checks

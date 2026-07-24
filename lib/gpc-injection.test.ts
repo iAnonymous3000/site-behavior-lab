@@ -19,12 +19,9 @@ import {
 
 const FIXED_RANDOM_BYTES = new Uint8Array(Array.from({ length: 24 }, (_, index) => index + 1));
 
-test("both producers scope the GPC registration initializer to the routed measured page", async () => {
-  const [nodeProducer, cloudflareProducer] = await Promise.all([
-    readFile(path.join(process.cwd(), "lib", "scanner.ts"), "utf8"),
-    readFile(path.join(process.cwd(), "cloudflare", "worker.ts"), "utf8")
-  ]);
-  for (const source of [nodeProducer, cloudflareProducer]) {
+test("the producer scopes the GPC registration initializer to the routed measured page", async () => {
+  const nodeProducer = await readFile(path.join(process.cwd(), "lib", "scanner.ts"), "utf8");
+  for (const source of [nodeProducer]) {
     assert.doesNotMatch(
       source,
       /context\.addInitScript\(\s*installGlobalPrivacyControlWithWorkerRegistration/

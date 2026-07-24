@@ -1,8 +1,10 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
   // Full Node/Playwright scanner (live Shields) on Cloudflare Containers.
-  // This is the live production config. The retired Browser Run self-host path is
-  // explicitly named wrangler.browser-run.jsonc; no root wrangler.jsonc exists.
+  // This is the live production config, and the only scanner deployment. The
+  // retired Browser Run worker was deleted outright (its preflight-only DNS
+  // check could not pin the browser's eventual connection); no root
+  // wrangler.jsonc exists, so every operator command names its config.
   // Runbook: docs/deploy-cloudflare-containers.md
   "name": "site-behavior-lab-scanner",
   "main": "cloudflare/container-worker.ts",

@@ -925,7 +925,6 @@ v1 is hardcoded as a strict equality in at least five places:
 producers ([lib/scan-result-builder.ts](../lib/scan-result-builder.ts),
 [lib/compare-reports.ts](../lib/compare-reports.ts),
 [scripts/run-ci-scan.mjs](../scripts/run-ci-scan.mjs),
-[cloudflare/worker.ts](../cloudflare/worker.ts),
 [lib/pagegraph-adapter.ts](../lib/pagegraph-adapter.ts)). A bump without an adapter
 bricks every committed report, every R2 share link, and the corpus pages.
 

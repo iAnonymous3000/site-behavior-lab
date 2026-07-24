@@ -1,3 +1,11 @@
+/// <reference types="@cloudflare/workers-types" />
+// Worker globals (DurableObjectNamespace, R2Bucket, KVNamespace) come from this
+// reference. tsconfig.cloudflare.json supplies them via "types", but the
+// whole-project app typecheck compiles cloudflare/**/*.ts too and has no such
+// setting, so each entrypoint declares it. Until 2026-07-24 exactly one file
+// carried this line and every other worker inherited it by accident; deleting
+// that file broke the app typecheck.
+
 // Front Worker for the Cloudflare Containers deployment of the full Node/Playwright
 // scanner, the path that runs *live* Brave Shields (tried-vs-blocked). It runs the
 // repo Dockerfile as a Cloudflare Container and forwards requests to it.
@@ -7,8 +15,8 @@
 // SQLite quota in the scanner Durable Object. Everything else (health, report
 // reads, CORS preflight) forwards straight through.
 //
-// Deployed separately (wrangler.container.jsonc) from the retired Browser Run
-// worker retained in cloudflare/worker.ts for gated self-hosting.
+// Deployed from wrangler.container.jsonc. This is now the only scanner worker:
+// the Browser Run worker it once sat beside was deleted on 2026-07-24.
 // Full runbook: docs/go-live-public-scanner.md
 import { Container, getContainer } from "@cloudflare/containers";
 import { scanCorsHeaders } from "../lib/cors";
@@ -4424,8 +4432,8 @@ function containerShardingHealth(plan: DurableContainerShardingPlan): {
  * - No token + not opened → refuse, so an unconfigured scanner is never silently
  *   world-readable through its workers.dev URL.
  *
- * Unlike the Browser Run worker, the Node container pins DNS at connect time, so
- * opening it does not require the Browser Run DNS-rebinding risk acknowledgement.
+ * The Node container pins DNS at connect time, so opening it does not require
+ * the risk acknowledgement the deleted Browser Run worker needed.
  */
 async function gateScanRequest(
   request: Request,

@@ -31,9 +31,9 @@ as quickly as is practical for a volunteer-maintained project.
   validates every answer, and pins the connection to a verified public IP at
   connect time ([`lib/public-scan-proxy.ts`](lib/public-scan-proxy.ts)), so a
   rebinding answer after the preflight cannot redirect the browser to a private
-  address. The legacy Browser Run worker has only preflight DNS checks (no
-  connect-time pinning), which is why its config defaults to gated. Bypasses of
-  the pinning proxy are exactly what we want to hear about.
+  address. The legacy Browser Run worker had only preflight DNS checks (no
+  connect-time pinning), which is why it was deleted rather than kept gated.
+  Bypasses of the pinning proxy are exactly what we want to hear about.
 - **Data leakage.** Raw cookie/storage *values* or PII appearing in reports,
   exports, or logs. Cookie values are omitted. Storage values are omitted while
   their byte counts may remain. Report URLs omit credentials and fragments;
@@ -62,11 +62,10 @@ as quickly as is practical for a volunteer-maintained project.
   atomic quotas and edge abuse controls. A token or human check is a deployment
   control, not a complete abuse-prevention system; pair it with proxy, firewall,
   and monitoring limits.
-  Legacy Browser Run Worker deployments stay gated unless operators explicitly set both
-  `SITE_BEHAVIOR_LAB_ALLOW_UNAUTHENTICATED_SCANS=1` and
-  `SITE_BEHAVIOR_LAB_ACCEPT_BROWSER_RUN_DNS_REBINDING_RISK=1`, acknowledging
-  that Browser Run currently has only DNS-over-HTTPS preflight checks rather
-  than Node's connect-time DNS pinning proxy.
+  The legacy Cloudflare Browser Run worker was DELETED rather than kept gated:
+  its DNS-over-HTTPS preflight could not pin the browser's eventual connection,
+  so it could not offer the connect-time IP pinning the container scanner does.
+  The only supported scanner is the Node/Playwright container.
 
 ## Scope and acceptable use
 

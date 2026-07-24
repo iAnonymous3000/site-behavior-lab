@@ -39,7 +39,6 @@ test("Cloudflare Worker imports stay out of Node-only modules", async () => {
   await assertBoundary({
     name: "cloudflare-worker",
     entrypoints: [
-      "cloudflare/worker.ts",
       "cloudflare/container-worker.ts",
       "cloudflare/r2-remediation-worker.ts",
       "cloudflare/r2-delete-canary-worker.ts"

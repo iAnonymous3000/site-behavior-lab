@@ -60,12 +60,10 @@ test("an absent or forged collector capability fails closed", async () => {
   assert.deepEqual(result, { value: "", truncated: true });
 });
 
-test("both browser producers install the immutable collector before creating the measured page", async () => {
+test("the browser producer installs the immutable collector before creating the measured page", async () => {
   const scanner = await readFile(path.join(process.cwd(), "lib/scanner.ts"), "utf8");
-  const worker = await readFile(path.join(process.cwd(), "cloudflare/worker.ts"), "utf8");
 
   assert.match(scanner, /context\.addInitScript\(installBoundedPageCollector, boundedPageCollectorKey\)[\s\S]*context\.newPage\(\)/);
-  assert.match(worker, /context\.addInitScript\(installBoundedPageCollector, boundedPageCollectorKey\)[\s\S]*context\.newPage\(\)/);
   assert.match(scanner, /callBoundedElementCollector\([\s\S]*"fieldType"/);
 });
 

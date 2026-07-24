@@ -5,7 +5,7 @@ Site Behavior Lab now has three runtime lanes:
 | Lane | Entrypoints | Allowed imports | Disallowed imports |
 |---|---|---|---|
 | Browser client | `app/site-behavior-app.tsx`, `app/reports/[id]/saved-report-client.tsx`, `lib/pagegraph-client-import.ts`, `lib/pagegraph-v2-r2-builder.ts` | React UI, browser-only PageGraph import/build code, type-only report contracts, pure report helpers | Node builtins, Playwright, `next/server`, Node scanner/store/gate modules |
-| Cloudflare Worker | `cloudflare/worker.ts`, `cloudflare/container-worker.ts`, `cloudflare/r2-remediation-worker.ts`, `cloudflare/r2-delete-canary-worker.ts` | Worker APIs, `@cloudflare/playwright` for the legacy Browser Run path, `@cloudflare/containers` for production ingress, edge-safe pure helpers | Node builtins, Node Playwright, Next server modules, Node scanner/store/gate modules |
+| Cloudflare Worker | `cloudflare/container-worker.ts`, `cloudflare/r2-remediation-worker.ts`, `cloudflare/r2-delete-canary-worker.ts` | Worker APIs, `@cloudflare/containers` for production ingress, edge-safe pure helpers | Node builtins, Node Playwright, Next server modules, Node scanner/store/gate modules |
 | Node scanner/server | Next API routes, `lib/scanner.ts`, `lib/scan-api.ts`, `lib/scan-jobs.ts` | Node builtins, Playwright, filesystem or R2 report storage, connect-time proxy guard | Browser-only UI imports |
 
 The pure/shared modules are intentionally small and dependency-light: report comparison and validation, URL redaction/normalization, domain summarization, scan result assembly, runtime request recording, fingerprint observation summarization, PageGraph adaptation, and report types. They can be used from Node, Worker, or the browser when their own imports stay pure.

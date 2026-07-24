@@ -1,12 +1,13 @@
 /**
  * Shared abuse-control mechanisms for the edge scanners.
  *
- * Both Cloudflare front Workers, the Browser Run worker (`cloudflare/worker.ts`)
- * and the Containers front Worker (`cloudflare/container-worker.ts`), need the
- * same primitives to make a public scan endpoint safe: a constant-time access
- * token check, Cloudflare Turnstile verification, and best-effort KV-backed
- * per-client rate limiting. This module is the single definition of those
- * mechanisms so the two Workers cannot drift apart.
+ * The Containers front Worker (`cloudflare/container-worker.ts`) needs these
+ * primitives to make a public scan endpoint safe: a constant-time access token
+ * check, Cloudflare Turnstile verification, and best-effort KV-backed
+ * per-client rate limiting. This module was the single definition shared with
+ * the Browser Run worker so the two could not drift apart; that worker was
+ * deleted on 2026-07-24, and the container path charges its quota atomically in
+ * the scanner Durable Object rather than through the KV counters here.
  *
  * Each Worker still composes its *own policy* (when to require a token, whether
  * open access is allowed, which DNS-rebinding caveats apply) on top of these
