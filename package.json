@@ -85,7 +85,7 @@
     "tldts": "7.4.9"
   },
   "overrides": {
-    "postcss": "8.5.10",
+    "postcss": "8.5.22",
     "sharp": "0.35.3"
   },
   "devDependencies": {

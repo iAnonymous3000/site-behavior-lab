@@ -7,7 +7,7 @@
   "inputs": {
     "packageLock": {
       "path": "package-lock.json",
-      "sha256": "3888c868a8e5a902f0c60f2a42e2c740a6a2165daf4a324e6a3603446418b2c1"
+      "sha256": "c66082efbf113ed2e75fffb79b4b92f97bff93ce1e3fa48624d73ef94f5d0f9c"
     },
     "cargoLock": {
       "path": "tools/adblock-wasm/Cargo.lock",
@@ -1423,13 +1423,13 @@
     },
     {
       "name": "nanoid",
-      "version": "3.3.13",
+      "version": "3.3.16",
       "lockPath": "node_modules/nanoid",
       "license": "MIT",
       "licenseStatus": "declared-in-package-lock",
       "licenseEvidence": "package-lock.json",
-      "resolved": "https://registry.npmjs.org/nanoid/-/nanoid-3.3.13.tgz",
-      "integrity": "sha512-sPdqC6ByMVVGvF1ynvvMo0/o+oD1VX7DaHhijt1bFgjvBkHBib4t49GoNDhf2NDta4oeUNlaGbSt5K7qjZ955Q==",
+      "resolved": "https://registry.npmjs.org/nanoid/-/nanoid-3.3.16.tgz",
+      "integrity": "sha512-bzlKTyNJ7+LdGIIwy8ijFpIqEQIvafahV7eYykJ8Cvh42EdJeODoJ6gUJXpQJvej1BddH8OqTXZNE/KfbWAu8Q==",
       "developmentOnly": false,
       "optional": false
     },
@@ -1531,13 +1531,13 @@
     },
     {
       "name": "postcss",
-      "version": "8.5.10",
+      "version": "8.5.22",
       "lockPath": "node_modules/postcss",
       "license": "MIT",
       "licenseStatus": "declared-in-package-lock",
       "licenseEvidence": "package-lock.json",
-      "resolved": "https://registry.npmjs.org/postcss/-/postcss-8.5.10.tgz",
-      "integrity": "sha512-pMMHxBOZKFU6HgAZ4eyGnwXF/EvPGGqUr0MnZ5+99485wwW41kW91A4LOGxSHhgugZmSChL5AlElNdwlNgcnLQ==",
+      "resolved": "https://registry.npmjs.org/postcss/-/postcss-8.5.22.tgz",
+      "integrity": "sha512-KBDEIpLrvpv16pp3K0Fw+UCoZfopFjjgeB+0tA/aaThfEE74kKDLrgg603YvOWJyg3+WYtyq3xYsQWsIyZlPqQ==",
       "developmentOnly": false,
       "optional": false
     },
