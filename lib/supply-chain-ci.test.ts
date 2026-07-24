@@ -154,8 +154,7 @@ test("Trivy is immutable, exact-versioned, fresh, and scans deployable configura
   assert.match(steps, /severity: HIGH,CRITICAL/);
   assert.match(steps, /ignore-unfixed: "false"/);
   assert.match(steps, /cache: "false"/);
-  assert.match(steps, /skip-db-update: "false"/);
-  assert.match(steps, /skip-java-db-update: "false"/);
+  assert.match(steps, /cache-dir: \$\{\{ runner\.temp \}\}\/trivy-cache/);
   assert.match(steps, /id: trivy_report\n\s+if: always\(\)\n\s+continue-on-error: true/);
   assert.match(steps, /test -s "\$SUPPLY_CHAIN_REPORT_DIR\/trivy-filesystem\.json"/);
   assert.match(steps, /JSON\.parse/);
@@ -212,8 +211,7 @@ test("the smoke-tested container image has its own fresh blocking Trivy gate", (
   assert.match(dockerJob, /severity: HIGH,CRITICAL/);
   assert.match(dockerJob, /ignore-unfixed: "false"/);
   assert.match(dockerJob, /cache: "false"/);
-  assert.match(dockerJob, /skip-db-update: "false"/);
-  assert.match(dockerJob, /skip-java-db-update: "false"/);
+  assert.match(dockerJob, /cache-dir: \$\{\{ runner\.temp \}\}\/trivy-cache/);
   assert.match(dockerJob, /Both[\s\S]*fixed and unfixed HIGH\/CRITICAL findings are blocking/);
   assert.match(dockerJob, /id: trivy_image_report\n\s+if: always\(\)\n\s+continue-on-error: true/);
   assert.match(dockerJob, /id: trivy_image_report_upload\n\s+if: always\(\)/);

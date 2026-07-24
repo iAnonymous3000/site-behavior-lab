@@ -140,8 +140,11 @@ jobs:
           severity: HIGH,CRITICAL
           ignore-unfixed: "false"
           cache: "false"
-          skip-db-update: "false"
-          skip-java-db-update: "false"
+          # This pinned action version ignores the retired skip-db-update
+          # inputs; a fresh DB download is its default. Keep that download
+          # OUTSIDE the workspace: a DB dropped into the checkout dirties the
+          # worktree and the exact-SHA evidence gate refuses a dirty tree.
+          cache-dir: ${{ runner.temp }}/trivy-cache
 
       - name: Validate Trivy machine-readable report
         id: trivy_report
@@ -363,8 +366,11 @@ jobs:
           severity: HIGH,CRITICAL
           ignore-unfixed: "false"
           cache: "false"
-          skip-db-update: "false"
-          skip-java-db-update: "false"
+          # This pinned action version ignores the retired skip-db-update
+          # inputs; a fresh DB download is its default. Keep that download
+          # OUTSIDE the workspace: a DB dropped into the checkout dirties the
+          # worktree and the exact-SHA evidence gate refuses a dirty tree.
+          cache-dir: ${{ runner.temp }}/trivy-cache
 
       - name: Validate Trivy container machine-readable report
         id: trivy_image_report
