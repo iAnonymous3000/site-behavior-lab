@@ -50,6 +50,24 @@ const corpusCsvDecisionColumns = [
   "compatibility_fingerprint_origin",
   "compatibility_fingerprint_matched"
 ];
+// Additive export evolution (lib/corpus-export.ts): the provenance/cohort
+// columns append after the decision context so positional readers never move.
+const corpusCsvProvenanceColumns = [
+  "run_outcome",
+  "producer",
+  "acquisition",
+  "build_commit",
+  "methodology_version",
+  "methodology_origin",
+  "browser_name",
+  "browser_version",
+  "egress_label",
+  "egress_region",
+  "corpus_cohort_id",
+  "corpus_cohort_denominator",
+  "corpus_inclusion",
+  "corpus_exclusion_reasons"
+];
 const recordedConsentChoiceStates = ["verified", "contradicted", "weak-signal", "unavailable", "failed"];
 
 function pass(message) {
@@ -331,13 +349,16 @@ async function main() {
     if (!corpusCsvResponse.ok) fail(`researcher CSV export not served (${corpusCsvResponse.status})`);
     const corpusCsvHeader = corpusCsv.split(/\r?\n/, 1)[0].split(",");
     const legacyTailIndex = corpusCsvHeader.indexOf("limited");
+    const expectedAppendedTail = [...corpusCsvDecisionColumns, ...corpusCsvProvenanceColumns];
     if (
       legacyTailIndex < 0 ||
-      corpusCsvHeader.slice(legacyTailIndex + 1).join(",") !== corpusCsvDecisionColumns.join(",")
+      corpusCsvHeader.slice(legacyTailIndex + 1).join(",") !== expectedAppendedTail.join(",")
     ) {
-      fail("researcher CSV export did not append the five decision-context columns after the legacy contract");
+      fail(
+        "researcher CSV export did not append the decision-context and provenance/cohort columns after the legacy contract"
+      );
     }
-    pass("researcher exports publish the appended r2 decision context in JSON and CSV");
+    pass("researcher exports publish the appended r2 decision context and provenance/cohort columns in JSON and CSV");
 
     if (liveScanApiBase) {
       await expectText(page.locator(".status-pill"), "Live");
