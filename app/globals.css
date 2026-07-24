@@ -668,6 +668,9 @@ a {
   align-content: center;
   display: grid;
   gap: 18px;
+  /* Explicit shrinkable column: an implicit auto track sizes to item
+     min-content and can exceed the container on wide font metrics. */
+  grid-template-columns: minmax(0, 1fr);
   min-height: 214px;
 }
 
@@ -4492,6 +4495,12 @@ details[open] > summary .disclosure-chevron {
   .static-action-row .secondary-button,
   .static-compare-heading .primary-button,
   .static-compare-upload .secondary-button {
+    /* Stacked full-width buttons must not keep the desktop nowrap: a label
+       longer than the viewport would otherwise force page-level overflow on
+       wide font metrics. min-height still centers unwrapped labels. */
+    min-width: 0;
+    padding-block: 8px;
+    white-space: normal;
     width: 100%;
   }
 
