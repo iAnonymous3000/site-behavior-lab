@@ -1128,7 +1128,32 @@ async function assertNoHorizontalOverflow(page, label) {
     };
     const leaves = overflowing.filter((element) => ![...element.children].some((child) => overflowingSet.has(child)));
     const offenders = [...new Set([...leaves, ...overflowing])].slice(0, 6).map(describe);
-    return { viewportWidth, scrollWidth, clientWidth, dpr: window.devicePixelRatio, offenders };
+    // Layout-context probes: whether the mobile collapse actually applied,
+    // and whether every stylesheet is present and readable when it did not.
+    const workbench = document.querySelector(".scan-workbench");
+    const workbenchColumns = workbench ? getComputedStyle(workbench).gridTemplateColumns : "absent";
+    const narrowMediaMatches = matchMedia("(max-width: 1100px)").matches;
+    let ruleCount = 0;
+    let unreadableSheets = 0;
+    for (const sheet of document.styleSheets) {
+      try {
+        ruleCount += sheet.cssRules.length;
+      } catch {
+        unreadableSheets += 1;
+      }
+    }
+    return {
+      viewportWidth,
+      scrollWidth,
+      clientWidth,
+      dpr: window.devicePixelRatio,
+      offenders,
+      workbenchColumns,
+      narrowMediaMatches,
+      sheets: document.styleSheets.length,
+      ruleCount,
+      unreadableSheets
+    };
   });
 
   if (measurement.scrollWidth <= measurement.viewportWidth + 1) return;
@@ -1141,7 +1166,10 @@ async function assertNoHorizontalOverflow(page, label) {
   fail(
     `${label} has page-level horizontal overflow ` +
       `(viewport=${measurement.viewportWidth}, client=${measurement.clientWidth}, ` +
-      `scroll=${measurement.scrollWidth}, dpr=${measurement.dpr}${details ? `; ${details}` : ""})`
+      `scroll=${measurement.scrollWidth}, dpr=${measurement.dpr}, ` +
+      `workbench=${JSON.stringify(measurement.workbenchColumns)}, mq1100=${measurement.narrowMediaMatches}, ` +
+      `sheets=${measurement.sheets}, rules=${measurement.ruleCount}, unreadable=${measurement.unreadableSheets}` +
+      `${details ? `; ${details}` : ""})`
   );
 }
 
