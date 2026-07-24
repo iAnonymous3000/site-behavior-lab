@@ -704,8 +704,10 @@ export function consentClickArgs(choice: ConsentChoice, shadowRootCapability: st
  * It may try bounded no-op/stale candidates while searching, but dispatches at
  * most 12 synthetic clicks total and reports only the first control that reacts
  * by disappearing, hiding, or disabling. The bound prevents a decoy-heavy page
- * from consuming the scan budget. Self-contained: no closure over module scope,
- * so it serializes cleanly into the browser.
+ * from consuming the scan budget. A control identified by a known CMP selector
+ * that only reacts to a later generic-tier dispatch keeps its CMP attribution.
+ * Self-contained: no closure over module scope, so it serializes cleanly into
+ * the browser.
  */
 export async function findAndClickConsentControl(args: ConsentClickArgs): Promise<ConsentClickOutcome> {
   const runtime = (globalThis as unknown as Record<string, unknown>)[args.runtimeGlobalKey] as
@@ -766,20 +768,31 @@ export async function findAndClickConsentControl(args: ConsentClickArgs): Promis
   // into an unbounded wait. This is activation evidence, not proof of
   // registered CMP state.
   let activationAttempts = 0;
-  const activateControl = async (element: Element): Promise<boolean> => {
-    if (activationAttempts >= 12) return false;
+  const activateControl = async (element: Element): Promise<"reacted" | "no-reaction" | "not-dispatched"> => {
+    if (activationAttempts >= 12) return "not-dispatched";
     activationAttempts += 1;
-    if (!runtime.dispatchClick!(element, capability)) return false;
+    if (!runtime.dispatchClick!(element, capability)) return "not-dispatched";
     const reacted = (): boolean => {
       const state = stateFor(element);
       return !state.visible || !state.actionable;
     };
-    if (reacted()) return true;
+    if (reacted()) return "reacted";
     for (let elapsedMs = 0; elapsedMs < 350; elapsedMs += 25) {
       await runtime.delay!(25, capability);
-      if (reacted()) return true;
+      if (reacted()) return "reacted";
     }
-    return false;
+    return "no-reaction";
+  };
+  // A page-owned click handler can throw on its first dispatch (leaving the
+  // control unreacted) yet succeed on a retry from the generic tier. The CMP
+  // identification is the more specific finding, so it must survive that
+  // cross-tier retry instead of degrading into a generic text match.
+  const dispatchedCmpControls: { element: Element; cmp: string; selector: string }[] = [];
+  const cmpAttributionFor = (element: Element): { cmp: string; selector: string } | null => {
+    for (let index = 0; index < dispatchedCmpControls.length; index += 1) {
+      if (dispatchedCmpControls[index].element === element) return dispatchedCmpControls[index];
+    }
+    return null;
   };
 
   let knownCandidatesInspected = 0;
@@ -792,13 +805,18 @@ export async function findAndClickConsentControl(args: ConsentClickArgs): Promis
         knownCandidatesInspected += 1;
         if (knownCandidatesInspected > 1_500) break;
         const state = stateFor(element);
-        if (
-          runtime.isHtmlElement(element, capability) &&
-          state.visible &&
-          state.actionable &&
-          await activateControl(element)
-        ) {
-          return { clicked: true, cmp: selectorEntry.cmp, selector: selectorEntry.selector };
+        if (runtime.isHtmlElement(element, capability) && state.visible && state.actionable) {
+          const activation = await activateControl(element);
+          if (activation === "reacted") {
+            return { clicked: true, cmp: selectorEntry.cmp, selector: selectorEntry.selector };
+          }
+          if (activation === "no-reaction" && cmpAttributionFor(element) === null) {
+            dispatchedCmpControls[dispatchedCmpControls.length] = {
+              element,
+              cmp: selectorEntry.cmp,
+              selector: selectorEntry.selector
+            };
+          }
         }
       }
       if (knownCandidatesInspected > 1_500) break;
@@ -835,7 +853,11 @@ export async function findAndClickConsentControl(args: ConsentClickArgs): Promis
         args.contextTextPatternSource,
         capability
       )) continue;
-      if (!await activateControl(candidate)) continue;
+      if (await activateControl(candidate) !== "reacted") continue;
+      const cmpAttribution = cmpAttributionFor(candidate);
+      if (cmpAttribution) {
+        return { clicked: true, cmp: cmpAttribution.cmp, selector: cmpAttribution.selector };
+      }
       return { clicked: true, matchedText: normalized };
     }
   }
