@@ -251,7 +251,9 @@ async function uiChecks() {
     }
     pass("scan timer stays outside the bounded live status announcement");
     await waitForReportOrError(page, 30_000);
-    await expectText(page.locator(".report-header"), "Example Domain");
+    // Redaction policy v4 withholds page-authored titles, so the header
+    // identifies the subject by its domain, never by document.title.
+    await expectText(page.locator(".report-header"), "example.com");
     await expectText(page.locator(".warnings"), "one automated, headless Chromium visit");
     await expectText(page.locator(".methodology"), `Playwright${playwrightPackage.version}`);
     await expectText(page.locator(".methodology"), "Browser");
