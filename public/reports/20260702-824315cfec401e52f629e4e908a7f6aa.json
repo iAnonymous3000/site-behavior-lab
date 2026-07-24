@@ -16,7 +16,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "Internal Revenue Service | An official website of the United States government",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 8426,
       "firstPartyDomain": "www.irs.gov",
@@ -1130,7 +1130,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "Internal Revenue Service | An official website of the United States government",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 8263,
       "firstPartyDomain": "www.irs.gov",

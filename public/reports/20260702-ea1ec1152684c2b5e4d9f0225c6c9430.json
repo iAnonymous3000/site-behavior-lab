@@ -16,7 +16,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "Home - Canada.ca",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 20167,
       "firstPartyDomain": "www.canada.ca",
@@ -1320,7 +1320,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "Home - Canada.ca",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 27169,
       "firstPartyDomain": "www.canada.ca",

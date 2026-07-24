@@ -16,7 +16,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "LinkedIn: Log In or Sign Up",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 8323,
       "firstPartyDomain": "www.linkedin.com",
@@ -1186,7 +1186,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "LinkedIn: Log In or Sign Up",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 1771,
       "firstPartyDomain": "www.linkedin.com",

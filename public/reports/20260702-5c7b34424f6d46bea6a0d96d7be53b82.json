@@ -16,7 +16,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "Nickelodeon | Homepage",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 4594,
       "firstPartyDomain": "www.nick.com",
@@ -2174,7 +2174,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "Nickelodeon | Homepage",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 4690,
       "firstPartyDomain": "www.nick.com",

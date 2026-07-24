@@ -16,7 +16,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "zocdoc.com",
+      "pageTitle": "",
       "status": 403,
       "durationMs": 1281,
       "firstPartyDomain": "www.zocdoc.com",
@@ -229,7 +229,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "zocdoc.com",
+      "pageTitle": "",
       "status": 403,
       "durationMs": 1009,
       "firstPartyDomain": "www.zocdoc.com",

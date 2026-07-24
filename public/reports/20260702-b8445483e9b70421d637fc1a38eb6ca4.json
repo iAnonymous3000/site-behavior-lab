@@ -16,7 +16,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "USA TODAY - Breaking News and Latest News Today",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 16513,
       "firstPartyDomain": "www.usatoday.com",
@@ -18775,7 +18775,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "USA TODAY - Breaking News and Latest News Today",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 15566,
       "firstPartyDomain": "www.usatoday.com",

@@ -16,7 +16,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "myGov Home | myGov",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 2495,
       "firstPartyDomain": "my.gov.au",
@@ -933,7 +933,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "myGov Home | myGov",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 2139,
       "firstPartyDomain": "my.gov.au",

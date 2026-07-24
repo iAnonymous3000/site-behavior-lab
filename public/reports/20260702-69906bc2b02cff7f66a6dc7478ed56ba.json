@@ -16,7 +16,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "Hacker News",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 4512,
       "firstPartyDomain": "news.ycombinator.com",
@@ -174,7 +174,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "Hacker News",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 4578,
       "firstPartyDomain": "news.ycombinator.com",

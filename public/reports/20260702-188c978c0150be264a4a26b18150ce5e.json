@@ -16,7 +16,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "Tor Project | Anonymity Online",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 5620,
       "firstPartyDomain": "www.torproject.org",
@@ -535,7 +535,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "Tor Project | Anonymity Online",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 5779,
       "firstPartyDomain": "www.torproject.org",

@@ -16,7 +16,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "Pay, Send and Save Money with PayPal | PayPal US",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 5236,
       "firstPartyDomain": "www.paypal.com",
@@ -1694,7 +1694,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "Pay, Send and Save Money with PayPal | PayPal US",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 5277,
       "firstPartyDomain": "www.paypal.com",

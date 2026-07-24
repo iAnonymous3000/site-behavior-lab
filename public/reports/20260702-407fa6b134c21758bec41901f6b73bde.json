@@ -16,7 +16,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "Lobsters",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 1936,
       "firstPartyDomain": "lobste.rs",
@@ -516,7 +516,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "Lobsters",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 1994,
       "firstPartyDomain": "lobste.rs",

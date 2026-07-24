@@ -16,7 +16,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "Node.js — Run JavaScript Everywhere",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 1458,
       "firstPartyDomain": "nodejs.org",
@@ -680,7 +680,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "Node.js — Run JavaScript Everywhere",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 1392,
       "firstPartyDomain": "nodejs.org",

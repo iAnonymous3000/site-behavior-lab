@@ -16,7 +16,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "X. It’s what’s happening / X",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 7949,
       "firstPartyDomain": "x.com",
@@ -1434,7 +1434,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "X. It’s what’s happening / X",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 8126,
       "firstPartyDomain": "x.com",

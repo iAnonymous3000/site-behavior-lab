@@ -16,7 +16,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "Mozilla - Internet for people, not profit (US)",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 6141,
       "firstPartyDomain": "www.mozilla.org",
@@ -820,7 +820,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "Mozilla - Internet for people, not profit (US)",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 5457,
       "firstPartyDomain": "www.mozilla.org",

@@ -16,7 +16,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "Capital One | Credit Cards, Checking, Savings & Auto Loans",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 8649,
       "firstPartyDomain": "www.capitalone.com",
@@ -3149,7 +3149,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "Capital One | Credit Cards, Checking, Savings & Auto Loans",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 8041,
       "firstPartyDomain": "www.capitalone.com",

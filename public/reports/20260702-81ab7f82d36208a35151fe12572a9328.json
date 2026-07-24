@@ -16,7 +16,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "Access to this page has been denied",
+      "pageTitle": "",
       "status": 429,
       "durationMs": 2972,
       "firstPartyDomain": "www.wayfair.com",
@@ -566,7 +566,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "Access to this page has been denied",
+      "pageTitle": "",
       "status": 429,
       "durationMs": 2732,
       "firstPartyDomain": "www.wayfair.com",

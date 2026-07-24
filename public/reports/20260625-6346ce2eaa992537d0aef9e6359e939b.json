@@ -16,7 +16,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "reuters.com",
+      "pageTitle": "",
       "status": 401,
       "durationMs": 762,
       "firstPartyDomain": "www.reuters.com",
@@ -216,7 +216,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "reuters.com",
+      "pageTitle": "",
       "status": 401,
       "durationMs": 721,
       "firstPartyDomain": "www.reuters.com",

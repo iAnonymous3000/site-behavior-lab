@@ -16,7 +16,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "etsy.com",
+      "pageTitle": "",
       "status": 403,
       "durationMs": 888,
       "firstPartyDomain": "www.etsy.com",
@@ -239,7 +239,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "etsy.com",
+      "pageTitle": "",
       "status": 403,
       "durationMs": 862,
       "firstPartyDomain": "www.etsy.com",

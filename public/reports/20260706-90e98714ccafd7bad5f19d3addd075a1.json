@@ -16,7 +16,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "Duolingo - The world’s most popular way to learn",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 10637,
       "firstPartyDomain": "www.duolingo.com",
@@ -2218,7 +2218,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "Duolingo - The world’s most popular way to learn",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 10409,
       "firstPartyDomain": "www.duolingo.com",

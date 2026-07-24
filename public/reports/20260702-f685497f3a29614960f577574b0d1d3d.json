@@ -16,7 +16,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "Let's Encrypt",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 2807,
       "firstPartyDomain": "letsencrypt.org",
@@ -461,7 +461,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "Let's Encrypt",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 2474,
       "firstPartyDomain": "letsencrypt.org",

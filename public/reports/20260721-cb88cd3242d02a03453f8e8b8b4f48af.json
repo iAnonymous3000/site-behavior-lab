@@ -16,7 +16,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "Facebook",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 7581,
       "firstPartyDomain": "www.facebook.com",
@@ -665,7 +665,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "Facebook",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 9264,
       "firstPartyDomain": "www.facebook.com",

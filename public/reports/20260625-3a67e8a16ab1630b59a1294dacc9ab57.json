@@ -16,7 +16,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "The Home Depot",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 13814,
       "firstPartyDomain": "www.homedepot.com",
@@ -5568,7 +5568,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "The Home Depot",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 13880,
       "firstPartyDomain": "www.homedepot.com",

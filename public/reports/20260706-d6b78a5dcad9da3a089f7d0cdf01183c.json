@@ -16,7 +16,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "The United States Social Security Administration",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 6260,
       "firstPartyDomain": "www.ssa.gov",
@@ -1398,7 +1398,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "The United States Social Security Administration",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 5518,
       "firstPartyDomain": "www.ssa.gov",

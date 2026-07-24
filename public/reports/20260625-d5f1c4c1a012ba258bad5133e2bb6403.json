@@ -16,7 +16,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "Target : Expect More. Pay Less.",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 8795,
       "firstPartyDomain": "www.target.com",
@@ -5799,7 +5799,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "Target : Expect More. Pay Less.",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 7847,
       "firstPartyDomain": "www.target.com",

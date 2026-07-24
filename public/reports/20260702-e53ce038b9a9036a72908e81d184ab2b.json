@@ -16,7 +16,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "Stanford University",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 8806,
       "firstPartyDomain": "www.stanford.edu",
@@ -1788,7 +1788,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "Stanford University",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 20074,
       "firstPartyDomain": "www.stanford.edu",

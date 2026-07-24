@@ -16,7 +16,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "Welcome to GOV.UK",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 5817,
       "firstPartyDomain": "www.gov.uk",
@@ -548,7 +548,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "Welcome to GOV.UK",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 5328,
       "firstPartyDomain": "www.gov.uk",

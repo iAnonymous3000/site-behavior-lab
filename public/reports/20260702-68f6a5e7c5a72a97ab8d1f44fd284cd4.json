@@ -16,7 +16,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "Wikipedia",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 5702,
       "firstPartyDomain": "www.wikipedia.org",
@@ -258,7 +258,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "Wikipedia",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 5696,
       "firstPartyDomain": "www.wikipedia.org",

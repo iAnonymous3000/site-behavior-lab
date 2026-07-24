@@ -16,7 +16,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "Fox News - Breaking News Updates | Latest News Headlines | Photos & News Videos",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 7516,
       "firstPartyDomain": "www.foxnews.com",
@@ -5516,7 +5516,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "Fox News - Breaking News Updates | Latest News Headlines | Photos & News Videos",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 5508,
       "firstPartyDomain": "www.foxnews.com",

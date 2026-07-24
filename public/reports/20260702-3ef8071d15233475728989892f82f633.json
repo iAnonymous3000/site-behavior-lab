@@ -16,7 +16,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "Amnesty International",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 4391,
       "firstPartyDomain": "www.amnesty.org",
@@ -1061,7 +1061,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "Amnesty International",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 2639,
       "firstPartyDomain": "www.amnesty.org",

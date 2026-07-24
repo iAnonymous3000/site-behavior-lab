@@ -16,7 +16,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "MIT - Massachusetts Institute of Technology",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 7795,
       "firstPartyDomain": "www.mit.edu",
@@ -1266,7 +1266,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "MIT - Massachusetts Institute of Technology",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 7255,
       "firstPartyDomain": "www.mit.edu",

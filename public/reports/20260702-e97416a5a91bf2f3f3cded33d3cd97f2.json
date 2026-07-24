@@ -16,7 +16,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "Free eBooks | Project Gutenberg",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 5371,
       "firstPartyDomain": "www.gutenberg.org",
@@ -481,7 +481,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "Free eBooks | Project Gutenberg",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 5331,
       "firstPartyDomain": "www.gutenberg.org",

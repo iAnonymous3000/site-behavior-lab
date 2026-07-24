@@ -16,7 +16,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "PBS KIDS",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 6491,
       "firstPartyDomain": "pbskids.org",
@@ -2311,7 +2311,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "PBS KIDS",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 3275,
       "firstPartyDomain": "pbskids.org",

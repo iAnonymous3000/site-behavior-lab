@@ -16,7 +16,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "Healthline: Medical information and health advice you can trust.",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 15487,
       "firstPartyDomain": "www.healthline.com",
@@ -4855,7 +4855,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "Healthline: Medical information and health advice you can trust.",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 15632,
       "firstPartyDomain": "www.healthline.com",

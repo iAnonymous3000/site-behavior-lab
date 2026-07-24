@@ -16,7 +16,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "Front Page — Free Software Foundation — working together for free software",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 6614,
       "firstPartyDomain": "www.fsf.org",
@@ -485,7 +485,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "Front Page — Free Software Foundation — working together for free software",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 6153,
       "firstPartyDomain": "www.fsf.org",

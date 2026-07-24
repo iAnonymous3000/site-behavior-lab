@@ -16,7 +16,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "MIT OpenCourseWare | Free Online Course Materials",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 9094,
       "firstPartyDomain": "{label}.mit.edu",
@@ -1299,7 +1299,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "MIT OpenCourseWare | Free Online Course Materials",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 5030,
       "firstPartyDomain": "{label}.mit.edu",

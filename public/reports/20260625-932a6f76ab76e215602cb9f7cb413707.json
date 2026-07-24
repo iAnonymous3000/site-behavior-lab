@@ -16,7 +16,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "Credit scores and much more - Intuit Credit Karma",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 10787,
       "firstPartyDomain": "www.creditkarma.com",
@@ -2545,7 +2545,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "Credit scores and much more - Intuit Credit Karma",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 5371,
       "firstPartyDomain": "www.creditkarma.com",

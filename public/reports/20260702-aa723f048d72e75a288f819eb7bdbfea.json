@@ -16,7 +16,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "RFC Editor",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 4945,
       "firstPartyDomain": "www.rfc-editor.org",
@@ -563,7 +563,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "RFC Editor",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 4880,
       "firstPartyDomain": "www.rfc-editor.org",

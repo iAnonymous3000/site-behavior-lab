@@ -16,7 +16,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "BBC Home - Breaking News, World News, US News, Sports, Business, Innovation, Climate, Culture, Travel, Video & Audio",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 11016,
       "firstPartyDomain": "www.bbc.com",
@@ -3408,7 +3408,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "BBC Home - Breaking News, World News, US News, Sports, Business, Innovation, Climate, Culture, Travel, Video & Audio",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 3849,
       "firstPartyDomain": "www.bbc.com",

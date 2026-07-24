@@ -16,7 +16,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "The Linux Kernel Archives",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 812,
       "firstPartyDomain": "www.kernel.org",
@@ -269,7 +269,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "The Linux Kernel Archives",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 759,
       "firstPartyDomain": "www.kernel.org",

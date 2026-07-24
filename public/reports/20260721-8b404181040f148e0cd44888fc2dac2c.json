@@ -16,7 +16,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "Twitch",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 6920,
       "firstPartyDomain": "www.twitch.tv",
@@ -3183,7 +3183,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "Twitch",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 6914,
       "firstPartyDomain": "www.twitch.tv",

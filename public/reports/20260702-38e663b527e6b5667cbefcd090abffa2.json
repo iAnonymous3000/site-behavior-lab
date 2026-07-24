@@ -16,7 +16,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "craigslist: raleigh jobs, apartments, for sale, services, community, and events",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 5896,
       "firstPartyDomain": "www.craigslist.org",
@@ -498,7 +498,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "craigslist: raleigh jobs, apartments, for sale, services, community, and events",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 5492,
       "firstPartyDomain": "www.craigslist.org",

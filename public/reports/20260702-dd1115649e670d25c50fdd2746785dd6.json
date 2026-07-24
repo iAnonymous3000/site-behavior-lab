@@ -16,7 +16,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "DuckDuckGo - Protection. Privacy. Peace of mind.",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 8197,
       "firstPartyDomain": "duckduckgo.com",
@@ -1499,7 +1499,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "DuckDuckGo - Protection. Privacy. Peace of mind.",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 8272,
       "firstPartyDomain": "duckduckgo.com",

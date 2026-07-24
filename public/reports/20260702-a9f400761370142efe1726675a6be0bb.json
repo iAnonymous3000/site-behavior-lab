@@ -16,7 +16,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "Rust Programming Language",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 3070,
       "firstPartyDomain": "rust-lang.org",
@@ -399,7 +399,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "Rust Programming Language",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 2853,
       "firstPartyDomain": "rust-lang.org",

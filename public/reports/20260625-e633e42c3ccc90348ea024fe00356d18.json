@@ -16,7 +16,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "WebMD - Better information. Better health.",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 12587,
       "firstPartyDomain": "www.webmd.com",
@@ -7296,7 +7296,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "WebMD - Better information. Better health.",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 5550,
       "firstPartyDomain": "www.webmd.com",

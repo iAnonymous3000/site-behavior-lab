@@ -16,7 +16,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "NASA",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 8851,
       "firstPartyDomain": "www.nasa.gov",
@@ -1326,7 +1326,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "NASA",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 7464,
       "firstPartyDomain": "www.nasa.gov",

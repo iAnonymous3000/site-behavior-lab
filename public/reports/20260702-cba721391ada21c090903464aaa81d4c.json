@@ -16,7 +16,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "World Health Organization (WHO)",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 7965,
       "firstPartyDomain": "www.who.int",
@@ -1924,7 +1924,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "World Health Organization (WHO)",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 7739,
       "firstPartyDomain": "www.who.int",

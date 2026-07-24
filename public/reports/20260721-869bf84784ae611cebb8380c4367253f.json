@@ -16,7 +16,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "Centers for Disease Control and Prevention | CDC",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 10024,
       "firstPartyDomain": "www.cdc.gov",
@@ -919,7 +919,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "Centers for Disease Control and Prevention | CDC",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 3373,
       "firstPartyDomain": "www.cdc.gov",

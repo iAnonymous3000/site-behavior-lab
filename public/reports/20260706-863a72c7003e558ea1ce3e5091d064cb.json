@@ -16,7 +16,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "Pinterest",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 7813,
       "firstPartyDomain": "www.pinterest.com",
@@ -2065,7 +2065,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "Pinterest",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 8408,
       "firstPartyDomain": "www.pinterest.com",

@@ -16,7 +16,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "Search - Microsoft Bing",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 6724,
       "firstPartyDomain": "www.bing.com",
@@ -5488,7 +5488,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "Search - Microsoft Bing",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 7079,
       "firstPartyDomain": "www.bing.com",

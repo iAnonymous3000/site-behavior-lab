@@ -16,7 +16,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "Latest news, sport and opinion from the Guardian",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 4747,
       "firstPartyDomain": "www.theguardian.com",
@@ -2991,7 +2991,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "Latest news, sport and opinion from the Guardian",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 3743,
       "firstPartyDomain": "www.theguardian.com",

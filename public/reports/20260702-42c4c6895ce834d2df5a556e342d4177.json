@@ -16,7 +16,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "W3C",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 2507,
       "firstPartyDomain": "www.w3.org",
@@ -424,7 +424,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "W3C",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 2051,
       "firstPartyDomain": "www.w3.org",

@@ -16,7 +16,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "YouTube",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 7741,
       "firstPartyDomain": "www.youtube.com",
@@ -2418,7 +2418,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "YouTube",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 7256,
       "firstPartyDomain": "www.youtube.com",

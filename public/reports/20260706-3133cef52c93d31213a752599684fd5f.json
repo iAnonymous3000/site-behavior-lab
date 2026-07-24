@@ -16,7 +16,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "Google",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 6173,
       "firstPartyDomain": "www.google.com",
@@ -908,7 +908,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "Google",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 6093,
       "firstPartyDomain": "www.google.com",

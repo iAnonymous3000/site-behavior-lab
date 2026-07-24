@@ -16,7 +16,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "Robinhood: 24/5 Commission-Free Stock Trading & Investing",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 3166,
       "firstPartyDomain": "robinhood.com",
@@ -985,7 +985,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "Robinhood: 24/5 Commission-Free Stock Trading & Investing",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 3222,
       "firstPartyDomain": "robinhood.com",

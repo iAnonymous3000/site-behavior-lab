@@ -16,7 +16,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "Debian -- The Universal Operating System",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 4372,
       "firstPartyDomain": "www.debian.org",
@@ -377,7 +377,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "Debian -- The Universal Operating System",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 4274,
       "firstPartyDomain": "www.debian.org",

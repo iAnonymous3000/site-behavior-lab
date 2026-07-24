@@ -16,7 +16,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "The New York Times - Breaking News, US News, World News and Videos",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 11747,
       "firstPartyDomain": "www.nytimes.com",
@@ -8346,7 +8346,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "The New York Times - Breaking News, US News, World News and Videos",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 8519,
       "firstPartyDomain": "www.nytimes.com",

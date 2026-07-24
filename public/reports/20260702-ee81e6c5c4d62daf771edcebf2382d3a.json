@@ -16,7 +16,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "arXiv.org e-Print archive",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 2483,
       "firstPartyDomain": "arxiv.org",
@@ -309,7 +309,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "arXiv.org e-Print archive",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 2523,
       "firstPartyDomain": "arxiv.org",

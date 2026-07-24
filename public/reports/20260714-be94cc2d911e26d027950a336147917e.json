@@ -70,11 +70,11 @@
         "manifestDigest": "17d246aca749766d24266f98061bb05f9d88182529285a3472e57045663261a9",
         "engineVersion": "adblock-rust-0.13.0"
       },
-      "normalizationVersion": "redaction-v3+allowlists-v2:042fbfccf7b914479b7100002c5f709b54314606840c4dde50fb2368e23c30e8+public-string-policy-v2:74f1170bbf38a2f85629fa612c01f5da3c0ab1d8f0042f4082eef21815db868c+tldts@7.4.3+node-evidence-policy-v1"
+      "normalizationVersion": "redaction-v3+allowlists-v2:042fbfccf7b914479b7100002c5f709b54314606840c4dde50fb2368e23c30e8+public-string-policy-v2:74f1170bbf38a2f85629fa612c01f5da3c0ab1d8f0042f4082eef21815db868c+tldts@7.4.3+node-evidence-policy-v1+v3-to-v4-ip-port-title@1"
     },
     "fingerprints": {
-      "execution": "6d49ae8d7656ef1245bea732bf3f6c758d3afa7582e353de7bbc24afe331615b",
-      "measurementEnvironment": "7988ad53bdf0d8a893ababac1fa56eda6d51e567c23904a72159b4f74b9dab5e",
+      "execution": "25f4d50d8da0708d39e7228473a9a6a8c631b031dcec032b9e160487f76596f4",
+      "measurementEnvironment": "3a3e905c67bdb1cd35b164b52f07ee93527e689dccb07b70c7f60b7a9b5d210e",
       "condition": "cac1352f3a0edcd9dee3e6a10871ae282021f6b1af270c6f00f1cb6b3b2ce6e9"
     },
     "qualityFacts": {
@@ -118,7 +118,7 @@
       }
     },
     "privacy": {
-      "redactionVersion": 3,
+      "redactionVersion": 4,
       "redaction": {
         "pathSegmentsGeneralized": 112,
         "queryKeysRedacted": 44,
@@ -176,7 +176,7 @@
       }
     ],
     "summary": {
-      "pageTitle": "Node.js — Run JavaScript Everywhere",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 6511,
       "counts": {
@@ -923,11 +923,11 @@
         "manifestDigest": "17d246aca749766d24266f98061bb05f9d88182529285a3472e57045663261a9",
         "engineVersion": "adblock-rust-0.13.0"
       },
-      "normalizationVersion": "redaction-v3+allowlists-v2:042fbfccf7b914479b7100002c5f709b54314606840c4dde50fb2368e23c30e8+public-string-policy-v2:74f1170bbf38a2f85629fa612c01f5da3c0ab1d8f0042f4082eef21815db868c+tldts@7.4.3+node-evidence-policy-v1"
+      "normalizationVersion": "redaction-v3+allowlists-v2:042fbfccf7b914479b7100002c5f709b54314606840c4dde50fb2368e23c30e8+public-string-policy-v2:74f1170bbf38a2f85629fa612c01f5da3c0ab1d8f0042f4082eef21815db868c+tldts@7.4.3+node-evidence-policy-v1+v3-to-v4-ip-port-title@1"
     },
     "fingerprints": {
-      "execution": "3ecfad4c8c6307b487086ae6de9bcce0a4c87fc39b0418c2b6c0eba909ccf7aa",
-      "measurementEnvironment": "7988ad53bdf0d8a893ababac1fa56eda6d51e567c23904a72159b4f74b9dab5e",
+      "execution": "786293cfd125437381d837085acaa008d21ed8e82321826a0d0765f50a13b7b7",
+      "measurementEnvironment": "3a3e905c67bdb1cd35b164b52f07ee93527e689dccb07b70c7f60b7a9b5d210e",
       "condition": "5d3d6d0fe76131647229ce0c5e5ddd6ff45c9679b5b85364ea84957029ddfda9"
     },
     "qualityFacts": {
@@ -971,7 +971,7 @@
       }
     },
     "privacy": {
-      "redactionVersion": 3,
+      "redactionVersion": 4,
       "redaction": {
         "pathSegmentsGeneralized": 109,
         "queryKeysRedacted": 44,
@@ -1029,7 +1029,7 @@
       }
     ],
     "summary": {
-      "pageTitle": "Node.js — Run JavaScript Everywhere",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 2950,
       "counts": {

@@ -16,7 +16,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "Welcome to Medicare | Medicare",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 14146,
       "firstPartyDomain": "www.medicare.gov",
@@ -3947,7 +3947,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "Welcome to Medicare | Medicare",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 14377,
       "firstPartyDomain": "www.medicare.gov",

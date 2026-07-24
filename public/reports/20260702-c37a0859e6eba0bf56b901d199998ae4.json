@@ -16,7 +16,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "Welcome to Python.org",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 13400,
       "firstPartyDomain": "www.python.org",
@@ -562,7 +562,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "Welcome to Python.org",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 13005,
       "firstPartyDomain": "www.python.org",

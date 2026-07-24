@@ -16,7 +16,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "PostgreSQL: The world's most advanced open source database",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 4924,
       "firstPartyDomain": "www.postgresql.org",
@@ -466,7 +466,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "PostgreSQL: The world's most advanced open source database",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 5476,
       "firstPartyDomain": "www.postgresql.org",

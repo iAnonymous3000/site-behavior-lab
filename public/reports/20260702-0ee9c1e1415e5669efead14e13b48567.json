@@ -16,7 +16,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "IETF | Internet Engineering Task Force",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 5681,
       "firstPartyDomain": "www.ietf.org",
@@ -397,7 +397,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "IETF | Internet Engineering Task Force",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 5619,
       "firstPartyDomain": "www.ietf.org",

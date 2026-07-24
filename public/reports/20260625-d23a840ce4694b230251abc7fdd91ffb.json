@@ -16,7 +16,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "Discover - Personal Banking, Credit Cards & Loans",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 2816,
       "firstPartyDomain": "www.discover.com",
@@ -2061,7 +2061,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "Discover - Personal Banking, Credit Cards & Loans",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 1267,
       "firstPartyDomain": "www.discover.com",

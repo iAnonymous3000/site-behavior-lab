@@ -70,11 +70,11 @@
         "manifestDigest": "17d246aca749766d24266f98061bb05f9d88182529285a3472e57045663261a9",
         "engineVersion": "adblock-rust-0.13.0"
       },
-      "normalizationVersion": "redaction-v3+allowlists-v2:042fbfccf7b914479b7100002c5f709b54314606840c4dde50fb2368e23c30e8+public-string-policy-v2:74f1170bbf38a2f85629fa612c01f5da3c0ab1d8f0042f4082eef21815db868c+tldts@7.4.3+node-evidence-policy-v1"
+      "normalizationVersion": "redaction-v3+allowlists-v2:042fbfccf7b914479b7100002c5f709b54314606840c4dde50fb2368e23c30e8+public-string-policy-v2:74f1170bbf38a2f85629fa612c01f5da3c0ab1d8f0042f4082eef21815db868c+tldts@7.4.3+node-evidence-policy-v1+v3-to-v4-ip-port-title@1"
     },
     "fingerprints": {
-      "execution": "8f51553e673b4e617656717133c0b5335e3e92e2f15865b12edc684aa0abac38",
-      "measurementEnvironment": "7988ad53bdf0d8a893ababac1fa56eda6d51e567c23904a72159b4f74b9dab5e",
+      "execution": "44d526db255cc13f5dbf5170f7389b44306a7c124785a4484d110d23eaf1b7b9",
+      "measurementEnvironment": "3a3e905c67bdb1cd35b164b52f07ee93527e689dccb07b70c7f60b7a9b5d210e",
       "condition": "8897e91bf2965a063365d29b8c01d076d7e9e9660c6fd8e0ceb7275705fae252"
     },
     "qualityFacts": {
@@ -118,7 +118,7 @@
       }
     },
     "privacy": {
-      "redactionVersion": 3,
+      "redactionVersion": 4,
       "redaction": {
         "pathSegmentsGeneralized": 435,
         "queryKeysRedacted": 55,
@@ -194,7 +194,7 @@
       }
     ],
     "summary": {
-      "pageTitle": "Khan Academy | Free Online Courses, Lessons & Practice",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 16198,
       "counts": {
@@ -2497,7 +2497,6 @@
         {
           "kind": "input-monitoring",
           "count": 1,
-          "phaseId": 0,
           "heuristic": "input-listener-coverage-v1",
           "evidence": {
             "eventTypes": [
@@ -2519,12 +2518,12 @@
               "https://cdn.kastatic.org/"
             ],
             "totalListenerCalls": 40
-          }
+          },
+          "phaseId": 0
         },
         {
           "kind": "session-recording",
           "count": 1,
-          "phaseId": 0,
           "heuristic": "interaction-listener-coverage-v1",
           "evidence": {
             "eventTypes": [
@@ -2559,7 +2558,8 @@
               "https://www.googletagmanager.com/"
             ],
             "totalListenerCalls": 119
-          }
+          },
+          "phaseId": 0
         }
       ],
       "cnameCloaks": [],
@@ -2741,11 +2741,11 @@
         "manifestDigest": "17d246aca749766d24266f98061bb05f9d88182529285a3472e57045663261a9",
         "engineVersion": "adblock-rust-0.13.0"
       },
-      "normalizationVersion": "redaction-v3+allowlists-v2:042fbfccf7b914479b7100002c5f709b54314606840c4dde50fb2368e23c30e8+public-string-policy-v2:74f1170bbf38a2f85629fa612c01f5da3c0ab1d8f0042f4082eef21815db868c+tldts@7.4.3+node-evidence-policy-v1"
+      "normalizationVersion": "redaction-v3+allowlists-v2:042fbfccf7b914479b7100002c5f709b54314606840c4dde50fb2368e23c30e8+public-string-policy-v2:74f1170bbf38a2f85629fa612c01f5da3c0ab1d8f0042f4082eef21815db868c+tldts@7.4.3+node-evidence-policy-v1+v3-to-v4-ip-port-title@1"
     },
     "fingerprints": {
-      "execution": "abe9607874dfbc652cb88edc61459576e6ef6ef5e9b67f06c6982e2913b1f6f9",
-      "measurementEnvironment": "7988ad53bdf0d8a893ababac1fa56eda6d51e567c23904a72159b4f74b9dab5e",
+      "execution": "0295dbd2e8e42471e1b02d72877344278dec999df364082fc1f567e2a23cec12",
+      "measurementEnvironment": "3a3e905c67bdb1cd35b164b52f07ee93527e689dccb07b70c7f60b7a9b5d210e",
       "condition": "c306bcb29bf24ce788b52388755a5b369f412f3b91443cf75114b70f83d2cad5"
     },
     "qualityFacts": {
@@ -2789,7 +2789,7 @@
       }
     },
     "privacy": {
-      "redactionVersion": 3,
+      "redactionVersion": 4,
       "redaction": {
         "pathSegmentsGeneralized": 423,
         "queryKeysRedacted": 55,
@@ -2865,7 +2865,7 @@
       }
     ],
     "summary": {
-      "pageTitle": "Khan Academy | Free Online Courses, Lessons & Practice",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 16554,
       "counts": {
@@ -5072,7 +5072,6 @@
         {
           "kind": "input-monitoring",
           "count": 1,
-          "phaseId": 0,
           "heuristic": "input-listener-coverage-v1",
           "evidence": {
             "eventTypes": [
@@ -5094,12 +5093,12 @@
               "https://cdn.kastatic.org/"
             ],
             "totalListenerCalls": 40
-          }
+          },
+          "phaseId": 0
         },
         {
           "kind": "session-recording",
           "count": 1,
-          "phaseId": 0,
           "heuristic": "interaction-listener-coverage-v1",
           "evidence": {
             "eventTypes": [
@@ -5134,7 +5133,8 @@
               "https://www.googletagmanager.com/"
             ],
             "totalListenerCalls": 119
-          }
+          },
+          "phaseId": 0
         }
       ],
       "cnameCloaks": [],

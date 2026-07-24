@@ -16,7 +16,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "Your gateway to the EU, News, Highlights | European Union",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 8823,
       "firstPartyDomain": "{label}.europa.eu",
@@ -1011,7 +1011,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "Your gateway to the EU, News, Highlights | European Union",
+      "pageTitle": "",
       "status": 200,
       "durationMs": 8266,
       "firstPartyDomain": "{label}.europa.eu",

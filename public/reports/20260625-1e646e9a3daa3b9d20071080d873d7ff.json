@@ -16,7 +16,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "Access to this page has been denied",
+      "pageTitle": "",
       "status": 403,
       "durationMs": 2209,
       "firstPartyDomain": "www.goodrx.com",
@@ -531,7 +531,7 @@
     "schemaVersion": 1,
     "reportType": "single",
     "summary": {
-      "pageTitle": "Access to this page has been denied",
+      "pageTitle": "",
       "status": 403,
       "durationMs": 2140,
       "firstPartyDomain": "www.goodrx.com",
