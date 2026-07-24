@@ -56,7 +56,11 @@ export async function DirectoryIndex({ page }: { page: number }) {
         categories={categoryPages.map((category) => ({
           id: category.id,
           label: category.label,
-          path: `${category.path}/`,
+          // window.location.assign bypasses next/link's automatic basePath
+          // prefixing, so category paths need the same explicit prefix as the
+          // site-profile search paths above; without it a base-path deployment
+          // (GitHub project page) 404s on category navigation.
+          path: `${pagesBasePath}${category.path}/`,
           siteCount: category.sites.length
         }))}
       />
