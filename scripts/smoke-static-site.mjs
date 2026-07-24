@@ -1103,34 +1103,45 @@ async function assertNoHorizontalOverflow(page, label) {
   const measurement = await page.evaluate(() => {
     const viewportWidth = window.innerWidth;
     const scrollWidth = document.documentElement.scrollWidth;
-    const offenders = [...document.querySelectorAll("body *")]
-      .map((element) => {
-        const bounds = element.getBoundingClientRect();
-        const className = typeof element.className === "string" ? element.className.trim() : "";
-        const text = element.textContent?.replace(/\s+/g, " ").trim().slice(0, 80) || "";
-        return {
-          element: `${element.tagName.toLowerCase()}${className ? `.${className.split(/\s+/).join(".")}` : ""}`,
-          text,
-          left: Math.round(bounds.left * 10) / 10,
-          right: Math.round(bounds.right * 10) / 10,
-          width: Math.round(bounds.width * 10) / 10
-        };
-      })
-      .filter(({ right }) => right > viewportWidth + 1)
-      .sort((left, right) => right.right - left.right)
-      .slice(0, 5);
-    return { viewportWidth, scrollWidth, offenders };
+    const clientWidth = document.documentElement.clientWidth;
+    const overflowing = [...document.querySelectorAll("body *")].filter(
+      (element) => element.getBoundingClientRect().right > viewportWidth + 1
+    );
+    const overflowingSet = new Set(overflowing);
+    const describe = (element) => {
+      const bounds = element.getBoundingClientRect();
+      const className = typeof element.className === "string" ? element.className.trim() : "";
+      const text = element.textContent?.replace(/\s+/g, " ").trim().slice(0, 80) || "";
+      const font = getComputedStyle(element).fontFamily.slice(0, 48);
+      // A leaf offender (no overflowing child) is the element actually forcing
+      // the width; containers above it merely inherit the damage.
+      const leaf = ![...element.children].some((child) => overflowingSet.has(child));
+      return {
+        element: `${element.tagName.toLowerCase()}${className ? `.${className.split(/\s+/).join(".")}` : ""}`,
+        text,
+        leaf,
+        font,
+        left: Math.round(bounds.left * 10) / 10,
+        right: Math.round(bounds.right * 10) / 10,
+        width: Math.round(bounds.width * 10) / 10
+      };
+    };
+    const leaves = overflowing.filter((element) => ![...element.children].some((child) => overflowingSet.has(child)));
+    const offenders = [...new Set([...leaves, ...overflowing])].slice(0, 6).map(describe);
+    return { viewportWidth, scrollWidth, clientWidth, dpr: window.devicePixelRatio, offenders };
   });
 
   if (measurement.scrollWidth <= measurement.viewportWidth + 1) return;
   const details = measurement.offenders
-    .map(({ element, text, left, right, width }) =>
-      `${element}${text ? ` text=${JSON.stringify(text)}` : ""} left=${left} right=${right} width=${width}`
+    .map(({ element, text, leaf, font, left, right, width }) =>
+      `${leaf ? "LEAF " : ""}${element}${text ? ` text=${JSON.stringify(text)}` : ""}` +
+      ` font=${JSON.stringify(font)} left=${left} right=${right} width=${width}`
     )
     .join("; ");
   fail(
     `${label} has page-level horizontal overflow ` +
-      `(viewport=${measurement.viewportWidth}, scroll=${measurement.scrollWidth}${details ? `; ${details}` : ""})`
+      `(viewport=${measurement.viewportWidth}, client=${measurement.clientWidth}, ` +
+      `scroll=${measurement.scrollWidth}, dpr=${measurement.dpr}${details ? `; ${details}` : ""})`
   );
 }
 
