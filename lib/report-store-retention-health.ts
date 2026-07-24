@@ -7,7 +7,10 @@ export type ReportStoreRetentionHealthProbeResult = {
   retention: ReportStoreRetentionStatus;
   checkedAt: string;
   maxAgeMs: number;
+  /** Operator-facing text. Log-only: it can name paths, buckets, and upstream bodies. */
   error: string | null;
+  /** The original throw, so callers can classify it without parsing `error`. */
+  errorCause: unknown;
   stateObserved: boolean;
 };
 
@@ -51,6 +54,7 @@ export function createReportStoreRetentionHealthProbe(
           checkedAt: new Date(checkedAtMs).toISOString(),
           maxAgeMs: successTtlMs,
           error: null,
+          errorCause: null,
           stateObserved: true
         };
         cached = { key: cacheKey, result, expiresAt: checkedAtMs + successTtlMs };
@@ -76,6 +80,7 @@ export function createReportStoreRetentionHealthProbe(
           checkedAt: new Date(checkedAtMs).toISOString(),
           maxAgeMs: failureTtlMs,
           error: error instanceof Error ? error.message : "unknown retention maintenance error",
+          errorCause: error,
           stateObserved
         };
         cached = { key: cacheKey, result, expiresAt: checkedAtMs + failureTtlMs };

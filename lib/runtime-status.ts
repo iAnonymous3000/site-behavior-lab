@@ -21,6 +21,10 @@ import {
   reportStoreStatus
 } from "./report-store";
 import type { ReportStoreKind } from "./report-store-backend";
+import {
+  classifyReportStoreFailure,
+  type ReportStoreFailureReason
+} from "./report-store-failure-reason";
 import { createReportStoreRetentionHealthProbe } from "./report-store-retention-health";
 import { producerCapability } from "./report-producers";
 import {
@@ -119,7 +123,7 @@ export async function runtimeStatus(
   if (publicR2Config.status === "misconfigured") {
     warnings.push(...publicR2Config.issues.map((issue) => `Public r2 reports are not ready: ${issue}`));
   }
-  if (publicR2Config.status === "enabled" && store.error !== null) {
+  if (publicR2Config.status === "enabled" && store.reason !== null) {
     publicR2Status = "misconfigured";
     warnings.push("Public r2 reports are not ready because required report persistence is unavailable.");
   }
@@ -138,11 +142,11 @@ export async function runtimeStatus(
     );
   }
   const reportStore = store.public;
-  if (store.error !== null) {
+  if (store.reason !== null) {
     warnings.push(
       store.status === null
-        ? `The report store backend is misconfigured and unavailable: ${store.error}`
-        : `The report store retention maintenance check failed: ${store.error}`
+        ? `The report store backend is misconfigured and unavailable (${store.reason}).`
+        : `The report store retention maintenance check failed (${store.reason}).`
     );
   }
   if (!store.public.retentionHealthy) {
@@ -200,7 +204,7 @@ export async function runtimeStatus(
       consentComparison: capability.consentComparison,
       // A broken store backend cannot save or serve reports; the UI must not
       // offer share links it cannot honor.
-      savedReports: store.error === null && store.public.retentionHealthy,
+      savedReports: store.reason === null && store.public.retentionHealthy,
       // The Node runtime can prove the private preparation boundary only. The
       // edge must verify its isolated Worker-only key and DO scheduler before
       // promoting this capability.
@@ -392,14 +396,25 @@ function binaryFlagStatus(value: string | undefined): "enabled" | "disabled" | "
 type SafeReportStoreStatus = {
   status: ReturnType<typeof reportStoreStatus> | null;
   public: PublicReportStoreStatus;
-  error: string | null;
+  /** Closed-vocabulary reason for the public wire; null when the store is healthy. */
+  reason: ReportStoreFailureReason | null;
 };
+
+/**
+ * Keep the operator's diagnostics without publishing them: the classified
+ * reason goes to the unauthenticated health wire, the original text goes to
+ * the container log the runbooks already point operators at.
+ */
+function logReportStoreFailure(scope: string, error: unknown): void {
+  console.error(`[report-store] ${scope} failed:`, error);
+}
 
 async function safeReportStoreStatus(): Promise<SafeReportStoreStatus> {
   let status: ReturnType<typeof reportStoreStatus>;
   try {
     status = reportStoreStatus();
   } catch (error) {
+    logReportStoreFailure("backend construction", error);
     return {
       status: null,
       public: {
@@ -414,7 +429,7 @@ async function safeReportStoreStatus(): Promise<SafeReportStoreStatus> {
         retentionCheckedAt: null,
         retentionCheckMaxAgeMs: 0
       },
-      error: error instanceof Error ? error.message : "unknown configuration error"
+      reason: classifyReportStoreFailure(error)
     };
   }
 
@@ -435,9 +450,10 @@ async function safeReportStoreStatus(): Promise<SafeReportStoreStatus> {
         retentionCheckedAt: probe.checkedAt,
         retentionCheckMaxAgeMs: probe.maxAgeMs
       },
-      error: probe.error
+      reason: probe.error === null ? null : classifyReportStoreFailure(probe.errorCause)
     };
   } catch (error) {
+    logReportStoreFailure("retention health probe", error);
     return {
       status,
       public: {
@@ -452,7 +468,7 @@ async function safeReportStoreStatus(): Promise<SafeReportStoreStatus> {
         retentionCheckedAt: null,
         retentionCheckMaxAgeMs: 0
       },
-      error: error instanceof Error ? error.message : "unknown retention maintenance error"
+      reason: classifyReportStoreFailure(error)
     };
   }
 }
