@@ -105,7 +105,11 @@ export function LiveDeploymentStatus() {
           : "Unknown";
 
   return (
-    <section className="legal-section status-live" aria-labelledby="live-status-heading" aria-live="polite">
+    // The live region is the summary sentence alone. Marking the whole section
+    // live made every 60-second re-check re-announce the heading, badge, all
+    // three revision facts, and the buttons, which is a minute-by-minute
+    // interruption for a screen-reader user reading anything else on the page.
+    <section className="legal-section status-live" aria-labelledby="live-status-heading">
       <div className="status-heading-row">
         <div>
           <p className="eyebrow">Live deployment</p>
@@ -113,7 +117,9 @@ export function LiveDeploymentStatus() {
         </div>
         <span className={`status-badge state-${checking ? "checking" : evaluation.state}`}>{badgeLabel}</span>
       </div>
-      <p>{checking ? "Checking the public deployment and scanner health endpoints…" : evaluation.summary}</p>
+      <p aria-live="polite">
+        {checking ? "Checking the public deployment and scanner health endpoints…" : evaluation.summary}
+      </p>
       <dl className="status-fact-grid">
         <div>
           <dt>Site revision</dt>

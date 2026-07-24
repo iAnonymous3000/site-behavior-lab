@@ -20,7 +20,7 @@ export class DurableScanJobRecoveryTimeoutError extends Error {
 }
 
 export class DurableScanJobRecoveryAbortedError extends Error {
-  readonly cause: unknown;
+  override readonly cause: unknown;
 
   constructor(cause?: unknown) {
     super("Durable scan-job report recovery was aborted.");
@@ -342,7 +342,7 @@ type BoundedRecoveryReport = Readonly<{
 }>;
 
 class DurableScanJobRecoveryFetchError extends Error {
-  readonly cause: unknown;
+  override readonly cause: unknown;
 
   constructor(cause: unknown) {
     super("The saved report could not be fetched during durable recovery.");

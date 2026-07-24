@@ -399,10 +399,10 @@ class ScanAdmissionConflictGateError extends EdgeScanGateError {
 
 export class ScannerContainer extends Container<Env> {
   // The Dockerfile serves Next.js on :3000.
-  defaultPort = 3000;
+  override defaultPort = 3000;
   // Keep the instance (and its warm Chromium) alive between scans; it scales to
   // zero after this idle window. Raise for fewer cold starts, lower to save cost.
-  sleepAfter = "15m";
+  override sleepAfter = "15m";
 
   // Set only while a pump callback is replacing its invoking one-shot row.
   // Precise recomputation excludes this immediate crash-recovery successor so
@@ -411,7 +411,7 @@ export class ScannerContainer extends Container<Env> {
 
   // Non-secret config plus secrets sourced from Worker secrets, passed to the
   // container process. Reports go to R2 because container disk is ephemeral.
-  envVars = {
+  override envVars = {
     SITE_BEHAVIOR_LAB_REPORT_STORE_BACKEND: "r2",
     SITE_BEHAVIOR_LAB_R2_BUCKET: this.env.SITE_BEHAVIOR_LAB_R2_BUCKET ?? "site-behavior-lab-reports",
     SITE_BEHAVIOR_LAB_R2_PREFIX: this.env.SITE_BEHAVIOR_LAB_R2_PREFIX ?? "reports/",

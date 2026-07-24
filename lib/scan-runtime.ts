@@ -489,14 +489,6 @@ export async function collectStorageEntriesWithCoverage(
   };
 }
 
-/** Compatibility projection for callers that cannot yet expose coverage. */
-export async function collectStorageEntries(
-  page: BoundedPageEvaluateLike,
-  collectorKey: string
-): Promise<StorageRecord[]> {
-  return (await collectStorageEntriesWithCoverage(page, collectorKey)).records;
-}
-
 function defaultScanTimeoutError(): Error {
   return new Error(SCAN_TIMEOUT_MESSAGE);
 }

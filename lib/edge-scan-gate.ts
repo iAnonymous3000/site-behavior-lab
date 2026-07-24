@@ -56,7 +56,7 @@ export class RequestBodyReadTimeoutError extends EdgeScanGateError {
 }
 
 export class RequestBodyReadAbortedError extends EdgeScanGateError {
-  readonly cause: unknown;
+  override readonly cause: unknown;
 
   constructor(cause?: unknown) {
     // 499 is intentionally distinct from an edge-generated timeout. In normal

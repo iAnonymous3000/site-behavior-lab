@@ -314,9 +314,14 @@ function requestPhaseId(request: NetworkRequestRecord): number | null {
   return typeof phaseId === "number" ? phaseId : null;
 }
 
+/**
+ * A dash glyph is not an accessible cell value: screen readers either skip it
+ * or announce punctuation, so an untagged row reads as an empty cell. Name the
+ * state in words instead, the way the sibling phase table already does.
+ */
 function requestPhaseLabel(request: NetworkRequestRecord, labels: ReadonlyMap<number, string>): string {
   const phaseId = requestPhaseId(request);
-  if (phaseId === null) return "—";
+  if (phaseId === null) return "Untagged";
   const label = labels.get(phaseId);
   return label ? `P${phaseId} · ${label}` : `P${phaseId}`;
 }

@@ -81,10 +81,6 @@ async function main(): Promise<void> {
   );
 }
 
-export function parseReportPublicationArtifactOptions(args: string[]): Options {
-  return parseOptions(args);
-}
-
 function parseOptions(args: string[]): Options {
   let command: Command | null = null;
   let artifactDir = "";

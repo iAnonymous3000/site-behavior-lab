@@ -40,7 +40,3 @@ export function corpusCohortIdentityForView(view: ReportView): CorpusCohortIdent
     producer
   };
 }
-
-export function corpusCohortsMatch(left: CorpusCohortIdentity, right: CorpusCohortIdentity): boolean {
-  return left.id === right.id;
-}

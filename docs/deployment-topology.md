@@ -137,8 +137,10 @@ sharding beyond the singleton container):
    and the existing in-process Node limits.
 3. **Corpus activation (P3).** Independent of topology, expand
    [public/featured-sites.json](../public/featured-sites.json) (81 curated sites)
-   and run the featured-scan workflow. Scheduled and repository-dispatch
-   production is forced to r2; frozen v1 exists only as an explicit manual
+   and run the featured-scan workflow. Repository-dispatch production is
+   unconditionally r2; the scheduled refresh is r2 once the controlled runner
+   variable `FEATURED_RUNNER_LABEL` is configured and otherwise takes a loudly
+   disclosed frozen-v1 fallback. Deliberate frozen v1 is an explicit manual
    compatibility lane. The committed corpus has cleared
    `CORPUS_MIN_SAMPLE = 50`, so corpus-relative percentiles are active.
 4. **Shields diff (P4).** Already in the Node path under Option B, surface it as a

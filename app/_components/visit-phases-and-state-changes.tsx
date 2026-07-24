@@ -72,19 +72,25 @@ export function VisitPhasesAndStateChanges({ run }: { run: RunView }) {
                 </td>
                 <td className="mono" data-label="Span from run start">{visitPhaseSpanLabel(phase)}</td>
                 <td data-label="Recorded requests">
-                  {phase.requestCountState === "recorded" ? (
-                    phase.requestCounts!.totalRequests.toLocaleString("en-US")
+                  {phase.requestCounts ? (
+                    phase.requestCounts.totalRequests.toLocaleString("en-US")
                   ) : (
-                    <span className="muted">
-                      No retained rows
-                    </span>
+                    <span className="muted">No retained rows</span>
                   )}
                 </td>
                 <td data-label="Third-party">
-                  {phase.requestCounts ? phase.requestCounts.thirdPartyRequests.toLocaleString("en-US") : "—"}
+                  {phase.requestCounts ? (
+                    phase.requestCounts.thirdPartyRequests.toLocaleString("en-US")
+                  ) : (
+                    <span className="muted">No retained rows</span>
+                  )}
                 </td>
                 <td data-label="Known service">
-                  {phase.requestCounts ? phase.requestCounts.knownTrackerRequests.toLocaleString("en-US") : "—"}
+                  {phase.requestCounts ? (
+                    phase.requestCounts.knownTrackerRequests.toLocaleString("en-US")
+                  ) : (
+                    <span className="muted">No retained rows</span>
+                  )}
                 </td>
                 <MutationTallyCell
                   family="cookies"

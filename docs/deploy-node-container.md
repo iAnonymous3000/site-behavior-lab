@@ -146,7 +146,15 @@ build SHA matches `HEAD`, because `deployment.json` is exact source provenance.
 
   ```bash
   curl -s https://scan.example.org/api/health | jq '.capabilities'
-  # { "singleScan": true, "gpcComparison": true, "shieldsComparison": true, "savedReports": true }
+  # {
+  #   "singleScan": true,
+  #   "gpcComparison": true,
+  #   "shieldsComparison": true,
+  #   "consentComparison": true,
+  #   "savedReports": true,
+  #   "scheduledRescans": false,
+  #   "savedReportPages": true
+  # }
   ```
 
 - If the scanner is intentionally open, also set

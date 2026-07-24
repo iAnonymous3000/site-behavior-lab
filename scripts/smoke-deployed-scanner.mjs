@@ -365,7 +365,7 @@ async function checkSsrfRefusal() {
     const reason = typeof payload.error === "string" ? payload.error : "";
     // A gate rejection (Turnstile / auth / rate limit) stops the request BEFORE it
     // reaches the URL-safety guard, so it proves nothing about SSRF protection.
-    // Treat it as inconclusive, never a pass — this is the trap that let a
+    // Treat it as inconclusive, never a pass. This is the trap that let a
     // Turnstile "refusal" masquerade as SSRF coverage.
     if (/turnstile|unauthorized|access token|not configured for public|rate limit|too many/i.test(reason)) {
       fail(
