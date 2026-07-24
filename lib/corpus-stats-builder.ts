@@ -1,15 +1,15 @@
-import { runRequestEvidenceCapped } from "./comparison-eligibility";
+import { corpusCohortIdentityForView, type CorpusCohortIdentity } from "./corpus-cohort";
+import { preferCorpusRepresentative } from "./corpus-representative";
 import { corpusSiteDomainKey } from "./corpus-site-domain";
-import type { CorpusMetricKey, CorpusStats, MetricDistribution } from "./corpus-stats";
+import type { CorpusMetricKey, CorpusStats, CorpusStatsCohort, MetricDistribution } from "./corpus-stats";
 import { isReservedReportDomain } from "./reserved-report-domains";
-import { runHitRequestRecordingCap, toReportView } from "./scan-report-view";
+import { displayRunView, familyCensoredOnRun, runHitRequestRecordingCap, toReportView } from "./scan-report-view";
 import {
   listDanglingStaticSidecarIds,
   listStaticReportCandidateIds,
   readStaticReportBundle,
   StaticReportBundleError
 } from "./static-report-files";
-import type { ScanReport, ScanResult } from "./types";
 
 /**
  * Computes percentile distributions of key behavior metrics across the
@@ -19,8 +19,9 @@ import type { ScanReport, ScanResult } from "./types";
  * a malformed or unmanaged report fails the managed-corpus build instead of
  * silently disappearing or contributing zero-coerced values.
  *
- * One data point per distinct real site (most recent scan wins) so repeated
- * scans of the same domain do not skew the distribution. Reserved/test
+ * One data point per distinct real site within each schema/methodology/
+ * producer cohort (most recent eligible scan wins), so repeated scans do not
+ * skew a distribution and incompatible cohorts are never pooled. Reserved/test
  * domains (the canonical lib/reserved-report-domains.json list, which the old
  * script only partially copied) and error/block-page loads are excluded so
  * the corpus reflects measured real-site behavior only.
@@ -45,7 +46,21 @@ export type CorpusStatsBuildResult = {
 
 export async function buildCorpusStats(reportsDir: string, now = new Date()): Promise<CorpusStatsBuildResult> {
   const warnings: string[] = [];
-  const bySite = new Map<string, { scannedAt: string; metrics: Record<CorpusMetricKey, number> }>();
+  const byCohort = new Map<
+    string,
+    {
+      identity: CorpusCohortIdentity;
+      bySite: Map<
+        string,
+        {
+          id: string;
+          scannedAt: string;
+          metrics: Record<CorpusMetricKey, number>;
+          metricAvailability: Record<CorpusMetricKey, boolean>;
+        }
+      >;
+    }
+  >();
   // Coverage and measurement are different concepts: a request-capped run is
   // a site the corpus COVERS (it loaded) but not one it statistically
   // MEASURES, so the two counts are reported separately.
@@ -56,7 +71,6 @@ export async function buildCorpusStats(reportsDir: string, now = new Date()): Pr
   if (dangling.length > 0) throw new StaticReportBundleError(dangling[0], "dangling-sidecar");
 
   for (const id of await listStaticReportCandidateIds(reportsDir)) {
-    const file = `${id}.json`;
     const read = await readStaticReportBundle(reportsDir, id);
     if (read.outcome !== "found") {
       throw new StaticReportBundleError(id, read.outcome === "not-found" ? "missing-report" : read.reason);
@@ -76,21 +90,10 @@ export async function buildCorpusStats(reportsDir: string, now = new Date()): Pr
       if (successfulRuns.some(runHitRequestRecordingCap)) cappedDomains.add(domain);
     }
 
-    if (read.stored.schemaVersion !== 1) {
-      // v2 metrics stay out of the v1 percentile distribution, but a loaded
-      // v2 report still proves the site was scanned: coverage would otherwise
-      // silently shrink as v1 reports prune away while their sites remain in
-      // the corpus with v2 evidence.
-      warnings.push(`Skipping corpus report ${file}: schemaVersion 2 metrics are not comparable to the v1 distribution.`);
-      continue;
-    }
-
-    // Use the baseline (the plain "off" state) of any comparison so the corpus
-    // distribution stays comparable to a normal single scan. The "on" variant
-    // is a protected state (Shields/GPC enabled) that no default scan is in,
-    // so ranking ordinary scans against it would misrank nearly every site.
-    const report: ScanReport = read.stored.report;
-    const result: ScanResult = report.reportType === "comparison" ? report.baseline : report;
+    // Use the canonical display/lead run: the plain "off" baseline for
+    // intervention comparisons, and the newer variant for a temporal pair.
+    // Protected intervention variants never enter the passive distribution.
+    const result = displayRunView(view);
 
     // A run that answered with an HTTP error (403/401/429 bot walls, outages)
     // reflects an error page, not the site, and a null status means the main
@@ -98,9 +101,9 @@ export async function buildCorpusStats(reportsDir: string, now = new Date()): Pr
     // either way the near-zero counts would drag the percentile distribution
     // down and misrank every real site against it. The per-report pages
     // already disclose these as failed loads.
-    if (typeof result.summary.status !== "number" || result.summary.status >= 400) continue;
+    if (result.quality.outcome !== "complete" || typeof result.status !== "number" || result.status >= 400) continue;
 
-    const leadDomain = corpusSiteDomainKey(result.summary.firstPartyDomain);
+    const leadDomain = corpusSiteDomainKey(result.domain);
     if (!leadDomain || isReservedReportDomain(leadDomain)) continue;
 
     // A run that hit the request-recording cap has activity counts that are
@@ -110,7 +113,7 @@ export async function buildCorpusStats(reportsDir: string, now = new Date()): Pr
     // exactly the ones that cap) and misranks every real site against a
     // truncated ceiling. The per-report pages disclose capped runs as cut
     // short.
-    if (runRequestEvidenceCapped(result)) continue;
+    if (familyCensoredOnRun(result, "requests") || runHitRequestRecordingCap(result)) continue;
 
     // A consent-interaction arm is a post-intervention state, not a default
     // visit: a consent comparison's baseline clicked "accept all" before
@@ -120,22 +123,79 @@ export async function buildCorpusStats(reportsDir: string, now = new Date()): Pr
     // never measured.
     if (result.conditions.consentMode === "accept-all" || result.conditions.consentMode === "reject-all") continue;
 
-    const scannedAt = result.conditions.scannedAt;
-    const existing = bySite.get(leadDomain);
-    if (existing && Date.parse(existing.scannedAt) >= Date.parse(scannedAt)) continue;
+    const scannedAt = result.startedAt ?? view.scannedAt ?? "";
+    if (!Number.isFinite(Date.parse(scannedAt))) continue;
+    const identity = corpusCohortIdentityForView(view);
+    const cohort = byCohort.get(identity.id) ?? { identity, bySite: new Map() };
+    if (!byCohort.has(identity.id)) byCohort.set(identity.id, cohort);
+    const existing = cohort.bySite.get(leadDomain);
+    if (existing && !preferCorpusRepresentative({ id, scannedAt }, existing)) continue;
 
-    bySite.set(leadDomain, {
+    cohort.bySite.set(leadDomain, {
+      id,
       scannedAt,
       // The deep guard already proved every summary count is a finite number,
       // so the values are copied verbatim; there is no zero-coercion path.
-      metrics: Object.fromEntries(METRIC_KEYS.map((key) => [key, result.summary[key]])) as Record<CorpusMetricKey, number>
+      metrics: {
+        thirdPartyRequests: result.counts.thirdPartyRequests,
+        thirdPartyDomains: result.counts.thirdPartyDomains,
+        knownTrackerRequests: result.counts.knownTrackerRequests,
+        thirdPartyCookies: result.counts.thirdPartyCookies,
+        fingerprintEvents: result.counts.fingerprintEvents
+      },
+      metricAvailability: {
+        thirdPartyRequests: true,
+        thirdPartyDomains: true,
+        knownTrackerRequests: true,
+        thirdPartyCookies: !familyCensoredOnRun(result, "cookies"),
+        fingerprintEvents: !familyCensoredOnRun(result, "fingerprinting")
+      }
     });
   }
 
-  const sites = Array.from(bySite.values());
+  const cohorts: CorpusStatsCohort[] = [...byCohort.values()]
+    .map(({ identity, bySite: sites }) => ({
+      ...identity,
+      sampleSize: sites.size,
+      metrics: metricDistributions([...sites.values()])
+    }))
+    .sort((left, right) => left.id.localeCompare(right.id));
+
+  // Keep the historical top-level fields as a compatibility view for current
+  // findings consumers. It names exactly one cohort (prefer the largest v1
+  // cohort while v1 remains the deployed benchmark source), never a pool.
+  const legacyCohorts = cohorts.filter((cohort) => cohort.schemaVersion === 1);
+  const primary = [...(legacyCohorts.length > 0 ? legacyCohorts : cohorts)].sort(
+    (left, right) => right.sampleSize - left.sampleSize || left.id.localeCompare(right.id)
+  )[0];
+
+  return {
+    stats: {
+      version: 2,
+      generatedAt: now.toISOString(),
+      sampleSize: primary?.sampleSize ?? 0,
+      coverageSiteCount: coverageDomains.size,
+      cappedSiteCount: cappedDomains.size,
+      ...(primary ? { primaryCohortId: primary.id } : {}),
+      cohorts,
+      metrics: primary?.metrics ?? {}
+    },
+    warnings
+  };
+}
+
+function metricDistributions(
+  sites: {
+    metrics: Record<CorpusMetricKey, number>;
+    metricAvailability: Record<CorpusMetricKey, boolean>;
+  }[]
+): Partial<Record<CorpusMetricKey, MetricDistribution>> {
   const metrics: Partial<Record<CorpusMetricKey, MetricDistribution>> = {};
   for (const key of METRIC_KEYS) {
-    const values = sites.map((site) => site.metrics[key]).sort((a, b) => a - b);
+    const values = sites
+      .filter((site) => site.metricAvailability[key])
+      .map((site) => site.metrics[key])
+      .sort((a, b) => a - b);
     if (values.length === 0) continue;
     metrics[key] = {
       count: values.length,
@@ -148,17 +208,7 @@ export async function buildCorpusStats(reportsDir: string, now = new Date()): Pr
     };
   }
 
-  return {
-    stats: {
-      version: 1,
-      generatedAt: now.toISOString(),
-      sampleSize: sites.length,
-      coverageSiteCount: coverageDomains.size,
-      cappedSiteCount: cappedDomains.size,
-      metrics
-    },
-    warnings
-  };
+  return metrics;
 }
 
 function percentile(sorted: number[], p: number): number {

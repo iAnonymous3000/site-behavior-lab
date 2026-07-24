@@ -31,7 +31,7 @@ import {
 import { resetScanLimitStateForTests, scanLimitStateForTests } from "./scan-limits";
 import type { PreparedScanRequest, ScanRunner } from "./scan-api";
 import { makePublicSingleReportV2R2 } from "./scan-report-v2-r2-fixtures";
-import { scanResultWithStagedR2Run } from "./scan-report-v2-runtime-fixtures";
+import { scanMeasurementEnvelopeWithR2Run } from "./scan-report-v2-runtime-fixtures";
 import { BUILD_COMMIT_ENV, PUBLIC_R2_REPORTS_ENV, type RuntimeScanReport } from "./runtime-scan-report";
 
 const JOB_ID = `20260718-${"a".repeat(32)}`;
@@ -518,14 +518,14 @@ test("durable publication timeout settles even when commit ignores its bounded s
   assert.deepEqual(events, ["heartbeat:1", "begin:1"]);
   assert.equal(getOwnedDurableScanJobStatus(owner(1, LEASE_ONE))?.status, "running");
 
-  lateCommit.resolve(r2ScanResult());
+  lateCommit.resolve(r2ScanResult().result);
   await new Promise<void>((resolve) => setImmediate(resolve));
   assert.deepEqual(events, ["heartbeat:1", "begin:1"]);
   assert.equal(getOwnedDurableScanJobStatus(owner(1, LEASE_ONE))?.status, "running");
 });
 
 test("private publication reconciliation settles and observes a late adapter rejection", async () => {
-  const manifest = prepareScanReportBundle(r2ScanResult(), { shareId: REPORT_ID }).manifest;
+  const manifest = prepareScanReportBundle(r2ScanResult().result, { shareId: REPORT_ID }).manifest;
   const lateReconciliation = deferred<{ outcome: "missing" }>();
   let observedSignal: AbortSignal | undefined;
   const result = await reconcileDurableScanJobPublication(
@@ -1040,7 +1040,7 @@ function sequentialIds(...ids: string[]): () => string {
 }
 
 function r2ScanResult() {
-  return scanResultWithStagedR2Run(makePublicSingleReportV2R2().run);
+  return scanMeasurementEnvelopeWithR2Run(makePublicSingleReportV2R2().run);
 }
 
 function recordingCoordinator(events: string[]): DurableScanJobCoordinator {

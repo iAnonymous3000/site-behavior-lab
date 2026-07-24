@@ -11,14 +11,23 @@ import {
   STATIC_LIVE_SCAN_ENABLED,
   scannerApiUrl
 } from "../client-runtime";
-import { normalizeScanUrl } from "../scan-form";
+import { normalizeScanUrl, resolveScanPrefillNavigation } from "@/lib/scan-prefill";
 import {
   ACTIVE_SCAN_SESSION_MAX_AGE_MS,
   clearActiveScanSession,
+  clearPendingScanAdmissionSession,
   persistActiveScanSession,
+  persistPendingScanAdmissionSession,
   restoreActiveScanSession,
-  type ActiveScanSession
+  restorePendingScanAdmissionSession,
+  type ActiveScanSession,
+  type PendingScanAdmissionSession
 } from "@/lib/active-scan-session";
+import {
+  assertClientOperationOwner,
+  ClientOperationOwner,
+  type ClientOperationLease
+} from "@/lib/client-operation-ownership";
 import {
   cancelRuntimeScan,
   deriveScanRuntimePolicy,
@@ -26,6 +35,7 @@ import {
   friendlyScanError,
   isAbortError,
   liveScannerStatusLabel,
+  recoverRuntimeScanAdmissionThroughCommitWindow,
   resumeRuntimeScan,
   scanJobWithCurrentAccessKey,
   scannerStatusText,
@@ -55,6 +65,9 @@ type UseScanRuntimeOptions = {
   initialLoading: boolean;
 };
 
+type ScanLifecycleOperationKind = "restore" | "submit" | "admission-recovery" | "resume" | "cancel";
+type ScanLifecycleOperation = ClientOperationLease<ScanLifecycleOperationKind>;
+
 /**
  * Own the browser-side scan lifecycle while keeping the report renderer and
  * local upload adapters independent. Accepted job capabilities deliberately
@@ -74,10 +87,18 @@ export function useScanRuntime({
   const [scanning, setScanning] = useState(false);
   const [activeScanJob, setActiveScanJob] = useState<ActiveScanJob | null>(null);
   const [activeScanExpiresAt, setActiveScanExpiresAt] = useState<number | null>(null);
+  const [pendingScanAdmission, setPendingScanAdmission] = useState<PendingScanAdmissionSession | null>(null);
+  const [recoveringScanAdmission, setRecoveringScanAdmission] = useState(false);
   const [activeScanProgress, setActiveScanProgress] = useState<ScanJobProgress | null>(null);
   const [cancellingScan, setCancellingScan] = useState(false);
   const [cancelScanError, setCancelScanError] = useState<string | null>(null);
-  const scanControllerRef = useRef<AbortController | null>(null);
+  // State updates are asynchronous and therefore cannot be the ownership
+  // boundary for paid work. This ref is claimed synchronously before any scan
+  // credential can be minted or any request can leave the tab.
+  const operationOwnerRef = useRef(new ClientOperationOwner<ScanLifecycleOperationKind>());
+  const activeScanJobRef = useRef<ActiveScanJob | null>(null);
+  const pendingScanAdmissionRef = useRef<PendingScanAdmissionSession | null>(null);
+  const autoRecoveredAdmissionRef = useRef<string | null>(null);
   const [scannerHealth, setScannerHealth] = useState<ScanRuntimeHealth | null>(null);
   const [scannerHealthError, setScannerHealthError] = useState<string | null>(null);
   const [scannerHealthAttempt, setScannerHealthAttempt] = useState(0);
@@ -101,10 +122,33 @@ export function useScanRuntime({
 
   useEffect(() => {
     if (reportPage || typeof window === "undefined") return;
-    const requested = new URLSearchParams(window.location.search).get("url");
-    if (!requested) return;
-    const normalized = normalizeScanUrl(requested);
-    if (normalized) setForm((current) => ({ ...current, url: normalized }));
+    const applyScanPrefill = () => {
+      const navigation = resolveScanPrefillNavigation(window.location.href);
+      if (!navigation) return;
+
+      if (navigation.cleanHref !== window.location.href) {
+        try {
+          // Cleanup must succeed before target text reaches React state. This
+          // also removes legacy query-prefill input from browser history.
+          window.history.replaceState(window.history.state, "", navigation.cleanHref);
+        } catch {
+          return;
+        }
+      }
+
+      if (navigation.targetUrl) {
+        setForm((current) => ({ ...current, url: navigation.targetUrl ?? current.url }));
+      }
+      if (navigation.scrollToScan) document.getElementById("scan")?.scrollIntoView();
+    };
+
+    applyScanPrefill();
+    window.addEventListener("hashchange", applyScanPrefill);
+    window.addEventListener("popstate", applyScanPrefill);
+    return () => {
+      window.removeEventListener("hashchange", applyScanPrefill);
+      window.removeEventListener("popstate", applyScanPrefill);
+    };
   }, [reportPage]);
 
   useEffect(() => {
@@ -119,22 +163,47 @@ export function useScanRuntime({
     setLoading(initialLoading);
   }, [initialLoading]);
 
-  useEffect(() => () => scanControllerRef.current?.abort(), []);
+  useEffect(
+    () => () => {
+      operationOwnerRef.current.cancelCurrent();
+    },
+    []
+  );
 
   useEffect(() => {
     if (reportPage || !LIVE_SCAN_ENABLED || typeof window === "undefined") return;
     let recovered: ActiveScanSession | null = null;
+    let pending: PendingScanAdmissionSession | null = null;
     try {
       recovered = restoreActiveScanSession(window.sessionStorage);
+      pending = restorePendingScanAdmissionSession(window.sessionStorage);
     } catch {
       return;
     }
-    if (!recovered) return;
+    if (!recovered) {
+      if (pending) {
+        pendingScanAdmissionRef.current = pending;
+        setPendingScanAdmission(pending);
+        setError("A previous scan request has an unknown admission outcome. Checking it will never submit a second request.");
+      }
+      return;
+    }
+
+    const operation = operationOwnerRef.current.claim("restore");
+    if (operation === null) return;
+
+    // Accepted identifiers are strictly stronger recovery authority than a
+    // pending bearer. A crash may leave both records between the two writes.
+    if (pending) {
+      assertClientOperationOwner(operationOwnerRef.current, operation);
+      clearPendingScanAdmissionSession(window.sessionStorage);
+    }
+    pendingScanAdmissionRef.current = null;
+    setPendingScanAdmission(null);
 
     const recoveredJob: ActiveScanJob = { ...recovered.job, accessKey: "" };
     let disposed = false;
-    const controller = new AbortController();
-    scanControllerRef.current = controller;
+    activeScanJobRef.current = recoveredJob;
     setActiveScanJob(recoveredJob);
     setActiveScanExpiresAt(recovered.expiresAt);
     // A recovered capability was already accepted in the earlier page load.
@@ -147,20 +216,20 @@ export function useScanRuntime({
 
     void resumeRuntimeScan({
       job: recoveredJob,
-      signal: controller.signal,
+      signal: operation.controller.signal,
       resolveApiUrl: scannerApiUrl,
       onProgress: (progress) => {
-        if (!disposed) setActiveScanProgress(progress);
+        if (!disposed && operationOwnerRef.current.owns(operation)) setActiveScanProgress(progress);
       }
     })
       .then((nextLoaded) => {
-        if (disposed) return;
+        if (disposed || !operationOwnerRef.current.owns(operation)) return;
         setLoaded(nextLoaded);
-        releaseActiveScanSession();
+        releaseActiveScanSession(operation);
       })
       .catch((scanError: unknown) => {
-        if (disposed || isAbortError(scanError)) return;
-        if (shouldReleaseAcceptedScanJob(scanError)) releaseActiveScanSession();
+        if (disposed || !operationOwnerRef.current.owns(operation) || isAbortError(scanError)) return;
+        if (shouldReleaseAcceptedScanJob(scanError)) releaseActiveScanSession(operation);
         setError(
           scanError instanceof Error
             ? friendlyScanError(scanError.message, OPEN_ACCESS_SCANNER)
@@ -168,26 +237,27 @@ export function useScanRuntime({
         );
       })
       .finally(() => {
-        if (disposed) return;
-        if (scanControllerRef.current === controller) scanControllerRef.current = null;
+        if (disposed || !operationOwnerRef.current.owns(operation)) return;
+        operationOwnerRef.current.release(operation);
         setLoading(false);
         setScanning(false);
       });
 
     return () => {
       disposed = true;
-      controller.abort();
-      if (scanControllerRef.current === controller) scanControllerRef.current = null;
+      operationOwnerRef.current.cancel(operation);
     };
   }, [reportPage]);
 
   useEffect(() => {
     if (!activeScanJob || activeScanExpiresAt === null || typeof window === "undefined") return;
     const expire = () => {
-      scanControllerRef.current?.abort();
-      releaseActiveScanSession();
+      if (activeScanJobRef.current?.jobId !== activeScanJob.jobId) return;
+      cancelCurrentLifecycleOperation();
+      forceReleaseActiveScanSession();
       setLoading(false);
       setScanning(false);
+      setCancellingScan(false);
       setError("This accepted scan expired before it could be recovered.");
     };
     const remainingMs = activeScanExpiresAt - Date.now();
@@ -198,6 +268,33 @@ export function useScanRuntime({
     const timer = window.setTimeout(expire, remainingMs);
     return () => window.clearTimeout(timer);
   }, [activeScanExpiresAt, activeScanJob]);
+
+  useEffect(() => {
+    if (!pendingScanAdmission || typeof window === "undefined") return;
+    const expire = () => {
+      if (
+        pendingScanAdmissionRef.current?.credential.capabilityToken !==
+        pendingScanAdmission.credential.capabilityToken
+      ) {
+        return;
+      }
+      cancelCurrentLifecycleOperation();
+      clearPendingScanAdmissionSession(window.sessionStorage);
+      pendingScanAdmissionRef.current = null;
+      setPendingScanAdmission(null);
+      setRecoveringScanAdmission(false);
+      setLoading(false);
+      setScanning(false);
+      setError("The unresolved scan-admission recovery window expired. You can safely start a new scan.");
+    };
+    const remainingMs = pendingScanAdmission.expiresAt - Date.now();
+    if (remainingMs <= 0) {
+      expire();
+      return;
+    }
+    const timer = window.setTimeout(expire, remainingMs);
+    return () => window.clearTimeout(timer);
+  }, [pendingScanAdmission]);
 
   useEffect(() => {
     if (reportPage || !LIVE_SCAN_ENABLED) return;
@@ -237,7 +334,20 @@ export function useScanRuntime({
     }));
   }, [policy.consentComparisonEnabled, policy.gpcComparisonEnabled, policy.shieldsComparisonEnabled]);
 
-  function retainActiveScanSession(job: ActiveScanJob): void {
+  function resetTurnstileAfterLifecycleOperation(kind: ScanLifecycleOperationKind): void {
+    if (kind !== "submit" || !policy.turnstileRequired) return;
+    setTurnstileToken("");
+    setTurnstileResetNonce((nonce) => nonce + 1);
+  }
+
+  function cancelCurrentLifecycleOperation(): ScanLifecycleOperation | null {
+    const cancelled = operationOwnerRef.current.cancelCurrent();
+    if (cancelled) resetTurnstileAfterLifecycleOperation(cancelled.kind);
+    return cancelled;
+  }
+
+  function retainActiveScanSession(operation: ScanLifecycleOperation, job: ActiveScanJob): void {
+    assertClientOperationOwner(operationOwnerRef.current, operation);
     const acceptedAt = Date.now();
     let session: ActiveScanSession = {
       job,
@@ -251,6 +361,8 @@ export function useScanRuntime({
         /* sessionStorage unavailable; retain the accepted job in memory */
       }
     }
+    assertClientOperationOwner(operationOwnerRef.current, operation);
+    activeScanJobRef.current = job;
     setActiveScanJob(job);
     setActiveScanExpiresAt(session.expiresAt);
     setActiveScanProgress(
@@ -264,7 +376,12 @@ export function useScanRuntime({
     );
   }
 
-  function releaseActiveScanSession(): void {
+  function releaseActiveScanSession(operation: ScanLifecycleOperation): void {
+    assertClientOperationOwner(operationOwnerRef.current, operation);
+    forceReleaseActiveScanSession();
+  }
+
+  function forceReleaseActiveScanSession(): void {
     if (typeof window !== "undefined") {
       try {
         clearActiveScanSession(window.sessionStorage);
@@ -272,12 +389,139 @@ export function useScanRuntime({
         /* sessionStorage unavailable */
       }
     }
+    activeScanJobRef.current = null;
     setActiveScanJob(null);
     setActiveScanExpiresAt(null);
     setActiveScanProgress(null);
   }
 
+  function retainPendingAdmission(
+    operation: ScanLifecycleOperation,
+    credential: PendingScanAdmissionSession["credential"]
+  ): void {
+    assertClientOperationOwner(operationOwnerRef.current, operation);
+    const currentPending = pendingScanAdmissionRef.current;
+    if (
+      currentPending?.credential.capabilityToken === credential.capabilityToken &&
+      currentPending.credential.requestCommitment === credential.requestCommitment
+    ) {
+      if (typeof window !== "undefined") {
+        // Re-write and read back before every exact POST retry: browser/user
+        // storage clearing must not silently downgrade a retained capability
+        // to memory-only recovery authority.
+        persistPendingScanAdmissionSession(
+          window.sessionStorage,
+          credential,
+          currentPending.createdAt
+        );
+      }
+      assertClientOperationOwner(operationOwnerRef.current, operation);
+      return;
+    }
+    const createdAt = Date.now();
+    let session: PendingScanAdmissionSession = {
+      credential,
+      createdAt,
+      expiresAt: createdAt + ACTIVE_SCAN_SESSION_MAX_AGE_MS
+    };
+    if (typeof window !== "undefined") {
+      session = persistPendingScanAdmissionSession(window.sessionStorage, credential, createdAt);
+    }
+    assertClientOperationOwner(operationOwnerRef.current, operation);
+    autoRecoveredAdmissionRef.current = null;
+    pendingScanAdmissionRef.current = session;
+    setPendingScanAdmission(session);
+  }
+
+  function releasePendingAdmission(operation: ScanLifecycleOperation): void {
+    assertClientOperationOwner(operationOwnerRef.current, operation);
+    if (typeof window !== "undefined") {
+      clearPendingScanAdmissionSession(window.sessionStorage);
+    }
+    assertClientOperationOwner(operationOwnerRef.current, operation);
+    pendingScanAdmissionRef.current = null;
+    setPendingScanAdmission(null);
+    autoRecoveredAdmissionRef.current = null;
+  }
+
+  async function recoverPendingAdmission(): Promise<void> {
+    const pending = pendingScanAdmissionRef.current;
+    if (!pending || recoveringScanAdmission || activeScanJobRef.current) return;
+    if (!policy.durableAdmissionEnabled) {
+      setError("The durable scanner is not ready to check this retained admission yet. Retry scanner status, then check again.");
+      return;
+    }
+    if (policy.scannerRequiresAccessKey && !form.accessKey.trim()) {
+      setError("Enter this deployment's access key under Options before checking the retained admission.");
+      return;
+    }
+
+    const operation = operationOwnerRef.current.claim("admission-recovery");
+    if (operation === null) return;
+    setRecoveringScanAdmission(true);
+    setLoading(true);
+    setScanning(false);
+    setLoaded(null);
+    setError(null);
+    setCancelScanError(null);
+
+    try {
+      const recovery = await recoverRuntimeScanAdmissionThroughCommitWindow({
+        credential: pending.credential,
+        createdAt: pending.createdAt,
+        accessKey: form.accessKey,
+        signal: operation.controller.signal,
+        resolveApiUrl: scannerApiUrl
+      });
+      assertClientOperationOwner(operationOwnerRef.current, operation);
+      if (recovery.status === "not-found") {
+        setError(
+          "No committed job was found after the admission race window. The request remains retained; submit only the exact original URL and options to retry safely."
+        );
+        return;
+      }
+
+      // Persist accepted identifiers before clearing the outcome-unknown
+      // bearer. The accepted job then follows the ordinary resume/cancel path.
+      retainActiveScanSession(operation, recovery.job);
+      releasePendingAdmission(operation);
+      setScanning(true);
+      const nextLoaded = await resumeRuntimeScan({
+        job: recovery.job,
+        signal: operation.controller.signal,
+        resolveApiUrl: scannerApiUrl,
+        onProgress: (progress) => {
+          if (operationOwnerRef.current.owns(operation)) setActiveScanProgress(progress);
+        }
+      });
+      assertClientOperationOwner(operationOwnerRef.current, operation);
+      setLoaded(nextLoaded);
+      releaseActiveScanSession(operation);
+    } catch (recoveryError) {
+      if (!operationOwnerRef.current.owns(operation) || isAbortError(recoveryError)) return;
+      if (shouldReleaseAcceptedScanJob(recoveryError)) releaseActiveScanSession(operation);
+      const message = recoveryError instanceof Error
+        ? recoveryError.message
+        : "The retained scan admission could not be checked.";
+      setError(
+        activeScanJobRef.current
+          ? `${message} The accepted scan remains retained; resume its status checks or cancel it without resubmitting work.`
+          : `${message} The admission remains retained; checking it again will not submit another scan.`
+      );
+    } finally {
+      if (!operationOwnerRef.current.owns(operation)) return;
+      operationOwnerRef.current.release(operation);
+      setRecoveringScanAdmission(false);
+      setLoading(false);
+      setScanning(false);
+    }
+  }
+
   async function runScan(targetUrl: string) {
+    // React may deliver two submit handlers before `scanning` re-renders. The
+    // synchronous owner is authoritative; a duplicate does not mutate UI,
+    // mint a second recovery credential, or send another POST.
+    if (operationOwnerRef.current.current() !== null) return;
     if (cancellingScan) {
       setError("Wait for the cancellation request to finish before starting another scan.");
       return;
@@ -286,8 +530,12 @@ export function useScanRuntime({
       setError("Wait for the scheduled rescan request to finish before scanning.");
       return;
     }
-    if (activeScanJob) {
+    if (activeScanJobRef.current) {
       setError("This accepted scan is still available. Resume its status checks or cancel it before starting another scan.");
+      return;
+    }
+    if (pendingScanAdmissionRef.current && !policy.durableAdmissionEnabled) {
+      setError("This tab is retaining an unresolved durable admission. Wait for the durable scanner to become ready, then check or retry that exact request.");
       return;
     }
     if (!LIVE_SCAN_ENABLED) {
@@ -323,8 +571,9 @@ export function useScanRuntime({
       return;
     }
 
-    const controller = new AbortController();
-    scanControllerRef.current = controller;
+    const operation = operationOwnerRef.current.claim("submit");
+    if (operation === null) return;
+    const pendingForSubmission = pendingScanAdmissionRef.current;
     setLoading(true);
     setScanning(true);
     setError(null);
@@ -343,37 +592,43 @@ export function useScanRuntime({
         scannerRequiresAccessKey: policy.scannerRequiresAccessKey,
         turnstileRequired: policy.turnstileRequired,
         turnstileToken,
-        signal: controller.signal,
+        signal: operation.controller.signal,
         resolveApiUrl: scannerApiUrl,
-        onAccepted: retainActiveScanSession,
-        onProgress: setActiveScanProgress
+        durableAdmissionEnabled: policy.durableAdmissionEnabled,
+        ...(pendingForSubmission ? { admissionCredential: pendingForSubmission.credential } : {}),
+        onAdmissionReady: (credential) => retainPendingAdmission(operation, credential),
+        onAdmissionCleared: () => releasePendingAdmission(operation),
+        onAccepted: (job) => retainActiveScanSession(operation, job),
+        onProgress: (progress) => {
+          if (operationOwnerRef.current.owns(operation)) setActiveScanProgress(progress);
+        }
       });
+      assertClientOperationOwner(operationOwnerRef.current, operation);
       setLoaded(nextLoaded);
-      releaseActiveScanSession();
+      releaseActiveScanSession(operation);
     } catch (scanError) {
-      if (isAbortError(scanError)) return;
-      if (shouldReleaseAcceptedScanJob(scanError)) releaseActiveScanSession();
+      if (!operationOwnerRef.current.owns(operation) || isAbortError(scanError)) return;
+      if (shouldReleaseAcceptedScanJob(scanError)) releaseActiveScanSession(operation);
       setError(
         scanError instanceof Error
           ? friendlyScanError(scanError.message, policy.openAccessScanner)
           : "Scan failed."
       );
     } finally {
-      if (scanControllerRef.current === controller) scanControllerRef.current = null;
+      if (!operationOwnerRef.current.owns(operation)) return;
+      operationOwnerRef.current.release(operation);
       setLoading(false);
       setScanning(false);
-      if (policy.turnstileRequired) {
-        setTurnstileToken("");
-        setTurnstileResetNonce((nonce) => nonce + 1);
-      }
+      resetTurnstileAfterLifecycleOperation(operation.kind);
     }
   }
 
   async function resumeActiveScan() {
-    if (!activeScanJob || loading || cancellingScan) return;
-    const job = scanJobWithCurrentAccessKey(activeScanJob, form.accessKey);
-    const controller = new AbortController();
-    scanControllerRef.current = controller;
+    const retainedJob = activeScanJobRef.current;
+    if (!retainedJob || loading || cancellingScan) return;
+    const operation = operationOwnerRef.current.claim("resume");
+    if (operation === null) return;
+    const job = scanJobWithCurrentAccessKey(retainedJob, form.accessKey);
     setLoading(true);
     setScanning(true);
     setLoaded(null);
@@ -382,48 +637,62 @@ export function useScanRuntime({
     setActiveScanProgress((current) => current ?? acceptedScanJobProgress());
 
     try {
-      setLoaded(
-        await resumeRuntimeScan({
-          job,
-          signal: controller.signal,
-          resolveApiUrl: scannerApiUrl,
-          onProgress: setActiveScanProgress
-        })
-      );
-      releaseActiveScanSession();
+      const nextLoaded = await resumeRuntimeScan({
+        job,
+        signal: operation.controller.signal,
+        resolveApiUrl: scannerApiUrl,
+        onProgress: (progress) => {
+          if (operationOwnerRef.current.owns(operation)) setActiveScanProgress(progress);
+        }
+      });
+      assertClientOperationOwner(operationOwnerRef.current, operation);
+      setLoaded(nextLoaded);
+      releaseActiveScanSession(operation);
     } catch (scanError) {
-      if (isAbortError(scanError)) return;
-      if (shouldReleaseAcceptedScanJob(scanError)) releaseActiveScanSession();
+      if (!operationOwnerRef.current.owns(operation) || isAbortError(scanError)) return;
+      if (shouldReleaseAcceptedScanJob(scanError)) releaseActiveScanSession(operation);
       setError(
         scanError instanceof Error
           ? friendlyScanError(scanError.message, policy.openAccessScanner)
           : "Scan status checks failed."
       );
     } finally {
-      if (scanControllerRef.current === controller) scanControllerRef.current = null;
+      if (!operationOwnerRef.current.owns(operation)) return;
+      operationOwnerRef.current.release(operation);
       setLoading(false);
       setScanning(false);
     }
   }
 
   async function cancelActiveScan() {
-    if (!activeScanJob || cancellingScan) return;
-    const job = scanJobWithCurrentAccessKey(activeScanJob, form.accessKey);
-    scanControllerRef.current?.abort();
-    const controller = new AbortController();
-    scanControllerRef.current = controller;
+    const retainedJob = activeScanJobRef.current;
+    if (!retainedJob || cancellingScan) return;
+    const currentOperation = operationOwnerRef.current.current();
+    if (currentOperation?.kind === "cancel") return;
+    const operation = currentOperation
+      ? operationOwnerRef.current.supersede("cancel")
+      : operationOwnerRef.current.claim("cancel");
+    if (operation === null) return;
+    if (currentOperation) resetTurnstileAfterLifecycleOperation(currentOperation.kind);
+    const job = scanJobWithCurrentAccessKey(retainedJob, form.accessKey);
     setCancellingScan(true);
     setLoading(false);
     setScanning(false);
     setCancelScanError(null);
 
     try {
-      const message = await cancelRuntimeScan({ job, resolveApiUrl: scannerApiUrl, signal: controller.signal });
-      releaseActiveScanSession();
+      const message = await cancelRuntimeScan({
+        job,
+        resolveApiUrl: scannerApiUrl,
+        signal: operation.controller.signal
+      });
+      assertClientOperationOwner(operationOwnerRef.current, operation);
+      releaseActiveScanSession(operation);
       setLoading(false);
       setScanning(false);
       setError(message);
     } catch (cancelError) {
+      if (!operationOwnerRef.current.owns(operation) || isAbortError(cancelError)) return;
       // A failed DELETE never discards the accepted capability; the visitor can
       // retry cancellation or resume polling with the admission-time key.
       setCancelScanError(
@@ -432,15 +701,15 @@ export function useScanRuntime({
           : "The scan could not be cancelled."
       );
     } finally {
-      if (scanControllerRef.current === controller) scanControllerRef.current = null;
+      if (!operationOwnerRef.current.owns(operation)) return;
+      operationOwnerRef.current.release(operation);
       setCancellingScan(false);
     }
   }
 
   function dismissActiveScan(): void {
-    scanControllerRef.current?.abort();
-    scanControllerRef.current = null;
-    releaseActiveScanSession();
+    cancelCurrentLifecycleOperation();
+    forceReleaseActiveScanSession();
     setLoading(false);
     setScanning(false);
     setCancellingScan(false);
@@ -456,6 +725,7 @@ export function useScanRuntime({
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (operationOwnerRef.current.current() !== null) return;
     const trimmed = form.url.trim();
     if (!trimmed) {
       const message = "Enter a public URL to scan, for example https://example.com.";
@@ -511,6 +781,35 @@ export function useScanRuntime({
     setTurnstileResetNonce((nonce) => nonce + 1);
   }
 
+  useEffect(() => {
+    if (
+      reportPage ||
+      !pendingScanAdmission ||
+      activeScanJob ||
+      recoveringScanAdmission ||
+      loading ||
+      !policy.durableAdmissionEnabled ||
+      policy.scannerUnavailable ||
+      (policy.scannerRequiresAccessKey && !form.accessKey.trim())
+    ) {
+      return;
+    }
+    const capability = pendingScanAdmission.credential.capabilityToken;
+    if (autoRecoveredAdmissionRef.current === capability) return;
+    autoRecoveredAdmissionRef.current = capability;
+    void recoverPendingAdmission();
+  }, [
+    activeScanJob,
+    form.accessKey,
+    loading,
+    pendingScanAdmission,
+    policy.durableAdmissionEnabled,
+    policy.scannerRequiresAccessKey,
+    policy.scannerUnavailable,
+    recoveringScanAdmission,
+    reportPage
+  ]);
+
   return {
     form,
     setForm,
@@ -522,6 +821,8 @@ export function useScanRuntime({
     setLoading,
     scanning,
     activeScanJob,
+    pendingScanAdmission,
+    recoveringScanAdmission,
     activeScanProgress,
     cancellingScan,
     cancelScanError,
@@ -550,6 +851,7 @@ export function useScanRuntime({
     updateAccessKey,
     acceptScheduledRescanTarget,
     resetTurnstileAfterScheduledRescanAttempt,
+    recoverPendingAdmission,
     resumeActiveScan,
     cancelActiveScan,
     dismissActiveScan

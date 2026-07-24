@@ -1,6 +1,6 @@
 import { adblockListMeta, type AdblockListMeta } from "./adblock-engine";
 import { BUILD_COMMIT_ENV, recordedBuildCommit } from "./build-provenance";
-import { NODE_ADBLOCK_ENGINE_VERSION, NODE_SCANNER_METHODOLOGY_VERSION } from "./legacy-methodology";
+import { NODE_ADBLOCK_ENGINE_VERSION } from "./legacy-methodology";
 import {
   DETECTOR_REGISTRY_DIGEST,
   isDetectorReasonCode,
@@ -19,20 +19,16 @@ import {
   WEBGL_READ_APIS
 } from "./measurement-kernel";
 import {
-  REDACTION_ALLOWLISTS_VERSION,
-  REDACTION_ALLOWLISTS_DIGEST,
   REDACTION_VERSION,
-  PUBLIC_SUFFIX_ENGINE_VERSION,
   addRedactionCounters,
   emptyRedactionCounters,
   publicRegistrableDomain,
+  redactPageTitle,
   redactUrlV2,
   type RedactionCounters
 } from "./redaction-v2";
 import {
   RedactionPass,
-  PUBLIC_STRING_POLICY_DIGEST,
-  PUBLIC_STRING_POLICY_VERSION,
   assertKnownPixelEventVocabulary,
   redactConsentInteraction,
   redactCookie,
@@ -77,6 +73,12 @@ import {
 import { BUDGET_FAMILIES } from "./scan-report-v2-evaluators";
 import { buildFingerprints, canonicalJson } from "./scan-report-v2-fingerprints";
 import {
+  R2_NAVIGATION_STATUS_UNREPRESENTABLE,
+  R2_REQUEST_STATUS_UNREPRESENTABLE,
+  isR2HttpStatusLimitationDetail,
+  normalizeHttpStatusForScanReportV2R2
+} from "./scan-report-v2-http-status";
+import {
   DETECTOR_IDS,
   SCAN_REPORT_V2_SCHEMA_VERSION,
   type AcquisitionKind,
@@ -94,7 +96,12 @@ import {
 import { trackerCatalogMetadata } from "./tracker-catalog";
 import { findTrackerMatch } from "./tracker-catalog";
 import { MAX_RECORDED_REQUESTS } from "./scan-runtime";
+import {
+  NODE_R2_PUBLIC_LIMITS,
+  NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION
+} from "./scan-report-v2-r2-producer-contract";
 import { partyKey } from "./domain-utils";
+import { NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION } from "./scan-report-v2-normalization";
 import type { FingerprintDetectionSummary, PrivacyPolicySummary, TrackerMatch } from "./types";
 
 /**
@@ -109,29 +116,25 @@ import type { FingerprintDetectionSummary, PrivacyPolicySummary, TrackerMatch } 
  * must pass the same structural and semantic gates used by readers.
  */
 
-export const NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION =
-  `redaction-v${REDACTION_VERSION}+${REDACTION_ALLOWLISTS_VERSION}:${REDACTION_ALLOWLISTS_DIGEST}+${PUBLIC_STRING_POLICY_VERSION}:${PUBLIC_STRING_POLICY_DIGEST}+${PUBLIC_SUFFIX_ENGINE_VERSION}+node-evidence-policy-v1`;
-export const NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION =
-  `${NODE_SCANNER_METHODOLOGY_VERSION}+phase-kernel-v2+boundary-state-v1+consent-r2-v4+resource-budget-v1+proxy-traffic-v1+service-worker-block-v1`;
+export { NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION } from "./scan-report-v2-normalization";
+export { NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION } from "./scan-report-v2-r2-producer-contract";
 
 export { NODE_SCAN_REPORT_V2_R2_MAX_PUBLIC_BYTES } from "./scan-report-v2-r2-limits";
-const MAX_PHASES = 16;
-const MAX_WARNINGS = 64;
-const MAX_COOKIE_RECORDS = 1_000;
-const MAX_COOKIE_MUTATIONS = 2_000;
-const MAX_STORAGE_RECORDS = 1_000;
-const MAX_STORAGE_MUTATIONS = 2_000;
-const MAX_FINGERPRINT_EVENTS = 1_000;
-const MAX_FINGERPRINT_DETECTIONS = 256;
-const MAX_CNAME_CLOAKS = 256;
-const MAX_PIXEL_EVENTS = 512;
-const MAX_CONSENT_OBSERVATIONS = 32;
-const MAX_POLICY_CLAIMS = 32;
-const MAX_POLICY_ENTITIES = 100;
+const MAX_PHASES = NODE_R2_PUBLIC_LIMITS.phases;
+const MAX_WARNINGS = NODE_R2_PUBLIC_LIMITS.warnings;
+const MAX_COOKIE_RECORDS = NODE_R2_PUBLIC_LIMITS.cookieRecords;
+const MAX_COOKIE_MUTATIONS = NODE_R2_PUBLIC_LIMITS.cookieMutations;
+const MAX_STORAGE_RECORDS = NODE_R2_PUBLIC_LIMITS.storageRecords;
+const MAX_STORAGE_MUTATIONS = NODE_R2_PUBLIC_LIMITS.storageMutations;
+const MAX_FINGERPRINT_EVENTS = NODE_R2_PUBLIC_LIMITS.fingerprintEvents;
+const MAX_FINGERPRINT_DETECTIONS = NODE_R2_PUBLIC_LIMITS.fingerprintDetections;
+const MAX_CNAME_CLOAKS = NODE_R2_PUBLIC_LIMITS.cnameCloaks;
+const MAX_PIXEL_EVENTS = NODE_R2_PUBLIC_LIMITS.pixelEvents;
+const MAX_CONSENT_OBSERVATIONS = NODE_R2_PUBLIC_LIMITS.consentObservations;
+const MAX_POLICY_CLAIMS = NODE_R2_PUBLIC_LIMITS.policyClaims;
+const MAX_POLICY_ENTITIES = NODE_R2_PUBLIC_LIMITS.policyEntities;
 
 const SHA256 = /^[0-9a-f]{64}$/;
-const MAX_PAGE_TITLE_CHARS = 200;
-
 export type MeasurementKernelResultR2 = {
   phases: PhaseSpan[];
   detectors: DetectorLedger;
@@ -186,14 +189,60 @@ export type NodeInterventionComparisonV2R2Input = {
   variant: NodeScanReportV2R2Input;
 };
 
+function normalizeNodeR2HttpStatuses(input: NodeScanReportV2R2Input): {
+  qualityFacts: QualityFacts;
+  evidence: Omit<RunEvidenceR2, "consent">;
+} {
+  if (input.measurement.qualityFacts.captureLoss.some((entry) => isR2HttpStatusLimitationDetail(entry.detail))) {
+    throw new Error("r2 HTTP status limitation details are reserved for the public builder.");
+  }
+
+  const qualityFacts = structuredClone(input.measurement.qualityFacts);
+  const navigation = normalizeHttpStatusForScanReportV2R2(qualityFacts.status, "Node quality HTTP status");
+  qualityFacts.status = navigation.status;
+  if (navigation.unrepresentable) {
+    qualityFacts.captureLoss.push({
+      family: "requests",
+      phaseId: null,
+      kind: "dropped",
+      count: 1,
+      detail: R2_NAVIGATION_STATUS_UNREPRESENTABLE
+    });
+  }
+
+  const requestLossByPhase = new Map<PhaseId, number>();
+  const requests = input.evidence.requests.map((request, index) => {
+    const normalized = normalizeHttpStatusForScanReportV2R2(
+      request.status,
+      `Node request evidence HTTP status at index ${index}`
+    );
+    if (normalized.unrepresentable) {
+      requestLossByPhase.set(request.phaseId, (requestLossByPhase.get(request.phaseId) ?? 0) + 1);
+    }
+    return { ...request, status: normalized.status };
+  });
+  for (const [phaseId, count] of [...requestLossByPhase].sort(([left], [right]) => left - right)) {
+    qualityFacts.captureLoss.push({
+      family: "requests",
+      phaseId,
+      kind: "dropped",
+      count,
+      detail: R2_REQUEST_STATUS_UNREPRESENTABLE
+    });
+  }
+
+  return { qualityFacts, evidence: { ...input.evidence, requests } };
+}
+
 export function buildNodeScanReportV2R2(
   input: NodeScanReportV2R2Input,
   env: NodeJS.ProcessEnv = process.env
 ): EphemeralSingleReportR2 {
+  const statusNormalized = normalizeNodeR2HttpStatuses(input);
   assertProducerIdentity(input.runId, input.startedAt);
   assertNodeConditions(input.conditions);
   assertMeasurementRegistry(input.measurement.detectors);
-  assertQualityVocabulary(input.measurement.qualityFacts);
+  assertQualityVocabulary(statusNormalized.qualityFacts);
   assertSummaryInputs(input.summary, input.measurement.phases);
 
   if (Object.prototype.hasOwnProperty.call(input.evidence, "consent")) {
@@ -217,8 +266,8 @@ export function buildNodeScanReportV2R2(
   const phases = structuredClone(input.measurement.phases);
   const detectors = structuredClone(input.measurement.detectors);
   assertPhasePlan(input.conditions, phases, detectors);
-  assertPhaseEvidence(phases, detectors, input.evidence);
-  const qualityFacts = structuredClone(input.measurement.qualityFacts);
+  assertPhaseEvidence(phases, detectors, statusNormalized.evidence);
+  const qualityFacts = structuredClone(statusNormalized.qualityFacts);
   const verificationFacts = input.verificationFacts === undefined ? undefined : structuredClone(input.verificationFacts);
   assertVerificationFacts(input.conditions, input.adblockEngineLoaded, verificationFacts);
 
@@ -229,7 +278,7 @@ export function buildNodeScanReportV2R2(
   };
   const publicPass = new RedactionPass();
   const evidence = sanitizeEvidence(
-    input.evidence,
+    statusNormalized.evidence,
     subject.observed.registrableDomain,
     input.adblockEngineLoaded,
     publicPass,
@@ -1164,6 +1213,12 @@ function assertQualityVocabulary(facts: QualityFacts): void {
   for (const loss of facts.captureLoss) {
     if (loss.detail === undefined) continue;
     if (loss.detail.startsWith("public-")) throw new Error("Builder-owned public capture loss cannot be supplied by callers.");
+    if (isR2HttpStatusLimitationDetail(loss.detail)) {
+      if (loss.family !== "requests") {
+        throw new Error(`HTTP status limitation ${loss.detail} is not registered for ${loss.family}.`);
+      }
+      continue;
+    }
     const family = BUDGET_FAMILIES[loss.detail];
     if (family === undefined || family !== loss.family) {
       throw new Error(`Capture-loss detail ${loss.detail} is not registered for ${loss.family}.`);
@@ -1241,7 +1296,7 @@ function buildSummary(
         : undefined;
 
   return {
-    pageTitle: boundedPageTitle(inputs.pageTitle),
+    pageTitle: redactPageTitle(inputs.pageTitle),
     status: qualityFacts.status,
     durationMs: inputs.durationMs,
     counts: {
@@ -1280,12 +1335,4 @@ function consentEvidenceFromFacts(facts: ConsentFactsR2, run: ScanRunV2R2): Cons
     choiceState: deriveChoiceStateR2(runWithConsent, consent),
     reverifiedAfterReload: deriveReverifiedAfterReloadR2(runWithConsent, consent)
   };
-}
-
-function boundedPageTitle(value: string): string {
-  const normalized = value
-    .replace(/[\u0000-\u001f\u007f-\u009f]/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
-  return Array.from(normalized).slice(0, MAX_PAGE_TITLE_CHARS).join("");
 }

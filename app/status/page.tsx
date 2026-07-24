@@ -39,7 +39,7 @@ export default async function StatusPage() {
         <h1>What is current, stale, or unknown</h1>
         <p>
           This page reads public deployment receipts, scanner health, and versioned repository artifacts. Missing,
-          malformed, future-dated, or unreachable evidence is shown as unknown—not silently treated as healthy.
+          malformed, future-dated, or unreachable evidence is shown as unknown, not silently treated as healthy.
         </p>
         <p className="legal-back"><Link href="/">&larr; Back to Site Behavior Lab</Link></p>
       </header>

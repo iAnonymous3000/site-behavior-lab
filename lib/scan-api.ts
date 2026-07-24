@@ -22,25 +22,29 @@ import {
   buildRuntimeComparisonScanReportV2R2,
   buildRuntimeScanReportV2R2
 } from "./scan-report-v2-runtime-builder";
+import { runtimeReportAcquisition } from "./scan-report-acquisition";
 import {
   requireRuntimeScanReportMode,
   type RuntimeReportSaver,
   type RuntimeScanReport
 } from "./runtime-scan-report";
-import { scanSite, type ScanSiteOptions } from "./scanner";
+import { scanSiteWithMeasurement, type ScanSiteOptions } from "./scanner";
+import type { NodeScanMeasurementEnvelope } from "./node-scan-measurement";
 import type {
   ConsentMode,
   ScanDevice,
   ScanJobProgress,
   ScanReport,
-  ScanRequestPayload,
-  ScanResult
+  ScanRequestPayload
 } from "./types";
 import { prepareScanRequest, type PreparedScanRequest } from "./scan-gate";
 
 export { prepareScanRequest, ScanGate, scanRateLimitCost, type PreparedScanRequest } from "./scan-gate";
 
-export type ScanRunner = (payload: ScanRequestPayload, options?: ScanSiteOptions) => Promise<ScanResult>;
+export type ScanRunner = (
+  payload: ScanRequestPayload,
+  options?: ScanSiteOptions
+) => Promise<NodeScanMeasurementEnvelope>;
 export type ReportSaver = RuntimeReportSaver;
 
 export type ScanExecutionControl = {
@@ -67,7 +71,7 @@ const SHARE_SAVE_WARNING = "Shareable report could not be saved on this host; JS
 
 export async function runScanRequest(
   request: Request,
-  scan: ScanRunner = scanSite,
+  scan: ScanRunner = scanSiteWithMeasurement,
   saveReport: ReportSaver = saveScanReport
 ): Promise<RuntimeScanReport> {
   const prepared = await prepareScanRequest(request);
@@ -76,7 +80,7 @@ export async function runScanRequest(
 
 export async function executePreparedScan(
   prepared: PreparedScanRequest,
-  scan: ScanRunner = scanSite,
+  scan: ScanRunner = scanSiteWithMeasurement,
   saveReport: ReportSaver = saveScanReport,
   queueTimeoutMs = QUEUE_TIMEOUT_MS,
   chargeRateLimit = true,
@@ -85,6 +89,7 @@ export async function executePreparedScan(
   // Resolve before consuming a Chromium slot or scan quota. An explicitly
   // requested but unready r2 producer must refuse the scan, never emit v1.
   const reportMode = requireRuntimeScanReportModeForSaver(saveReport);
+  const acquisition = runtimeReportAcquisition(reportMode);
   const releaseScanSlot = await acquireScanSlot(queueTimeoutMs, control.signal);
   try {
     let completedRuns = 0;
@@ -128,16 +133,16 @@ export async function executePreparedScan(
       );
       if (reportMode === "r2") {
         return saveRuntimeR2Report(
-          buildRuntimeComparisonScanReportV2R2(baseline, variant, executedFirst, "public-api"),
+          buildRuntimeComparisonScanReportV2R2(baseline, variant, executedFirst, acquisition),
           saveReport,
           control,
-          () => emitShadowComparisonScanReportV2R2(baseline, variant, executedFirst, "public-api")
+          () => emitShadowComparisonScanReportV2R2(baseline, variant, executedFirst, acquisition)
         );
       }
-      const report = createGpcComparisonReport(baseline, variant, { executedFirst });
+      const report = createGpcComparisonReport(baseline.result, variant.result, { executedFirst });
       const saved = await saveScanReportBestEffort(report, saveReport, control);
       scheduleShadowEmission(control, () =>
-        emitShadowComparisonScanReportV2R2(baseline, variant, executedFirst, "public-api")
+        emitShadowComparisonScanReportV2R2(baseline, variant, executedFirst, acquisition)
       );
       return saved;
     }
@@ -163,16 +168,16 @@ export async function executePreparedScan(
       );
       if (reportMode === "r2") {
         return saveRuntimeR2Report(
-          buildRuntimeComparisonScanReportV2R2(baseline, variant, executedFirst, "public-api"),
+          buildRuntimeComparisonScanReportV2R2(baseline, variant, executedFirst, acquisition),
           saveReport,
           control,
-          () => emitShadowComparisonScanReportV2R2(baseline, variant, executedFirst, "public-api")
+          () => emitShadowComparisonScanReportV2R2(baseline, variant, executedFirst, acquisition)
         );
       }
-      const report = createShieldsComparisonReport(baseline, variant, { executedFirst });
+      const report = createShieldsComparisonReport(baseline.result, variant.result, { executedFirst });
       const saved = await saveScanReportBestEffort(report, saveReport, control);
       scheduleShadowEmission(control, () =>
-        emitShadowComparisonScanReportV2R2(baseline, variant, executedFirst, "public-api")
+        emitShadowComparisonScanReportV2R2(baseline, variant, executedFirst, acquisition)
       );
       return saved;
     }
@@ -197,34 +202,34 @@ export async function executePreparedScan(
       );
       if (reportMode === "r2") {
         return saveRuntimeR2Report(
-          buildRuntimeComparisonScanReportV2R2(acceptRun, rejectRun, executedFirst, "public-api"),
+          buildRuntimeComparisonScanReportV2R2(acceptRun, rejectRun, executedFirst, acquisition),
           saveReport,
           control,
-          () => emitShadowComparisonScanReportV2R2(acceptRun, rejectRun, executedFirst, "public-api")
+          () => emitShadowComparisonScanReportV2R2(acceptRun, rejectRun, executedFirst, acquisition)
         );
       }
-      const report = createConsentComparisonReport(acceptRun, rejectRun, { executedFirst });
+      const report = createConsentComparisonReport(acceptRun.result, rejectRun.result, { executedFirst });
       const saved = await saveScanReportBestEffort(report, saveReport, control);
       scheduleShadowEmission(control, () =>
-        emitShadowComparisonScanReportV2R2(acceptRun, rejectRun, executedFirst, "public-api")
+        emitShadowComparisonScanReportV2R2(acceptRun, rejectRun, executedFirst, acquisition)
       );
       return saved;
     }
 
-    const result = await scanWithProgress(createScanPayload(prepared.url, prepared.device, prepared.gpcEnabled), {
+    const envelope = await scanWithProgress(createScanPayload(prepared.url, prepared.device, prepared.gpcEnabled), {
       publicUrlAlreadyVerified: true,
       signal: control.signal
     });
     if (reportMode === "r2") {
       return saveRuntimeR2Report(
-        buildRuntimeScanReportV2R2(result, "public-api"),
+        buildRuntimeScanReportV2R2(envelope, acquisition),
         saveReport,
         control,
-        () => emitShadowScanReportV2R2(result, "public-api")
+        () => emitShadowScanReportV2R2(envelope, acquisition)
       );
     }
-    const saved = await saveScanReportBestEffort(result, saveReport, control);
-    scheduleShadowEmission(control, () => emitShadowScanReportV2R2(result, "public-api"));
+    const saved = await saveScanReportBestEffort(envelope.result, saveReport, control);
+    scheduleShadowEmission(control, () => emitShadowScanReportV2R2(envelope, acquisition));
     return saved;
   } finally {
     releaseScanSlot();
@@ -298,9 +303,12 @@ function drawComparisonFirstArm(): ComparisonExecutedFirst {
  */
 async function runComparisonArms(
   executedFirst: ComparisonExecutedFirst,
-  arms: { baseline: () => Promise<ScanResult>; variant: () => Promise<ScanResult> },
+  arms: {
+    baseline: () => Promise<NodeScanMeasurementEnvelope>;
+    variant: () => Promise<NodeScanMeasurementEnvelope>;
+  },
   signal?: AbortSignal
-): Promise<{ baseline: ScanResult; variant: ScanResult }> {
+): Promise<{ baseline: NodeScanMeasurementEnvelope; variant: NodeScanMeasurementEnvelope }> {
   if (executedFirst === "baseline") {
     const baseline = await arms.baseline();
     throwIfCancelled(signal);

@@ -21,20 +21,21 @@ import {
  * CLASS MARKER for something already being redacted, never to let it
  * survive.)
  *
- * Every call reports what it removed through the exact
- * `PrivacyStats.redaction` counter vocabulary, so a v2 producer can sum the
- * counters into the wire's privacy block and the remediation inventory can
- * quantify a rewrite before it happens.
+ * Calls report removals that fit the frozen `PrivacyStats.redaction` counter
+ * vocabulary. Policy-revision transitions with no wire field (currently
+ * title withholding, explicit-port removal, and IP-literal rejection) are
+ * accounted separately by the versioned remediation transition audit; they
+ * must never be misattributed to one of the seven legacy counters.
  *
  * Node/worker-side module: the registrable-domain rule needs the public
  * suffix list (tldts), so this must stay out of client bundles the way
  * lib/domain-utils does.
  */
 
-// Policy revision 3 closes prefix-shaped query keys and unreviewed subdomain
-// labels. The module name remains the RFC's "redaction v2" architecture; this
-// numeric identity is the executable sanitizer revision carried in provenance.
-export const REDACTION_VERSION = 3;
+// Policy revision 4 also withholds page-authored titles and IP/port literals.
+// The module name remains the RFC's "redaction v2" architecture; this numeric
+// identity is the executable sanitizer revision carried in provenance.
+export const REDACTION_VERSION = 4;
 export const REDACTION_ALLOWLISTS_VERSION: string = allowlists.version;
 export const REDACTION_ALLOWLISTS_DIGEST = sha256Hex(JSON.stringify(allowlists));
 export const PUBLIC_SUFFIX_ENGINE_VERSION = "tldts@7.4.9";
@@ -72,6 +73,20 @@ export function addRedactionCounters(target: RedactionCounters, source: Redactio
   for (const key of Object.keys(target) as (keyof RedactionCounters)[]) {
     target[key] += source[key];
   }
+}
+
+/**
+ * Page titles are arbitrary page-authored text. A target can reflect a path,
+ * query token, tenant name, or signed-in user's name into `<title>`, so a
+ * length cap cannot make the value safe for a persistent public report.
+ *
+ * The frozen report wires require a string. The empty string is therefore the
+ * stable public marker; report views already fall back to the report's
+ * privacy-reduced domain. Producer-owned comparison titles are a separate
+ * field and remain governed by their closed producer vocabulary.
+ */
+export function redactPageTitle(_value: string): "" {
+  return "";
 }
 
 const routeLiterals = new Set(allowlists.routeLiterals.literals.map((literal) => literal.toLowerCase()));
@@ -147,16 +162,19 @@ export function redactUrlV2(url: string, options: RedactUrlV2Options = {}): Reda
     return { value: INVALID_URL_MARKER, counters };
   }
 
-  // Host: WHATWG parsing already lowercases and punycodes; the registrable
-  // domain always survives, labels left of it are screened.
+  // Host: WHATWG parsing already lowercases, punycodes, and canonicalizes IP
+  // spellings. Registrable domains survive while IP literals fail closed;
+  // exact network addresses are not safe persistent public identifiers.
   const hostname = redactCanonicalHostname(parsed.hostname, counters);
   if (hostname === INVALID_HOST_MARKER) return { value: INVALID_URL_MARKER, counters };
 
   const path = redactPath(parsed.pathname, counters);
   const query = options.preserveQueryKeys ? redactQuery(parsed.searchParams, counters) : dropQuery(parsed.searchParams, counters);
 
-  const port = parsed.port ? `:${parsed.port}` : "";
-  return { value: `${parsed.protocol}//${hostname}${port}${path}${query}`, counters };
+  // Ports can disclose private service topology and are not needed to group
+  // public evidence. Drop every explicit non-default port; WHATWG has already
+  // canonicalized default ports to the empty string.
+  return { value: `${parsed.protocol}//${hostname}${path}${query}`, counters };
 }
 
 function dropQuery(params: URLSearchParams, counters: RedactionCounters): "" {
@@ -170,8 +188,14 @@ function redactCanonicalHostname(hostname: string, counters: RedactionCounters):
     counters.malformedUrlsDropped += 1;
     return INVALID_HOST_MARKER;
   }
-  // IP literals have no labels to screen.
-  if (/^\[.*\]$/.test(canonicalHostname) || /^[0-9.]+$/.test(canonicalHostname)) return canonicalHostname;
+  // IP literals have no privacy-safe registrable boundary. WHATWG URL parsing
+  // has already normalized alternate IPv4 spellings, so these two shapes
+  // cover canonical IPv4 and bracketed IPv6 without maintaining an address
+  // classification table that can drift.
+  if (/^\[.*\]$/.test(canonicalHostname) || /^\d+\.\d+\.\d+\.\d+$/.test(canonicalHostname)) {
+    counters.malformedUrlsDropped += 1;
+    return INVALID_HOST_MARKER;
+  }
   const registrable = publicRegistrableDomain(canonicalHostname);
   if (!registrable) {
     counters.malformedUrlsDropped += 1;

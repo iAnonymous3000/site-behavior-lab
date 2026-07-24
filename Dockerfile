@@ -5,6 +5,12 @@ ARG SITE_BEHAVIOR_LAB_BUILD_COMMIT=""
 # the digest, preventing the runtime image from drifting behind the scanner.
 FROM mcr.microsoft.com/playwright:v1.61.1-noble@sha256:5b8f294aff9041b7191c34a4bab3ac270157a28774d4b0660e9743297b697e48 AS playwright-base
 
+# The digest-pinned Playwright base intentionally carries a newer runtime than
+# the host/Actions authoring toolchain. Fail the image build if that immutable
+# base ever resolves to different Node or npm bytes without a reviewed epoch.
+RUN test "$(node --version)" = "v24.17.0" \
+  && test "$(npm --version)" = "11.13.0"
+
 FROM playwright-base AS build
 
 ARG SITE_BEHAVIOR_LAB_BUILD_COMMIT
@@ -46,6 +52,15 @@ RUN npm run check && npm prune --omit=dev
 FROM playwright-base AS runner
 
 ARG SITE_BEHAVIOR_LAB_BUILD_COMMIT
+
+# Standard OCI labels make the locally tested image independently inspectable.
+# The release-evidence gate requires this revision to match clean Git HEAD and
+# the runtime health identity; labels never substitute for live deployment
+# readback or proof of the separately configured Cloudflare deployment path.
+LABEL org.opencontainers.image.title="Site Behavior Lab" \
+  org.opencontainers.image.source="https://github.com/iAnonymous3000/site-behavior-lab" \
+  org.opencontainers.image.revision="${SITE_BEHAVIOR_LAB_BUILD_COMMIT}" \
+  org.opencontainers.image.licenses="AGPL-3.0-or-later"
 
 WORKDIR /app
 ENV NODE_ENV=production

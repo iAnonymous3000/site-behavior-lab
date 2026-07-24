@@ -1,9 +1,16 @@
 import { chromium } from "playwright";
 import playwrightPackage from "playwright/package.json" with { type: "json" };
+import {
+  readResponseJsonWithinLimit,
+  withHttpOperationDeadline
+} from "./http-response.mjs";
 
 const baseUrl = process.env.BASE_URL || "http://127.0.0.1:3000";
 const scanAccessToken = process.env.SMOKE_SCAN_ACCESS_TOKEN || process.env.SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN || "";
 const scanReportSchemaVersion = 1;
+const scanOperationTimeoutMs = 5 * 60_000;
+const controlOperationTimeoutMs = 30_000;
+const jsonResponseMaxBytes = 32 * 1024 * 1024;
 
 function pass(message) {
   console.log(`PASS ${message}`);
@@ -17,40 +24,62 @@ async function postScan(body) {
   const headers = { "content-type": "application/json" };
   if (scanAccessToken) headers["x-site-behavior-lab-access-token"] = scanAccessToken;
 
-  const response = await fetch(`${baseUrl}/api/scan`, {
-    method: "POST",
-    headers,
-    body: JSON.stringify(body)
-  });
-
-  const contentType = response.headers.get("content-type") || "";
-  if (!contentType.includes("application/json")) {
-    fail(`/api/scan returned ${response.status} with non-JSON content`);
-  }
-
-  return response.json();
+  const { value } = await requestJson(
+    `${baseUrl}/api/scan`,
+    {
+      method: "POST",
+      headers,
+      body: JSON.stringify(body)
+    },
+    "/api/scan",
+    scanOperationTimeoutMs
+  );
+  return value;
 }
 
 async function postRawScan(body) {
   const headers = { "content-type": "application/json" };
   if (scanAccessToken) headers["x-site-behavior-lab-access-token"] = scanAccessToken;
 
-  const response = await fetch(`${baseUrl}/api/scan`, {
-    method: "POST",
-    headers,
-    body
-  });
+  const { value } = await requestJson(
+    `${baseUrl}/api/scan`,
+    {
+      method: "POST",
+      headers,
+      body
+    },
+    "/api/scan",
+    scanOperationTimeoutMs
+  );
+  return value;
+}
 
-  const contentType = response.headers.get("content-type") || "";
-  if (!contentType.includes("application/json")) {
-    fail(`/api/scan returned ${response.status} with non-JSON content`);
-  }
-
-  return response.json();
+async function requestJson(url, init, label, timeoutMs = controlOperationTimeoutMs) {
+  return withHttpOperationDeadline(
+    { timeoutMs, label },
+    async (signal) => {
+      const response = await fetch(url, { ...init, redirect: "error", signal });
+      const contentType = response.headers.get("content-type") || "";
+      if (!contentType.includes("application/json")) {
+        fail(`${label} returned ${response.status} with non-JSON content`);
+      }
+      try {
+        const value = await readResponseJsonWithinLimit(response, {
+          maxBytes: jsonResponseMaxBytes,
+          label
+        });
+        return { response, value };
+      } catch (error) {
+        if (error instanceof RangeError) fail(error.message);
+        if (error instanceof SyntaxError) fail(`${label} returned malformed JSON`);
+        throw error;
+      }
+    }
+  );
 }
 
 async function apiChecks() {
-  const health = await fetch(`${baseUrl}/api/health`).then((response) => response.json());
+  const { value: health } = await requestJson(`${baseUrl}/api/health`, {}, "/api/health");
   if (!health.ok || !health.checks?.reportStore || !Array.isArray(health.warnings)) {
     fail("health endpoint did not return runtime status");
   }
@@ -85,7 +114,11 @@ async function apiChecks() {
   if (!clean.share?.path?.startsWith("/reports/") || !clean.share?.jsonPath?.startsWith("/api/reports/")) {
     fail("scan report did not include share metadata");
   }
-  const savedClean = await fetch(`${baseUrl}${clean.share.jsonPath}`).then((response) => response.json());
+  const { value: savedClean } = await requestJson(
+    `${baseUrl}${clean.share.jsonPath}`,
+    {},
+    clean.share.jsonPath
+  );
   if (!savedClean.ok || savedClean.share.id !== clean.share.id) {
     fail("saved report JSON endpoint did not return the scan report");
   }
@@ -116,7 +149,11 @@ async function apiChecks() {
   ) {
     fail("GPC comparison scan did not produce a saved off/on report");
   }
-  const savedComparison = await fetch(`${baseUrl}${comparison.share.jsonPath}`).then((response) => response.json());
+  const { value: savedComparison } = await requestJson(
+    `${baseUrl}${comparison.share.jsonPath}`,
+    {},
+    comparison.share.jsonPath
+  );
   if (savedComparison.baseline?.screenshot !== null || savedComparison.variant?.screenshot !== null) {
     fail("saved comparison JSON retained inline screenshots");
   }

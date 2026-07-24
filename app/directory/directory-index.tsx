@@ -93,7 +93,7 @@ export async function DirectoryIndex({ page }: { page: number }) {
           <div>
             <p className="eyebrow">Site profiles</p>
             <h2 id="sites-title">
-              {sites.length === 0 ? "No published sites" : `Sites ${firstSiteNumber}–${lastSiteNumber} of ${sites.length}`}
+              {sites.length === 0 ? "No published sites" : `Sites ${firstSiteNumber} to ${lastSiteNumber} of ${sites.length}`}
             </h2>
           </div>
           {pageCount > 1 && <p>Page {page} of {pageCount}</p>}

@@ -1,5 +1,7 @@
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { lstat, mkdir } from "node:fs/promises";
 import path from "node:path";
+import { readBoundedUtf8File } from "./bounded-utf8-file";
+import { writeNewFileDurably } from "./exact-atomic-file";
 import { committedReportCreatedAt } from "./committed-report-created-at";
 import { buildStaticReportShare } from "./report-locator";
 import {
@@ -11,6 +13,12 @@ import { readManagedReport } from "./managed-report-reader";
 import { readStoredScanReport } from "./scan-report-reader";
 import { publicWireForExportOrPersistence, readScanTransportPayload } from "./scan-report-view";
 import { NODE_SCAN_REPORT_V2_R2_MAX_PUBLIC_BYTES } from "./scan-report-v2-r2-limits";
+import {
+  SERVER_STORED_PROVENANCE_SIDECAR_MAX_BYTES,
+  SERVER_STORED_REPORT_JSON_MAX_BYTES
+} from "./report-resource-limits";
+import { parseStrictJson } from "./strict-json";
+import { acquireReportCorpusLock } from "./report-corpus-lock";
 
 /**
  * THE persistence boundary for CI-produced committed reports (RFC 14.8/9.2):
@@ -38,7 +46,10 @@ async function main(): Promise<void> {
     throw new Error("Refusing to publish: output filename must match the report id.");
   }
 
-  const parsed = JSON.parse(await readFile(inputPath, "utf8")) as unknown;
+  const parsed = parseStrictJson(
+    (await readBoundedUtf8File(inputPath, SERVER_STORED_REPORT_JSON_MAX_BYTES)).contents,
+    SERVER_STORED_REPORT_JSON_MAX_BYTES
+  );
   const transport = readScanTransportPayload(parsed);
   if (transport.kind !== "report") {
     const detail =
@@ -101,25 +112,54 @@ async function main(): Promise<void> {
   }
 
   await mkdir(path.dirname(outputPath), { recursive: true });
-  // Contractual failure ordering: report first, sidecar second. A crash
-  // between writes leaves an unknown/unpublishable report, never false current
-  // provenance; the mandatory remediation check catches the partial pair.
-  await writeFile(outputPath, wire);
-  await writeFile(sidecarPath, sidecarWire);
-  const [writtenReport, writtenSidecar] = await Promise.all([
-    readFile(outputPath, "utf8"),
-    readFile(sidecarPath, "utf8")
-  ]);
-  const readback = readManagedReport({
-    reportId,
-    reportContents: writtenReport,
-    sidecarContents: writtenSidecar,
-    retention
-  });
-  if (!readback.ok) {
-    throw new Error(`Published report pair failed readback (${readback.reason}).`);
+  const lock = await acquireReportCorpusLock(path.dirname(outputPath), `publish-${reportId}`);
+  try {
+    // A stale/dangling sidecar is a corpus-integrity defect, not permission to
+    // create the primary and then fail. Prove both destinations absent while
+    // holding the shared lease before the first durable write.
+    await assertPublicationDestinationAbsent(outputPath);
+    await assertPublicationDestinationAbsent(sidecarPath);
+    // Contractual failure ordering: report first, sidecar second. A crash
+    // between writes leaves an unknown/unpublishable report, never false current
+    // provenance; the mandatory remediation check catches the partial pair.
+    await writeNewFileDurably(outputPath, wire);
+    await writeNewFileDurably(sidecarPath, sidecarWire);
+    const [writtenReport, writtenSidecar] = await Promise.all([
+      readBoundedUtf8File(outputPath, SERVER_STORED_REPORT_JSON_MAX_BYTES),
+      readBoundedUtf8File(sidecarPath, SERVER_STORED_PROVENANCE_SIDECAR_MAX_BYTES)
+    ]);
+    if (writtenReport.contents !== wire || writtenSidecar.contents !== sidecarWire) {
+      throw new Error("Published report pair bytes changed during exact readback.");
+    }
+    const readback = readManagedReport({
+      reportId,
+      reportContents: writtenReport.contents,
+      sidecarContents: writtenSidecar.contents,
+      retention
+    });
+    if (!readback.ok) {
+      throw new Error(`Published report pair failed readback (${readback.reason}).`);
+    }
+  } finally {
+    await lock.release();
   }
   console.log(`Published validated report and provenance sidecar ${reportId}.`);
+}
+
+async function assertPublicationDestinationAbsent(file: string): Promise<void> {
+  try {
+    await lstat(file);
+  } catch (error) {
+    if (isErrno(error, "ENOENT")) return;
+    throw error;
+  }
+  throw new Error(`Refusing to publish: destination already exists (${path.basename(file)}).`);
+}
+
+function isErrno(error: unknown, code: string): boolean {
+  return Boolean(
+    error && typeof error === "object" && "code" in error && (error as { code?: string }).code === code
+  );
 }
 
 main().catch((error) => {

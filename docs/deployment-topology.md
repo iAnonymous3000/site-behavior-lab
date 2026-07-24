@@ -10,8 +10,9 @@
 > published Shields-diff evidence corpus) with its scan-API base pointed at the
 > container. The Cloudflare **Browser Run Worker** is retired: its
 > preflight-only DNS check cannot pin the browser's eventual connection, so its
-> deployment was deleted from Cloudflare on 2026-07-09. The code stays in-repo for
-> self-hosting and ships gated with no `workers.dev` alias. The analysis below is the
+> deployment was deleted from Cloudflare on 2026-07-09. The code stays in-repo only
+> for gated legacy self-hosting and ships with no `workers.dev` alias; it is not a
+> production fallback or a second live lane. The analysis below is the
 > decision record that led to Option B, keep it. Production currently routes to
 > one warm singleton container. Bounded durable-execution sharding is implemented
 > but separately flag-gated until durable jobs are live and proven; shard zero
@@ -37,7 +38,7 @@ on opposite sides of these blockers.
 
 ### Where the producers stand today
 
-| Capability | Node / Playwright | Cloudflare Worker / Browser Run |
+| Capability | Node / Playwright | Retired Worker / Browser Run self-host path |
 |---|---|---|
 | SSRF defense | **connect-time** resolve + validate + **pin** to a public IP via a per-scan local proxy ([lib/public-scan-proxy.ts](../lib/public-scan-proxy.ts)) | DNS-over-HTTPS **preflight only**; Browser Run re-resolves at connect time with no proxy/IP-pin primitive ([cloudflare/worker.ts](../cloudflare/worker.ts)) |
 | Open unauthenticated scans | supported behind external egress firewall | **disabled by default**; require `ACCEPT_BROWSER_RUN_DNS_REBINDING_RISK=1` because the preflight can be rebound |
@@ -73,15 +74,18 @@ volume. Cloudflare WAF rate rules front the endpoint.
 Run the **Node/Playwright scanner as a container** behind a trusted reverse proxy
 (the path already documented in the README "Production Deployment" section). Keep
 Cloudflare in front for the **static UI, CDN, WAF, and report store** (R2). The
-Worker stays available as an optional gated/edge fallback, not the primary path.
+Browser Run code remains a gated legacy self-host option, not a deployed edge
+fallback or part of the production topology.
 
 - **Pros:** launches on our **most complete and safest** producer. Blocker #1 is
   already solved (connect-time IP pinning), and P4 (Shields diff, our structural
   edge over Blacklight) and the async queue **already exist** in this path, so
   Option B makes them free instead of net-new. One canonical scanner to keep green.
 - **Cons:** an always-on container to run, patch, and autoscale (vs. the Worker's
-  zero-server model). Egress firewall rules at the host/VPC layer are still the
-  required defense-in-depth boundary, as the README already states.
+  zero-server model). A host/VPC egress firewall is the required independent
+  defense-in-depth boundary where the platform can support it. The current
+  Cloudflare Containers raw-TCP proxy path relies on its in-app connect-time guard;
+  a compatible independent egress backstop remains explicit operator follow-up.
 - **Unlocks:** P2 collapsed to R2 plus layered limits. Since launch, the front
   Worker has added an atomic Durable Object SQLite quota and a bounded durable
   IDs-only recovery registry. Full execution replay is staged behind its live
@@ -119,8 +123,10 @@ sharding beyond the singleton container):
 
 1. **Container + edge wiring (P1 execution).** Build/ship the Node scanner container
    ([Dockerfile](../Dockerfile) exists; validate with `npm run test:smoke:docker`),
-   front it with Cloudflare (WAF + Turnstile at the edge), and keep host/VPC egress
-   firewall rules as the SSRF backstop. Step-by-step runbook:
+   front it with Cloudflare (WAF + Turnstile at the edge), verify the external WAF
+   ceiling, and preserve an independent host/VPC egress backstop wherever the
+   platform supports one. The Cloudflare Containers exception and its still-open
+   compatible-egress follow-up are documented in the step-by-step runbook:
    [deploy-node-container.md](deploy-node-container.md).
 2. **Durable report store (P2, reduced).** The Node container now ships an R2
    report-store backend ([lib/report-store-r2.ts](../lib/report-store-r2.ts), enabled
@@ -131,7 +137,9 @@ sharding beyond the singleton container):
    and the existing in-process Node limits.
 3. **Corpus activation (P3).** Independent of topology, expand
    [public/featured-sites.json](../public/featured-sites.json) (81 curated sites)
-   and run the featured-scan workflow. The committed corpus has cleared
+   and run the featured-scan workflow. Scheduled and repository-dispatch
+   production is forced to r2; frozen v1 exists only as an explicit manual
+   compatibility lane. The committed corpus has cleared
    `CORPUS_MIN_SAMPLE = 50`, so corpus-relative percentiles are active.
 4. **Shields diff (P4).** Already in the Node path under Option B, surface it as a
    first-class public comparison mode; no Worker port needed.

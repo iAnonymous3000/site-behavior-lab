@@ -105,7 +105,10 @@ type ComparisonHistoryPairingIdentity = Omit<TemporalPairingIdentity, "temporalC
 export function comparisonHistoryPairingKey(entry: ComparisonHistoryPairingIdentity): string | null {
   if (!entry.domain || !entry.comparisonHistoryCohort) return null;
   const kind = entry.reportType === "comparison" ? entry.comparisonType ?? "comparison" : "single";
-  return `comparison-history-key-v1|${entry.comparisonHistoryCohort}|${entry.domain.toLowerCase()}|${kind}${
+  // Keep frozen v1 manifest keys stable while making r2 archive cohorts
+  // visibly distinct. The cohort itself remains versioned as a second guard.
+  const keyVersion = entry.comparisonHistoryCohort.startsWith("v2-r2-comparison-history:") ? "v2" : "v1";
+  return `comparison-history-key-${keyVersion}|${entry.comparisonHistoryCohort}|${entry.domain.toLowerCase()}|${kind}${
     entry.consentClicks ? `|${entry.consentClicks}` : ""
   }|${normalizedRouteKey(entry.requestedUrl)}|${normalizedRouteKey(entry.finalUrl)}`;
 }

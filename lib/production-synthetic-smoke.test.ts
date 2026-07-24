@@ -20,7 +20,8 @@ test("production synthetic pins its final HTML probe to the canonical stored-rep
   ]);
 
   assert.match(script, /canonical contract gate[\s\S]*readStoredReportForId[\s\S]*readStoredScanReportById[\s\S]*readManagedReport/);
-  assert.match(reportPage, /const result = await readStoredReportForId\(id\)/);
+  assert.match(reportPage, /const readStoredReportForRequest = cache\(\(id: string\) => readStoredReportForId\(id\)\)/);
+  assert.match(reportPage, /const result = await readStoredReportForRequest\(id\)/);
   assert.match(reportSource, /readStoredScanReportById/);
   assert.match(reportStore, /readManagedReport\([\s\S]*reportContents: blob\.contents/);
 });
@@ -31,6 +32,8 @@ test("production synthetic preserves the legitimate same-origin report flow", as
   const server = await listen((request, response) => {
     if (request.url === "/api/scan" && request.method === "POST") {
       assert.equal(request.headers["x-site-behavior-lab-synthetic-monitor-token"], MONITOR_TOKEN);
+      assert.match(String(request.headers["x-site-behavior-lab-scan-admission"]), /^[A-Za-z0-9_-]{43}$/);
+      assert.match(String(request.headers["x-site-behavior-lab-scan-admission-commitment"]), /^[A-Za-z0-9_-]{43}$/);
       return readBody(request).then((body) => {
         submittedContract = JSON.parse(body);
         sendJson(response, 200, report);
@@ -51,9 +54,90 @@ test("production synthetic preserves the legitimate same-origin report flow", as
       url: "https://www.iana.org/domains/reserved",
       device: "desktop",
       gpcEnabled: true,
+      compareGpc: false,
+      compareShields: false,
+      compareConsent: false,
       consentMode: "observe"
     });
     assert.match(result.stdout, /PASS production synthetic completed, persisted, read back, and rendered/);
+  } finally {
+    await server.close();
+  }
+});
+
+test("production synthetic falls through to the second fixed target when the first target's scan fails", async () => {
+  const w3ReportId = "20260722-cccccccccccccccccccccccccccccccc";
+  const w3Subject = { origin: "https://www.w3.org", registrableDomain: "w3.org", routeShape: "/{seg}" };
+  const w3Report = syntheticReport({ reportId: w3ReportId, subject: w3Subject });
+  const submittedUrls: string[] = [];
+  const server = await listen((request, response) => {
+    if (request.url === "/api/scan" && request.method === "POST") {
+      return readBody(request).then((body) => {
+        const payload = JSON.parse(body) as { url: string };
+        submittedUrls.push(payload.url);
+        if (payload.url === "https://www.iana.org/domains/reserved") {
+          return sendJson(response, 202, {
+            ok: true,
+            status: "queued",
+            reportId: REPORT_ID,
+            statusPath: `/api/scans/${REPORT_ID}`
+          });
+        }
+        return sendJson(response, 200, w3Report);
+      });
+    }
+    if (request.url === `/api/scans/${REPORT_ID}`) {
+      return sendJson(response, 200, { ok: true, status: "failed", error: "navigation to the target failed" });
+    }
+    if (request.url === `/api/reports/${w3ReportId}`) return sendJson(response, 200, w3Report);
+    if (request.url === `/reports/${w3ReportId}`) {
+      response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+      return response.end(`<main>${w3ReportId}</main>`);
+    }
+    sendJson(response, 404, { error: "not found" });
+  });
+
+  try {
+    const result = await runSynthetic(server.origin);
+    assert.equal(result.status, 0, result.stderr);
+    assert.deepEqual(submittedUrls, ["https://www.iana.org/domains/reserved", "https://www.w3.org/TR/"]);
+    assert.match(
+      result.stderr,
+      /WARN synthetic target https:\/\/www\.iana\.org\/domains\/reserved did not produce a scan \(scan job ended failed/
+    );
+    assert.match(result.stdout, /PASS production synthetic completed, persisted, read back, and rendered/);
+  } finally {
+    await server.close();
+  }
+});
+
+test("production synthetic stays red when every fixed candidate target fails to scan", async () => {
+  const secondQueueId = "20260722-dddddddddddddddddddddddddddddddd";
+  const server = await listen((request, response) => {
+    if (request.url === "/api/scan" && request.method === "POST") {
+      return readBody(request).then((body) => {
+        const payload = JSON.parse(body) as { url: string };
+        const queueId = payload.url === "https://www.iana.org/domains/reserved" ? REPORT_ID : secondQueueId;
+        return sendJson(response, 202, {
+          ok: true,
+          status: "queued",
+          reportId: queueId,
+          statusPath: `/api/scans/${queueId}`
+        });
+      });
+    }
+    if (request.url === `/api/scans/${REPORT_ID}` || request.url === `/api/scans/${secondQueueId}`) {
+      return sendJson(response, 200, { ok: true, status: "failed", error: "navigation to the target failed" });
+    }
+    sendJson(response, 404, { error: "not found" });
+  });
+
+  try {
+    const result = await runSynthetic(server.origin);
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /FAIL Synthetic scan failed on every candidate target/);
+    assert.match(result.stderr, /www\.iana\.org/);
+    assert.match(result.stderr, /www\.w3\.org/);
   } finally {
     await server.close();
   }
@@ -223,7 +307,7 @@ test("production synthetic rejects a supported report for the wrong requested su
   try {
     const result = await runSynthetic(server.origin);
     assert.equal(result.status, 1);
-    assert.match(result.stderr, /did not describe the fixed IANA requested subject/);
+    assert.match(result.stderr, /did not describe the fixed synthetic requested subject/);
   } finally {
     await server.close();
   }
@@ -240,7 +324,7 @@ test("production synthetic rejects a report that navigated to the wrong observed
   try {
     const result = await runSynthetic(server.origin);
     assert.equal(result.status, 1);
-    assert.match(result.stderr, /did not finish on the fixed IANA observed subject/);
+    assert.match(result.stderr, /did not finish on the fixed synthetic observed subject/);
   } finally {
     await server.close();
   }
@@ -384,6 +468,7 @@ function syntheticReport(
     startedAt?: string;
     requestedOrigin?: string;
     observedOrigin?: string;
+    subject?: { origin: string; registrableDomain: string; routeShape: string };
     gpc?: boolean;
   } = {}
 ): Record<string, unknown> {
@@ -396,12 +481,12 @@ function syntheticReport(
       runId: options.runId ?? RUN_ID,
       startedAt: options.startedAt ?? new Date().toISOString(),
       subject: {
-        requested: {
+        requested: options.subject ?? {
           origin: options.requestedOrigin ?? "https://www.iana.org",
           registrableDomain: options.requestedOrigin ? "example.com" : "iana.org",
           routeShape: "/{seg}/{seg}"
         },
-        observed: {
+        observed: options.subject ?? {
           origin: options.observedOrigin ?? "https://www.iana.org",
           registrableDomain: options.observedOrigin ? "example.com" : "iana.org",
           routeShape: "/{seg}/{seg}"

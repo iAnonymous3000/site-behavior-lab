@@ -16,9 +16,12 @@ import {
   DURABLE_SCAN_JOB_REPORT_MIN_SURVIVAL_MS,
   REPORT_MAX_AGE_DAYS_ENV,
   REPORT_MIN_SURVIVAL_MS_ENV,
+  maintainReportStoreRetention,
+  reportStoreRetentionStatus,
   reportStoreStatus
 } from "./report-store";
 import type { ReportStoreKind } from "./report-store-backend";
+import { createReportStoreRetentionHealthProbe } from "./report-store-retention-health";
 import { producerCapability } from "./report-producers";
 import {
   publicR2ReportsReadiness,
@@ -44,8 +47,18 @@ type PublicReportStoreStatus = {
   maxAgeDays: number;
   maxCount: number;
   minSurvivalMs: number;
+  retentionDebtCount: number | null;
+  retentionMaintenanceRequired: boolean;
+  retentionHealthy: boolean;
+  retentionCheckedAt: string | null;
+  retentionCheckMaxAgeMs: number;
 };
 type RuntimeStatusAdblockCheck = AdblockEngineStatus;
+
+const reportStoreRetentionHealthProbe = createReportStoreRetentionHealthProbe(
+  maintainReportStoreRetention,
+  reportStoreRetentionStatus
+);
 
 export type RuntimeStatus = {
   ok: boolean;
@@ -97,7 +110,7 @@ export async function runtimeStatus(
   // A misconfigured store backend (e.g. r2 selected with missing credentials)
   // must degrade health, never crash it: /api/health is exactly the endpoint an
   // operator checks when the configuration is broken.
-  const store = safeReportStoreStatus();
+  const store = await safeReportStoreStatus();
   const warnings = productionWarnings(store.status);
   const shadow = shadowRuntimeCheck();
   warnings.push(...shadow.warnings);
@@ -126,7 +139,18 @@ export async function runtimeStatus(
   }
   const reportStore = store.public;
   if (store.error !== null) {
-    warnings.push(`The report store backend is misconfigured and unavailable: ${store.error}`);
+    warnings.push(
+      store.status === null
+        ? `The report store backend is misconfigured and unavailable: ${store.error}`
+        : `The report store retention maintenance check failed: ${store.error}`
+    );
+  }
+  if (!store.public.retentionHealthy) {
+    warnings.push(
+      store.public.retentionDebtCount === null
+        ? "Physical report-retention state could not be verified; publication is disabled."
+        : `Physical report retention requires maintenance (${store.public.retentionDebtCount} durable deletion debt marker(s)).`
+    );
   }
   if (!adblock.active) {
     warnings.push("Brave Shields classification is unavailable; tracker labels use the curated catalog only.");
@@ -144,7 +168,10 @@ export async function runtimeStatus(
     authenticated,
     openAccess: !authenticated,
     turnstile: false,
-    scansAvailable: publicR2Status !== "misconfigured" && durableJobs.check.readiness !== "misconfigured",
+    scansAvailable:
+      publicR2Status !== "misconfigured" &&
+      durableJobs.check.readiness !== "misconfigured" &&
+      store.public.retentionHealthy,
     // Top-level `storage` is the shared-contract field the client status text
     // reads; the Browser Run worker already emits it, and without it here the
     // Node scanner's status line never says where reports live.
@@ -173,7 +200,7 @@ export async function runtimeStatus(
       consentComparison: capability.consentComparison,
       // A broken store backend cannot save or serve reports; the UI must not
       // offer share links it cannot honor.
-      savedReports: store.error === null,
+      savedReports: store.error === null && store.public.retentionHealthy,
       // The Node runtime can prove the private preparation boundary only. The
       // edge must verify its isolated Worker-only key and DO scheduler before
       // promoting this capability.
@@ -368,9 +395,32 @@ type SafeReportStoreStatus = {
   error: string | null;
 };
 
-function safeReportStoreStatus(): SafeReportStoreStatus {
+async function safeReportStoreStatus(): Promise<SafeReportStoreStatus> {
+  let status: ReturnType<typeof reportStoreStatus>;
   try {
-    const status = reportStoreStatus();
+    status = reportStoreStatus();
+  } catch (error) {
+    return {
+      status: null,
+      public: {
+        kind: "unavailable",
+        configuredPath: false,
+        maxAgeDays: 0,
+        maxCount: 0,
+        minSurvivalMs: 0,
+        retentionDebtCount: null,
+        retentionMaintenanceRequired: true,
+        retentionHealthy: false,
+        retentionCheckedAt: null,
+        retentionCheckMaxAgeMs: 0
+      },
+      error: error instanceof Error ? error.message : "unknown configuration error"
+    };
+  }
+
+  try {
+    const probe = await reportStoreRetentionHealthProbe(JSON.stringify(status));
+    const retention = probe.retention;
     return {
       status,
       public: {
@@ -378,15 +428,31 @@ function safeReportStoreStatus(): SafeReportStoreStatus {
         configuredPath: status.configuredPath,
         maxAgeDays: status.maxAgeDays,
         maxCount: status.maxCount,
-        minSurvivalMs: status.minSurvivalMs
+        minSurvivalMs: status.minSurvivalMs,
+        retentionDebtCount: probe.stateObserved ? retention.debtCount : null,
+        retentionMaintenanceRequired: retention.maintenanceRequired,
+        retentionHealthy: retention.healthy,
+        retentionCheckedAt: probe.checkedAt,
+        retentionCheckMaxAgeMs: probe.maxAgeMs
       },
-      error: null
+      error: probe.error
     };
   } catch (error) {
     return {
-      status: null,
-      public: { kind: "unavailable", configuredPath: false, maxAgeDays: 0, maxCount: 0, minSurvivalMs: 0 },
-      error: error instanceof Error ? error.message : "unknown configuration error"
+      status,
+      public: {
+        kind: status.kind,
+        configuredPath: status.configuredPath,
+        maxAgeDays: status.maxAgeDays,
+        maxCount: status.maxCount,
+        minSurvivalMs: status.minSurvivalMs,
+        retentionDebtCount: null,
+        retentionMaintenanceRequired: true,
+        retentionHealthy: false,
+        retentionCheckedAt: null,
+        retentionCheckMaxAgeMs: 0
+      },
+      error: error instanceof Error ? error.message : "unknown retention maintenance error"
     };
   }
 }

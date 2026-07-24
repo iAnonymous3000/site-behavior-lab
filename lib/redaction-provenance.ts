@@ -3,8 +3,9 @@ import { REDACTION_VERSION } from "./redaction-v2";
 import { REPORT_ID_PATTERN } from "./report-validation";
 
 /**
- * Redaction provenance sidecars (RFC scan-report-v2 15.8). v1 wire is frozen,
- * so a report's redaction version is NEVER inferred from scan dates; managed
+ * Redaction provenance sidecars (RFC scan-report-v2 15.8). The v1 schema and
+ * identity are frozen, while reviewed security remediation may re-redact its
+ * stored public strings; a report's redaction version is NEVER inferred from scan dates. Managed
  * reports (the committed corpus and the R2 share store) get a sidecar with a
  * digest of the exact public bytes it vouches for.
  *
@@ -92,6 +93,20 @@ export type ProvenanceMatch =
  * direction (re-remediate rather than trust).
  */
 export function matchProvenance(publicReport: unknown, sidecar: unknown, expectedReportId: string): ProvenanceMatch {
+  return matchProvenanceAtVersion(publicReport, sidecar, expectedReportId, REDACTION_VERSION);
+}
+
+/**
+ * Version-pinned provenance verification for an explicit migration boundary.
+ * Ordinary readers must use {@link matchProvenance}; this variant exists so a
+ * remediator can prove exact v3 bytes before transforming them to v4.
+ */
+export function matchProvenanceAtVersion(
+  publicReport: unknown,
+  sidecar: unknown,
+  expectedReportId: string,
+  expectedRedactionVersion: number
+): ProvenanceMatch {
   if (sidecar === null || sidecar === undefined) return { status: "unknown", reason: "no-sidecar" };
   if (!isProvenanceEntry(sidecar)) return { status: "unknown", reason: "malformed-sidecar" };
   if (!REPORT_ID_PATTERN.test(expectedReportId) || sidecar.reportId !== expectedReportId) {
@@ -100,7 +115,7 @@ export function matchProvenance(publicReport: unknown, sidecar: unknown, expecte
   if (sidecar.canonicalizationVersion !== CANONICALIZATION_VERSION) {
     return { status: "unknown", reason: "canonicalization-version-mismatch" };
   }
-  if (sidecar.redactionVersion !== REDACTION_VERSION) {
+  if (sidecar.redactionVersion !== expectedRedactionVersion) {
     return { status: "unknown", reason: "redaction-version-mismatch" };
   }
   const recomputedDigest = publicReportDigest(publicReport);

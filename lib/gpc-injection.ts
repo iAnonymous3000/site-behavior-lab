@@ -3,6 +3,12 @@ export const GPC_WORKER_CAPTURE_LOSS_WARNING =
 
 const DEFAULT_REGISTRATION_WAIT_MS = 100;
 const MAX_REGISTERED_WORKER_URL_LENGTH = 16_384;
+export const GPC_WORKER_ROUTE_FETCH_TIMEOUT_MS = 30_000;
+// Playwright buffers Route.fetch responses before APIResponse.body() exposes
+// them and offers no streaming or AbortSignal API here. This limit bounds the
+// subsequent userland transfer-to-string and static-parser work; the scanner's
+// enclosing process/container memory limit remains the transport-memory guard.
+export const GPC_WORKER_SCRIPT_MAX_BYTES = 8 * 1024 * 1024;
 
 type WorkerConstructor = new (...args: unknown[]) => object;
 
@@ -12,9 +18,9 @@ export type GpcWorkerInitScriptArgs = {
 };
 
 type GpcRouteResponse = {
+  body(): Promise<Uint8Array>;
   headers(): Record<string, string>;
   status(): number;
-  text(): Promise<string>;
 };
 
 type GpcRouteRequest = {
@@ -25,7 +31,7 @@ type GpcRouteRequest = {
 };
 
 type GpcRouteFetch<ResponseT extends GpcRouteResponse> = {
-  fetch(options: { maxRedirects: number }): Promise<ResponseT>;
+  fetch(options: { maxRedirects: number; timeout: number }): Promise<ResponseT>;
   request(): GpcRouteRequest;
 };
 
@@ -347,7 +353,13 @@ export class GpcWorkerInjectionSession {
 
     let response: ResponseT;
     try {
-      response = await route.fetch({ maxRedirects: 0 });
+      // Route.fetch has no AbortSignal option. Its finite timeout is therefore
+      // the operation-level backstop inside each producer's enclosing 45-second
+      // scan deadline (90 seconds for a two-phase comparison).
+      response = await route.fetch({
+        maxRedirects: 0,
+        timeout: GPC_WORKER_ROUTE_FETCH_TIMEOUT_MS
+      });
     } catch {
       this.transformFailureCount += 1;
       throw new GpcWorkerInjectionError("worker-transform-failed");
@@ -363,19 +375,41 @@ export class GpcWorkerInjectionSession {
     }
 
     if (status < 200 || status >= 300) return { response };
-    let body: string;
+    const declaredLength = declaredWorkerScriptLength(response.headers());
+    if (declaredLength !== null && declaredLength > GPC_WORKER_SCRIPT_MAX_BYTES) {
+      // Oversized source cannot be safely decoded or parsed. Preserve the
+      // measured site's exact response and disclose the lost GPC coverage.
+      this.transformFailureCount += 1;
+      return { response };
+    }
+
+    let bodyBytes: Uint8Array;
     try {
-      body = await response.text();
+      bodyBytes = await response.body();
     } catch {
       this.transformFailureCount += 1;
       throw new GpcWorkerInjectionError("worker-transform-failed");
     }
+    if (bodyBytes.byteLength > GPC_WORKER_SCRIPT_MAX_BYTES) {
+      // Content-Length is only an early rejection hint: it may be absent,
+      // compressed, or dishonest. Enforce the cap again on Playwright's
+      // already-buffered bytes before decoding or invoking the static parser.
+      this.transformFailureCount += 1;
+      return { response };
+    }
+    const body = new TextDecoder("utf-8", { ignoreBOM: true }).decode(bodyBytes);
 
     if (ticket.type === "module") {
       const dependencies = staticModuleSpecifiers(body);
       if (!dependencies) {
+        // The dependency scanner is a heuristic over page-controlled source and
+        // cannot be proven complete against every real bundle, so an unparsed
+        // module fails open: the fetched bytes are served unchanged and the
+        // Worker runs without the signal. Aborting would alter the site under
+        // measurement, which is worse than a coverage gap; the gap itself is
+        // still counted and disclosed as Worker capture loss.
         this.transformFailureCount += 1;
-        throw new GpcWorkerInjectionError("worker-transform-failed");
+        return { response };
       }
       const state = this.stateFor(frame);
       state.moduleUrls.add(url);
@@ -384,7 +418,7 @@ export class GpcWorkerInjectionSession {
           this.transformFailureCount += 1;
           throw new GpcWorkerInjectionError("worker-transform-failed");
         }
-        const dependency = networkUrl(new URL(specifier, url).href);
+        const dependency = resolvedNetworkDependency(specifier, url);
         if (!dependency) {
           this.unsupportedWorkerCount += 1;
           throw new GpcWorkerInjectionError("unsupported-worker");
@@ -506,6 +540,13 @@ export class GpcWorkerInjectionSession {
   }
 }
 
+function declaredWorkerScriptLength(headers: Record<string, string>): number | null {
+  const value = Object.entries(headers).find(([name]) => name.toLowerCase() === "content-length")?.[1]?.trim();
+  if (!value || !/^\d+$/.test(value)) return null;
+  const parsed = Number(value);
+  return Number.isSafeInteger(parsed) ? parsed : null;
+}
+
 export function createGpcWorkerInjectionSession(
   options: { registrationWaitMs?: number; randomBytes?: Uint8Array } = {}
 ): GpcWorkerInjectionSession {
@@ -565,6 +606,20 @@ function normalizeRegistrationWait(value: number | undefined): number {
 
 function isResolvableModuleSpecifier(value: string): boolean {
   return value.startsWith("./") || value.startsWith("../") || value.startsWith("/") || /^[A-Za-z][A-Za-z\d+.-]*:/.test(value);
+}
+
+/**
+ * A specifier is page-controlled text, so a scheme-shaped one can still be an
+ * invalid URL. Resolution failure has to stay inside the accounted block path:
+ * a raw throw would escape route handling and leave the request with no
+ * terminal action and no capture-loss record.
+ */
+function resolvedNetworkDependency(specifier: string, base: string): string | null {
+  try {
+    return networkUrl(new URL(specifier, base).href);
+  } catch {
+    return null;
+  }
 }
 
 function rewrittenWorkerResponseHeaders(headers: Record<string, string>): Record<string, string> {
@@ -743,7 +798,7 @@ type ModuleToken = {
 };
 
 function staticModuleSpecifiers(source: string): string[] | null {
-  const tokens = moduleTokens(source);
+  const tokens = tokenizeModule(source);
   if (!tokens) return null;
   const dependencies = new Set<string>();
 
@@ -784,6 +839,19 @@ function staticModuleSpecifiers(source: string): string[] | null {
   }
 
   return [...dependencies];
+}
+
+/**
+ * Template substitutions are scanned recursively, so page-controlled nesting
+ * can exhaust the stack. That has to read as an unparsed module, which fails
+ * open and is disclosed, rather than escaping route handling as a RangeError.
+ */
+function tokenizeModule(source: string): ModuleToken[] | null {
+  try {
+    return moduleTokens(source);
+  } catch {
+    return null;
+  }
 }
 
 function moduleTokens(source: string): ModuleToken[] | null {
@@ -960,6 +1028,17 @@ function skipTemplateExpression(source: string, start: number): number {
       while (end < source.length && isIdentifierPart(source[end])) end += 1;
       canStartRegex = regexMayFollowIdentifier(source.slice(index, end));
       index = end;
+      continue;
+    }
+    if (/\d/.test(character)) {
+      // Numbers need the same branch the outer token loop has. Falling through
+      // to the punctuator rule would leave a digit regex-permitting, so the
+      // division in `${1000 / 2}` would start a regex literal that swallows the
+      // rest of the substitution and fails the whole module parse.
+      let end = index + 1;
+      while (end < source.length && /[\w.]/.test(source[end])) end += 1;
+      index = end;
+      canStartRegex = false;
       continue;
     }
     if (character === "/" && canStartRegex) {

@@ -5,24 +5,26 @@ import {
   pageGraphGraphmlToStrictAdapterInput
 } from "./pagegraph-parser";
 import {
-  REDACTION_ALLOWLISTS_DIGEST,
-  REDACTION_ALLOWLISTS_VERSION,
   REDACTION_VERSION,
-  PUBLIC_SUFFIX_ENGINE_VERSION,
   addRedactionCounters,
   emptyRedactionCounters,
   publicRegistrableDomain,
+  redactPageTitle,
   redactUrlV2
 } from "./redaction-v2";
 import {
-  PUBLIC_STRING_POLICY_DIGEST,
-  PUBLIC_STRING_POLICY_VERSION,
   RedactionPass,
   redactRequest,
   redactScannerWarnings
 } from "./redact-scan-report-v1";
 import { MAX_RECORDED_REQUESTS } from "./scan-runtime";
-import { buildFingerprints, canonicalJson } from "./scan-report-v2-fingerprints";
+import { buildFingerprints } from "./scan-report-v2-fingerprints";
+import {
+  R2_NAVIGATION_STATUS_UNREPRESENTABLE,
+  R2_REQUEST_STATUS_UNREPRESENTABLE,
+  isHttpStatusCode,
+  normalizeHttpStatusForScanReportV2R2
+} from "./scan-report-v2-http-status";
 import { scanReportV2R2SemanticViolations } from "./scan-report-v2-r2-evaluators";
 import { NODE_SCAN_REPORT_V2_R2_MAX_PUBLIC_BYTES } from "./scan-report-v2-r2-limits";
 import { isPublicScanReportV2R2 } from "./scan-report-v2-r2-validation";
@@ -43,17 +45,27 @@ import {
   type SubjectKey,
   type Toolchain
 } from "./scan-report-v2";
-import { sha256BytesHex, sha256Hex } from "./sha256";
+import { sha256BytesHex } from "./sha256";
 import { trackerCatalogMetadata } from "./tracker-catalog";
-import type { NetworkRequestProvenance } from "./types";
+import { PAGEGRAPH_R2_NORMALIZATION_VERSION } from "./scan-report-v2-normalization";
+import {
+  PAGEGRAPH_R2_DETECTOR_REGISTRY_DIGEST,
+  PAGEGRAPH_R2_DETECTOR_REGISTRY_VERSION,
+  PAGEGRAPH_R2_DETECTOR_VERSION,
+  PAGEGRAPH_R2_EXPECTED_DETECTORS,
+  PAGEGRAPH_R2_METHODOLOGY_VERSION
+} from "./scan-report-v2-r2-producer-contract";
+import type { NetworkRequestProvenance, NetworkRequestRecord } from "./types";
 
 /** Exact sidecar contract accepted by the browser-safe PageGraph r2 importer. */
 export const PAGEGRAPH_CAPTURE_METADATA_SCHEMA = "site-behavior-lab/pagegraph-capture@1" as const;
-export const PAGEGRAPH_R2_DETECTOR_VERSION = "pagegraph-import-unsupported@1" as const;
-export const PAGEGRAPH_R2_DETECTOR_REGISTRY_VERSION = "pagegraph-import-detectors@1" as const;
-export const PAGEGRAPH_R2_METHODOLOGY_VERSION = "pagegraph-passive-import-r2@1" as const;
-export const PAGEGRAPH_R2_NORMALIZATION_VERSION =
-  `redaction-v${REDACTION_VERSION}+${REDACTION_ALLOWLISTS_VERSION}:${REDACTION_ALLOWLISTS_DIGEST}+${PUBLIC_STRING_POLICY_VERSION}:${PUBLIC_STRING_POLICY_DIGEST}+${PUBLIC_SUFFIX_ENGINE_VERSION}+pagegraph-request-evidence-v1`;
+export {
+  PAGEGRAPH_R2_DETECTOR_REGISTRY_DIGEST,
+  PAGEGRAPH_R2_DETECTOR_REGISTRY_VERSION,
+  PAGEGRAPH_R2_DETECTOR_VERSION,
+  PAGEGRAPH_R2_METHODOLOGY_VERSION
+} from "./scan-report-v2-r2-producer-contract";
+export { PAGEGRAPH_R2_NORMALIZATION_VERSION } from "./scan-report-v2-normalization";
 
 const SHA256 = /^[0-9a-f]{64}$/;
 const FULL_GIT_SHA = /^[0-9a-f]{40}$/;
@@ -62,7 +74,6 @@ const SAFE_CODE = /^[a-z0-9][a-z0-9._:-]{0,63}$/;
 const LOCALE = /^[A-Za-z]{2,3}(?:-[A-Za-z0-9]{2,8})*$/;
 const TIMEZONE = /^[A-Za-z0-9_+.-]+(?:\/[A-Za-z0-9_+.-]+)*$/;
 const MAX_DURATION_MS = 60 * 60 * 1000;
-const MAX_PAGE_TITLE_CHARS = 200;
 const PAGEGRAPH_DISCLOSURE =
   "This report was adapted from Brave PageGraph-derived observations. Treat it as evidence for the recorded crawl conditions, not a universal claim about all visitors.";
 const PAGEGRAPH_SELF_REPORTED_DISCLOSURE =
@@ -156,18 +167,7 @@ export type PageGraphR2BuildContext = {
   includeSourceArtifactDigest?: boolean;
 };
 
-const EXPECTED_DETECTORS = Object.freeze(
-  Object.fromEntries(
-    DETECTOR_IDS.map((id) => [
-      id,
-      { version: PAGEGRAPH_R2_DETECTOR_VERSION, status: "unsupported" as const, reason: "unsupported" }
-    ])
-  ) as DetectorLedger
-);
-
-export const PAGEGRAPH_R2_DETECTOR_REGISTRY_DIGEST = sha256Hex(
-  canonicalJson({ version: PAGEGRAPH_R2_DETECTOR_REGISTRY_VERSION, detectors: EXPECTED_DETECTORS })
-);
+const EXPECTED_DETECTORS = PAGEGRAPH_R2_EXPECTED_DETECTORS;
 
 /**
  * Parse and validate an untrusted metadata sidecar. Every object is exact-key;
@@ -272,8 +272,8 @@ export function parsePageGraphCaptureMetadata(value: unknown): PageGraphCaptureM
     throw new Error(`PageGraph r2 @1 requires PageGraph schema ${PAGEGRAPH_R2_SUPPORTED_SCHEMA_VERSION}.`);
   }
 
-  if (quality.status !== null && !isHttpStatus(quality.status)) {
-    throw new Error("PageGraph quality.status must be null or an HTTP status from 100 through 599.");
+  if (quality.status !== null && !isHttpStatusCode(quality.status)) {
+    throw new Error("PageGraph quality.status must be null or an HTTP status from 100 through 999.");
   }
   if (typeof quality.navigationSettled !== "boolean" || typeof quality.botWallTitleMatched !== "boolean") {
     throw new Error("PageGraph navigation and bot-wall quality facts must be booleans.");
@@ -415,6 +415,7 @@ export function buildPageGraphScanReportV2R2(
   }
 
   const rawObservations = parsed.requests ?? [];
+  assertPageGraphRequestStatusVocabulary(rawObservations);
   const normalizationWarnings = [
     PAGEGRAPH_DISCLOSURE,
     PAGEGRAPH_SELF_REPORTED_DISCLOSURE,
@@ -435,12 +436,16 @@ export function buildPageGraphScanReportV2R2(
     }
   }
 
+  const retainedSource = normalized.slice(0, MAX_RECORDED_REQUESTS);
+  const statusNormalized = normalizePageGraphR2HttpStatuses(metadata.quality.status, retainedSource);
   const qualityFacts = buildQualityFacts(
     metadata,
     rawObservations.length - normalized.length,
-    Math.max(0, normalized.length - MAX_RECORDED_REQUESTS)
+    Math.max(0, normalized.length - MAX_RECORDED_REQUESTS),
+    statusNormalized.status,
+    statusNormalized.captureLoss
   );
-  const retained = normalized.slice(0, MAX_RECORDED_REQUESTS);
+  const retained = statusNormalized.requests;
   if (
     retained.length > 0 &&
     retained.every((request) => !hasHumanReadableProvenance(request.provenance))
@@ -511,8 +516,8 @@ export function buildPageGraphScanReportV2R2(
     detectors,
     phases: [{ phaseId: 0, kind: "passive-load", startedAtMs: 0, endedAtMs: metadata.capture.durationMs }],
     summary: {
-      pageTitle: boundedTitle(metadata.capture.pageTitle),
-      status: metadata.quality.status,
+      pageTitle: redactPageTitle(metadata.capture.pageTitle),
+      status: statusNormalized.status,
       durationMs: metadata.capture.durationMs,
       counts: {
         totalRequests: requests.length,
@@ -643,10 +648,66 @@ function validateDetectorDeclaration(value: unknown): void {
   }
 }
 
+function assertPageGraphRequestStatusVocabulary(requests: Array<{ status?: number | null }>): void {
+  for (const [index, request] of requests.entries()) {
+    // PageGraph uses zero for a request-error completion; the adapter turns
+    // that non-HTTP sentinel into null. Every other numeric value must obey
+    // the real three-digit status grammar before r2 normalization.
+    if (
+      request.status !== undefined &&
+      request.status !== null &&
+      request.status !== 0 &&
+      !isHttpStatusCode(request.status)
+    ) {
+      throw new Error(`PageGraph request ${index + 1} HTTP status must be 0, null, or an integer from 100 through 999.`);
+    }
+  }
+}
+
+function normalizePageGraphR2HttpStatuses(
+  navigationStatus: number | null,
+  requests: NetworkRequestRecord[]
+): { status: number | null; requests: NetworkRequestRecord[]; captureLoss: CaptureLossEntry[] } {
+  const navigation = normalizeHttpStatusForScanReportV2R2(navigationStatus, "PageGraph quality HTTP status");
+  const captureLoss: CaptureLossEntry[] = [];
+  if (navigation.unrepresentable) {
+    captureLoss.push({
+      family: "requests",
+      phaseId: null,
+      kind: "dropped",
+      count: 1,
+      detail: R2_NAVIGATION_STATUS_UNREPRESENTABLE
+    });
+  }
+
+  let requestStatusLoss = 0;
+  const normalizedRequests = requests.map((request, index) => {
+    const normalized = normalizeHttpStatusForScanReportV2R2(
+      request.status,
+      `PageGraph request ${index + 1} HTTP status`
+    );
+    if (normalized.unrepresentable) requestStatusLoss += 1;
+    return { ...request, status: normalized.status };
+  });
+  if (requestStatusLoss > 0) {
+    captureLoss.push({
+      family: "requests",
+      phaseId: 0,
+      kind: "dropped",
+      count: requestStatusLoss,
+      detail: R2_REQUEST_STATUS_UNREPRESENTABLE
+    });
+  }
+
+  return { status: navigation.status, requests: normalizedRequests, captureLoss };
+}
+
 function buildQualityFacts(
   metadata: PageGraphCaptureMetadataV1,
   invalidRequestsDropped: number,
-  publicRequestsClipped: number
+  publicRequestsClipped: number,
+  status: number | null,
+  statusCaptureLoss: CaptureLossEntry[]
 ): QualityFacts {
   const captureLoss: CaptureLossEntry[] = UNSUPPORTED_FAMILIES.map((family) => ({
     family,
@@ -657,6 +718,7 @@ function buildQualityFacts(
     count: 0,
     detail: "pagegraph-unsupported"
   }));
+  captureLoss.push(...statusCaptureLoss.map((entry) => ({ ...entry })));
   const budgetsExhausted: string[] = [];
   const requests = metadata.quality.families.requests;
   if (requests.outcome === "censored") {
@@ -689,7 +751,7 @@ function buildQualityFacts(
     budgetsExhausted.push("public-request-records");
   }
   return {
-    status: metadata.quality.status,
+    status,
     botWallTitleMatched: metadata.quality.botWallTitleMatched,
     navigationSettled: metadata.quality.navigationSettled,
     budgetsExhausted,
@@ -776,10 +838,6 @@ function isPositiveSafeInteger(value: unknown): value is number {
   return isCount(value) && value > 0;
 }
 
-function isHttpStatus(value: unknown): value is number {
-  return typeof value === "number" && Number.isInteger(value) && value >= 100 && value <= 599;
-}
-
 function assertCanonicalTimestamp(value: unknown, label: string): asserts value is string {
   if (typeof value !== "string" || !Number.isFinite(Date.parse(value)) || new Date(value).toISOString() !== value) {
     throw new Error(`PageGraph ${label} must be a canonical ISO timestamp.`);
@@ -810,9 +868,4 @@ function assertPattern(label: string, value: unknown, pattern: RegExp): asserts 
 
 function containsControl(value: string): boolean {
   return /[\u0000-\u001f\u007f-\u009f]/.test(value);
-}
-
-function boundedTitle(value: string): string {
-  const normalized = value.replace(/\s+/g, " ").trim();
-  return Array.from(normalized).slice(0, MAX_PAGE_TITLE_CHARS).join("");
 }

@@ -27,6 +27,7 @@ import {
   emptyRedactionCounters,
   redactCookieName,
   redactHostnameV2,
+  redactPageTitle,
   redactPathV2,
   redactStorageKey,
   redactUrlV2,
@@ -79,7 +80,6 @@ export type RedactedV1<T extends ScanReport> = {
   counters: RedactionCounters;
 };
 
-const MAX_PAGE_TITLE_CHARS = 200;
 const MAX_POLICY_QUOTE_CHARS = 200;
 const MAX_POLICY_TEXT_CHARS = 400_000;
 const MAX_WARNING_CHARS = 600;
@@ -299,7 +299,7 @@ const COMPARISON_WARNING_LABELS = new Set([
   "Variant"
 ]);
 
-export const PUBLIC_STRING_POLICY_VERSION = "public-string-policy-v2";
+export const PUBLIC_STRING_POLICY_VERSION = "public-string-policy-v3";
 /**
  * Machine-derived identity of every non-allowlist public string vocabulary in
  * this sanitizer. A selector, warning, method, resource, pixel, or opaque-id
@@ -346,7 +346,7 @@ export const PUBLIC_STRING_POLICY_DIGEST = sha256Hex(
       keystrokeFieldTypes: KEYSTROKE_FIELD_TYPES
     },
     limits: {
-      pageTitle: MAX_PAGE_TITLE_CHARS,
+      pageTitle: "withheld-empty-marker",
       policyQuote: MAX_POLICY_QUOTE_CHARS,
       warning: MAX_WARNING_CHARS,
       comparisonTitle: MAX_COMPARISON_TITLE_CHARS,
@@ -425,7 +425,7 @@ export function redactScanResultV1(result: ScanResult): RedactedV1<ScanResult> {
     schemaVersion: result.schemaVersion,
     ...(result.reportType !== undefined ? { reportType: "single" as const } : {}),
     summary: {
-      pageTitle: boundedPublicText(result.summary.pageTitle, MAX_PAGE_TITLE_CHARS),
+      pageTitle: redactPageTitle(result.summary.pageTitle),
       status: result.summary.status,
       durationMs: result.summary.durationMs,
       firstPartyDomain: pass.hostname(result.summary.firstPartyDomain),

@@ -1,6 +1,8 @@
 {
   "fetchedAt": "2026-07-13T09:47:59.645Z",
-  "catalog": "https://raw.githubusercontent.com/brave/adblock-resources/master/filter_lists/list_catalog.json",
+  "catalog": "https://raw.githubusercontent.com/brave/adblock-resources/87e925ec3ed08b28b96460b7615b033c52971fa9/filter_lists/list_catalog.json",
+  "catalogCommit": "87e925ec3ed08b28b96460b7615b033c52971fa9",
+  "catalogSha256": "d701b93f8988851c1637548071bed1fe3f4a4abc8b138d4f3109d9373c3a3b0e",
   "sourceCount": 31,
   "sources": [
     {

@@ -548,6 +548,9 @@ export type StaticReportManifestEntry = {
   // Location is derived from `id` via the report locator, not stored, so the
   // manifest stays metadata-only and the path scheme has a single definition.
   id: string;
+  /** Exact UTF-8 report wire authenticated before archive comparison. */
+  reportWireBytes: number;
+  reportWireSha256: string;
   title: string;
   /** Canonical evidence-gated card headline, derived during the managed build. */
   headline: string;

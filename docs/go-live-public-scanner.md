@@ -3,7 +3,8 @@
 > **Status: LIVE on r2 (2026-07-13).** The original public go-live completed on
 > 2026-06-22. The full Containers scanner at `scan.sitebehavior.org` now returns
 > public r2 reports behind Turnstile and the in-app atomic quota. The WAF
-> rate-limit rule still needs explicit ceiling verification above that quota.
+> rate-limit rule was verified on 2026-07-21; retain a fresh receipt for each
+> release rather than treating that dated observation as permanent proof.
 
 This runbook takes the full Node/Playwright scanner (the path that runs the
 **Brave-list blocking simulation**, tried-vs-blocked) from operator-gated to a **public** front door
@@ -59,21 +60,23 @@ encrypted Durable Object queue and scheduled, fenced lease recovery; it requires
 both edge and Node prerequisites plus two live failure canaries on a gated
 staging deployment.
 
-The committed non-secret coordinator origin is
-`SITE_BEHAVIOR_LAB_DURABLE_JOBS_COORDINATOR_URL=https://scan.sitebehavior.org`.
-The container also keeps reports recoverable for the full 75-minute job window
-with `SITE_BEHAVIOR_LAB_REPORT_MIN_SURVIVAL_MS=4500000`. Configure these two
-distinct Worker secrets interactively; never reuse the public scan-access token:
+The committed production coordinator origin is
+`SITE_BEHAVIOR_LAB_DURABLE_JOBS_COORDINATOR_URL=https://scan.sitebehavior.org`,
+but it is inert while the production gate remains off. The container also keeps
+reports recoverable for the full 75-minute job window with
+`SITE_BEHAVIOR_LAB_REPORT_MIN_SURVIVAL_MS=4500000`. Do **not** install production
+durable credentials as the first rollout step. The canaries below use separately
+generated staging-only values and the staging config. For either environment, the
+encryption key must be canonical unpadded base64url for exactly 32 random bytes,
+and the internal coordinator token must be a different random value:
 
 ```bash
-# Generate one value, then paste it into the first secret prompt. The output is
-# canonical unpadded base64url for exactly 32 random bytes.
+# Generate a canonical 32-byte encryption-key value. Paste it only into the
+# environment-specific secret prompt in the ordered procedure below.
 node -e 'console.log(require("node:crypto").randomBytes(32).toString("base64url"))'
-npx wrangler secret put SITE_BEHAVIOR_LAB_DURABLE_JOBS_KEY -c wrangler.container.jsonc
 
-# Generate a different value for the private Node-to-Worker coordinator channel.
+# Generate a different value for that environment's private coordinator channel.
 node -e 'console.log(require("node:crypto").randomBytes(32).toString("base64url"))'
-npx wrangler secret put SITE_BEHAVIOR_LAB_DURABLE_JOBS_INTERNAL_TOKEN -c wrangler.container.jsonc
 ```
 
 `SITE_BEHAVIOR_LAB_DURABLE_JOBS_KEY` is Worker-only and must never enter the
@@ -178,9 +181,12 @@ for record_type in A AAAA CNAME; do
 done
 ```
 
-Wrangler 4.103's JSON container listing is not cursor-complete. In the Cloudflare
-Containers dashboard (or a fully paginated API client), search the complete
-account-wide application list and confirm that
+The repository currently locks Wrangler 4.113.0. Do not treat
+`wrangler containers list --json` as an account-wide absence proof: its
+machine-readable help surface exposes `--per-page` but no page/cursor argument,
+and cursor completion must be reverified whenever Wrangler changes. In the
+Cloudflare Containers dashboard (or a demonstrably fully paginated API client),
+search the complete account-wide application list and confirm that
 `site-behavior-lab-scanner-staging-container` is absent. Capture that full-list
 receipt; a page-one CLI result is not an absence proof.
 
@@ -533,9 +539,15 @@ Deletion is the reviewed hook-off transition. Do not create an ad hoc dirty
 hook-disabled deployment: the committed scaffold remains reproducible, while no
 fault-enabled staging surface remains reachable between activation exercises.
 
-Only after every item passes may a separate reviewed production change set
-`SITE_BEHAVIOR_LAB_DURABLE_JOBS=1`. This runbook does not authorize that flip or
-a deployment by itself.
+Only after every item passes may a separate reviewed production change install
+new production-only values for `SITE_BEHAVIOR_LAB_DURABLE_JOBS_KEY` and
+`SITE_BEHAVIOR_LAB_DURABLE_JOBS_INTERNAL_TOKEN` with
+`-c wrangler.container.jsonc`, then set `SITE_BEHAVIOR_LAB_DURABLE_JOBS=1`.
+Neither production secret may reuse a destroyed staging value or any scan,
+Turnstile, synthetic-monitor, R2, or watch credential. The production deployment
+must contain no fault-injection hook and must use the normal CI-gated promotion,
+canary, soak, and rollback path. This runbook does not authorize that flip or a
+deployment by itself.
 
 ### Post-durability container sharding
 
@@ -563,41 +575,86 @@ production `checks.durableJobs.readiness: "ready"`, both replay canaries, ordina
 traffic, and a separate soak. The committed
 `SITE_BEHAVIOR_LAB_ENCRYPTED_WATCHES=0` is the rollback baseline.
 
-1. Restore the temporary production scan-access lock. Generate a new independent
-   32-byte key as canonical unpadded base64url and install it only as the Worker
-   secret. Do not reuse the durable-job key, coordinator token, scan token,
-   Turnstile secret, or R2 credentials, and do not forward it into Node:
+1. Use a separate exact-SHA staging deployment with ordinary scanner ingress
+   open behind Turnstile and atomic quota. Do not set a scanner access token on
+   that staging Worker. Use `wrangler.container.watch-staging.jsonc`, never the
+   replay-fault or production config. Generate both a new independent 32-byte watch key and a
+   separate 32-byte-or-longer watch-creation token, then install them only as
+   Worker secrets. Do not reuse a durable-job key, coordinator/synthetic token,
+   Turnstile secret, scan token, or R2 credential, and do not forward either
+   value into Node:
 
    ```bash
    umask 077
    WATCH_KEY_FILE="$(mktemp)"
    openssl rand 32 | openssl base64 -A | tr '+/' '-_' | tr -d '=' > "$WATCH_KEY_FILE"
    npx wrangler secret put SITE_BEHAVIOR_LAB_ENCRYPTED_WATCHES_KEY \
-     -c wrangler.container.jsonc < "$WATCH_KEY_FILE"
+     -c wrangler.container.watch-staging.jsonc < "$WATCH_KEY_FILE"
+   WATCH_ACCESS_TOKEN_FILE="$(mktemp)"
+   openssl rand -base64 48 | tr -d '\n' > "$WATCH_ACCESS_TOKEN_FILE"
+   npx wrangler secret put SITE_BEHAVIOR_LAB_ENCRYPTED_WATCHES_ACCESS_TOKEN \
+     -c wrangler.container.watch-staging.jsonc < "$WATCH_ACCESS_TOKEN_FILE"
    rm -f "$WATCH_KEY_FILE"
+   rm -f "$WATCH_ACCESS_TOKEN_FILE"
    unset WATCH_KEY_FILE
+   unset WATCH_ACCESS_TOKEN_FILE
    ```
 
-2. Promote a reviewed change setting only
-   `SITE_BEHAVIOR_LAB_ENCRYPTED_WATCHES=1`. Require exact scanner/Pages source
-   provenance, no warnings, `checks.encryptedWatches = { requested: true,
-   enabled: true, readiness: "ready" }`, and
-   `capabilities.scheduledRescans: true`. Node health alone may report only
-   `node-ready`; the combined edge health is authoritative.
-3. While ingress remains locked, create one accountless watch for a controlled
-   public fixture with no query or fragment. Preserve its capability only in the
-   canary client/URL fragment and send it in
-   `x-site-behavior-lab-watch-capability`; never print it or put it in a request
-   path/query. Do not poll, health-check, or read status to drive the immediate
-   run. Confirm the coordinator schedules and admits an ordinary durable job.
+   Provision the config's staging-only container, Durable Object namespace, R2
+   bucket/credential, DNS/certificate, Turnstile secret, durable key, and
+   coordinator token. Require the remote secret list to contain exactly the
+   config's `secrets.required` set and no general scan access token. Verify the
+   build-pinned config with `npm run cf:container:watch-staging:verify`; only an
+   authorized operator may then run `npm run cf:container:watch-staging:deploy`.
+
+2. The dedicated staging config requests
+   `SITE_BEHAVIOR_LAB_ENCRYPTED_WATCHES=1` only after durable readiness is
+   already proven. Require exact scanner/Pages source provenance,
+   no warnings, `authenticated: false`, `openAccess: true`, `turnstile: true`,
+   `checks.encryptedWatches = { requested: true, enabled: true, readiness:
+   "ready", creationAuthorization: "operator" }`, and
+   `capabilities.scheduledRescans: false`. The false public capability is
+   intentional: the browser never receives the staging second factor. Node
+   health alone may report only `node-ready`; combined edge health is
+   authoritative.
+3. Obtain one fresh Turnstile token immediately before the canary and run
+   `npm run test:smoke:encrypted-watches` with
+   `ENCRYPTED_WATCH_SMOKE_WATCH_ACCESS_TOKEN`,
+   `ENCRYPTED_WATCH_SMOKE_TURNSTILE_TOKEN`, the staging base URL, controlled
+   query-free target, exact expected SHA, no-request duration, and these exact
+   acknowledgements:
+
+   ```text
+   ENCRYPTED_WATCH_SMOKE_CONFIRM=I_ACKNOWLEDGE_THIS_CREATES_A_LIVE_SCHEDULED_RESCAN
+   ENCRYPTED_WATCH_SMOKE_STAGING_CONFIRM=I_ACKNOWLEDGE_THIS_IS_AN_OPEN_TURNSTILE_STAGING_DEPLOYMENT
+   ```
+
+   The create request sends the endpoint token only in
+   `x-site-behavior-lab-watch-access-token`, the browser-held management
+   capability only in `x-site-behavior-lab-watch-capability`, and the Turnstile
+   token only in the JSON body. Never print any of them or put them in a request
+   path/query. Do not poll, health-check, or read status during the canary's blind
+   window; the coordinator must schedule and admit the ordinary durable job.
 4. Read capability-authenticated metadata, retrieve the normal r2 report, then
    delete the watch. Confirm no API response/log contains the plaintext target
    and that deletion prevents future watch claims. A job admitted before deletion
    may still finish normally.
-5. Re-run the ordinary token-gated scanner smoke and production health workflow.
-   Keep the scan-access token gate for as long as watches are enabled: the edge
-   marks watches misconfigured and refuses new watch creation under open public
-   ingress. To reopen ordinary scans, first roll the watch flag back to `0`.
+5. Submit an ordinary Turnstile-backed scan without either watch header and
+   confirm it remains open. Then send missing and wrong watch endpoint tokens
+   with otherwise valid creation input and require `401` without a quota charge
+   or Durable Object admission. Audit logs to confirm both watch credentials
+   terminate at the edge.
+6. Tear staging down and capture absence receipts. Only then prepare a separate
+   reviewed production activation with a newly generated production-only watch
+   encryption key. Do **not** install the staging watch access token in
+   production, and never add the general scan access token merely to enable
+   watches.
+7. Before accepting production activation, require
+   `checks.encryptedWatches.creationAuthorization: "public"` and
+   `capabilities.scheduledRescans: true`, then create/delete one watch through
+   the real browser UI with a fresh Turnstile solve and no watch-access header.
+   This proves self-service creation, atomic quota, durable admission,
+   capability management, and rollback behavior coexist.
 
 Rollback the watch flag to `0` first. New creates and due decryption stop, but
 capability-authenticated metadata reads/deletes must remain available. Keep the
@@ -635,10 +692,20 @@ watch), then remove it. See [encrypted-watches.md](encrypted-watches.md).
    npm run cf:container:deploy
    ```
 
-6. **Add a Cloudflare WAF / rate-limiting rule** on the scanner route as a coarse
-   outer cap. Throttle `POST /api/scan` per client IP to
-   a ceiling above the in-app per-minute limit, and consider a managed challenge
-   for known-bot ASNs.
+6. **Add Cloudflare WAF / rate-limiting rules** on both public admission routes
+   as coarse outer caps. This route coverage is a release requirement when
+   durable public scans are enabled:
+
+   - throttle `POST /api/scan` per client IP to a ceiling above the in-app scan
+     limit; and
+   - throttle `GET /api/scan/admission` per client IP to a ceiling above its
+     dedicated 30-per-minute client limit (for example, ten requests per ten
+     seconds with a short block).
+
+   The recovery endpoint also enforces an atomic 300-per-minute global ceiling
+   and bounded SQLite cleanup, but that in-app control does not replace the WAF
+   layer. Consider a managed challenge for known-bot ASNs. Do not enable the
+   durable public route until both WAF rules are active and have fresh receipts.
 
 7. **Point the public site at the scanner.** Rebuild and deploy Cloudflare Pages
    with:
@@ -701,9 +768,26 @@ watch), then remove it. See [encrypted-watches.md](encrypted-watches.md).
   warm singleton. Bounded durable-execution sharding is now implemented behind
   its separate post-durability activation gate; the committed production flags
   still preserve the singleton. The Brave-list refresh rerun also succeeded.
-- Container-observability retention/query verification, the WAF ceiling, and a
-  scoped synthetic R2 write/read/delete monitor remain external operational
-  follow-ups. `/api/health` proves R2 configuration, not remote reachability.
+- The hourly production synthetic is active. It performs a neutral scan, verifies
+  its public r2 result, reads the exact persisted report back, and renders the
+  report page. It does **not** delete the report and is not a delete canary.
+  The monitor holds an ordered list of fixed candidate targets (iana.org, then
+  w3.org), each server-allowlisted for the monitor credential: one target's
+  outage or block falls through to the independent next candidate with a
+  workflow warning, and the alert fires only when every candidate fails to
+  scan, which indicates the scanner rather than a third party.
+- On 2026-07-21 the POST `/api/scan` WAF ceiling was verified active at ten
+  requests per ten seconds per IP with a ten-second block, and Worker logs were
+  queryable over the configured seven-day range with report URLs redacted.
+  That receipt covers only `POST /api/scan`; it does not prove the required
+  `GET /api/scan/admission` WAF rule. Capture that recovery-route receipt before
+  enabling durable public admissions, and capture fresh WAF and log receipts
+  for every release. A platform-compatible
+  independent egress backstop and activation of the separately implemented
+  fixed-prefix R2 delete-canary Worker remain external operational follow-ups.
+  The canary's code and production-health lane being present do not prove it is
+  deployed or configured. `/api/health` proves R2 configuration, not remote
+  write/read/delete reachability or those remaining controls.
 
 ## Sharing live-scan results
 
@@ -720,6 +804,18 @@ https://scan.sitebehavior.org/reports/<id>
 That link renders the full report (request log, findings, Shields diff) for
 anyone, backed by R2. Downloading the JSON/CSV still works as an offline,
 re-uploadable copy.
+
+Runtime report HTML/RSC and both generated social-card routes are deliberately
+request-rendered: each request re-reads R2 and applies the report's immutable
+expiry metadata, rather than entering Next's persistent Full Route Cache. The
+front Worker recognizes the same canonical report ID as the store and charges
+all three representations in one atomic Durable Object namespace before it
+forwards to Node: 120 reads per client and 1,200 reads globally per fixed minute.
+Both a per-client and a global refusal leave every counter unchanged, and 429 or
+fail-closed 503 responses are `no-store`. The JSON endpoint retains its separate
+Node per-client limiter. The static Pages export is intentionally different: it
+pre-renders only committed corpus reports, which have repository-controlled
+retention and no runtime-store expiry.
 
 For the link to **unfurl with its Open Graph / X card** (headline + key counts),
 the scanner image must be built with the public origin baked in, because
@@ -744,12 +840,13 @@ the committed Shields corpus keep working unchanged.
 
 ## Deploy (CI-gated)
 
-Production deploys track the **`production`** branch, never `main`. After both
-test jobs pass, CI fast-forwards `production` to the exact SHA it tested;
+Production deploys track the **`production`** branch, never `main`. After all
+five promotion gates (`supply-chain`, `app`, `smoke`, `docker`, and `attest`)
+pass, CI fast-forwards `production` to the exact SHA it tested;
 `.github/workflows/promote-production.yml` is an idempotent fallback for
-ordinary push/user-dispatched runs. It may also retry when all three test jobs
+ordinary push/user-dispatched runs. It may also retry when all five gates
 passed but CI's direct promotion failed, after reading the completed run and
-requiring each test conclusion to be `success`. Both paths share one serialized promotion
+requiring each named job conclusion to be `success`. Both paths share one serialized promotion
 group and the same safeguards: no force pushes, no out-of-order rewind, and a
 hard failure when the tested SHA is no longer reachable from `main`. CI owns
 the direct path because runs dispatched by repo-writing workflows with
@@ -780,3 +877,9 @@ and rerun CI on `main` to resume. Never move `production` by hand.
   state used for Shields).
 - Tune `SITE_BEHAVIOR_LAB_PUBLIC_SCAN_RATE_LIMIT_PER_MINUTE` / `_PER_DAY` and the
   WAF rule together as real traffic arrives.
+- Preserve separate receipts for controls the repository cannot infer from health:
+  the WAF ceiling above the in-app quota, container-log retention plus one bounded
+  operator query, activation and successful readback of the dedicated-prefix R2
+  delete canary, and the independent egress backstop (or an explicit, reviewed
+  acceptance while the platform cannot provide one). The active hourly synthetic
+  covers scan/write/read/render only.

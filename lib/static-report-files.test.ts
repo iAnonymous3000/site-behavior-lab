@@ -1,10 +1,11 @@
 import assert from "node:assert/strict";
-import { access, mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { access, mkdir, mkdtemp, readFile, rm, symlink, truncate, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, test } from "node:test";
 import { buildProvenanceEntry, committedSidecarFilename } from "./redaction-provenance";
 import { redactScanReportV1 } from "./redact-scan-report-v1";
+import { SERVER_STORED_PROVENANCE_SIDECAR_MAX_BYTES } from "./report-resource-limits";
 import {
   listDanglingStaticSidecarIds,
   listStaticReportIds,
@@ -85,6 +86,80 @@ test("committed bundles require null expiry and exact report identity", async ()
   const wrongId = await readStaticReportBundle(reportsDir, id);
   assert.equal(wrongId.outcome, "unreadable");
   if (wrongId.outcome === "unreadable") assert.equal(wrongId.reason, "report-id-mismatch");
+});
+
+test("static managed reads reject malformed UTF-8 before report or sidecar JSON validation", async () => {
+  const reportId = "20260701-" + "1".repeat(32);
+  await writeFile(
+    path.join(reportsDir, `${reportId}.json`),
+    new Uint8Array([0x7b, 0x22, 0x78, 0x22, 0x3a, 0x22, 0xc3, 0x28, 0x22, 0x7d])
+  );
+  assert.deepEqual(await readStaticReportBundle(reportsDir, reportId), {
+    outcome: "unreadable",
+    error: "invalid",
+    reason: "invalid-report-json"
+  });
+
+  const sidecarId = "20260701-" + "2".repeat(32);
+  await writeManagedReport(sidecarId);
+  await writeFile(
+    path.join(reportsDir, committedSidecarFilename(sidecarId)),
+    new Uint8Array([0x7b, 0x22, 0xc3, 0x28, 0x22, 0x7d])
+  );
+  assert.deepEqual(await readStaticReportBundle(reportsDir, sidecarId), {
+    outcome: "unreadable",
+    error: "invalid",
+    reason: "invalid-sidecar-json"
+  });
+});
+
+test("static managed reads bound sidecars and reject nested duplicate keys", async () => {
+  const oversizedId = "20260701-" + "3".repeat(32);
+  await writeManagedReport(oversizedId);
+  await truncate(
+    path.join(reportsDir, committedSidecarFilename(oversizedId)),
+    SERVER_STORED_PROVENANCE_SIDECAR_MAX_BYTES + 1
+  );
+  const oversized = await readStaticReportBundle(reportsDir, oversizedId);
+  assert.equal(oversized.outcome, "unreadable");
+  if (oversized.outcome === "unreadable") assert.equal(oversized.reason, "invalid-sidecar-json");
+
+  const duplicateId = "20260701-" + "4".repeat(32);
+  await writeManagedReport(duplicateId);
+  const sidecarPath = path.join(reportsDir, committedSidecarFilename(duplicateId));
+  const sidecar = JSON.parse(await readFile(sidecarPath, "utf8")) as Record<string, unknown>;
+  const duplicate = JSON.stringify(sidecar).replace(
+    '"publicDigest":',
+    '"audit":{"nested":1,"n\\u0065sted":2},"publicDigest":'
+  );
+  await writeFile(sidecarPath, `${duplicate}\n`);
+  const read = await readStaticReportBundle(reportsDir, duplicateId);
+  assert.equal(read.outcome, "unreadable");
+  if (read.outcome === "unreadable") assert.equal(read.reason, "invalid-sidecar-json");
+});
+
+test("static managed reads reject report and sidecar symlinks without following them", async () => {
+  const reportId = "20260701-" + "5".repeat(32);
+  const reportTarget = path.join(rootDir, "outside-report.json");
+  await writeFile(reportTarget, `${JSON.stringify(redactScanReportV1(makeScanReportV1()).report)}\n`);
+  await symlink(reportTarget, path.join(reportsDir, `${reportId}.json`));
+  const reportRead = await readStaticReportBundle(reportsDir, reportId);
+  assert.equal(reportRead.outcome, "unreadable");
+  if (reportRead.outcome === "unreadable") assert.equal(reportRead.reason, "invalid-report-json");
+  await assert.rejects(() => listStaticReportIds(rootDir), /invalid-report-json/);
+  await rm(path.join(reportsDir, `${reportId}.json`));
+
+  const sidecarId = "20260701-" + "6".repeat(32);
+  await writeManagedReport(sidecarId);
+  const sidecarPath = path.join(reportsDir, committedSidecarFilename(sidecarId));
+  const sidecarTarget = path.join(rootDir, "outside-sidecar.json");
+  await writeFile(sidecarTarget, await readFile(sidecarPath));
+  await rm(sidecarPath);
+  await symlink(sidecarTarget, sidecarPath);
+  const sidecarRead = await readStaticReportBundle(reportsDir, sidecarId);
+  assert.equal(sidecarRead.outcome, "unreadable");
+  if (sidecarRead.outcome === "unreadable") assert.equal(sidecarRead.reason, "invalid-sidecar-json");
+  await assert.rejects(() => listStaticReportIds(rootDir), /invalid-sidecar-json/);
 });
 
 test("bundle removal deletes and verifies both the sidecar and report", async () => {

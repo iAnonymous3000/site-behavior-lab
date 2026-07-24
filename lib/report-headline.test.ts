@@ -1,9 +1,13 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { createConsentComparisonReport, createGpcComparisonReport, createShieldsComparisonReport } from "./compare-reports";
+import { GPC_WORKER_CAPTURE_LOSS_WARNING } from "./gpc-injection";
 import { displayableScreenshot } from "./report-insights";
 import { buildReportHeadline, reportPageTitle } from "./report-headline";
-import { makeConsentInterventionReportV2R2 } from "./scan-report-v2-r2-fixtures";
+import { INVALID_UPSTREAM_RESPONSE_WARNING } from "./scan-runtime";
+import { evaluateQuality } from "./scan-report-v2-evaluators";
+import { R2_NAVIGATION_STATUS_UNREPRESENTABLE } from "./scan-report-v2-http-status";
+import { makeConsentInterventionReportV2R2, makePublicSingleReportV2R2 } from "./scan-report-v2-r2-fixtures";
 import { viewFromV1Report, viewFromV2 } from "./scan-report-views";
 import {
   SCAN_REPORT_SCHEMA_VERSION,
@@ -14,11 +18,11 @@ import {
 } from "./types";
 
 test("only inline data-URI screenshots are displayable; uploaded URLs never render", () => {
-  assert.equal(
-    displayableScreenshot("data:image/jpeg;base64,AAAA"),
-    "data:image/jpeg;base64,AAAA"
-  );
-  assert.equal(displayableScreenshot("data:image/png;base64,iVBORw0KGgo="), "data:image/png;base64,iVBORw0KGgo=");
+  const png =
+    "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=";
+  assert.equal(displayableScreenshot(png), png);
+  assert.equal(displayableScreenshot("data:image/jpeg;base64,AAAA"), null);
+  assert.equal(displayableScreenshot("data:image/png;base64,iVBORw0KGgo="), null);
   // An uploaded report's screenshot field must never drive a network request
   // or execute anything in the viewer's browser.
   assert.equal(displayableScreenshot("https://attacker.example/beacon.png"), null);
@@ -319,6 +323,34 @@ test("comparison framings are refused when an arm failed, is capped, or mismatch
   };
   const consentHeadline = buildReportHeadline(viewFromV1Report(consentPair(acceptRun, strayRejectRun)));
   assert.doesNotMatch(consentHeadline.headline, /Reject-all visit/);
+});
+
+test("request capture loss cannot produce a comparative GPC headline", () => {
+  const captureLossWarnings = [
+    GPC_WORKER_CAPTURE_LOSS_WARNING,
+    INVALID_UPSTREAM_RESPONSE_WARNING,
+    "The scan stopped opening additional proxy requests after reaching its connection and target safety budget."
+  ];
+
+  for (const warning of captureLossWarnings) {
+    const baseline = makeResult({
+      firstPartyDomain: "shop.example",
+      domains: [makeTrackerDomain("ads.example", 100, "AdCo", "advertising")],
+      thirdPartyRequests: 100,
+      thirdPartyDomains: 10
+    });
+    const incompleteVariant = makeResult({
+      firstPartyDomain: "shop.example",
+      thirdPartyRequests: 0,
+      thirdPartyDomains: 0
+    });
+    incompleteVariant.warnings = [warning];
+
+    const headline = buildReportHeadline(viewFromV1Report(gpcPair(baseline, incompleteVariant)));
+    assert.doesNotMatch(headline.headline, /privacy signal/, warning);
+    assert.doesNotMatch(headline.subhead, /100% lower|100 → 0|versus 100 in the visit without the signal/, warning);
+    assert.equal(headline.focusArm, undefined, warning);
+  }
 });
 
 test("listener detections whose origins are same-site per the request log claim nothing", () => {
@@ -675,6 +707,29 @@ test("a server-error load with zero requests does not read as private", () => {
   assert.equal(headline.tone, "info");
   assert.match(headline.subhead, /HTTP 503/);
   assert.doesNotMatch(headline.headline, /relatively private/);
+});
+
+test("a failed r2 navigation with an unrepresentable status cannot produce a positive headline", () => {
+  const report = makePublicSingleReportV2R2();
+  report.run.qualityFacts.status = null;
+  report.run.summary.status = null;
+  report.run.qualityFacts.captureLoss.push({
+    family: "requests",
+    phaseId: null,
+    kind: "dropped",
+    count: 1,
+    detail: R2_NAVIGATION_STATUS_UNREPRESENTABLE
+  });
+  report.run.quality = evaluateQuality(report.run.qualityFacts, { observedRequests: report.run.evidence.requests.length });
+
+  const headline = buildReportHeadline(viewFromV2(report, 2));
+  assert.equal(headline.tone, "info");
+  assert.match(headline.headline, /main page did not complete a trustworthy load/);
+  assert.match(headline.subhead, /outside this frozen report format's representable range/);
+  assert.match(headline.subhead, /withheld the exact code instead of coercing it/);
+  assert.match(headline.subhead, /not a positive privacy result/);
+  assert.doesNotMatch(`${headline.headline} ${headline.subhead}`, /relatively private|HTTP \d{3}/);
+  assert.deepEqual(headline.stats, [{ label: "Navigation", value: "Failed", emphasis: true }]);
 });
 
 test("a null status (e.g. PageGraph import) is not treated as a failed load", () => {

@@ -44,7 +44,7 @@ test("phase presentation joins sparse counts without turning excluded traffic in
   );
   assert.equal(model?.phases[2].requestCounts, null);
   assert.equal(model?.phases[3].requestCounts, null);
-  assert.equal(visitPhaseSpanLabel(model!.phases[1]), "2,000–3,000 ms (1,000 ms)");
+  assert.equal(visitPhaseSpanLabel(model!.phases[1]), "2,000 to 3,000 ms (1,000 ms)");
 });
 
 test("mutation rows use boundary-truthful copy and never expose unreviewed names", () => {

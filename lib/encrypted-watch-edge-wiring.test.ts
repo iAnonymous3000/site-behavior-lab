@@ -1,12 +1,17 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
-  encryptedWatchIngressIsTokenGated,
+  encryptedWatchAccessTokenIsIsolated,
+  encryptedWatchAccessTokenMatches,
   encryptedWatchPayloadFromPreparation,
   isEncryptedWatchCreationBody,
   parseEncryptedWatchPublicPath
 } from "./encrypted-watch-edge-wiring";
+import { ENCRYPTED_WATCH_ACCESS_TOKEN_HEADER } from "./encrypted-watch-contract";
 import type { DurableScanJobPreparation } from "./durable-scan-job-contract";
+import { publicScanGateStatus } from "./edge-scan-gate";
+
+const WATCH_ACCESS_TOKEN = "watch-only-operator-token-0123456789abcdef";
 
 const PREPARATION: DurableScanJobPreparation = {
   submission: {
@@ -42,21 +47,34 @@ test("watch routes distinguish the collection, valid opaque IDs, and uniformly-i
   assert.equal(parseEncryptedWatchPublicPath("/api/watch"), null);
 });
 
-test("watch readiness requires the authenticated gate and rejects open public ingress", () => {
-  assert.equal(encryptedWatchIngressIsTokenGated({ accessToken: "operator-token" }), true);
+test("public self-service and an optional watch second factor both coexist with open Turnstile ingress", async () => {
+  assert.deepEqual(
+    publicScanGateStatus({ allowUnauthenticated: "1", turnstileSecret: "turnstile-secret" }),
+    { authenticated: false, openAccess: true, turnstile: true }
+  );
+  assert.equal(encryptedWatchAccessTokenIsIsolated(WATCH_ACCESS_TOKEN), true);
   assert.equal(
-    encryptedWatchIngressIsTokenGated({
-      accessToken: " operator-token ",
-      allowUnauthenticated: "1",
-      turnstileSecret: "turnstile-secret"
-    }),
+    await encryptedWatchAccessTokenMatches(
+      new Headers({ [ENCRYPTED_WATCH_ACCESS_TOKEN_HEADER]: WATCH_ACCESS_TOKEN }),
+      WATCH_ACCESS_TOKEN
+    ),
     true
   );
+});
+
+test("watch authorization rejects absent, malformed, wrong, or aliased endpoint credentials", async () => {
+  assert.equal(await encryptedWatchAccessTokenMatches(new Headers(), WATCH_ACCESS_TOKEN), false);
   assert.equal(
-    encryptedWatchIngressIsTokenGated({ allowUnauthenticated: "1", turnstileSecret: "turnstile-secret" }),
+    await encryptedWatchAccessTokenMatches(
+      new Headers({ [ENCRYPTED_WATCH_ACCESS_TOKEN_HEADER]: "wrong-watch-token-0123456789abcdef" }),
+      WATCH_ACCESS_TOKEN
+    ),
     false
   );
-  assert.equal(encryptedWatchIngressIsTokenGated({}), false);
+  assert.equal(encryptedWatchAccessTokenIsIsolated("short"), false);
+  assert.equal(encryptedWatchAccessTokenIsIsolated(`${WATCH_ACCESS_TOKEN}\n`), false);
+  assert.equal(encryptedWatchAccessTokenIsIsolated(WATCH_ACCESS_TOKEN, [WATCH_ACCESS_TOKEN]), false);
+  assert.equal(encryptedWatchAccessTokenIsIsolated(` ${WATCH_ACCESS_TOKEN} `, [` ${WATCH_ACCESS_TOKEN}`]), false);
 });
 
 test("watch creation accepts only the fixed single-mode public body", () => {

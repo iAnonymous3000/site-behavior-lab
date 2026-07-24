@@ -1,6 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useMemo, useState, type FormEvent } from "react";
 import { normalizeDirectorySearchQuery } from "@/lib/directory-search";
 import styles from "./directory.module.css";
@@ -9,8 +8,8 @@ type SearchSite = { domain: string; path: string; category: string; categoryPath
 type CategoryOption = { id: string; label: string; path: string; siteCount: number };
 
 export function DirectoryControls({ sites, categories }: { sites: SearchSite[]; categories: CategoryOption[] }) {
-  const router = useRouter();
   const [query, setQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
   const normalizedQuery = normalizeDirectorySearchQuery(query);
   const matches = useMemo(
     () => normalizedQuery ? sites.filter((site) => site.domain.includes(normalizedQuery)).slice(0, 8) : [],
@@ -24,6 +23,11 @@ export function DirectoryControls({ sites, categories }: { sites: SearchSite[]; 
     if (destination) window.location.assign(destination.path);
   }
 
+  function openSelectedCategory(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (selectedCategory) window.location.assign(selectedCategory);
+  }
+
   return (
     <section className={styles.controls} aria-label="Find a scanned site">
       <form className={styles.searchForm} onSubmit={openFirstMatch}>
@@ -31,6 +35,7 @@ export function DirectoryControls({ sites, categories }: { sites: SearchSite[]; 
         <div>
           <input
             autoComplete="off"
+            aria-describedby="directory-search-status"
             id="directory-search"
             inputMode="url"
             onChange={(event) => setQuery(event.target.value)}
@@ -41,7 +46,7 @@ export function DirectoryControls({ sites, categories }: { sites: SearchSite[]; 
           />
           <button disabled={matches.length === 0} type="submit">Open profile</button>
         </div>
-        <p aria-live="polite">
+        <p aria-live="polite" id="directory-search-status" role="status">
           {normalizedQuery && matches.length === 0 ? "No matching published site profile." : "Searches canonical domains across every directory page."}
         </p>
         {matches.length > 0 && (
@@ -55,24 +60,25 @@ export function DirectoryControls({ sites, categories }: { sites: SearchSite[]; 
           </ul>
         )}
       </form>
-      <div className={styles.categoryControl}>
+      <form className={`${styles.categoryControl} ${styles.searchForm}`} onSubmit={openSelectedCategory}>
         <label htmlFor="directory-category">Browse a category</label>
-        <select
-          defaultValue=""
-          id="directory-category"
-          onChange={(event) => {
-            if (event.target.value) router.push(event.target.value);
-          }}
-        >
-          <option value="">Choose a category</option>
-          {categories.map((category) => (
-            <option key={category.id} value={category.path}>
-              {category.label} ({category.siteCount})
-            </option>
-          ))}
-        </select>
+        <div>
+          <select
+            id="directory-category"
+            onChange={(event) => setSelectedCategory(event.target.value)}
+            value={selectedCategory}
+          >
+            <option value="">Choose a category</option>
+            {categories.map((category) => (
+              <option key={category.id} value={category.path}>
+                {category.label} ({category.siteCount})
+              </option>
+            ))}
+          </select>
+          <button disabled={!selectedCategory} type="submit">Browse category</button>
+        </div>
         <p>Aggregate pages appear only after the evidence-quality sample floor is met.</p>
-      </div>
+      </form>
     </section>
   );
 }

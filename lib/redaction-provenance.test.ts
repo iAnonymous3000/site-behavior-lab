@@ -7,6 +7,7 @@ import {
   committedSidecarFilename,
   isProvenanceEntry,
   matchProvenance,
+  matchProvenanceAtVersion,
   r2SidecarKey
 } from "./redaction-provenance";
 
@@ -38,6 +39,12 @@ test("a matching sidecar vouches for the exact public bytes", () => {
   const reparsed = JSON.parse(JSON.stringify(REPORT, null, 2));
   const match = matchProvenance(reparsed, entry, REPORT_ID);
   assert.equal(match.status, "matched");
+});
+
+test("an explicit migration boundary can verify the prior redaction version without weakening current reads", () => {
+  const previous = { ...entryFor(REPORT), redactionVersion: REDACTION_VERSION - 1 };
+  assert.equal(matchProvenance(REPORT, previous, REPORT_ID).status, "unknown");
+  assert.equal(matchProvenanceAtVersion(REPORT, previous, REPORT_ID, REDACTION_VERSION - 1).status, "matched");
 });
 
 test("any modification after the sidecar was written is a digest mismatch", () => {

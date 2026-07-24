@@ -11,12 +11,12 @@ import {
   buildRuntimeComparisonScanReportV2R2,
   buildRuntimeScanReportV2R2
 } from "./scan-report-v2-runtime-builder";
-import type { ScanResult } from "./types";
+import type { NodeScanMeasurementEnvelope } from "./node-scan-measurement";
 
 /**
  * Kernel step 4: CONTROLLED r2 emission. With the shadow flag on, a successful
  * single scan writes one single report and a successful comparison writes one
- * complete pair report from the visits' staged phase-aware facts. The stored
+ * complete pair report from the visits' explicit phase-aware envelopes. The stored
  * wire is screenshot-free and builder-redacted. Shadow emission is independent
  * of public report selection: gate-off scans remain v1, while gate-on scans may
  * publish r2 and still write a separate shadow artifact. A failed shadow build
@@ -27,13 +27,19 @@ export { V2_SHADOW_DIR_ENV, V2_SHADOW_EMISSION_ENV, v2ShadowEmissionEnabled };
 
 export type ShadowEmissionOutcome =
   | { status: "disabled" }
-  | { status: "skipped"; reason: "no-staged-measurement" | "build-provenance-missing" }
+  | {
+      status: "skipped";
+      reason: "measurement-envelope-missing" | "measurement-envelope-inconsistent" | "build-provenance-missing";
+    }
   | ({ status: "written"; runId: string } & V2ShadowWriteReceipt)
   | { status: "failed"; message: string };
 
 export type ShadowComparisonEmissionOutcome =
   | { status: "disabled" }
-  | { status: "skipped"; reason: "no-staged-measurement" | "build-provenance-missing" }
+  | {
+      status: "skipped";
+      reason: "measurement-envelope-missing" | "measurement-envelope-inconsistent" | "build-provenance-missing";
+    }
   | ({ status: "written"; pairId: string; baselineRunId: string; variantRunId: string } & V2ShadowWriteReceipt)
   | { status: "failed"; message: string };
 
@@ -44,14 +50,14 @@ export type ShadowComparisonEmissionOutcome =
  * be affected by shadow-emission readiness gaps.
  */
 export async function emitShadowScanReportV2R2(
-  result: ScanResult,
+  envelope: NodeScanMeasurementEnvelope,
   acquisition: AcquisitionKind,
   env: NodeJS.ProcessEnv = process.env
 ): Promise<ShadowEmissionOutcome> {
   if (!v2ShadowEmissionEnabled(env)) return { status: "disabled" };
   let runId = "unassigned";
   try {
-    const report = buildRuntimeScanReportV2R2(result, acquisition, env);
+    const report = buildRuntimeScanReportV2R2(envelope, acquisition, env);
     runId = report.run.runId;
     const buildCommit = report.run.provenance.buildCommit;
     const receipt = await writeV2ShadowArtifact(report, env);
@@ -81,8 +87,8 @@ export async function emitShadowScanReportV2R2(
  * never written.
  */
 export async function emitShadowComparisonScanReportV2R2(
-  baselineResult: ScanResult,
-  variantResult: ScanResult,
+  baselineEnvelope: NodeScanMeasurementEnvelope,
+  variantEnvelope: NodeScanMeasurementEnvelope,
   executedFirst: "baseline" | "variant",
   acquisition: AcquisitionKind,
   env: NodeJS.ProcessEnv = process.env
@@ -91,8 +97,8 @@ export async function emitShadowComparisonScanReportV2R2(
   let pairId = "unassigned";
   try {
     const report = buildRuntimeComparisonScanReportV2R2(
-      baselineResult,
-      variantResult,
+      baselineEnvelope,
+      variantEnvelope,
       executedFirst,
       acquisition,
       env

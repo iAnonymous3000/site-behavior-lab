@@ -468,6 +468,26 @@ saved-report page). Remaining after this slice: the UI polish slice, then
 exports migration details and v2 production emission with corpus
 regeneration.
 
+## Native r2 temporal history (2026-07-21)
+
+DONE. The gallery's residual v1-only temporal gate described above is now
+closed for revision 2. Archive selections and uploaded single reports build a
+real v2/r2 temporal wire report: chronology comes from the recorded run
+timestamps, comparability and every metric-family diff are recomputed with the
+r2 evaluator, and the derived report passes the r2 semantic evaluator before
+it reaches the renderer or JSON/CSV export. V1-to-v1 remains descriptive;
+mixed v1/v2 pairs and v2 revision 1 pairs refuse explicitly rather than being
+cast across recording contracts.
+
+The manifest/profile history identity is also r2-native. It requires a
+successful, request-complete run with known environment dimensions and pins
+the condition vector, methodology, observer, normalization, and
+tracker-catalog digest. It intentionally omits build commit and unrelated
+detector/adblock versions because the tracker-classification family does not
+read them. The loaded pair is always evaluated again, so an archive key is a
+candidate grouping rather than permission to quote an otherwise ineligible
+delta.
+
 ## UI polish slice (2026-07-11): the round-8/round-10 accessibility items
 
 DONE except one recorded residual. Landed, browser-verified on the capped
@@ -690,14 +710,18 @@ Steps 2 through 5 of the user-sequenced measurement kernel rollout landed:
   calm drop) deliberately declare no focus arm.
 
 Operator-side status rechecked on 2026-07-13: the R2 bucket has enabled
-lifecycles for `reports/` after 7 days and `v2-shadow/` after 1 day; Pages uses
-the `production` branch with previews disabled; the scanner build also uses
-`production` with non-production builds disabled; and Cloudflare Insights is
-disabled with no live beacon, matching the privacy disclosure. Still pending
-  outside the repo are container-observability retention/query verification,
-  WAF ceiling verification, and a scoped synthetic R2 write/read/delete monitor;
-  health currently proves storage configuration only. The scheduled Brave-list
-  refresh rerun succeeded.
+lifecycles for `reports/` after 7 days and `v2-shadow/` after 1 day, and
+Cloudflare Insights is disabled with no live beacon, matching the privacy
+disclosure. A newer 2026-07-21 deployment recheck supersedes the old preview
+note: Pages and the scanner both use `production`; scanner non-production
+builds are disabled, while Pages automatic preview deployments are enabled and
+public by default rather than Access-restricted. That recheck also verified the
+POST `/api/scan` WAF ceiling at ten requests per ten seconds per IP with a
+ten-second block and queryable Worker logs over the configured seven-day range
+with report URLs redacted. Those controls require fresh release receipts. Still
+pending outside the repo are the separately implemented R2 delete-canary
+activation and a platform-compatible independent egress backstop; health alone
+does not prove them. The scheduled Brave-list refresh rerun succeeded.
 Chromium sandbox is opt-in via SITE_BEHAVIOR_LAB_CHROMIUM_SANDBOX=1 after a
 verified deployed scan.
 

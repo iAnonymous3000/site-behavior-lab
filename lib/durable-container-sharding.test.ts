@@ -218,7 +218,10 @@ test("all job-scoped execution calls share one server-owned resolver and quotas 
     source.indexOf("function forwardToContainer"),
     source.indexOf("function frontDoorOrigin")
   );
-  assert.match(forwarder, /return getContainer\(env\.SCANNER\)\.fetch/);
+  assert.match(
+    forwarder,
+    /return await forwardContainerResponseWithinDeadline\([\s\S]*getContainer\(env\.SCANNER\)\.fetch\([\s\S]*new Request\(request, \{ headers, signal \}\)/
+  );
   assert.doesNotMatch(forwarder, /containerName|selectDurableContainerShard/);
 
   const production = await readFile(path.join(process.cwd(), "wrangler.container.jsonc"), "utf8");

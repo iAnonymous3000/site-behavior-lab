@@ -1,11 +1,12 @@
 import path from "node:path";
 import { readCorrectionsLedgerReportIds } from "./corrections-ledger";
+import { acquireReportCorpusLock } from "./report-corpus-lock";
 import { displayRunView, toReportView, type ReportView } from "./scan-report-view";
 import {
   listDanglingStaticSidecarIds,
   listStaticReportCandidateIds,
   readStaticReportBundle,
-  removeStaticReportBundle
+  removeStaticReportBundleUnderLock
 } from "./static-report-files";
 import { temporalPairingKey } from "./temporal-deltas";
 import { consentClicksForView, temporalCohortForStoredReport } from "./temporal-report-identity";
@@ -62,18 +63,24 @@ export async function pruneStaticReportsWithCorrections(
   options: Omit<PruneOptions, "pinnedReportIds">
 ): Promise<PruneResult> {
   const pinnedReportIds = await readCorrectionsLedgerReportIds(correctionsLedgerPath);
-  // A ledger reference is a promise that the immutable static bundle exists.
-  // Verify every promise before retention can remove any unrelated report.
-  for (const reportId of pinnedReportIds) {
-    const read = await readStaticReportBundle(reportsDir, reportId);
-    if (read.outcome !== "found") {
-      const reason = read.outcome === "not-found" ? "missing-report" : read.reason;
-      throw new Error(
-        `Correction-linked report ${reportId} is not a valid committed static report bundle (${reason}); pruning aborted.`
-      );
+  const lock = await acquireReportCorpusLock(reportsDir, "prune-static-reports");
+  try {
+    // A ledger reference is a promise that the immutable static bundle exists.
+    // Verify every promise while holding the same lock used for discovery and
+    // deletion, so a broken pin cannot race an unrelated partial prune.
+    for (const reportId of pinnedReportIds) {
+      const read = await readStaticReportBundle(reportsDir, reportId);
+      if (read.outcome !== "found") {
+        const reason = read.outcome === "not-found" ? "missing-report" : read.reason;
+        throw new Error(
+          `Correction-linked report ${reportId} is not a valid committed static report bundle (${reason}); pruning aborted.`
+        );
+      }
     }
+    return pruneStaticReportsUnderLock(reportsDir, { ...options, pinnedReportIds });
+  } finally {
+    await lock.release();
   }
-  return pruneStaticReports(reportsDir, { ...options, pinnedReportIds });
 }
 
 type ReportRecord = {
@@ -87,6 +94,15 @@ type ReportRecord = {
 };
 
 export async function pruneStaticReports(reportsDir: string, options: PruneOptions): Promise<PruneResult> {
+  const lock = await acquireReportCorpusLock(reportsDir, "prune-static-reports");
+  try {
+    return await pruneStaticReportsUnderLock(reportsDir, options);
+  } finally {
+    await lock.release();
+  }
+}
+
+async function pruneStaticReportsUnderLock(reportsDir: string, options: PruneOptions): Promise<PruneResult> {
   const { records, warnings } = await readReportRecords(reportsDir);
   const now = options.now ?? Date.now();
 
@@ -121,13 +137,14 @@ export async function pruneStaticReports(reportsDir: string, options: PruneOptio
     );
   }
 
-  await Promise.all(
-    [...removePaths].map(async (filePath) => {
-      const record = records.find((candidate) => candidate.path === filePath);
-      if (!record) throw new Error(`Missing static report record for ${filePath}`);
-      await removeStaticReportBundle(reportsDir, record.id);
-    })
-  );
+  // Deletions are intentionally serial while one corpus-wide lease is held.
+  // Parallel per-pair leases race each other and can leave a partially pruned
+  // corpus; serial deletion also gives deterministic failure ordering.
+  for (const filePath of [...removePaths].sort()) {
+    const record = records.find((candidate) => candidate.path === filePath);
+    if (!record) throw new Error(`Missing static report record for ${filePath}`);
+    await removeStaticReportBundleUnderLock(reportsDir, record.id);
+  }
   return { removed: [...removePaths].sort(), warnings };
 }
 

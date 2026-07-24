@@ -4,8 +4,11 @@ import {
 } from "./comparison-decision";
 import { runRequestEvidenceCapped } from "./comparison-eligibility";
 import { safeNavigableHttpUrl, safeParseUrl } from "./report-url";
+import { canonicalJson } from "./scan-report-v2-fingerprints";
+import type { ScanRunV2R2 } from "./scan-report-v2-r2";
 import type { StoredScanReport } from "./scan-report-reader";
 import { comparisonArmViews, displayRunView, type ReportView } from "./scan-report-view";
+import { sha256Hex } from "./sha256";
 
 /** Consent interaction state that must remain fixed across automatic history. */
 export type ConsentClicks = "accept-and-reject" | "accept-only" | "reject-only" | "none";
@@ -60,18 +63,40 @@ export function temporalCohortForStoredReport(stored: StoredScanReport, view: Re
 /**
  * Relaxed, versioned cohort for descriptive passive history comparisons.
  *
- * Only successful, uncapped v1 visits with complete classification-engine
- * provenance can enter this cohort. The underlying fingerprint holds every
- * strict temporal dimension constant except the Brave-list snapshot date.
- * v2 stays absent until its recorded fingerprints expose an equally narrow
- * family-specific history identity.
+ * Only visits that can support at least the tracker-classification family
+ * enter this cohort. V1 keeps its reviewed compatibility fingerprint. R2
+ * uses a family-specific identity matching the r2 evaluator's requirements:
+ * condition vector, execution environment, methodology/observer,
+ * normalization, and tracker-catalog digest. Build commits and unrelated
+ * detector/adblock versions may drift because the tracker-classification
+ * evaluator does not read them; every loaded pair is still re-evaluated.
  */
 export function comparisonHistoryCohortForStoredReport(
   stored: StoredScanReport,
   view: ReportView
 ): string | null {
-  if (stored.schemaVersion !== 1) return null;
   const run = displayRunView(view);
+  if (stored.schemaVersion === 2) {
+    if (stored.schemaRevision !== 2) return null;
+    if (
+      !knownPublicHistorySubject(run.conditions.requestedUrl) ||
+      !knownPublicHistorySubject(run.conditions.finalUrl)
+    ) {
+      return null;
+    }
+    const sourceRun = r2DisplayRun(stored);
+    if (!r2TrackerHistoryEligible(sourceRun)) return null;
+    return `v2-r2-comparison-history:tracker-classification:${sha256Hex(
+      canonicalJson({
+        condition: sourceRun.fingerprints.condition,
+        methodologyVersion: sourceRun.provenance.methodologyVersion,
+        observer: sourceRun.provenance.observer,
+        normalizationVersion: sourceRun.toolchain.normalizationVersion,
+        trackerCatalogDigest: sourceRun.toolchain.trackerCatalog.digest
+      })
+    )}`;
+  }
+
   if (!safeNavigableHttpUrl(run.conditions.requestedUrl) || !knownPublicHistorySubject(run.conditions.finalUrl)) {
     return null;
   }
@@ -83,6 +108,37 @@ export function comparisonHistoryCohortForStoredReport(
   }
   const cohort = legacyComparisonHistoryCohortFingerprint(sourceRun);
   return cohort ? `v1-comparison-history:${cohort}` : null;
+}
+
+function r2DisplayRun(stored: Extract<StoredScanReport, { schemaVersion: 2; schemaRevision: 2 }>): ScanRunV2R2 {
+  const report = stored.report;
+  if (report.reportType === "single") return report.run;
+  return report.experiment.kind === "temporal" ? report.variant : report.baseline;
+}
+
+function r2TrackerHistoryEligible(run: ScanRunV2R2): boolean {
+  if (run.quality.run.outcome !== "complete" || run.quality.byFamily.requests.outcome !== "complete") {
+    return false;
+  }
+  const requiredDimensions = [
+    run.conditions.browser.name,
+    run.conditions.browser.version,
+    run.conditions.locale,
+    run.conditions.language,
+    run.conditions.timezone,
+    run.conditions.egress.label,
+    run.conditions.egress.region,
+    run.conditions.automation,
+    run.provenance.methodologyVersion,
+    run.provenance.observer,
+    run.toolchain.normalizationVersion,
+    run.toolchain.trackerCatalog.digest
+  ];
+  return requiredDimensions.every(knownR2HistoryDimension);
+}
+
+function knownR2HistoryDimension(value: string | undefined): value is string {
+  return typeof value === "string" && value.length > 0 && value.toLowerCase() !== "unknown";
 }
 
 /**

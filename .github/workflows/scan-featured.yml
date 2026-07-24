@@ -52,31 +52,28 @@ on:
           - desktop
           - mobile
       report_mode:
-        description: Report contract (r2 requires controlled self-hosted egress)
+        description: Report contract (v1 is a manual compatibility lane only)
         required: true
-        default: v1
+        default: r2
         type: choice
         options:
-          - v1
           - r2
+          - v1
   repository_dispatch:
     types:
       - site-behavior-featured-scan
   schedule:
-    # Weekly corpus refresh (Mondays 05:23 UTC). Scheduled runs use the input
-    # defaults: Shields comparisons over the featured catalog, committed to the
-    # default branch, which publishes via the Pages build. Each site's newest
-    # generations are exempt from age pruning (scripts/prune-static-reports.mjs),
-    # so the refresh feeds the directory's "changed since last scan" view instead
-    # of replacing the corpus.
+    # Weekly corpus refresh (Mondays 05:23 UTC). Scheduled runs use Shields
+    # comparisons over the featured catalog, committed to the default branch,
+    # which publishes via the Pages build. They produce r2 on the controlled
+    # runner once it is configured, and a loudly disclosed frozen v1 fallback
+    # until then. Each site's newest generations are exempt from age pruning
+    # (scripts/prune-static-reports.mjs), so the refresh feeds the directory's
+    # "changed since last scan" view instead of replacing the corpus.
     - cron: "23 5 * * 1"
 
 permissions:
-  contents: write
-  # Lets the post-push step dispatch CI (see 'Trigger CI on the pushed commit').
-  actions: write
-  # The authoritative full refresh reconciles one canonical failure issue.
-  issues: write
+  contents: read
 
 # Shared with scan.yml and update-brave-lists.yml: one writer at a time per ref.
 concurrency:
@@ -86,6 +83,9 @@ concurrency:
 env:
   CI: "1"
   NEXT_TELEMETRY_DISABLED: "1"
+  # Committed-report acquisition is forbidden from launching Chromium without
+  # its namespace/seccomp sandbox. Preflight and runtime health both assert it.
+  SITE_BEHAVIOR_LAB_CHROMIUM_SANDBOX: "1"
   # Internal scanner builds still render canonical metadata. Keep the build
   # fail-closed on the same public origin as CI and the deployed Pages site.
   NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SITE_URL: "https://sitebehavior.org"
@@ -98,33 +98,47 @@ env:
   FEATURED_COMPARE_SHIELDS: ${{ github.event.inputs.compare_shields || github.event.client_payload.compare_shields || 'true' }}
   FEATURED_COMPARE_CONSENT: ${{ github.event.inputs.compare_consent || github.event.client_payload.compare_consent || 'false' }}
   FEATURED_DEVICE: ${{ github.event.inputs.device || github.event.client_payload.device || 'desktop' }}
-  # Scheduled runs remain on frozen v1 until a controlled runner is configured.
-  # GitHub-hosted refreshes remain v1. The r2 gate requires operator-attested
-  # self-hosted egress with a stable region, so the default Shields comparison
-  # never invents placement or weakens comparison eligibility.
-  FEATURED_REPORT_MODE: ${{ github.event.inputs.report_mode || github.event.client_payload.report_mode || vars.FEATURED_REPORT_MODE || 'v1' }}
+  # Scheduled and repository-dispatch corpus production is r2 the moment the
+  # operator configures the controlled runner label. Until then, automated runs
+  # fall back to the production-proven frozen v1 lane WITH a loud preflight
+  # warning (never silently): the weekly refresh must not fail every Monday
+  # against infrastructure that does not exist yet. A human workflow_dispatch
+  # can still explicitly select frozen v1 for compatibility testing.
+  FEATURED_REPORT_MODE: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.report_mode || (vars.FEATURED_RUNNER_LABEL && 'r2' || 'v1') }}
+  # Lets the preflight distinguish "operator chose r2 but the runner label is
+  # missing" (fail closed) from "the controlled runner is not provisioned yet"
+  # (disclosed v1 fallback).
+  FEATURED_CONTROLLED_RUNNER_CONFIGURED: ${{ vars.FEATURED_RUNNER_LABEL && '1' || '' }}
   FEATURED_R2_EGRESS_ATTESTED: ${{ vars.FEATURED_R2_EGRESS_ATTESTED || '' }}
   # This adjustable gate measures success among currently eligible sites.
   # Operators can raise it, but never lower its 80% floor. A separate fixed,
   # non-overridable gate in the orchestrator also requires at least 80% of the
   # whole featured catalog and at least 50 sites to remain eligible.
   FEATURED_MIN_SUCCESS_RATE: ${{ vars.FEATURED_MIN_SUCCESS_RATE || '0.8' }}
-  # Disclose that the corpus was scanned from CI (GitHub-hosted runner egress).
-  # Override with a repo Actions variable named SCANNER_EGRESS if you scan elsewhere.
+  # The GitHub-hosted fallback label makes missing controlled-runner setup fail
+  # explicitly in preflight. r2 requires an operator-supplied truthful label.
   SITE_BEHAVIOR_LAB_SCANNER_EGRESS: ${{ vars.SCANNER_EGRESS || 'github-actions-ubuntu' }}
-  # GitHub-hosted runners have no reliable region metadata and remain v1. An r2
-  # run reaches the scanner only after the preflight verifies the controlled
-  # self-hosted runner's operator-declared stable region.
+  # An r2 run reaches the scanner only after preflight verifies the controlled
+  # self-hosted runner's operator-declared stable region. Manual v1 may omit it.
   SITE_BEHAVIOR_LAB_SCANNER_EGRESS_REGION: ${{ vars.SCANNER_EGRESS_REGION || '' }}
 
 jobs:
   scan-featured:
     name: Populate Featured Gallery
-    # Keep the zero-configuration path on GitHub-hosted Ubuntu. To activate r2
-    # comparisons, point FEATURED_RUNNER_LABEL at a controlled self-hosted
-    # runner, configure SCANNER_EGRESS + SCANNER_EGRESS_REGION, then set the
-    # explicit egress-attestation variable checked below.
-    runs-on: ${{ vars.FEATURED_RUNNER_LABEL || 'ubuntu-latest' }}
+    permissions:
+      contents: read
+    outputs:
+      publication_artifact_id: ${{ steps.publication_artifact.outputs.artifact-id }}
+      publication_artifact_digest: ${{ steps.publication_artifact.outputs.artifact-digest }}
+      publishable: ${{ steps.refresh_policy.outputs.publishable }}
+      healthy: ${{ steps.refresh_policy.outputs.healthy }}
+      public_summary: ${{ steps.refresh_policy.outputs.public_summary }}
+      scan_outcome: ${{ steps.featured_scan.outcome }}
+    # Manual v1 compatibility uses GitHub-hosted Ubuntu. Every r2 producer asks
+    # for the controlled runner label. The ubuntu fallback is intentional: if
+    # the label is absent, the job starts and the preflight fails visibly on
+    # RUNNER_ENVIRONMENT instead of silently publishing v1.
+    runs-on: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.report_mode == 'v1' && 'ubuntu-latest' || vars.FEATURED_RUNNER_LABEL || 'ubuntu-latest' }}
     steps:
       - name: Checkout
         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
@@ -132,8 +146,12 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
-          node-version: 24
-          cache: npm
+          node-version: 24.14.1
+
+      - name: Verify pinned Node and npm
+        run: |
+          test "$(node --version)" = "v24.14.1"
+          test "$(npm --version)" = "11.11.0"
 
       - name: Install dependencies
         run: npm ci
@@ -150,6 +168,16 @@ jobs:
         # Exact HEAD, a clean checkout, consent verification, and truthful
         # comparison egress are checked before Next or Chromium can scan.
         run: node dist/schema/lib/featured-report-preflight-cli.js
+
+      - name: Verify server-owned acquisition provenance
+        run: |
+          node -e '
+            const { runtimeReportAcquisition } = require("./dist/schema/lib/scan-report-acquisition.js");
+            const mode = process.env.FEATURED_REPORT_MODE;
+            const expected = mode === "r2" ? "ci-workflow" : "public-api";
+            const actual = runtimeReportAcquisition(mode);
+            if (actual !== expected) throw new Error(`Report acquisition is ${actual}, expected ${expected}.`);
+          '
 
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
@@ -205,6 +233,7 @@ jobs:
                 expect(health?.ok === true, "health.ok is not true");
                 expect(health?.deployment === expectedSha.toLowerCase(), `deployment is ${health?.deployment ?? "missing"}, expected ${expectedSha}`);
                 expect(health?.scansAvailable === true, "scansAvailable is not true");
+                expect(health?.checks?.chromiumSandbox === "enabled", `Chromium sandbox is ${health?.checks?.chromiumSandbox ?? "missing"}, expected enabled`);
                 const expectedR2Status = mode === "r2" ? "enabled" : "disabled";
                 expect(health?.checks?.publicR2Reports?.status === expectedR2Status, `public r2 status is ${health?.checks?.publicR2Reports?.status ?? "missing"}, expected ${expectedR2Status}`);
                 const expectedRegionStatus = expectedRegion.trim() ? "configured" : "unrecorded";
@@ -243,14 +272,6 @@ jobs:
           FEATURED_SCAN_OUTCOME: ${{ steps.featured_scan.outcome }}
         run: node scripts/run-featured-scans-diagnostics.mjs --classify-publication
 
-      - name: Prune retained static reports
-        # Retention is independent of aggregate batch health. The pruner keeps
-        # each cohort's newest generations and a broad per-site disappearance
-        # guard, so failed targets retain evidence while validated successes do
-        # not make a below-threshold corpus grow without bound.
-        if: steps.refresh_policy.outputs.publishable == 'true'
-        run: npm run reports:prune
-
       - name: Verify report redaction and provenance
         id: report_validation
         if: steps.refresh_policy.outputs.publishable == 'true'
@@ -281,35 +302,162 @@ jobs:
           {
             echo "## Featured scan corpus"
             echo ""
+            echo "- Producer contract: **${FEATURED_REPORT_MODE}**"
             echo "- Listed reports in manifest: **$REPORTS**"
             echo "- Distinct sites in corpus (sampleSize): **$SAMPLE**"
             echo "- Corpus-relative percentile findings activate at 50 distinct sites (CORPUS_MIN_SAMPLE)."
-            echo "- Branch \`${GITHUB_REF_NAME}\`: reports were committed here. Merge an ordinary feature branch to \`main\`; after CI passes, automation alone fast-forwards the protected \`production\` branch and publishes Pages. Never move \`production\` by hand."
+            echo "- Acquisition produced a bounded data artifact. A separate GitHub-hosted publisher must validate it before any report can be committed."
           } >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Upload report artifacts
+      - name: Prepare bounded data-only publication artifact
+        if: >-
+          steps.refresh_policy.outputs.publishable == 'true' &&
+          steps.corpus_stats.outcome == 'success'
+        run: |
+          npm run reports:publication-artifact -- \
+            --prepare \
+            --artifact-dir "$RUNNER_TEMP/report-publication" \
+            --source-commit "$GITHUB_SHA" \
+            --kind featured \
+            --report-mode "$FEATURED_REPORT_MODE"
+
+      - name: Upload bounded data-only publication artifact
+        id: publication_artifact
         if: >-
           steps.refresh_policy.outputs.publishable == 'true' &&
           steps.corpus_stats.outcome == 'success'
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: site-behavior-featured-reports
-          path: |
-            public/reports
-            public/corpus-stats.json
+          name: site-behavior-featured-publication-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/report-publication/
           if-no-files-found: error
+          retention-days: 7
+
+  publish:
+    name: Validate and Publish Featured Reports
+    needs: scan-featured
+    if: >-
+      needs.scan-featured.result == 'success' &&
+      needs.scan-featured.outputs.publication_artifact_id != ''
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      # GITHUB_TOKEN pushes do not recursively trigger CI, so the publisher
+      # explicitly dispatches the required workflow after a successful push.
+      actions: write
+    steps:
+      - name: Checkout exact acquisition source
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+
+      - name: Set up Node
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: 24.14.1
+          cache: npm
+
+      - name: Verify pinned Node and npm
+        run: |
+          test "$(node --version)" = "v24.14.1"
+          test "$(npm --version)" = "11.11.0"
+
+      - name: Install trusted validator dependencies without lifecycle scripts
+        run: npm ci --ignore-scripts
+
+      - name: Build the trusted publication validator once
+        run: |
+          node node_modules/typescript/bin/tsc -p tsconfig.schema.json
+          echo "SITE_BEHAVIOR_LAB_SCHEMA_DIST_READY=1" >> "$GITHUB_ENV"
+
+      - name: Verify immutable artifact identity
+        env:
+          ARTIFACT_ID: ${{ needs.scan-featured.outputs.publication_artifact_id }}
+          ARTIFACT_DIGEST: ${{ needs.scan-featured.outputs.publication_artifact_digest }}
+        run: |
+          [[ "$ARTIFACT_ID" =~ ^[1-9][0-9]*$ ]]
+          [[ "$ARTIFACT_DIGEST" =~ ^sha256:[0-9a-f]{64}$ || "$ARTIFACT_DIGEST" =~ ^[0-9a-f]{64}$ ]]
+
+      - name: Precheck exact raw artifact metadata
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ARTIFACT_ID: ${{ needs.scan-featured.outputs.publication_artifact_id }}
+          ARTIFACT_DIGEST: ${{ needs.scan-featured.outputs.publication_artifact_digest }}
+          ARTIFACT_NAME: site-behavior-featured-publication-${{ github.run_id }}-${{ github.run_attempt }}
+        run: |
+          gh api --method GET \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            -f "name=$ARTIFACT_NAME" \
+            -f per_page=100 \
+            "repos/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/artifacts" \
+            > "$RUNNER_TEMP/report-publication-metadata.json"
+          npm run reports:publication-archive -- \
+            --validate-metadata \
+            --metadata "$RUNNER_TEMP/report-publication-metadata.json" \
+            --artifact-id "$ARTIFACT_ID" \
+            --artifact-name "$ARTIFACT_NAME" \
+            --run-id "$GITHUB_RUN_ID" \
+            --source-commit "$GITHUB_SHA" \
+            --digest "$ARTIFACT_DIGEST"
+
+      - name: Download raw artifact archive by immutable ID
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ARTIFACT_ID: ${{ needs.scan-featured.outputs.publication_artifact_id }}
+        run: |
+          gh api --method GET \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "repos/${GITHUB_REPOSITORY}/actions/artifacts/${ARTIFACT_ID}/zip" \
+            > "$RUNNER_TEMP/report-publication.zip"
+
+      - name: Centrally validate and safely extract raw artifact archive
+        env:
+          ARTIFACT_ID: ${{ needs.scan-featured.outputs.publication_artifact_id }}
+          ARTIFACT_DIGEST: ${{ needs.scan-featured.outputs.publication_artifact_digest }}
+          ARTIFACT_NAME: site-behavior-featured-publication-${{ github.run_id }}-${{ github.run_attempt }}
+        run: |
+          npm run reports:publication-archive -- \
+            --extract \
+            --metadata "$RUNNER_TEMP/report-publication-metadata.json" \
+            --archive "$RUNNER_TEMP/report-publication.zip" \
+            --artifact-dir "$RUNNER_TEMP/report-publication" \
+            --artifact-id "$ARTIFACT_ID" \
+            --artifact-name "$ARTIFACT_NAME" \
+            --run-id "$GITHUB_RUN_ID" \
+            --source-commit "$GITHUB_SHA" \
+            --digest "$ARTIFACT_DIGEST"
+
+      - name: Validate and copy only canonical new report data
+        run: |
+          npm run reports:publication-artifact -- \
+            --publish \
+            --artifact-dir "$RUNNER_TEMP/report-publication" \
+            --source-commit "$GITHUB_SHA" \
+            --kind featured \
+            --report-mode "$FEATURED_REPORT_MODE"
+
+      - name: Rebuild trusted retention and aggregate outputs
+        # Retention decisions are made in the trusted exact-SHA checkout. No
+        # deletion proposed by the acquisition artifact is ever applied.
+        run: |
+          npm run reports:prune
+          npm run reports:remediate -- --check
+          npm run reports:manifest
+          npm run corpus:stats
 
       - name: Commit static reports
         id: commit
-        # A below-threshold batch remains red below, but its independently
-        # validated reports still advance the evidence base and corpus stats.
-        if: >-
-          steps.refresh_policy.outputs.publishable == 'true' &&
-          steps.report_validation.outcome == 'success' &&
-          steps.report_manifest.outcome == 'success' &&
-          steps.corpus_stats.outcome == 'success'
+        # A below-threshold batch remains red in reconciliation, but any
+        # independently validated reports can still advance the evidence base.
         run: |
           echo "pushed=false" >> "$GITHUB_OUTPUT"
+          if [[ "$GITHUB_REF_TYPE" != "branch" ]]; then
+            echo "::error::Committed reports may only publish to a branch."
+            exit 1
+          fi
           git config user.name "iAnonymous3000"
           git config user.email "32236127+iAnonymous3000@users.noreply.github.com"
           git add public/reports public/corpus-stats.json
@@ -317,57 +465,70 @@ jobs:
             echo "No report changes to commit."
             exit 0
           fi
-          git commit -m "Add featured site behavior scan reports"
-          # Reports and pruning were validated against this exact checkout. If
-          # the branch advanced, fail safely and rerun rather than transplanting
-          # stale generated output onto a source tree it was never checked with.
-          if ! git push; then
+          if [[ "$FEATURED_REPORT_MODE" == "v1" && "$GITHUB_EVENT_NAME" == "workflow_dispatch" ]]; then
+            git commit -m "Add manual v1 compatibility scan reports"
+          elif [[ "$FEATURED_REPORT_MODE" == "v1" ]]; then
+            git commit -m "Add scheduled v1 fallback scan reports"
+          else
+            git commit -m "Add featured r2 site behavior scan reports"
+          fi
+          if ! git push origin "HEAD:refs/heads/$GITHUB_REF_NAME"; then
             echo "::error::The branch advanced after report validation; refusing to rebase stale generated output. Rerun this workflow from the latest branch head."
             exit 1
           fi
           echo "pushed=true" >> "$GITHUB_OUTPUT"
 
       - name: Trigger CI on the pushed commit
-        # Pushes made with GITHUB_TOKEN never fire `on: push` workflows, so the
-        # commit above would stay untested and the CI-gated production branch
-        # would never receive it. Dispatch CI explicitly; that tested CI run
-        # advances `production` itself once all required jobs pass.
         if: steps.commit.outputs.pushed == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh workflow run ci.yml --ref main
+        run: gh workflow run ci.yml --ref "$GITHUB_REF_NAME"
+
+  reconcile:
+    name: Reconcile Featured Refresh Health
+    needs:
+      - scan-featured
+      - publish
+    if: always()
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - name: Checkout exact workflow source
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+        with:
+          ref: ${{ github.sha }}
+
+      - name: Set up Node
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: 24.14.1
+
+      - name: Verify pinned Node and npm
+        run: |
+          test "$(node --version)" = "v24.14.1"
+          test "$(npm --version)" = "11.11.0"
 
       - name: Prepare public-safe refresh alert
         id: refresh_alert
-        if: always()
         env:
           FEATURED_ALERT_REPORT_PATH: ${{ runner.temp }}/featured-corpus-refresh.md
-          FEATURED_SUMMARY_PATH: ${{ runner.temp }}/featured-scan-summary.json
-          FEATURED_SCAN_OUTCOME: ${{ steps.featured_scan.outcome }}
-          FEATURED_JOB_STATUS: ${{ job.status }}
+          FEATURED_PUBLIC_SUMMARY_JSON: ${{ needs.scan-featured.outputs.public_summary }}
+          FEATURED_SCAN_OUTCOME: ${{ needs.scan-featured.outputs.scan_outcome }}
+          FEATURED_BATCH_HEALTHY: ${{ needs.scan-featured.outputs.healthy }}
+          FEATURED_JOB_STATUS: ${{ needs.scan-featured.result == 'success' && (needs.publish.result == 'success' || needs.publish.result == 'skipped') && 'success' || 'failure' }}
           FEATURED_DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
         run: node scripts/run-featured-scans-diagnostics.mjs --prepare-alert
-
-      - name: Upload failed-run diagnostics
-        if: >-
-          always() &&
-          (steps.refresh_alert.outcome != 'success' ||
-          steps.refresh_alert.outputs.failed == 'true')
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          name: featured-scan-failure-diagnostics
-          path: |
-            ${{ runner.temp }}/featured-scan-summary.json
-            ${{ runner.temp }}/featured-corpus-refresh.md
-            /tmp/site-behavior-lab-featured.log
-          if-no-files-found: warn
 
       - name: Reconcile the featured-corpus refresh issue
         # Only an unfiltered, default-mode full catalog run on the default
         # branch is authoritative. Filtered or alternate-mode dispatches cannot
-        # open or close the repository-wide weekly-health issue.
+        # open or close the repository-wide weekly-health issue. Scheduled runs
+        # stay authoritative on the disclosed v1 fallback lane, so a failing
+        # weekly refresh still alerts while the r2 runner is unprovisioned.
         if: >-
-          always() &&
+          (env.FEATURED_REPORT_MODE == 'r2' || github.event_name == 'schedule') &&
           steps.refresh_alert.outcome == 'success' &&
           steps.refresh_alert.outputs.authoritative == 'true'
         env:
@@ -471,9 +632,10 @@ jobs:
       - name: Preserve featured-refresh failure
         if: >-
           always() &&
-          (job.status != 'success' ||
+          (needs.scan-featured.result != 'success' ||
+          (needs.scan-featured.outputs.publication_artifact_id != '' && needs.publish.result != 'success') ||
           steps.refresh_alert.outcome != 'success' ||
           steps.refresh_alert.outputs.failed == 'true')
         run: |
-          echo "::error title=Featured corpus refresh failed::The refresh or its required failure reconciliation did not complete. See the canonical issue for an authoritative full run and the failed-run diagnostics artifact for bounded details."
+          echo "::error title=Featured corpus refresh failed::The refresh or its required trusted publication/reconciliation did not complete. The canonical issue contains only public-safe aggregate details; maintainers can inspect the private workflow logs."
           exit 1

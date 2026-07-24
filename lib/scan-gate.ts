@@ -10,6 +10,15 @@ import { PublicScanError } from "./public-errors";
 import { assertPublicHttpUrl, assertPublicHttpUrlShape, normalizeUrl } from "./url-safety";
 import { assertScanAccess } from "./access-control";
 
+export const SCAN_TARGET_VERIFICATION_TIMEOUT_MS = 5_000;
+
+export class ScanTargetVerificationTimeoutError extends PublicScanError {
+  constructor(readonly timeoutMs: number) {
+    super("Public host verification timed out. Try again shortly.", 503);
+    this.name = "ScanTargetVerificationTimeoutError";
+  }
+}
+
 export type PreparedScanRequest = {
   clientKey: string;
   url: string;
@@ -27,6 +36,7 @@ type ScanGateDependencies = {
   clientKeyFromRequest?: (request: Request) => string;
   peekRateLimit?: (clientKey: string, nowMs: number, cost?: 1 | 2) => void;
   verifyPublicUrl?: (url: URL) => Promise<void>;
+  targetVerificationTimeoutMs?: number;
   now?: () => number;
 };
 
@@ -38,7 +48,6 @@ export class ScanGate {
     const assertBodySize = this.dependencies.assertBodySize ?? assertRequestBodySize;
     const requestClientKey = this.dependencies.clientKeyFromRequest ?? clientKeyFromRequest;
     const rateLimitPeek = this.dependencies.peekRateLimit ?? peekRateLimit;
-    const verifyPublicUrl = this.dependencies.verifyPublicUrl ?? assertPublicHttpUrl;
     const now = this.dependencies.now ?? Date.now;
 
     assertAccess(request);
@@ -54,7 +63,7 @@ export class ScanGate {
     const clientKey = requestClientKey(request);
     const cost = scanRateLimitCost(payload);
     rateLimitPeek(clientKey, now(), cost);
-    await verifyPublicUrl(targetUrl);
+    await verifyScanTargetWithinDeadline(targetUrl, request, this.dependencies);
 
     return {
       clientKey,
@@ -67,6 +76,60 @@ export class ScanGate {
       rateLimitCost: cost
     };
   }
+}
+
+async function verifyScanTargetWithinDeadline(
+  targetUrl: URL,
+  request: Request,
+  dependencies: ScanGateDependencies
+): Promise<void> {
+  const timeoutMs = dependencies.targetVerificationTimeoutMs ?? SCAN_TARGET_VERIFICATION_TIMEOUT_MS;
+  if (!Number.isSafeInteger(timeoutMs) || timeoutMs <= 0) {
+    throw new TypeError("The scan target verification timeout must be a positive safe integer.");
+  }
+  const requestSignal = (request as Request & { signal?: AbortSignal }).signal;
+  requestSignal?.throwIfAborted();
+  const deadline = new AbortController();
+  const signal = requestSignal
+    ? AbortSignal.any([requestSignal, deadline.signal])
+    : deadline.signal;
+  const timer = setTimeout(
+    () => deadline.abort(new ScanTargetVerificationTimeoutError(timeoutMs)),
+    timeoutMs
+  );
+  const abort = scanTargetAbortGate(signal);
+  const pending = Promise.resolve().then(() =>
+    dependencies.verifyPublicUrl
+      ? dependencies.verifyPublicUrl(targetUrl)
+      : assertPublicHttpUrl(targetUrl, { signal, timeoutMs })
+  );
+  void pending.catch(() => undefined);
+  try {
+    await Promise.race([pending, abort.promise]);
+  } finally {
+    clearTimeout(timer);
+    abort.dispose();
+  }
+}
+
+function scanTargetAbortGate(signal: AbortSignal): { promise: Promise<never>; dispose(): void } {
+  let listener: (() => void) | null = null;
+  const promise = new Promise<never>((_resolve, reject) => {
+    const rejectFromSignal = () => reject(signal.reason ?? new DOMException("Aborted.", "AbortError"));
+    if (signal.aborted) {
+      rejectFromSignal();
+      return;
+    }
+    listener = rejectFromSignal;
+    signal.addEventListener("abort", rejectFromSignal, { once: true });
+  });
+  return {
+    promise,
+    dispose() {
+      if (listener) signal.removeEventListener("abort", listener);
+      listener = null;
+    }
+  };
 }
 
 export async function prepareScanRequest(request: Request, gate = new ScanGate()): Promise<PreparedScanRequest> {

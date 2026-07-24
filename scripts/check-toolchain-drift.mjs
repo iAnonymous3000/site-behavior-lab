@@ -5,11 +5,16 @@ import path from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
 import { isDeepStrictEqual } from "node:util";
+import {
+  readResponseJsonWithinLimit,
+  withHttpOperationDeadline
+} from "./http-response.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const USER_AGENT = "site-behavior-lab-ci (toolchain drift check)";
 const FETCH_ATTEMPTS = 3;
 const FETCH_TIMEOUT_MS = 20_000;
+const FETCH_RESPONSE_MAX_BYTES = 1024 * 1024;
 const STABLE_SEMVER_PATTERN = /^(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)$/;
 const CHROME_VERSION_PATTERN =
   /^(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)$/;
@@ -175,12 +180,21 @@ async function fetchJson(label, url) {
   let lastError;
   for (let attempt = 1; attempt <= FETCH_ATTEMPTS; attempt += 1) {
     try {
-      const response = await fetch(url, {
-        headers: { accept: "application/json", "user-agent": USER_AGENT },
-        signal: AbortSignal.timeout(FETCH_TIMEOUT_MS)
-      });
-      if (!response.ok) throw new Error(`HTTP ${response.status} ${response.statusText}`);
-      return await response.json();
+      return await withHttpOperationDeadline(
+        { timeoutMs: FETCH_TIMEOUT_MS, label },
+        async (signal) => {
+          const response = await fetch(url, {
+            headers: { accept: "application/json", "user-agent": USER_AGENT },
+            redirect: "error",
+            signal
+          });
+          if (!response.ok) throw new Error(`HTTP ${response.status} ${response.statusText}`);
+          return readResponseJsonWithinLimit(response, {
+            maxBytes: FETCH_RESPONSE_MAX_BYTES,
+            label
+          });
+        }
+      );
     } catch (error) {
       lastError = error;
       if (attempt < FETCH_ATTEMPTS) await new Promise((resolve) => setTimeout(resolve, attempt * 1_000));

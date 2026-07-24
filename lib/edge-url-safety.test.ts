@@ -1,6 +1,10 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { assertEdgePublicHttpUrl, assertEdgePublicHttpUrlShape } from "./edge-url-safety";
+import {
+  EDGE_DNS_RESPONSE_MAX_BYTES,
+  assertEdgePublicHttpUrl,
+  assertEdgePublicHttpUrlShape
+} from "./edge-url-safety";
 
 test("assertEdgePublicHttpUrl allows public DNS answers", async () => {
   await assert.doesNotReject(() =>
@@ -29,6 +33,31 @@ test("assertEdgePublicHttpUrl fails closed when DNS cannot be verified", async (
       assertEdgePublicHttpUrl(new URL("https://broken.example/"), {
         fetch: async () => new Response("resolver unavailable", { status: 502 })
       }),
+    /could not be verified as public/
+  );
+});
+
+test("DNS verification bounds stalled headers and stalled response bodies", async () => {
+  for (const fetch of [
+    (async () => new Promise<Response>(() => undefined)) as typeof globalThis.fetch,
+    (async () => new Response(new ReadableStream<Uint8Array>({ start() {} }))) as typeof globalThis.fetch
+  ]) {
+    await assert.rejects(
+      () => assertEdgePublicHttpUrl(new URL("https://bounded.example/"), {
+        fetch,
+        connectTimeoutMs: 5,
+        operationTimeoutMs: 10
+      }),
+      /could not be verified as public/
+    );
+  }
+});
+
+test("DNS verification rejects oversized decompressed JSON", async () => {
+  await assert.rejects(
+    () => assertEdgePublicHttpUrl(new URL("https://oversized.example/"), {
+      fetch: (async () => Response.json({ Status: 0, padding: "x".repeat(EDGE_DNS_RESPONSE_MAX_BYTES) })) as typeof fetch
+    }),
     /could not be verified as public/
   );
 });

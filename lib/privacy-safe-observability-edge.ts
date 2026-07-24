@@ -3,6 +3,7 @@ import {
   type PrivacySafeObservabilityEvent,
   parsePrivacySafeObservabilityEvent
 } from "./privacy-safe-observability";
+import { readRequestBodyWithinLimit } from "./edge-scan-gate";
 
 export const AGGREGATE_METRICS_FLAG = "SITE_BEHAVIOR_LAB_AGGREGATE_METRICS" as const;
 export const AGGREGATE_METRICS_BINDING = "AGGREGATE_METRICS" as const;
@@ -58,18 +59,16 @@ export async function handleAggregateMetricsRequest(
     return response(415, cors);
   }
 
-  const declaredLength = Number(request.headers.get("content-length"));
-  if (Number.isFinite(declaredLength) && declaredLength > PRIVACY_SAFE_EVENT_MAX_BYTES) {
-    return response(413, cors);
-  }
-
-  let raw: string;
+  let raw: string | null;
   try {
-    raw = await request.text();
+    // Content-Length is only an early rejection hint. The reader enforces the
+    // same cap against bytes actually received, including chunked bodies, before
+    // they are joined into a string.
+    raw = await readRequestBodyWithinLimit(request, PRIVACY_SAFE_EVENT_MAX_BYTES);
   } catch {
     return response(400, cors);
   }
-  if (new TextEncoder().encode(raw).byteLength > PRIVACY_SAFE_EVENT_MAX_BYTES) return response(413, cors);
+  if (raw === null) return response(413, cors);
 
   let parsed: unknown;
   try {

@@ -26,7 +26,8 @@ import {
 } from "../lib/gpc-injection";
 import { safeParseUrl } from "../lib/report-url";
 import {
-  collectStorageEntries,
+  collectBoundedPageTitle,
+  collectStorageEntriesWithCoverage,
   MAX_RECORDED_REQUESTS,
   ScanNetworkRecorder,
   scanTimeoutMs,
@@ -34,6 +35,10 @@ import {
   verifyRoutedHttpRequest,
   withScanDeadline
 } from "../lib/scan-runtime";
+import {
+  createBoundedPageCollectorKey,
+  installBoundedPageCollector
+} from "../lib/bounded-page-collector";
 import { buildScanConditions, buildScanResult } from "../lib/scan-result-builder";
 import type {
   CookieRecord,
@@ -44,6 +49,10 @@ import type {
 } from "../lib/types";
 import { normalizeHttpUrlInput } from "../lib/url-normalization";
 import { PublicFacingError, toPublicError } from "../lib/public-errors";
+import {
+  readRetiredBrowserRunReportJson,
+  withRetiredBrowserRunReportDeadline
+} from "../lib/retired-browser-run-report-reader";
 import {
   assertEdgePublicHttpUrl,
   assertEdgePublicHttpUrlShape,
@@ -122,7 +131,7 @@ export default {
         case "scan":
           return runWorkerScanRoute(request, env);
         case "report": {
-          const report = await readReport(route.reportId, env);
+          const report = await readReport(route.reportId, env, request.signal);
           if (!report) throw new HttpError("Report not found.", 404);
           return jsonResponse(report, request, env);
         }
@@ -360,9 +369,15 @@ async function scanWithBrowserSession(
 
   let context: BrowserContext | null = null;
   const gpcWorkerInjection = payload.gpcEnabled ? createGpcWorkerInjectionSession() : null;
+  const boundedPageCollectorKey = createBoundedPageCollectorKey();
 
   try {
     context = await withWorkerScanTimeout(browser.newContext(createContextOptions(payload)), deadlineStarted, maxDurationMs);
+    await withWorkerScanTimeout(
+      context.addInitScript(installBoundedPageCollector, boundedPageCollectorKey),
+      deadlineStarted,
+      maxDurationMs
+    );
 
     if (gpcWorkerInjection) {
       await withWorkerScanTimeout(
@@ -464,14 +479,30 @@ async function scanWithBrowserSession(
       warnings.add("The page did not reach network idle before the Cloudflare scan window ended.");
     });
 
-    const pageTitle = await withWorkerScanTimeout(page.title(), deadlineStarted, maxDurationMs).catch((error) => {
+    const pageTitle = await withWorkerScanTimeout(
+      collectBoundedPageTitle(page, boundedPageCollectorKey),
+      deadlineStarted,
+      maxDurationMs
+    ).then(
+      (result) => result.value
+    ).catch((error) => {
       if (isWorkerScanTimeoutError(error)) throw error;
       return "";
     });
     const finalUrl = page.url();
     const finalParsed = safeParseUrl(finalUrl) ?? targetUrl;
     const cookies = await withWorkerScanTimeout(collectCookies(context, finalParsed.hostname), deadlineStarted, maxDurationMs);
-    const storage = await withWorkerScanTimeout(collectStorageEntries(page), deadlineStarted, maxDurationMs);
+    const storageCollection = await withWorkerScanTimeout(
+      collectStorageEntriesWithCoverage(page, boundedPageCollectorKey),
+      deadlineStarted,
+      maxDurationMs
+    );
+    if (storageCollection.truncated) {
+      // This retired producer has no structured r2 capture-loss ledger. Refuse a
+      // misleading success instead of publishing partial storage counts.
+      throw new HttpError("The page exposed more storage state than this scanner can safely analyze.", 422);
+    }
+    const storage = storageCollection.records;
     const fingerprintObservations = await withWorkerScanTimeout(collectFingerprintObservations(page), deadlineStarted, maxDurationMs);
     const screenshot = await withWorkerScanTimeout(
       page.screenshot({ type: "jpeg", quality: 62, fullPage: false }).then((bytes) => `data:image/jpeg;base64,${bytesToBase64(bytes)}`),
@@ -495,7 +526,7 @@ async function scanWithBrowserSession(
       finalUrl,
       scannedAt: new Date(scanStarted).toISOString(),
       chromiumVersion: browser.version(),
-      userAgent: await withWorkerScanTimeout(page.evaluate(() => navigator.userAgent), deadlineStarted, maxDurationMs).catch(() => ""),
+      userAgent: browserRunUserAgent(payload.device),
       timezone: "UTC",
       locale: "en-US",
       language: "en-US",
@@ -542,11 +573,14 @@ function createContextOptions(payload: ScanRequestPayload): BrowserContextOption
     serviceWorkers: "block",
     timezoneId: "UTC",
     colorScheme: "light",
-    userAgent:
-      payload.device === "mobile"
-        ? "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1"
-        : "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
+    userAgent: browserRunUserAgent(payload.device)
   };
+}
+
+function browserRunUserAgent(device: ScanDevice): string {
+  return device === "mobile"
+    ? "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1"
+    : "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36";
 }
 
 async function installFingerprintObserver(page: Page, firstPartyHostname: string): Promise<void> {
@@ -598,19 +632,28 @@ async function saveReport<T extends ScanReport>(report: T, env: Env): Promise<T>
   return saved;
 }
 
-async function readReport(id: string, env: Env): Promise<ScanReport | null> {
+async function readReport(id: string, env: Env, callerSignal?: AbortSignal): Promise<ScanReport | null> {
   if (!REPORT_ID_PATTERN.test(id)) return null;
-  if (env.REPORTS) {
-    const object = await env.REPORTS.get(reportKey(id));
-    if (!object) return null;
-    return object.json<ScanReport>();
-  }
+  return withRetiredBrowserRunReportDeadline(async (signal) => {
+    if (env.REPORTS) {
+      const object = await env.REPORTS.get(reportKey(id));
+      signal.throwIfAborted();
+      if (!object) return null;
+      return readRetiredBrowserRunReportJson<ScanReport>(object.body, {
+        declaredBytes: object.size,
+        signal
+      });
+    }
 
-  if (env.REPORTS_KV) {
-    return env.REPORTS_KV.get<ScanReport>(reportKey(id), "json");
-  }
+    if (env.REPORTS_KV) {
+      const stream = await env.REPORTS_KV.get(reportKey(id), "stream");
+      signal.throwIfAborted();
+      if (!stream) return null;
+      return readRetiredBrowserRunReportJson<ScanReport>(stream, { signal });
+    }
 
-  return null;
+    return null;
+  }, { signal: callerSignal });
 }
 
 function reportScannedAt(report: ScanReport): string {

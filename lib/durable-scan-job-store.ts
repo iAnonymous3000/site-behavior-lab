@@ -873,6 +873,44 @@ export function expireDurableScanJob(
   return snapshotFromRow(requireRow(sql, input.jobId));
 }
 
+/**
+ * Settle every unfinished row that has crossed the immutable purge boundary.
+ *
+ * The caller must run this synchronous operation inside the same transaction
+ * that copies linked watch history and purges the resulting tombstones. A
+ * publishing row is fenced through the normal reconciliation transition; at
+ * the hard horizon, an outcome that could not be reconciled before the job
+ * deadline is conservatively recorded as expired.
+ */
+export function settlePastPurgeDurableScanJobs(
+  sql: DurableScanJobStoreSql,
+  now: number
+): DurableScanJobSnapshot[] {
+  ensureDurableScanJobStore(sql);
+  assertTimestamp(now, "hard-purge settlement timestamp");
+  const rows = sql
+    .exec<DurableScanJobRow>(
+      "SELECT * FROM durable_scan_jobs WHERE state IN ('queued','leased','publishing') AND purge_at <= ? ORDER BY purge_at ASC, created_at ASC, job_id ASC",
+      now
+    )
+    .toArray();
+  const settled: DurableScanJobSnapshot[] = [];
+  for (const row of rows) {
+    const state = rowState(row);
+    settled.push(
+      state === "publishing"
+        ? reconcileExpiredPublishingDurableScanJob(sql, {
+            jobId: row.job_id,
+            generation: row.lease_generation,
+            now,
+            result: "expired"
+          })
+        : expireDurableScanJob(sql, { jobId: row.job_id, now })
+    );
+  }
+  return settled;
+}
+
 /** Earliest time at which claim, lease recovery, deadline expiry, or purge is due. */
 export function nextDurableScanJobWakeAt(
   sql: DurableScanJobStoreSql,
@@ -922,18 +960,38 @@ export function earliestDurableScanJobPurgeAt(sql: DurableScanJobStoreSql): numb
     : integer(row.purge_at, "earliest purge timestamp");
 }
 
-/** Hard 75-minute row purge. Deadline processing should normally terminalize first. */
+/**
+ * Hard 75-minute row purge. Unfinished work is never silently deleted: callers
+ * must terminalize it first, inside the transaction that preserves any linked
+ * long-lived history.
+ */
 export function purgeDurableScanJobs(sql: DurableScanJobStoreSql, now: number): number {
   ensureDurableScanJobStore(sql);
   assertTimestamp(now, "purge timestamp");
+  const unfinished = sql
+    .exec<DurableScanJobRow>(
+      "SELECT * FROM durable_scan_jobs WHERE state IN ('queued','leased','publishing') AND purge_at <= ? ORDER BY purge_at ASC, created_at ASC, job_id ASC LIMIT 1",
+      now
+    )
+    .toArray()[0];
+  if (unfinished) {
+    throw new DurableScanJobStateError(
+      "conflict",
+      "A durable scan job must be terminalized before hard purge.",
+      rowState(unfinished)
+    );
+  }
   const before = sql
     .exec<Record<string, SqlValue> & { count: number }>(
-      "SELECT COUNT(*) AS count FROM durable_scan_jobs WHERE purge_at <= ?",
+      "SELECT COUNT(*) AS count FROM durable_scan_jobs WHERE state IN ('succeeded','failed','expired','cancelled') AND purge_at <= ?",
       now
     )
     .toArray()[0]?.count;
   const count = integer(before ?? 0, "purge count");
-  sql.exec("DELETE FROM durable_scan_jobs WHERE purge_at <= ?", now);
+  sql.exec(
+    "DELETE FROM durable_scan_jobs WHERE state IN ('succeeded','failed','expired','cancelled') AND purge_at <= ?",
+    now
+  );
   return count + evictTerminalRowsToTarget(sql, DURABLE_SCAN_JOB_MAX_ROWS);
 }
 

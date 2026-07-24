@@ -881,10 +881,36 @@ function pipeWithinByteBudget<Name extends PublicScanProxyByteBudgetName>(
   destination.once("close", () => {
     // In particular, tear down an upstream response when the browser cancels
     // its downstream request. Preserve a completed source's normal half-close.
-    if (!source.readableEnded && !source.destroyed) source.destroy();
+    if (source.readableEnded || source.destroyed) return;
+    // Nothing can consume this source any more, so stop pulling from it before
+    // its bytes are claimed against a budget they can never reach.
+    source.off("data", forward);
+    source.pause();
+    stopSourceWithoutDroppingItsOutput(source);
   });
   destination.once("error", () => {
     if (!terminated && !source.destroyed) source.destroy();
+  });
+}
+
+/**
+ * Close a source whose destination is gone without discarding bytes the source
+ * still owes its own reader. A CONNECT tunnel's browser socket is the upload
+ * pipe's source and the response pipe's destination at the same time, so
+ * destroying it the instant the upstream socket closes drops response bytes
+ * that are still queued toward the browser. The browser then sees a clean
+ * close, which is exactly the silent truncation this proxy must never produce.
+ * When a graceful half-close is already in flight, wait for it to flush; the
+ * socket is tracked by the server, so proxy close still guarantees teardown.
+ */
+function stopSourceWithoutDroppingItsOutput(source: Readable): void {
+  const output = source as Readable & Partial<Writable>;
+  if (output.writableEnded !== true || output.writableFinished === true) {
+    source.destroy();
+    return;
+  }
+  source.once("finish", () => {
+    if (!source.destroyed) source.destroy();
   });
 }
 

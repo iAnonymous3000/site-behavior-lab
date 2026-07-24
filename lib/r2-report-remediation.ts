@@ -1,10 +1,30 @@
 import { publicReportDigest } from "./canonical-json";
 import { readManagedReport, type ManagedReportClock } from "./managed-report-reader";
+import {
+  SERVER_STORED_PROVENANCE_SIDECAR_MAX_BYTES,
+  SERVER_STORED_REPORT_JSON_MAX_BYTES
+} from "./report-resource-limits";
 import { redactScanReportV1 } from "./redact-scan-report-v1";
-import { buildProvenanceEntry } from "./redaction-provenance";
+import {
+  buildProvenanceEntry,
+  matchProvenanceAtVersion
+} from "./redaction-provenance";
 import { REPORT_ID_PATTERN } from "./report-validation";
 import { readStoredScanReport } from "./scan-report-reader";
+import {
+  MIGRATABLE_REDACTION_VERSION,
+  R2RedactionRemediationError,
+  r2ReportRedactionVersion,
+  r2RemediationPreservesIdentity,
+  redactPublicScanReportV2R2
+} from "./scan-report-v2-r2-remediation";
+import type { PublicScanReportV2R2 } from "./scan-report-v2-r2";
+import { parseStrictJson } from "./strict-json";
 import type { ScanReport } from "./types";
+import {
+  redactionTransitionAudit,
+  type RedactionTransitionAudit
+} from "./redaction-transition-audit";
 
 const REPORT_KEY = /^reports\/([0-9]{8}-[0-9a-f]{32})\.json$/;
 const SIDECAR_KEY = /^reports\/([0-9]{8}-[0-9a-f]{32})\.json\.provenance\.json$/;
@@ -15,10 +35,13 @@ export type R2ReportRemediationIssueCode =
   | "malformed-retention-metadata"
   | "ambiguous-legacy-retention"
   | "invalid-report-json"
+  | "invalid-sidecar-json"
   | "invalid-report"
   | "unsupported-report-schema"
+  | "ambiguous-v3-provenance"
   | "report-identity-changed"
   | "redaction-not-idempotent"
+  | "generated-report-too-large"
   | "generated-managed-report-invalid";
 
 export type R2ReportRetentionSource =
@@ -65,6 +88,7 @@ export type R2ReportRemediationPlan =
       reportWire: string;
       sidecarWire: string;
       reportChanged: boolean;
+      transitionAudit: RedactionTransitionAudit;
       /** Legacy metadata attachment requires a PUT even when bytes are already sanitized. */
       reportWriteRequired: boolean;
     }
@@ -128,14 +152,23 @@ export function planR2RemediationInventory(keys: readonly string[]): R2Remediati
 }
 
 /**
- * Pure redaction-v3 planner for one live share. It never trusts a sidecar as
- * authority: v1 bytes are parsed, sanitized, proved to be a fixed point, then
- * checked with the managed reader against the exact original retention clock.
+ * Pure redaction-v4 planner for one live share. It never trusts a sidecar as
+ * authority: v1 bytes are fully sanitized; schema-r2 v3 bytes require a
+ * digest- and clock-matching v3 sidecar before the reviewed v3-to-v4 transform.
+ * Every output is proved to be a current fixed point and checked with the
+ * managed reader against the exact original retention clock.
  */
 export function planR2ReportRemediation(input: R2ReportRemediationInput): R2ReportRemediationPlan {
   if (!REPORT_ID_PATTERN.test(input.reportId)) return issue(input.reportId, "invalid-report-id");
   if (!isCanonicalTimestamp(input.writtenAt) || !isCanonicalTimestamp(input.now)) {
     return issue(input.reportId, "malformed-retention-metadata", "invalid operator clock");
+  }
+  if (input.sidecarContents !== null) {
+    try {
+      parseStrictJson(input.sidecarContents, SERVER_STORED_PROVENANCE_SIDECAR_MAX_BYTES);
+    } catch {
+      return issue(input.reportId, "invalid-sidecar-json");
+    }
   }
 
   const resolved = resolveRetention(input.retentionSource, input.sidecarContents, input.now);
@@ -149,7 +182,7 @@ export function planR2ReportRemediation(input: R2ReportRemediationInput): R2Repo
 
   let parsed: unknown;
   try {
-    parsed = JSON.parse(input.reportContents) as unknown;
+    parsed = parseStrictJson(input.reportContents, SERVER_STORED_REPORT_JSON_MAX_BYTES);
   } catch {
     return issue(input.reportId, "invalid-report-json");
   }
@@ -172,11 +205,60 @@ export function planR2ReportRemediation(input: R2ReportRemediationInput): R2Repo
     reportChanged = publicReportDigest(parsed) !== publicReportDigest(redacted);
     reportWire = reportChanged ? `${JSON.stringify(redacted, null, 2)}\n` : input.reportContents;
   } else {
-    // There is no legacy-v2 sanitizer. Only reports whose embedded privacy
-    // revision is already current can safely receive a current attestation;
-    // the managed-reader proof below enforces that invariant.
-    publicReport = read.stored.report;
-    reportWire = input.reportContents;
+    if (read.stored.schemaRevision !== 2) {
+      return issue(input.reportId, "unsupported-report-schema", "only schema-r2 has a reviewed migration");
+    }
+    const source = read.stored.report as PublicScanReportV2R2;
+    let sourceVersion: number;
+    try {
+      sourceVersion = r2ReportRedactionVersion(source);
+    } catch (error) {
+      return issue(
+        input.reportId,
+        "ambiguous-v3-provenance",
+        error instanceof R2RedactionRemediationError ? error.reason : "mixed redaction versions"
+      );
+    }
+    if (sourceVersion === MIGRATABLE_REDACTION_VERSION) {
+      const prior = matchPriorV3Provenance(source, input.sidecarContents, input.reportId, retention);
+      if (prior !== null) return issue(input.reportId, "ambiguous-v3-provenance", prior);
+    }
+
+    let redacted: PublicScanReportV2R2;
+    try {
+      redacted = redactPublicScanReportV2R2(source);
+    } catch (error) {
+      const detail = error instanceof R2RedactionRemediationError ? error.reason : "v3-to-v4 transform failed";
+      return issue(
+        input.reportId,
+        sourceVersion === MIGRATABLE_REDACTION_VERSION ? "ambiguous-v3-provenance" : "unsupported-report-schema",
+        detail
+      );
+    }
+    if (!r2RemediationPreservesIdentity(input.reportId, source, redacted)) {
+      return issue(input.reportId, "report-identity-changed");
+    }
+    let twice: PublicScanReportV2R2;
+    try {
+      twice = redactPublicScanReportV2R2(redacted);
+    } catch {
+      return issue(input.reportId, "redaction-not-idempotent");
+    }
+    if (publicReportDigest(redacted) !== publicReportDigest(twice)) {
+      return issue(input.reportId, "redaction-not-idempotent");
+    }
+    reportChanged = publicReportDigest(source) !== publicReportDigest(redacted);
+    // A report already declaring v4 must itself be the fixed point. Rewriting
+    // unsafe bytes that were falsely labelled current would bless ambiguity.
+    if (sourceVersion !== MIGRATABLE_REDACTION_VERSION && reportChanged) {
+      return issue(input.reportId, "redaction-not-idempotent");
+    }
+    publicReport = redacted;
+    reportWire = reportChanged ? `${JSON.stringify(redacted, null, 2)}\n` : input.reportContents;
+  }
+
+  if (new TextEncoder().encode(reportWire).byteLength > SERVER_STORED_REPORT_JSON_MAX_BYTES) {
+    return issue(input.reportId, "generated-report-too-large");
   }
 
   let sidecarWire: string;
@@ -224,7 +306,8 @@ export function planR2ReportRemediation(input: R2ReportRemediationInput): R2Repo
     reportWire,
     sidecarWire,
     reportChanged,
-    reportWriteRequired: reportChanged || retentionOrigin === "legacy-uploaded"
+    reportWriteRequired: reportChanged || retentionOrigin === "legacy-uploaded",
+    transitionAudit: redactionTransitionAudit(read.stored.report, publicReport)
   };
 }
 
@@ -336,6 +419,29 @@ function preservesIdentity(reportId: string, before: ScanReport, after: ScanRepo
   }
   if (JSON.stringify(before.share) !== JSON.stringify(after.share)) return false;
   return after.share?.id === undefined || after.share.id === reportId;
+}
+
+function matchPriorV3Provenance(
+  report: PublicScanReportV2R2,
+  sidecarContents: string | null,
+  reportId: string,
+  retention: ManagedReportClock
+): string | null {
+  if (sidecarContents === null) return "v3 report has no provenance sidecar";
+  let sidecar: unknown;
+  try {
+    sidecar = parseStrictJson(sidecarContents, SERVER_STORED_PROVENANCE_SIDECAR_MAX_BYTES);
+  } catch {
+    return "v3 sidecar is not valid JSON";
+  }
+  const match = matchProvenanceAtVersion(report, sidecar, reportId, MIGRATABLE_REDACTION_VERSION);
+  if (match.status !== "matched") {
+    return match.status === "digest-mismatch" ? "v3 sidecar digest mismatch" : `v3 sidecar ${match.reason}`;
+  }
+  if (match.entry.createdAt !== retention.createdAt || match.entry.expiresAt !== retention.expiresAt) {
+    return "v3 sidecar retention clock mismatch";
+  }
+  return null;
 }
 
 function isRuntimeRetention(value: unknown): value is { createdAt: string; expiresAt: string } {

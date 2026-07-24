@@ -1,4 +1,10 @@
 import { readLoadedReport } from "./client-report-reader";
+import { isRecoverableScanJob } from "./active-scan-session";
+import {
+  fetchJsonResponseWithPolicy,
+  type ClientJsonFetchResponse
+} from "./client-fetch-policy";
+import { BROWSER_PUBLIC_REPORT_JSON_MAX_BYTES } from "./report-resource-limits";
 import { REPORT_ID_PATTERN } from "./report-validation";
 import { recoverSavedReport } from "./saved-report-recovery";
 import { readScanJobProgress } from "./scan-job-progress";
@@ -16,12 +22,14 @@ export type ScanJobPollWait = (ms: number, signal?: AbortSignal) => Promise<void
 export type AcceptedScanJobPoll = {
   statusPath: string;
   accessKey?: string;
-  reportId?: string;
+  reportId: string;
   signal?: AbortSignal;
   resolveApiUrl?: (path: string) => string;
   fetcher?: ScanJobPollFetcher;
   wait?: ScanJobPollWait;
   now?: () => number;
+  /** Test/embedding override; production uses the shared per-attempt defaults. */
+  attemptTimeoutMs?: number;
   onProgress?: (progress: ScanJobProgress) => void;
 };
 
@@ -55,10 +63,18 @@ export async function pollAcceptedScanJob(options: AcceptedScanJobPoll): Promise
   const headers: Record<string, string> = {};
   if (options.accessKey) headers.Authorization = `Bearer ${options.accessKey}`;
 
-  const savedReportId =
-    options.reportId && REPORT_ID_PATTERN.test(options.reportId)
-      ? options.reportId
-      : scanJobIdFromStatusPath(options.statusPath);
+  const expectedJobId = scanJobIdFromStatusPath(options.statusPath);
+  if (
+    !expectedJobId ||
+    !isRecoverableScanJob({
+      jobId: expectedJobId,
+      statusPath: options.statusPath,
+      reportId: options.reportId
+    })
+  ) {
+    throw new Error("The accepted scan recovery capability is invalid.");
+  }
+  const savedReportId = options.reportId;
   const startedAt = now();
 
   for (;;) {
@@ -68,18 +84,22 @@ export async function pollAcceptedScanJob(options: AcceptedScanJobPoll): Promise
       headers,
       signal: options.signal,
       wait,
-      now
+      now,
+      label: "The scan status",
+      attemptTimeoutMs: options.attemptTimeoutMs
     });
-    const payload = await readJobPayload(response);
+    const payload = readJobPayload(response.response, response.payload, expectedJobId);
 
     if (!payload.ok) {
-      if (response.status === 404 && savedReportId) {
+      if (response.response.status === 404 && savedReportId) {
         const recovered = await readSavedReportWithRetry(savedReportId, {
           fetcher,
           resolveApiUrl,
           signal: options.signal,
           wait,
-          now
+          now,
+          label: "The saved report",
+          attemptTimeoutMs: options.attemptTimeoutMs
         });
         if (recovered) return recovered;
       }
@@ -92,7 +112,10 @@ export async function pollAcceptedScanJob(options: AcceptedScanJobPoll): Promise
     if (payload.status === "succeeded") {
       if (payload.report) {
         const read = await readLoadedReport(payload.report, "The completed scan's report");
-        if (read.ok) return read.loaded;
+        if (read.ok) {
+          assertLoadedReportIdentity(read.loaded, savedReportId);
+          return read.loaded;
+        }
         // The coordinator is done, but its public report may still be briefly
         // unavailable or unreadable. Keep recovery identifiers so the visitor
         // can retry the report read or explicitly dismiss this tab recovery.
@@ -104,7 +127,9 @@ export async function pollAcceptedScanJob(options: AcceptedScanJobPoll): Promise
           resolveApiUrl,
           signal: options.signal,
           wait,
-          now
+          now,
+          label: "The saved report",
+          attemptTimeoutMs: options.attemptTimeoutMs
         });
         if (recovered) return recovered;
       }
@@ -160,22 +185,53 @@ type RetryContext = {
   signal?: AbortSignal;
   wait: ScanJobPollWait;
   now: () => number;
+  label: string;
+  attemptTimeoutMs?: number;
 };
 
-async function fetchWithTransientRetry(url: string, context: RetryContext): Promise<Response> {
+class TransientScanJobResponseError extends Error {
+  constructor(readonly response: Response) {
+    super(`The scan service returned transient HTTP ${response.status}.`);
+    this.name = "TransientScanJobResponseError";
+  }
+}
+
+async function fetchWithTransientRetry(url: string, context: RetryContext): Promise<ClientJsonFetchResponse> {
   let transientRetries = 0;
   for (;;) {
     throwIfAborted(context.signal);
-    const response = await context.fetcher(url, {
-      cache: "no-store",
-      headers: context.headers,
-      signal: context.signal
-    });
-    if (!TRANSIENT_HTTP_STATUSES.has(response.status)) return response;
+    let response: Response;
+    try {
+      return await fetchJsonResponseWithPolicy(
+        url,
+        {
+          cache: "no-store",
+          headers: context.headers,
+          signal: context.signal
+        },
+        {
+          label: context.label,
+          maxBytes: BROWSER_PUBLIC_REPORT_JSON_MAX_BYTES,
+          fetchImpl: context.fetcher as typeof fetch,
+          acceptResponse: (candidate) => !TRANSIENT_HTTP_STATUSES.has(candidate.status),
+          httpError: (candidate) => new TransientScanJobResponseError(candidate),
+          ...(context.attemptTimeoutMs === undefined
+            ? {}
+            : {
+                connectTimeoutMs: context.attemptTimeoutMs,
+                operationTimeoutMs: context.attemptTimeoutMs
+              })
+        }
+      );
+    } catch (error) {
+      if (!(error instanceof TransientScanJobResponseError)) throw error;
+      response = error.response;
+    }
 
     const status = response.status;
     try {
-      await response.body?.cancel();
+      const cancellation = response.body?.cancel();
+      if (cancellation) void cancellation.catch(() => undefined);
     } catch {
       /* the response will be discarded either way */
     }
@@ -198,35 +254,50 @@ async function readSavedReportWithRetry(
   reportId: string,
   context: Omit<RetryContext, "headers"> & { resolveApiUrl: (path: string) => string }
 ): Promise<LoadedReport | null> {
-  const response = await fetchWithTransientRetry(context.resolveApiUrl(`/api/reports/${reportId}`), context);
-  return recoverSavedReport(response);
+  const { response, payload } = await fetchWithTransientRetry(
+    context.resolveApiUrl(`/api/reports/${reportId}`),
+    context
+  );
+  const recovered = await recoverSavedReport({
+    status: response.status,
+    ok: response.ok,
+    json: async () => payload
+  });
+  if (recovered) assertLoadedReportIdentity(recovered, reportId);
+  return recovered;
 }
 
-async function readJobPayload(response: Response): Promise<RuntimeScanJobApiResponse> {
-  try {
-    const payload = (await response.json()) as unknown;
-    if (payload && typeof payload === "object" && "ok" in payload) {
-      const candidate = payload as Record<string, unknown>;
-      if (candidate.ok === false && typeof candidate.error === "string") {
-        return candidate as RuntimeScanJobApiResponse;
-      }
-      if (
-        candidate.ok === true &&
-        typeof candidate.jobId === "string" &&
-        (candidate.status === "queued" ||
-          candidate.status === "running" ||
-          candidate.status === "succeeded" ||
-          candidate.status === "failed" ||
-          candidate.status === "expired" ||
-          candidate.status === "cancelled")
-      ) {
-        return candidate as RuntimeScanJobApiResponse;
-      }
+function readJobPayload(
+  response: Response,
+  payload: unknown,
+  expectedJobId: string
+): RuntimeScanJobApiResponse {
+  if (payload && typeof payload === "object" && "ok" in payload) {
+    const candidate = payload as Record<string, unknown>;
+    if (candidate.ok === false && typeof candidate.error === "string") {
+      return candidate as RuntimeScanJobApiResponse;
     }
-  } catch {
-    /* named HTTP fallback below */
+    if (
+      candidate.ok === true &&
+      response.ok &&
+      candidate.jobId === expectedJobId &&
+      (candidate.status === "queued" ||
+        candidate.status === "running" ||
+        candidate.status === "succeeded" ||
+        candidate.status === "failed" ||
+        candidate.status === "expired" ||
+        candidate.status === "cancelled")
+    ) {
+      return candidate as RuntimeScanJobApiResponse;
+    }
   }
   throw new Error(`The scan status could not be read (HTTP ${response.status}).`);
+}
+
+function assertLoadedReportIdentity(report: LoadedReport, expectedReportId: string): void {
+  if (report.wire.share?.id !== expectedReportId) {
+    throw new Error("The completed scan report did not match its reserved report identity.");
+  }
 }
 
 function throwIfAborted(signal?: AbortSignal): void {

@@ -40,11 +40,13 @@ export const CONSENT_RELOAD_DISCLOSURE =
 /** In-page read budget: __tcfapi answers in microtasks when present. */
 export const TCF_READ_TIMEOUT_MS = 1_500;
 
+export type TcfEventStatus = "useractioncomplete" | "tcloaded" | "cmpuishown";
+
 export type TcfApiReadOutcome =
   | {
       status: "read";
       gdprApplies: boolean | null;
-      eventStatus: string | null;
+      eventStatus: TcfEventStatus | null;
       /** Purpose id -> consent flag, ids "1".."11" only; never the raw TCData. */
       purposeConsents: Record<string, boolean>;
       /** Purpose id -> legitimate-interest flag, ids "1".."11" only. */
@@ -187,11 +189,20 @@ export async function readTcfApiState(timeoutMs: number): Promise<TcfApiReadOutc
             }
           }
           const gdprApplies = runtime.ownValue(record, "gdprApplies");
-          const eventStatus = runtime.ownValue(record, "eventStatus");
+          const rawEventStatus = runtime.ownValue(record, "eventStatus");
+          // Project in-page onto the only statuses this interpreter understands.
+          // Unknown or attacker-sized strings become null before Playwright
+          // serializes the result back to the host.
+          const eventStatus: TcfEventStatus | null =
+            rawEventStatus === "useractioncomplete" ||
+            rawEventStatus === "tcloaded" ||
+            rawEventStatus === "cmpuishown"
+              ? rawEventStatus
+              : null;
           finish({
             status: "read",
             gdprApplies: typeof gdprApplies === "boolean" ? gdprApplies : null,
-            eventStatus: typeof eventStatus === "string" ? eventStatus : null,
+            eventStatus,
             purposeConsents: consents,
             purposeLegitimateInterests: legitimateInterests,
             publisherRestrictions

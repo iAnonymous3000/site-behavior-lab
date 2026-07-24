@@ -456,10 +456,14 @@ timestamps, run count, lease fences, and bounded job/report outcome linkage are
 stored separately; no target, IP, client hash, Turnstile token, or request
 credential appears there.
 
-Creation, target decryption, and due claims fail closed unless the feature keyring
-and durable jobs are ready. Capability-authenticated metadata read and deletion
-remain usable when the flag is rolled back or a key is temporarily unavailable,
-so operators can purge retained ciphertext. Each due run repeats Node DNS/public
-address validation and still uses the browser's connect-time public-address
-proxy. See [encrypted-watches.md](encrypted-watches.md) for the public contract,
-rotation ceremony, activation canary, and report-retention caveat.
+Public creation uses the normal scan admission gate: Turnstile and atomic quota
+on an open scanner, or the scanner's ordinary token when operator-gated. A
+distinct optional watch-only second factor exists for isolated canaries and
+cannot bypass that gate. Creation, target decryption, and due claims also fail
+closed unless the feature keyring and durable jobs are ready.
+Capability-authenticated metadata read and deletion remain usable
+when the flag is rolled back or a key is temporarily unavailable, so operators
+can purge retained ciphertext. Each due run repeats Node DNS/public-address
+validation and still uses the browser's connect-time public-address proxy. See
+[encrypted-watches.md](encrypted-watches.md) for the public contract, rotation
+ceremony, activation canary, and report-retention caveat.

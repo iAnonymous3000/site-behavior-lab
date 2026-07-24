@@ -240,6 +240,12 @@
   padding-top: 10px;
 }
 
+.siteActions a {
+  align-items: center;
+  display: inline-flex;
+  min-height: 44px;
+}
+
 .method {
   background: var(--surface-2);
   border: 1px solid var(--border);

@@ -26,6 +26,7 @@ import {
   consentChoiceVerified,
   consentRegistrationSentence
 } from "./report-consent-copy";
+import { R2_NAVIGATION_STATUS_UNREPRESENTABLE } from "./scan-report-v2-http-status";
 
 /**
  * Plain-language "headline" layer.
@@ -165,6 +166,24 @@ export function buildReportHeadline(view: ReportView): ReportHeadline {
       `${domain} returned an error, so there was little to scan.`,
       `The page responded with HTTP ${loadFailureStatus}, an error or block page, not the real site. The low tracker, cookie, and fingerprinting counts mean the page did not load, not that ${domain} is private. Re-scan when it is reachable.`,
       [{ label: "HTTP status", value: n(loadFailureStatus), emphasis: true }]
+    );
+  }
+
+  // Recorded r2 quality can prove a failed navigation even when the frozen
+  // wire cannot carry the exact status (valid 600-999 is normalized to null
+  // with a reserved capture-loss marker). That null must never fall through to
+  // a calm or otherwise positive evidence story, and the UI must not invent a
+  // replacement status such as 599.
+  if (run.quality.outcome === "failed") {
+    const statusUnrepresentable =
+      run.quality.facts?.captureLoss.some((loss) => loss.detail === R2_NAVIGATION_STATUS_UNREPRESENTABLE) === true;
+    return finish(
+      "info",
+      `${domain}'s main page did not complete a trustworthy load.`,
+      statusUnrepresentable
+        ? "The site returned an HTTP status outside this frozen report format's representable range. The report withheld the exact code instead of coercing it. Tracker, cookie, and fingerprinting counts come from a failed or incomplete visit, not a positive privacy result; re-scan for a complete load."
+        : "The scanner's recorded quality facts mark the main-page load as failed or incomplete. Tracker, cookie, and fingerprinting counts from this visit do not support a positive privacy result; re-scan for a complete load.",
+      [{ label: "Navigation", value: "Failed", emphasis: true }]
     );
   }
 

@@ -1,0 +1,72 @@
+{
+  "schemaVersion": 1,
+  "status": "blocked",
+  "claim": "integrity-only-not-reproducible-build",
+  "requiredBuild": {
+    "cargoLocked": true,
+    "target": "wasm32-unknown-unknown",
+    "wasmPackTarget": "nodejs",
+    "profile": "release",
+    "rustc": "1.96.1",
+    "rustcCommit": "31fca3adb283cc9dfd56b49cdee9a96eb9c96ffd",
+    "cargo": "1.96.1",
+    "wasmPack": "0.14.0",
+    "wasmBindgenCli": "0.2.126",
+    "pathRemapping": "required-before-activation"
+  },
+  "blockers": [
+    "generator-provenance-was-not-recorded-at-build-time",
+    "committed-wasm-embeds-host-cargo-registry-paths",
+    "clean-ci-rebuild-and-byte-compare-is-not-active"
+  ],
+  "activationCriteria": [
+    "pin-and-install-the-declared-rustc-wasm-pack-and-wasm-bindgen-cli-versions-from-reviewed-sources",
+    "rebuild-with-a-fixed-remapped-source-prefix-and-cargo-locked",
+    "prove-two-clean-builds-and-all-four-vendored-output-files-are-byte-identical",
+    "replace-this-blocked-contract-with-reviewed-build-provenance-and-enforce-the-rebuild-in-ci"
+  ],
+  "observedBinaryMarkers": {
+    "rustcCommit": true,
+    "wasmBindgenCrateVersion": true,
+    "hostCargoRegistryPath": true
+  },
+  "inputs": [
+    {
+      "path": "tools/adblock-wasm/Cargo.toml",
+      "bytes": 411,
+      "sha256": "ee8bdaa5445654ee0c3103e0753b556c4b315b863761cad97dcc8101a0f8bba9"
+    },
+    {
+      "path": "tools/adblock-wasm/Cargo.lock",
+      "bytes": 16224,
+      "sha256": "101584a7cea0ccd4cd67fcbe0024e1e4364682f647f41152a7c68e4fa7363e8d"
+    },
+    {
+      "path": "tools/adblock-wasm/src/lib.rs",
+      "bytes": 1755,
+      "sha256": "60e9af245c1dacdcf26796b305f92e507be598ee2fe4889f7dcac98ba5f0c9b7"
+    }
+  ],
+  "outputs": [
+    {
+      "path": "lib/adblock-wasm/sbl_adblock_wasm.js",
+      "bytes": 6366,
+      "sha256": "4046ec7a1a85b7d608bc8495460428c3981ecd117501cb87bb80b5dcedea71ed"
+    },
+    {
+      "path": "lib/adblock-wasm/sbl_adblock_wasm.d.ts",
+      "bytes": 1024,
+      "sha256": "0d808eb178fd591cd4702e9ec549683ff9713c866f34b3c464f195a9fb615603"
+    },
+    {
+      "path": "lib/adblock-wasm/sbl_adblock_wasm_bg.wasm",
+      "bytes": 2000522,
+      "sha256": "aa0df9333b0355123792200ddad6e4584a26ef0b40c69e89ee94743a27721610"
+    },
+    {
+      "path": "lib/adblock-wasm/sbl_adblock_wasm_bg.wasm.d.ts",
+      "bytes": 751,
+      "sha256": "91f718d4028beabfc116fc092221c640f25cc69584479999357f785cb5cd1412"
+    }
+  ]
+}

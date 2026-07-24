@@ -21,7 +21,8 @@
  */
 
 import { detectConsentPlatform } from "./consent-banner";
-import { corpusBenchmark, corpusIsUsable, type CorpusStats } from "./corpus-stats";
+import { corpusCohortIdentityForView } from "./corpus-cohort";
+import { corpusBenchmark, corpusIsUsable, selectCorpusStatsCohort, type CorpusStats } from "./corpus-stats";
 import {
   HEADLINE_PLATFORMS,
   crossSiteListenerDetection,
@@ -59,6 +60,7 @@ import {
   consentRegistrationSentence,
   consentVerificationSummary
 } from "./report-consent-copy";
+import { R2_NAVIGATION_STATUS_UNREPRESENTABLE } from "./scan-report-v2-http-status";
 
 export type FindingLevel = "ok" | "quiet" | "info" | "warn" | "loud";
 
@@ -138,12 +140,32 @@ const DOUBLECLICK_REMARKETING_HOST = /(^|\.)stats\.g\.doubleclick\.net$/;
 /** Appended to any absence claim whose evidence family was censored. */
 const CENSORED_ABSENCE_NOTE = " Evidence collection was cut short, so this covers only what was recorded before the cutoff.";
 
+function corpusBenchmarkScope(corpus: CorpusStats): string {
+  const coverage = corpus.coverageSiteCount;
+  if (corpus.cohorts && corpus.primaryCohortId) {
+    return `report's exact schema, methodology, and producer cohort, with each percentile card naming its metric-specific measured-site denominator${
+      typeof coverage === "number" && coverage > corpus.sampleSize
+        ? ` (among ${coverage.toLocaleString("en-US")} sites with a successful load across all cohorts; other methodologies, request-capped visits, and post-choice consent visits are excluded from this denominator, while failed or block-page attempts are outside that coverage)`
+        : ""
+    }`;
+  }
+  return `legacy-v1 cohort, with each percentile card naming its metric-specific measured-site denominator${
+    typeof coverage === "number" && coverage > corpus.sampleSize
+      ? ` (among ${coverage.toLocaleString("en-US")} sites with a successful load; request-capped, post-choice consent, and v2 loads are included in that coverage but excluded from this legacy-v1 cohort, while failed or block-page attempts are outside it)`
+      : ""
+  }`;
+}
+
 export function buildFindings(view: ReportView, corpusInput: CorpusStats | null): Finding[] {
-  // Benchmark cohort = same methodology generation: the published corpus
-  // distributions are built from v1 reports only, so a v2 view is never
-  // ranked against them and falls back to the fixed reference thresholds
-  // until a matching-methodology cohort exists.
-  const corpus = view.origin === "legacy-derived" ? corpusInput : null;
+  // New artifacts publish one distribution per exact schema/methodology/
+  // producer cohort. Select the report's own cohort or fail closed. The
+  // origin-only fallback exists solely for historical version-1 artifacts,
+  // whose only distribution was explicitly legacy-v1.
+  const corpus = corpusInput?.cohorts
+    ? selectCorpusStatsCohort(corpusInput, corpusCohortIdentityForView(view).id)
+    : view.origin === "legacy-derived"
+      ? corpusInput
+      : null;
   const run = displayRunView(view);
   const arms = comparisonArmViews(view);
   const axis = view.comparison?.axis ?? null;
@@ -807,6 +829,38 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
     return findings;
   }
 
+  // A recorded failed run with no numeric status is not an unknown-but-quiet
+  // visit. Frozen r2 deliberately maps otherwise-valid 600-999 navigation
+  // statuses to null and records this marker; lead with the failed navigation
+  // while withholding the exact code rather than manufacturing one.
+  if (run.quality.outcome === "failed") {
+    const statusUnrepresentable =
+      run.quality.facts?.captureLoss.some((loss) => loss.detail === R2_NAVIGATION_STATUS_UNREPRESENTABLE) === true;
+    // Preserve affirmative observations as lower-bound evidence, but a failed
+    // navigation cannot support reassuring "ok"/"quiet" absence cards.
+    // Downgrade those cards and attach the same explicit scope boundary before
+    // the failed-navigation bottom line leads the board.
+    for (const finding of findings) {
+      if (finding.level !== "ok" && finding.level !== "quiet") continue;
+      finding.level = "info";
+      finding.benchmark = undefined;
+      finding.detail = `${finding.detail} The main page did not complete a trustworthy load, so this absence describes only an incomplete visit.`;
+    }
+    findings.unshift({
+      id: "bottom-line",
+      icon: "alert",
+      level: "info",
+      title: `Bottom line: ${run.domain}'s main page did not complete a trustworthy load`,
+      lead: statusUnrepresentable
+        ? "The site returned an HTTP status outside this frozen report format's representable range. The exact code is withheld instead of being coerced, and the navigation is recorded as failed."
+        : "The scanner's recorded quality facts mark the main-page load as failed or incomplete.",
+      detail:
+        "Tracker, cookie, storage, and fingerprinting counts here are evidence retained from an incomplete visit, not a positive privacy conclusion. Re-scan when the page can complete a trustworthy load; the request log and methodology below still show what was observed.",
+      evidence: `${plural(run.counts.totalRequests, "request")} retained from the failed or incomplete visit.`
+    });
+    return findings;
+  }
+
   // A quiet result on a censored run is a floor, not a verdict: the bottom
   // line must lead with the truncation instead of "few review signals".
   // "Quiet" here means nothing warn-or-louder surfaced; the hedged absence
@@ -848,11 +902,7 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
               : ""
           }`,
     detail: corpusIsUsable(corpus) && (domainsBenchmarkAllowed || cookiesBenchmarkAllowed)
-      ? `The cards below translate the evidence into plain language. Where a measured distribution exists, severity ranks this visit against percentiles from the ${corpus.sampleSize.toLocaleString("en-US")} fully measured sites${
-          typeof corpus.coverageSiteCount === "number" && corpus.coverageSiteCount > corpus.sampleSize
-            ? ` (among ${corpus.coverageSiteCount.toLocaleString("en-US")} sites with a successful load; request-capped, post-choice consent, and v2 loads are included in that coverage but excluded from this legacy-v1 distribution, while failed or block-page attempts are outside it)`
-            : ""
-        }, a curated set of popular, mostly commercial sites, not a random sample of the web, and otherwise uses fixed reference thresholds. The request log, domain table, and methodology remain below for verification.`
+      ? `The cards below translate the evidence into plain language. Where a measured distribution exists, severity ranks this visit against percentiles from the ${corpusBenchmarkScope(corpus)}, a curated set of popular, mostly commercial sites, not a random sample of the web, and otherwise uses fixed reference thresholds. The request log, domain table, and methodology remain below for verification.`
       : corpusIsUsable(corpus)
         ? "The cards below translate the evidence into plain language. This failed or incomplete evidence is not ranked against corpus percentiles; positive signals remain visible as lower bounds. The request log, domain table, and methodology remain below for verification."
         : "The cards below translate the evidence into plain language; severity reflects fixed reference thresholds, not measured population percentiles. The request log, domain table, and methodology remain below for verification.",

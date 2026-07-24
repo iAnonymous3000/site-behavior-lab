@@ -30,6 +30,7 @@ import {
 } from "@/lib/scheduled-rescan-ui";
 import type { EncryptedWatchPayload } from "@/lib/encrypted-watch-contract";
 import type { PendingScheduledRescanCreation } from "@/lib/scheduled-rescan-ui";
+import { LatestClientOperation } from "@/lib/client-fetch-policy";
 
 type ScheduledRescansProps = {
   enabled: boolean;
@@ -67,13 +68,21 @@ export function ScheduledRescans({
   const [deleteConfirmation, setDeleteConfirmation] = useState(false);
   const [fragmentChecked, setFragmentChecked] = useState(false);
   const [invalidManagementFragment, setInvalidManagementFragment] = useState(false);
-  const requestControllerRef = useRef<AbortController | null>(null);
+  const requestOperationRef = useRef(new LatestClientOperation());
   const retainedCredentialsRef = useRef<EncryptedWatchCredentials | null>(null);
   const pendingCreationRef = useRef<PendingScheduledRescanCreation | null>(null);
   const createInFlightRef = useRef(false);
+  const createNetworkAttemptedRef = useRef(false);
   const fragmentRecoverySequenceRef = useRef(0);
+  const pendingFocusRef = useRef<"management" | "create" | null>(null);
+  const managementHeadingRef = useRef<HTMLHeadingElement | null>(null);
+  const createButtonRef = useRef<HTMLButtonElement | null>(null);
   const accessTokenRef = useRef<string | undefined>(undefined);
+  const onCreateBusyChangeRef = useRef(onCreateBusyChange);
+  const onCreateNetworkAttemptSettledRef = useRef(onCreateNetworkAttemptSettled);
   accessTokenRef.current = scannerRequiresAccessKey ? form.accessKey.trim() : undefined;
+  onCreateBusyChangeRef.current = onCreateBusyChange;
+  onCreateNetworkAttemptSettledRef.current = onCreateNetworkAttemptSettled;
   const normalizedTarget = normalizeScheduledRescanTarget(form.url);
   const comparisonMode = form.compareGpc || form.compareShields || form.compareConsent;
   const canRetryCreation = scheduledRescanCanRetryCreation(pendingCreationRef.current, credentials);
@@ -86,7 +95,22 @@ export function ScheduledRescans({
     acceptedScanJob
   });
 
-  useEffect(() => () => requestControllerRef.current?.abort(), []);
+  useEffect(() => {
+    if (pendingFocusRef.current === "management" && credentials) {
+      pendingFocusRef.current = null;
+      managementHeadingRef.current?.focus();
+      return;
+    }
+    if (pendingFocusRef.current === "create" && !credentials && activity === null) {
+      pendingFocusRef.current = null;
+      createButtonRef.current?.focus();
+    }
+  }, [activity, credentials]);
+
+  useEffect(() => () => {
+    requestOperationRef.current.cancel();
+    settleActiveCreate();
+  }, []);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -96,6 +120,14 @@ export function ScheduledRescans({
       const recoverySequence = ++fragmentRecoverySequenceRef.current;
       const observedHref = window.location.href;
       let recovered = parseEncryptedWatchCredentialsFromUrl(observedHref);
+      const hasWatchManagementFragment = window.location.hash.startsWith("#watch=");
+      if (recovered || hasWatchManagementFragment) {
+        // A newly observed management capability supersedes the prior network
+        // action immediately, before async token-to-ID validation can finish.
+        requestOperationRef.current.cancel();
+        settleActiveCreate();
+        setActivity(null);
+      }
       if (recovered && !(await scheduledRescanCredentialsMatchDerivedId(recovered))) {
         recovered = null;
       }
@@ -107,7 +139,7 @@ export function ScheduledRescans({
         return;
       }
       if (!recovered) {
-        const hasInvalidManagementFragment = window.location.hash.startsWith("#watch=");
+        const hasInvalidManagementFragment = hasWatchManagementFragment;
         // In-page navigation (skip links, report anchors) must not replace the
         // only schedule-management capability. Keep it in the URL for refresh,
         // copy, and crash recovery while retaining the browser's completed
@@ -118,45 +150,48 @@ export function ScheduledRescans({
           setFragmentChecked(true);
           return;
         }
+        requestOperationRef.current.cancel();
+        settleActiveCreate();
         pendingCreationRef.current = null;
         retainedCredentialsRef.current = null;
         setCredentials(null);
         setStatus(null);
+        setActivity(null);
         setInvalidManagementFragment(hasInvalidManagementFragment);
         setError(null);
         setFragmentChecked(true);
         return;
       }
-      const controller = new AbortController();
-      requestControllerRef.current?.abort();
-      requestControllerRef.current = controller;
-      if (!sameWatchCredentials(pendingCreationRef.current?.credentials ?? null, recovered)) {
-        pendingCreationRef.current = null;
-      }
-      retainedCredentialsRef.current = recovered;
-      setInvalidManagementFragment(false);
-      setCredentials(recovered);
-      setStatus(null);
-      setActivity("recovering");
-      setError(null);
-      setFragmentChecked(true);
-      try {
-        const recoveredStatus = await readEncryptedWatch({
-          credentials: recovered,
-          accessToken: accessTokenRef.current,
-          resolveApiUrl: scannerApiUrl,
-          signal: controller.signal
-        });
-        if (!cancelled) {
-          pendingCreationRef.current = null;
-          setStatus(recoveredStatus);
+      await requestOperationRef.current.run(
+        (signal) =>
+          readEncryptedWatch({
+            credentials: recovered,
+            accessToken: accessTokenRef.current,
+            resolveApiUrl: scannerApiUrl,
+            signal
+          }),
+        {
+          onStart: () => {
+            settleActiveCreate();
+            if (!sameWatchCredentials(pendingCreationRef.current?.credentials ?? null, recovered)) {
+              pendingCreationRef.current = null;
+            }
+            retainedCredentialsRef.current = recovered;
+            setInvalidManagementFragment(false);
+            setCredentials(recovered);
+            setStatus(null);
+            setActivity("recovering");
+            setError(null);
+            setFragmentChecked(true);
+          },
+          onSuccess: (recoveredStatus) => {
+            pendingCreationRef.current = null;
+            setStatus(recoveredStatus);
+          },
+          onError: (readError) => setError(errorMessage(readError)),
+          onSettled: () => setActivity(null)
         }
-      } catch (readError) {
-        if (!cancelled) setError(errorMessage(readError));
-      } finally {
-        if (!cancelled) setActivity(null);
-        if (requestControllerRef.current === controller) requestControllerRef.current = null;
-      }
+      );
     }
 
     void recoverFromFragment();
@@ -168,8 +203,9 @@ export function ScheduledRescans({
     };
   }, []);
 
-  // Creation is capability-gated, but a valid fragment remains manageable
-  // during rollback because GET/delete are deliberately rollback-safe.
+  // Public creation uses the normal scan gate (Turnstile or the scanner's
+  // normal access token). The optional watch-only canary secret is never sent
+  // to this browser UI. A valid fragment remains manageable during rollback.
   if (!fragmentChecked) return null;
   if (!scheduledRescanPanelVisible(action, credentials !== null, invalidManagementFragment)) return null;
 
@@ -181,7 +217,19 @@ export function ScheduledRescans({
     window.history.replaceState(window.history.state, "", managementUrl);
     pendingCreationRef.current = nextCreation;
     retainedCredentialsRef.current = nextCreation.credentials;
+    pendingFocusRef.current = "management";
     setCredentials(nextCreation.credentials);
+  }
+
+  function settleActiveCreate(): void {
+    if (createNetworkAttemptedRef.current) {
+      createNetworkAttemptedRef.current = false;
+      onCreateNetworkAttemptSettledRef.current();
+    }
+    if (createInFlightRef.current) {
+      createInFlightRef.current = false;
+      onCreateBusyChangeRef.current(false);
+    }
   }
 
   async function createSchedule() {
@@ -210,123 +258,141 @@ export function ScheduledRescans({
       return;
     }
 
-    const controller = new AbortController();
-    requestControllerRef.current?.abort();
-    requestControllerRef.current = controller;
-    createInFlightRef.current = true;
-    onCreateBusyChange(true);
-    setActivity("creating");
-    setError(null);
-    if (!pendingCreation && normalizedTarget) {
-      onTargetNormalized(normalizedTarget.url, normalizedTarget.removedPrivateParts);
-    }
-    let creationHelperInvoked = false;
-    try {
-      const candidatePayload: EncryptedWatchPayload = pendingCreation?.payload ?? {
-        version: 1,
-        target: { url: normalizedTarget!.url },
-        options: {
-          device: form.device,
-          gpcEnabled: form.gpcEnabled,
-          reportMode: "r2",
-          comparison: "none"
-        }
-      };
-      const creation = await retainScheduledRescanCreationBeforePost({
-        pendingCreation,
-        candidatePayload,
-        mintCredentials: mintEncryptedWatchCredentials,
-        retainCreation: retainPendingCreation
-      });
-      // Inputs have passed the client contract at this point, so invoking the
-      // helper is the exact network-attempt boundary for one-shot Turnstile.
-      creationHelperInvoked = true;
-      const created = await createEncryptedWatch({
-        payload: creation.payload,
-        accessToken,
-        turnstileToken: createTurnstileToken,
-        credentials: creation.credentials,
-        onCredentialsReady: (readyCredentials) => {
-          if (!sameWatchCredentials(retainedCredentialsRef.current, readyCredentials)) {
-            throw new Error("The scheduled rescan capability changed before creation.");
+    await requestOperationRef.current.run(
+      async (signal) => {
+        const candidatePayload: EncryptedWatchPayload = pendingCreation?.payload ?? {
+          version: 1,
+          target: { url: normalizedTarget!.url },
+          options: {
+            device: form.device,
+            gpcEnabled: form.gpcEnabled,
+            reportMode: "r2",
+            comparison: "none"
+          }
+        };
+        let retainedCreation: PendingScheduledRescanCreation | null = null;
+        const creation = await retainScheduledRescanCreationBeforePost({
+          pendingCreation,
+          candidatePayload,
+          mintCredentials: mintEncryptedWatchCredentials,
+          retainCreation: (nextCreation) => {
+            retainedCreation = nextCreation;
+          }
+        });
+        if (signal.aborted) throw signal.reason;
+        if (retainedCreation) retainPendingCreation(retainedCreation);
+        // Inputs have passed the client contract at this point, so invoking the
+        // helper is the exact network-attempt boundary for one-shot Turnstile.
+        createNetworkAttemptedRef.current = true;
+        const created = await createEncryptedWatch({
+          payload: creation.payload,
+          accessToken,
+          // Deliberately no watch access token; that optional second factor is for
+          // non-public operator canaries, and health hides this UI when it is set.
+          turnstileToken: createTurnstileToken,
+          credentials: creation.credentials,
+          onCredentialsReady: (readyCredentials) => {
+            if (!sameWatchCredentials(retainedCredentialsRef.current, readyCredentials)) {
+              throw new Error("The scheduled rescan capability changed before creation.");
+            }
+          },
+          resolveApiUrl: scannerApiUrl,
+          signal
+        });
+        return created;
+      },
+      {
+        onStart: () => {
+          settleActiveCreate();
+          createInFlightRef.current = true;
+          onCreateBusyChangeRef.current(true);
+          setActivity("creating");
+          setError(null);
+          if (!pendingCreation && normalizedTarget) {
+            onTargetNormalized(normalizedTarget.url, normalizedTarget.removedPrivateParts);
           }
         },
-        resolveApiUrl: scannerApiUrl,
-        signal: controller.signal
-      });
-      pendingCreationRef.current = null;
-      retainedCredentialsRef.current = created.credentials;
-      setCredentials(created.credentials);
-      setStatus(created.status);
-    } catch (createError) {
-      setError(errorMessage(createError));
-    } finally {
-      if (creationHelperInvoked) onCreateNetworkAttemptSettled();
-      createInFlightRef.current = false;
-      onCreateBusyChange(false);
-      if (requestControllerRef.current === controller) requestControllerRef.current = null;
-      setActivity(null);
-    }
+        onSuccess: (created) => {
+          pendingCreationRef.current = null;
+          retainedCredentialsRef.current = created.credentials;
+          setCredentials(created.credentials);
+          setStatus(created.status);
+        },
+        onError: (createError) => setError(errorMessage(createError)),
+        onSettled: () => {
+          settleActiveCreate();
+          setActivity(null);
+        }
+      }
+    );
   }
 
   async function refreshSchedule() {
     if (!credentials || activity) return;
-    const controller = new AbortController();
-    requestControllerRef.current?.abort();
-    requestControllerRef.current = controller;
-    setActivity("refreshing");
-    setError(null);
-    try {
-      const refreshedStatus = await readEncryptedWatch({
-        credentials,
-        accessToken: scannerRequiresAccessKey ? form.accessKey.trim() : undefined,
-        resolveApiUrl: scannerApiUrl,
-        signal: controller.signal
-      });
-      pendingCreationRef.current = null;
-      setStatus(refreshedStatus);
-    } catch (readError) {
-      setError(errorMessage(readError));
-    } finally {
-      if (requestControllerRef.current === controller) requestControllerRef.current = null;
-      setActivity(null);
-    }
+    await requestOperationRef.current.run(
+      (signal) =>
+        readEncryptedWatch({
+          credentials,
+          accessToken: scannerRequiresAccessKey ? form.accessKey.trim() : undefined,
+          resolveApiUrl: scannerApiUrl,
+          signal
+        }),
+      {
+        onStart: () => {
+          settleActiveCreate();
+          setActivity("refreshing");
+          setError(null);
+        },
+        onSuccess: (refreshedStatus) => {
+          pendingCreationRef.current = null;
+          setStatus(refreshedStatus);
+        },
+        onError: (readError) => setError(errorMessage(readError)),
+        onSettled: () => setActivity(null)
+      }
+    );
   }
 
   async function deleteSchedule() {
     if (!credentials || activity) return;
-    const controller = new AbortController();
-    requestControllerRef.current?.abort();
-    requestControllerRef.current = controller;
-    setActivity("deleting");
-    setDeleteConfirmation(false);
-    setError(null);
-    try {
-      await deleteEncryptedWatch({
-        credentials,
-        accessToken: scannerRequiresAccessKey ? form.accessKey.trim() : undefined,
-        resolveApiUrl: scannerApiUrl,
-        signal: controller.signal
-      });
-      clearManagementFragment(credentials);
-      pendingCreationRef.current = null;
-      retainedCredentialsRef.current = null;
-      setCredentials(null);
-      setStatus(null);
-    } catch (deleteError) {
-      setError(errorMessage(deleteError));
-    } finally {
-      if (requestControllerRef.current === controller) requestControllerRef.current = null;
-      setActivity(null);
-    }
+    await requestOperationRef.current.run(
+      (signal) =>
+        deleteEncryptedWatch({
+          credentials,
+          accessToken: scannerRequiresAccessKey ? form.accessKey.trim() : undefined,
+          resolveApiUrl: scannerApiUrl,
+          signal
+        }),
+      {
+        onStart: () => {
+          settleActiveCreate();
+          setActivity("deleting");
+          setDeleteConfirmation(false);
+          setError(null);
+        },
+        onSuccess: () => {
+          clearManagementFragment(credentials);
+          pendingCreationRef.current = null;
+          retainedCredentialsRef.current = null;
+          pendingFocusRef.current = "create";
+          setCredentials(null);
+          setStatus(null);
+        },
+        onError: (deleteError) => setError(errorMessage(deleteError)),
+        onSettled: () => setActivity(null)
+      }
+    );
   }
 
   function removeInvalidManagementLink(): void {
     if (typeof window === "undefined" || !window.location.hash.startsWith("#watch=")) return;
+    requestOperationRef.current.cancel();
+    settleActiveCreate();
     const url = new URL(window.location.href);
     url.hash = "";
     window.history.replaceState(window.history.state, "", url.href);
     setInvalidManagementFragment(false);
+    setActivity(null);
     setError(null);
   }
 
@@ -336,7 +402,7 @@ export function ScheduledRescans({
         <CalendarClock size={20} aria-hidden="true" />
         <div>
           <p className="eyebrow">Optional retention</p>
-          <h2 id="scheduled-rescan-title">
+          <h2 id="scheduled-rescan-title" ref={managementHeadingRef} tabIndex={-1}>
             {credentials || invalidManagementFragment ? "Manage scheduled rescan" : "Schedule weekly rescans"}
           </h2>
         </div>
@@ -458,6 +524,7 @@ export function ScheduledRescans({
           <button
             className="secondary-button"
             type="button"
+            ref={createButtonRef}
             onClick={() => void createSchedule()}
             disabled={action.visibility !== "ready"}
           >

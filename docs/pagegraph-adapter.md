@@ -8,6 +8,12 @@ GraphML artifact and its `.meta.json` sidecar. `lib/pagegraph-client-import.ts`
 reads both locally in the tab, and `lib/pagegraph-v2-r2-builder.ts` emits one
 single-run, passive-load r2 report.
 
+The browser picker accepts at most 16 MiB of GraphML and 256 KiB of metadata so
+decoding and the synchronous strict parser remain bounded on everyday devices.
+The server/parser retains its separate 32 MiB historical artifact ceiling for
+existing managed data; that storage compatibility limit is not a browser
+allocation budget.
+
 The r2 producer is deliberately request-only. It extracts request URL, method,
 resource type, status, navigation-relative timestamp, catalog label, and
 script/actor provenance when the graph supplies it. Cookies, storage,

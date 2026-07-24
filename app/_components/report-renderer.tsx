@@ -20,6 +20,7 @@ import { consentChoiceLabel } from "@/lib/consent-interaction";
 import { requestLogToCsv } from "@/lib/csv-export";
 import { consentVerificationSummary } from "@/lib/report-consent-copy";
 import { buildReportHeadline } from "@/lib/report-headline";
+import { parseEvidenceHash } from "@/lib/report-evidence-navigation";
 import { displayableScreenshot, gpcRunMeasurement } from "@/lib/report-insights";
 import type { LoadedReport } from "@/lib/scan-report-view";
 import {
@@ -57,6 +58,29 @@ export function ReportRenderer({
     setSelectedArm(null);
   }, [loaded]);
 
+  useEffect(() => {
+    function selectLinkedEvidenceArm(hash: string) {
+      const target = parseEvidenceHash(hash);
+      if (target?.arm) setSelectedArm(target.arm);
+    }
+    const selectCurrentLinkedEvidenceArm = () => selectLinkedEvidenceArm(window.location.hash);
+    function selectRepeatedLinkedEvidenceArm(event: MouseEvent) {
+      if (!(event.target instanceof Element)) return;
+      const anchor = event.target.closest<HTMLAnchorElement>("a");
+      const href = anchor?.getAttribute("href") ?? "";
+      if (!href.startsWith("#evidence=") || anchor?.hash !== window.location.hash) return;
+      selectLinkedEvidenceArm(anchor.hash);
+    }
+
+    selectCurrentLinkedEvidenceArm();
+    window.addEventListener("hashchange", selectCurrentLinkedEvidenceArm);
+    document.addEventListener("click", selectRepeatedLinkedEvidenceArm);
+    return () => {
+      window.removeEventListener("hashchange", selectCurrentLinkedEvidenceArm);
+      document.removeEventListener("click", selectRepeatedLinkedEvidenceArm);
+    };
+  }, [loaded]);
+
   const headlineFocusArm = useMemo(
     () => (arms ? buildReportHeadline(reportView).focusArm ?? null : null),
     [reportView, arms]
@@ -65,6 +89,7 @@ export function ReportRenderer({
     headlineFocusArm ?? (reportView.comparison?.temporalPair ? "variant" : "baseline");
   const displayedArmLabel: "baseline" | "variant" = selectedArm ?? defaultArm;
   const displayedRun = arms ? arms[displayedArmLabel] : primaryRun;
+  const screenshot = displayableScreenshot(displayedRun.screenshot);
 
   async function downloadReport() {
     const { publicWireForExportOrPersistence } = await import("@/lib/scan-report-view");
@@ -133,12 +158,12 @@ export function ReportRenderer({
           <Warnings warnings={reportView.warnings} />
         </div>
 
-        <aside className="report-sidebar">
-          {displayableScreenshot(displayedRun.screenshot) && (
+        <aside className="report-sidebar" aria-label="Supporting report evidence">
+          {screenshot && (
             <section className="side-card screenshot-card">
               <h2>Viewport</h2>
               <img
-                src={displayableScreenshot(displayedRun.screenshot)!}
+                src={screenshot}
                 alt={`Screenshot of ${displayedRun.domain}`}
                 loading="lazy"
                 decoding="async"

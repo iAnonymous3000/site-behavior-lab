@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import { FULL_GIT_SHA } from "./build-provenance";
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { analyzeRepeatedEffects, type RepeatedEffectAnalysis } from "./repeated-effect-analysis";
 import { aggregateSupportingPairR2 } from "./scan-report-v2-r2-aggregate";
 import { NODE_SCAN_REPORT_V2_R2_MAX_PUBLIC_BYTES } from "./scan-report-v2-r2-limits";
 
@@ -41,6 +42,8 @@ export type AggregateV2ShadowFilesResult = {
   artifactPath: string;
   receiptPath: string;
   receipt: V2ShadowAggregationReceipt;
+  /** Derived analysis sidecar; never serialized into the frozen report or local receipt. */
+  analysis: RepeatedEffectAnalysis;
 };
 
 export function parseAggregateV2ShadowArgs(args: string[]): AggregateV2ShadowArgs {
@@ -130,6 +133,10 @@ export async function aggregateV2ShadowFiles(
   if (input.requireCounterbalanced && !aggregated.counterbalanced) {
     throw new Error("The two recorded pairs have the same order; counterbalanced AB/BA evidence was required.");
   }
+  const analysis = analyzeRepeatedEffects(aggregated.report);
+  if (analysis.status === "not-analyzable" || analysis.pairDenominator.recordedPairs !== 2) {
+    throw new Error("The aggregated report failed the repeated-effect analysis boundary.");
+  }
 
   const primaryKey = input.primaryKey ?? path.basename(input.primaryFile);
   const supportingKey = input.supportingKey ?? path.basename(input.supportingFile);
@@ -186,15 +193,17 @@ export async function aggregateV2ShadowFiles(
     throw error;
   }
 
-  return { artifactPath, receiptPath, receipt };
+  return { artifactPath, receiptPath, receipt, analysis };
 }
 
 export function formatV2ShadowAggregationResult(result: AggregateV2ShadowFilesResult): string {
   const receipt = result.receipt;
+  const eligibleMetrics = result.analysis.metrics.filter((metric) => metric.status === "descriptive-only").length;
   return [
     `Aggregated 2 complete ${receipt.axis} pairs for build ${receipt.buildCommit}.`,
     `Order coverage: ${receipt.counterbalanced ? "AB and BA (counterbalanced)" : "one order only (not counterbalanced)"}.`,
     "Evidence strength: observed-difference (r2 does not represent a replicated-effect claim).",
+    `Metric analysis: ${eligibleMetrics}/${result.analysis.metrics.length} numeric endpoints have a complete two-pair denominator; confidence and population-effect intervals remain unavailable.`,
     `Artifact: ${path.basename(result.artifactPath)}`,
     `Local receipt: ${path.basename(result.receiptPath)}`
   ].join("\n");

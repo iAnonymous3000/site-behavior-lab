@@ -180,7 +180,7 @@ export function ScanControls({
       </div>
 
       {urlNotice && <p className="scanner-status-note url-privacy-note" id="url-notice">{urlNotice}</p>}
-      {urlError && <p className="scanner-status-note scanner-status-note-error" id="url-error">{urlError}</p>}
+      {urlError && <p className="scanner-status-note scanner-status-note-error" id="url-error" role="alert">{urlError}</p>}
 
       {knownSite ? (
         <div className="known-evidence" role="status">
@@ -233,14 +233,14 @@ export function ScanControls({
       )}
 
       {turnstileUnsupported && (
-        <p className="scanner-status-note scanner-status-note-error">
+        <p className="scanner-status-note scanner-status-note-error" role="alert">
           This scanner requires Turnstile verification, but this static build has no Turnstile site key. Set{" "}
           <code>NEXT_PUBLIC_SITE_BEHAVIOR_LAB_TURNSTILE_SITE_KEY</code> at build time to enable scanning.
         </p>
       )}
 
       {awaitingTurnstile && (
-        <p className="scanner-status-note">
+        <p className="scanner-status-note" role="status">
           Finishing a quick browser check above. Scan turns on once it passes; reload the page if it does not complete.
         </p>
       )}
@@ -258,8 +258,8 @@ export function ScanControls({
               <button
                 type="button"
                 aria-pressed={!isComparisonMode(form)}
+                aria-describedby="run-mode-single-description"
                 className={!isComparisonMode(form) ? "active" : ""}
-                title={RUN_MODE_TITLES.single}
                 onClick={() =>
                   setForm((current) => ({
                     ...current,
@@ -275,9 +275,9 @@ export function ScanControls({
               <button
                 type="button"
                 aria-pressed={form.compareGpc}
+                aria-describedby="run-mode-gpc-description"
                 className={form.compareGpc ? "active" : ""}
                 disabled={!gpcComparisonEnabled}
-                title={gpcComparisonEnabled ? RUN_MODE_TITLES.gpc : "GPC comparison is not available from this scanner."}
                 onClick={() =>
                   setForm((current) => ({
                     ...current,
@@ -293,9 +293,9 @@ export function ScanControls({
               <button
                 type="button"
                 aria-pressed={form.compareShields}
+                aria-describedby="run-mode-shields-description"
                 className={form.compareShields ? "active" : ""}
                 disabled={!shieldsComparisonEnabled}
-                title={shieldsComparisonEnabled ? RUN_MODE_TITLES.shields : "Brave Shields comparison requires the Node scanner."}
                 aria-label="Blocker comparison (Brave Shields)"
                 onClick={() =>
                   setForm((current) => ({
@@ -312,9 +312,9 @@ export function ScanControls({
               <button
                 type="button"
                 aria-pressed={form.compareConsent}
+                aria-describedby="run-mode-consent-description"
                 className={form.compareConsent ? "active" : ""}
                 disabled={!consentComparisonEnabled}
-                title={consentComparisonEnabled ? RUN_MODE_TITLES.consent : "Consent comparison requires the Node scanner."}
                 aria-label="Consent comparison (accept all versus reject all)"
                 onClick={() =>
                   setForm((current) => ({
@@ -328,6 +328,18 @@ export function ScanControls({
                 <Cookie size={16} aria-hidden="true" />
                 {RUN_MODE_LABELS.consent}
               </button>
+            </div>
+            <div className="run-mode-descriptions">
+              <p className="visually-hidden" id="run-mode-single-description">{RUN_MODE_TITLES.single}</p>
+              <p className={gpcComparisonEnabled ? "visually-hidden" : "run-mode-unavailable"} id="run-mode-gpc-description">
+                {gpcComparisonEnabled ? RUN_MODE_TITLES.gpc : "GPC comparison is not available from this scanner."}
+              </p>
+              <p className={shieldsComparisonEnabled ? "visually-hidden" : "run-mode-unavailable"} id="run-mode-shields-description">
+                {shieldsComparisonEnabled ? RUN_MODE_TITLES.shields : "Blocker comparison requires the Node scanner."}
+              </p>
+              <p className={consentComparisonEnabled ? "visually-hidden" : "run-mode-unavailable"} id="run-mode-consent-description">
+                {consentComparisonEnabled ? RUN_MODE_TITLES.consent : "Consent comparison requires the Node scanner."}
+              </p>
             </div>
           </fieldset>
 
@@ -360,17 +372,20 @@ export function ScanControls({
             {gpcComparisonEnabled && form.compareGpc ? (
               <div className="readonly-control">Off + On</div>
             ) : (
-              <label
-                className="switch-row"
-                title='Global Privacy Control: a "do not sell or share my data" signal sent with every request.'
-              >
-                <input
-                  type="checkbox"
-                  checked={form.gpcEnabled}
-                  onChange={(event) => setForm((current) => ({ ...current, gpcEnabled: event.target.checked }))}
-                />
-                <span>Send GPC</span>
-              </label>
+              <>
+                <label className="switch-row">
+                  <input
+                    aria-describedby="gpc-signal-description"
+                    type="checkbox"
+                    checked={form.gpcEnabled}
+                    onChange={(event) => setForm((current) => ({ ...current, gpcEnabled: event.target.checked }))}
+                  />
+                  <span>Send GPC</span>
+                </label>
+                <p className="control-help" id="gpc-signal-description">
+                  Global Privacy Control is a legal “do not sell or share my data” signal sent with every request.
+                </p>
+              </>
             )}
           </fieldset>
 
@@ -392,7 +407,7 @@ export function ScanControls({
             </fieldset>
           )}
         </div>
-        <p className="run-mode-hint">{runModeHint(selectedRunMode(form))}</p>
+        <p className="run-mode-hint" aria-live="polite">{runModeHint(selectedRunMode(form))}</p>
       </details>
     </form>
   );

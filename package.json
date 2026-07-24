@@ -20,8 +20,10 @@
   ],
   "license": "AGPL-3.0-or-later",
   "private": true,
+  "packageManager": "npm@11.11.0",
   "engines": {
-    "node": "24.x"
+    "node": "24.14.1",
+    "npm": "11.11.0"
   },
   "scripts": {
     "dev": "next dev --hostname 127.0.0.1 --port 3000",
@@ -32,18 +34,24 @@
     "cf:container:deploy": "node scripts/deploy-container.mjs",
     "cf:container:staging:deploy": "node scripts/deploy-container.mjs --config wrangler.container.staging.jsonc",
     "cf:container:staging:verify": "node scripts/deploy-container.mjs --check --config wrangler.container.staging.jsonc",
+    "cf:container:watch-staging:deploy": "node scripts/deploy-container.mjs --config wrangler.container.watch-staging.jsonc",
+    "cf:container:watch-staging:verify": "node scripts/deploy-container.mjs --check --config wrangler.container.watch-staging.jsonc",
     "cf:container:verify": "node scripts/deploy-container.mjs --check",
     "cf:deploy": "wrangler deploy -c wrangler.browser-run.jsonc",
     "cf:dev": "wrangler dev -c wrangler.browser-run.jsonc",
-    "cf:kv:create": "wrangler kv namespace create site-behavior-lab-reports",
+    "cf:kv:create": "wrangler kv namespace create site-behavior-lab-reports -c wrangler.browser-run.jsonc",
+    "cf:r2-delete-canary:deploy": "wrangler deploy -c wrangler.r2-delete-canary.jsonc",
     "cf:typecheck": "tsc -p tsconfig.cloudflare.json --noEmit",
     "lists:brave": "node scripts/fetch-brave-lists.mjs",
     "lists:verify": "node scripts/verify-adblock-engine.mjs",
+    "supply-chain:third-party:check": "node scripts/third-party-inventory.mjs --check",
     "check": "npm run typecheck && npm run cf:typecheck && npm run test:unit && npm run build",
     "corpus:pagegraph": "tsc -p tsconfig.test.json && node .unit-test-dist/lib/pagegraph-corpus-cli.js",
     "corpus:audit-neutrality": "tsc -p tsconfig.schema.json && node dist/schema/lib/corpus-neutrality-cli.js",
     "corpus:stats": "node scripts/build-corpus-stats.mjs",
     "reports:manifest": "node scripts/build-static-report-manifest.mjs",
+    "reports:publication-artifact": "node scripts/report-publication-artifact.mjs",
+    "reports:publication-archive": "node scripts/report-publication-archive.mjs",
     "reports:prune": "node scripts/prune-static-reports.mjs",
     "corrections:verify-history": "tsc -p tsconfig.schema.json && node dist/schema/lib/corrections-ledger-history-cli.js",
     "scan:ci": "node scripts/run-ci-scan.mjs",
@@ -53,16 +61,19 @@
     "test:smoke:docker": "node scripts/smoke-docker.mjs",
     "test:smoke:scanner": "node scripts/smoke-deployed-scanner.mjs",
     "test:smoke:production-synthetic": "node scripts/smoke-production-synthetic.mjs",
+    "test:smoke:production-r2-delete": "node scripts/smoke-production-r2-delete.mjs",
     "test:smoke:durable-job-replay": "node scripts/smoke-durable-job-replay.mjs",
     "test:smoke:encrypted-watches": "node scripts/smoke-encrypted-watches.mjs",
     "toolchain:canary": "tsc -p tsconfig.schema.json && node scripts/toolchain-canary.mjs",
+    "wasm:verify-reproducibility": "node scripts/verify-wasm-reproducibility.mjs --verify",
     "test:unit": "rm -rf .unit-test-dist && tsc -p tsconfig.test.json && node --test --test-concurrency=1 .unit-test-dist/lib/*.test.js",
     "test:smoke": "node scripts/smoke-test.mjs",
     "typecheck": "next typegen && tsc --noEmit",
     "reports:remediation-inventory": "node scripts/remediation-inventory.mjs",
     "reports:remediate": "tsc -p tsconfig.schema.json && node dist/schema/lib/remediate-reports-cli.js",
     "reports:aggregate-v2-shadow": "tsc -p tsconfig.schema.json && node dist/schema/lib/aggregate-v2-shadow-cli.js",
-    "reports:verify-v2-shadow": "tsc -p tsconfig.schema.json && node dist/schema/lib/verify-v2-shadow-cli.js"
+    "reports:verify-v2-shadow": "tsc -p tsconfig.schema.json && node dist/schema/lib/verify-v2-shadow-cli.js",
+    "release:evidence": "node scripts/release-evidence.mjs"
   },
   "dependencies": {
     "aws4fetch": "^1.0.20",
@@ -78,6 +89,7 @@
     "sharp": "0.35.3"
   },
   "devDependencies": {
+    "@axe-core/playwright": "4.12.1",
     "@cloudflare/containers": "^0.3.7",
     "@cloudflare/playwright": "^1.3.0",
     "@cloudflare/workers-types": "^5.20260719.1",
@@ -85,6 +97,7 @@
     "@types/react": "^19.0.1",
     "@types/react-dom": "^19.0.2",
     "ajv": "8.20.0",
+    "miniflare": "4.20260721.0",
     "ts-json-schema-generator": "2.9.0",
     "typescript": "^5.7.2",
     "wrangler": "^4.112.0"

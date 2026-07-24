@@ -1,7 +1,17 @@
 import { REPORT_ID_PATTERN } from "./report-validation";
+import {
+  SCAN_ADMISSION_TTL_MS,
+  isScanAdmissionCredential,
+  type ScanAdmissionCredential
+} from "./scan-admission-capability";
+import { parseStrictJson } from "./strict-json";
 
 export const ACTIVE_SCAN_SESSION_STORAGE_KEY = "site-behavior-lab.active-scan.v1";
-export const ACTIVE_SCAN_SESSION_MAX_AGE_MS = 75 * 60 * 1000;
+export const PENDING_SCAN_ADMISSION_STORAGE_KEY =
+  "site-behavior-lab.pending-scan-admission.v1";
+export const ACTIVE_SCAN_SESSION_MAX_AGE_MS = SCAN_ADMISSION_TTL_MS;
+/** Both canonical recovery records are under 512 bytes; leave bounded headroom for versioned metadata. */
+export const ACTIVE_SCAN_SESSION_MAX_STORAGE_BYTES = 2_048;
 
 type SessionStorageLike = Pick<Storage, "getItem" | "setItem" | "removeItem">;
 
@@ -11,7 +21,7 @@ export type RecoverableScanJob = {
   reportId: string;
 };
 
-/** Authentication is intentionally memory-only and never part of recovery storage. */
+/** Deployment-wide authentication is memory-only and never part of recovery storage. */
 export type ActiveScanJob = RecoverableScanJob & { accessKey: string };
 
 export type ActiveScanSession = {
@@ -19,6 +29,90 @@ export type ActiveScanSession = {
   acceptedAt: number;
   expiresAt: number;
 };
+
+export type PendingScanAdmissionSession = {
+  credential: ScanAdmissionCredential;
+  createdAt: number;
+  expiresAt: number;
+};
+
+/**
+ * Persist a freshly minted, request-bound capability before any POST bytes are
+ * dispatched. This record contains no target, options, access key, Turnstile
+ * token, report, or evidence and is scoped to the current browser tab.
+ */
+export function persistPendingScanAdmissionSession(
+  storage: SessionStorageLike,
+  credential: ScanAdmissionCredential,
+  now = Date.now()
+): PendingScanAdmissionSession {
+  if (
+    !isScanAdmissionCredential(credential) ||
+    !isValidSessionTimestamp(now) ||
+    now > Number.MAX_SAFE_INTEGER - SCAN_ADMISSION_TTL_MS
+  ) {
+    throw new Error("Invalid pending scan admission.");
+  }
+  const session = {
+    credential: copyScanAdmissionCredential(credential),
+    createdAt: now,
+    expiresAt: now + SCAN_ADMISSION_TTL_MS
+  } satisfies PendingScanAdmissionSession;
+
+  const serialized = JSON.stringify({ version: 1, ...session });
+  storage.setItem(PENDING_SCAN_ADMISSION_STORAGE_KEY, serialized);
+  if (storage.getItem(PENDING_SCAN_ADMISSION_STORAGE_KEY) !== serialized) {
+    clearPendingScanAdmissionSession(storage);
+    // Durable POST bytes must never leave a tab unless crash/reload recovery
+    // authority was written and read back exactly.
+    throw new Error("The pending scan admission could not be retained in this tab.");
+  }
+  return session;
+}
+
+export function restorePendingScanAdmissionSession(
+  storage: SessionStorageLike,
+  now = Date.now()
+): PendingScanAdmissionSession | null {
+  let raw: string | null = null;
+  try {
+    raw = storage.getItem(PENDING_SCAN_ADMISSION_STORAGE_KEY);
+  } catch {
+    return null;
+  }
+  if (!raw) return null;
+  if (raw.length > ACTIVE_SCAN_SESSION_MAX_STORAGE_BYTES) {
+    clearPendingScanAdmissionSession(storage);
+    return null;
+  }
+
+  let parsed: unknown;
+  try {
+    parsed = parseStrictJson(raw, ACTIVE_SCAN_SESSION_MAX_STORAGE_BYTES);
+  } catch {
+    clearPendingScanAdmissionSession(storage);
+    return null;
+  }
+  if (!isStoredPendingScanAdmissionSession(parsed, now)) {
+    clearPendingScanAdmissionSession(storage);
+    return null;
+  }
+  return {
+    credential: copyScanAdmissionCredential(parsed.credential),
+    createdAt: parsed.createdAt,
+    expiresAt: parsed.expiresAt
+  };
+}
+
+export function clearPendingScanAdmissionSession(
+  storage: Pick<Storage, "removeItem">
+): void {
+  try {
+    storage.removeItem(PENDING_SCAN_ADMISSION_STORAGE_KEY);
+  } catch {
+    /* sessionStorage unavailable */
+  }
+}
 
 /**
  * Persist only the accepted job/report capability linkage, scoped to this tab.
@@ -60,10 +154,14 @@ export function restoreActiveScanSession(
     return null;
   }
   if (!raw) return null;
+  if (raw.length > ACTIVE_SCAN_SESSION_MAX_STORAGE_BYTES) {
+    clearActiveScanSession(storage);
+    return null;
+  }
 
   let parsed: unknown;
   try {
-    parsed = JSON.parse(raw) as unknown;
+    parsed = parseStrictJson(raw, ACTIVE_SCAN_SESSION_MAX_STORAGE_BYTES);
   } catch {
     clearActiveScanSession(storage);
     return null;
@@ -124,12 +222,46 @@ function isStoredActiveScanSession(
   return isRecoverableScanJob(value.job);
 }
 
+function isStoredPendingScanAdmissionSession(
+  value: unknown,
+  now: number
+): value is PendingScanAdmissionSession & { version: 1 } {
+  if (
+    !isPlainRecord(value) ||
+    !hasExactKeys(value, ["createdAt", "credential", "expiresAt", "version"])
+  ) {
+    return false;
+  }
+  return (
+    value.version === 1 &&
+    isValidSessionTimestamp(value.createdAt) &&
+    isValidSessionTimestamp(value.expiresAt) &&
+    value.expiresAt === value.createdAt + SCAN_ADMISSION_TTL_MS &&
+    value.createdAt <= now &&
+    value.expiresAt > now &&
+    isScanAdmissionCredential(value.credential)
+  );
+}
+
 function copyRecoverableScanJob(job: RecoverableScanJob): RecoverableScanJob {
   return {
     jobId: job.jobId,
     statusPath: job.statusPath,
     reportId: job.reportId
   };
+}
+
+function copyScanAdmissionCredential(
+  credential: ScanAdmissionCredential
+): ScanAdmissionCredential {
+  return {
+    capabilityToken: credential.capabilityToken,
+    requestCommitment: credential.requestCommitment
+  };
+}
+
+function isValidSessionTimestamp(value: unknown): value is number {
+  return typeof value === "number" && Number.isSafeInteger(value) && value >= 0;
 }
 
 function isPlainRecord(value: unknown): value is Record<string, unknown> {

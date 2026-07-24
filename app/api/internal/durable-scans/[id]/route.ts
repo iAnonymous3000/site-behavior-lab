@@ -4,6 +4,7 @@ import {
   assertDurableScanJobInternalRequest,
   isDurableScanJobActivation,
   isScanJobId,
+  readDurableScanJobInternalRequestJson,
   type DurableScanJobActivation
 } from "@/lib/durable-scan-job-node";
 import {
@@ -21,7 +22,7 @@ type RouteContext = { params: Promise<{ id: string }> };
 export async function POST(request: Request, context: RouteContext): Promise<Response> {
   try {
     assertDurableScanJobInternalRequest(request);
-    const body: unknown = await request.json();
+    const body = await readDurableScanJobInternalRequestJson(request);
     const { id } = await context.params;
     if (!isDurableScanJobActivation(body) || body.jobId !== id) {
       return controlError("Invalid durable scan-job activation.", 400);
@@ -36,7 +37,7 @@ export async function POST(request: Request, context: RouteContext): Promise<Res
 export async function DELETE(request: Request, context: RouteContext): Promise<Response> {
   try {
     assertDurableScanJobInternalRequest(request);
-    const body: unknown = await request.json();
+    const body = await readDurableScanJobInternalRequestJson(request);
     const { id } = await context.params;
     if (!isGenerationControl(body) || body.jobId !== id) {
       return controlError("Invalid durable scan-job cancellation owner.", 400);

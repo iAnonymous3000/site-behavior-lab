@@ -7,16 +7,23 @@ import { TCF_API_METHOD } from "./consent-verification";
 import { GPC_WORKER_CAPTURE_LOSS_WARNING } from "./gpc-injection";
 import { MeasurementKernel } from "./measurement-kernel";
 import { buildScanConditions, buildScanResult } from "./scan-result-builder";
-import { ScanNetworkRecorder } from "./scan-runtime";
+import {
+  MAX_RECORDED_REQUEST_URL_CHARS,
+  ScanNetworkRecorder
+} from "./scan-runtime";
 import type { FingerprintDetectionSummary } from "./types";
 import {
-  attachStagedSingleVisitMeasurement,
   browserProcessEnvironment,
+  captureProbeRequest,
   closeSharedBrowserForTests,
   createContextOptions,
+  createProbeRequestCaptureState,
   decideRoutedRequest,
   fingerprintFrameCoverageStatus,
   MAX_RECORDED_REQUESTS,
+  MAX_CAPTURED_BODY_CHARS,
+  MAX_PROBE_CAPTURED_REQUESTS,
+  MAX_PROBE_FIELD_CANDIDATES,
   NON_HTTP_WARNING_EXAMPLE_LIMIT,
   phaseAwareDetections,
   redactUrlForReport,
@@ -25,13 +32,14 @@ import {
   ScanRequestBudget,
   scannerEgressRegion,
   scanSite,
+  scanSiteWithMeasurement,
   scanTimeout,
   ScanWarningCollector,
   sameScanSubjectUrl,
-  stagedSingleVisitMeasurement,
   typeSentinelIntoFields,
   type ScanEvidenceDiagnostics
 } from "./scanner";
+import { createNodeScanMeasurementEnvelope } from "./node-scan-measurement";
 import { INVALID_UPSTREAM_RESPONSE_WARNING } from "./scan-runtime";
 import { resolveScannerEgressRegion } from "./scanner-egress";
 
@@ -127,14 +135,25 @@ test("active input typing stops if focus races an origin change", async () => {
     async isVisible() {
       return true;
     },
-    async evaluate(callback: (element: HTMLElement) => unknown) {
+    async evaluate<Arg>(callback: (element: HTMLElement, arg: Arg) => unknown, arg: Arg) {
       const element = {
         tagName: "INPUT",
         isContentEditable: false,
         getAttribute: () => "text",
         blur: () => undefined
       } as unknown as HTMLElement;
-      return callback(element);
+      Object.defineProperty(globalThis, "test-collector", {
+        configurable: true,
+        value: {
+          fieldType: () => "text",
+          blur: () => true
+        }
+      });
+      try {
+        return callback(element, arg);
+      } finally {
+        Reflect.deleteProperty(globalThis, "test-collector");
+      }
     },
     async focus() {
       currentUrl = "https://account.example.com/redirected";
@@ -146,17 +165,100 @@ test("active input typing stops if focus races an origin change", async () => {
   };
   const page = {
     url: () => currentUrl,
-    $$: async () => [handle]
+    locator: () => ({
+      count: async () => 1,
+      nth: () => ({ elementHandle: async () => handle })
+    })
   };
 
   const result = await typeSentinelIntoFields(
     page as unknown as Parameters<typeof typeSentinelIntoFields>[0],
     "synthetic-value",
-    "https://www.example.com/form"
+    "https://www.example.com/form",
+    "test-collector"
   );
 
-  assert.deepEqual(result, { count: 0, types: [], subjectLost: true });
+  assert.deepEqual(result, { count: 0, types: [], subjectLost: true, omittedCandidateCount: 0 });
   assert.equal(typed, false);
+});
+
+test("active input typing materializes only the bounded candidate window", async () => {
+  let handleReads = 0;
+  let disposals = 0;
+  const handle = {
+    async isVisible() {
+      return false;
+    },
+    async dispose() {
+      disposals += 1;
+    }
+  };
+  const page = {
+    url: () => "https://www.example.com/form",
+    locator: () => ({
+      count: async () => 1_000_000,
+      nth: () => ({
+        elementHandle: async () => {
+          handleReads += 1;
+          return handle;
+        }
+      })
+    })
+  };
+
+  const result = await typeSentinelIntoFields(
+    page as unknown as Parameters<typeof typeSentinelIntoFields>[0],
+    "synthetic-value",
+    "https://www.example.com/form",
+    "test-collector"
+  );
+
+  assert.equal(handleReads, MAX_PROBE_FIELD_CANDIDATES);
+  assert.equal(disposals, MAX_PROBE_FIELD_CANDIDATES);
+  assert.deepEqual(result, {
+    count: 0,
+    types: [],
+    subjectLost: false,
+    omittedCandidateCount: 1_000_000 - MAX_PROBE_FIELD_CANDIDATES
+  });
+});
+
+test("active-probe request capture bounds request count, URL length, and body retention", () => {
+  const state = createProbeRequestCaptureState();
+  let postDataReads = 0;
+  for (let index = 0; index < MAX_PROBE_CAPTURED_REQUESTS + 5; index += 1) {
+    captureProbeRequest(state, {
+      url: () => `https://tracker.example/request-${index}`,
+      postData: () => {
+        postDataReads += 1;
+        return "ok";
+      }
+    } as never, "example.com");
+  }
+  assert.equal(state.requests.length, MAX_PROBE_CAPTURED_REQUESTS);
+  assert.equal(state.captureLossCount, 5);
+  assert.equal(postDataReads, MAX_PROBE_CAPTURED_REQUESTS);
+
+  const oversized = createProbeRequestCaptureState();
+  let oversizedPostDataReads = 0;
+  captureProbeRequest(oversized, {
+    url: () => `https://tracker.example/${"x".repeat(MAX_RECORDED_REQUEST_URL_CHARS)}`,
+    postData: () => {
+      oversizedPostDataReads += 1;
+      return "unused";
+    }
+  } as never, "example.com");
+  assert.equal(oversized.requests.length, 0);
+  assert.equal(oversized.captureLossCount, 1);
+  assert.equal(oversizedPostDataReads, 0);
+
+  const longBody = createProbeRequestCaptureState();
+  captureProbeRequest(longBody, {
+    url: () => "https://tracker.example/submit",
+    postData: () => "b".repeat(MAX_CAPTURED_BODY_CHARS + 1)
+  } as never, "example.com");
+  assert.equal(longBody.requests[0].body?.length, MAX_CAPTURED_BODY_CHARS);
+  assert.equal(longBody.captureLossCount, 1);
 });
 
 test("phase-aware fingerprint detections never assign cumulative evidence to the passive phase", () => {
@@ -542,7 +644,7 @@ test("retained scanner diagnostics subtract reload loss while keeping later acti
   });
 });
 
-test("phase-aware single-visit facts attach out of band while the v1 wire stays byte-identical", () => {
+test("phase-aware single-visit facts travel in an explicit envelope while the v1 wire stays byte-identical", () => {
   let now = 1_000;
   const kernel = new MeasurementKernel<object>(1_000, () => now);
   const passiveRequest = {};
@@ -600,7 +702,7 @@ test("phase-aware single-visit facts attach out of band while the v1 wire stays 
   });
   const before = JSON.stringify(result);
 
-  const returned = attachStagedSingleVisitMeasurement(result, {
+  const envelope = createNodeScanMeasurementEnvelope(result, {
     measurement: { phases: finished.phases, detectors: finished.detectors, qualityFacts },
     evidence: {
       requests: [
@@ -660,24 +762,24 @@ test("phase-aware single-visit facts attach out of band while the v1 wire stays 
     }
   });
 
-  assert.equal(returned, result);
+  assert.equal(envelope.result, result);
   assert.equal(JSON.stringify(result), before);
   assert.equal(result.schemaVersion, 1);
   assert.equal(Object.prototype.hasOwnProperty.call(result, "measurement"), false);
   assert.equal(Object.prototype.hasOwnProperty.call(result, "phases"), false);
   assert.equal(Object.prototype.hasOwnProperty.call(result, "verificationFacts"), false);
 
-  const staged = stagedSingleVisitMeasurement(result);
-  assert.deepEqual(staged?.measurement.phases, [
+  const measurement = envelope.measurement;
+  assert.deepEqual(measurement.measurement.phases, [
     { phaseId: 0, kind: "passive-load", startedAtMs: 0, endedAtMs: 100 },
     { phaseId: 1, kind: "active-probe", startedAtMs: 100, endedAtMs: 200 }
   ]);
-  assert.deepEqual(staged?.evidence.requests.map((item) => item.phaseId), [0, 1]);
-  assert.deepEqual(staged?.measurement.qualityFacts.captureLoss, [
+  assert.deepEqual(measurement.evidence.requests.map((item) => item.phaseId), [0, 1]);
+  assert.deepEqual(measurement.measurement.qualityFacts.captureLoss, [
     { family: "requests", phaseId: null, kind: "cap", count: 2, detail: "request-upload" }
   ]);
-  assert.equal(staged?.measurement.detectors["consent-banner"].status, "skipped");
-  assert.deepEqual(staged?.verificationFacts.gpc, {
+  assert.equal(measurement.measurement.detectors["consent-banner"].status, "skipped");
+  assert.deepEqual(measurement.verificationFacts.gpc, {
     method: "gpc-header-readback@1",
     header: "confirmed-present",
     jsSignal: "confirmed-true",
@@ -685,10 +787,10 @@ test("phase-aware single-visit facts attach out of band while the v1 wire stays 
     phaseId: 0
   });
 
-  staged!.measurement.phases[0].endedAtMs = 999;
-  staged!.verificationFacts.gpc.jsSignal = "read-failed";
-  assert.equal(stagedSingleVisitMeasurement(result)?.measurement.phases[0].endedAtMs, 100);
-  assert.equal(stagedSingleVisitMeasurement(result)?.verificationFacts.gpc.jsSignal, "confirmed-true");
+  const copiedEnvelope = { ...envelope, result: { ...envelope.result } };
+  assert.deepEqual(copiedEnvelope.measurement, envelope.measurement);
+  assert.equal(copiedEnvelope.measurement.measurement.phases[0].endedAtMs, 100);
+  assert.equal(copiedEnvelope.measurement.verificationFacts.gpc.jsSignal, "confirmed-true");
 });
 
 test("ScanNetworkRecorder keeps raw evidence ephemeral until the post-classification build seam", () => {
@@ -721,6 +823,56 @@ test("ScanNetworkRecorder keeps raw evidence ephemeral until the post-classifica
     "a8f3c9d2e1b4f6a7.tracker.example.net",
     "a8f3c9d2e1b4f6a7.tracker.example.net"
   ]);
+});
+
+test("ScanNetworkRecorder admits a slot before reading hostile request strings", () => {
+  const warnings = new ScanWarningCollector();
+  const recorder = new ScanNetworkRecorder({
+    firstPartyHostname: "example.com",
+    warnings,
+    maxRequests: 0
+  });
+  let urlReads = 0;
+  recorder.recordRequest({
+    url: () => {
+      urlReads += 1;
+      throw new Error("request URL must not be read after the cap");
+    },
+    method: () => "GET",
+    resourceType: () => "script"
+  }, 1);
+
+  assert.equal(urlReads, 0);
+  assert.deepEqual(recorder.publicRecords("example.com"), []);
+  assert.equal(recorder.requestBudget.getDiagnostics().captureLossCount, 1);
+});
+
+test("ScanNetworkRecorder rejects overlong URLs before parsing and releases the slot", () => {
+  let trackerCalls = 0;
+  const recorder = new ScanNetworkRecorder({
+    firstPartyHostname: "example.com",
+    warnings: new ScanWarningCollector(),
+    maxRequests: 1,
+    trackerMatcher: () => {
+      trackerCalls += 1;
+      return null;
+    }
+  });
+  recorder.recordRequest({
+    url: () => `https://tracker.example/${"x".repeat(MAX_RECORDED_REQUEST_URL_CHARS)}`,
+    method: () => "GET",
+    resourceType: () => "script"
+  }, 1);
+  recorder.recordRequest({
+    url: () => "https://tracker.example/ok",
+    method: () => "GET",
+    resourceType: () => "script"
+  }, 2);
+
+  const records = recorder.publicRecords("example.com");
+  assert.equal(records.length, 1);
+  assert.equal(records[0].url, "https://tracker.example/ok");
+  assert.equal(trackerCalls, 2, "valid request is classified at record and public projection seams only");
 });
 
 test("ScanWarningCollector limits noisy non-HTTP request examples", () => {
@@ -1204,7 +1356,7 @@ test("scanSite stages live phase-aware readbacks while returning only v1", { tim
 
   try {
     const runFixture = (url: string) =>
-      scanSite(
+      scanSiteWithMeasurement(
         { url, device: "desktop", gpcEnabled: true, consentMode: "observe" },
         {
         publicUrlAlreadyVerified: true,
@@ -1216,19 +1368,17 @@ test("scanSite stages live phase-aware readbacks while returning only v1", { tim
         }
         }
       );
-    const result = await runFixture("http://phase-collection.test/");
+    const { result, measurement: staged } = await runFixture("http://phase-collection.test/");
 
     assert.equal(result.schemaVersion, 1);
     assert.equal(Object.prototype.hasOwnProperty.call(result, "measurement"), false);
     assert.equal(Object.prototype.hasOwnProperty.call(result, "phases"), false);
     assert.equal(Object.prototype.hasOwnProperty.call(result, "verificationFacts"), false);
     assert.deepEqual(receivedFinalGpcHeaders, ["1"]);
-    const staged = stagedSingleVisitMeasurement(result);
-    assert.notEqual(staged, null);
-    assert.deepEqual(staged!.measurement.phases.map((phase) => phase.kind), ["passive-load", "active-probe"]);
-    assert.equal(Object.keys(staged!.measurement.detectors).length, 6);
-    assert.equal(staged!.measurement.detectors["fingerprint-heuristics"].status, "complete");
-    assert.deepEqual(staged!.measurement.detectors["keystroke-exfiltration"], {
+    assert.deepEqual(staged.measurement.phases.map((phase) => phase.kind), ["passive-load", "active-probe"]);
+    assert.equal(Object.keys(staged.measurement.detectors).length, 6);
+    assert.equal(staged.measurement.detectors["fingerprint-heuristics"].status, "complete");
+    assert.deepEqual(staged.measurement.detectors["keystroke-exfiltration"], {
       version: "synthetic-sentinel@1",
       status: "complete",
       phaseId: 1
@@ -1262,9 +1412,8 @@ test("scanSite stages live phase-aware readbacks while returning only v1", { tim
       ).length
     );
 
-    const tamperAttempt = stagedSingleVisitMeasurement(await runFixture("http://phase-collection.test/?tamper=1"));
-    assert.notEqual(tamperAttempt, null);
-    assert.deepEqual(tamperAttempt!.verificationFacts.gpc, {
+    const tamperAttempt = (await runFixture("http://phase-collection.test/?tamper=1")).measurement;
+    assert.deepEqual(tamperAttempt.verificationFacts.gpc, {
       method: "gpc-header-readback@1",
       header: "confirmed-present",
       jsSignal: "confirmed-true",
@@ -1273,7 +1422,7 @@ test("scanSite stages live phase-aware readbacks while returning only v1", { tim
     });
     assert.deepEqual(receivedFinalGpcHeaders, ["1", "1"]);
 
-    const cappedResult = await scanSite(
+    const { result: cappedResult, measurement: capped } = await scanSiteWithMeasurement(
       { url: "http://final-phase.test/", device: "desktop", gpcEnabled: false, consentMode: "observe" },
       {
         publicUrlAlreadyVerified: true,
@@ -1284,8 +1433,6 @@ test("scanSite stages live phase-aware readbacks while returning only v1", { tim
         proxyTransactionLimitForTests: 1
       }
     );
-    const capped = stagedSingleVisitMeasurement(cappedResult);
-    assert.notEqual(capped, null);
     assert.equal(
       cappedResult.warnings.includes(
         "The scan stopped opening additional proxy requests after reaching its connection and target safety budget."
@@ -1329,7 +1476,7 @@ test("scanSite marks fingerprint coverage partial when a poisoned main frame is 
   assert.ok(address && typeof address === "object");
 
   try {
-    const result = await scanSite(
+    const { measurement: staged } = await scanSiteWithMeasurement(
       {
         url: "http://fingerprint-partial.test/",
         device: "desktop",
@@ -1344,8 +1491,6 @@ test("scanSite marks fingerprint coverage partial when a poisoned main frame is 
         resolveCnameChain: async () => []
       }
     );
-    const staged = stagedSingleVisitMeasurement(result);
-    assert.notEqual(staged, null);
     assert.deepEqual(staged!.measurement.detectors["fingerprint-heuristics"], {
       version: "fingerprint-observer@1",
       status: "partial",
@@ -1394,7 +1539,7 @@ test("malformed upstream status metadata becomes explicit request capture loss",
   assert.ok(address && typeof address === "object");
 
   try {
-    const result = await scanSite(
+    const { result, measurement: staged } = await scanSiteWithMeasurement(
       { url: "http://malformed-scan.test/", device: "desktop", gpcEnabled: false, consentMode: "observe" },
       {
         publicUrlAlreadyVerified: true,
@@ -1404,13 +1549,12 @@ test("malformed upstream status metadata becomes explicit request capture loss",
         resolveCnameChain: async () => []
       }
     );
-    assert.equal(result.summary.pageTitle, "Malformed subresource fixture");
+    assert.equal(result.summary.pageTitle, "", "page-authored titles are withheld by redaction policy");
+    assert.equal(result.summary.status, 200, "the malformed subresource does not fail the recorded visit");
     assert.equal(
       result.warnings.includes(INVALID_UPSTREAM_RESPONSE_WARNING),
       true
     );
-    const staged = stagedSingleVisitMeasurement(result);
-    assert.notEqual(staged, null);
     assert.equal(
       staged!.measurement.qualityFacts.captureLoss.some(
         (loss) => loss.family === "requests" && loss.phaseId === null && loss.kind === "dropped" && loss.count >= 1
@@ -1451,7 +1595,7 @@ test("an ordinary upstream subresource failure does not censor request evidence"
   assert.ok(address && typeof address === "object");
 
   try {
-    const result = await scanSite(
+    const { result, measurement: staged } = await scanSiteWithMeasurement(
       { url: "http://ordinary-failure.test/", device: "desktop", gpcEnabled: false, consentMode: "observe" },
       {
         publicUrlAlreadyVerified: true,
@@ -1462,10 +1606,9 @@ test("an ordinary upstream subresource failure does not censor request evidence"
       }
     );
     assert.equal(failedSubresourceHits, 1);
-    assert.equal(result.summary.pageTitle, "Ordinary failure fixture");
+    assert.equal(result.summary.pageTitle, "", "page-authored titles are withheld by redaction policy");
+    assert.equal(result.summary.status, 200, "the ordinary subresource failure does not fail the recorded visit");
     assert.equal(result.warnings.includes(INVALID_UPSTREAM_RESPONSE_WARNING), false);
-    const staged = stagedSingleVisitMeasurement(result);
-    assert.notEqual(staged, null);
     assert.equal(
       staged!.measurement.qualityFacts.captureLoss.some(
         (loss) => loss.family === "requests" && loss.phaseId === null && loss.kind === "dropped"
@@ -1515,7 +1658,7 @@ test("excluded privacy-policy traffic cannot censor the main visit's request evi
   assert.ok(address && typeof address === "object");
 
   try {
-    const result = await scanSite(
+    const { result, measurement: staged } = await scanSiteWithMeasurement(
       { url: "http://policy-main.test/", device: "desktop", gpcEnabled: true, consentMode: "observe" },
       {
         publicUrlAlreadyVerified: true,
@@ -1533,8 +1676,6 @@ test("excluded privacy-policy traffic cannot censor the main visit's request evi
     assert.equal(result.requests.length, 1, "the policy visit stays outside the public request log");
     assert.equal(result.warnings.includes(INVALID_UPSTREAM_RESPONSE_WARNING), false);
     assert.equal(result.warnings.includes(GPC_WORKER_CAPTURE_LOSS_WARNING), false);
-    const staged = stagedSingleVisitMeasurement(result);
-    assert.notEqual(staged, null);
     assert.equal(
       staged!.measurement.qualityFacts.captureLoss.some(
         (loss) => loss.family === "requests" && loss.phaseId === null && loss.kind === "dropped"
@@ -1599,7 +1740,7 @@ test("excluded post-consent reload traffic cannot exhaust retained proxy evidenc
 
   process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION = "1";
   try {
-    const result = await scanSite(
+    const { result, measurement: staged } = await scanSiteWithMeasurement(
       {
         url: "http://excluded-reload-budget.test/",
         device: "desktop",
@@ -1623,8 +1764,6 @@ test("excluded post-consent reload traffic cannot exhaust retained proxy evidenc
       result.warnings.some((warning) => warning.includes("connection and target safety budget")),
       false
     );
-    const staged = stagedSingleVisitMeasurement(result);
-    assert.notEqual(staged, null);
     assert.equal(staged!.measurement.qualityFacts.budgetsExhausted.includes("proxy-traffic"), false);
     assert.equal(
       staged!.measurement.qualityFacts.captureLoss.some((loss) => loss.detail === "proxy-traffic"),
@@ -1637,7 +1776,7 @@ test("excluded post-consent reload traffic cannot exhaust retained proxy evidenc
   }
 });
 
-test("a closed Usercentrics root remains clickable after a failed passive storage collection", { timeout: 20_000 }, async () => {
+test("a closed Usercentrics root remains clickable under a hostile localStorage getter", { timeout: 20_000 }, async () => {
   let receivedGpcHeader: string | string[] | undefined;
   const upstream = createServer((request, response) => {
     if (request.headers.host?.startsWith("ads.")) {
@@ -1683,7 +1822,7 @@ test("a closed Usercentrics root remains clickable after a failed passive storag
   assert.ok(address && typeof address === "object");
 
   try {
-    const result = await scanSite(
+    const { result, measurement: staged } = await scanSiteWithMeasurement(
       {
         url: "http://consent-boundary.test/",
         device: "desktop",
@@ -1708,13 +1847,22 @@ test("a closed Usercentrics root remains clickable after a failed passive storag
       selector: "[data-testid=uc-accept-all-button]"
     });
     assert.equal(receivedGpcHeader, undefined);
-    const staged = stagedSingleVisitMeasurement(result);
-    assert.notEqual(staged, null);
     assert.equal(staged!.evidence.storageFinal.some((entry) => entry.key === "consent-state"), true);
-    assert.deepEqual(staged!.evidence.storageMutations, []);
+    // The bounded collector reads storage through accessors captured before
+    // page script, so the page's throwing window.localStorage getter cannot
+    // fail the passive snapshot: no capture loss, and the consent click's
+    // write is attributed to the post-click phase as a mutation.
     assert.deepEqual(
       staged!.measurement.qualityFacts.captureLoss.filter((loss) => loss.family === "storage"),
-      [{ family: "storage", phaseId: 0, kind: "dropped", count: 1, detail: "storage-snapshot" }]
+      []
+    );
+    assert.deepEqual(
+      staged!.evidence.storageMutations.map((mutation) => ({
+        op: mutation.op,
+        area: mutation.entry.area,
+        key: mutation.entry.key
+      })),
+      [{ op: "added", area: "localStorage", key: "consent-state" }]
     );
     // Flag off (the default): consent facts are still recorded for the staged
     // r2 artifact, with zero verification observations and no banner block.
@@ -1789,7 +1937,7 @@ test("observe-mode verification sees a closed Usercentrics root without invoking
 
   process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION = "1";
   try {
-    const result = await scanSite(
+    const { result, measurement: staged } = await scanSiteWithMeasurement(
       {
         url: "http://closed-consent-observe.test/",
         device: "desktop",
@@ -1808,7 +1956,6 @@ test("observe-mode verification sees a closed Usercentrics root without invoking
     assert.equal(result.consentInteraction, undefined);
     assert.equal(closedRootProbeRequests, 0, "trusted geometry must bypass the element's own override");
     assert.equal(clickRequests, 0);
-    const staged = stagedSingleVisitMeasurement(result);
     assert.equal(staged?.measurement.detectors["consent-banner"].status, "complete");
   } finally {
     delete process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION;
@@ -1868,7 +2015,7 @@ test("scanSite verifies a consent click end to end when the verification flag is
 
   process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION = "1";
   try {
-    const result = await scanSite(
+    const { result, measurement: staged } = await scanSiteWithMeasurement(
       {
         url: "http://consent-verify.test/",
         device: "desktop",
@@ -1893,8 +2040,6 @@ test("scanSite verifies a consent click end to end when the verification flag is
     );
     assert.equal(result.consentInteraction?.clicked, true);
 
-    const staged = stagedSingleVisitMeasurement(result);
-    assert.notEqual(staged, null);
     // Exactly one recorded asset load (the reload's copy is excluded), and the
     // v1 wire counts agree with the staged phase-aware evidence.
     assert.equal(staged!.evidence.requests.filter((request) => request.url.endsWith("/asset.js")).length, 1);
@@ -1998,7 +2143,7 @@ test("a consent click cannot promote a sibling origin into evidence or active-in
 
   process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION = "1";
   try {
-    const result = await scanSite(
+    const { result, measurement: staged } = await scanSiteWithMeasurement(
       {
         url: "http://www.consent-origin.com/",
         device: "desktop",
@@ -2016,7 +2161,7 @@ test("a consent click cannot promote a sibling origin into evidence or active-in
 
     assert.equal(result.summary.firstPartyDomain, "www.consent-origin.com");
     assert.equal(new URL(result.conditions.finalUrl).origin, "http://www.consent-origin.com");
-    assert.equal(result.summary.pageTitle, "Trusted consent origin");
+    assert.equal(result.summary.pageTitle, "", "page-authored titles are withheld by redaction policy");
     assert.equal(result.screenshot, null);
     assert.equal(result.requests.some((request) => request.domain === "account.consent-origin.com"), false);
     assert.equal(result.cookies.some((cookie) => cookie.name === "sibling-origin-cookie"), false);
@@ -2029,8 +2174,6 @@ test("a consent click cannot promote a sibling origin into evidence or active-in
       true
     );
 
-    const staged = stagedSingleVisitMeasurement(result);
-    assert.notEqual(staged, null);
     assert.deepEqual(
       staged!.measurement.phases.map((phase) => phase.kind),
       ["passive-load", "consent-interaction"]
@@ -2100,7 +2243,7 @@ test("post-consent cross-site reload evidence is rejected and the active input p
 
   process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION = "1";
   try {
-    const result = await scanSite(
+    const { result, measurement: staged } = await scanSiteWithMeasurement(
       {
         url: "http://consent-origin.test/",
         device: "desktop",
@@ -2122,8 +2265,6 @@ test("post-consent cross-site reload evidence is rejected and the active input p
       ),
       true
     );
-    const staged = stagedSingleVisitMeasurement(result);
-    assert.notEqual(staged, null);
     assert.deepEqual(
       staged!.measurement.phases.map((phase) => phase.kind),
       ["passive-load", "consent-interaction", "post-choice-reload"]

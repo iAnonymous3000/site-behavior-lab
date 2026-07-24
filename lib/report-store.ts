@@ -14,7 +14,9 @@ import {
   isReportRetentionMetadata,
   resolveReportStoreBackend,
   type ReportRetentionMetadata,
+  type ReportRetentionDebtEntry,
   type ReportStoreOperationOptions,
+  type ReportStoreBackend,
   type ReportStoreBackendStatus,
   type StoredReportEntry
 } from "./report-store-backend";
@@ -31,9 +33,14 @@ export const DURABLE_SCAN_JOB_REPORT_MIN_SURVIVAL_MS = 75 * 60 * 1_000;
 // just-published report for at least that whole recovery window before
 // count-based pruning can remove it; keep a bounded margin for configuration.
 const MAX_REPORT_MIN_SURVIVAL_MS = 2 * 60 * 60_000;
+const DEFAULT_REPORT_STORE_OPERATION_TIMEOUT_MS = 30_000;
+const MAX_REPORT_STORE_OPERATION_TIMEOUT_MS = 120_000;
+export const REPORT_PRUNE_MAX_DELETES_PER_PASS = 32;
+export const REPORT_PRUNE_DELETE_CONCURRENCY = 4;
 export const REPORT_MAX_AGE_DAYS_ENV = "SITE_BEHAVIOR_LAB_REPORT_MAX_AGE_DAYS";
 const REPORT_MAX_COUNT_ENV = "SITE_BEHAVIOR_LAB_REPORT_MAX_COUNT";
 export const REPORT_MIN_SURVIVAL_MS_ENV = "SITE_BEHAVIOR_LAB_REPORT_MIN_SURVIVAL_MS";
+export const REPORT_STORE_OPERATION_TIMEOUT_MS_ENV = "SITE_BEHAVIOR_LAB_REPORT_STORE_OPERATION_TIMEOUT_MS";
 
 // Report creation is a three-object bundle on the filesystem and a two-object
 // bundle in R2. Keep local mutations in one FIFO. Across processes, backends
@@ -45,6 +52,12 @@ export type ReportStoreStatus = ReportStoreBackendStatus & {
   maxAgeDays: number;
   maxCount: number;
   minSurvivalMs: number;
+};
+
+export type ReportStoreRetentionStatus = {
+  debtCount: number;
+  maintenanceRequired: boolean;
+  healthy: boolean;
 };
 
 /**
@@ -190,37 +203,55 @@ export async function commitPreparedScanReportBundle<T extends RuntimeScanReport
   bundle: PreparedScanReportBundle<T>,
   options: ReportStoreOperationOptions = {}
 ): Promise<T> {
-  options.signal?.throwIfAborted();
   assertPreparedScanReportBundle(bundle);
   const backend = resolveReportStoreBackend();
-  await withReportStoreMutationLock(async () => {
-    options.signal?.throwIfAborted();
-    // Deliberately non-atomic and ordered: a crash/failure after the report PUT
-    // leaves no matching sidecar, so reads fail closed rather than trusting an
-    // unattested object. The local mutation lock prevents another in-process
-    // save/prune from mistaking this deliberately partial interval for an old
-    // bundle. The share operation itself does not succeed until both writes do.
-    try {
-      await backend.write(bundle.manifest.reportId, bundle.reportWire, bundle.retention, options);
-      await backend.writeSidecar(bundle.manifest.reportId, bundle.sidecarWire, options);
-    } catch (error) {
-      // A create-only conflict or outcome-unknown sidecar PUT may mean another
-      // process completed these exact bytes. Adopt only a fully re-read and
-      // validated bundle. Never clean up here: a delayed successful sidecar PUT
-      // or concurrent reconciler can otherwise be turned into a false success
-      // followed by an unreadable report.
-      if (!(await readExactStoredBundle(backend, bundle.manifest, options))) throw error;
-    }
-    await pruneStoredReportsSafely(backend, options);
-    await assertSavedBundleSurvived(
-      backend,
-      bundle.manifest.reportId,
-      bundle.reportWire,
-      bundle.sidecarWire,
-      bundle.retention,
-      options
-    );
-  }, options.signal);
+  await withReportStoreOperationDeadline(options, async (boundedOptions) =>
+    withReportStoreMutationLock(async () => {
+      boundedOptions.signal?.throwIfAborted();
+      // Prune before exposing new bytes, reserving one count slot for this
+      // bundle. Any durable retention debt or bounded continuation signal blocks
+      // publication until a maintenance pass physically clears it.
+      const pruning = await pruneStoredReportsUnlocked(backend, Date.now(), boundedOptions, 1);
+      if (pruning.maintenanceRequired) {
+        throw new Error(
+          "Report publication refused while physical retention maintenance is pending."
+        );
+      }
+      // Deliberately non-atomic and ordered: a crash/failure after the report PUT
+      // leaves no matching sidecar, so reads fail closed rather than trusting an
+      // unattested object. The local mutation lock prevents another in-process
+      // save/prune from mistaking this deliberately partial interval for an old
+      // bundle. The share operation itself does not succeed until both writes do.
+      try {
+        await backend.write(
+          bundle.manifest.reportId,
+          bundle.reportWire,
+          bundle.retention,
+          boundedOptions
+        );
+        await backend.writeSidecar(
+          bundle.manifest.reportId,
+          bundle.sidecarWire,
+          boundedOptions
+        );
+      } catch (error) {
+        // A create-only conflict or outcome-unknown sidecar PUT may mean another
+        // process completed these exact bytes. Adopt only a fully re-read and
+        // validated bundle. Never clean up here: a delayed successful sidecar PUT
+        // or concurrent reconciler can otherwise be turned into a false success
+        // followed by an unreadable report.
+        if (!(await readExactStoredBundle(backend, bundle.manifest, boundedOptions))) throw error;
+      }
+      await assertSavedBundleSurvived(
+        backend,
+        bundle.manifest.reportId,
+        bundle.reportWire,
+        bundle.sidecarWire,
+        bundle.retention,
+        boundedOptions
+      );
+    }, boundedOptions.signal)
+  );
   return bundle.report;
 }
 
@@ -333,7 +364,7 @@ export async function readStoredScanReportById(id: string): Promise<StoredReport
   if (!blob) return { outcome: "not-found" };
 
   if (blob.retention && isExpired(blob.retention)) {
-    await backend.remove(id).catch(() => undefined);
+    await deleteWithRetentionDebt(backend, { id, scope: "bundle" }).catch(() => undefined);
     return { outcome: "not-found" };
   }
   const managed = readManagedReport({
@@ -353,14 +384,50 @@ export async function readStoredScanReportById(id: string): Promise<StoredReport
 }
 
 export function pruneStoredReports(now = Date.now()): Promise<void> {
-  return withReportStoreMutationLock(() => pruneStoredReportsUnlocked(resolveReportStoreBackend(), now));
+  return withReportStoreOperationDeadline({}, (options) =>
+    withReportStoreMutationLock(async () => {
+      await pruneStoredReportsUnlocked(resolveReportStoreBackend(), now, options);
+    }, options.signal)
+  );
+}
+
+export async function reportStoreRetentionStatus(): Promise<ReportStoreRetentionStatus> {
+  return withReportStoreOperationDeadline({}, async (options) => {
+    const state = await resolveReportStoreBackend().retentionState(options);
+    return {
+      debtCount: state.debts.length,
+      maintenanceRequired: state.maintenanceRequired,
+      healthy: state.debts.length === 0 && !state.maintenanceRequired
+    };
+  });
+}
+
+/**
+ * Bounded autonomous retention maintenance used by health/startup probes. It
+ * advances at most one fixed delete batch, then reports the durable remainder.
+ * This also actively proves marker creation and deletion permissions instead
+ * of treating an empty readable ledger as sufficient evidence.
+ */
+export async function maintainReportStoreRetention(): Promise<ReportStoreRetentionStatus> {
+  await pruneStoredReports();
+  return reportStoreRetentionStatus();
 }
 
 async function pruneStoredReportsUnlocked(
-  backend: ReturnType<typeof resolveReportStoreBackend>,
+  backend: ReportStoreBackend,
   now: number,
-  options: ReportStoreOperationOptions = {}
-): Promise<void> {
+  options: ReportStoreOperationOptions = {},
+  incomingCount = 0
+): Promise<{ maintenanceRequired: boolean }> {
+  const priorState = await backend.retentionState(options);
+  const deletions: ReportRetentionDebtEntry[] = [...priorState.debts];
+  const deletionKeys = new Set(deletions.map(retentionDebtKey));
+  const scheduleDeletion = (debt: ReportRetentionDebtEntry) => {
+    const key = retentionDebtKey(debt);
+    if (deletionKeys.has(key)) return;
+    deletionKeys.add(key);
+    deletions.push(debt);
+  };
   const entries = await backend.list(options);
   const kept: StoredReportEntry[] = [];
 
@@ -381,9 +448,7 @@ async function pruneStoredReportsUnlocked(
           sidecar?.expiresAt !== undefined &&
           now >= Date.parse(sidecar.expiresAt)
         ) {
-          await backend.removeSidecar(entry.id, options).catch(() => {
-            options.signal?.throwIfAborted();
-          });
+          scheduleDeletion({ id: entry.id, scope: "sidecar" });
         }
       }
       continue;
@@ -395,9 +460,7 @@ async function pruneStoredReportsUnlocked(
       // valid immutable expiresAt is reached, however, even a writer that later
       // commits would be publishing an already-expired share and removal is safe.
       if (entry.retention && now >= Date.parse(entry.retention.expiresAt)) {
-        await backend.remove(entry.id, options).catch(() => {
-          options.signal?.throwIfAborted();
-        });
+        scheduleDeletion({ id: entry.id, scope: "bundle" });
       }
       continue;
     }
@@ -405,9 +468,7 @@ async function pruneStoredReportsUnlocked(
     // fall back to LastModified: a remediation rewrite would restart it and
     // silently extend retention. Delete such runtime shares fail-closed.
     if (!entry.retention || now >= Date.parse(entry.retention.expiresAt)) {
-      await backend.remove(entry.id, options).catch(() => {
-        options.signal?.throwIfAborted();
-      });
+      scheduleDeletion({ id: entry.id, scope: "bundle" });
     } else {
       kept.push(entry);
     }
@@ -425,15 +486,31 @@ async function pruneStoredReportsUnlocked(
   );
   const minimumSurvivalMs = reportMinimumSurvivalMs();
   const removable = ordered
-    .slice(maxCount)
+    .slice(Math.max(0, maxCount - incomingCount))
     .filter((entry) => now - Date.parse(entry.retention!.createdAt) >= minimumSurvivalMs);
-  await Promise.all(
-    removable.map((entry) =>
-      backend.remove(entry.id, options).catch(() => {
-        options.signal?.throwIfAborted();
-      })
-    )
-  );
+  for (const entry of removable) scheduleDeletion({ id: entry.id, scope: "bundle" });
+
+  if (deletions.length === 0) {
+    if (priorState.maintenanceRequired) {
+      await backend.setRetentionMaintenanceRequired(false, options);
+    }
+    return { maintenanceRequired: false };
+  }
+
+  // One save/prune invocation can never fan out into an unbounded delete storm.
+  // Persist the continuation signal before touching any target so a crash,
+  // deadline, or delete-only permission failure remains operator-visible.
+  await backend.setRetentionMaintenanceRequired(true, options);
+  const selected = deletions.slice(0, REPORT_PRUNE_MAX_DELETES_PER_PASS);
+  await mapWithConcurrency(selected, REPORT_PRUNE_DELETE_CONCURRENCY, async (debt) => {
+    await deleteWithRetentionDebt(backend, debt, options);
+  });
+
+  const after = await backend.retentionState(options);
+  const maintenanceRequired =
+    deletions.length > selected.length || after.debts.length > 0;
+  await backend.setRetentionMaintenanceRequired(maintenanceRequired, options);
+  return { maintenanceRequired };
 }
 
 export function reportStoreStatus(): ReportStoreStatus {
@@ -599,15 +676,71 @@ function dateSlug(date: Date): string {
   return date.toISOString().slice(0, 10).replaceAll("-", "");
 }
 
-async function pruneStoredReportsSafely(
-  backend: ReturnType<typeof resolveReportStoreBackend>,
+async function deleteWithRetentionDebt(
+  backend: ReportStoreBackend,
+  debt: ReportRetentionDebtEntry,
   options: ReportStoreOperationOptions = {}
 ): Promise<void> {
+  options.signal?.throwIfAborted();
+  await backend.markRetentionDebt(debt, options);
+  if (debt.scope === "sidecar") {
+    await backend.removeSidecar(debt.id, options);
+  } else {
+    await backend.remove(debt.id, options);
+  }
+  await backend.clearRetentionDebt(debt, options);
+}
+
+function retentionDebtKey(debt: ReportRetentionDebtEntry): string {
+  return `${debt.scope}:${debt.id}`;
+}
+
+async function mapWithConcurrency<T>(
+  values: readonly T[],
+  concurrency: number,
+  operation: (value: T) => Promise<void>
+): Promise<void> {
+  let nextIndex = 0;
+  const worker = async () => {
+    while (true) {
+      const index = nextIndex;
+      nextIndex += 1;
+      if (index >= values.length) return;
+      await operation(values[index]);
+    }
+  };
+  await Promise.all(
+    Array.from({ length: Math.min(concurrency, values.length) }, () => worker())
+  );
+}
+
+async function withReportStoreOperationDeadline<T>(
+  options: ReportStoreOperationOptions,
+  operation: (options: ReportStoreOperationOptions) => Promise<T>
+): Promise<T> {
+  options.signal?.throwIfAborted();
+  const controller = new AbortController();
+  const signal = options.signal
+    ? AbortSignal.any([options.signal, controller.signal])
+    : controller.signal;
+  const timeoutMs = reportStoreOperationTimeoutMs();
+  const timeout = setTimeout(() => {
+    controller.abort(
+      new Error(`Report-store operation exceeded its ${timeoutMs} ms whole-operation deadline.`)
+    );
+  }, timeoutMs);
   try {
-    await pruneStoredReportsUnlocked(backend, Date.now(), options);
-  } catch (error) {
-    options.signal?.throwIfAborted();
-    console.warn("Failed to prune stored reports.", error);
+    const execution = operation({ signal });
+    const deadline = new Promise<never>((_resolve, reject) => {
+      const onAbort = () => reject(signal.reason);
+      signal.addEventListener("abort", onAbort, { once: true });
+      if (signal.aborted) onAbort();
+      const onSettled = () => signal.removeEventListener("abort", onAbort);
+      void execution.then(onSettled, onSettled);
+    });
+    return await Promise.race([execution, deadline]);
+  } finally {
+    clearTimeout(timeout);
   }
 }
 
@@ -728,6 +861,14 @@ function reportMinimumSurvivalMs(): number {
   const value = Number(raw);
   if (!Number.isFinite(value) || value < 0) return DEFAULT_REPORT_MIN_SURVIVAL_MS;
   return Math.min(Math.floor(value), MAX_REPORT_MIN_SURVIVAL_MS);
+}
+
+function reportStoreOperationTimeoutMs(): number {
+  const raw = process.env[REPORT_STORE_OPERATION_TIMEOUT_MS_ENV]?.trim();
+  if (raw === undefined || raw === "") return DEFAULT_REPORT_STORE_OPERATION_TIMEOUT_MS;
+  const value = Number(raw);
+  if (!Number.isSafeInteger(value) || value < 10) return DEFAULT_REPORT_STORE_OPERATION_TIMEOUT_MS;
+  return Math.min(value, MAX_REPORT_STORE_OPERATION_TIMEOUT_MS);
 }
 
 function positiveNumberFromEnv(name: string, fallback: number): number {

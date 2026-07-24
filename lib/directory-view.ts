@@ -4,6 +4,7 @@ import {
   preferAsSiteDataPoint,
   type DirectoryEntry
 } from "./corpus-overview";
+import type { CorpusCohortIdentity } from "./corpus-cohort";
 import { siteProfileKey, siteProfilePath } from "./site-profile";
 
 /** Keep every crawlable directory document comfortably bounded. */
@@ -29,6 +30,8 @@ export type CategoryEvidencePage = {
   label: string;
   path: string;
   lastScannedAt: string;
+  /** Exact methodology cohort backing every site and median on this page. */
+  cohort: CorpusCohortIdentity;
   rollup: CategoryRollup;
   sites: DirectorySite[];
 };
@@ -84,18 +87,20 @@ export function buildCategoryEvidencePages(
   entries: DirectoryEntry[],
   minimumSites = CATEGORY_MIN_SITE_COUNT
 ): CategoryEvidencePage[] {
-  const reportsBySite = new Map<string, DirectoryEntry[]>();
+  const reportsBySiteAndCohort = new Map<string, DirectoryEntry[]>();
 
   for (const entry of entries) {
     if (!entryEligibleForCorpusRollups(entry) || !entry.category) continue;
     const domain = siteProfileKey(entry.domain);
     if (!domain) continue;
-    const list = reportsBySite.get(domain);
+    const key = `${domain}\u0000${entry.corpusCohort.id}`;
+    const list = reportsBySiteAndCohort.get(key);
     if (list) list.push(entry);
-    else reportsBySite.set(domain, [entry]);
+    else reportsBySiteAndCohort.set(key, [entry]);
   }
 
-  const currentSites = [...reportsBySite.entries()].map(([domain, reports]) => {
+  const currentSites = [...reportsBySiteAndCohort.values()].map((reports) => {
+    const domain = siteProfileKey(reports[0].domain) as string;
     const latest = reports.reduce((selected, candidate) =>
       preferAsSiteDataPoint(candidate, selected) ? candidate : selected
     );
@@ -121,16 +126,17 @@ export function buildCategoryEvidencePages(
     } satisfies DirectorySite;
   });
 
-  const byCategory = new Map<string, DirectorySite[]>();
+  const byCategoryAndCohort = new Map<string, DirectorySite[]>();
   for (const site of currentSites) {
-    const list = byCategory.get(site.latest.category);
+    const key = `${site.latest.category}\u0000${site.latest.corpusCohort.id}`;
+    const list = byCategoryAndCohort.get(key);
     if (list) list.push(site);
-    else byCategory.set(site.latest.category, [site]);
+    else byCategoryAndCohort.set(key, [site]);
   }
 
-  const pages: CategoryEvidencePage[] = [];
-  for (const [id, sites] of byCategory) {
-    if (sites.length < minimumSites) continue;
+  const candidates: CategoryEvidencePage[] = [];
+  for (const sites of byCategoryAndCohort.values()) {
+    const id = sites[0].latest.category;
     const sortedSites = [...sites].sort((left, right) => left.domain.localeCompare(right.domain));
     const [rollup] = buildCategoryRollups(
       sortedSites.map(({ latest }) => ({
@@ -144,17 +150,34 @@ export function buildCategoryEvidencePages(
     );
     if (!rollup) continue;
 
-    pages.push({
+    candidates.push({
       id,
       label: rollup.label,
       path: categoryPagePath(id),
       lastScannedAt: newestTimestamp(sortedSites.map((site) => site.latest.scannedAt)),
+      cohort: sortedSites[0].latest.corpusCohort,
       rollup,
       sites: sortedSites
     });
   }
 
-  return pages.sort((left, right) => left.label.localeCompare(right.label));
+  // A category route has one denominator. During a methodology migration,
+  // publish the largest cohort rather than silently adding incompatible rows.
+  const selectedByCategory = new Map<string, CategoryEvidencePage>();
+  for (const candidate of candidates) {
+    const current = selectedByCategory.get(candidate.id);
+    if (
+      !current ||
+      candidate.sites.length > current.sites.length ||
+      (candidate.sites.length === current.sites.length && candidate.cohort.id.localeCompare(current.cohort.id) < 0)
+    ) {
+      selectedByCategory.set(candidate.id, candidate);
+    }
+  }
+
+  return [...selectedByCategory.values()]
+    .filter((page) => page.sites.length >= minimumSites)
+    .sort((left, right) => left.label.localeCompare(right.label));
 }
 
 function newestEntry(entries: DirectoryEntry[]): DirectoryEntry {

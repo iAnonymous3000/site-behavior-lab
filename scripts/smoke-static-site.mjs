@@ -5,8 +5,15 @@ import { readFile, stat } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { gzipSync } from "node:zlib";
+import AxeBuilder from "@axe-core/playwright";
 import { chromium } from "playwright";
 import { parse as parseDomain } from "tldts";
+import {
+  readResponseBytesWithinLimit,
+  readResponseJsonWithinLimit,
+  readResponseTextWithinLimit,
+  withHttpOperationDeadline
+} from "./http-response.mjs";
 import { resolveExactStaticDeploymentCommit } from "./static-deployment-provenance.mjs";
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -22,6 +29,12 @@ const archivePageSize = 24;
 const maxHomeHtmlBytes = 160 * 1024;
 const maxReportHtmlBytes = 200 * 1024;
 const maxInitialJsGzipBytes = 200 * 1024;
+const staticFetchTimeoutMs = 10_000;
+const controlResponseMaxBytes = 64 * 1024;
+const schemaResponseMaxBytes = 2 * 1024 * 1024;
+const htmlResponseMaxBytes = 2 * 1024 * 1024;
+const imageResponseMaxBytes = 4 * 1024 * 1024;
+const corpusResponseMaxBytes = 32 * 1024 * 1024;
 const fullCommitPattern = /^[0-9a-f]{40}$/;
 const corpusJsonDecisionFields = [
   "consentChoiceState",
@@ -52,9 +65,13 @@ function fail(message) {
 // allow-list; treat an unreachable scanner as "no Shields".
 async function scannerAdvertisesShields(apiBase) {
   try {
-    const response = await fetch(`${apiBase.replace(/\/+$/, "")}/api/health`, { cache: "no-store" });
+    const { response, value: health } = await fetchJsonResource(
+      `${apiBase.replace(/\/+$/, "")}/api/health`,
+      { cache: "no-store" },
+      "scanner health",
+      controlResponseMaxBytes
+    );
     if (!response.ok) return false;
-    const health = await response.json();
     return health?.capabilities?.shieldsComparison === true;
   } catch {
     return false;
@@ -64,13 +81,45 @@ async function scannerAdvertisesShields(apiBase) {
 async function scannerAdvertisesScheduledRescans(apiBase) {
   if (!apiBase) return false;
   try {
-    const response = await fetch(`${apiBase.replace(/\/+$/, "")}/api/health`, { cache: "no-store" });
+    const { response, value: health } = await fetchJsonResource(
+      `${apiBase.replace(/\/+$/, "")}/api/health`,
+      { cache: "no-store" },
+      "scanner health",
+      controlResponseMaxBytes
+    );
     if (!response.ok) return false;
-    const health = await response.json();
     return health?.capabilities?.scheduledRescans === true;
   } catch {
     return false;
   }
+}
+
+async function fetchJsonResource(url, init, label, maxBytes) {
+  return fetchResource(url, init, label, (response) =>
+    readResponseJsonWithinLimit(response, { maxBytes, label })
+  );
+}
+
+async function fetchTextResource(url, init, label, maxBytes) {
+  return fetchResource(url, init, label, (response) =>
+    readResponseTextWithinLimit(response, { maxBytes, label })
+  );
+}
+
+async function fetchBytesResource(url, init, label, maxBytes) {
+  return fetchResource(url, init, label, (response) =>
+    readResponseBytesWithinLimit(response, { maxBytes, label })
+  );
+}
+
+async function fetchResource(url, init, label, read) {
+  return withHttpOperationDeadline(
+    { timeoutMs: staticFetchTimeoutMs, label },
+    async (signal) => {
+      const response = await fetch(url, { ...init, signal });
+      return { response, value: await read(response) };
+    }
+  );
 }
 
 async function main() {
@@ -101,6 +150,8 @@ async function main() {
   try {
     await page.goto(`${baseUrl}/`, { waitUntil: "networkidle" });
     await expectText(page.locator("h1"), "See what a site does, not just what it says.");
+    await assertPrimaryLandmarks(page, "static home");
+    await assertNoSeriousAxeViolations(page, "static home in light theme");
     if ((await page.locator(".static-gallery, .static-report-card").count()) !== 0) {
       fail("static home eagerly rendered the saved-report archive before the visitor requested it");
     }
@@ -111,7 +162,7 @@ async function main() {
     });
     pass("static home defers saved-report tools on first load");
 
-    const themeToggle = page.getByRole("button", { name: "Toggle colour theme" });
+    const themeToggle = page.getByRole("button", { name: /Switch to (?:light|dark) colour theme/ });
     const themeRestingShadow = await themeToggle.evaluate((button) => getComputedStyle(button).boxShadow);
     let themeToggleHasKeyboardFocus = false;
     for (let step = 0; step < 20; step += 1) {
@@ -127,21 +178,38 @@ async function main() {
       fail("theme toggle focus does not add a visible ring beyond its resting shadow");
     }
     pass("theme toggle exposes visible keyboard focus");
+    await themeToggle.press("Enter");
+    await page.waitForFunction(() => document.documentElement.dataset.theme === "dark");
+    await assertNoSeriousAxeViolations(page, "static home in dark theme");
+    await themeToggle.press("Enter");
+    await page.waitForFunction(() => document.documentElement.dataset.theme === "light");
 
     // Both immutable ScanReport v2 revisions publish independently; the
     // stable alias serves the current r2 revision (RFC 10.3/14.11).
-    const revisionedResponse = await fetch(`${baseUrl}/schemas/scan-report.v2.r1.schema.json`);
+    const { response: revisionedResponse, value: revisionedSchema } = await fetchJsonResource(
+      `${baseUrl}/schemas/scan-report.v2.r1.schema.json`,
+      {},
+      "revisioned r1 schema",
+      schemaResponseMaxBytes
+    );
     if (!revisionedResponse.ok) fail(`revisioned schema not served (${revisionedResponse.status})`);
-    const revisionedSchema = await revisionedResponse.json();
     if (revisionedSchema.$id !== "https://sitebehavior.org/schemas/scan-report.v2.r1.schema.json") {
       fail("revisioned schema has the wrong $id");
     }
-    const aliasResponse = await fetch(`${baseUrl}/scan-report.schema.json`);
+    const { response: aliasResponse, value: aliasSchema } = await fetchJsonResource(
+      `${baseUrl}/scan-report.schema.json`,
+      {},
+      "stable schema alias",
+      schemaResponseMaxBytes
+    );
     if (!aliasResponse.ok) fail(`stable schema alias not served (${aliasResponse.status})`);
-    const aliasSchema = await aliasResponse.json();
-    const r2Response = await fetch(`${baseUrl}/schemas/scan-report.v2.r2.schema.json`);
+    const { response: r2Response, value: r2Schema } = await fetchJsonResource(
+      `${baseUrl}/schemas/scan-report.v2.r2.schema.json`,
+      {},
+      "revisioned r2 schema",
+      schemaResponseMaxBytes
+    );
     if (!r2Response.ok) fail(`r2 revisioned schema not served (${r2Response.status})`);
-    const r2Schema = await r2Response.json();
     if (r2Schema.$id !== "https://sitebehavior.org/schemas/scan-report.v2.r2.schema.json") {
       fail("r2 revisioned schema has the wrong $id");
     }
@@ -153,9 +221,13 @@ async function main() {
     }
     pass("scan-report v2 schemas published (r1 + r2 revisioned files, stable alias on r2)");
 
-    const methodologyResponse = await fetch(`${baseUrl}/methodology/`);
+    const { response: methodologyResponse, value: methodologyHtml } = await fetchTextResource(
+      `${baseUrl}/methodology/`,
+      {},
+      "methodology page",
+      htmlResponseMaxBytes
+    );
     if (!methodologyResponse.ok) fail(`methodology page not served (${methodologyResponse.status})`);
-    const methodologyHtml = await methodologyResponse.text();
     if (!methodologyHtml.includes('id="schema-errata"') || !methodologyHtml.includes("Published schema errata")) {
       fail("methodology page omits the published schema errata pointer");
     }
@@ -184,16 +256,21 @@ async function main() {
       `/reports/${phaseReport.id}/opengraph-image`,
       `/reports/${longestOgReport.id}/opengraph-image`
     ]) {
-      const response = await fetch(`${baseUrl}${cardPath}`);
+      const { response, value: bytes } = await fetchBytesResource(
+        `${baseUrl}${cardPath}`,
+        {},
+        cardPath,
+        imageResponseMaxBytes
+      );
       if (!response.ok || response.headers.get("content-type") !== "image/png") {
         fail(`${cardPath} was not served as image/png`);
       }
-      const bytes = Buffer.from(await response.arrayBuffer());
+      const imageBytes = Buffer.from(bytes);
       if (
-        bytes.length < 24 ||
-        !bytes.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])) ||
-        bytes.readUInt32BE(16) !== 1200 ||
-        bytes.readUInt32BE(20) !== 630
+        imageBytes.length < 24 ||
+        !imageBytes.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])) ||
+        imageBytes.readUInt32BE(16) !== 1200 ||
+        imageBytes.readUInt32BE(20) !== 630
       ) {
         fail(`${cardPath} is not a complete 1200x630 PNG`);
       }
@@ -202,9 +279,13 @@ async function main() {
       `extensionless social cards, including the current longest report (${longestOgReport.descriptionLength} description characters), are complete 1200x630 PNGs`
     );
 
-    const deploymentResponse = await fetch(`${baseUrl}/deployment.json`);
+    const { response: deploymentResponse, value: deployment } = await fetchJsonResource(
+      `${baseUrl}/deployment.json`,
+      {},
+      "static deployment provenance",
+      controlResponseMaxBytes
+    );
     if (!deploymentResponse.ok) fail(`static deployment provenance not served (${deploymentResponse.status})`);
-    const deployment = await deploymentResponse.json();
     if (deployment?.schemaVersion !== 1 || !fullCommitPattern.test(deployment?.deployment)) {
       fail("static deployment provenance does not contain a full source commit");
     }
@@ -214,9 +295,13 @@ async function main() {
     }
     pass(`static deployment provenance identifies ${deployment.deployment}`);
 
-    const corpusJsonResponse = await fetch(`${baseUrl}/corpus.json`);
+    const { response: corpusJsonResponse, value: corpus } = await fetchJsonResource(
+      `${baseUrl}/corpus.json`,
+      {},
+      "researcher JSON export",
+      corpusResponseMaxBytes
+    );
     if (!corpusJsonResponse.ok) fail(`researcher JSON export not served (${corpusJsonResponse.status})`);
-    const corpus = await corpusJsonResponse.json();
     if (!Array.isArray(corpus?.reports) || corpus.reportCount !== corpus.reports.length) {
       fail("researcher JSON export does not contain its declared report rows");
     }
@@ -237,9 +322,14 @@ async function main() {
       fail("researcher JSON export flattened the committed r2 comparison metadata incorrectly");
     }
 
-    const corpusCsvResponse = await fetch(`${baseUrl}/corpus.csv`);
+    const { response: corpusCsvResponse, value: corpusCsv } = await fetchTextResource(
+      `${baseUrl}/corpus.csv`,
+      {},
+      "researcher CSV export",
+      corpusResponseMaxBytes
+    );
     if (!corpusCsvResponse.ok) fail(`researcher CSV export not served (${corpusCsvResponse.status})`);
-    const corpusCsvHeader = (await corpusCsvResponse.text()).split(/\r?\n/, 1)[0].split(",");
+    const corpusCsvHeader = corpusCsv.split(/\r?\n/, 1)[0].split(",");
     const legacyTailIndex = corpusCsvHeader.indexOf("limited");
     if (
       legacyTailIndex < 0 ||
@@ -301,6 +391,7 @@ async function main() {
 
     await loadStaticArchive(page);
     await expectText(page.locator(".static-gallery"), "Saved reports");
+    await assertNoSeriousAxeViolations(page, "saved-report archive");
     pass("static home loads saved-report tools on demand");
 
     const cardCount = await page.locator(".static-report-card").count();
@@ -353,7 +444,8 @@ async function main() {
       path.basename(singleReportFixture)
     );
     await page.getByRole("button", { name: "Compare files" }).click();
-    await expectText(page.locator(".static-compare-panel"), "cannot order a before/after pair");
+    await expectText(page.locator('.static-compare-error[role="alert"]'), "cannot order a before/after pair");
+    await assertNoSeriousAxeViolations(page, "saved-report comparison error");
     pass("static archive refuses an unorderable upload pair");
 
     await page.locator(".static-compare-upload input").nth(0).setInputFiles(rescanReportFixture);
@@ -376,13 +468,14 @@ async function main() {
     await expectText(comparisonLists, "No visible storage-key changes to show; privacy-filtered keys are not itemized.");
     const cookieDelta = page.locator(".delta-tile").filter({ has: page.getByText("Cookies", { exact: true }) });
     await expectText(cookieDelta, "+2");
-    await expectText(cookieDelta, "3 → 5");
+    await expectText(cookieDelta, "Before: 3 · After: 5");
     const storageDelta = page.locator(".delta-tile", { hasText: "Storage keys" });
     await expectText(storageDelta, "+1");
-    await expectText(storageDelta, "3 → 4");
+    await expectText(storageDelta, "Before: 3 · After: 4");
     if ((await comparisonCard.innerHTML()).includes("[redacted")) {
       fail("comparison card exposes a privacy marker as an exact name");
     }
+    await assertNoSeriousAxeViolations(page, "rendered temporal comparison");
     pass("static archive compares uploaded reports");
 
     await page.goto(`${baseUrl}/`, { waitUntil: "networkidle" });
@@ -392,6 +485,8 @@ async function main() {
     await expectText(page.locator(".report-header"), "https://");
     if ((await page.locator(".scan-workbench").count()) !== 0) fail("saved report permalink must not put the scanner before evidence");
     await expectText(page.locator("h1"), firstReport.headline);
+    await assertPrimaryLandmarks(page, "saved report permalink");
+    await assertNoSeriousAxeViolations(page, "compact saved report permalink");
 
     const reportHtmlPath = path.join(outDir, "reports", firstReport.id, "index.html");
     const reportHtml = await readFile(reportHtmlPath, "utf8");
@@ -421,9 +516,17 @@ async function main() {
     pass("static report permalink ships a compact summary and direct download without JavaScript");
 
     await page.goto(`${baseUrl}/reports/${phaseReport.id}/`, { waitUntil: "networkidle" });
-    await page.getByRole("button", { name: "Explore full evidence" }).click();
+    const exploreEvidence = page.getByRole("button", { name: "Explore full evidence" });
+    await exploreEvidence.focus();
+    await page.keyboard.press("Enter");
     const phaseEvidence = page.locator(".visit-phase-evidence");
     await expectText(phaseEvidence, "Visit phases & state changes");
+    const explorerHasFocus = await page.locator(".report-focus-target").evaluate(
+      (region) => region === document.activeElement
+    );
+    if (!explorerHasFocus) fail("saved report explorer did not receive focus after its trigger disappeared");
+    pass("saved report explorer preserves keyboard focus across lazy loading");
+    await assertNoSeriousAxeViolations(page, "interactive r2 evidence explorer");
     await expectText(phaseEvidence, "P0 · passive-load");
     await expectText(phaseEvidence, "No retained rows");
     const stateChangeDisclosure = phaseEvidence.locator("details.state-change-disclosure");
@@ -464,6 +567,8 @@ async function main() {
     pass("file upload button exposes visible keyboard focus");
     await reportUploadInput.setInputFiles(singleReportFixture);
     await page.waitForSelector(".report-header", { timeout: 10_000 });
+    const resultRegionHasFocus = await page.locator("#report").evaluate((region) => region === document.activeElement);
+    if (!resultRegionHasFocus) fail("uploaded report did not move focus to the shared results region");
     await expectText(page.locator(".party-legend"), "Other third-party");
     const domainTableRegion = page.getByRole("region", { name: "Domain evidence table" });
     if ((await domainTableRegion.getAttribute("tabindex")) !== "0") {
@@ -542,6 +647,16 @@ async function main() {
     pass("static archive fits a 320px viewport");
     await page.goto(`${baseUrl}/directory/`, { waitUntil: "networkidle" });
     await assertNoHorizontalOverflow(page, "static narrow-mobile directory");
+    const categorySelect = page.getByLabel("Browse a category");
+    const firstCategoryPath = await categorySelect.locator('option:not([value=""])').first().getAttribute("value");
+    if (!firstCategoryPath) fail("directory exposes no browsable category option");
+    const directoryUrlBeforeSelection = page.url();
+    await categorySelect.selectOption(firstCategoryPath);
+    if (page.url() !== directoryUrlBeforeSelection) fail("directory category selection navigated without submit");
+    await page.getByRole("button", { name: "Browse category" }).click();
+    await page.waitForURL((url) => url.pathname.endsWith(firstCategoryPath));
+    await assertNoSeriousAxeViolations(page, "narrow category directory route");
+    pass("directory category navigation waits for explicit submit");
     pass("static directory fits a 320px viewport");
     await page.goto(`${baseUrl}/reports/${phaseReport.id}/`, { waitUntil: "networkidle" });
     const narrowReceiptDetails = page.locator("details.evidence-receipt-details");
@@ -894,6 +1009,39 @@ async function expectText(locator, expected) {
     const excerpt = text && text.length > 1_000 ? `${text.slice(0, 500)} ... ${text.slice(-500)}` : (text ?? "");
     fail(`expected text "${expected}" was not found in ${JSON.stringify(excerpt)}`);
   }
+}
+
+async function assertPrimaryLandmarks(page, label) {
+  const counts = {
+    banner: await page.getByRole("banner").count(),
+    main: await page.getByRole("main").count(),
+    contentinfo: await page.getByRole("contentinfo").count()
+  };
+  if (counts.banner !== 1 || counts.main !== 1 || counts.contentinfo !== 1) {
+    fail(`${label} landmark count is ${JSON.stringify(counts)}, expected one banner, main, and contentinfo`);
+  }
+}
+
+async function assertNoSeriousAxeViolations(page, label) {
+  const result = await new AxeBuilder({ page })
+    .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa", "best-practice"])
+    .analyze();
+  const violations = result.violations.filter(
+    (violation) => violation.impact === "critical" || violation.impact === "serious"
+  );
+  if (violations.length > 0) {
+    const summary = violations
+      .map(
+        (violation) =>
+          `${violation.id} (${violation.impact}): ${violation.nodes
+            .slice(0, 4)
+            .map((node) => node.target.join(" "))
+            .join(", ")}`
+      )
+      .join("; ");
+    fail(`${label} has serious axe violations: ${summary}`);
+  }
+  pass(`${label} has no serious axe violations`);
 }
 
 async function openHomepageTools(page) {

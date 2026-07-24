@@ -19,6 +19,12 @@ const RAW_METHODOLOGY_TOKEN = /^[a-z0-9]+(?:[._+-][a-z0-9]+)*$/i;
 const PLAYWRIGHT_VERSION_COMPONENT = /(?:^|-)playwright-(\d+\.\d+\.\d+)(?=$|\+)/g;
 
 export function legacyV1MethodologyIdentity(scannerDisclosure: string | undefined): string {
+  // The public-redaction sentinel contains the English words "Methodology
+  // metadata" but carries no methodology identity. It must join the explicit
+  // unspecified cohort, never create a misleading cohort named "metadata".
+  if (/^Methodology metadata was invalid and was removed at the public boundary\.$/i.test(scannerDisclosure ?? "")) {
+    return LEGACY_V1_METHODOLOGY_UNSPECIFIED;
+  }
   const match = [...(scannerDisclosure ?? "").matchAll(METHODOLOGY_TOKEN)];
   return match.length === 1
     ? match[0]?.[1]?.toLowerCase() ?? LEGACY_V1_METHODOLOGY_UNSPECIFIED

@@ -20,6 +20,7 @@
 
 import { PublicFacingError } from "./public-errors";
 import { scanTokenFromHeaders } from "./scan-token";
+import { fetchJsonResponseWithPolicy } from "./client-fetch-policy";
 
 export class EdgeScanGateError extends PublicFacingError {
   constructor(message: string, status: number) {
@@ -38,9 +39,43 @@ export const DEFAULT_PUBLIC_SCAN_RATE_LIMIT_PER_DAY = 120;
 
 const RATE_LIMIT_BUCKET_PREFIX = "rate-limits";
 const TURNSTILE_SITEVERIFY_URL = "https://challenges.cloudflare.com/turnstile/v0/siteverify";
+export const TURNSTILE_SITEVERIFY_CONNECT_TIMEOUT_MS = 5_000;
+export const TURNSTILE_SITEVERIFY_OPERATION_TIMEOUT_MS = 10_000;
+export const TURNSTILE_SITEVERIFY_MAX_RESPONSE_BYTES = 8 * 1024;
+export const TURNSTILE_CONFIGURATION_PROBE_TIMEOUT_MS = 5_000;
+export const REQUEST_BODY_OPERATION_TIMEOUT_MS = 10_000;
 // Cloudflare documents this as the dummy token: production secrets reject it
 // deterministically without requiring or redeeming a visitor challenge.
 const TURNSTILE_CONFIGURATION_PROBE_TOKEN = "XXXX.DUMMY.TOKEN.XXXX";
+
+export class RequestBodyReadTimeoutError extends EdgeScanGateError {
+  constructor(readonly timeoutMs: number) {
+    super("The request body was not received in time.", 408);
+    this.name = "RequestBodyReadTimeoutError";
+  }
+}
+
+export class RequestBodyReadAbortedError extends EdgeScanGateError {
+  readonly cause: unknown;
+
+  constructor(cause?: unknown) {
+    // 499 is intentionally distinct from an edge-generated timeout. In normal
+    // operation the disconnected caller cannot receive this response, but the
+    // typed status keeps logs and conforming test/runtime callers honest.
+    super("The request ended before its body was received.", 499);
+    this.name = "RequestBodyReadAbortedError";
+    this.cause = cause;
+  }
+}
+
+export class RequestBodyInvalidUtf8Error extends EdgeScanGateError {
+  constructor() {
+    // Keep decoder/runtime detail private and give every ingress path one
+    // stable malformed-body contract.
+    super("The request body must be valid UTF-8.", 400);
+    this.name = "RequestBodyInvalidUtf8Error";
+  }
+}
 
 /** Comparison runs (GPC, Shields, or consent accept/reject) make two browser visits and cost two tokens. */
 export function scanTokenCost(payload: { compareGpc?: boolean; compareShields?: boolean; compareConsent?: boolean }): 1 | 2 {
@@ -160,7 +195,15 @@ export async function assertTurnstileToken(options: {
   secret: string;
   token: string;
   remoteIp?: string | null;
+  /** Stable UUID for safe Siteverify retries of one admission capability. */
+  idempotencyKey?: string;
+  /** Composed with finite Siteverify connection and whole-body deadlines. */
+  signal?: AbortSignal;
   fetchImpl?: typeof fetch;
+  /** Test seams; production callers use the finite constants above. */
+  connectTimeoutMs?: number;
+  operationTimeoutMs?: number;
+  maxResponseBytes?: number;
 }): Promise<void> {
   if (!options.token) {
     throw new EdgeScanGateError("Turnstile verification is required.", 400);
@@ -170,14 +213,65 @@ export async function assertTurnstileToken(options: {
   body.set("secret", options.secret);
   body.set("response", options.token);
   if (options.remoteIp) body.set("remoteip", options.remoteIp);
+  if (options.idempotencyKey !== undefined) {
+    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(options.idempotencyKey)) {
+      throw new Error("Invalid Turnstile idempotency key.");
+    }
+    body.set("idempotency_key", options.idempotencyKey);
+  }
 
-  const doFetch = options.fetchImpl ?? fetch;
-  const response = await doFetch(TURNSTILE_SITEVERIFY_URL, { method: "POST", body });
-  const result = (await response.json().catch(() => ({ success: false }))) as { success?: boolean };
+  let result: unknown;
+  try {
+    ({ payload: result } = await fetchJsonResponseWithPolicy(
+      TURNSTILE_SITEVERIFY_URL,
+      { method: "POST", body, signal: options.signal },
+      {
+        label: "Turnstile verification",
+        maxBytes: options.maxResponseBytes ?? TURNSTILE_SITEVERIFY_MAX_RESPONSE_BYTES,
+        connectTimeoutMs: options.connectTimeoutMs ?? TURNSTILE_SITEVERIFY_CONNECT_TIMEOUT_MS,
+        operationTimeoutMs: options.operationTimeoutMs ?? TURNSTILE_SITEVERIFY_OPERATION_TIMEOUT_MS,
+        fetchImpl: options.fetchImpl
+      }
+    ));
+  } catch (error) {
+    throw new EdgeScanGateError(
+      error instanceof Error && error.message
+        ? `Turnstile verification is unavailable: ${error.message}`
+        : "Turnstile verification is unavailable.",
+      503
+    );
+  }
 
-  if (!result.success) {
+  if (!result || typeof result !== "object" || Array.isArray(result) || (result as { success?: unknown }).success !== true) {
     throw new EdgeScanGateError("Turnstile verification failed.", 403);
   }
+}
+
+/**
+ * Derive Siteverify's retry UUID from one admission capability and one exact
+ * challenge token. Retries of the same token converge; a refreshed challenge
+ * creates a new validation operation. Only the digest is returned or sent.
+ */
+export async function turnstileAdmissionIdempotencyKey(
+  capabilityHash: ArrayBuffer,
+  token: string
+): Promise<string> {
+  if (!(capabilityHash instanceof ArrayBuffer) || capabilityHash.byteLength !== 32 || !token) {
+    throw new Error("Invalid Turnstile admission retry material.");
+  }
+  const domain = new TextEncoder().encode("site-behavior-lab/turnstile-admission/v1\0");
+  const tokenBytes = new TextEncoder().encode(token);
+  const material = new Uint8Array(domain.byteLength + 32 + 4 + tokenBytes.byteLength);
+  material.set(domain, 0);
+  material.set(new Uint8Array(capabilityHash), domain.byteLength);
+  new DataView(material.buffer).setUint32(domain.byteLength + 32, tokenBytes.byteLength);
+  material.set(tokenBytes, domain.byteLength + 36);
+  const digest = new Uint8Array(await crypto.subtle.digest("SHA-256", material));
+  const bytes = digest.slice(0, 16);
+  bytes[6] = (bytes[6] & 0x0f) | 0x40;
+  bytes[8] = (bytes[8] & 0x3f) | 0x80;
+  const hex = Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join("");
+  return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
 }
 
 export type TurnstileConfigurationProbeResult = "verified" | "misconfigured" | "unavailable";
@@ -193,6 +287,10 @@ export async function probeTurnstileConfiguration(options: {
   secret: string;
   fetchImpl?: typeof fetch;
   signal?: AbortSignal;
+  /** Test seams; production uses the same small response cap and a 5s whole-operation deadline. */
+  connectTimeoutMs?: number;
+  operationTimeoutMs?: number;
+  maxResponseBytes?: number;
 }): Promise<TurnstileConfigurationProbeResult> {
   const secret = options.secret.trim();
   if (!secret) return "misconfigured";
@@ -201,13 +299,21 @@ export async function probeTurnstileConfiguration(options: {
   body.set("secret", secret);
   body.set("response", TURNSTILE_CONFIGURATION_PROBE_TOKEN);
 
-  let response: Response;
+  let result: unknown;
   try {
-    response = await (options.fetchImpl ?? fetch)(TURNSTILE_SITEVERIFY_URL, {
-      method: "POST",
-      body,
-      signal: options.signal ?? AbortSignal.timeout(5_000)
-    });
+    ({ payload: result } = await fetchJsonResponseWithPolicy(
+      TURNSTILE_SITEVERIFY_URL,
+      { method: "POST", body, signal: options.signal },
+      {
+        label: "Turnstile configuration probe",
+        maxBytes: options.maxResponseBytes ?? TURNSTILE_SITEVERIFY_MAX_RESPONSE_BYTES,
+        connectTimeoutMs: options.connectTimeoutMs ?? TURNSTILE_CONFIGURATION_PROBE_TIMEOUT_MS,
+        operationTimeoutMs: options.operationTimeoutMs ?? TURNSTILE_CONFIGURATION_PROBE_TIMEOUT_MS,
+        fetchImpl: options.fetchImpl,
+        acceptResponse: (response) =>
+          response.ok || (response.status >= 400 && response.status < 500 && response.status !== 429)
+      }
+    ));
   } catch {
     return "unavailable";
   }
@@ -217,16 +323,6 @@ export async function probeTurnstileConfiguration(options: {
   // redirects, throttling, and server failures unavailable. Use the same
   // redirect behavior as the visitor validation path: Cloudflare may route the
   // fixed Siteverify origin internally before returning its JSON response.
-  const structuredValidationResponse =
-    response.ok || (response.status >= 400 && response.status < 500 && response.status !== 429);
-  if (!structuredValidationResponse) return "unavailable";
-
-  let result: unknown;
-  try {
-    result = await response.json();
-  } catch {
-    return "unavailable";
-  }
   if (!result || typeof result !== "object" || Array.isArray(result)) return "unavailable";
   const record = result as Record<string, unknown>;
   const codes = Array.isArray(record["error-codes"])
@@ -295,35 +391,128 @@ export function publicScanRateLimit(value: string | undefined, fallback: number)
  * Read a request body while enforcing the byte cap BEFORE buffering: a
  * declared Content-Length over the cap rejects outright without reading, and
  * bodies without one (chunked) stream through the cap, so an unauthenticated
- * caller can never force an allocation beyond the cap plus one network chunk.
+ * caller can never make this reader retain bytes beyond the cap. The stream or
+ * transport may speculatively queue chunks outside this reader; cancellation
+ * is issued immediately when the first over-cap chunk is observed.
  * Returns null when the body exceeds the cap.
  */
-export async function readRequestBodyWithinLimit(request: Request, maxBytes: number): Promise<string | null> {
-  const declared = Number(request.headers.get("content-length"));
-  if (Number.isFinite(declared) && declared > maxBytes) return null;
-  if (!request.body) return "";
+export async function readRequestBodyWithinLimit(
+  request: Request,
+  maxBytes: number,
+  options: Readonly<{ signal?: AbortSignal; timeoutMs?: number }> = {}
+): Promise<string | null> {
+  if (!Number.isSafeInteger(maxBytes) || maxBytes <= 0) {
+    throw new TypeError("The request-body byte limit must be a positive integer.");
+  }
+  const timeoutMs = options.timeoutMs ?? REQUEST_BODY_OPERATION_TIMEOUT_MS;
+  if (!Number.isSafeInteger(timeoutMs) || timeoutMs <= 0) {
+    throw new TypeError("The request-body timeout must be a positive integer.");
+  }
 
-  const reader = request.body.getReader();
-  const chunks: Uint8Array[] = [];
-  let total = 0;
-  for (;;) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    total += value.byteLength;
-    if (total > maxBytes) {
-      await reader.cancel().catch(() => undefined);
-      return null;
+  const controller = new AbortController();
+  const requestSignal = (request as Request & { signal?: AbortSignal }).signal;
+  const callerSignals = [...new Set([requestSignal, options.signal].filter(isAbortSignal))];
+  const removeAbortListeners = callerSignals.map((signal) =>
+    forwardRequestBodyAbort(signal, controller)
+  );
+  const timer = setTimeout(
+    () => controller.abort(new RequestBodyReadTimeoutError(timeoutMs)),
+    timeoutMs
+  );
+  const abort = requestBodyAbortGate(controller.signal);
+
+  try {
+    throwIfRequestBodyAborted(controller.signal);
+    const declared = Number(request.headers.get("content-length"));
+    if (Number.isFinite(declared) && declared > maxBytes) return null;
+    if (!request.body) return "";
+
+    const reader = request.body.getReader();
+    const chunks: Uint8Array[] = [];
+    let total = 0;
+    try {
+      for (;;) {
+        throwIfRequestBodyAborted(controller.signal);
+        const { done, value } = await Promise.race([reader.read(), abort.promise]);
+        if (done) break;
+        total += value.byteLength;
+        if (total > maxBytes) {
+          // Cancellation is cleanup, not part of the body deadline. A broken
+          // or adversarial stream may never settle its cancel promise.
+          void reader.cancel().catch(() => undefined);
+          return null;
+        }
+        chunks.push(value);
+      }
+    } finally {
+      if (controller.signal.aborted) {
+        void reader.cancel(requestBodyAbortReason(controller.signal)).catch(() => undefined);
+      }
+      // Some stream doubles ignore cancellation and keep read() pending. Do
+      // not let releaseLock's resulting TypeError mask the abort/timeout.
+      try {
+        reader.releaseLock();
+      } catch {
+        // The detached read has no remaining admission or parsing continuation.
+      }
     }
-    chunks.push(value);
-  }
 
-  const bytes = new Uint8Array(total);
-  let offset = 0;
-  for (const chunk of chunks) {
-    bytes.set(chunk, offset);
-    offset += chunk.byteLength;
+    throwIfRequestBodyAborted(controller.signal);
+    const bytes = new Uint8Array(total);
+    let offset = 0;
+    for (const chunk of chunks) {
+      bytes.set(chunk, offset);
+      offset += chunk.byteLength;
+    }
+    try {
+      return new TextDecoder("utf-8", { fatal: true }).decode(bytes);
+    } catch {
+      throw new RequestBodyInvalidUtf8Error();
+    }
+  } finally {
+    clearTimeout(timer);
+    abort.dispose();
+    for (const remove of removeAbortListeners) remove();
   }
-  return new TextDecoder().decode(bytes);
+}
+
+function isAbortSignal(value: AbortSignal | undefined): value is AbortSignal {
+  return value !== undefined;
+}
+
+function forwardRequestBodyAbort(signal: AbortSignal, controller: AbortController): () => void {
+  const onAbort = () => {
+    if (!controller.signal.aborted) controller.abort(new RequestBodyReadAbortedError(signal.reason));
+  };
+  if (signal.aborted) onAbort();
+  else signal.addEventListener("abort", onAbort, { once: true });
+  return () => signal.removeEventListener("abort", onAbort);
+}
+
+function requestBodyAbortGate(signal: AbortSignal): { promise: Promise<never>; dispose(): void } {
+  let onAbort: (() => void) | undefined;
+  const promise = new Promise<never>((_resolve, reject) => {
+    onAbort = () => reject(requestBodyAbortReason(signal));
+    if (signal.aborted) onAbort();
+    else signal.addEventListener("abort", onAbort, { once: true });
+  });
+  void promise.catch(() => undefined);
+  return {
+    promise,
+    dispose() {
+      if (onAbort) signal.removeEventListener("abort", onAbort);
+    }
+  };
+}
+
+function throwIfRequestBodyAborted(signal: AbortSignal): void {
+  if (signal.aborted) throw requestBodyAbortReason(signal);
+}
+
+function requestBodyAbortReason(signal: AbortSignal): RequestBodyReadTimeoutError | RequestBodyReadAbortedError {
+  if (signal.reason instanceof RequestBodyReadTimeoutError) return signal.reason;
+  if (signal.reason instanceof RequestBodyReadAbortedError) return signal.reason;
+  return new RequestBodyReadAbortedError(signal.reason);
 }
 
 /**

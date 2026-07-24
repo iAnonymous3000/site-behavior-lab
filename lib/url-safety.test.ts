@@ -1,6 +1,11 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { assertPublicHttpUrl, assertPublicHttpUrlShape, normalizeUrl } from "./url-safety";
+import {
+  assertPublicHttpUrl,
+  assertPublicHttpUrlShape,
+  normalizeUrl,
+  PublicUrlDnsTimeoutError
+} from "./url-safety";
 
 test("normalizeUrl trims input, adds https, and removes fragments", () => {
   assert.equal(normalizeUrl(" example.com/path?x=1#frag ").toString(), "https://example.com/path?x=1");
@@ -100,6 +105,39 @@ test("assertPublicHttpUrl blocks custom ports", async () => {
   await assert.rejects(
     () => assertPublicHttpUrl(new URL("http://127.0.0.1:3000/")),
     /Local and private network targets are blocked/
+  );
+});
+
+test("assertPublicHttpUrl returns at its DNS deadline when the resolver ignores cancellation", async () => {
+  const started = Date.now();
+  await assert.rejects(
+    assertPublicHttpUrl(new URL("https://deadline.example/"), {
+      lookup: async () => new Promise(() => undefined),
+      timeoutMs: 5
+    }),
+    (error: unknown) => error instanceof PublicUrlDnsTimeoutError && error.timeoutMs === 5
+  );
+  assert.equal(Date.now() - started < 250, true);
+});
+
+test("assertPublicHttpUrl propagates caller cancellation and caps resolver fan-out", async () => {
+  const caller = new AbortController();
+  const reason = new DOMException("request ended", "AbortError");
+  const pending = assertPublicHttpUrl(new URL("https://cancel.example/"), {
+    lookup: async () => new Promise(() => undefined),
+    signal: caller.signal,
+    timeoutMs: 1_000
+  });
+  caller.abort(reason);
+  await assert.rejects(pending, (error: unknown) => error === reason);
+
+  await assert.rejects(
+    assertPublicHttpUrl(new URL("https://fanout.example/"), {
+      lookup: async () =>
+        Array.from({ length: 65 }, (_, index) => ({ address: `1.1.1.${index % 255}`, family: 4 })),
+      timeoutMs: 1_000
+    }),
+    /could not be resolved/
   );
 });
 

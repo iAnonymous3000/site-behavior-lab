@@ -21,7 +21,7 @@ test("report activation links permanent evidence to history but never navigates 
   assert.equal(issue.origin + issue.pathname, "https://github.com/iAnonymous3000/site-behavior-lab/issues/new");
   assert.equal(issue.searchParams.get("template"), "evidence-problem.yml");
   assert.match(issue.searchParams.get("title") ?? "", /^Evidence review: example\.com/);
-  assert.match(issue.searchParams.get("report") ?? "", /^20260721-a{32} — https:\/\/sitebehavior\.org\/reports\//);
+  assert.match(issue.searchParams.get("report") ?? "", /^20260721-a{32} \(https:\/\/sitebehavior\.org\/reports\//);
   assert.equal(issue.searchParams.get("scan_date"), "2026-07-09T10:00:00.000Z");
   assert.equal(issue.searchParams.has("body"), false);
 });
@@ -38,7 +38,7 @@ test("legacy reports offer an exact-route rescan only for a safe recorded URL", 
   });
   assert.equal(
     activation.exactRescanHref,
-    "/?url=https%3A%2F%2Fwww.example.com%2Faccount%2Fsettings#scan"
+    "/#scan?url=https%3A%2F%2Fwww.example.com%2Faccount%2Fsettings"
   );
 
   legacy.conditions.requestedUrl = "https://example.com/{seg}/settings";

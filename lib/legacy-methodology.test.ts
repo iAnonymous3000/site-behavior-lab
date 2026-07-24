@@ -1,11 +1,19 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
+  LEGACY_V1_METHODOLOGY_UNSPECIFIED,
+  legacyV1MethodologyIdentity,
   NODE_PLAYWRIGHT_VERSION,
   NODE_SCANNER_METHODOLOGY_VERSION,
-  legacyV1MethodologyIdentity,
   recordedPlaywrightVersion
 } from "./legacy-methodology";
+
+test("the redaction sentinel never becomes a fake methodology cohort", () => {
+  assert.equal(
+    legacyV1MethodologyIdentity("Methodology metadata was invalid and was removed at the public boundary."),
+    LEGACY_V1_METHODOLOGY_UNSPECIFIED
+  );
+});
 
 test("scanner methodology records and parses the exact Playwright version", () => {
   const disclosure =

@@ -28,6 +28,21 @@ function entry(id: string, overrides: Partial<DirectoryEntry> = {}): DirectoryEn
     consentClicks: null,
     status: 200,
     runOutcome: "complete",
+    corpusCohort: {
+      id: "v2-r2:test-methodology:node-playwright",
+      schemaVersion: 2,
+      schemaRevision: 2,
+      methodologyVersion: "test-methodology",
+      methodologyOrigin: "recorded",
+      producer: "node-playwright"
+    },
+    producer: "node-playwright",
+    acquisition: "ci-workflow",
+    buildCommit: "a".repeat(40),
+    browserName: "chromium",
+    browserVersion: "test-chromium",
+    egressLabel: "test-egress",
+    egressRegion: "test-region",
     reportHasSuccessfulLoad: true,
     reportHasRequestCappedLoad: false,
     requestEvidenceComplete: true,
@@ -96,6 +111,7 @@ test("category pages use one newest eligible report per canonical site", () => {
   assert.equal(page.rollup.siteCount, 5);
   assert.equal(page.rollup.medianTrackers, 2);
   assert.equal(page.lastScannedAt, "2026-07-05T00:00:00.000Z");
+  assert.equal(page.cohort.id, reports[0].corpusCohort.id);
 });
 
 test("category pages select current passive behavior and Shields pair evidence independently", () => {
@@ -145,4 +161,29 @@ test("category pages stay gated until the minimum eligible site count is met", (
   const reports = [entry("one", { domain: "one.com" }), entry("two", { domain: "two.net" })];
   assert.deepEqual(buildCategoryEvidencePages(reports), []);
   assert.equal(buildCategoryEvidencePages(reports, 2).length, 1);
+});
+
+test("category medians select one methodology cohort instead of pooling generations", () => {
+  const legacyCohort = {
+    id: "v1:legacy-method:producer-unrecorded",
+    schemaVersion: 1 as const,
+    schemaRevision: null,
+    methodologyVersion: "legacy-method",
+    methodologyOrigin: "legacy-derived" as const,
+    producer: null
+  };
+  const r2 = [
+    entry("r2-a", { domain: "a.com", trackerRequests: 100 }),
+    entry("r2-b", { domain: "b.com", trackerRequests: 200 })
+  ];
+  const legacy = [
+    entry("v1-a", { domain: "c.com", trackerRequests: 1, corpusCohort: legacyCohort }),
+    entry("v1-b", { domain: "d.com", trackerRequests: 2, corpusCohort: legacyCohort }),
+    entry("v1-c", { domain: "e.com", trackerRequests: 3, corpusCohort: legacyCohort })
+  ];
+
+  const [page] = buildCategoryEvidencePages([...r2, ...legacy], 1);
+  assert.equal(page.cohort.id, legacyCohort.id, "the larger independently counted cohort wins");
+  assert.equal(page.sites.length, 3);
+  assert.equal(page.rollup.medianTrackers, 2);
 });

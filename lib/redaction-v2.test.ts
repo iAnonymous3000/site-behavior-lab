@@ -10,6 +10,7 @@ import {
   publicRegistrableDomain,
   redactCookieName,
   redactHostnameV2,
+  redactPageTitle,
   redactPathV2,
   redactStorageKey,
   redactUrlV2,
@@ -46,6 +47,31 @@ test("malformed and non-http input redacts, never passes through", () => {
   assert.equal(publicRegistrableDomain("Alice.Patient.example.com."), "example.com");
   assert.equal(publicRegistrableDomain("example.com.."), "example.com");
   assert.equal(publicRegistrableDomain("WWW.EXAMPLE.COM"), "example.com");
+});
+
+test("IP, port, and page-title literals never cross the public boundary", () => {
+  for (const input of [
+    "http://192.168.1.37:8080/patient/abc",
+    "http://2130706433:3000/private",
+    "http://[fd00::a:b:c:d]:3000/secret",
+    "https://203.0.113.55/account"
+  ]) {
+    const redacted = redactUrlV2(input);
+    assert.equal(redacted.value, INVALID_URL_MARKER);
+    assert.equal(redacted.counters.malformedUrlsDropped, 1);
+  }
+  assert.equal(redactHostnameV2("192.168.1.37").value, INVALID_HOST_MARKER);
+  assert.equal(redactHostnameV2("[fd00::a:b:c:d]").value, INVALID_HOST_MARKER);
+
+  assert.equal(
+    redactUrlV2("https://telemetry.example.com:8443/products?utm_source=private", {
+      preserveQueryKeys: true
+    }).value,
+    "https://telemetry.example.com/products?utm_source="
+  );
+
+  assert.equal(redactPageTitle("Anna Schmidt's private dashboard"), "");
+  assert.equal(redactPageTitle(redactPageTitle("already public")), "", "the title marker is byte-idempotent");
 });
 
 test("paths are default-deny: only allowlisted route literals survive", () => {

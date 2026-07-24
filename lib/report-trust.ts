@@ -1,4 +1,5 @@
 import { safeNavigableHttpUrl } from "./report-url";
+import { scanPrefillHref } from "./scan-prefill";
 import { displayRunView, type ReportView } from "./scan-report-views";
 import { siteProfilePath } from "./site-profile";
 
@@ -29,7 +30,7 @@ export function reportActivation(input: {
 
   return {
     profilePath: input.siteHistoryAvailable ? siteProfilePath(input.view.domain) : null,
-    exactRescanHref: exactTarget ? `/?url=${encodeURIComponent(exactTarget)}#scan` : null,
+    exactRescanHref: exactTarget ? scanPrefillHref(exactTarget) : null,
     evidenceIssueUrl: evidenceProblemUrl({
       id: input.id,
       domain: input.view.domain,
@@ -58,7 +59,7 @@ export function evidenceProblemUrl(input: {
     // GitHub issue-form fields are prefilled by their YAML ids. Keep the
     // report identity useful even when a caller has only the id, while adding
     // the public URL when one was supplied.
-    report: reportUrl ? `${reportId} — ${reportUrl}` : reportId,
+    report: reportUrl ? `${reportId} (${reportUrl})` : reportId,
     scan_date: formatIssueDate(input.scannedAt)
   });
   return `${EVIDENCE_ISSUE_URL}?${params.toString()}`;

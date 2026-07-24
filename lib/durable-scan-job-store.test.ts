@@ -39,6 +39,7 @@ import {
   reconcileExpiredPublishingDurableScanJob,
   requeueOrFailExpiredDurableScanJobLease,
   resolveDurableScanJob,
+  settlePastPurgeDurableScanJobs,
   type DurableScanJobAdmission,
   type DurableScanJobClaim,
   type DurableScanJobEncryptionKey,
@@ -627,8 +628,63 @@ test("deadline, wake, and purge boundaries are exact", async () => {
     assert.equal(purgeDurableScanJobs(sql, admission.purgeAt), 1);
     assert.equal(findDurableScanJobSnapshot(sql, admission.jobId), null);
     assert.equal(earliestDurableScanJobPurgeAt(sql), laterAdmission.purgeAt);
+    assert.throws(
+      () => purgeDurableScanJobs(sql, laterAdmission.purgeAt),
+      DurableScanJobStateError,
+      "hard purge must never silently delete unfinished work"
+    );
+    assert.equal(findDurableScanJobSnapshot(sql, laterAdmission.jobId)?.state, "queued");
+    assert.deepEqual(
+      settlePastPurgeDurableScanJobs(sql, laterAdmission.purgeAt).map((snapshot) => snapshot.state),
+      ["expired"]
+    );
     assert.equal(purgeDurableScanJobs(sql, laterAdmission.purgeAt), 1);
     assert.equal(earliestDurableScanJobPurgeAt(sql), null);
+  });
+});
+
+test("hard-purge settlement covers queued, leased, and publishing rows before deletion", async () => {
+  await withDatabase(async (_database, sql) => {
+    const key = await importDurableScanJobEncryptionKey(KEY_WIRE);
+    const createdAt = 250_000;
+    const admissions = await Promise.all([
+      makeAdmission(key, 130, createdAt),
+      makeAdmission(key, 131, createdAt),
+      makeAdmission(key, 132, createdAt)
+    ]);
+    for (const admission of admissions) admitDurableScanJob(sql, admission);
+
+    const credentials = await createDurableScanJobLeaseCredentials(2);
+    const claims = claimDurableScanJobs(sql, {
+      now: createdAt + 1,
+      capacity: 2,
+      credentials
+    });
+    assert.equal(claims.length, 2);
+    beginPublishingDurableScanJob(sql, {
+      jobId: claims[1].jobId,
+      generation: claims[1].leaseGeneration,
+      tokenHash: credentials[1].tokenHash,
+      now: createdAt + 2,
+      manifest: publicationManifest(claims[1].reportId)
+    });
+
+    const purgeAt = admissions[0].purgeAt;
+    assert.deepEqual(
+      admissions.map((admission) => findDurableScanJobSnapshot(sql, admission.jobId)?.state),
+      ["leased", "publishing", "queued"]
+    );
+    assert.throws(() => purgeDurableScanJobs(sql, purgeAt), DurableScanJobStateError);
+
+    const settled = settlePastPurgeDurableScanJobs(sql, purgeAt);
+    assert.equal(settled.length, 3);
+    assert.deepEqual(settled.map((snapshot) => snapshot.state), ["expired", "expired", "expired"]);
+    assert.deepEqual(settled.map((snapshot) => snapshot.terminalReason), ["deadline", "deadline", "deadline"]);
+    assert.equal(purgeDurableScanJobs(sql, purgeAt), 3);
+    assert.deepEqual(
+      admissions.map((admission) => findDurableScanJobSnapshot(sql, admission.jobId)),
+      [null, null, null]
+    );
   });
 });
 

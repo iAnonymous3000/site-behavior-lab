@@ -1,16 +1,27 @@
 "use client";
 
 import { ExternalLink, FileJson, Loader2, Search, Upload } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type Ref } from "react";
 import { clientReportRuntime, staticAssetPath } from "../client-runtime";
 import { FileUploadButton } from "./file-upload-button";
-import { comparableSubjectHosts, comparisonEligibility } from "@/lib/comparison-eligibility";
-import { legacyComparisonDecision } from "@/lib/comparison-decision";
-import { createTemporalComparisonReport, orderTemporalPair } from "@/lib/compare-reports";
-import { committedReportLocation, withoutReportShare } from "@/lib/report-locator";
 import { readLoadedReport } from "@/lib/client-report-reader";
+import { comparableSubjectHosts } from "@/lib/comparison-eligibility";
+import {
+  LatestClientOperation,
+  fetchBytesResponseWithPolicy,
+  parseJsonTextWithPolicy
+} from "@/lib/client-fetch-policy";
+import { parseDigestBoundReportJson } from "@/lib/client-report-integrity";
+import { readClientFileText } from "@/lib/client-file-policy";
+import { committedReportLocation } from "@/lib/report-locator";
+import { BROWSER_PUBLIC_REPORT_JSON_MAX_BYTES } from "@/lib/report-resource-limits";
+import type { LoadedReport } from "@/lib/scan-report-view";
 import { plural } from "@/lib/text-format";
-import type { ComparisonScanResult, ScanDevice, ScanResult, StaticReportManifestEntry } from "@/lib/types";
+import {
+  createLoadedTemporalComparison,
+  temporalUploadSelectionError
+} from "@/lib/temporal-report-comparison";
+import type { ScanDevice, StaticReportManifestEntry } from "@/lib/types";
 
 /**
  * The committed-report surfaces of the static export: the curated "Start here"
@@ -24,12 +35,14 @@ const ARCHIVE_PAGE_SIZE = 24;
 function StaticReportGallery({
   reports,
   error,
+  onRetry,
   onCreateComparison,
   onComparisonError
 }: {
   reports: StaticReportManifestEntry[] | null;
   error: string | null;
-  onCreateComparison: (comparison: ComparisonScanResult) => void;
+  onRetry: () => void;
+  onCreateComparison: (comparison: LoadedReport) => void;
   onComparisonError: (message: string) => void;
 }) {
   const [query, setQuery] = useState("");
@@ -44,6 +57,24 @@ function StaticReportGallery({
   const [compareError, setCompareError] = useState<string | null>(null);
   const [compareLoading, setCompareLoading] = useState(false);
   const [visibleCount, setVisibleCount] = useState(ARCHIVE_PAGE_SIZE);
+  const pendingFocusIndexRef = useRef<number | null>(null);
+  const newlyRevealedReportRef = useRef<HTMLAnchorElement | null>(null);
+  const archiveComparisonOperationRef = useRef<LatestClientOperation | null>(null);
+  const beforeUploadOperationRef = useRef<LatestClientOperation | null>(null);
+  const afterUploadOperationRef = useRef<LatestClientOperation | null>(null);
+  const comparisonIntentEpochRef = useRef(0);
+  if (!archiveComparisonOperationRef.current) archiveComparisonOperationRef.current = new LatestClientOperation();
+  if (!beforeUploadOperationRef.current) beforeUploadOperationRef.current = new LatestClientOperation();
+  if (!afterUploadOperationRef.current) afterUploadOperationRef.current = new LatestClientOperation();
+  const archiveComparisonOperation = archiveComparisonOperationRef.current;
+  const beforeUploadOperation = beforeUploadOperationRef.current;
+  const afterUploadOperation = afterUploadOperationRef.current;
+
+  useEffect(() => () => {
+    archiveComparisonOperation.cancel();
+    beforeUploadOperation.cancel();
+    afterUploadOperation.cancel();
+  }, [afterUploadOperation, archiveComparisonOperation, beforeUploadOperation]);
 
   const historyGroups = useMemo(() => buildHistoryGroups(reports ?? []), [reports]);
   const selectedHistoryGroup = historyGroups.find((group) => group.key === historyGroupKey) ?? historyGroups[0] ?? null;
@@ -68,12 +99,22 @@ function StaticReportGallery({
   }, [deviceFilter, query, reports, sortBy, typeFilter]);
 
   useEffect(() => {
+    pendingFocusIndexRef.current = null;
     setVisibleCount(ARCHIVE_PAGE_SIZE);
   }, [deviceFilter, query, sortBy, typeFilter]);
 
   const visibleReports = filteredReports.slice(0, visibleCount);
 
   useEffect(() => {
+    const pendingIndex = pendingFocusIndexRef.current;
+    if (pendingIndex === null || pendingIndex >= visibleReports.length) return;
+    pendingFocusIndexRef.current = null;
+    newlyRevealedReportRef.current?.focus();
+  }, [visibleReports.length]);
+
+  useEffect(() => {
+    archiveComparisonOperation.cancel();
+    setCompareLoading(false);
     const group = historyGroups.find((candidate) => candidate.key === historyGroupKey) ?? historyGroups[0];
     if (!group) {
       setHistoryGroupKey("");
@@ -84,9 +125,12 @@ function StaticReportGallery({
     if (group.key !== historyGroupKey) setHistoryGroupKey(group.key);
     setBeforeReportId(group.reports[1]?.id ?? group.reports[0].id);
     setAfterReportId(group.reports[0].id);
-  }, [historyGroupKey, historyGroups]);
+  }, [archiveComparisonOperation, historyGroupKey, historyGroups]);
 
   async function compareArchiveReports() {
+    const intentEpoch = beginComparisonIntent();
+    archiveComparisonOperation.cancel();
+    setCompareLoading(false);
     const before = selectedHistoryGroup?.reports.find((report) => report.id === beforeReportId) ?? null;
     const after = selectedHistoryGroup?.reports.find((report) => report.id === afterReportId) ?? null;
     if (!before || !after) {
@@ -109,73 +153,114 @@ function StaticReportGallery({
       return;
     }
 
-    setCompareLoading(true);
-    setCompareError(null);
-
-    try {
-      const [beforeReport, afterReport] = await Promise.all([loadStaticTemporalRun(before), loadStaticTemporalRun(after)]);
-      // "Before" follows the recorded timestamps, not the pick order: a
-      // temporal pair whose arms are reversed in time records no change.
-      const ordered = orderTemporalPair(beforeReport, afterReport);
-      if (!ordered) {
-        setCompareError("The two reports' recorded timestamps cannot order a before/after pair.");
-        return;
+    await archiveComparisonOperation.run(
+      async (signal) => {
+        const [beforeReport, afterReport] = await loadStaticTemporalPair(before, after, signal);
+        const comparison = createLoadedTemporalComparison(beforeReport, afterReport);
+        if (!comparison.ok) throw new ComparisonSelectionError(comparison.message);
+        return comparison.loaded;
+      },
+      {
+        onStart: () => {
+          setCompareLoading(true);
+          setCompareError(null);
+        },
+        onSuccess: (comparison) => {
+          if (isCurrentComparisonIntent(intentEpoch)) onCreateComparison(comparison);
+        },
+        onError: (readError) => {
+          if (!isCurrentComparisonIntent(intentEpoch)) return;
+          const message = readError instanceof Error ? readError.message : "Saved reports could not be compared.";
+          setCompareError(message);
+          if (!(readError instanceof ComparisonSelectionError)) onComparisonError(message);
+        },
+        onSettled: () => setCompareLoading(false)
       }
-      const comparison = createTemporalComparisonReport(ordered[0], ordered[1]);
-      const decision = legacyComparisonDecision(comparison);
-      const supportsDescriptiveDelta =
-        decision.mode === "comparable" &&
-        (decision.families["raw-counts"].mode === "comparable" ||
-          decision.families["tracker-classification"].mode === "comparable");
-      if (!supportsDescriptiveDelta) {
-        setCompareError(`These visits do not support a comparable descriptive delta. ${decision.reasons.slice(0, 2).join(" ")}`);
-        return;
-      }
-      onCreateComparison(comparison);
-    } catch (readError) {
-      const message = readError instanceof Error ? readError.message : "Saved reports could not be compared.";
-      setCompareError(message);
-      onComparisonError(message);
-    } finally {
-      setCompareLoading(false);
-    }
+    );
   }
 
   function compareUploadedReports() {
+    beginComparisonIntent();
+    archiveComparisonOperation.cancel();
+    setCompareLoading(false);
     if (!uploadBefore || !uploadAfter) {
       setCompareError("Open two single-scan report files.");
       return;
     }
-    if (!comparableSubjectHosts(uploadBefore.report.summary.firstPartyDomain, uploadAfter.report.summary.firstPartyDomain)) {
-      setCompareError(
-        `Temporal comparison needs two scans of the same site (${uploadBefore.report.summary.firstPartyDomain} vs ${uploadAfter.report.summary.firstPartyDomain}).`
-      );
-      return;
-    }
-    if (uploadBefore.report.conditions.viewport.isMobile !== uploadAfter.report.conditions.viewport.isMobile) {
-      setCompareError("Temporal comparison needs two scans on the same device type (desktop vs mobile).");
-      return;
-    }
-
-    const ordered = orderTemporalPair(uploadBefore.report, uploadAfter.report);
-    if (!ordered) {
-      setCompareError("The two reports' recorded timestamps cannot order a before/after pair.");
-      return;
-    }
-
-    const comparison = createTemporalComparisonReport(ordered[0], ordered[1]);
-    const eligibility = comparisonEligibility(comparison);
-    if (!eligibility.eligible) {
-      setCompareError(`These visits are not methodologically comparable. ${eligibility.reasons.slice(0, 2).join(" ")}`);
+    const comparison = createLoadedTemporalComparison(uploadBefore.loaded, uploadAfter.loaded);
+    if (!comparison.ok) {
+      setCompareError(comparison.message);
       return;
     }
 
     setCompareError(null);
-    onCreateComparison(comparison);
+    onCreateComparison(comparison.loaded);
+  }
+
+  async function openCompareUpload(file: File | null, slot: "before" | "after") {
+    const intentEpoch = beginComparisonIntent();
+    archiveComparisonOperation.cancel();
+    setCompareLoading(false);
+    const operation = slot === "before" ? beforeUploadOperation : afterUploadOperation;
+    await operation.run(
+      async (signal) => {
+        const uploaded = await readCompareUpload(file, slot, signal);
+        signal.throwIfAborted();
+        return uploaded;
+      },
+      {
+        onSuccess: (uploaded) => {
+          if (slot === "before") setUploadBefore(uploaded);
+          else setUploadAfter(uploaded);
+          if (isCurrentComparisonIntent(intentEpoch)) setCompareError(null);
+        },
+        onError: (readError) => {
+          if (!isCurrentComparisonIntent(intentEpoch)) return;
+          setCompareError(readError instanceof Error ? readError.message : `The ${slot} report could not be opened.`);
+        }
+      }
+    );
+  }
+
+  function surfaceCompareUploadError(slot: "before" | "after", message: string) {
+    beginComparisonIntent();
+    archiveComparisonOperation.cancel();
+    (slot === "before" ? beforeUploadOperation : afterUploadOperation).cancel();
+    setCompareLoading(false);
+    setCompareError(message);
+  }
+
+  function changeComparisonSelection(update: () => void) {
+    beginComparisonIntent();
+    archiveComparisonOperation.cancel();
+    setCompareLoading(false);
+    setCompareError(null);
+    update();
+  }
+
+  function beginComparisonIntent(): number {
+    comparisonIntentEpochRef.current += 1;
+    return comparisonIntentEpochRef.current;
+  }
+
+  function isCurrentComparisonIntent(epoch: number): boolean {
+    return comparisonIntentEpochRef.current === epoch;
+  }
+
+  if (error) {
+    return (
+      <div className="static-gallery-empty">
+        <FileJson size={18} aria-hidden="true" />
+        <span role="alert">{error}</span>
+        <button className="secondary-button" type="button" onClick={onRetry}>
+          Retry saved-report tools
+        </button>
+      </div>
+    );
   }
 
   if (reports === null) {
-    return <p className="muted">Loading generated reports...</p>;
+    return <p className="muted" role="status">Loading generated reports…</p>;
   }
 
   if (reports.length === 0) {
@@ -263,7 +348,10 @@ function StaticReportGallery({
               <div className="static-compare-controls">
                 <label>
                   <span>Site history</span>
-                  <select value={selectedHistoryGroup.key} onChange={(event) => setHistoryGroupKey(event.currentTarget.value)}>
+                  <select
+                    value={selectedHistoryGroup.key}
+                    onChange={(event) => changeComparisonSelection(() => setHistoryGroupKey(event.currentTarget.value))}
+                  >
                     {historyGroups.map((group) => (
                       <option key={group.key} value={group.key}>
                         {group.label}
@@ -273,7 +361,10 @@ function StaticReportGallery({
                 </label>
                 <label>
                   <span>Before</span>
-                  <select value={beforeReportId} onChange={(event) => setBeforeReportId(event.currentTarget.value)}>
+                  <select
+                    value={beforeReportId}
+                    onChange={(event) => changeComparisonSelection(() => setBeforeReportId(event.currentTarget.value))}
+                  >
                     {selectedHistoryGroup.reports.map((report) => (
                       <option key={report.id} value={report.id}>
                         {staticReportOptionLabel(report)}
@@ -283,7 +374,10 @@ function StaticReportGallery({
                 </label>
                 <label>
                   <span>After</span>
-                  <select value={afterReportId} onChange={(event) => setAfterReportId(event.currentTarget.value)}>
+                  <select
+                    value={afterReportId}
+                    onChange={(event) => changeComparisonSelection(() => setAfterReportId(event.currentTarget.value))}
+                  >
                     {selectedHistoryGroup.reports.map((report) => (
                       <option key={report.id} value={report.id}>
                         {staticReportOptionLabel(report)}
@@ -293,9 +387,7 @@ function StaticReportGallery({
                 </label>
               </div>
               <p className="static-compare-note">
-                Archive groups hold the route, scanner method, browser, device, conditions, catalog, Brave-list
-                source and list count constant. A changed list snapshot can support raw and catalogued-service
-                differences, but never a Shields or detector delta.
+                {historyGroupMethodNote(selectedHistoryGroup)}
               </p>
             </>
           ) : (
@@ -308,40 +400,39 @@ function StaticReportGallery({
           <div className="static-compare-upload">
             <CompareUploadButton
               label={uploadBefore ? uploadBefore.name : "Open before JSON"}
-              onUploadReport={async (file) => {
-                const uploaded = await readCompareUpload(file, "before");
-                setUploadBefore(uploaded);
-                setCompareError(null);
-              }}
-              onError={setCompareError}
+              onUploadReport={(file) => openCompareUpload(file, "before")}
+              onError={(message) => surfaceCompareUploadError("before", message)}
             />
             <CompareUploadButton
               label={uploadAfter ? uploadAfter.name : "Open after JSON"}
-              onUploadReport={async (file) => {
-                const uploaded = await readCompareUpload(file, "after");
-                setUploadAfter(uploaded);
-                setCompareError(null);
-              }}
-              onError={setCompareError}
+              onUploadReport={(file) => openCompareUpload(file, "after")}
+              onError={(message) => surfaceCompareUploadError("after", message)}
             />
             <button className="secondary-button" type="button" onClick={compareUploadedReports}>
               <Upload size={17} aria-hidden="true" />
               Compare files
             </button>
           </div>
-          {compareError && <p className="static-compare-error">{compareError}</p>}
+          {compareError && <p className="static-compare-error" role="alert">{compareError}</p>}
         </section>
       )}
       <div className="static-report-list">
-        {visibleReports.map((report) => (
-          <StaticReportCard key={report.id} report={report} />
+        {visibleReports.map((report, index) => (
+          <StaticReportCard
+            focusRef={index === pendingFocusIndexRef.current ? newlyRevealedReportRef : undefined}
+            key={report.id}
+            report={report}
+          />
         ))}
       </div>
       {visibleReports.length < filteredReports.length && (
         <button
           className="secondary-button static-gallery-more"
           type="button"
-          onClick={() => setVisibleCount((current) => current + ARCHIVE_PAGE_SIZE)}
+          onClick={() => {
+            pendingFocusIndexRef.current = visibleReports.length;
+            setVisibleCount((current) => current + ARCHIVE_PAGE_SIZE);
+          }}
         >
           Show {Math.min(ARCHIVE_PAGE_SIZE, filteredReports.length - visibleReports.length).toLocaleString("en-US")} more reports
         </button>
@@ -356,9 +447,19 @@ function StaticReportGallery({
   );
 }
 
-function StaticReportCard({ report }: { report: StaticReportManifestEntry }) {
+function StaticReportCard({
+  report,
+  focusRef
+}: {
+  report: StaticReportManifestEntry;
+  focusRef?: Ref<HTMLAnchorElement>;
+}) {
   return (
-    <a className="static-report-card" href={committedReportLocation(report.id, clientReportRuntime()).pagePath}>
+    <a
+      className="static-report-card"
+      href={committedReportLocation(report.id, clientReportRuntime()).pagePath}
+      ref={focusRef}
+    >
       <span className="static-report-main">
         <strong>{report.title || report.domain}</strong>
         <small>
@@ -380,7 +481,7 @@ function StaticReportCard({ report }: { report: StaticReportManifestEntry }) {
 
 type UploadedCompareReport = {
   name: string;
-  report: ScanResult;
+  loaded: LoadedReport;
 };
 
 function CompareUploadButton({
@@ -399,50 +500,89 @@ function CompareUploadButton({
   );
 }
 
-async function loadStaticTemporalRun(entry: StaticReportManifestEntry): Promise<ScanResult> {
-  const response = await fetch(committedReportLocation(entry.id, clientReportRuntime()).dataUrl, { cache: "no-store" });
-  if (!response.ok) {
-    throw new Error(`Could not load ${entry.domain}.`);
+async function loadStaticTemporalReport(entry: StaticReportManifestEntry, signal: AbortSignal): Promise<LoadedReport> {
+  const { bytes } = await fetchBytesResponseWithPolicy(
+    committedReportLocation(entry.id, clientReportRuntime()).dataUrl,
+    { cache: "no-store" },
+    {
+      label: `Saved report for ${entry.domain}`,
+      maxBytes: BROWSER_PUBLIC_REPORT_JSON_MAX_BYTES,
+      signal,
+      httpError: () => new Error(`Could not load ${entry.domain}.`)
+    }
+  );
+  if (bytes.byteLength !== entry.reportWireBytes) {
+    throw new Error(`Saved report for ${entry.domain} did not match its manifest byte length.`);
   }
-
-  const payload = (await response.json()) as unknown;
+  const payload = await parseDigestBoundReportJson(
+    bytes,
+    entry.reportWireSha256,
+    `Saved report for ${entry.domain}`
+  );
+  signal.throwIfAborted();
   const read = await readLoadedReport(payload, entry.domain);
   if (!read.ok) throw new Error(read.message);
-  // The client-side temporal builder composes v1 runs; a pair mixing schema
-  // generations would compare two different recording contracts, so other
-  // generations are refused honestly here until a cross-generation temporal
-  // design exists.
-  if (read.loaded.source !== "v1") {
-    throw new Error(`${entry.domain} uses the v2 schema; temporal comparison across schema generations is not supported yet.`);
+  if (read.loaded.wire.share?.id !== entry.id) {
+    throw new Error(`Saved report for ${entry.domain} did not match its manifest identity.`);
   }
-  const wire = read.loaded.wire;
-  // A comparison report still contains complete visits. Use the same lead-run
-  // convention as the directory: temporal reports lead with the later visit;
-  // intervention/descriptive reports lead with their baseline. The versioned
-  // archive identity suggests passive cohorts, then legacyComparisonDecision
-  // rechecks the loaded pair. Shields remains strict to the exact snapshot.
-  const run = wire.reportType === "comparison" ? (wire.comparisonType === "temporal" ? wire.variant : wire.baseline) : wire;
-  return withoutReportShare(run);
+  return read.loaded;
 }
 
-async function readCompareUpload(file: File | null, slot: "before" | "after"): Promise<UploadedCompareReport> {
+async function loadStaticTemporalPair(
+  before: StaticReportManifestEntry,
+  after: StaticReportManifestEntry,
+  signal: AbortSignal
+): Promise<[LoadedReport, LoadedReport]> {
+  const pairController = new AbortController();
+  const abortPair = () => pairController.abort(signal.reason);
+  if (signal.aborted) abortPair();
+  else signal.addEventListener("abort", abortPair, { once: true });
+  try {
+    return await Promise.all([
+      loadStaticTemporalReport(before, pairController.signal),
+      loadStaticTemporalReport(after, pairController.signal)
+    ]);
+  } catch (error) {
+    if (!pairController.signal.aborted) {
+      pairController.abort(new DOMException("The other comparison report failed to load.", "AbortError"));
+    }
+    throw error;
+  } finally {
+    signal.removeEventListener("abort", abortPair);
+  }
+}
+
+class ComparisonSelectionError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "ComparisonSelectionError";
+  }
+}
+
+async function readCompareUpload(
+  file: File | null,
+  slot: "before" | "after",
+  signal: AbortSignal
+): Promise<UploadedCompareReport> {
   if (!file) {
     throw new Error(`Open a ${slot} report file.`);
   }
 
-  const payload = JSON.parse(await file.text()) as unknown;
+  const contents = await readClientFileText(file, {
+    label: `The ${slot} report JSON`,
+    maxBytes: BROWSER_PUBLIC_REPORT_JSON_MAX_BYTES,
+    signal
+  });
+  const payload = parseJsonTextWithPolicy(contents, `The ${slot} report JSON`);
   const read = await readLoadedReport(payload, `The ${slot} file`);
+  signal.throwIfAborted();
   if (!read.ok) throw new Error(read.message);
-  if (read.loaded.source !== "v1") {
-    throw new Error(`The ${slot} file uses the v2 schema; temporal comparison across schema generations is not supported yet.`);
-  }
-  if (read.loaded.wire.reportType === "comparison") {
-    throw new Error("Choose a single-scan Site Behavior Lab JSON report.");
-  }
+  const selectionError = temporalUploadSelectionError(read.loaded);
+  if (selectionError) throw new Error(selectionError);
 
   return {
     name: file.name,
-    report: withoutReportShare(read.loaded.wire)
+    loaded: read.loaded
   };
 }
 
@@ -451,6 +591,13 @@ function staticReportOptionLabel(report: StaticReportManifestEntry): string {
 }
 
 type HistoryGroup = { key: string; label: string; reports: StaticReportManifestEntry[] };
+
+function historyGroupMethodNote(group: HistoryGroup): string {
+  if (group.key.startsWith("comparison-history-key-v2|")) {
+    return "This v2/r2 history holds the route, device, condition vector, execution environment, methodology, normalization and tracker-catalog snapshot constant. Every selected pair is re-evaluated per metric family before any delta is shown.";
+  }
+  return "This v1 history holds the route, scanner method, browser, device, conditions, catalog, Brave-list source and list count constant. A changed list snapshot can support raw and catalogued-service differences, but never a Shields or detector delta.";
+}
 
 function buildHistoryGroups(reports: StaticReportManifestEntry[]): HistoryGroup[] {
   const groups = new Map<string, StaticReportManifestEntry[]>();

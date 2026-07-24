@@ -6,9 +6,9 @@ import { legacyV1MethodologyIdentity } from "./legacy-methodology";
  *
  * Every consumer that turns a paired comparison into a claim (the headline
  * layer, the findings board, the directory metrics, the temporal compare
- * tools) must ask this module first, so a failed, blocked, request-capped, or
- * mismatched run can never produce definitive comparison wording in one place
- * while another still shows it.
+ * tools) must ask this module first, so a failed, blocked, request-censored,
+ * or mismatched run can never produce definitive comparison wording in one
+ * place while another still shows it.
  *
  * Intentionally dependency-light (types plus the tiny v1 methodology-token
  * parser) so it runs in the React client, in server-side `generateMetadata`,
@@ -32,6 +32,13 @@ export const COMPARISON_REQUEST_CAP = 1_000;
 const REQUEST_CAP_WARNING_FRAGMENT = "stopped recording or loading additional requests";
 const RESPONSE_BYTE_CAP_WARNING_FRAGMENT = "stopped loading additional response bytes";
 const UPLOAD_BYTE_CAP_WARNING_FRAGMENT = "stopped forwarding additional request bytes";
+// These remain fragments rather than imports because comparison eligibility
+// runs in client bundles. Importing scan-runtime or the Worker transformer
+// would pull scanner-only dependencies into every report reader. Tests pin the
+// fragments to the producer's exact warning vocabulary.
+const GPC_WORKER_CAPTURE_LOSS_WARNING_FRAGMENT = "Web Workers while applying the simulated GPC signal";
+const INVALID_UPSTREAM_RESPONSE_WARNING_FRAGMENT = "scan proxy rejected one or more invalid upstream responses";
+const PROXY_TRAFFIC_BUDGET_WARNING_FRAGMENT = "connection and target safety budget";
 
 export function comparisonEligibility(report: ComparisonScanResult): ComparisonEligibility {
   const reasons: string[] = [];
@@ -60,6 +67,15 @@ export function comparisonEligibility(report: ComparisonScanResult): ComparisonE
     }
     if (runHitUploadByteCap(run)) {
       reasons.push(`The "${label}" visit exhausted its aggregate upload-byte budget, so its request evidence is incomplete.`);
+    }
+    if (runHitGpcWorkerCaptureLoss(run)) {
+      reasons.push(`The "${label}" visit reported GPC Worker capture loss, so its request evidence is incomplete.`);
+    }
+    if (runHitInvalidUpstreamResponseCaptureLoss(run)) {
+      reasons.push(`The "${label}" visit rejected invalid upstream responses, so its request evidence is incomplete.`);
+    }
+    if (runHitProxyTrafficBudget(run)) {
+      reasons.push(`The "${label}" visit exhausted its proxy connection and target safety budget, so its request evidence is incomplete.`);
     }
   }
 
@@ -339,8 +355,32 @@ export function runHitUploadByteCap(run: ScanResult): boolean {
   return run.warnings.some((warning) => warning.includes(UPLOAD_BYTE_CAP_WARNING_FRAGMENT));
 }
 
+function runHitGpcWorkerCaptureLoss(run: ScanResult): boolean {
+  return run.warnings.some((warning) => warning.includes(GPC_WORKER_CAPTURE_LOSS_WARNING_FRAGMENT));
+}
+
+function runHitInvalidUpstreamResponseCaptureLoss(run: ScanResult): boolean {
+  return run.warnings.some((warning) => warning.includes(INVALID_UPSTREAM_RESPONSE_WARNING_FRAGMENT));
+}
+
+function runHitProxyTrafficBudget(run: ScanResult): boolean {
+  return run.warnings.some((warning) => warning.includes(PROXY_TRAFFIC_BUDGET_WARNING_FRAGMENT));
+}
+
+/**
+ * Whether a legacy run's request evidence is incomplete. The historical
+ * "Capped" export name is retained for reader compatibility; capture loss can
+ * also come from Worker instrumentation or an invalid upstream response.
+ */
 export function runRequestEvidenceCapped(run: ScanResult): boolean {
-  return runHitRequestCap(run) || runHitResponseByteCap(run) || runHitUploadByteCap(run);
+  return (
+    runHitRequestCap(run) ||
+    runHitResponseByteCap(run) ||
+    runHitUploadByteCap(run) ||
+    runHitGpcWorkerCaptureLoss(run) ||
+    runHitInvalidUpstreamResponseCaptureLoss(run) ||
+    runHitProxyTrafficBudget(run)
+  );
 }
 
 /**

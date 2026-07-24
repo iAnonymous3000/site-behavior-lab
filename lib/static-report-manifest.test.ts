@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -10,7 +11,10 @@ import { REDACTION_VERSION } from "./redaction-v2";
 import { buildStaticReportShare } from "./report-locator";
 import { buildStaticReportManifest } from "./static-report-manifest";
 import { evaluateQuality } from "./scan-report-v2-evaluators";
+import { buildFingerprints } from "./scan-report-v2-fingerprints";
+import { currentR2NormalizationForObserver } from "./scan-report-v2-normalization";
 import { makePublicSingleReportV2R2 } from "./scan-report-v2-r2-fixtures";
+import { r2ReportRuns, redactPublicScanReportV2R2 } from "./scan-report-v2-r2-remediation";
 import { makeScanReportV1 } from "./scan-report-v2-fixtures";
 import { NODE_SCANNER_METHODOLOGY_VERSION } from "./legacy-methodology";
 import { aggregateByteBudgetWarning } from "./scan-runtime";
@@ -91,6 +95,24 @@ function reportCreationTime(report: unknown): string {
   return scannedAt;
 }
 
+function currentR2FixedPoint(report: ReturnType<typeof makePublicSingleReportV2R2>) {
+  for (const run of r2ReportRuns(report)) {
+    run.privacy.redactionVersion = REDACTION_VERSION;
+    const normalization = currentR2NormalizationForObserver(run.provenance.observer);
+    if (normalization === null) throw new Error("fixture observer has no current normalization");
+    run.toolchain.normalizationVersion = normalization;
+    run.fingerprints = buildFingerprints({
+      conditions: run.conditions,
+      provenance: run.provenance,
+      toolchain: run.toolchain,
+      detectors: run.detectors
+    });
+  }
+  const redacted = redactPublicScanReportV2R2(report);
+  if (redacted.reportType !== "single") throw new Error("expected a single fixture");
+  return redacted;
+}
+
 test("builds entries for valid v1 reports and ignores non-report files", async () => {
   const report = makeResult();
   report.conditions.requestedUrl = "https://shop.example.org/";
@@ -113,6 +135,9 @@ test("builds entries for valid v1 reports and ignores non-report files", async (
   assert.deepEqual(warnings, []);
   const entry = manifest.reports[0];
   assert.equal(entry.id, "20260618-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+  const reportWire = await readFile(path.join(reportsDir, `${entry.id}.json`), "utf8");
+  assert.equal(entry.reportWireBytes, new TextEncoder().encode(reportWire).byteLength);
+  assert.equal(entry.reportWireSha256, createHash("sha256").update(reportWire, "utf8").digest("hex"));
   assert.equal(entry.domain, "shop.example.org");
   assert.equal(entry.reportType, "single");
   assert.equal(typeof entry.headline, "string");
@@ -154,6 +179,39 @@ test("comparison history permits only snapshot-date drift in successful passive 
   assert.notEqual(rebuilt.manifest.reports[0].comparisonHistoryKey, latest.comparisonHistoryKey);
 });
 
+test("r2 archive entries expose one methodology-aware history group", async () => {
+  const before = makePublicSingleReportV2R2();
+  before.run.runId = "r2-history-before";
+  before.run.startedAt = "2026-07-01T00:00:00.000Z";
+  before.run.privacy.redactionVersion = REDACTION_VERSION;
+  before.run.subject.requested = {
+    origin: "https://shop.nike.com",
+    registrableDomain: "nike.com",
+    routeShape: "/products/{seg}"
+  };
+  before.run.subject.observed = { ...before.run.subject.requested };
+  before.run.evidence.requests[0].url = "https://shop.nike.com/products/{seg}";
+  before.run.evidence.requests[0].domain = "shop.nike.com";
+  const beforeId = "20260701-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+  before.share = buildStaticReportShare(beforeId);
+  const currentBefore = currentR2FixedPoint(before);
+
+  const after = structuredClone(currentBefore);
+  after.run.runId = "r2-history-after";
+  after.run.startedAt = "2026-07-02T00:00:00.000Z";
+  const afterId = "20260702-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
+  after.share = buildStaticReportShare(afterId);
+  const currentAfter = currentR2FixedPoint(after);
+
+  await writeRawManagedReport(beforeId, currentBefore);
+  await writeRawManagedReport(afterId, currentAfter);
+
+  const { manifest } = await buildStaticReportManifest(reportsDir);
+  assert.equal(manifest.reports.length, 2);
+  assert.match(manifest.reports[0].comparisonHistoryKey ?? "", /^comparison-history-key-v2\|/);
+  assert.equal(manifest.reports[0].comparisonHistoryKey, manifest.reports[1].comparisonHistoryKey);
+});
+
 test("comparison history excludes failed, capped, and block-simulation visits", async () => {
   const failed = makeResult({ status: 403 });
   failed.conditions.shieldsMode = "classification";
@@ -188,9 +246,10 @@ test("manifest requestCapped marks the request-count cap, not generic request-fa
   v2Incomplete.run.quality = evaluateQuality(v2Incomplete.run.qualityFacts, {
     observedRequests: v2Incomplete.run.evidence.requests.length
   });
+  const currentV2Incomplete = currentR2FixedPoint(v2Incomplete);
   await writeReport("20260701-77777777777777777777777777777777", requestCapped);
   await writeReport("20260702-88888888888888888888888888888888", responseBytesCapped);
-  await writeRawManagedReport(v2Id, v2Incomplete);
+  await writeRawManagedReport(v2Id, currentV2Incomplete);
 
   const { manifest } = await buildStaticReportManifest(reportsDir);
   const byId = new Map(manifest.reports.map((entry) => [entry.id, entry]));

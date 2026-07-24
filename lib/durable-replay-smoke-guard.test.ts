@@ -38,7 +38,10 @@ test("durable replay smoke is positively staging-gated with no production overri
   assert.match(source, /finishedBeforeStatusRequest !== true/);
   assert.match(source, /health\.deployment !== expectedDeployment/);
   assert.match(source, /readAttestedStagingHealth\("post-recovery"\)/);
-  assert.match(source, /AbortSignal\.timeout\(REQUEST_TIMEOUT_MS\)/);
+  assert.match(source, /withHttpOperationDeadline\(/);
+  assert.match(source, /timeoutMs: REQUEST_TIMEOUT_MS/);
+  assert.match(source, /readResponseJsonWithinLimit\(response/);
+  assert.match(source, /maxBytes: JSON_RESPONSE_MAX_BYTES/);
   assert.match(source, /reading exactly one terminal status snapshot/i);
   assert.match(source, /const value = status\?\.durable\?\.attempts/);
   assert.match(source, /lease-expiry replay requires exactly two fenced attempts/);

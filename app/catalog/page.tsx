@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { githubSourceUrlAtBuildCommit } from "@/lib/build-source-url";
+import { detectorCalibrationReadiness } from "@/lib/detector-calibration";
 import { detectorValidationMetadata, detectorValidationRows } from "@/lib/detector-validation";
 import { publicPageMetadata } from "@/lib/seo-metadata";
 import { trackerCatalogMetadata, trackerCatalogRecords } from "@/lib/tracker-catalog";
@@ -11,7 +12,7 @@ export const dynamic = "force-static";
 export const metadata = publicPageMetadata({
   title: "Known-service catalog and detector validation",
   description:
-    "Review the maintainer-assigned service-domain labels, entity references, and source-pinned detector fixtures used by Site Behavior Lab.",
+    "Review the maintainer-assigned service-domain labels, source-pinned detector fixtures, and current detector-calibration evidence boundary used by Site Behavior Lab.",
   path: "/catalog/"
 });
 
@@ -27,6 +28,7 @@ export default function CatalogPage() {
   const entities = new Set(records.map((record) => record.entity)).size;
   const categories = new Set(records.map((record) => record.category)).size;
   const realChromiumCases = validationRows.reduce((sum, row) => sum + row.realChromiumCases, 0);
+  const calibration = detectorCalibrationReadiness();
 
   return (
     <main className={styles.page}>
@@ -37,7 +39,7 @@ export default function CatalogPage() {
           The catalog contains maintainer-assigned mappings from domain suffixes to recognizable services. Each
           mapping has a reviewer, review date, and functional rationale. Its official link identifies the named
           entity or product; it may not list that suffix or support the maintainer&apos;s category. A match is a useful
-          lower-bound label—not proof of why a request occurred, what it carried, or whether it complied with law.
+          lower-bound label, not proof of why a request occurred, what it carried, or whether it complied with law.
         </p>
         <p className={styles.back}><Link href="/">&larr; Back to Site Behavior Lab</Link></p>
       </header>
@@ -47,6 +49,7 @@ export default function CatalogPage() {
         <article><strong>{entities}</strong><span>named services or operators</span></article>
         <article><strong>{categories}</strong><span>functional labels</span></article>
         <article><strong>{detectorValidationMetadata.cases}</strong><span>source-pinned validation cases</span></article>
+        <article><strong>{calibration.calibrationStudies}</strong><span>representative calibration studies</span></article>
       </div>
 
       <section className={styles.section} aria-labelledby="catalog-heading">
@@ -78,6 +81,11 @@ export default function CatalogPage() {
           This is an acceptance-fixture inventory, not a representative labeled web corpus. It does not support a
           precision, recall, accuracy, or “all trackers detected” claim. The limitations shown for each detector remain
           part of the result even when every fixture passes.
+        </p>
+        <p className={styles.note}>
+          <strong>Calibration status: external labeled corpus required.</strong> The repository currently contains{" "}
+          {calibration.calibrationStudies} representative calibration studies and {calibration.labeledCalibrationCases}{" "}
+          labeled calibration cases. {calibration.evidenceGate}
         </p>
 
         <div className={styles.validationGrid}>

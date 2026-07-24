@@ -110,7 +110,11 @@ export type RunConditionsView = {
   /** Exact package version recorded by this run's own methodology provenance. */
   playwrightVersion: string | null;
   headless: boolean;
+  /** Recorded browser family/name; null when frozen v1 never named it separately. */
+  browserName: string | null;
   scannerEgress: string;
+  /** Recorded network egress region; null when absent or never recorded by v1. */
+  scannerEgressRegion: string | null;
   browserVersion: string | null;
   timezone: string;
   locale: string;
@@ -468,7 +472,9 @@ function runViewFromV2(run: ScanRunV2 | ScanRunV2R2, label: RunView["label"]): R
       automation: run.conditions.automation,
       playwrightVersion: recordedPlaywrightVersion(run.provenance.methodologyVersion),
       headless: run.conditions.headless,
+      browserName: run.conditions.browser.name,
       scannerEgress: run.conditions.egress.label,
+      scannerEgressRegion: run.conditions.egress.region ?? null,
       browserVersion: run.conditions.browser.version,
       timezone: run.conditions.timezone,
       locale: run.conditions.locale,
@@ -595,7 +601,9 @@ function runViewFromV1(result: ScanResult, label: RunView["label"], scannedAt: s
       automation: result.conditions.automation,
       playwrightVersion: recordedPlaywrightVersion(result.conditions.scannerDisclosure),
       headless: result.conditions.headless,
+      browserName: null,
       scannerEgress: result.conditions.scannerEgress,
+      scannerEgressRegion: null,
       browserVersion: result.conditions.chromiumVersion || null,
       timezone: result.conditions.timezone,
       locale: result.conditions.locale,
@@ -942,7 +950,7 @@ export function viewFromV2(report: PublicScanReportV2 | PublicScanReportV2R2, re
         ...report.baseline.warnings.map((warning) => `${runLabels.baseline}: ${warning}`),
         ...report.variant.warnings.map((warning) => `${runLabels.variant}: ${warning}`)
       ],
-      scannedAt: report.baseline.startedAt,
+      scannedAt: experiment.kind === "temporal" ? report.variant.startedAt : report.baseline.startedAt,
       latestRunAt: latestRunAt(runs),
       runs,
       comparison: {

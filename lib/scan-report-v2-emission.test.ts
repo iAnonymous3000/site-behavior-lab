@@ -13,12 +13,12 @@ import {
 } from "./scan-report-v2-emission";
 import { scanReportV2R2SemanticViolations } from "./scan-report-v2-r2-evaluators";
 import { isPublicScanReportV2R2 } from "./scan-report-v2-r2-validation";
+import { closeSharedBrowserForTests, scanSiteWithMeasurement } from "./scanner";
 import {
-  attachStagedSingleVisitMeasurement,
-  closeSharedBrowserForTests,
-  scanSite,
-  stagedSingleVisitMeasurement
-} from "./scanner";
+  createNodeScanMeasurementEnvelope,
+  type NodeScanMeasurement,
+  type NodeScanMeasurementEnvelope
+} from "./node-scan-measurement";
 
 test("v2ShadowEmissionEnabled reads only the exact opt-in value", () => {
   assert.equal(v2ShadowEmissionEnabled({}), false);
@@ -55,7 +55,7 @@ test("a real visit shadow-emits a validator-clean public r2 wire", { timeout: 30
   // detector out of its default state, which the r2 builder rejects.
   process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION = "1";
   try {
-    const result = await scanSite(
+    const visit = await scanSiteWithMeasurement(
       {
         url: "http://shadow.example.com/private-path-Alice/",
         device: "desktop",
@@ -70,29 +70,42 @@ test("a real visit shadow-emits a validator-clean public r2 wire", { timeout: 30
         resolveCnameChain: async () => []
       }
     );
+    const result = visit.result;
 
     // Flag off: nothing happens.
     delete process.env.SITE_BEHAVIOR_LAB_V2_SHADOW_EMISSION;
-    assert.deepEqual(await emitShadowScanReportV2R2(result, "public-api"), { status: "disabled" });
+    assert.deepEqual(await emitShadowScanReportV2R2(visit, "public-api"), { status: "disabled" });
 
     process.env.SITE_BEHAVIOR_LAB_V2_SHADOW_EMISSION = "1";
     process.env.SITE_BEHAVIOR_LAB_V2_SHADOW_DIR = shadowDir;
 
     // Controlled means provenance-complete: no build commit, no emission.
     delete process.env.SITE_BEHAVIOR_LAB_BUILD_COMMIT;
-    assert.deepEqual(await emitShadowScanReportV2R2(result, "public-api"), {
+    assert.deepEqual(await emitShadowScanReportV2R2(visit, "public-api"), {
       status: "skipped",
       reason: "build-provenance-missing"
     });
     process.env.SITE_BEHAVIOR_LAB_BUILD_COMMIT = "b".repeat(40);
 
-    // A result without its process-local staged facts cannot emit.
-    assert.deepEqual(await emitShadowScanReportV2R2({ ...result }, "public-api"), {
+    // A partial envelope without its process-local measurement cannot emit.
+    assert.deepEqual(await emitShadowScanReportV2R2({ result } as NodeScanMeasurementEnvelope, "public-api"), {
       status: "skipped",
-      reason: "no-staged-measurement"
+      reason: "measurement-envelope-missing"
     });
+    const inconsistent = createNodeScanMeasurementEnvelope(
+      {
+        ...result,
+        conditions: { ...result.conditions, gpcEnabled: !result.conditions.gpcEnabled }
+      },
+      structuredClone(visit.measurement) as NodeScanMeasurement
+    );
+    assert.deepEqual(await emitShadowScanReportV2R2(inconsistent, "public-api"), {
+      status: "skipped",
+      reason: "measurement-envelope-inconsistent"
+    });
+    assert.deepEqual(await readdir(shadowDir), []);
 
-    const outcome = await emitShadowScanReportV2R2(result, "public-api");
+    const outcome = await emitShadowScanReportV2R2(visit, "public-api");
     assert.equal(outcome.status, "written");
     if (outcome.status !== "written") throw new Error("expected a written shadow report");
     assert.equal(outcome.sink, "filesystem");
@@ -112,39 +125,56 @@ test("a real visit shadow-emits a validator-clean public r2 wire", { timeout: 30
     assert.equal(run.provenance.acquisition, "public-api");
 
     // A comparison emits one complete pair artifact, not one single artifact
-    // per visit. Clone the real staged visit into canonical GPC off/on arms so
+    // per visit. Clone the real measured visit into canonical GPC off/on arms so
     // the pair path exercises the same scanner-to-builder seam without a
     // second browser launch.
-    const realStaged = stagedSingleVisitMeasurement(result);
-    assert.notEqual(realStaged, null);
-    if (realStaged === null) throw new Error("expected staged measurement");
-    const baselineStaged = structuredClone(realStaged);
-    const variantStaged = structuredClone(realStaged);
-    baselineStaged.emissionInputs.startedAt = "2026-07-13T20:00:00.000Z";
-    variantStaged.emissionInputs.startedAt = "2026-07-13T20:01:00.000Z";
-    baselineStaged.emissionInputs.conditions.gpc = false;
-    variantStaged.emissionInputs.conditions.gpc = true;
-    baselineStaged.verificationFacts.gpc = {
+    const baselineMeasurement = structuredClone(visit.measurement) as NodeScanMeasurement;
+    const variantMeasurement = structuredClone(visit.measurement) as NodeScanMeasurement;
+    baselineMeasurement.emissionInputs.startedAt = "2026-07-13T20:00:00.000Z";
+    variantMeasurement.emissionInputs.startedAt = "2026-07-13T20:01:00.000Z";
+    baselineMeasurement.emissionInputs.conditions.gpc = false;
+    variantMeasurement.emissionInputs.conditions.gpc = true;
+    baselineMeasurement.verificationFacts.gpc = {
       method: "gpc-header-readback@1",
       header: "confirmed-absent",
       jsSignal: "confirmed-absent",
       observedOn: "first-party-navigation",
       phaseId: 0
     };
-    variantStaged.verificationFacts.gpc = {
+    variantMeasurement.verificationFacts.gpc = {
       method: "gpc-header-readback@1",
       header: "confirmed-present",
       jsSignal: "confirmed-true",
       observedOn: "first-party-navigation",
       phaseId: 0
     };
-    const baselineResult = attachStagedSingleVisitMeasurement({ ...result }, baselineStaged);
-    const variantResult = attachStagedSingleVisitMeasurement({ ...result }, variantStaged);
+    const baselineEnvelope = createNodeScanMeasurementEnvelope(
+      {
+        ...result,
+        conditions: {
+          ...result.conditions,
+          scannedAt: baselineMeasurement.emissionInputs.startedAt,
+          gpcEnabled: false
+        }
+      },
+      baselineMeasurement
+    );
+    const variantEnvelope = createNodeScanMeasurementEnvelope(
+      {
+        ...result,
+        conditions: {
+          ...result.conditions,
+          scannedAt: variantMeasurement.emissionInputs.startedAt,
+          gpcEnabled: true
+        }
+      },
+      variantMeasurement
+    );
     const pairDir = path.join(shadowDir, "pairs");
     process.env.SITE_BEHAVIOR_LAB_V2_SHADOW_DIR = pairDir;
     const pairOutcome = await emitShadowComparisonScanReportV2R2(
-      baselineResult,
-      variantResult,
+      baselineEnvelope,
+      variantEnvelope,
       "baseline",
       "public-api"
     );
@@ -175,8 +205,13 @@ test("a real visit shadow-emits a validator-clean public r2 wire", { timeout: 30
     });
     assert.equal(JSON.stringify(pairLog).includes("private-path-Alice"), false);
     assert.deepEqual(
-      await emitShadowComparisonScanReportV2R2({ ...baselineResult }, variantResult, "baseline", "public-api"),
-      { status: "skipped", reason: "no-staged-measurement" }
+      await emitShadowComparisonScanReportV2R2(
+        { result: baselineEnvelope.result } as NodeScanMeasurementEnvelope,
+        variantEnvelope,
+        "baseline",
+        "public-api"
+      ),
+      { status: "skipped", reason: "measurement-envelope-missing" }
     );
     assert.deepEqual(await readdir(pairDir), [`${pairOutcome.pairId}.json`]);
 
@@ -202,11 +237,11 @@ test("a real visit shadow-emits a validator-clean public r2 wire", { timeout: 30
       const apiResult = await executePreparedScan(
         prepared,
         async (payload) => {
-          const staged = structuredClone(realStaged);
-          staged.emissionInputs.startedAt =
+          const measurement = structuredClone(visit.measurement) as NodeScanMeasurement;
+          measurement.emissionInputs.startedAt =
             visitIndex++ === 0 ? "2026-07-13T21:00:00.000Z" : "2026-07-13T21:01:00.000Z";
-          staged.emissionInputs.conditions.gpc = payload.gpcEnabled;
-          staged.verificationFacts.gpc = payload.gpcEnabled
+          measurement.emissionInputs.conditions.gpc = payload.gpcEnabled;
+          measurement.verificationFacts.gpc = payload.gpcEnabled
             ? {
                 method: "gpc-header-readback@1",
                 header: "confirmed-present",
@@ -221,9 +256,16 @@ test("a real visit shadow-emits a validator-clean public r2 wire", { timeout: 30
                 observedOn: "first-party-navigation",
                 phaseId: 0
               };
-          return attachStagedSingleVisitMeasurement(
-            { ...result, conditions: { ...result.conditions, gpcEnabled: payload.gpcEnabled } },
-            staged
+          return createNodeScanMeasurementEnvelope(
+            {
+              ...result,
+              conditions: {
+                ...result.conditions,
+                scannedAt: measurement.emissionInputs.startedAt,
+                gpcEnabled: payload.gpcEnabled
+              }
+            },
+            measurement
           );
         },
         keepReport,

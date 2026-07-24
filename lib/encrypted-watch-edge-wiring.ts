@@ -1,10 +1,11 @@
 import {
+  ENCRYPTED_WATCH_ACCESS_TOKEN_HEADER,
   isEncryptedWatchId,
   isEncryptedWatchPayload,
   type EncryptedWatchPayload
 } from "./encrypted-watch-contract";
 import type { DurableScanJobPreparation } from "./durable-scan-job-contract";
-import { publicScanGateStatus } from "./edge-scan-gate";
+import { constantTimeEqual } from "./edge-scan-gate";
 
 const WATCH_COLLECTION_PATH = "/api/watches";
 
@@ -13,17 +14,41 @@ export type EncryptedWatchPublicPath =
   | Readonly<{ kind: "item"; watchId: string | null }>;
 
 /**
- * The coordinator-wide watch capacity is intentionally unavailable through
- * open public ingress. Ordinary scans may still use the public Turnstile path;
- * watches require the separate, configured scan access token.
+ * An isolated staging/operator deployment may add a watch-only second factor.
+ * When configured, it must be a header-safe secret and must not alias any
+ * encryption key, scanner token, or other deployment credential. Public
+ * self-service leaves it unset and uses the ordinary Turnstile/quota gate.
  */
-export function encryptedWatchIngressIsTokenGated(config: {
-  accessToken?: string;
-  allowUnauthenticated?: string;
-  turnstileSecret?: string;
-}): boolean {
-  const gate = publicScanGateStatus(config);
-  return gate.authenticated && !gate.openAccess;
+export function encryptedWatchAccessTokenIsIsolated(
+  value: string | undefined,
+  forbiddenSecrets: readonly string[] = []
+): boolean {
+  const token = canonicalEncryptedWatchAccessToken(value);
+  if (!token) return false;
+  return forbiddenSecrets.every((secret) => {
+    if (typeof secret !== "string" || secret.length === 0) return true;
+    return secret.trim() !== token;
+  });
+}
+
+/** Authenticate only the dedicated watch-creation header in constant time. */
+export async function encryptedWatchAccessTokenMatches(
+  headers: Headers,
+  configuredToken: string
+): Promise<boolean> {
+  const expected = canonicalEncryptedWatchAccessToken(configuredToken);
+  const supplied = canonicalEncryptedWatchAccessToken(
+    headers.get(ENCRYPTED_WATCH_ACCESS_TOKEN_HEADER) ?? undefined
+  );
+  if (!expected || !supplied) return false;
+  return constantTimeEqual(supplied, expected);
+}
+
+function canonicalEncryptedWatchAccessToken(value: string | undefined): string | null {
+  if (typeof value !== "string" || /[\r\n]/.test(value)) return null;
+  const token = value?.trim() ?? "";
+  if (token.length < 32 || token.length > 4_096) return null;
+  return token;
 }
 
 /**

@@ -5,7 +5,17 @@ import { buildProvenanceEntry } from "./redaction-provenance";
 import { redactScanReportV1 } from "./redact-scan-report-v1";
 import { REDACTION_VERSION } from "./redaction-v2";
 import { buildReportShare, buildStaticReportShare } from "./report-locator";
+import {
+  REPORT_RESOURCE_LIMITS,
+  hasSafeReportCollections
+} from "./report-resource-policy";
+import { currentR2NormalizationForObserver } from "./scan-report-v2-normalization";
+import { buildFingerprints } from "./scan-report-v2-fingerprints";
 import { makeSupportingPairInterventionReportV2R2 } from "./scan-report-v2-r2-fixtures";
+import {
+  r2ReportRuns,
+  redactPublicScanReportV2R2
+} from "./scan-report-v2-r2-remediation";
 import { makePublicSingleReportV2, makeScanReportV1 } from "./scan-report-v2-fixtures";
 import { consentInteractionWarning } from "./consent-interaction";
 
@@ -89,15 +99,26 @@ test("a current sidecar cannot bless an older embedded v2 redaction revision", (
 });
 
 test("a current sidecar cannot bless an older redaction revision in an r2 supporting-pair arm", () => {
-  const report = makeSupportingPairInterventionReportV2R2();
+  let report = makeSupportingPairInterventionReportV2R2();
+  for (const run of r2ReportRuns(report)) {
+    run.privacy.redactionVersion = REDACTION_VERSION;
+    const normalization = currentR2NormalizationForObserver(run.provenance.observer);
+    if (normalization === null) throw new Error("fixture observer must have a current normalization");
+    run.toolchain.normalizationVersion = normalization;
+    run.fingerprints = buildFingerprints({
+      conditions: run.conditions,
+      provenance: run.provenance,
+      toolchain: run.toolchain,
+      detectors: run.detectors
+    });
+  }
+  const sanitized = redactPublicScanReportV2R2(report);
+  if (sanitized.reportType !== "comparison") throw new Error("expected comparison fixture");
+  report = sanitized;
   assert.equal(report.experiment.kind, "intervention");
   if (report.experiment.kind !== "intervention") throw new Error("expected intervention fixture");
   const supportingPair = report.experiment.supportingPairs?.[0];
   assert.ok(supportingPair);
-
-  for (const run of [report.baseline, report.variant, supportingPair.baseline, supportingPair.variant]) {
-    run.privacy.redactionVersion = REDACTION_VERSION;
-  }
 
   const read = () => {
     const sidecar = buildProvenanceEntry({
@@ -120,6 +141,42 @@ test("a current sidecar cannot bless an older redaction revision in an r2 suppor
   assert.deepEqual(read(), { ok: false, error: "invalid", reason: "redaction-version-mismatch" });
 });
 
+test("a current sidecar cannot bless r2 bytes that only relabel unsafe evidence as v4", () => {
+  let report = makeSupportingPairInterventionReportV2R2();
+  for (const run of r2ReportRuns(report)) {
+    run.privacy.redactionVersion = REDACTION_VERSION;
+    const normalization = currentR2NormalizationForObserver(run.provenance.observer);
+    if (normalization === null) throw new Error("fixture observer must have a current normalization");
+    run.toolchain.normalizationVersion = normalization;
+    run.fingerprints = buildFingerprints({
+      conditions: run.conditions,
+      provenance: run.provenance,
+      toolchain: run.toolchain,
+      detectors: run.detectors
+    });
+  }
+  const sanitized = redactPublicScanReportV2R2(report);
+  if (sanitized.reportType !== "comparison") throw new Error("expected comparison fixture");
+  report = sanitized;
+  report.baseline.summary.pageTitle = "Alice's private account";
+  const sidecar = buildProvenanceEntry({
+    reportId: REPORT_ID,
+    publicReport: report,
+    writtenAt: RETENTION.createdAt,
+    createdAt: RETENTION.createdAt,
+    expiresAt: RETENTION.expiresAt
+  });
+  assert.deepEqual(
+    readManagedReport({
+      reportId: REPORT_ID,
+      reportContents: JSON.stringify(report),
+      sidecarContents: JSON.stringify(sidecar),
+      retention: RETENTION
+    }),
+    { ok: false, error: "invalid", reason: "redaction-not-idempotent" }
+  );
+});
+
 test("partial and malformed managed states fail closed", () => {
   const parts = managedParts();
   const base = { reportId: REPORT_ID, reportContents: parts.reportContents, retention: RETENTION };
@@ -138,6 +195,87 @@ test("partial and malformed managed states fail closed", () => {
   assert.deepEqual(
     readManagedReport({ ...base, reportContents: "{", sidecarContents: parts.sidecarContents }),
     { ok: false, error: "invalid", reason: "invalid-report-json" }
+  );
+});
+
+test("managed reports reject amplified arrays, strings, and property sets before validation", () => {
+  const payloads: unknown[] = [
+    {
+      schemaVersion: 1,
+      extra: Array.from({ length: REPORT_RESOURCE_LIMITS.maxAnyArray + 1 }, () => 0)
+    },
+    {
+      schemaVersion: 1,
+      extra: "x".repeat(REPORT_RESOURCE_LIMITS.maxAnyStringChars + 1)
+    },
+    {
+      schemaVersion: 1,
+      extra: Object.fromEntries(
+        Array.from(
+          { length: REPORT_RESOURCE_LIMITS.maxObjectProperties + 1 },
+          (_, index) => [`property${index}`, 0]
+        )
+      )
+    }
+  ];
+
+  for (const payload of payloads) {
+    assert.deepEqual(
+      readManagedReport({
+        reportId: REPORT_ID,
+        reportContents: JSON.stringify(payload),
+        sidecarContents: null,
+        retention: null
+      }),
+      { ok: false, error: "invalid", reason: "report-resource-limit" }
+    );
+  }
+});
+
+test("the shared managed-report preflight rejects accessors without invoking them", () => {
+  let getterCalls = 0;
+  const payload = Object.create(null) as Record<string, unknown>;
+  Object.defineProperty(payload, "schemaVersion", {
+    enumerable: true,
+    get() {
+      getterCalls += 1;
+      return 1;
+    }
+  });
+
+  assert.doesNotThrow(() => hasSafeReportCollections(payload));
+  assert.equal(hasSafeReportCollections(payload), false);
+  assert.equal(getterCalls, 0);
+});
+
+test("managed reports reject nested duplicate keys before canonical digesting or serving", () => {
+  const parts = managedParts();
+  const duplicateReport = parts.reportContents.replace(
+    /"pageTitle":\s*"[^"]*"/,
+    '"pageTitle":"Alice private account token","pageTitle":""'
+  );
+  assert.deepEqual(
+    readManagedReport({
+      reportId: REPORT_ID,
+      reportContents: duplicateReport,
+      sidecarContents: parts.sidecarContents,
+      retention: RETENTION
+    }),
+    { ok: false, error: "invalid", reason: "invalid-report-json" }
+  );
+
+  const duplicateNestedSidecar = parts.sidecarContents.replace(
+    "{",
+    '{"ignored":{"secret":"Alice","secret":""},'
+  );
+  assert.deepEqual(
+    readManagedReport({
+      reportId: REPORT_ID,
+      reportContents: parts.reportContents,
+      sidecarContents: duplicateNestedSidecar,
+      retention: RETENTION
+    }),
+    { ok: false, error: "invalid", reason: "invalid-sidecar-json" }
   );
 });
 

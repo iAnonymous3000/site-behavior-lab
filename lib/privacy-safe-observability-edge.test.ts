@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  PRIVACY_SAFE_EVENT_MAX_BYTES,
   aggregateMetricsDataPoint,
   handleAggregateMetricsRequest,
   type AggregateMetricsDataPoint
@@ -137,6 +138,44 @@ test("edge collector rejects query strings, malformed bodies, unknown fields, wr
     ).status,
     413
   );
+});
+
+test("edge collector enforces its byte cap while streaming even when Content-Length understates the body", async () => {
+  const config = { enabledFlag: "1", allowedOrigin: ORIGIN, dataset: sink().dataset };
+  let cancelled = false;
+  const chunks = [
+    new Uint8Array(PRIVACY_SAFE_EVENT_MAX_BYTES),
+    new Uint8Array(1)
+  ];
+  const streamed = {
+    url: ENDPOINT,
+    method: "POST",
+    headers: new Headers({
+      Origin: ORIGIN,
+      "Content-Type": "application/json",
+      // A declared length below the cap must never be trusted as authorization
+      // to buffer the bytes that actually arrive.
+      "Content-Length": "2"
+    }),
+    body: new ReadableStream<Uint8Array>(
+      {
+        pull(controller) {
+          const chunk = chunks.shift();
+          if (chunk) controller.enqueue(chunk);
+          else controller.close();
+        },
+        cancel() {
+          cancelled = true;
+        }
+      },
+      // Prevent eager prefetch from closing the stream before the bounded
+      // reader can cancel at the first over-cap chunk.
+      { highWaterMark: 0 }
+    )
+  } as unknown as Request;
+
+  assert.equal((await handleAggregateMetricsRequest(streamed, config)).status, 413);
+  assert.equal(cancelled, true);
 });
 
 test("edge collector supports narrow preflight and never falls back when the aggregate sink throws", async () => {

@@ -71,9 +71,11 @@ jobs:
           const pages = JSON.parse(fs.readFileSync(`${process.env.RUNNER_TEMP}/ci-jobs.json`, "utf8"));
           const jobs = pages.flatMap((page) => Array.isArray(page?.jobs) ? page.jobs : []);
           const required = [
+            "Supply-chain Security",
             "Typecheck, Unit Tests, Build",
             "Chromium Smoke Test",
-            "Docker Runtime and Public R2 Smoke"
+            "Docker Runtime and Public R2 Smoke",
+            "Attest exact-SHA evidence manifests"
           ];
           const failures = [];
           for (const name of required) {

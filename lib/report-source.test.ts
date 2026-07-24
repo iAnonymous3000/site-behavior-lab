@@ -7,6 +7,7 @@ import { buildProvenanceEntry, committedSidecarFilename } from "./redaction-prov
 import { redactScanReportV1 } from "./redact-scan-report-v1";
 import { buildStaticReportShare } from "./report-locator";
 import { readStoredReportForId } from "./report-source";
+import { sha256Hex } from "./sha256";
 import { SCAN_REPORT_SCHEMA_VERSION, type ScanResult } from "./types";
 
 const STATIC_EXPORT_ENV = "NEXT_PUBLIC_SITE_BEHAVIOR_LAB_STATIC_EXPORT";
@@ -58,6 +59,7 @@ test("readStoredReportForId answers typed outcomes for committed reports", async
   assert.equal(found.stored.schemaVersion, 1);
   // The wire is the committed bytes verbatim.
   assert.equal(found.wire, wire);
+  assert.equal(found.wireSha256, sha256Hex(wire));
 });
 
 test("committed reports fail closed when their sidecar is missing or mismatched", async () => {

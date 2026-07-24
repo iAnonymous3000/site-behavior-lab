@@ -25,7 +25,7 @@ export type ScanRuntimeCapabilities = {
   shieldsComparison?: boolean;
   consentComparison?: boolean;
   savedReports?: boolean;
-  /** True only when the edge can create and schedule encrypted seven-day rescans. */
+  /** True only when the public browser can create encrypted seven-day rescans. */
   scheduledRescans?: boolean;
   /**
    * The scan API origin serves human-viewable `/reports/:id` HTML pages (it runs
@@ -91,6 +91,8 @@ export type ScanRuntimeHealth = {
       requested: boolean;
       enabled: boolean;
       readiness: EncryptedWatchesReadiness;
+      /** Public browser creation, or an operator-only canary second factor. */
+      creationAuthorization?: "public" | "operator";
       reasons?: string[];
     };
     v2ShadowEmission?: {
@@ -249,6 +251,13 @@ function isChecks(value: unknown): value is NonNullable<ScanRuntimeHealth["check
       value.encryptedWatches.readiness !== "node-ready" &&
       value.encryptedWatches.readiness !== "ready" &&
       value.encryptedWatches.readiness !== "misconfigured"
+    ) {
+      return false;
+    }
+    if (
+      value.encryptedWatches.creationAuthorization !== undefined &&
+      value.encryptedWatches.creationAuthorization !== "public" &&
+      value.encryptedWatches.creationAuthorization !== "operator"
     ) {
       return false;
     }

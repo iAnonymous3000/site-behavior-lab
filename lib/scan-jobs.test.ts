@@ -25,7 +25,10 @@ import {
 } from "./scan-jobs";
 import type { PreparedScanRequest, ScanRunner } from "./scan-api";
 import { makePublicSingleReportV2R2 } from "./scan-report-v2-r2-fixtures";
-import { scanResultWithStagedR2Run } from "./scan-report-v2-runtime-fixtures";
+import {
+  scanMeasurementEnvelopeWithR2Run,
+  testMeasurementEnvelopeForResult
+} from "./scan-report-v2-runtime-fixtures";
 import { BUILD_COMMIT_ENV, PUBLIC_R2_REPORTS_ENV } from "./runtime-scan-report";
 import { SCAN_REPORT_SCHEMA_VERSION, type ScanRequestPayload, type ScanResult } from "./types";
 
@@ -81,7 +84,7 @@ test("enqueuePreparedScanJob returns a submission and stores the completed repor
   const scan: ScanRunner = async (payload, options) => {
     scannedPayloads.push(payload);
     assert.equal(options?.publicUrlAlreadyVerified, true);
-    return makeScanResult(payload);
+    return testMeasurementEnvelopeForResult(makeScanResult(payload));
   };
 
   const submission = enqueuePreparedScanJob(makePreparedScanRequest(), { scan, saveReport: async (report) => report });
@@ -120,7 +123,7 @@ test("enqueuePreparedScanJob returns a submission and stores the completed repor
 });
 
 test("enqueuePreparedScanJob reports Shields comparison progress as two runs", async () => {
-  const scan: ScanRunner = async (payload) => makeScanResult(payload);
+  const scan: ScanRunner = async (payload) => testMeasurementEnvelopeForResult(makeScanResult(payload));
   const submission = enqueuePreparedScanJob(makePreparedScanRequest({ compareShields: true, rateLimitCost: 2 }), {
     scan,
     saveReport: async (report) => report
@@ -135,7 +138,7 @@ test("enqueuePreparedScanJob reports Shields comparison progress as two runs", a
 });
 
 test("enqueuePreparedScanJob persists default saved reports under the submission's report ID, not the job ID", async () => {
-  const scan: ScanRunner = async (payload) => makeScanResult(payload);
+  const scan: ScanRunner = async (payload) => testMeasurementEnvelopeForResult(makeScanResult(payload));
   const submission = enqueuePreparedScanJob(makePreparedScanRequest(), { scan });
 
   await waitForScanJobForTests(submission.jobId);
@@ -154,7 +157,7 @@ test("an async public-r2 job returns its ephemeral screenshot and stores only th
   process.env[BUILD_COMMIT_ENV] = "a".repeat(40);
   process.env[CONSENT_VERIFICATION_ENV] = "1";
   const scan: ScanRunner = async () =>
-    scanResultWithStagedR2Run(
+    scanMeasurementEnvelopeWithR2Run(
       makePublicSingleReportV2R2().run,
       "data:image/png;base64,ASYNC_PRIVATE"
     );
@@ -192,7 +195,7 @@ test("an async public-r2 job refuses broken default persistence before admission
       enqueuePreparedScanJob(makePreparedScanRequest(), {
         scan: async () => {
           scanCalls += 1;
-          return scanResultWithStagedR2Run(makePublicSingleReportV2R2().run);
+          return scanMeasurementEnvelopeWithR2Run(makePublicSingleReportV2R2().run);
         }
       }),
     (error) =>
@@ -241,7 +244,7 @@ test("queued cancellation removes the job from admission and is idempotent", asy
   const queued = enqueuePreparedScanJob(makePreparedScanRequest({ clientKey: "queued" }), {
     scan: async (payload) => {
       queuedScanStarted = true;
-      return makeScanResult(payload);
+      return testMeasurementEnvelopeForResult(makeScanResult(payload));
     }
   });
   assert.equal(scanJobStateForTests().queuedJobs, 1);
@@ -291,7 +294,7 @@ test("running cancellation aborts the scanner and never invokes publication", as
 
 test("a scanner that resolves after cancellation cannot win the terminal-state race or save", async () => {
   const started = deferred<void>();
-  const finish = deferred<ScanResult>();
+  const finish = deferred<Awaited<ReturnType<ScanRunner>>>();
   let saveCalls = 0;
   const scan: ScanRunner = async () => {
     started.resolve();
@@ -307,12 +310,16 @@ test("a scanner that resolves after cancellation cannot win the terminal-state r
 
   await started.promise;
   cancelScanJob(submission.jobId);
-  finish.resolve(makeScanResult({
-    url: "https://1.1.1.1/",
-    device: "desktop",
-    gpcEnabled: true,
-    consentMode: "observe"
-  }));
+  finish.resolve(
+    testMeasurementEnvelopeForResult(
+      makeScanResult({
+        url: "https://1.1.1.1/",
+        device: "desktop",
+        gpcEnabled: true,
+        consentMode: "observe"
+      })
+    )
+  );
   await waitForScanJobForTests(submission.jobId);
 
   assert.equal(saveCalls, 0);
@@ -323,7 +330,7 @@ test("a scanner that resolves after cancellation cannot win the terminal-state r
 test("cancellation is rejected after the synchronous publication boundary", async () => {
   const saving = deferred<void>();
   const finishSaving = deferred<void>();
-  const scan: ScanRunner = async (payload) => makeScanResult(payload);
+  const scan: ScanRunner = async (payload) => testMeasurementEnvelopeForResult(makeScanResult(payload));
   const submission = enqueuePreparedScanJob(makePreparedScanRequest(), {
     scan,
     saveReport: async (report) => {
@@ -359,7 +366,7 @@ test("stale queued scan jobs return expired status", () => {
 
 test("the queue expiry clock never rewrites terminal job statuses", async () => {
   const succeeded = enqueuePreparedScanJob(makePreparedScanRequest({ clientKey: "terminal-success" }), {
-    scan: async (payload) => makeScanResult(payload),
+    scan: async (payload) => testMeasurementEnvelopeForResult(makeScanResult(payload)),
     saveReport: async (report) => report
   });
   const failed = enqueuePreparedScanJob(makePreparedScanRequest({ clientKey: "terminal-failure" }), {
@@ -408,7 +415,7 @@ test("the queue expiry clock never rewrites terminal job statuses", async () => 
 });
 
 test("retention pressure never evicts accepted queued jobs", async () => {
-  const instant: ScanRunner = async (payload) => makeScanResult(payload);
+  const instant: ScanRunner = async (payload) => testMeasurementEnvelopeForResult(makeScanResult(payload));
   const hang: ScanRunner = () => new Promise(() => {});
   const keep: ReturnType<typeof enqueuePreparedScanJob>[] = [];
 

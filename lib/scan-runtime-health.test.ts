@@ -100,7 +100,28 @@ test("isScanRuntimeHealth rejects malformed payloads", () => {
   assert.equal(
     isScanRuntimeHealth({
       ok: true,
-      checks: { encryptedWatches: { requested: true, enabled: true, readiness: "ready" } }
+      checks: {
+        encryptedWatches: {
+          requested: true,
+          enabled: true,
+          readiness: "ready",
+          creationAuthorization: "public"
+        }
+      }
+    }),
+    true
+  );
+  assert.equal(
+    isScanRuntimeHealth({
+      ok: true,
+      checks: {
+        encryptedWatches: {
+          requested: true,
+          enabled: true,
+          readiness: "ready",
+          creationAuthorization: "operator"
+        }
+      }
     }),
     true
   );
@@ -108,6 +129,20 @@ test("isScanRuntimeHealth rejects malformed payloads", () => {
     isScanRuntimeHealth({
       ok: true,
       checks: { encryptedWatches: { requested: true, enabled: true, readiness: "warming" } }
+    }),
+    false
+  );
+  assert.equal(
+    isScanRuntimeHealth({
+      ok: true,
+      checks: {
+        encryptedWatches: {
+          requested: true,
+          enabled: true,
+          readiness: "ready",
+          creationAuthorization: "sometimes"
+        }
+      }
     }),
     false
   );

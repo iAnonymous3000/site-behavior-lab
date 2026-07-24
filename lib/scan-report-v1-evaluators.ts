@@ -5,6 +5,12 @@
  * evidence. These checks deliberately derive the public summary, domain table,
  * and comparison diff from the retained rows instead of trusting producer-
  * supplied conclusions.
+ *
+ * Scope: SEMANTICS ONLY. Callers reach this after deepValidateScanReportV1
+ * (lib/scan-report-v1-guard.ts) has already enforced every field's type and
+ * numeric range, so re-checking those here could only ever restate a decision
+ * the reader has made; it would also mislabel a parse problem ("invalid") as a
+ * forged conclusion ("inconsistent").
  */
 import { compareScanResults } from "./compare-reports";
 import { COMPARISON_REQUEST_CAP } from "./comparison-eligibility";
@@ -12,41 +18,33 @@ import { partyKey, summarizeDomains } from "./domain-utils";
 import { canonicalJson } from "./scan-report-v2-fingerprints";
 import type { ComparisonDiff, DomainSummary, ScanReport, ScanResult } from "./types";
 
-const SUMMARY_COUNT_FIELDS = [
-  "totalRequests",
-  "thirdPartyRequests",
-  "knownTrackerRequests",
-  "thirdPartyDomains",
-  "cookies",
-  "thirdPartyCookies",
-  "storageEntries",
-  "fingerprintEvents"
-] as const;
-
-function isNonNegativeSafeInteger(value: unknown): value is number {
-  return typeof value === "number" && Number.isSafeInteger(value) && value >= 0;
-}
-
-function appendNonNegativeIntegerViolation(
-  violations: string[],
-  label: string,
-  path: string,
-  value: unknown
-): void {
-  if (!isNonNegativeSafeInteger(value)) {
-    violations.push(`${label}: ${path} is not a non-negative safe integer`);
-  }
-}
+/**
+ * Redaction sentinels from lib/redaction-v2.ts (INVALID_URL_MARKER and
+ * INVALID_HOST_MARKER). Spelled out locally so this read-path module does not
+ * pull the sanitizer's allowlist tables in behind it; the drift is pinned in
+ * lib/scan-report-v1-evaluators.test.ts.
+ */
+const INVALID_URL_MARKER = "{invalid-url}";
+const INVALID_HOST_MARKER = "{invalid-host}";
+const REDACTION_SENTINELS = new Set([INVALID_URL_MARKER, INVALID_HOST_MARKER]);
 
 function canonicalSort<T>(values: readonly T[]): T[] {
   return [...values].sort((left, right) => canonicalJson(left).localeCompare(canonicalJson(right)));
 }
 
-/** Domain rows and their status/resource vocabularies are mathematical sets. */
+/**
+ * Domain rows and their status/resource vocabularies are mathematical sets.
+ * `blockedByShields` is OPTIONAL in the frozen v1 type and absent from
+ * older-generation exports, while lib/domain-summaries.ts always materializes
+ * it; canonicalJson is key-exact, so the flag is defaulted rather than
+ * compared as present-vs-missing. A row that claims `true` against evidence
+ * that says otherwise still fails.
+ */
 function normalizedDomains(domains: readonly DomainSummary[]): DomainSummary[] {
   return canonicalSort(
     domains.map((domain) => ({
       ...domain,
+      blockedByShields: domain.blockedByShields ?? false,
       statuses: [...domain.statuses].sort((left, right) => left - right),
       resourceTypes: [...domain.resourceTypes].sort()
     }))
@@ -110,68 +108,6 @@ function normalizedHostname(value: string): string | null {
 
 function runViolations(run: ScanResult, label: string): string[] {
   const violations: string[] = [];
-  for (const field of SUMMARY_COUNT_FIELDS) {
-    appendNonNegativeIntegerViolation(violations, label, `summary.${field}`, run.summary[field]);
-  }
-  appendNonNegativeIntegerViolation(violations, label, "summary.durationMs", run.summary.durationMs);
-  run.requests.forEach((request, index) => {
-    if (!Number.isSafeInteger(request.id) || request.id <= 0) {
-      violations.push(`${label}: requests[${index}].id is not a positive safe integer`);
-    }
-    appendNonNegativeIntegerViolation(violations, label, `requests[${index}].startedAtMs`, request.startedAtMs);
-  });
-  run.domains.forEach((domain, index) => {
-    appendNonNegativeIntegerViolation(violations, label, `domains[${index}].requests`, domain.requests);
-  });
-  run.storage.forEach((entry, index) => {
-    appendNonNegativeIntegerViolation(violations, label, `storage[${index}].valueBytes`, entry.valueBytes);
-  });
-  run.fingerprintEvents.forEach((event, index) => {
-    appendNonNegativeIntegerViolation(violations, label, `fingerprintEvents[${index}].count`, event.count);
-  });
-  run.fingerprintDetections?.forEach((detection, index) => {
-    if (!Number.isSafeInteger(detection.count) || detection.count <= 0) {
-      violations.push(`${label}: fingerprintDetections[${index}].count is not a positive safe integer`);
-    }
-    for (const [field, value] of Object.entries(detection.evidence)) {
-      if (typeof value === "number") {
-        appendNonNegativeIntegerViolation(
-          violations,
-          label,
-          `fingerprintDetections[${index}].evidence.${field}`,
-          value
-        );
-      }
-    }
-  });
-  run.pixelEvents?.forEach((pixel, index) => {
-    appendNonNegativeIntegerViolation(violations, label, `pixelEvents[${index}].requests`, pixel.requests);
-  });
-  if (run.privacyPolicy !== undefined) {
-    appendNonNegativeIntegerViolation(
-      violations,
-      label,
-      "privacyPolicy.policyTextLength",
-      run.privacyPolicy.policyTextLength
-    );
-  }
-  appendNonNegativeIntegerViolation(violations, label, "conditions.viewport.width", run.conditions.viewport.width);
-  appendNonNegativeIntegerViolation(violations, label, "conditions.viewport.height", run.conditions.viewport.height);
-  if (run.conditions.adblock !== undefined) {
-    appendNonNegativeIntegerViolation(violations, label, "conditions.adblock.lists", run.conditions.adblock.lists);
-  }
-  appendNonNegativeIntegerViolation(
-    violations,
-    label,
-    "conditions.trackerCatalog.entries",
-    run.conditions.trackerCatalog.entries
-  );
-  appendNonNegativeIntegerViolation(
-    violations,
-    label,
-    "conditions.trackerCatalog.curatedOverrides",
-    run.conditions.trackerCatalog.curatedOverrides
-  );
   const domains = summarizeDomains(run.requests);
   const derived = {
     totalRequests: run.requests.length,
@@ -194,18 +130,24 @@ function runViolations(run: ScanResult, label: string): string[] {
     violations.push(`${label}: domains do not reconcile with the request evidence`);
   }
 
-  const finalHostname = normalizedHostname(run.conditions.finalUrl);
+  // The two sides are sanitized by different passes (lib/redact-scan-report-v1
+  // uses pass.url for finalUrl and pass.hostname for firstPartyDomain), and
+  // either can come back as a sentinel on an ordinary 200 scan: any host that
+  // is itself a public suffix (httpbin.org, github.io, pages.dev) has no
+  // registrable domain, and the raw-URL and raw-host caps fire independently.
+  // A sentinel means the binding was redacted away, not that it disagrees, so
+  // it is left unasserted instead of reported as a forged conclusion.
   const declaredHostname = run.summary.firstPartyDomain.toLowerCase().replace(/^\./, "").replace(/\.$/, "");
-  if (finalHostname === null || finalHostname !== declaredHostname) {
-    violations.push(`${label}: summary.firstPartyDomain does not match conditions.finalUrl`);
+  if (!REDACTION_SENTINELS.has(run.conditions.finalUrl) && !REDACTION_SENTINELS.has(declaredHostname)) {
+    const finalHostname = normalizedHostname(run.conditions.finalUrl);
+    if (finalHostname === null || finalHostname !== declaredHostname) {
+      violations.push(`${label}: summary.firstPartyDomain does not match conditions.finalUrl`);
+    }
   }
 
   const blockedRows = run.requests.filter((request) => request.blockedByShields === true).length;
   const blockedSummary = run.summary.shieldsBlockedRequests;
   const adblockActive = run.conditions.adblock?.active === true;
-  if (blockedSummary !== undefined && (!Number.isSafeInteger(blockedSummary) || blockedSummary < 0)) {
-    violations.push(`${label}: summary.shieldsBlockedRequests is not a non-negative integer`);
-  }
   if (blockedSummary !== undefined && blockedSummary > COMPARISON_REQUEST_CAP) {
     violations.push(
       `${label}: summary.shieldsBlockedRequests exceeds the scanner's ${COMPARISON_REQUEST_CAP}-request routing cap`

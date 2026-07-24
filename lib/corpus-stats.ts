@@ -13,6 +13,7 @@
  */
 
 import { isRecord } from "./guards";
+import type { CorpusCohortIdentity } from "./corpus-cohort";
 
 export type CorpusMetricKey =
   | "thirdPartyRequests"
@@ -31,14 +32,20 @@ export type MetricDistribution = {
   p95: number;
 };
 
+export type CorpusStatsCohort = CorpusCohortIdentity & {
+  /** Distinct sites represented once by their newest eligible run in this cohort. */
+  sampleSize: number;
+  metrics: Partial<Record<CorpusMetricKey, MetricDistribution>>;
+};
+
 export type CorpusStats = {
   version: number;
   generatedAt: string;
   /**
-   * Distinct sites in the current legacy-v1 percentile sample: newest eligible
-   * lead run loaded (HTTP < 400), was not cut off by the request-recording cap,
-   * and remained in the passive observe consent state. This is smaller than
-   * the corpus's coverage.
+   * Distinct sites in primaryCohortId's percentile sample: newest eligible
+   * lead run loaded (HTTP < 400), retained complete request evidence, and
+   * remained in the passive observe consent state. This is smaller than the
+   * corpus's cross-cohort coverage.
    */
   sampleSize: number;
   /**
@@ -52,6 +59,10 @@ export type CorpusStats = {
    * one successfully loaded arm. Optional for older generated artifacts.
    */
   cappedSiteCount?: number;
+  /** Cohort backing the legacy top-level sampleSize/metrics compatibility view. */
+  primaryCohortId?: string;
+  /** Separate distributions; schema/methodology cohorts are never pooled. */
+  cohorts?: CorpusStatsCohort[];
   metrics: Partial<Record<CorpusMetricKey, MetricDistribution>>;
 };
 
@@ -91,12 +102,22 @@ export function corpusBenchmark(
   if (!corpusIsUsable(corpus)) return null;
 
   const distribution = corpus.metrics[key];
-  if (!distribution) return null;
+  // Family-specific capture loss can make a metric distribution narrower
+  // than its cohort. A large request-complete cohort does not authorize a
+  // percentile claim from (for example) only a handful of cookie-complete
+  // runs, so the honesty gate applies to the metric's actual denominator too.
+  if (
+    !distribution ||
+    !Number.isSafeInteger(distribution.count) ||
+    distribution.count < CORPUS_MIN_SAMPLE
+  ) {
+    return null;
+  }
 
   const label = METRIC_LABELS[key];
   // "Fully measured": failed and request-capped visits are excluded from the
   // distribution, so the cohort is smaller than everything ever scanned.
-  const sites = `${corpus.sampleSize.toLocaleString("en-US")} fully measured sites`;
+  const sites = `${distribution.count.toLocaleString("en-US")} sites measured for this metric`;
 
   // Anchored to the percentile mark, not a share of sites: with heavy ties a
   // value AT the mark can exceed far fewer than 90% of sites, so "more than
@@ -111,6 +132,23 @@ export function corpusBenchmark(
   return { level: "quiet", label: `Below the median for ${label} across the ${sites}.` };
 }
 
+/**
+ * Select a named methodology cohort for consumers that know the report's
+ * cohort identity. The returned top-level compatibility view keeps existing
+ * benchmark callers unchanged while preventing cross-cohort use.
+ */
+export function selectCorpusStatsCohort(corpus: CorpusStats | null, cohortId: string): CorpusStats | null {
+  if (!corpus?.cohorts) return null;
+  const cohort = corpus.cohorts.find((candidate) => candidate.id === cohortId);
+  if (!cohort) return null;
+  return {
+    ...corpus,
+    primaryCohortId: cohort.id,
+    sampleSize: cohort.sampleSize,
+    metrics: cohort.metrics
+  };
+}
+
 export function isCorpusStats(value: unknown): value is CorpusStats {
   if (!isRecord(value)) return false;
   if (typeof value.version !== "number" || typeof value.generatedAt !== "string" || typeof value.sampleSize !== "number") {
@@ -122,7 +160,33 @@ export function isCorpusStats(value: unknown): value is CorpusStats {
   if (value.cappedSiteCount !== undefined && typeof value.cappedSiteCount !== "number") {
     return false;
   }
+  if (value.primaryCohortId !== undefined && typeof value.primaryCohortId !== "string") return false;
+  if (value.cohorts !== undefined && (!Array.isArray(value.cohorts) || !value.cohorts.every(isCorpusStatsCohort))) {
+    return false;
+  }
   if (!isRecord(value.metrics)) return false;
+  return Object.values(value.metrics).every(isMetricDistribution);
+}
+
+function isCorpusStatsCohort(value: unknown): value is CorpusStatsCohort {
+  if (!isRecord(value)) return false;
+  if (
+    typeof value.id !== "string" ||
+    (value.schemaVersion !== 1 && value.schemaVersion !== 2) ||
+    !(
+      value.schemaRevision === null ||
+      value.schemaRevision === 1 ||
+      value.schemaRevision === 2
+    ) ||
+    typeof value.methodologyVersion !== "string" ||
+    (value.methodologyOrigin !== "recorded" && value.methodologyOrigin !== "legacy-derived") ||
+    !(value.producer === null || typeof value.producer === "string") ||
+    typeof value.sampleSize !== "number" ||
+    !Number.isFinite(value.sampleSize) ||
+    !isRecord(value.metrics)
+  ) {
+    return false;
+  }
   return Object.values(value.metrics).every(isMetricDistribution);
 }
 

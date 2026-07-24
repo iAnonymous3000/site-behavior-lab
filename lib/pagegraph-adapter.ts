@@ -1,6 +1,7 @@
 import { isThirdParty } from "./domain-utils";
 import { safeParseUrl } from "./report-url";
 import { buildScanConditions, buildScanResult } from "./scan-result-builder";
+import { isHttpStatusCode } from "./scan-report-v2-http-status";
 import { findTrackerMatch } from "./tracker-catalog";
 import type {
   CookieRecord,
@@ -193,7 +194,7 @@ export function normalizePageGraphRequests(
 }
 
 function normalizeHttpStatus(value: number | null | undefined): number | null {
-  return typeof value === "number" && Number.isInteger(value) && value >= 100 && value <= 599 ? value : null;
+  return isHttpStatusCode(value) ? value : null;
 }
 
 function normalizeProvenance(provenance: NetworkRequestProvenance | undefined): NetworkRequestProvenance | undefined {

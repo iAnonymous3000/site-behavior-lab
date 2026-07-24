@@ -1,5 +1,8 @@
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir } from "node:fs/promises";
 import path from "node:path";
+import { replaceUtf8FileAtomically } from "./exact-atomic-file";
+import { acquireReportCorpusLock } from "./report-corpus-lock";
+import { STATIC_REPORT_MANIFEST_JSON_MAX_BYTES } from "./report-resource-limits";
 import { buildStaticReportManifest } from "./static-report-manifest";
 
 /**
@@ -16,16 +19,24 @@ async function main(): Promise<void> {
   const rootDir = process.cwd();
   const reportsDir = path.join(rootDir, "public", "reports");
   await mkdir(reportsDir, { recursive: true });
+  const lock = await acquireReportCorpusLock(reportsDir, "build-static-report-manifest");
+  try {
+    const { manifest, warnings } = await buildStaticReportManifest(reportsDir);
+    for (const warning of warnings) {
+      console.warn(warning);
+    }
 
-  const { manifest, warnings } = await buildStaticReportManifest(reportsDir);
-  for (const warning of warnings) {
-    console.warn(warning);
+    await replaceUtf8FileAtomically(
+      path.join(reportsDir, "index.json"),
+      `${JSON.stringify(manifest, null, 2)}\n`,
+      STATIC_REPORT_MANIFEST_JSON_MAX_BYTES
+    );
+    console.log(
+      `Static report manifest written with ${manifest.reports.length} report${manifest.reports.length === 1 ? "" : "s"}.`
+    );
+  } finally {
+    await lock.release();
   }
-
-  await writeFile(path.join(reportsDir, "index.json"), `${JSON.stringify(manifest, null, 2)}\n`);
-  console.log(
-    `Static report manifest written with ${manifest.reports.length} report${manifest.reports.length === 1 ? "" : "s"}.`
-  );
 }
 
 main().catch((error) => {

@@ -74,6 +74,12 @@ test("malformed private preparation headers fail closed", () => {
   for (const value of [null, "", "*", "a", "e30", "A".repeat(16_385)]) {
     assert.equal(decodeDurableScanJobPreparation(value), null);
   }
+  assert.equal(
+    decodeDurableScanJobPreparation(
+      Buffer.from('{"submission":{},"submission":{},"payload":{}}', "utf8").toString("base64url")
+    ),
+    null
+  );
 });
 
 test("private route matching uses path boundaries and coordinator actions are closed", () => {

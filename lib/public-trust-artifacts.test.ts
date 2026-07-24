@@ -335,7 +335,8 @@ test("runtime status reads the Pages receipt from the public library, not scanne
   const pagesHeaders = read("public/_headers");
   assert.match(status, /STATIC_EXPORT[\s\S]*staticAssetPath\("\/deployment\.json"\)/);
   assert.match(status, /publicLibraryUrl\("\/deployment\.json"\)/);
-  assert.match(status, /fetch\(PAGES_RECEIPT_URL/);
+  assert.match(status, /pagesReceiptUrl: PAGES_RECEIPT_URL/);
+  assert.match(status, /runLiveDeploymentStatusCheck/);
   assert.doesNotMatch(status, /fetch\(staticAssetPath\("\/deployment\.json"\)/);
   assert.match(nextConfig, /connect-src 'self' \$\{publicLibraryOrigin\}/);
   assert.match(pagesHeaders, /\/deployment\.json\s+Access-Control-Allow-Origin: \*/);

@@ -5,6 +5,7 @@ export type FeaturedReportMode = "v1" | "r2";
 
 export type FeaturedReportPreflightInput = {
   mode: string | undefined;
+  eventName: string | undefined;
   eventCommit: string | undefined;
   checkoutCommit: string;
   worktreeClean: boolean;
@@ -15,6 +16,9 @@ export type FeaturedReportPreflightInput = {
   egressLabel: string | undefined;
   egressRegion: string | undefined;
   egressAttested: string | undefined;
+  chromiumSandbox: string | undefined;
+  /** Whether the operator has configured the controlled r2 runner label. */
+  controlledRunnerConfigured: boolean;
 };
 
 export type FeaturedReportPreflightPlan = {
@@ -22,16 +26,26 @@ export type FeaturedReportPreflightPlan = {
   comparison: boolean;
   environment: Record<string, string>;
   summary: string[];
+  /** Loud workflow annotations (GitHub `::warning::`), never silent. */
+  warnings: string[];
 };
 
 /**
  * Resolve the featured-corpus producer before either Next or Chromium starts.
  *
  * GitHub-hosted runners identify their platform but do not expose a stable,
- * verifiable network region. The featured corpus remains v1 on that platform.
- * Enabling r2 requires a self-hosted runner plus an explicit operator
- * attestation that its declared egress label and region are stable and true;
- * that keeps the default comparison path eligible without inventing placement.
+ * verifiable network region. Automated corpus production therefore requires
+ * r2 on a controlled runner. Enabling r2 requires a self-hosted runner plus an
+ * explicit operator attestation that its declared egress label and region are
+ * stable and true; that keeps comparisons eligible without inventing placement.
+ *
+ * Frozen v1 remains available as an explicit workflow_dispatch compatibility
+ * lane, and additionally as a LOUDLY DISCLOSED scheduled fallback while the
+ * controlled r2 runner is not yet configured: the weekly corpus refresh keeps
+ * running on the production-proven v1 lane instead of failing every Monday
+ * against infrastructure that does not exist. The moment the operator
+ * configures the runner label, automated v1 is refused again and only r2 can
+ * produce scheduled reports.
  */
 export function featuredReportPreflight(input: FeaturedReportPreflightInput): FeaturedReportPreflightPlan {
   const mode = reportMode(input.mode);
@@ -53,8 +67,19 @@ export function featuredReportPreflight(input: FeaturedReportPreflightInput): Fe
   const compareConsent = exactBoolean(input.compareConsent, "FEATURED_COMPARE_CONSENT");
   const compareGpc = exactBoolean(input.compareGpc, "FEATURED_COMPARE_GPC");
   const comparison = compareShields || compareConsent || compareGpc;
+  if (input.chromiumSandbox !== "1") {
+    throw new Error(
+      "Committed report acquisition requires SITE_BEHAVIOR_LAB_CHROMIUM_SANDBOX=1 before Chromium can start."
+    );
+  }
 
   if (mode === "v1") {
+    const scheduledFallback = input.eventName !== "workflow_dispatch";
+    if (scheduledFallback && input.controlledRunnerConfigured) {
+      throw new Error(
+        "Frozen v1 corpus production is an explicit manual compatibility lane (workflow_dispatch); the controlled r2 runner is configured, so scheduled and repository-dispatch production must use r2."
+      );
+    }
     return {
       mode,
       comparison,
@@ -63,10 +88,18 @@ export function featuredReportPreflight(input: FeaturedReportPreflightInput): Fe
         SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION: "0"
       },
       summary: [
-        "Featured report producer: frozen v1 compatibility mode.",
+        scheduledFallback
+          ? "Committed report producer: frozen v1 scheduled fallback; the controlled r2 runner is not configured."
+          : "Committed report producer: explicit manual frozen v1 compatibility mode.",
         `Exact scanner source: ${checkoutCommit}.`,
+        "Chromium renderer sandbox: required.",
         "v1 scan generation does not rewrite existing report bytes; the separate retention process may delete unpinned reports."
-      ]
+      ],
+      warnings: scheduledFallback
+        ? [
+            "Scheduled corpus production fell back to the frozen v1 lane on GitHub-hosted Ubuntu because the controlled r2 runner is not configured. Configure FEATURED_RUNNER_LABEL, SCANNER_EGRESS, SCANNER_EGRESS_REGION, and FEATURED_R2_EGRESS_ATTESTED=1 for an operator-verified self-hosted runner to restore automated r2 production."
+          ]
+        : []
     };
   }
 
@@ -88,22 +121,22 @@ export function featuredReportPreflight(input: FeaturedReportPreflightInput): Fe
 
   if (runnerEnvironment !== "self-hosted") {
     throw new Error(
-      "Featured r2 production requires a self-hosted runner with stable declared egress; GitHub-hosted runner placement is not a truthful comparison region. Keep GitHub-hosted refreshes on v1 or configure FEATURED_RUNNER_LABEL for a controlled self-hosted runner."
+      "Committed r2 production requires a self-hosted runner with stable declared egress; GitHub-hosted runner placement is not a truthful comparison region. Configure FEATURED_RUNNER_LABEL for a controlled self-hosted runner; v1 is available only through the explicit manual compatibility lane."
     );
   }
   if (egressLabel === "github-actions-ubuntu") {
     throw new Error(
-      "Featured r2 production on a self-hosted runner requires an explicit SCANNER_EGRESS label; the GitHub-hosted default label is not accepted."
+      "Committed r2 production on a self-hosted runner requires an explicit SCANNER_EGRESS label; the GitHub-hosted default label is not accepted."
     );
   }
   if (!egressRegion || egressRegion.toLowerCase() === "unknown") {
     throw new Error(
-      "Featured r2 production requires SITE_BEHAVIOR_LAB_SCANNER_EGRESS_REGION to name the controlled runner's stable outbound region."
+      "Committed r2 production requires SITE_BEHAVIOR_LAB_SCANNER_EGRESS_REGION to name the controlled runner's stable outbound region."
     );
   }
   if (input.egressAttested !== "1") {
     throw new Error(
-      "Featured r2 production requires FEATURED_R2_EGRESS_ATTESTED=1 after the operator verifies the self-hosted runner's stable egress label and region."
+      "Committed r2 production requires FEATURED_R2_EGRESS_ATTESTED=1 after the operator verifies the self-hosted runner's stable egress label and region."
     );
   }
 
@@ -113,22 +146,27 @@ export function featuredReportPreflight(input: FeaturedReportPreflightInput): Fe
     environment: {
       SITE_BEHAVIOR_LAB_BUILD_COMMIT: checkoutCommit,
       SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION: "1",
-      SITE_BEHAVIOR_LAB_PUBLIC_R2_REPORTS: "1"
+      SITE_BEHAVIOR_LAB_PUBLIC_R2_REPORTS: "1",
+      // Server-only provenance. The scan API reads this process setting; no
+      // request payload or header can opt into the ci-workflow label.
+      SITE_BEHAVIOR_LAB_REPORT_ACQUISITION: "ci-workflow"
     },
     summary: [
-      "Featured report producer: ScanReport v2/r2.",
+      "Committed report producer: ScanReport v2/r2 via the controlled ci-workflow acquisition lane.",
       `Exact scanner source: ${checkoutCommit}.`,
       "Consent-state verification: enabled and required before scan admission.",
+      "Chromium renderer sandbox: required.",
       `${comparison ? "Comparison" : "Single-run"} egress: operator-attested self-hosted ${egressLabel} (${egressRegion}).`,
       "r2 scan generation does not rewrite existing report bytes; the separate retention process may delete unpinned reports."
-    ]
+    ],
+    warnings: []
   };
 }
 
 function reportMode(value: string | undefined): FeaturedReportMode {
-  const normalized = value?.trim().toLowerCase() || "v1";
+  const normalized = value?.trim().toLowerCase() ?? "";
   if (normalized === "v1" || normalized === "r2") return normalized;
-  throw new Error("FEATURED_REPORT_MODE must be exactly v1 or r2.");
+  throw new Error("FEATURED_REPORT_MODE must be explicitly set to exactly v1 or r2; there is no legacy default.");
 }
 
 function normalizedCommit(value: string | undefined, label: string): string {

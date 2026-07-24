@@ -2,6 +2,9 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
   EdgeScanGateError,
+  RequestBodyInvalidUtf8Error,
+  RequestBodyReadAbortedError,
+  RequestBodyReadTimeoutError,
   assertTurnstileToken,
   constantTimeEqual,
   enforcePublicScanRateLimit,
@@ -14,6 +17,7 @@ import {
   readRequestBodyWithinLimit,
   scanAccessTokenMatches,
   scanTokenCost,
+  turnstileAdmissionIdempotencyKey,
   withPublicScanAccessCheck,
   type RateLimitStore
 } from "./edge-scan-gate";
@@ -65,6 +69,108 @@ test("assertTurnstileToken requires a token and honors the siteverify result", a
     (error: unknown) => error instanceof EdgeScanGateError && error.status === 403
   );
   await assert.doesNotReject(() => assertTurnstileToken({ secret: "k", token: "t", fetchImpl: okFetch(true) }));
+});
+
+test("Turnstile retries carry one stable admission idempotency UUID", async () => {
+  const requests: URLSearchParams[] = [];
+  const fetchImpl = (async (_input: URL | RequestInfo, init?: RequestInit) => {
+    requests.push(init?.body as URLSearchParams);
+    return Response.json({ success: true });
+  }) as typeof fetch;
+  const idempotencyKey = "12345678-1234-4abc-8def-1234567890ab";
+
+  await assertTurnstileToken({
+    secret: "secret",
+    token: "one-shot",
+    idempotencyKey,
+    fetchImpl
+  });
+  await assertTurnstileToken({
+    secret: "secret",
+    token: "one-shot",
+    idempotencyKey,
+    fetchImpl
+  });
+  assert.deepEqual(requests.map((body) => body.get("idempotency_key")), [idempotencyKey, idempotencyKey]);
+  await assert.rejects(
+    () => assertTurnstileToken({ secret: "secret", token: "one-shot", idempotencyKey: "not-a-uuid", fetchImpl }),
+    /Invalid Turnstile idempotency key/
+  );
+});
+
+test("Turnstile admission UUID is stable only for the same capability and challenge token", async () => {
+  const capabilityHash = Uint8Array.from({ length: 32 }, (_value, index) => index).buffer;
+  const first = await turnstileAdmissionIdempotencyKey(capabilityHash, "challenge-token-one");
+  const exactRetry = await turnstileAdmissionIdempotencyKey(capabilityHash, "challenge-token-one");
+  const refreshedChallenge = await turnstileAdmissionIdempotencyKey(capabilityHash, "challenge-token-two");
+  const otherCapability = await turnstileAdmissionIdempotencyKey(new Uint8Array(32).buffer, "challenge-token-one");
+
+  assert.equal(exactRetry, first);
+  assert.notEqual(refreshedChallenge, first);
+  assert.notEqual(otherCapability, first);
+  assert.match(first, /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/);
+});
+
+test("Turnstile verification bounds stalled headers, stalled bodies, and oversized JSON", async () => {
+  const common = {
+    secret: "secret",
+    token: "one-shot",
+    connectTimeoutMs: 5,
+    operationTimeoutMs: 15,
+    maxResponseBytes: 64
+  } as const;
+
+  await assert.rejects(
+    () => assertTurnstileToken({
+      ...common,
+      fetchImpl: (async () => new Promise<Response>(() => undefined)) as typeof fetch
+    }),
+    (error: unknown) =>
+      error instanceof EdgeScanGateError &&
+      error.status === 503 &&
+      /did not respond/.test(error.message)
+  );
+
+  await assert.rejects(
+    () => assertTurnstileToken({
+      ...common,
+      connectTimeoutMs: 50,
+      operationTimeoutMs: 5,
+      fetchImpl: (async () => new Response(new ReadableStream<Uint8Array>({ start() {} }))) as typeof fetch
+    }),
+    (error: unknown) =>
+      error instanceof EdgeScanGateError &&
+      error.status === 503 &&
+      /did not finish loading/.test(error.message)
+  );
+
+  await assert.rejects(
+    () => assertTurnstileToken({
+      ...common,
+      fetchImpl: (async () => Response.json({ success: true, padding: "x".repeat(128) })) as typeof fetch
+    }),
+    (error: unknown) =>
+      error instanceof EdgeScanGateError &&
+      error.status === 503 &&
+      /response limit/.test(error.message)
+  );
+});
+
+test("Turnstile verification composes caller cancellation with its finite policy", async () => {
+  const controller = new AbortController();
+  const pending = assertTurnstileToken({
+    secret: "secret",
+    token: "one-shot",
+    signal: controller.signal,
+    connectTimeoutMs: 1_000,
+    operationTimeoutMs: 1_000,
+    fetchImpl: (async () => new Promise<Response>(() => undefined)) as typeof fetch
+  });
+  controller.abort(new DOMException("request ended", "AbortError"));
+  await assert.rejects(
+    pending,
+    (error: unknown) => error instanceof EdgeScanGateError && error.status === 503 && /request ended/.test(error.message)
+  );
 });
 
 test("Turnstile configuration probe distinguishes a valid secret from secret and transport failures", async () => {
@@ -137,6 +243,26 @@ test("Turnstile configuration probe distinguishes a valid secret from secret and
     }),
     "unavailable"
   );
+});
+
+test("Turnstile configuration probe bounds stalled and oversized response bodies", async () => {
+  const common = {
+    secret: "valid-secret",
+    connectTimeoutMs: 5,
+    operationTimeoutMs: 10,
+    maxResponseBytes: 64
+  } as const;
+  for (const fetchImpl of [
+    (async () => new Promise<Response>(() => undefined)) as typeof fetch,
+    (async () => new Response(new ReadableStream<Uint8Array>({ start() {} }))) as typeof fetch,
+    (async () => Response.json({
+      success: false,
+      "error-codes": ["invalid-input-response"],
+      padding: "x".repeat(128)
+    })) as typeof fetch
+  ]) {
+    assert.equal(await probeTurnstileConfiguration({ ...common, fetchImpl }), "unavailable");
+  }
 });
 
 test("enforcePublicScanRateLimit charges windows and rejects over the per-minute limit", async () => {
@@ -284,6 +410,40 @@ test("readRequestBodyWithinLimit reads bodies within the cap", async () => {
   assert.equal(await readRequestBodyWithinLimit(request, 4_096), body);
 });
 
+test("readRequestBodyWithinLimit preserves valid multibyte UTF-8", async () => {
+  const body = JSON.stringify({ url: "https://例え.example/", label: "café" });
+  const request = new Request("https://scanner.example/api/scan", { method: "POST", body });
+  assert.equal(await readRequestBodyWithinLimit(request, 4_096), body);
+});
+
+test("readRequestBodyWithinLimit rejects invalid UTF-8 inside an otherwise valid JSON string", async () => {
+  const prefix = new TextEncoder().encode('{"url":"https://example.com/');
+  const suffix = new TextEncoder().encode('"}');
+  // C3 28 is an invalid two-byte UTF-8 sequence. A replacement decoder would
+  // turn it into a valid JSON string and silently alter the requested target.
+  const bytes = new Uint8Array(prefix.byteLength + 2 + suffix.byteLength);
+  bytes.set(prefix, 0);
+  bytes.set([0xc3, 0x28], prefix.byteLength);
+  bytes.set(suffix, prefix.byteLength + 2);
+  const requestLike = {
+    headers: new Headers(),
+    body: new ReadableStream<Uint8Array>({
+      start(controller) {
+        controller.enqueue(bytes);
+        controller.close();
+      }
+    })
+  } as unknown as Request;
+
+  await assert.rejects(
+    readRequestBodyWithinLimit(requestLike, 4_096),
+    (error: unknown) =>
+      error instanceof RequestBodyInvalidUtf8Error &&
+      error.status === 400 &&
+      error.message === "The request body must be valid UTF-8."
+  );
+});
+
 test("readRequestBodyWithinLimit rejects a declared oversize length without reading the body", async () => {
   // Headers built standalone (guard "none") so content-length survives; the
   // body stream records whether it was ever pulled.
@@ -314,21 +474,27 @@ test("readRequestBodyWithinLimit caps chunked bodies mid-stream and cancels the 
   let chunksServed = 0;
   let cancelled = false;
   const chunk = new Uint8Array(2_048).fill(120);
-  const stream = new ReadableStream<Uint8Array>({
-    pull(controller) {
-      if (chunksServed >= 5) {
-        controller.close();
-        return;
+  const stream = new ReadableStream<Uint8Array>(
+    {
+      pull(controller) {
+        if (chunksServed >= 5) {
+          controller.close();
+          return;
+        }
+        chunksServed += 1;
+        controller.enqueue(chunk);
+      },
+      cancel() {
+        cancelled = true;
+        return new Promise<void>(() => undefined);
       }
-      chunksServed += 1;
-      controller.enqueue(chunk);
     },
-    cancel() {
-      cancelled = true;
-    }
-  });
+    // Keep this assertion about consumer demand, not the stream scheduler's
+    // optional one-chunk prefetch while the abort race resolves.
+    { highWaterMark: 0 }
+  );
   const requestLike = { headers: new Headers(), body: stream } as unknown as Request;
-  assert.equal(await readRequestBodyWithinLimit(requestLike, 4_096), null);
+  assert.equal(await settleWithin(readRequestBodyWithinLimit(requestLike, 4_096)), null);
   assert.equal(cancelled, true);
   assert.ok(chunksServed <= 3, `served ${chunksServed} chunks; the cap must stop the read early`);
 });
@@ -340,3 +506,62 @@ test("readRequestBodyWithinLimit accepts a body at exactly the cap and treats no
   const bodiless = { headers: new Headers(), body: null } as unknown as Request;
   assert.equal(await readRequestBodyWithinLimit(bodiless, 64), "");
 });
+
+test("readRequestBodyWithinLimit promptly cancels a stalled stream on caller abort", async () => {
+  let cancelled = false;
+  const stream = new ReadableStream<Uint8Array>({
+    cancel() {
+      cancelled = true;
+    }
+  });
+  const controller = new AbortController();
+  const requestLike = {
+    headers: new Headers(),
+    body: stream,
+    signal: controller.signal
+  } as unknown as Request;
+  const reading = readRequestBodyWithinLimit(requestLike, 4_096, { timeoutMs: 5_000 });
+  controller.abort(new DOMException("caller disconnected", "AbortError"));
+
+  await assert.rejects(reading, (error: unknown) => error instanceof RequestBodyReadAbortedError);
+  assert.equal(cancelled, true);
+});
+
+test("readRequestBodyWithinLimit enforces an explicit whole-body deadline", async () => {
+  let cancelled = false;
+  const requestLike = {
+    headers: new Headers(),
+    body: new ReadableStream<Uint8Array>({
+      cancel() {
+        cancelled = true;
+      }
+    })
+  } as unknown as Request;
+  const startedAt = Date.now();
+  await assert.rejects(
+    readRequestBodyWithinLimit(requestLike, 4_096, { timeoutMs: 10 }),
+    (error: unknown) =>
+      error instanceof RequestBodyReadTimeoutError && error.timeoutMs === 10 && error.status === 408
+  );
+  assert.ok(Date.now() - startedAt < 1_000, "the helper must not wait for an external platform cutoff");
+  assert.equal(cancelled, true);
+});
+
+function settleWithin<T>(operation: Promise<T>, timeoutMs = 250): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const timer = setTimeout(
+      () => reject(new Error("The request-body helper did not settle promptly.")),
+      timeoutMs
+    );
+    operation.then(
+      (value) => {
+        clearTimeout(timer);
+        resolve(value);
+      },
+      (error: unknown) => {
+        clearTimeout(timer);
+        reject(error);
+      }
+    );
+  });
+}

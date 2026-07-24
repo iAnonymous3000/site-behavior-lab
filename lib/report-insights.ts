@@ -1,3 +1,4 @@
+import { isSafeInlineScreenshotDataUri } from "./inline-screenshot";
 import { humanList, plural } from "./text-format";
 import type { FingerprintDetectionSummary, PixelEventSummary, PixelMatchField, ScanResult } from "./types";
 
@@ -352,8 +353,7 @@ export function detectionEvidence(detection: FingerprintDetectionSummary): strin
  * browser issue a request to a host of the uploader's choosing.
  */
 export function displayableScreenshot(value: string | null | undefined): string | null {
-  if (typeof value !== "string") return null;
-  return /^data:image\/(?:png|jpeg|webp);base64,[a-z0-9+/=]+$/i.test(value) ? value : null;
+  return isSafeInlineScreenshotDataUri(value) ? value : null;
 }
 
 const HASHED_KEYSTROKE_ENCODINGS = new Set(["md5", "sha1", "sha256"]);

@@ -38,12 +38,18 @@ import {
   type ScanRunV2
 } from "./scan-report-v2";
 import { buildFingerprints, canonicalJson } from "./scan-report-v2-fingerprints";
+import { METRIC_EVIDENCE_SOURCES } from "./metric-evidence-sources";
+import {
+  R2_NAVIGATION_STATUS_UNREPRESENTABLE,
+  R2_REQUEST_STATUS_UNREPRESENTABLE
+} from "./scan-report-v2-http-status";
 
 export const QUALITY_EVALUATOR_VERSION = "1";
 export const COMPARABILITY_EVALUATOR_VERSION = "2";
 export const METRIC_REGISTRY_VERSION = "2";
 export type ComparabilityEvaluatorVersion = "1" | typeof COMPARABILITY_EVALUATOR_VERSION;
 export type MetricRegistryVersion = "1" | typeof METRIC_REGISTRY_VERSION;
+export { METRIC_EVIDENCE_SOURCES } from "./metric-evidence-sources";
 
 export function isSupportedComparabilityEvaluatorVersion(value: string): value is ComparabilityEvaluatorVersion {
   return value === "1" || value === COMPARABILITY_EVALUATOR_VERSION;
@@ -133,7 +139,17 @@ export type QualityContext = {
 
 export function evaluateQuality(facts: QualityFacts, context: QualityContext): Quality {
   const failureReasons: QualityReason[] = [];
-  if (facts.status !== null && facts.status >= 400) failureReasons.push("http-error-status");
+  // The frozen r2 schema cannot carry a syntactically valid 600-999 status.
+  // Its reserved navigation marker retains the error/block-page semantics
+  // without inventing 599. This is backwards-compatible for evaluator "1":
+  // the marker was not emitted by any historical producer, so existing fact
+  // sets keep exactly their original derivation.
+  const unrepresentableNavigationStatus = facts.captureLoss.some(
+    (entry) => entry.detail === R2_NAVIGATION_STATUS_UNREPRESENTABLE
+  );
+  if ((facts.status !== null && facts.status >= 400) || unrepresentableNavigationStatus) {
+    failureReasons.push("http-error-status");
+  }
   if (facts.botWallTitleMatched) failureReasons.push("bot-wall-title");
   if (!facts.navigationSettled) failureReasons.push("navigation-timeout");
   const requestLossRecorded = facts.captureLoss.some((entry) => entry.family === "requests");
@@ -167,21 +183,6 @@ export function evaluateQuality(facts: QualityFacts, context: QualityContext): Q
 // ---------------------------------------------------------------------------
 // Metric dependency registry "1" (RFC 3.3)
 // ---------------------------------------------------------------------------
-
-/**
- * Evidence families each metric family reads; censoring any source censors
- * the metric. Detector findings are one public comparison family spanning
- * request-derived CNAME/pixel findings, fingerprint-observer findings, and
- * detector-produced summaries, so its gate must conservatively cover all
- * three inputs rather than only the final detector output.
- */
-export const METRIC_EVIDENCE_SOURCES: Readonly<Record<MetricFamily, readonly EvidenceFamily[]>> = {
-  "raw-counts": ["requests", "cookies", "storage"],
-  "tracker-classification": ["requests"],
-  "shields-simulation": ["requests"],
-  "consent-verification": ["consent-verification"],
-  "detector-findings": ["requests", "fingerprinting", "detector-output"]
-};
 
 /**
  * The RFC unknown rule (3.2): a missing or literal-unknown dimension makes
@@ -887,6 +888,55 @@ function budgetViolations(run: ScanRunV2, label: string): string[] {
 }
 
 /**
+ * The two compatibility markers are a tightly constrained correctness
+ * backport, not an open extension channel. They may only account for null
+ * fields that replaced otherwise-valid 600-999 observations at the frozen r2
+ * wire boundary.
+ */
+function httpStatusCompatibilityViolations(run: ScanRunV2, label: string): string[] {
+  const violations: string[] = [];
+  const navigation = run.qualityFacts.captureLoss.filter(
+    (entry) => entry.detail === R2_NAVIGATION_STATUS_UNREPRESENTABLE
+  );
+  if (navigation.length > 1) {
+    violations.push(`${label}: unrepresentable navigation HTTP status marker is duplicated`);
+  }
+  for (const marker of navigation) {
+    if (marker.family !== "requests" || marker.phaseId !== null || marker.kind !== "dropped" || marker.count !== 1) {
+      violations.push(`${label}: unrepresentable navigation HTTP status marker has an invalid shape`);
+    }
+    if (run.qualityFacts.status !== null) {
+      violations.push(`${label}: unrepresentable navigation HTTP status marker requires a null qualityFacts.status`);
+    }
+  }
+
+  const requestMarkers = run.qualityFacts.captureLoss.filter(
+    (entry) => entry.detail === R2_REQUEST_STATUS_UNREPRESENTABLE
+  );
+  const phases = new Set<number>();
+  for (const marker of requestMarkers) {
+    if (marker.family !== "requests" || marker.phaseId === null || marker.kind !== "dropped") {
+      violations.push(`${label}: unrepresentable request HTTP status marker has an invalid shape`);
+      continue;
+    }
+    if (phases.has(marker.phaseId)) {
+      violations.push(`${label}: unrepresentable request HTTP status marker is duplicated for phase ${marker.phaseId}`);
+      continue;
+    }
+    phases.add(marker.phaseId);
+    const nullStatuses = run.evidence.requests.filter(
+      (request) => request.phaseId === marker.phaseId && request.status === null
+    ).length;
+    if (marker.count > nullStatuses) {
+      violations.push(
+        `${label}: unrepresentable request HTTP status marker exceeds null request statuses in phase ${marker.phaseId}`
+      );
+    }
+  }
+  return violations;
+}
+
+/**
  * Every run-level cross-check EXCEPT consent semantics: timestamps, phases,
  * fingerprints, quality, budgets, summary reconciliation, and detector
  * consistency. Exported for the r2 evaluator, whose consent derivations
@@ -917,6 +967,7 @@ export function scanRunCoreViolations(run: ScanRunV2, label: string, options: Ru
     violations.push(`${label}: quality does not equal the shared evaluator's output`);
   }
 
+  violations.push(...httpStatusCompatibilityViolations(run, label));
   violations.push(...budgetViolations(run, label));
   violations.push(...summaryViolations(run, label, options));
   violations.push(...detectorViolations(run, label));

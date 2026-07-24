@@ -23,6 +23,181 @@ env:
   NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SITE_URL: "https://sitebehavior.org"
 
 jobs:
+  supply-chain:
+    name: Supply-chain Security
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+
+      - name: Set up Node
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: 24.14.1
+
+      - name: Verify exact Node and npm runtime
+        run: |
+          set -euo pipefail
+          test "$(node --version)" = "v24.14.1"
+          test "$(npm --version)" = "11.11.0"
+
+      - name: Install locked dependencies
+        id: supply_chain_npm_ci
+        continue-on-error: true
+        run: npm ci --ignore-scripts
+
+      - name: Verify third-party supply-chain inventory
+        id: third_party_supply_chain
+        continue-on-error: true
+        run: npm run supply-chain:third-party:check
+
+      # This validates the committed status=blocked integrity/provenance
+      # contract. It intentionally does not claim local rebuild byte parity.
+      - name: Verify vendored WASM static integrity contract
+        id: wasm_static_integrity
+        continue-on-error: true
+        run: npm run wasm:verify-reproducibility
+
+      - name: Prepare supply-chain report directory
+        run: |
+          set -euo pipefail
+          report_dir="$RUNNER_TEMP/site-behavior-lab-supply-chain"
+          install -d -m 700 "$report_dir"
+          echo "SUPPLY_CHAIN_REPORT_DIR=$report_dir" >> "$GITHUB_ENV"
+
+      # npm audit contacts the configured registry for every run. The explicit
+      # ping and online-only config keep a stale local cache from satisfying the
+      # gate when the advisory service is unavailable.
+      - name: Audit npm dependencies against the live registry
+        id: npm_audit
+        continue-on-error: true
+        env:
+          NPM_CONFIG_OFFLINE: "false"
+          NPM_CONFIG_PREFER_OFFLINE: "false"
+          NPM_CONFIG_PREFER_ONLINE: "true"
+        run: |
+          set -euo pipefail
+          npm ping --registry=https://registry.npmjs.org/
+          set +e
+          npm audit \
+            --json \
+            --audit-level=low \
+            --package-lock-only \
+            --ignore-scripts \
+            --registry=https://registry.npmjs.org/ \
+            > "$SUPPLY_CHAIN_REPORT_DIR/npm-audit.json"
+          audit_status=$?
+          set -e
+          node -e 'JSON.parse(require("node:fs").readFileSync(process.argv[1], "utf8"))' \
+            "$SUPPLY_CHAIN_REPORT_DIR/npm-audit.json"
+          exit "$audit_status"
+
+      # A unique database path forces cargo-audit to clone/fetch RustSec during
+      # this run. Omitting --no-fetch and --stale makes an unavailable or stale
+      # advisory database a hard failure rather than a cache-only success.
+      - name: Audit Rust dependencies against a fresh RustSec database
+        id: cargo_audit
+        continue-on-error: true
+        env:
+          RUSTSEC_DB: ${{ runner.temp }}/rustsec-advisory-db-${{ github.run_id }}-${{ github.run_attempt }}
+        run: |
+          set -euo pipefail
+          test ! -e "$RUSTSEC_DB"
+          cargo install cargo-audit --locked --version 0.22.1 --force
+          test "$(cargo audit --version)" = "cargo-audit-audit 0.22.1"
+          set +e
+          cargo audit \
+            --db "$RUSTSEC_DB" \
+            --url https://github.com/RustSec/advisory-db.git \
+            --file tools/adblock-wasm/Cargo.lock \
+            --deny warnings \
+            --format json \
+            > "$SUPPLY_CHAIN_REPORT_DIR/cargo-audit.json"
+          audit_status=$?
+          set -e
+          node -e 'JSON.parse(require("node:fs").readFileSync(process.argv[1], "utf8"))' \
+            "$SUPPLY_CHAIN_REPORT_DIR/cargo-audit.json"
+          exit "$audit_status"
+
+      # Filesystem mode covers lockfiles plus the deployable Dockerfile and
+      # repository configuration. Action caching is disabled and DB updates are
+      # mandatory so the gate cannot pass on a stale cached vulnerability DB.
+      - name: Scan repository and container configuration with Trivy
+        id: trivy_scan
+        continue-on-error: true
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          version: v0.70.0
+          scan-type: fs
+          scan-ref: .
+          scanners: vuln,secret,misconfig
+          format: json
+          output: ${{ runner.temp }}/site-behavior-lab-supply-chain/trivy-filesystem.json
+          exit-code: "1"
+          severity: HIGH,CRITICAL
+          ignore-unfixed: "false"
+          cache: "false"
+          skip-db-update: "false"
+          skip-java-db-update: "false"
+
+      - name: Validate Trivy machine-readable report
+        id: trivy_report
+        if: always()
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          test -s "$SUPPLY_CHAIN_REPORT_DIR/trivy-filesystem.json"
+          node -e 'JSON.parse(require("node:fs").readFileSync(process.argv[1], "utf8"))' \
+            "$SUPPLY_CHAIN_REPORT_DIR/trivy-filesystem.json"
+
+      - name: Preserve supply-chain security reports
+        id: supply_chain_report_upload
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: supply-chain-security-${{ github.sha }}
+          path: ${{ runner.temp }}/site-behavior-lab-supply-chain/
+          if-no-files-found: error
+          retention-days: 90
+
+      # Scanner steps continue only so every available report can be retained.
+      # This final step converts any scanner, report, or upload failure back into
+      # a blocking job failure.
+      - name: Enforce all supply-chain security gates
+        if: always()
+        env:
+          NPM_CI_OUTCOME: ${{ steps.supply_chain_npm_ci.outcome }}
+          THIRD_PARTY_OUTCOME: ${{ steps.third_party_supply_chain.outcome }}
+          WASM_STATIC_INTEGRITY_OUTCOME: ${{ steps.wasm_static_integrity.outcome }}
+          NPM_AUDIT_OUTCOME: ${{ steps.npm_audit.outcome }}
+          CARGO_AUDIT_OUTCOME: ${{ steps.cargo_audit.outcome }}
+          TRIVY_SCAN_OUTCOME: ${{ steps.trivy_scan.outcome }}
+          TRIVY_REPORT_OUTCOME: ${{ steps.trivy_report.outcome }}
+          REPORT_UPLOAD_OUTCOME: ${{ steps.supply_chain_report_upload.outcome }}
+        run: |
+          set -euo pipefail
+          failed=0
+          for gate in \
+            "npm ci:$NPM_CI_OUTCOME" \
+            "third-party inventory:$THIRD_PARTY_OUTCOME" \
+            "WASM static integrity:$WASM_STATIC_INTEGRITY_OUTCOME" \
+            "npm audit:$NPM_AUDIT_OUTCOME" \
+            "cargo audit:$CARGO_AUDIT_OUTCOME" \
+            "Trivy scan:$TRIVY_SCAN_OUTCOME" \
+            "Trivy report:$TRIVY_REPORT_OUTCOME" \
+            "report upload:$REPORT_UPLOAD_OUTCOME"; do
+            name=${gate%%:*}
+            outcome=${gate#*:}
+            if [ "$outcome" != "success" ]; then
+              echo "::error title=Supply-chain gate failed::${name} finished with ${outcome}."
+              failed=1
+            fi
+          done
+          exit "$failed"
+
   app:
     name: Typecheck, Unit Tests, Build
     runs-on: ubuntu-latest
@@ -35,8 +210,14 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
-          node-version: 24
+          node-version: 24.14.1
           cache: npm
+
+      - name: Verify exact Node and npm runtime
+        run: |
+          set -euo pipefail
+          test "$(node --version)" = "v24.14.1"
+          test "$(npm --version)" = "11.11.0"
 
       - name: Install dependencies
         run: npm ci
@@ -45,9 +226,6 @@ jobs:
         env:
           CORRECTIONS_BASE_REVISION: ${{ github.event.pull_request.base.sha || github.event.before }}
         run: npm run corrections:verify-history -- "${CORRECTIONS_BASE_REVISION:-HEAD^}"
-
-      - name: Full dependency audit
-        run: npm audit
 
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
@@ -70,6 +248,23 @@ jobs:
       - name: Static export smoke test
         run: npm run test:smoke:static
 
+      # This deterministic receipt binds every byte in the tested static tree
+      # to the exact clean checkout. It does not claim that Cloudflare served
+      # those bytes; production-health independently proves the live SHA.
+      - name: Record exact-SHA static build evidence
+        run: >-
+          npm run release:evidence --
+          --static-dir out
+          --output "$RUNNER_TEMP/site-behavior-lab-static-release-evidence.json"
+
+      - name: Preserve exact-SHA static build evidence
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: exact-sha-static-evidence-${{ github.sha }}
+          path: ${{ runner.temp }}/site-behavior-lab-static-release-evidence.json
+          if-no-files-found: error
+          retention-days: 90
+
   smoke:
     name: Chromium Smoke Test
     runs-on: ubuntu-latest
@@ -80,8 +275,14 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
-          node-version: 24
+          node-version: 24.14.1
           cache: npm
+
+      - name: Verify exact Node and npm runtime
+        run: |
+          set -euo pipefail
+          test "$(node --version)" = "v24.14.1"
+          test "$(npm --version)" = "11.11.0"
 
       - name: Install dependencies
         run: npm ci
@@ -115,12 +316,20 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+        with:
+          fetch-depth: 0
 
       - name: Set up Node
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
-          node-version: 24
+          node-version: 24.14.1
           cache: npm
+
+      - name: Verify exact Node and npm runtime
+        run: |
+          set -euo pipefail
+          test "$(node --version)" = "v24.14.1"
+          test "$(npm --version)" = "11.11.0"
 
       - name: Install dependencies
         run: npm ci
@@ -136,12 +345,206 @@ jobs:
         env:
           DOCKER_SMOKE_PUBLIC_R2: "1"
 
-  promote:
-    name: Advance production to the tested SHA
+      # Scan the exact image produced and exercised by the smoke step. Both
+      # fixed and unfixed HIGH/CRITICAL findings are blocking; disabling action
+      # caching and DB-skip flags requires a current vulnerability database.
+      - name: Scan smoke-tested container image with Trivy
+        id: trivy_image_scan
+        continue-on-error: true
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          version: v0.70.0
+          scan-type: image
+          image-ref: site-behavior-lab:smoke
+          scanners: vuln
+          format: json
+          output: ${{ runner.temp }}/trivy-container-image.json
+          exit-code: "1"
+          severity: HIGH,CRITICAL
+          ignore-unfixed: "false"
+          cache: "false"
+          skip-db-update: "false"
+          skip-java-db-update: "false"
+
+      - name: Validate Trivy container machine-readable report
+        id: trivy_image_report
+        if: always()
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          test -s "$RUNNER_TEMP/trivy-container-image.json"
+          node -e 'JSON.parse(require("node:fs").readFileSync(process.argv[1], "utf8"))' \
+            "$RUNNER_TEMP/trivy-container-image.json"
+
+      # Runs only after both image smoke lanes pass. The receipt records the
+      # exact local image/layer identities and OCI source labels; it remains
+      # distinct from the separately configured Cloudflare deployment artifact.
+      - name: Record exact-SHA container build evidence
+        run: >-
+          npm run release:evidence --
+          --container-image site-behavior-lab:smoke
+          --output "$RUNNER_TEMP/site-behavior-lab-container-release-evidence.json"
+
+      - name: Preserve exact-SHA container build evidence
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: exact-sha-container-evidence-${{ github.sha }}
+          path: ${{ runner.temp }}/site-behavior-lab-container-release-evidence.json
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Preserve container vulnerability report
+        id: trivy_image_report_upload
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: container-security-${{ github.sha }}
+          path: ${{ runner.temp }}/trivy-container-image.json
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Enforce container vulnerability gate
+        if: always()
+        env:
+          TRIVY_IMAGE_SCAN_OUTCOME: ${{ steps.trivy_image_scan.outcome }}
+          TRIVY_IMAGE_REPORT_OUTCOME: ${{ steps.trivy_image_report.outcome }}
+          TRIVY_IMAGE_UPLOAD_OUTCOME: ${{ steps.trivy_image_report_upload.outcome }}
+        run: |
+          set -euo pipefail
+          failed=0
+          for gate in \
+            "Trivy image scan:$TRIVY_IMAGE_SCAN_OUTCOME" \
+            "Trivy image report:$TRIVY_IMAGE_REPORT_OUTCOME" \
+            "Trivy image report upload:$TRIVY_IMAGE_UPLOAD_OUTCOME"; do
+            name=${gate%%:*}
+            outcome=${gate#*:}
+            if [ "$outcome" != "success" ]; then
+              echo "::error title=Container vulnerability gate failed::${name} finished with ${outcome}."
+              failed=1
+            fi
+          done
+          exit "$failed"
+
+  # This job never checks out or executes candidate code. OIDC and attestation
+  # writes are isolated here and are unavailable to pull-request code. The two
+  # subjects are the exact JSON evidence manifests produced by the tested app
+  # and Docker jobs; they are not the Cloudflare deployment or a registry image.
+  attest:
+    name: Attest exact-SHA evidence manifests
     needs:
+      - supply-chain
       - app
       - docker
       - smoke
+    if: >-
+      github.event_name != 'pull_request' &&
+      github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
+      artifact-metadata: write
+    steps:
+      - name: Download exact-SHA static evidence manifest
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: exact-sha-static-evidence-${{ github.sha }}
+          path: ${{ runner.temp }}/site-behavior-lab-attestation-subjects/static
+
+      - name: Download exact-SHA container evidence manifest
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: exact-sha-container-evidence-${{ github.sha }}
+          path: ${{ runner.temp }}/site-behavior-lab-attestation-subjects/container
+
+      - name: Validate exact-SHA evidence subjects
+        env:
+          STATIC_EVIDENCE_PATH: ${{ runner.temp }}/site-behavior-lab-attestation-subjects/static/site-behavior-lab-static-release-evidence.json
+          CONTAINER_EVIDENCE_PATH: ${{ runner.temp }}/site-behavior-lab-attestation-subjects/container/site-behavior-lab-container-release-evidence.json
+        run: |
+          set -euo pipefail
+          test -s "$STATIC_EVIDENCE_PATH"
+          test -s "$CONTAINER_EVIDENCE_PATH"
+          node -e '
+            const { readFileSync } = require("node:fs");
+            for (const [label, file] of [["static", process.env.STATIC_EVIDENCE_PATH], ["container", process.env.CONTAINER_EVIDENCE_PATH]]) {
+              const receipt = JSON.parse(readFileSync(file, "utf8"));
+              if (receipt?.source?.commit !== process.env.GITHUB_SHA) {
+                throw new Error(`${label} evidence identifies ${receipt?.source?.commit ?? "no commit"}, expected ${process.env.GITHUB_SHA}`);
+              }
+            }
+          '
+
+      - name: Attest static evidence manifest
+        id: attest_static
+        uses: actions/attest@f7c74d28b9d84cb8768d0b8ca14a4bac6ef463e6 # v4.2.0
+        with:
+          subject-path: ${{ runner.temp }}/site-behavior-lab-attestation-subjects/static/site-behavior-lab-static-release-evidence.json
+
+      - name: Attest container evidence manifest
+        id: attest_container
+        uses: actions/attest@f7c74d28b9d84cb8768d0b8ca14a4bac6ef463e6 # v4.2.0
+        with:
+          subject-path: ${{ runner.temp }}/site-behavior-lab-attestation-subjects/container/site-behavior-lab-container-release-evidence.json
+
+      - name: Collect attestation bundles and result references
+        env:
+          STATIC_BUNDLE: ${{ steps.attest_static.outputs.bundle-path }}
+          STATIC_ATTESTATION_ID: ${{ steps.attest_static.outputs.attestation-id }}
+          STATIC_ATTESTATION_URL: ${{ steps.attest_static.outputs.attestation-url }}
+          CONTAINER_BUNDLE: ${{ steps.attest_container.outputs.bundle-path }}
+          CONTAINER_ATTESTATION_ID: ${{ steps.attest_container.outputs.attestation-id }}
+          CONTAINER_ATTESTATION_URL: ${{ steps.attest_container.outputs.attestation-url }}
+        run: |
+          set -euo pipefail
+          test -s "$STATIC_BUNDLE"
+          test -n "$STATIC_ATTESTATION_ID"
+          test -n "$STATIC_ATTESTATION_URL"
+          test -s "$CONTAINER_BUNDLE"
+          test -n "$CONTAINER_ATTESTATION_ID"
+          test -n "$CONTAINER_ATTESTATION_URL"
+
+          report_dir="$RUNNER_TEMP/site-behavior-lab-attestations"
+          install -d -m 700 "$report_dir"
+          install -m 600 "$STATIC_BUNDLE" "$report_dir/static-evidence-manifest.bundle.json"
+          install -m 600 "$CONTAINER_BUNDLE" "$report_dir/container-evidence-manifest.bundle.json"
+          node -e '
+            const { writeFileSync } = require("node:fs");
+            const result = {
+              schemaVersion: 1,
+              sourceCommit: process.env.GITHUB_SHA,
+              subjects: {
+                staticEvidenceManifest: {
+                  attestationId: process.env.STATIC_ATTESTATION_ID,
+                  attestationUrl: process.env.STATIC_ATTESTATION_URL
+                },
+                containerEvidenceManifest: {
+                  attestationId: process.env.CONTAINER_ATTESTATION_ID,
+                  attestationUrl: process.env.CONTAINER_ATTESTATION_URL
+                }
+              }
+            };
+            writeFileSync(process.argv[1], `${JSON.stringify(result, null, 2)}\n`, { encoding: "utf8", flag: "wx", mode: 0o600 });
+          ' "$report_dir/attestation-results.json"
+
+      - name: Preserve exact-SHA attestation bundles and results
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: exact-sha-provenance-attestations-${{ github.sha }}
+          path: ${{ runner.temp }}/site-behavior-lab-attestations/
+          if-no-files-found: error
+          retention-days: 90
+
+  promote:
+    name: Advance production to the tested SHA
+    needs:
+      - supply-chain
+      - app
+      - docker
+      - smoke
+      - attest
     # PR code never receives a write token. Pushes and explicit dispatches must
     # both target this repository's main ref before they can promote.
     if: >-

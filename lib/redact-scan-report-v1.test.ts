@@ -210,7 +210,7 @@ test("the v1 transform sanitizes every page-controlled field without mutating it
   assert.equal(JSON.stringify(report).includes("anna-schmidt"), false);
   assert.equal(JSON.stringify(report).includes("anna_private_record"), false);
   assert.equal(JSON.stringify(report).includes("patient-a8f3c9d2e1b4f6a7"), false);
-  assert.equal(report.summary.pageTitle, "Anna Schmidt's private dashboard");
+  assert.equal(report.summary.pageTitle, "", "page-authored titles never persist in public reports");
   assert.equal(report.conditions.requestedUrl, "https://{label}.example.com/{seg}/{seg}");
   assert.equal(report.conditions.finalUrl, "https://{label}.example.com/account/{n}");
   assert.equal(report.requests[0].url, "https://{label}.google-analytics.com/{seg}/{seg}?%5Bredacted%5D=&utm_source=");
@@ -332,6 +332,9 @@ test("the full report transform is byte-idempotent and rebuilds comparison diffs
   const second = redactScanReportV1(first.report);
 
   assert.equal(first.report.schemaVersion, 1);
+  assert.equal(first.report.title, "GPC off/on comparison", "trusted producer-owned comparison titles survive");
+  assert.equal(first.report.baseline.summary.pageTitle, "");
+  assert.equal(first.report.variant.summary.pageTitle, "");
   assert.equal(JSON.stringify(first.report), JSON.stringify(second.report));
   assert.deepEqual(first.report.diff, compareScanResults(first.report.baseline, first.report.variant));
   assert.equal(JSON.stringify(first.report.diff).includes("private_cookie"), false);

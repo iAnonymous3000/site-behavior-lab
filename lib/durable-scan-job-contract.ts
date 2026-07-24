@@ -1,4 +1,5 @@
 import type { ScanDevice } from "./types";
+import { parseStrictJson } from "./strict-json";
 
 export const DURABLE_SCAN_JOBS_ENV = "SITE_BEHAVIOR_LAB_DURABLE_JOBS";
 export const DURABLE_SCAN_JOB_ENCRYPTION_KEY_ENV = "SITE_BEHAVIOR_LAB_DURABLE_JOBS_KEY";
@@ -122,7 +123,10 @@ export function decodeDurableScanJobPreparation(value: string | null): DurableSc
     const padded = value.replace(/-/g, "+").replace(/_/g, "/").padEnd(Math.ceil(value.length / 4) * 4, "=");
     const binary = atob(padded);
     const bytes = Uint8Array.from(binary, (character) => character.charCodeAt(0));
-    const parsed: unknown = JSON.parse(new TextDecoder("utf-8", { fatal: true }).decode(bytes));
+    const parsed: unknown = parseStrictJson(
+      new TextDecoder("utf-8", { fatal: true }).decode(bytes),
+      bytes.byteLength
+    );
     return isDurableScanJobPreparation(parsed) ? parsed : null;
   } catch {
     return null;

@@ -70,6 +70,7 @@
     // own later rollout and Worker-only key ceremony.
     "SITE_BEHAVIOR_LAB_ENCRYPTED_WATCHES": "0",
     "SITE_BEHAVIOR_LAB_REPORT_MIN_SURVIVAL_MS": "4500000",
+    "SITE_BEHAVIOR_LAB_REPORT_STORE_OPERATION_TIMEOUT_MS": "30000",
 
     // Bucket isolation is explicit. Provision this bucket and staging-scoped R2
     // credentials before deploying; never reuse the production credentials.

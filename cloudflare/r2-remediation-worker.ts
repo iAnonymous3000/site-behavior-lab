@@ -5,6 +5,18 @@ import {
   planR2ReportRemediation,
   r2ReportRetentionSource
 } from "../lib/r2-report-remediation";
+import {
+  accountR2RemediationInventoryPage,
+  EMPTY_R2_REMEDIATION_INVENTORY_USAGE,
+  R2_REMEDIATION_LIST_PAGE_SIZE,
+  readR2RemediationObjectText,
+  type R2RemediationInventoryUsage
+} from "../lib/r2-remediation-resource-limits";
+import {
+  addRedactionTransitionAudit,
+  emptyRedactionTransitionAudit,
+  type RedactionTransitionAudit
+} from "../lib/redaction-transition-audit";
 
 type Env = {
   REPORTS: R2Bucket;
@@ -35,6 +47,7 @@ type PreflightRecord = {
   retention: { createdAt: string; expiresAt: string };
   report: ObjectSnapshot;
   sidecar: ObjectSnapshot | null;
+  transitionAudit: RedactionTransitionAudit;
 };
 
 type PreflightIssue = { reportId?: string; key?: string; issue: string; detail?: string };
@@ -71,7 +84,21 @@ export default {
       return json({ mode: apply ? "apply" : "dry-run", ready: false, error: safeError(error) }, 500);
     }
     const summary = summarize(preflight);
-    if (!apply) return json({ mode: "dry-run", ready: preflight.issues.length === 0, ...summary });
+    if (!apply) {
+      if (preflight.issues.length === 0) {
+        try {
+          // A read-only receipt must describe one stable bucket snapshot, not
+          // a mixture observed while an old writer was still draining.
+          await confirmPreflightUnchanged(env.REPORTS, preflight);
+        } catch (error) {
+          return json(
+            { mode: "dry-run", ready: false, error: safeError(error), ...summary },
+            error instanceof RemediationConflictError ? 409 : 500
+          );
+        }
+      }
+      return json({ mode: "dry-run", ready: preflight.issues.length === 0, ...summary });
+    }
     if (preflight.issues.length > 0) {
       return json({ mode: "apply", ready: false, applied: 0, ...summary }, 409);
     }
@@ -127,7 +154,7 @@ async function preflightAll(bucket: R2Bucket, writtenAt: string, maxAgeDays: num
       continue;
     }
     const retentionSource = r2ReportRetentionSource(report.customMetadata, uploadedAt(report), maxAgeDays);
-    const reportContents = await report.text();
+    const reportContents = await readR2RemediationObjectText(report, "report");
 
     let sidecar: R2ObjectBody | null = null;
     let sidecarContents: string | null = null;
@@ -137,7 +164,7 @@ async function preflightAll(bucket: R2Bucket, writtenAt: string, maxAgeDays: num
         issues.push({ reportId: entry.reportId, issue: "sidecar-disappeared-during-preflight" });
         continue;
       }
-      sidecarContents = await sidecar.text();
+      sidecarContents = await readR2RemediationObjectText(sidecar, "sidecar");
     }
 
     const plan = planR2ReportRemediation({
@@ -162,7 +189,8 @@ async function preflightAll(bucket: R2Bucket, writtenAt: string, maxAgeDays: num
       retentionOrigin: plan.retentionOrigin,
       retention: plan.retention,
       report: snapshot(report),
-      sidecar: sidecar ? snapshot(sidecar) : null
+      sidecar: sidecar ? snapshot(sidecar) : null,
+      transitionAudit: plan.action === "expired" ? emptyRedactionTransitionAudit() : plan.transitionAudit
     });
   }
   return { writtenAt, inventoryKeys: keys, records, issues };
@@ -171,11 +199,25 @@ async function preflightAll(bucket: R2Bucket, writtenAt: string, maxAgeDays: num
 async function listReportKeys(bucket: R2Bucket): Promise<string[]> {
   const keys: string[] = [];
   let cursor: string | undefined;
-  do {
-    const page = await bucket.list({ prefix: "reports/", ...(cursor ? { cursor } : {}) });
-    keys.push(...page.objects.map((object) => object.key));
-    cursor = page.truncated ? page.cursor : undefined;
-  } while (cursor);
+  let usage: R2RemediationInventoryUsage = { ...EMPTY_R2_REMEDIATION_INVENTORY_USAGE };
+  const seenCursors = new Set<string>();
+  for (;;) {
+    const page = await bucket.list({
+      prefix: "reports/",
+      limit: R2_REMEDIATION_LIST_PAGE_SIZE,
+      ...(cursor ? { cursor } : {})
+    });
+    const pageKeys = page.objects.map((object) => object.key);
+    usage = accountR2RemediationInventoryPage(usage, pageKeys);
+    keys.push(...pageKeys);
+    if (!page.truncated) break;
+    const nextCursor = page.cursor;
+    if (typeof nextCursor !== "string" || nextCursor.length === 0 || seenCursors.has(nextCursor)) {
+      throw new Error("R2 remediation inventory pagination did not advance.");
+    }
+    seenCursors.add(nextCursor);
+    cursor = nextCursor;
+  }
   return keys.sort();
 }
 
@@ -209,7 +251,7 @@ async function applyOne(
 ): Promise<void> {
   const report = await bucket.get(expected.reportKey);
   if (!report || !matchesSnapshot(report, expected.report)) throw new RemediationConflictError(expected.reportId);
-  const reportContents = await report.text();
+  const reportContents = await readR2RemediationObjectText(report, "report");
 
   const sidecar = await bucket.get(expected.sidecarKey);
   if (
@@ -218,7 +260,7 @@ async function applyOne(
   ) {
     throw new RemediationConflictError(expected.reportId);
   }
-  const sidecarContents = sidecar ? await sidecar.text() : null;
+  const sidecarContents = sidecar ? await readR2RemediationObjectText(sidecar, "sidecar") : null;
   const plan = planR2ReportRemediation({
     reportId: expected.reportId,
     reportContents,
@@ -234,7 +276,8 @@ async function applyOne(
     plan.reportChanged !== expected.reportChanged ||
     plan.reportWriteRequired !== expected.reportWriteRequired ||
     plan.retentionOrigin !== expected.retentionOrigin ||
-    !sameClock(plan.retention, expected.retention)
+    !sameClock(plan.retention, expected.retention) ||
+    !sameTransitionAudit(plan.transitionAudit, expected.transitionAudit)
   ) {
     throw new RemediationConflictError(expected.reportId);
   }
@@ -269,12 +312,14 @@ async function applyOne(
   const sidecarWrite = await bucket.put(expected.sidecarKey, plan.sidecarWire, sidecarOptions);
   if (sidecarWrite === null) throw new RemediationConflictError(expected.reportId);
 
-  await verifyReadback(bucket, expected, writtenAt, maxAgeDays);
+  await verifyReadback(bucket, expected, plan.reportWire, plan.sidecarWire, writtenAt, maxAgeDays);
 }
 
 async function verifyReadback(
   bucket: R2Bucket,
   expected: PreflightRecord,
+  expectedReportWire: string,
+  expectedSidecarWire: string,
   writtenAt: string,
   maxAgeDays: number
 ): Promise<void> {
@@ -303,8 +348,11 @@ async function verifyReadback(
     throw new Error(`Retention clock changed for ${expected.reportId}.`);
   }
   const retention = expected.retention;
-  const reportContents = await report.text();
-  const sidecarContents = await sidecar.text();
+  const reportContents = await readR2RemediationObjectText(report, "report");
+  const sidecarContents = await readR2RemediationObjectText(sidecar, "sidecar");
+  if (reportContents !== expectedReportWire || sidecarContents !== expectedSidecarWire) {
+    throw new Error(`Exact-byte readback failed for ${expected.reportId}.`);
+  }
   const managed = readManagedReport({ reportId: expected.reportId, reportContents, sidecarContents, retention });
   if (!managed.ok) throw new Error(`Managed-reader readback failed for ${expected.reportId}: ${managed.reason}.`);
 
@@ -359,6 +407,15 @@ function sameClock(left: ManagedReportClock | null, right: ManagedReportClock): 
   return left?.createdAt === right.createdAt && left.expiresAt === right.expiresAt;
 }
 
+function sameTransitionAudit(left: RedactionTransitionAudit, right: RedactionTransitionAudit): boolean {
+  return (
+    left.version === right.version &&
+    left.pageTitlesWithheld === right.pageTitlesWithheld &&
+    left.explicitPortFieldsRemoved === right.explicitPortFieldsRemoved &&
+    left.ipLiteralFieldsRejected === right.ipLiteralFieldsRejected
+  );
+}
+
 function customMetadataEqual(left: Record<string, string> | undefined, right: Record<string, string> | undefined): boolean {
   const leftEntries = Object.entries(left ?? {}).sort(([a], [b]) => a.localeCompare(b));
   const rightEntries = Object.entries(right ?? {}).sort(([a], [b]) => a.localeCompare(b));
@@ -411,6 +468,10 @@ function summarize(preflight: Preflight) {
     counts[issue.issue] = (counts[issue.issue] ?? 0) + 1;
     return counts;
   }, {});
+  const transitionAudit = preflight.records.reduce((total, record) => {
+    addRedactionTransitionAudit(total, record.transitionAudit);
+    return total;
+  }, emptyRedactionTransitionAudit());
   return {
     writtenAt: preflight.writtenAt,
     reports: preflight.records.length + preflight.issues.filter((issue) => issue.reportId).length,
@@ -429,7 +490,8 @@ function summarize(preflight: Preflight) {
     reportChanges: preflight.records.filter((record) => record.action === "rewrite" && record.reportChanged).length,
     expired: preflight.records.filter((record) => record.action === "expired").length,
     issues: preflight.issues.length,
-    issueCounts
+    issueCounts,
+    transitionAudit
   };
 }
 

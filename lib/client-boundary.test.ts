@@ -19,7 +19,9 @@ test("report permalinks do not import the scanner, gallery, watches, or import w
     assert.doesNotMatch(client, new RegExp(forbidden), `saved report client imports ${forbidden}`);
   }
   assert.match(client, /lazy\(\(\) =>[\s\S]*report-renderer/);
-  assert.match(client, /fetch\(evidenceHref[\s\S]*Explore full evidence/);
+  assert.match(client, /fetchBytesResponseWithPolicy\(evidenceHref[\s\S]*maxBytes: BROWSER_PUBLIC_REPORT_JSON_MAX_BYTES/);
+  assert.match(client, /parseDigestBoundReportJson\([\s\S]*expectedEvidenceSha256/);
+  assert.match(client, /fetchBytesResponseWithPolicy\(evidenceHref[\s\S]*Explore full evidence/);
 });
 
 test("homepage keeps the evidence renderer outside its initial route module", () => {
@@ -34,4 +36,5 @@ test("report pages pass compact server output instead of serializing stored evid
   assert.doesNotMatch(page, /stored=\{result\.stored\}/);
   assert.match(page, /summary=\{<ReportPageSummary/);
   assert.match(page, /evidenceHref=\{evidenceHref\}/);
+  assert.match(page, /expectedEvidenceSha256=\{result\.wireSha256\}/);
 });

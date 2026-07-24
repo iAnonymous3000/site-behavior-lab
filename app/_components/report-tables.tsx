@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { AlertTriangle, CheckCircle2, ChevronDown, Database, Fingerprint, Radar } from "lucide-react";
 import { requestProvenanceSearchText, requestProvenanceSummary } from "@/lib/report-findings";
 import { visitPhaseLabel } from "@/lib/report-phase-evidence";
@@ -8,6 +8,12 @@ import { displayEvidenceName, displayHost, hostMatchesQuery, plural } from "@/li
 import { detectionEvidence, detectionLabel, pixelFieldLabel } from "@/lib/report-insights";
 import { isReviewedCookieName, isReviewedStorageKey } from "@/lib/public-name-policy";
 import { listOverflowCopy } from "@/lib/report-table-copy";
+import {
+  parseEvidenceHash,
+  type EvidenceRequestSignal,
+  type EvidenceSection,
+  type EvidenceTarget
+} from "@/lib/report-evidence-navigation";
 import type {
   CookieRecord,
   DomainSummary,
@@ -44,14 +50,23 @@ function roleTag(domain: DomainSummary) {
 
 function DomainTable({ domains }: { domains: DomainSummary[] }) {
   const [query, setQuery] = useState("");
+  const detailsRef = useRef<HTMLDetailsElement>(null);
+  const evidenceTarget = useEvidenceTarget("domains");
   const filtered = useMemo(
     () => domains.filter((domain) => hostMatchesQuery(domain.domain, query)),
     [domains, query]
   );
   const shown = filtered.slice(0, 100);
 
+  useEffect(() => {
+    if (!evidenceTarget) return;
+    setQuery(evidenceTarget.query ?? "");
+    if (detailsRef.current) detailsRef.current.open = true;
+    revealEvidenceSection(detailsRef.current);
+  }, [evidenceTarget]);
+
   return (
-    <details className="data-section disclosure" open>
+    <details id="domain-evidence" ref={detailsRef} className="data-section disclosure" open>
       <summary className="section-heading">
         <h2>Domain evidence</h2>
         <span className="count-badge">{plural(domains.length, "domain")}</span>
@@ -105,6 +120,8 @@ function RequestTable({ requests, phases }: { requests: NetworkRequestRecord[]; 
   const [signalFilter, setSignalFilter] = useState<RequestSignalFilter>("all");
   const [statusFilter, setStatusFilter] = useState<RequestStatusFilter>("all");
   const [resourceFilter, setResourceFilter] = useState("all");
+  const detailsRef = useRef<HTMLDetailsElement>(null);
+  const evidenceTarget = useEvidenceTarget("requests");
 
   const resourceTypes = useMemo(
     () => Array.from(new Set(requests.map((request) => request.resourceType))).sort((a, b) => a.localeCompare(b)),
@@ -138,6 +155,16 @@ function RequestTable({ requests, phases }: { requests: NetworkRequestRecord[]; 
     setStatusFilter("all");
     setResourceFilter("all");
   }
+  useEffect(() => {
+    if (!evidenceTarget) return;
+    setQuery(evidenceTarget.query ?? "");
+    setSignalFilter(evidenceTarget.signal ?? "all");
+    setStatusFilter("all");
+    setResourceFilter("all");
+    setOpened(true);
+    if (detailsRef.current) detailsRef.current.open = true;
+    revealEvidenceSection(detailsRef.current);
+  }, [evidenceTarget]);
   // v2 evidence rows are phase-tagged; the column renders only when at least
   // one row carries a phase, so v1 tables stay unchanged.
   const hasPhases = useMemo(() => requests.some((request) => typeof (request as { phaseId?: unknown }).phaseId === "number"), [requests]);
@@ -148,6 +175,8 @@ function RequestTable({ requests, phases }: { requests: NetworkRequestRecord[]; 
 
   return (
     <details
+      id="request-evidence"
+      ref={detailsRef}
       className="data-section disclosure"
       onToggle={(event) => {
         if (event.currentTarget.open) setOpened(true);
@@ -292,7 +321,7 @@ function requestPhaseLabel(request: NetworkRequestRecord, labels: ReadonlyMap<nu
   return label ? `P${phaseId} · ${label}` : `P${phaseId}`;
 }
 
-type RequestSignalFilter = "all" | "third-party" | "known-service" | "shields-blocked" | "fingerprinting" | "provenance";
+type RequestSignalFilter = EvidenceRequestSignal;
 type RequestStatusFilter = "all" | "ok" | "redirect" | "client-error" | "server-error" | "pending";
 
 const REQUEST_SIGNAL_FILTERS: { value: RequestSignalFilter; label: string; title: string }[] = [
@@ -357,6 +386,47 @@ function StatusCell({ status }: { status: number | null }) {
   if (status === null) return <span className="status-pending">n/a</span>;
   if (status >= 400) return <span className="status-bad">{status}</span>;
   return <span className="status-ok">{status}</span>;
+}
+
+function useEvidenceTarget(section: EvidenceSection): EvidenceTarget | null {
+  const [target, setTarget] = useState<EvidenceTarget | null>(null);
+
+  useEffect(() => {
+    function readTarget(hash: string) {
+      const parsed = parseEvidenceHash(hash);
+      setTarget(parsed?.section === section ? parsed : null);
+    }
+    const readCurrentTarget = () => readTarget(window.location.hash);
+
+    // A same-hash link does not emit `hashchange`. Re-apply it when a reader
+    // has adjusted the filters manually and then asks for the same evidence
+    // link again.
+    function readRepeatedTarget(event: MouseEvent) {
+      if (!(event.target instanceof Element)) return;
+      const anchor = event.target.closest<HTMLAnchorElement>("a");
+      const href = anchor?.getAttribute("href") ?? "";
+      if (!href.startsWith("#evidence=") || anchor?.hash !== window.location.hash) return;
+      readTarget(anchor.hash);
+    }
+
+    readCurrentTarget();
+    window.addEventListener("hashchange", readCurrentTarget);
+    document.addEventListener("click", readRepeatedTarget);
+    return () => {
+      window.removeEventListener("hashchange", readCurrentTarget);
+      document.removeEventListener("click", readRepeatedTarget);
+    };
+  }, [section]);
+
+  return target;
+}
+
+function revealEvidenceSection(details: HTMLDetailsElement | null) {
+  if (!details) return;
+  window.requestAnimationFrame(() => {
+    details.scrollIntoView({ block: "start", behavior: "smooth" });
+    details.querySelector("summary")?.focus({ preventScroll: true });
+  });
 }
 
 function TopThirdParties({ domains }: { domains: DomainSummary[] }) {

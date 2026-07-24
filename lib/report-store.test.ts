@@ -3,16 +3,20 @@ import { access, mkdir, mkdtemp, readFile, readdir, rm, unlink, utimes, writeFil
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, test } from "node:test";
+import { BoundedUtf8FileReadError } from "./bounded-utf8-file";
 import { createComparisonReport, createGpcComparisonReport } from "./compare-reports";
 import { buildProvenanceEntry, matchProvenance } from "./redaction-provenance";
 import { REDACTION_VERSION } from "./redaction-v2";
 import {
   DURABLE_SCAN_JOB_REPORT_MIN_SURVIVAL_MS,
   REPORT_MIN_SURVIVAL_MS_ENV,
+  REPORT_STORE_OPERATION_TIMEOUT_MS_ENV,
   commitPreparedScanReportBundle,
   isScanReportPublicationManifest,
+  maintainReportStoreRetention,
   prepareScanReportBundle,
   pruneStoredReports,
+  reportStoreRetentionStatus,
   readStoredScanReportById,
   reconcilePreparedScanReportBundle,
   reportStoreStatus,
@@ -23,6 +27,7 @@ import { NODE_SCAN_REPORT_V2_R2_MAX_PUBLIC_BYTES } from "./scan-report-v2-r2-lim
 import { toPublicScanReportR2 } from "./scan-report-v2-r2-projection";
 import type { EphemeralComparisonReportR2, EphemeralSingleReportR2 } from "./scan-report-v2-r2";
 import { SCAN_REPORT_SCHEMA_VERSION, type ScanRequestPayload, type ScanResult } from "./types";
+import { redactPublicScanReportV2R2 } from "./scan-report-v2-r2-remediation";
 
 const REPORT_MAX_COUNT_ENV = "SITE_BEHAVIOR_LAB_REPORT_MAX_COUNT";
 const REPORT_STORE_BACKEND_ENV = "SITE_BEHAVIOR_LAB_REPORT_STORE_BACKEND";
@@ -51,6 +56,7 @@ afterEach(async () => {
   delete process.env[REPORT_MAX_COUNT_ENV];
   delete process.env[REPORT_MIN_SURVIVAL_MS_ENV];
   delete process.env[REPORT_STORE_BACKEND_ENV];
+  delete process.env[REPORT_STORE_OPERATION_TIMEOUT_MS_ENV];
   delete process.env[REPORT_STORE_DIR_ENV];
   for (const name of R2_ENV_NAMES) delete process.env[name];
   globalThis.fetch = originalFetch;
@@ -497,7 +503,10 @@ test("reconciliation propagates backend transport faults", async () => {
   });
   await mkdir(path.join(reportDir, `${prepared.manifest.reportId}.provenance.json`));
 
-  await assert.rejects(() => reconcilePreparedScanReportBundle(prepared.manifest), /EISDIR/);
+  await assert.rejects(
+    () => reconcilePreparedScanReportBundle(prepared.manifest),
+    (error) => error instanceof BoundedUtf8FileReadError && error.reason === "not-regular-file"
+  );
 });
 
 test("a contradictory sidecar conflict never deletes bytes this save did not create", async () => {
@@ -571,8 +580,10 @@ test("saveScanReport keeps returned screenshots but strips persisted screenshots
 });
 
 test("saveScanReport attaches shares to ephemeral r2 responses and persists only public projections", async () => {
-  const singlePublic = makePublicSingleReportV2R2();
-  singlePublic.run.privacy.redactionVersion = REDACTION_VERSION;
+  const singleFixture = makePublicSingleReportV2R2();
+  singleFixture.run.privacy.redactionVersion = REDACTION_VERSION;
+  const singlePublic = redactPublicScanReportV2R2(singleFixture);
+  if (singlePublic.reportType !== "single") throw new Error("expected single r2 fixture");
   const single: EphemeralSingleReportR2 = {
     ...singlePublic,
     ephemeral: { screenshot: "data:image/png;base64,R2_SINGLE_PRIVATE" }
@@ -589,9 +600,11 @@ test("saveScanReport attaches shares to ephemeral r2 responses and persists only
   assert.equal("ephemeral" in JSON.parse(storedSingle.wire), false);
   assert.equal(storedSingle.stored.report.share?.id, savedSingle.share?.id);
 
-  const comparisonPublic = makeGpcInterventionReportV2R2();
-  comparisonPublic.baseline.privacy.redactionVersion = REDACTION_VERSION;
-  comparisonPublic.variant.privacy.redactionVersion = REDACTION_VERSION;
+  const comparisonFixture = makeGpcInterventionReportV2R2();
+  comparisonFixture.baseline.privacy.redactionVersion = REDACTION_VERSION;
+  comparisonFixture.variant.privacy.redactionVersion = REDACTION_VERSION;
+  const comparisonPublic = redactPublicScanReportV2R2(comparisonFixture);
+  if (comparisonPublic.reportType !== "comparison") throw new Error("expected comparison r2 fixture");
   const comparison: EphemeralComparisonReportR2 = {
     ...comparisonPublic,
     ephemeral: {
@@ -612,6 +625,18 @@ test("saveScanReport attaches shares to ephemeral r2 responses and persists only
   assert.equal(storedComparison.wire.includes("R2_VARIANT_PRIVATE"), false);
   assert.equal("ephemeral" in JSON.parse(storedComparison.wire), false);
   assert.equal(storedComparison.stored.report.share?.id, savedComparison.share?.id);
+});
+
+test("saveScanReport rejects an ephemeral r2 shell that only relabels unsafe bytes as current", async () => {
+  const publicReport = makePublicSingleReportV2R2();
+  publicReport.run.privacy.redactionVersion = REDACTION_VERSION;
+  assert.notEqual(publicReport.run.summary.pageTitle, "");
+  const report: EphemeralSingleReportR2 = {
+    ...publicReport,
+    ephemeral: { screenshot: "data:image/png;base64,PRIVATE" }
+  };
+  await assert.rejects(() => saveScanReport(report), /redaction-not-idempotent/);
+  assert.deepEqual(await readdir(reportDir), []);
 });
 
 test("saveScanReport enforces the r2 byte cap after attaching a share and writes nothing", async () => {
@@ -881,6 +906,86 @@ test("pruning uses immutable expiry metadata, never a rewritten report mtime", a
   await assert.rejects(() => access(path.join(reportDir, `${id}.retention.json`)), /ENOENT/);
 });
 
+test("delete-only failure leaves durable retention debt, refuses publication, and clears only after cleanup", async () => {
+  const saved = await saveScanReport(makeScanResult());
+  const id = saved.share?.id || "";
+  const sidecarPath = path.join(reportDir, `${id}.provenance.json`);
+  await unlink(sidecarPath);
+  await mkdir(sidecarPath);
+  const expired = {
+    createdAt: "2026-06-01T00:00:00.000Z",
+    expiresAt: "2026-06-08T00:00:00.000Z"
+  };
+  await writeFile(path.join(reportDir, `${id}.retention.json`), `${JSON.stringify(expired)}\n`);
+
+  await assert.rejects(
+    () => pruneStoredReports(Date.parse("2026-07-01T00:00:00.000Z")),
+    /EISDIR|operation not permitted|directory/i
+  );
+  assert.deepEqual(await reportStoreRetentionStatus(), {
+    debtCount: 1,
+    maintenanceRequired: true,
+    healthy: false
+  });
+  await assert.rejects(
+    () => saveScanReport(makeScanResult()),
+    /EISDIR|operation not permitted|directory/i
+  );
+
+  await rm(sidecarPath, { recursive: true, force: true });
+  await pruneStoredReports(Date.parse("2026-07-01T00:00:00.000Z"));
+  assert.deepEqual(await reportStoreRetentionStatus(), {
+    debtCount: 0,
+    maintenanceRequired: false,
+    healthy: true
+  });
+  const recovered = await saveScanReport(makeScanResult());
+  assert.equal((await readStoredScanReportById(recovered.share?.id || "")).outcome, "found");
+});
+
+test("expired reads stay not-found when physical deletion fails and expose the debt", async () => {
+  const saved = await saveScanReport(makeScanResult());
+  const id = saved.share?.id || "";
+  const sidecarPath = path.join(reportDir, `${id}.provenance.json`);
+  await unlink(sidecarPath);
+  await mkdir(sidecarPath);
+  await writeFile(
+    path.join(reportDir, `${id}.retention.json`),
+    `${JSON.stringify({
+      createdAt: "2026-06-01T00:00:00.000Z",
+      expiresAt: "2026-06-08T00:00:00.000Z"
+    })}\n`
+  );
+
+  assert.deepEqual(await readStoredScanReportById(id), { outcome: "not-found" });
+  assert.equal((await reportStoreRetentionStatus()).debtCount, 1);
+});
+
+test("one prune pass bounds delete work and leaves a durable maintenance continuation", async () => {
+  await mkdir(reportDir, { recursive: true });
+  const retention = {
+    createdAt: "2026-06-01T00:00:00.000Z",
+    expiresAt: "2026-06-08T00:00:00.000Z"
+  };
+  for (let index = 0; index < 40; index += 1) {
+    const id = `20260601-${index.toString(16).padStart(32, "0")}`;
+    await writeFile(path.join(reportDir, `${id}.json`), "{}\n");
+    await writeFile(path.join(reportDir, `${id}.retention.json`), `${JSON.stringify(retention)}\n`);
+  }
+
+  await pruneStoredReports(Date.parse("2026-07-01T00:00:00.000Z"));
+  assert.equal((await readdir(reportDir)).filter(isReportFile).length, 8);
+  assert.deepEqual(await reportStoreRetentionStatus(), {
+    debtCount: 0,
+    maintenanceRequired: true,
+    healthy: false
+  });
+
+  await pruneStoredReports(Date.parse("2026-07-01T00:00:00.000Z"));
+  assert.equal((await readdir(reportDir)).filter(isReportFile).length, 0);
+  assert.equal((await reportStoreRetentionStatus()).healthy, true);
+});
+
 test("saveScanReport reports the configured report store directory in its status", async () => {
   const saved = await saveScanReport(makeScanResult());
   const files = (await readdir(reportDir)).filter(isReportFile);
@@ -903,6 +1008,70 @@ test("reportStoreStatus exposes the effective count-pruning survival and its two
 
   process.env[REPORT_MIN_SURVIVAL_MS_ENV] = String(24 * 60 * 60 * 1_000);
   assert.equal(reportStoreStatus().minSurvivalMs, 2 * 60 * 60_000);
+});
+
+test("whole publication deadline rejects a noncooperative backend without an unhandled rejection", async () => {
+  process.env[REPORT_STORE_OPERATION_TIMEOUT_MS_ENV] = "10";
+  configureFakeR2(async () => new Promise<Response>(() => undefined));
+  let unhandled: unknown;
+  const onUnhandled = (reason: unknown) => {
+    unhandled = reason;
+  };
+  process.on("unhandledRejection", onUnhandled);
+  const startedAt = Date.now();
+  try {
+    await assert.rejects(
+      () => saveScanReport(makeScanResult()),
+      /whole-operation deadline|exceeded its 10 ms/i
+    );
+    assert.ok(Date.now() - startedAt < 1_000, "publication must not inherit a hung backend lifetime");
+    await new Promise<void>((resolve) => setImmediate(resolve));
+    assert.equal(unhandled, undefined);
+  } finally {
+    process.removeListener("unhandledRejection", onUnhandled);
+  }
+});
+
+test("active retention health fails when an expired R2 object exists but debt-marker PUT is denied", async () => {
+  const id = `20260601-${"d".repeat(32)}`;
+  let markerPutAttempts = 0;
+  configureFakeR2(async (request) => {
+    const url = new URL(request.url);
+    const prefix = url.searchParams.get("prefix");
+    if (request.method === "GET" && prefix === "reports/_retention-debt/") {
+      return new Response(
+        "<ListBucketResult><IsTruncated>false</IsTruncated></ListBucketResult>",
+        { status: 200 }
+      );
+    }
+    if (request.method === "GET" && prefix === "reports/") {
+      return new Response(
+        `<ListBucketResult>
+          <Contents><Key>reports/${id}.json</Key><LastModified>2026-06-01T00:00:00.000Z</LastModified></Contents>
+          <Contents><Key>reports/${id}.json.provenance.json</Key><LastModified>2026-06-01T00:00:01.000Z</LastModified></Contents>
+          <IsTruncated>false</IsTruncated>
+        </ListBucketResult>`,
+        { status: 200 }
+      );
+    }
+    if (request.method === "HEAD" && url.pathname.endsWith(`${id}.json`)) {
+      return new Response(null, {
+        status: 200,
+        headers: {
+          "x-amz-meta-created-at": "2026-06-01T00:00:00.000Z",
+          "x-amz-meta-expires-at": "2026-06-08T00:00:00.000Z"
+        }
+      });
+    }
+    if (request.method === "PUT" && url.pathname.includes("_retention-debt")) {
+      markerPutAttempts += 1;
+      return new Response("denied", { status: 403 });
+    }
+    throw new Error(`Unexpected retention-health request: ${request.method} ${request.url}`);
+  });
+
+  await assert.rejects(() => maintainReportStoreRetention(), /persist report retention marker.*403/i);
+  assert.equal(markerPutAttempts, 1);
 });
 
 function isReportFile(file: string): boolean {

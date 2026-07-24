@@ -57,8 +57,8 @@ not write that metadata into the metrics dataset or attach it to an event.
 No server-side report/profile read emits an event. Initial instrumentation must
 cover explicit user actions only. If route views or Core Web Vitals are added,
 instrumentation must call `routeClassFromLocation` first and may pass only its
-enum result—not `location`, `pathname`, a URL object, route parameters or report
-data—to the event factory.
+enum result (not `location`, `pathname`, a URL object, route parameters or report
+data) to the event factory.
 
 ## Aggregate storage layout
 

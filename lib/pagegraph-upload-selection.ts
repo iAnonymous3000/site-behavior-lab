@@ -1,4 +1,9 @@
-export const MAX_PAGEGRAPH_UPLOAD_BYTES = 32 * 1024 * 1024;
+// Browser imports are intentionally tighter than the server/parser's 32 MiB
+// historical artifact ceiling. A 16 MiB front door bounds the tab's
+// ArrayBuffer, UTF-8 decode, and synchronous parser work before the parser's
+// independent record/field ceilings take over.
+export const MAX_PAGEGRAPH_UPLOAD_BYTES = 16 * 1024 * 1024;
+// The sidecar is a small closed-schema JSON declaration, never bulk evidence.
 export const MAX_PAGEGRAPH_METADATA_BYTES = 256 * 1024;
 
 export type PageGraphUploadSelection = {

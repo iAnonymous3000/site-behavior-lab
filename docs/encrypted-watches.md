@@ -4,10 +4,12 @@
 
 Encrypted watches are the post-durability retention feature. The repository
 ships the storage, scheduling, private preparation, health, and API foundation
-behind `SITE_BEHAVIOR_LAB_ENCRYPTED_WATCHES=1`; both committed Cloudflare
-configurations keep it at `0`. Do not enable it until durable jobs report
-`readiness: "ready"` in production and have completed their separate replay
-canaries and soak.
+behind `SITE_BEHAVIOR_LAB_ENCRYPTED_WATCHES=1`; the committed production
+configuration keeps it at `0`. The separate
+`wrangler.container.watch-staging.jsonc` canary topology intentionally requests
+`1` but is not deployed by this repository change. Do not activate production
+until durable jobs report `readiness: "ready"` there and have completed their
+separate replay canaries and soak.
 
 The first product is deliberately called a **scheduled rescan**, not a change
 alert. Each run is an independent controlled visit. Live share reports still
@@ -26,10 +28,12 @@ changed.
 - At most 32 active watches exist in the coordinator, with a global budget of
   100 scheduled runs per UTC day. Scheduled work is not linked to an IP or a
   public per-client quota identity.
-- Creation and due execution require the scanner's configured access-token
-  gate. The open public Turnstile path remains available for ordinary scans but
-  cannot consume the coordinator-wide watch capacity; enabling watches without
-  token-gated ingress makes only the watch capability misconfigured.
+- Public self-service creation uses the ordinary scan admission gate. With
+  public ingress open, that means a valid Turnstile solve plus the existing
+  atomic public quota; an operator-gated scanner instead uses its normal scan
+  token. An optional watch-only second factor exists for isolated staging
+  canaries, but it is not configured for the public product and cannot bypass
+  Turnstile, the scan token, or quota.
 - The payload contains exactly one canonical HTTP(S) URL, with no credentials,
   query, or fragment, plus desktop/mobile, GPC on/off, `reportMode: "r2"`, and
   `comparison: "none"`.
@@ -50,6 +54,19 @@ local state or a URL fragment, which browsers do not send in HTTP requests. The
 token must never be placed in a path, query, Referer, analytics event, or log.
 Durable Object storage holds only its SHA-256 digest and compares the digest in
 constant time.
+
+The optional creation access token is an operator canary credential, not the
+browser's long-lived watch capability. When configured, it is mandatory on
+`POST /api/watches`, checked before capability hashing or any Durable
+Object/quota work, and stripped from every request forwarded to Node. Missing,
+malformed, wrong, or capability-aliased values return `401`/`400`; an unsafe or
+secret-aliased configured value makes watch readiness fail closed. When it is
+unset, the header must be absent and public creation proceeds through Turnstile
+and atomic quota. Health reports `creationAuthorization: "operator"` and hides
+the public UI capability while the second factor is configured; production must
+report `creationAuthorization: "public"`. Metadata GET and DELETE continue to
+require only the browser-held capability and their bounded read limiter,
+including during rollback.
 
 DELETE is deliberately idempotent and non-oracular after the bounded status
 rate limit: any canonical watch ID and canonical capability-shaped token receives
@@ -114,6 +131,7 @@ Turnstile secret, scan token, and R2 credentials:
 ```text
 SITE_BEHAVIOR_LAB_ENCRYPTED_WATCHES_KEY=<32 random bytes, unpadded base64url>
 SITE_BEHAVIOR_LAB_ENCRYPTED_WATCHES_PREVIOUS_KEY=<optional former key>
+SITE_BEHAVIOR_LAB_ENCRYPTED_WATCHES_ACCESS_TOKEN=<optional staging-only second factor, at least 32 characters>
 ```
 
 The current key encrypts every new write. Its stable SHA-256-derived key ID is
@@ -138,20 +156,27 @@ Activate this separately from durable jobs and container sharding:
 
 1. Confirm exact production provenance, empty warnings, durable jobs `ready`,
    R2/public-r2 healthy, and normal/replay canaries complete.
-2. Keep ingress token-gated. Install the distinct current watch key as a Worker
-   secret and leave the optional previous key unset for first activation.
-3. Deploy with `SITE_BEHAVIOR_LAB_ENCRYPTED_WATCHES=1`. Require health to report
-   `checks.encryptedWatches.readiness: "ready"` and
-   `capabilities.scheduledRescans: true`.
-4. Create one watch for a controlled public fixture without a query string.
-   Preserve its capability only in the test client, do not poll to drive work,
-   and confirm the immediate run is scheduled by the coordinator.
-5. Read metadata with the custom capability header, retrieve the normal report,
-   delete the watch, and confirm subsequent metadata reflects deletion or is
-   unavailable without ever returning the plaintext target.
-6. Audit structured logs for opaque identifiers only. Keep ingress token-gated
-   for as long as watches remain enabled; disable watches before reopening the
-   ordinary public scan path.
+2. Provision the separate watch-staging topology with independent durable/R2/
+   watch keys and the optional watch access token. Keep ordinary scan ingress
+   open behind Turnstile. Require health to report `creationAuthorization:
+   "operator"` and `capabilities.scheduledRescans: false`; the public UI must be
+   hidden because it never receives this second factor.
+3. Create one watch for a controlled query-free fixture with the dedicated
+   creation header and one fresh Turnstile token. Preserve its capability only
+   in the canary client, do not poll to drive work, and confirm the immediate run
+   is scheduled by the coordinator. Missing/malformed/wrong endpoint tokens must
+   return `401` before quota or Durable Object work.
+4. Read metadata with the capability header, retrieve the ordinary report,
+   delete the watch, audit logs for opaque identifiers only, and tear the entire
+   staging topology down with absence receipts.
+5. In a separate reviewed production change, install only the distinct current
+   watch encryption key, leave the optional previous key and watch access token
+   unset, and enable the flag. Require health to report `readiness: "ready"`,
+   `creationAuthorization: "public"`, and `capabilities.scheduledRescans: true`.
+6. Through the real browser UI, create and delete one watch with a fresh
+   Turnstile solve and no watch-access header. Confirm an ordinary scan still
+   succeeds, public quota is charged atomically, and no response contains the
+   plaintext target.
 
 For rollback, set the flag to `0` first. New creation and due target decryption
 stop, while capability-authenticated metadata read/delete remains available.

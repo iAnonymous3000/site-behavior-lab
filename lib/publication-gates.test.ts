@@ -25,12 +25,17 @@ test("every static publication lane runs the exact remediation check before publ
 
 test("scan artifacts and commits include provenance sidecars", () => {
   const scan = source(".github/workflows/scan.yml");
-  assert.match(scan, /steps\.scan\.outputs\.sidecar_path/);
-  assert.match(scan, /git add public\/reports/);
-
   const featured = source(".github/workflows/scan-featured.yml");
-  assert.match(featured, /path: \|\n\s+public\/reports/);
-  assert.match(featured, /git add public\/reports/);
+  for (const workflow of [scan, featured]) {
+    assert.match(workflow, /reports:publication-artifact -- \\\n\s+--prepare/);
+    assert.match(workflow, /reports:publication-artifact -- \\\n\s+--publish/);
+    assert.match(workflow, /git add public\/reports public\/corpus-stats\.json/);
+  }
+
+  const artifact = source("lib/report-publication-artifact.ts");
+  assert.match(artifact, /const sidecarRelative = `reports\/\$\{id\}\.provenance\.json`/);
+  assert.match(artifact, /Publication artifact report and sidecar ids do not pair exactly/);
+  assert.match(artifact, /await writeNewFileDurably\(sidecarPath, sidecar\)/);
 });
 
 test("official actions are pinned to reviewed Node-24-compatible releases", () => {
@@ -87,10 +92,13 @@ test("featured refresh failures publish only validated successes, stay loud, and
   assert.match(workflow, /permissions:[\s\S]*?issues: write/);
   assert.match(workflow, /id: featured_scan\n\s+continue-on-error: true/);
   assert.match(workflow, /--classify-publication/);
-  assert.match(workflow, /- name: Prune retained static reports[\s\S]*?if: steps\.refresh_policy\.outputs\.publishable == 'true'/);
+  assert.match(
+    workflow,
+    /- name: Rebuild trusted retention and aggregate outputs[\s\S]*?npm run reports:prune[\s\S]*?npm run reports:remediate -- --check[\s\S]*?npm run reports:manifest[\s\S]*?npm run corpus:stats/
+  );
   assert.match(workflow, /- name: Verify report redaction and provenance[\s\S]*?steps\.refresh_policy\.outputs\.publishable == 'true'/);
   assert.match(workflow, /- name: Build corpus stats[\s\S]*?steps\.report_manifest\.outcome == 'success'/);
-  assert.match(workflow, /- name: Commit static reports[\s\S]*?steps\.corpus_stats\.outcome == 'success'/);
+  assert.match(workflow, /- name: Rebuild trusted retention and aggregate outputs[\s\S]*?- name: Commit static reports/);
   assert.match(workflow, /steps\.refresh_alert\.outputs\.authoritative == 'true'/);
   assert.match(workflow, /site-behavior-lab:featured-corpus-refresh/);
   assert.match(workflow, /MANAGED_ISSUE_LABEL: site-behavior-lab-featured-refresh/);

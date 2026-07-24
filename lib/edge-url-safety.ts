@@ -1,7 +1,11 @@
 import { isIpAddress, isPublicIpAddress, normalizeHostname } from "./ip-safety";
 import { PublicFacingError } from "./public-errors";
+import { fetchJsonResponseWithPolicy } from "./client-fetch-policy";
 
 const DEFAULT_EDGE_DNS_RESOLVER_URL = "https://cloudflare-dns.com/dns-query";
+export const EDGE_DNS_CONNECT_TIMEOUT_MS = 5_000;
+export const EDGE_DNS_OPERATION_TIMEOUT_MS = 10_000;
+export const EDGE_DNS_RESPONSE_MAX_BYTES = 64 * 1024;
 
 type DnsAnswer = {
   type?: number;
@@ -17,6 +21,11 @@ export type EdgeUrlSafetyOptions = {
   cache?: Map<string, Promise<void>>;
   fetch?: typeof fetch;
   resolverUrl?: string;
+  signal?: AbortSignal;
+  /** Test seams; production callers use the finite constants above. */
+  connectTimeoutMs?: number;
+  operationTimeoutMs?: number;
+  maxResponseBytes?: number;
 };
 
 export class EdgeUrlSafetyError extends PublicFacingError {
@@ -111,16 +120,23 @@ async function queryDnsAddresses(
   queryUrl.searchParams.set("name", hostname);
   queryUrl.searchParams.set("type", recordTypeName);
 
-  const response = await dnsFetch(queryUrl.toString(), {
-    headers: {
-      Accept: "application/dns-json"
+  const { payload } = await fetchJsonResponseWithPolicy(
+    queryUrl.toString(),
+    {
+      headers: { Accept: "application/dns-json" },
+      cache: "no-store",
+      redirect: "error",
+      signal: options.signal
+    },
+    {
+      label: "Public DNS verification",
+      maxBytes: options.maxResponseBytes ?? EDGE_DNS_RESPONSE_MAX_BYTES,
+      connectTimeoutMs: options.connectTimeoutMs ?? EDGE_DNS_CONNECT_TIMEOUT_MS,
+      operationTimeoutMs: options.operationTimeoutMs ?? EDGE_DNS_OPERATION_TIMEOUT_MS,
+      fetchImpl: dnsFetch
     }
-  });
-  if (!response.ok) {
-    throw new EdgeUrlSafetyError("The host could not be verified as public.");
-  }
-
-  const body = (await response.json()) as DnsJsonResponse;
+  );
+  const body = payload as DnsJsonResponse;
   if (body.Status !== undefined && body.Status !== 0 && body.Status !== 3) {
     throw new EdgeUrlSafetyError("The host could not be verified as public.");
   }

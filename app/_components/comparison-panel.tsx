@@ -5,6 +5,12 @@ import type { ReactNode } from "react";
 import { comparisonArmViews, comparisonDiffView, type ReportView } from "@/lib/scan-report-views";
 import { provenanceChangeText } from "@/lib/report-findings";
 import { pixelFieldLabel } from "@/lib/report-insights";
+import {
+  buildEvidenceHash,
+  domainRequestDeltas,
+  type DomainRequestDelta,
+  type EvidenceArm
+} from "@/lib/report-evidence-navigation";
 import { comparisonDeltaHeading, displayHost, plural } from "@/lib/text-format";
 import {
   isReviewedCookieName,
@@ -28,6 +34,10 @@ function ComparisonPanel({ view }: { view: ReportView }) {
   // producer used to write the wire's diff block, so a v2 pair or a tampered
   // upload renders identically to a freshly produced comparison.
   const diff = useMemo(() => comparisonDiffView(view), [view]);
+  const perDomainDeltas = useMemo(
+    () => (arms ? domainRequestDeltas(arms.baseline.evidence.domains, arms.variant.evidence.domains) : []),
+    [arms]
+  );
   if (!arms || !diff) return null;
   // Labels come from the view (wire runLabels or the per-axis defaults), the
   // same source the JSON-LD dataset names its per-arm variables with.
@@ -168,9 +178,15 @@ function ComparisonPanel({ view }: { view: ReportView }) {
         <>
           <div className="comparison-metrics">
             {metrics.map((item) => (
-              <DeltaTile key={item.label} label={item.label} metric={item.metric} />
+              <DeltaTile key={item.label} label={item.label} metric={item.metric} labels={labels} />
             ))}
           </div>
+          {hasComparableDelta && (
+            <p className="muted comparison-privacy-note">
+              Every signed change is {labels.variant} minus {labels.baseline}. A positive or negative direction is descriptive,
+              not a judgment that the result is better or worse.
+            </p>
+          )}
           {rawCountsAllowed && hasPrivacyFilteredNames && (
             <p className="muted comparison-privacy-note">
               Cookie and storage count deltas include every observation. Name-level lists show only reviewed names; unreviewed names are not itemized because they can contain identifiers.
@@ -179,50 +195,57 @@ function ComparisonPanel({ view }: { view: ReportView }) {
           <div className="comparison-lists">
             {rawCountsAllowed && (
               <>
-                <ChangeList title={`Domains only with ${labels.variant}`} changes={diff.addedDomains} tone="added" />
-                <ChangeList title={`Domains only with ${labels.baseline}`} changes={diff.removedDomains} tone="removed" />
+                <DomainRequestDeltaList changes={perDomainDeltas} labels={labels} />
+                <ChangeList
+                  title={`Domains only with ${labels.variant}`}
+                  changes={diff.addedDomains}
+                  arm="variant"
+                  armLabel={labels.variant}
+                />
+                <ChangeList
+                  title={`Domains only with ${labels.baseline}`}
+                  changes={diff.removedDomains}
+                  arm="baseline"
+                  armLabel={labels.baseline}
+                />
                 <CookieChangeList
                   title={`${cookieNamesPrivacyFiltered ? "Visible cookie names" : "Cookies"} only with ${labels.variant}`}
                   changes={addedCookies}
-                  tone="added"
                   privacyFiltered={cookieNamesPrivacyFiltered}
                 />
                 <CookieChangeList
                   title={`${cookieNamesPrivacyFiltered ? "Visible cookie names" : "Cookies"} only with ${labels.baseline}`}
                   changes={removedCookies}
-                  tone="removed"
                   privacyFiltered={cookieNamesPrivacyFiltered}
                 />
                 <StorageChangeList
                   title={`${storageNamesPrivacyFiltered ? "Visible storage keys" : "Storage keys"} only with ${labels.variant}`}
                   changes={addedStorageKeys}
-                  tone="added"
                   privacyFiltered={storageNamesPrivacyFiltered}
                 />
                 <StorageChangeList
                   title={`${storageNamesPrivacyFiltered ? "Visible storage keys" : "Storage keys"} only with ${labels.baseline}`}
                   changes={removedStorageKeys}
-                  tone="removed"
                   privacyFiltered={storageNamesPrivacyFiltered}
                 />
               </>
             )}
             {classificationAllowed && (
               <>
-                <EntityChangeList title={`Entities only with ${labels.variant}`} changes={diff.addedEntities} tone="added" />
-                <EntityChangeList title={`Entities only with ${labels.baseline}`} changes={diff.removedEntities} tone="removed" />
+                <EntityChangeList title={`Entities only with ${labels.variant}`} changes={diff.addedEntities} />
+                <EntityChangeList title={`Entities only with ${labels.baseline}`} changes={diff.removedEntities} />
               </>
             )}
             {detectorAllowed && (addedFingerprinting.length > 0 || removedFingerprinting.length > 0) && (
               <>
-                <FingerprintingChangeList title={`Fingerprinting only with ${labels.variant}`} changes={addedFingerprinting} tone="added" />
-                <FingerprintingChangeList title={`Fingerprinting only with ${labels.baseline}`} changes={removedFingerprinting} tone="removed" />
+                <FingerprintingChangeList title={`Fingerprinting only with ${labels.variant}`} changes={addedFingerprinting} />
+                <FingerprintingChangeList title={`Fingerprinting only with ${labels.baseline}`} changes={removedFingerprinting} />
               </>
             )}
             {detectorAllowed && (addedPixelEvents.length > 0 || removedPixelEvents.length > 0) && (
               <>
-                <PixelEventChangeList title={`Ad pixels only with ${labels.variant}`} changes={addedPixelEvents} tone="added" />
-                <PixelEventChangeList title={`Ad pixels only with ${labels.baseline}`} changes={removedPixelEvents} tone="removed" />
+                <PixelEventChangeList title={`Ad pixels only with ${labels.variant}`} changes={addedPixelEvents} />
+                <PixelEventChangeList title={`Ad pixels only with ${labels.baseline}`} changes={removedPixelEvents} />
               </>
             )}
             {/* Provenance is instrumentation-derived (PageGraph initiator
@@ -230,8 +253,8 @@ function ComparisonPanel({ view }: { view: ReportView }) {
                 detector-findings gate as fingerprinting and pixels. */}
             {detectorAllowed && (addedProvenance.length > 0 || removedProvenance.length > 0) && (
               <>
-                <ProvenanceChangeList title={`Causal paths only with ${labels.variant}`} changes={addedProvenance} tone="added" />
-                <ProvenanceChangeList title={`Causal paths only with ${labels.baseline}`} changes={removedProvenance} tone="removed" />
+                <ProvenanceChangeList title={`Causal paths only with ${labels.variant}`} changes={addedProvenance} />
+                <ProvenanceChangeList title={`Causal paths only with ${labels.baseline}`} changes={removedProvenance} />
               </>
             )}
           </div>
@@ -252,18 +275,29 @@ function comparisonEyebrow(view: ReportView): string {
   return "Comparison Report";
 }
 
-function DeltaTile({ label, metric }: { label: string; metric: ComparisonMetricDelta }) {
-  const direction = metric.delta > 0 ? "up" : metric.delta < 0 ? "down" : "flat";
-  const formattedDelta = `${metric.delta > 0 ? "+" : ""}${metric.delta.toLocaleString("en-US")}`;
+function DeltaTile({
+  label,
+  metric,
+  labels
+}: {
+  label: string;
+  metric: ComparisonMetricDelta;
+  labels: { baseline: string; variant: string };
+}) {
+  const formattedDelta = signedCount(metric.delta);
   return (
-    <div className={`delta-tile delta-${direction}`}>
+    <div className="delta-tile delta-flat">
       <span>{label}</span>
-      <strong>{formattedDelta}</strong>
+      <strong aria-label={`${labels.variant} minus ${labels.baseline}: ${formattedDelta}`}>{formattedDelta}</strong>
       <small>
-        {metric.before.toLocaleString("en-US")} → {metric.after.toLocaleString("en-US")}
+        {labels.baseline}: {metric.before.toLocaleString("en-US")} · {labels.variant}: {metric.after.toLocaleString("en-US")}
       </small>
     </div>
   );
+}
+
+function signedCount(value: number): string {
+  return `${value > 0 ? "+" : ""}${value.toLocaleString("en-US")}`;
 }
 
 const DIFF_COLLAPSED_COUNT = 6;
@@ -308,33 +342,99 @@ function DiffList<T>({
   );
 }
 
-function ChangeList({ title, changes, tone }: { title: string; changes: DomainChange[]; tone: "added" | "removed" }) {
+function DomainRequestDeltaList({
+  changes,
+  labels
+}: {
+  changes: DomainRequestDelta[];
+  labels: { baseline: string; variant: string };
+}) {
+  return (
+    <DiffList
+      title="Largest per-domain request-count changes"
+      emptyText="No per-domain request counts changed between these visits."
+      items={changes}
+      className="domain-request-deltas"
+      renderItem={(change) => {
+        const formattedDelta = signedCount(change.delta);
+        return (
+          <div className="change-row" key={change.domain}>
+            <span>
+              <strong>{displayHost(change.domain)}</strong>
+              <small>
+                {change.tracker
+                  ? `${change.tracker.entity} · ${change.tracker.category}`
+                  : change.thirdParty
+                    ? "unlabeled third party"
+                    : "first party"}
+              </small>
+              <small>
+                {labels.baseline}: {change.baselineRequests.toLocaleString("en-US")} · {labels.variant}:{" "}
+                {change.variantRequests.toLocaleString("en-US")}
+              </small>
+              <small>
+                <EvidenceLink domain={change.domain} arm="baseline" armLabel={labels.baseline} /> ·{" "}
+                <EvidenceLink domain={change.domain} arm="variant" armLabel={labels.variant} />
+              </small>
+            </span>
+            <b aria-label={`${labels.variant} minus ${labels.baseline}: ${formattedDelta} requests`}>{formattedDelta}</b>
+          </div>
+        );
+      }}
+    />
+  );
+}
+
+function ChangeList({
+  title,
+  changes,
+  arm,
+  armLabel
+}: {
+  title: string;
+  changes: DomainChange[];
+  arm: EvidenceArm;
+  armLabel: string;
+}) {
   return (
     <DiffList
       title={title}
       emptyText="No domain changes observed."
       items={changes}
       renderItem={(change) => (
-        <div className={`change-row change-${tone}`} key={change.domain}>
+        <div className="change-row" key={change.domain}>
           <span>
             <strong>{displayHost(change.domain)}</strong>
-            <small>{change.tracker ? `${change.tracker.entity} · ${change.tracker.category}` : "unlabeled"}</small>
+            <small>
+              {change.tracker ? `${change.tracker.entity} · ${change.tracker.category}` : "unlabeled"} ·{" "}
+              <EvidenceLink domain={change.domain} arm={arm} armLabel={armLabel} />
+            </small>
           </span>
-          <b>{change.requests}</b>
+          <b aria-label={`${change.requests.toLocaleString("en-US")} requests with ${armLabel}`}>
+            {change.requests.toLocaleString("en-US")}
+          </b>
         </div>
       )}
     />
   );
 }
 
-function EntityChangeList({ title, changes, tone }: { title: string; changes: EntityChange[]; tone: "added" | "removed" }) {
+function EvidenceLink({ domain, arm, armLabel }: { domain: string; arm: EvidenceArm; armLabel: string }) {
+  return (
+    <a href={buildEvidenceHash({ section: "requests", arm, query: domain })}>
+      Show {armLabel} requests
+    </a>
+  );
+}
+
+function EntityChangeList({ title, changes }: { title: string; changes: EntityChange[] }) {
   return (
     <DiffList
       title={title}
       emptyText="No entity changes observed."
       items={changes}
       renderItem={(change) => (
-        <div className={`change-row change-${tone}`} key={change.entity}>
+        <div className="change-row" key={change.entity}>
           <span>
             <strong>{change.entity}</strong>
             <small>{plural(change.domains, "domain")}</small>
@@ -349,12 +449,10 @@ function EntityChangeList({ title, changes, tone }: { title: string; changes: En
 function CookieChangeList({
   title,
   changes,
-  tone,
   privacyFiltered = false
 }: {
   title: string;
   changes: CookieChange[];
-  tone: "added" | "removed";
   privacyFiltered?: boolean;
 }) {
   return (
@@ -367,7 +465,7 @@ function CookieChangeList({
       }
       items={changes}
       renderItem={(change, index) => (
-        <div className={`change-row change-${tone}`} key={`${change.name}:${change.domain}:${index}`}>
+        <div className="change-row" key={`${change.name}:${change.domain}:${index}`}>
           <span>
             <strong>{change.name}</strong>
             <small>{displayHost(change.domain)}</small>
@@ -382,12 +480,10 @@ function CookieChangeList({
 function StorageChangeList({
   title,
   changes,
-  tone,
   privacyFiltered = false
 }: {
   title: string;
   changes: StorageKeyChange[];
-  tone: "added" | "removed";
   privacyFiltered?: boolean;
 }) {
   return (
@@ -400,7 +496,7 @@ function StorageChangeList({
       }
       items={changes}
       renderItem={(change, index) => (
-        <div className={`change-row change-${tone}`} key={`${change.area}:${change.key}:${index}`}>
+        <div className="change-row" key={`${change.area}:${change.key}:${index}`}>
           <span>
             <strong>{change.key}</strong>
             <small>{change.area === "sessionStorage" ? "session storage" : "local storage"}</small>
@@ -411,14 +507,14 @@ function StorageChangeList({
   );
 }
 
-function FingerprintingChangeList({ title, changes, tone }: { title: string; changes: FingerprintingChange[]; tone: "added" | "removed" }) {
+function FingerprintingChangeList({ title, changes }: { title: string; changes: FingerprintingChange[] }) {
   return (
     <DiffList
       title={title}
       emptyText="No fingerprinting changes observed."
       items={changes}
       renderItem={(change) => (
-        <div className={`change-row change-${tone}`} key={change.kind}>
+        <div className="change-row" key={change.kind}>
           <span>
             <strong>{fingerprintingKindLabel(change.kind)}</strong>
             <small>{change.heuristic}</small>
@@ -453,7 +549,7 @@ function fingerprintingKindLabel(kind: FingerprintingChange["kind"]): string {
   }
 }
 
-function PixelEventChangeList({ title, changes, tone }: { title: string; changes: PixelEventChange[]; tone: "added" | "removed" }) {
+function PixelEventChangeList({ title, changes }: { title: string; changes: PixelEventChange[] }) {
   return (
     <DiffList
       title={title}
@@ -464,7 +560,7 @@ function PixelEventChangeList({ title, changes, tone }: { title: string; changes
         const identifiers =
           change.advancedMatching.length > 0 ? ` · identifiers: ${change.advancedMatching.map(pixelFieldLabel).join(", ")}` : "";
         return (
-          <div className={`change-row change-${tone}`} key={change.platform}>
+          <div className="change-row" key={change.platform}>
             <span>
               <strong>{change.product}</strong>
               <small>
@@ -479,7 +575,7 @@ function PixelEventChangeList({ title, changes, tone }: { title: string; changes
   );
 }
 
-function ProvenanceChangeList({ title, changes, tone }: { title: string; changes: ProvenanceChange[]; tone: "added" | "removed" }) {
+function ProvenanceChangeList({ title, changes }: { title: string; changes: ProvenanceChange[] }) {
   return (
     <DiffList
       title={title}
@@ -488,7 +584,7 @@ function ProvenanceChangeList({ title, changes, tone }: { title: string; changes
       items={changes}
       renderItem={(change, index) => (
         <div
-          className={`change-row change-${tone}`}
+          className="change-row"
           key={`${index}:${change.domain}:${change.initiator ?? ""}:${change.script ?? ""}:${change.injectedBy ?? ""}`}
         >
           <span>

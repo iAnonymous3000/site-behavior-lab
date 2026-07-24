@@ -1,10 +1,11 @@
 import assert from "node:assert/strict";
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { test } from "node:test";
 import { readManagedReport } from "./managed-report-reader";
+import { REPORT_CORPUS_LOCK_FILENAME } from "./report-corpus-lock";
 import { matchProvenance } from "./redaction-provenance";
 import { REDACTION_VERSION } from "./redaction-v2";
 import { readStoredScanReport } from "./scan-report-reader";
@@ -15,6 +16,7 @@ import {
   makeSupportingPairInterventionReportV2R2
 } from "./scan-report-v2-r2-fixtures";
 import { NODE_SCAN_REPORT_V2_R2_MAX_PUBLIC_BYTES } from "./scan-report-v2-r2-limits";
+import { redactPublicScanReportV2R2 } from "./scan-report-v2-r2-remediation";
 import { makePublicSingleReportV2, makeScanReportV1 } from "./scan-report-v2-fixtures";
 
 const REPORT_ID = "20260712-0123456789abcdef0123456789abcdef";
@@ -177,6 +179,29 @@ test("the committed publisher keeps v2/r1 read-only", () => {
   }
 });
 
+test("the committed publisher rejects r2 bytes that only relabel unsafe evidence as current", () => {
+  const temp = mkdtempSync(path.join(tmpdir(), "sbl-publisher-r2-relabel-test-"));
+  try {
+    const inputPath = path.join(temp, "input.json");
+    const outputPath = path.join(temp, `${REPORT_ID}.json`);
+    const relabeled = makePublicSingleReportV2R2();
+    relabeled.run.privacy.redactionVersion = REDACTION_VERSION;
+    writeFileSync(inputPath, JSON.stringify(relabeled));
+
+    const run = spawnSync(
+      process.execPath,
+      [path.join(__dirname, "publish-scan-report-cli.js"), inputPath, outputPath, REPORT_ID],
+      { encoding: "utf8" }
+    );
+    assert.notEqual(run.status, 0);
+    assert.match(run.stderr, /redaction-not-idempotent/);
+    assert.throws(() => readFileSync(outputPath), /ENOENT/);
+    assert.throws(() => readFileSync(path.join(temp, `${REPORT_ID}.provenance.json`)), /ENOENT/);
+  } finally {
+    rmSync(temp, { recursive: true, force: true });
+  }
+});
+
 test("the committed publisher refuses validator-clean r2 above the public byte limit", () => {
   const temp = mkdtempSync(path.join(tmpdir(), "sbl-publisher-limit-test-"));
   try {
@@ -201,11 +226,117 @@ test("the committed publisher refuses validator-clean r2 above the public byte l
   }
 });
 
+test("the committed publisher rejects malformed UTF-8, BOM, duplicate keys, and symlink inputs", () => {
+  const valid = Buffer.from(JSON.stringify(makeScanReportV1()), "utf8");
+  const cases: Array<{ name: string; prepare(inputPath: string, temp: string): void; error: RegExp }> = [
+    {
+      name: "malformed UTF-8",
+      prepare(inputPath) {
+        writeFileSync(inputPath, Buffer.concat([valid, Buffer.from([0xc3, 0x28])]));
+      },
+      error: /exact valid UTF-8/
+    },
+    {
+      name: "leading BOM",
+      prepare(inputPath) {
+        writeFileSync(inputPath, Buffer.concat([Buffer.from([0xef, 0xbb, 0xbf]), valid]));
+      },
+      error: /invalid-json/
+    },
+    {
+      name: "nested duplicate key",
+      prepare(inputPath) {
+        const duplicate = valid.toString("utf8").replace(
+          /"pageTitle":"[^"]*"/,
+          '"pageTitle":"private","pageTitle":""'
+        );
+        assert.notEqual(duplicate, valid.toString("utf8"));
+        writeFileSync(inputPath, duplicate);
+      },
+      error: /duplicate-key/
+    },
+    {
+      name: "symbolic link",
+      prepare(inputPath, temp) {
+        const target = path.join(temp, "target.json");
+        writeFileSync(target, valid);
+        symlinkSync(target, inputPath);
+      },
+      error: /symbolic link/
+    }
+  ];
+
+  for (const fixture of cases) {
+    const temp = mkdtempSync(path.join(tmpdir(), "sbl-publisher-input-test-"));
+    try {
+      const inputPath = path.join(temp, "input.json");
+      const outputPath = path.join(temp, `${REPORT_ID}.json`);
+      fixture.prepare(inputPath, temp);
+      const run = spawnSync(
+        process.execPath,
+        [path.join(__dirname, "publish-scan-report-cli.js"), inputPath, outputPath, REPORT_ID],
+        { encoding: "utf8" }
+      );
+      assert.notEqual(run.status, 0, fixture.name);
+      assert.match(run.stderr, fixture.error, fixture.name);
+      assert.throws(() => readFileSync(outputPath), /ENOENT/, fixture.name);
+      assert.throws(() => readFileSync(path.join(temp, `${REPORT_ID}.provenance.json`)), /ENOENT/, fixture.name);
+    } finally {
+      rmSync(temp, { recursive: true, force: true });
+    }
+  }
+});
+
+test("the committed publisher honors the shared corpus lock", () => {
+  const temp = mkdtempSync(path.join(tmpdir(), "sbl-publisher-lock-test-"));
+  try {
+    const inputPath = path.join(temp, "input.json");
+    const outputPath = path.join(temp, `${REPORT_ID}.json`);
+    writeFileSync(inputPath, JSON.stringify(makeScanReportV1()));
+    writeFileSync(path.join(temp, REPORT_CORPUS_LOCK_FILENAME), "held by test\n");
+
+    const run = spawnSync(
+      process.execPath,
+      [path.join(__dirname, "publish-scan-report-cli.js"), inputPath, outputPath, REPORT_ID],
+      { encoding: "utf8" }
+    );
+    assert.notEqual(run.status, 0);
+    assert.match(run.stderr, /Report corpus is locked by another writer/);
+    assert.throws(() => readFileSync(outputPath), /ENOENT/);
+    assert.throws(() => readFileSync(path.join(temp, `${REPORT_ID}.provenance.json`)), /ENOENT/);
+  } finally {
+    rmSync(temp, { recursive: true, force: true });
+  }
+});
+
+test("a pre-existing sidecar collision is rejected before the report is created", () => {
+  const temp = mkdtempSync(path.join(tmpdir(), "sbl-publisher-sidecar-collision-"));
+  try {
+    const inputPath = path.join(temp, "input.json");
+    const outputPath = path.join(temp, `${REPORT_ID}.json`);
+    const sidecarPath = path.join(temp, `${REPORT_ID}.provenance.json`);
+    writeFileSync(inputPath, JSON.stringify(makeScanReportV1()));
+    writeFileSync(sidecarPath, "stale-sidecar\n");
+
+    const run = spawnSync(
+      process.execPath,
+      [path.join(__dirname, "publish-scan-report-cli.js"), inputPath, outputPath, REPORT_ID],
+      { encoding: "utf8" }
+    );
+    assert.notEqual(run.status, 0);
+    assert.match(run.stderr, /destination already exists/);
+    assert.throws(() => readFileSync(outputPath), /ENOENT/);
+    assert.equal(readFileSync(sidecarPath, "utf8"), "stale-sidecar\n");
+  } finally {
+    rmSync(temp, { recursive: true, force: true });
+  }
+});
+
 function withCurrentR2Redaction<T extends PublicScanReportV2R2>(report: T): T {
   const runs = report.reportType === "single" ? [report.run] : [report.baseline, report.variant];
   if (report.reportType === "comparison" && report.experiment.kind === "intervention") {
     for (const pair of report.experiment.supportingPairs ?? []) runs.push(pair.baseline, pair.variant);
   }
   for (const run of runs) run.privacy.redactionVersion = REDACTION_VERSION;
-  return report;
+  return redactPublicScanReportV2R2(report) as T;
 }

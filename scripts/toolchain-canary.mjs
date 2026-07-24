@@ -19,6 +19,8 @@ import {
   requireCanaryOrigin,
   requireCommitSha
 } from "./toolchain-canary-lib.mjs";
+import { prepareScanAdmission } from "./scan-admission.mjs";
+import { readResponseTextWithinLimit } from "./http-response.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const panelPath = path.join(root, "scripts", "fixtures", "toolchain-canary-panel.json");
@@ -86,10 +88,16 @@ async function compare(flags) {
 }
 
 async function captureOne(input) {
+  const admission = prepareScanAdmission({
+    url: input.panelCase.url,
+    device: "desktop",
+    gpcEnabled: true,
+    consentMode: "observe"
+  });
   const submissionResponse = await request(`${input.baseUrl}/api/scan`, input.token, {
     method: "POST",
-    headers: { "content-type": "application/json; charset=utf-8" },
-    body: JSON.stringify({ url: input.panelCase.url, device: "desktop", gpcEnabled: true, consentMode: "observe" })
+    headers: { "content-type": "application/json; charset=utf-8", ...admission.headers },
+    body: JSON.stringify(admission.body)
   });
   const submission = await json(submissionResponse, "/api/scan");
   if (submissionResponse.status !== 202 || !queuedSubmission(submission)) throw new Error(`/api/scan did not return the required 202 queued single scan (${submissionResponse.status}).`);
@@ -136,8 +144,13 @@ async function request(url, token, init = {}) {
 async function json(response, label) { return (await jsonWire(response, label)).value; }
 async function jsonWire(response, label) {
   if (!(response.headers.get("content-type") ?? "").includes("application/json")) throw new Error(`${label} returned non-JSON content.`);
-  const wire = await response.text();
-  if (Buffer.byteLength(wire) > MAX_REPORT_BYTES) throw new Error(`${label} exceeded the public report byte ceiling.`);
+  let wire;
+  try {
+    wire = await readResponseTextWithinLimit(response, { maxBytes: MAX_REPORT_BYTES, label });
+  } catch (error) {
+    if (error instanceof RangeError) throw new Error(`${label} exceeded the public report byte ceiling.`);
+    throw error;
+  }
   try { return { value: JSON.parse(wire), wire }; } catch { throw new Error(`${label} returned invalid JSON.`); }
 }
 

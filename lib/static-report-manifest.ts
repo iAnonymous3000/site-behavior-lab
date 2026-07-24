@@ -15,6 +15,7 @@ import {
   temporalCohortForStoredReport
 } from "./temporal-report-identity";
 import type { StoredScanReport } from "./scan-report-reader";
+import { sha256Hex } from "./sha256";
 
 /**
  * Builds the static gallery manifest (public/reports/index.json) from the
@@ -49,7 +50,7 @@ export async function buildStaticReportManifest(reportsDir: string, now = new Da
     }
 
     const view = toReportView(read.stored);
-    const entry = toManifestEntry(id, read.stored, view);
+    const entry = toManifestEntry(id, read.stored, view, read.wire);
     if (!entry) continue;
     entries.push(entry);
   }
@@ -58,7 +59,12 @@ export async function buildStaticReportManifest(reportsDir: string, now = new Da
   return { manifest: { generatedAt: now.toISOString(), reports: entries }, warnings };
 }
 
-function toManifestEntry(id: string, stored: StoredScanReport, view: ReportView): StaticReportManifestEntry | null {
+function toManifestEntry(
+  id: string,
+  stored: StoredScanReport,
+  view: ReportView,
+  reportWire: string
+): StaticReportManifestEntry | null {
   // Cards summarize the baseline (the plain "off" state) so a Shields card
   // shows what the site tried, not the blocked residual; the blocked count is
   // surfaced separately. The v1 producer wrote the comparison root's
@@ -98,6 +104,8 @@ function toManifestEntry(id: string, stored: StoredScanReport, view: ReportView)
 
   return {
     id,
+    reportWireBytes: new TextEncoder().encode(reportWire).byteLength,
+    reportWireSha256: sha256Hex(reportWire),
     title: (view.title ?? "").trim() || lead.pageTitle || lead.domain,
     headline: headline.headline,
     tone: headline.tone,

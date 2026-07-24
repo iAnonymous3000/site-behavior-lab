@@ -126,6 +126,30 @@ type RunSummary = {
 };
 ```
 
+### 1.2 Frozen HTTP-status compatibility boundary
+
+HTTP status-code syntax is three decimal digits, so an upstream can produce a
+syntactically valid 600-999 response. The already-published v2/r1 and v2/r2
+schemas are immutable and admit only 100-599. A producer targeting either
+frozen wire must never coerce a higher code to 599 or emit a schema-invalid
+number.
+
+The r2 compatibility behavior is therefore fail-closed:
+
+- the affected `status` field becomes `null`;
+- `qualityFacts.captureLoss` records
+  `r2-navigation-status-unrepresentable` or
+  `r2-request-status-unrepresentable` in the requests family;
+- request markers are phase-scoped and censor request-derived metrics; and
+- a navigation marker derives the existing `http-error-status` run failure, so
+  the report cannot describe a 600-999 response as a successful load.
+
+Readers continue to reject a literal 600-999 value on an r2 wire. Exact,
+first-class preservation in the status fields requires a new schema revision
+whose numeric bounds extend through 999; the frozen schema files and hashes are
+not changed. Legacy ScanReport v1 is a separate wire and may retain the exact
+three-digit observation under its current compatibility reader.
+
 ---
 
 ## 2. Subject identity
@@ -740,7 +764,7 @@ function toPublicScanReport(r: EphemeralComparisonReport): PublicComparisonRepor
 
 ---
 
-## 9. Privacy boundary first (redaction v2)
+## 9. Privacy boundary first (current redaction v4)
 
 Sequenced **before** durable jobs so the queue never persists what minimization would
 have removed. Current state ([lib/report-url.ts](../lib/report-url.ts)): userinfo,
@@ -749,7 +773,11 @@ fails to parse is **returned unmodified** (`report-url.ts:26`), which v2 forbids
 
 ### 9.1 URL policy, default-deny
 
-- **Host**: lowercase, IDN to punycode A-label, default port and trailing dot stripped.
+- **Host**: lowercase, IDN to punycode A-label, trailing dot stripped, and no
+  explicit port retained (including non-default ports). IPv4 and IPv6 literals,
+  including alternate/obfuscated IPv4 spellings accepted by the URL parser,
+  fail closed to `{invalid-host}` / `{invalid-url}` rather than becoming public
+  subject or request identity.
   The registrable domain survives only when the pinned public-suffix engine identifies
   an ICANN or private suffix; special-use and suffix-less hosts fail closed. Every
   subdomain label left of the registrable domain survives only through the versioned
@@ -784,11 +812,12 @@ fact-table rows ([lib/pagegraph-corpus.ts](../lib/pagegraph-corpus.ts)), corpus
 exports, share links surfaced in UI, server logs, and any future queued job payload.
 One sanitizer, one version number, one test suite.
 
-Bounded page titles and bounded privacy-policy quotes are deliberate page-derived
-evidence, not producer vocabulary. They remain public only in their documented
-evidence fields; condition metadata, detector labels, tracker associations, enums,
-methodology disclosures, and provenance identities are closed producer-owned
-vocabularies and may not inherit arbitrary page strings.
+Page titles are used transiently for bot-wall detection and then withheld from
+the public wire as the required empty-string marker; renderers fall back to the
+public domain. Bounded privacy-policy quotes remain deliberate page-derived
+evidence in their documented evidence field. Condition metadata, detector labels,
+tracker associations, enums, methodology disclosures, and provenance identities
+are closed producer-owned vocabularies and may not inherit arbitrary page strings.
 
 ### 9.3 Names and keys: versioned literal allowlists, no patterns
 
@@ -816,7 +845,7 @@ policy row in the same change.
 | all URL fields incl. nested provenance, subject origins | URL policy (9.1) |
 | cookie name / storage key / query and matrix keys | versioned literal allowlists (9.3) |
 | cookie path | URL path policy (9.1) |
-| `summary.pageTitle` | length cap + control-character strip (bot-wall matching runs before capping) |
+| `summary.pageTitle` | bot-wall matching before publication, then withheld as the required empty-string marker |
 | `consent.matchedText` | scanner's own conservative phrase list verbatim only, else marker |
 | `consent.cmp`, `consent.selector` | scanner's curated CMP vocabulary and curated selector list literals only; never page-derived |
 | tracker labels (`entity`, `category`) | curated catalog / Shields-list vocabulary only |
@@ -857,6 +886,23 @@ re-redact in place across the full inventory:
    URLs; expire or delete.
 7. **Pages deployment history**: old immutable deployments retain old artifacts;
    delete stale deployments.
+
+Static reports, their sidecars, generated corpus statistics/manifest, and retained
+R2 objects form one coordinated predeploy gate. A schema-r2 v3 object is migratable
+only when its exact reviewed producer-normalization identity and a digest/clock-
+matching v3 sidecar are present. The v3-to-v4 transform preserves report IDs,
+run/pair identities, timestamps, and retention clocks; mixed versions or any
+ambiguity fail closed. Do not deploy a strict v4 reader between remediating only
+one storage plane and the other. Keep writers gated, migrate both planes, require
+an idempotent zero-rewrite check, deploy the exact tested SHA, verify readback, and
+only then reopen writes.
+
+Remediation emits a separate versioned transition audit for title withholding,
+explicit-port removal, and IP-literal rejection. Those migration-only counts are
+not representable in the frozen public `PrivacyStats.redaction` vocabulary and
+must not be relabeled as one of its seven legacy counters. Static and R2 dry-run
+counts must match their corresponding apply receipts; the final fixed-point check
+must report zero transition counts.
 
 ### 9.7 Queue payloads (forward constraint on the later milestone)
 
@@ -1466,6 +1512,13 @@ same-direction, nonzero effects across all pairs, each pair family-eligible).
 Until then `"replicated-difference"` stays unrepresentable and rejected, exactly
 as in r1; supporting pairs exist so replication can later be derived from
 complete evidence, never from counters or metadata.
+
+The additive analysis contract in
+[`research-evidence-model.md`](research-evidence-model.md) now derives bounded,
+metric-scoped repeated observations without changing this frozen wire. It
+fails a metric closed when any recorded pair is ineligible and keeps every
+inferential, replicated-effect, and causal claim disabled until a separately
+bound sampling and analysis design exists.
 
 ### 15.7 r1 display status
 

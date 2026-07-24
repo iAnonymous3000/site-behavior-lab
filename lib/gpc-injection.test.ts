@@ -9,6 +9,8 @@ import { chromium } from "playwright";
 import {
   createGpcWorkerInjectionSession,
   GPC_WORKER_CAPTURE_LOSS_WARNING,
+  GPC_WORKER_ROUTE_FETCH_TIMEOUT_MS,
+  GPC_WORKER_SCRIPT_MAX_BYTES,
   GpcWorkerInjectionError,
   injectGlobalPrivacyControlIntoWorkerSource,
   installGlobalPrivacyControl,
@@ -238,7 +240,7 @@ test("redirects fail closed without an out-of-band follow or Location rewrite", 
   const frame = {};
   session.register({ frame }, networkRegistration(session, "https://example.test/worker.js", "classic"));
   const redirectResponse = response(302, "", { location: "/worker-final.js?signature=abc~def" });
-  const fetchOptions: Array<{ maxRedirects: number }> = [];
+  const fetchOptions: Array<{ maxRedirects: number; timeout: number }> = [];
   await assert.rejects(
     session.buildRouteFulfillment({
       request: () => workerRequest(frame, "https://example.test/worker.js"),
@@ -250,7 +252,10 @@ test("redirects fail closed without an out-of-band follow or Location rewrite", 
     (error: unknown) => error instanceof GpcWorkerInjectionError && error.reason === "unsupported-worker"
   );
 
-  assert.deepEqual(fetchOptions, [{ maxRedirects: 0 }]);
+  assert.deepEqual(fetchOptions, [{
+    maxRedirects: 0,
+    timeout: GPC_WORKER_ROUTE_FETCH_TIMEOUT_MS
+  }]);
   assert.equal(redirectResponse.headers().location, "/worker-final.js?signature=abc~def");
   assert.deepEqual(session.diagnostics(), {
     ambiguousWorkerRequestCount: 0,
@@ -347,6 +352,175 @@ test("upstream response failures become one explicit Worker capture-loss unit", 
   });
 });
 
+test("division inside template substitutions stays parseable and keeps the module instrumented", async () => {
+  // Every case here is legitimate module source that must still be injected.
+  // A digit that leaves the scanner regex-permitting turns the division into a
+  // regex literal that swallows the substitution and fails the whole parse.
+  const substitutions = [
+    "`${(bytes / 1024 / 1024).toFixed(2)} MB`",
+    "`${1000 / 2}`",
+    "`${.5 / 2}`",
+    "`${0x20 / 2}`",
+    "`${1e3 / 2}`",
+    "`${(1024 / bytes)}`",
+    "`${`${8 / 2}`}`",
+    "`${/* comment */ 4 / 2}`",
+    "`${ // line comment\n 4 / 2}`",
+    "`${'`'} ${1 / 2}`",
+    // Controls for the branches the numeric rule must not disturb: a real
+    // regex literal, and division after a closing bracket or parenthesis.
+    "`${'ab'.replace(/a/g, 'b')}`",
+    "`${[4][0] / 2}`",
+    "`${(4) / 2}`"
+  ];
+
+  for (const substitution of substitutions) {
+    const session = createGpcWorkerInjectionSession({ registrationWaitMs: 0, randomBytes: FIXED_RANDOM_BYTES });
+    const frame = {};
+    session.register({ frame }, networkRegistration(session, "https://example.test/module.js", "module"));
+    const fulfillment = await session.buildRouteFulfillment({
+      request: () => workerRequest(frame, "https://example.test/module.js"),
+      fetch: async () => response(200, `import { bytes } from './bytes.js';\npostMessage(${substitution});`, {})
+    });
+
+    assert.ok(fulfillment?.body?.includes("installGlobalPrivacyControl"), substitution);
+    assert.equal(session.diagnostics().transformFailureCount, 0, substitution);
+    // The static dependency has to be ticketed, otherwise the scanner parsed
+    // the source but lost the graph it needs to instrument.
+    assert.deepEqual(session.checkpoint().pendingWorkerRegistrationIds, [2], substitution);
+  }
+});
+
+test("an unparsed module fails open with its own bytes and one disclosed capture-loss unit", async () => {
+  const session = createGpcWorkerInjectionSession({ registrationWaitMs: 0, randomBytes: FIXED_RANDOM_BYTES });
+  const frame = {};
+  session.register({ frame }, networkRegistration(session, "https://example.test/module.js", "module"));
+  // Import attributes are outside the scanner's grammar, and page-controlled
+  // source can always leave it outside. Aborting would alter the measured
+  // page, so the Worker keeps its own bytes and the gap is counted instead.
+  const fetched = response(200, `import data from './data.json' with { type: 'json' };\npostMessage(data);`, {});
+  const fulfillment = await session.buildRouteFulfillment({
+    request: () => workerRequest(frame, "https://example.test/module.js"),
+    fetch: async () => fetched
+  });
+
+  assert.deepEqual(fulfillment, { response: fetched });
+  assert.deepEqual(session.diagnostics(), {
+    ambiguousWorkerRequestCount: 0,
+    captureLossCount: 1,
+    pendingWorkerRegistrationCount: 0,
+    transformFailureCount: 1,
+    unsupportedWorkerCount: 0
+  });
+
+  // The unparsed module authorized nothing, so its dependency must be left
+  // alone rather than cascading into a blocked request.
+  const dependency = await session.buildRouteFulfillment({
+    request: () => ({
+      frame: () => frame,
+      headerValue: async (name: string) => name === "user-agent" ? "Chromium" : "https://example.test/module.js",
+      resourceType: () => "script",
+      url: () => "https://example.test/data.json"
+    }),
+    fetch: async () => response(200, "{}", {})
+  });
+  assert.equal(dependency, null);
+  assert.equal(session.diagnostics().captureLossCount, 1);
+});
+
+test("a declared oversized Worker script fails open before APIResponse body access", async () => {
+  const session = createGpcWorkerInjectionSession({ registrationWaitMs: 0, randomBytes: FIXED_RANDOM_BYTES });
+  const frame = {};
+  session.register({ frame }, networkRegistration(session, "https://example.test/worker.js", "classic"));
+  let bodyRead = false;
+  const fetched = {
+    body: async () => {
+      bodyRead = true;
+      return new Uint8Array();
+    },
+    headers: () => ({ "Content-Length": String(GPC_WORKER_SCRIPT_MAX_BYTES + 1) }),
+    status: () => 200
+  };
+
+  const fulfillment = await session.buildRouteFulfillment({
+    request: () => workerRequest(frame, "https://example.test/worker.js"),
+    fetch: async () => fetched
+  });
+
+  assert.deepEqual(fulfillment, { response: fetched });
+  assert.equal(bodyRead, false);
+  assert.deepEqual(session.diagnostics(), {
+    ambiguousWorkerRequestCount: 0,
+    captureLossCount: 1,
+    pendingWorkerRegistrationCount: 0,
+    transformFailureCount: 1,
+    unsupportedWorkerCount: 0
+  });
+});
+
+test("a post-buffer oversized Worker body fails open when Content-Length is absent or dishonest", async () => {
+  const headerCases: Array<Record<string, string>> = [{}, { "content-length": "1" }];
+  for (const headers of headerCases) {
+    const session = createGpcWorkerInjectionSession({ registrationWaitMs: 0, randomBytes: FIXED_RANDOM_BYTES });
+    const frame = {};
+    session.register({ frame }, networkRegistration(session, "https://example.test/worker.js", "classic"));
+    const fetched = {
+      body: async () => new Uint8Array(GPC_WORKER_SCRIPT_MAX_BYTES + 1),
+      headers: () => headers,
+      status: () => 200
+    };
+
+    const fulfillment = await session.buildRouteFulfillment({
+      request: () => workerRequest(frame, "https://example.test/worker.js"),
+      fetch: async () => fetched
+    });
+
+    assert.deepEqual(fulfillment, { response: fetched });
+    assert.equal(session.diagnostics().captureLossCount, 1);
+    assert.equal(session.diagnostics().transformFailureCount, 1);
+  }
+});
+
+test("deeply nested template substitutions fail open instead of escaping as a stack overflow", async () => {
+  const session = createGpcWorkerInjectionSession({ registrationWaitMs: 0, randomBytes: FIXED_RANDOM_BYTES });
+  const frame = {};
+  session.register({ frame }, networkRegistration(session, "https://example.test/module.js", "module"));
+  // Substitutions are scanned recursively. Chromium rejects nesting this deep
+  // itself, so this pins the boundary of route handling rather than fidelity:
+  // no page-controlled body may leave the route without a terminal action.
+  const nested = `const deep = ${"`${".repeat(6_000)}1${"}`".repeat(6_000)};\npostMessage(deep);`;
+  const fulfillment = await session.buildRouteFulfillment({
+    request: () => workerRequest(frame, "https://example.test/module.js"),
+    fetch: async () => response(200, nested, {})
+  });
+
+  assert.equal(fulfillment?.body, undefined);
+  assert.equal(session.diagnostics().transformFailureCount, 1);
+});
+
+test("an unresolvable module specifier blocks through the accounted path instead of throwing", async () => {
+  const session = createGpcWorkerInjectionSession({ registrationWaitMs: 0, randomBytes: FIXED_RANDOM_BYTES });
+  const frame = {};
+  session.register({ frame }, networkRegistration(session, "https://example.test/module.js", "module"));
+  // The specifier is the measured site's text, so a scheme-shaped but invalid
+  // URL must not leave route handling as a raw TypeError: that stranded the
+  // request with no terminal action and no capture-loss record.
+  await assert.rejects(
+    session.buildRouteFulfillment({
+      request: () => workerRequest(frame, "https://example.test/module.js"),
+      fetch: async () => response(200, `import "http://[";\npostMessage(1);`, {})
+    }),
+    (error: unknown) => error instanceof GpcWorkerInjectionError && error.reason === "unsupported-worker"
+  );
+  assert.deepEqual(session.diagnostics(), {
+    ambiguousWorkerRequestCount: 0,
+    captureLossCount: 1,
+    pendingWorkerRegistrationCount: 0,
+    transformFailureCount: 0,
+    unsupportedWorkerCount: 1
+  });
+});
+
 test("source injection preserves hashbangs, comments, and the directive prologue", () => {
   const original = [
     "#!/usr/bin/env worker",
@@ -396,7 +570,7 @@ test("real Chromium preserves worker URLs, injects full module graphs, and fails
           globalThis.__workerErrors = [];
           const receive = event => {
             results.push(event.data);
-            if (results.length === 7) document.title = JSON.stringify(results.slice().sort((a, b) => a.kind.localeCompare(b.kind)));
+            if (results.length === 8) document.title = JSON.stringify(results.slice().sort((a, b) => a.kind.localeCompare(b.kind)));
           };
           let adversarialTypeReads = 0;
           const adversarial = new Worker('adversarial-module.js?entry=abc~def', {
@@ -407,6 +581,7 @@ test("real Chromium preserves worker URLs, injects full module graphs, and fails
           });
           const classic = new Worker('classic.js?signature=abc~def');
           const moduleWorker = new Worker('module.js?root=abc~def', { type: 'module' });
+          const unparsed = new Worker('unparsed-module.js', { type: 'module' });
           const redirected = new Worker('redirect.js');
           const gzipWorker = new Worker('gzip.js');
           const shared = new SharedWorker('shared.js?shared=abc~def');
@@ -415,6 +590,7 @@ test("real Chromium preserves worker URLs, injects full module graphs, and fails
           });
           classic.onmessage = receive;
           moduleWorker.onmessage = receive;
+          unparsed.onmessage = receive;
           redirected.onmessage = receive;
           gzipWorker.onmessage = receive;
           shared.port.onmessage = receive;
@@ -423,7 +599,7 @@ test("real Chromium preserves worker URLs, injects full module graphs, and fails
             event.preventDefault();
             receive({ data: { kind: 'redirect', blocked: true } });
           };
-          for (const worker of [adversarial, classic, moduleWorker, gzipWorker]) {
+          for (const worker of [adversarial, classic, moduleWorker, unparsed, gzipWorker]) {
             worker.onerror = event => globalThis.__workerErrors.push(String(event.message || event.type));
           }
           shared.onerror = event => globalThis.__workerErrors.push(String(event.message || event.type));
@@ -465,15 +641,39 @@ test("real Chromium preserves worker URLs, injects full module graphs, and fails
         try { accidentalWorkerGlobal = 1; } catch { strict = true; }
         postMessage({ kind: 'classic', gpc: navigator.globalPrivacyControl, strict, href: location.href });`);
     } else if (requestUrl.pathname === "/assets/module.js") {
+      // The template substitution carries division after a numeric literal,
+      // the shape that regressed the dependency scanner into aborting ordinary
+      // module Workers. It must parse and still be instrumented.
       response_.end(`import { dependencyAtEntry, leafAtEntry } from './dependency.js?dep=abc~def';
+        const bytes = 2097152;
+        const megabytes = \`\${(bytes / 1024 / 1024).toFixed(2)} MB\`;
         postMessage({
           kind: 'module',
           gpc: navigator.globalPrivacyControl,
           dependencyAtEntry,
           leafAtEntry,
+          megabytes,
           href: location.href,
           meta: import.meta.url
         });`);
+    } else if (requestUrl.pathname === "/assets/unparsed-module.js") {
+      // Import attributes are outside the scanner's grammar. A module it
+      // cannot parse keeps its own bytes and runs uninstrumented rather than
+      // being aborted, because aborting would alter the measured page. The
+      // compressed representation is served back untouched.
+      const compressed = gzipSync(`import manifest from './manifest.json' with { type: 'json' };
+        postMessage({
+          kind: 'unparsed',
+          gpc: navigator.globalPrivacyControl === true,
+          manifest: manifest.ok,
+          href: location.href
+        });`);
+      response_.setHeader("content-encoding", "gzip");
+      response_.setHeader("content-length", String(compressed.byteLength));
+      response_.end(compressed);
+    } else if (requestUrl.pathname === "/assets/manifest.json") {
+      response_.setHeader("content-type", "application/json; charset=utf-8");
+      response_.end(`{"ok":true}`);
     } else if (requestUrl.pathname === "/assets/dependency.js") {
       response_.end(`import { leafAtEntry } from './leaf.js?leaf=abc~def';
         const dependencyAtEntry = navigator.globalPrivacyControl;
@@ -526,7 +726,9 @@ test("real Chromium preserves worker URLs, injects full module graphs, and fails
     try {
       const fulfillment = await session.buildRouteFulfillment(route);
       if (fulfillment) {
-        transformedUrls.push(route.request().url());
+        // A fail-open fulfillment carries the fetched response with no body of
+        // ours, so only a rewritten body counts as a transformed Worker.
+        if (fulfillment.body) transformedUrls.push(route.request().url());
         await route.fulfill(fulfillment);
         return;
       }
@@ -542,7 +744,7 @@ test("real Chromium preserves worker URLs, injects full module graphs, and fails
     await page.goto(`http://127.0.0.1:${address.port}/`);
     try {
       await page.waitForFunction(() => {
-        try { return JSON.parse(document.title).length === 7; } catch { return false; }
+        try { return JSON.parse(document.title).length === 8; } catch { return false; }
       }, undefined, { timeout: 10_000 });
     } catch (error) {
       throw new Error(JSON.stringify({
@@ -585,6 +787,7 @@ test("real Chromium preserves worker URLs, injects full module graphs, and fails
         gpc: true,
         dependencyAtEntry: true,
         leafAtEntry: true,
+        megabytes: "2.00 MB",
         href: `http://127.0.0.1:${address.port}/assets/module.js?root=abc~def`,
         meta: `http://127.0.0.1:${address.port}/assets/module.js?root=abc~def`
       },
@@ -596,6 +799,12 @@ test("real Chromium preserves worker URLs, injects full module graphs, and fails
         kind: "shared",
         gpc: true,
         href: `http://127.0.0.1:${address.port}/assets/shared.js?shared=abc~def`
+      },
+      {
+        kind: "unparsed",
+        gpc: false,
+        manifest: true,
+        href: `http://127.0.0.1:${address.port}/assets/unparsed-module.js`
       }
     ]);
     assert.equal(
@@ -610,6 +819,11 @@ test("real Chromium preserves worker URLs, injects full module graphs, and fails
     assert.equal(originRequests.includes("/assets/leaf.js?leaf=abc~def"), true);
     assert.equal(originRequests.includes("/assets/shared.js?shared=abc~def"), true);
     assert.equal(originRequests.includes("/assets/final.js?redirect=abc~def"), false);
+    // The unparsed module authorized nothing, so its own request is served
+    // untransformed and its dependency is left to load on its own terms.
+    assert.equal(originRequests.includes("/assets/unparsed-module.js"), true);
+    assert.equal(originRequests.includes("/assets/manifest.json"), true);
+    assert.equal(transformedUrls.some((url) => url.includes("unparsed-module.js")), false);
     assert.deepEqual(routeErrors, [
       `unsupported-worker:http://127.0.0.1:${address.port}/assets/redirect.js`
     ]);
@@ -627,9 +841,9 @@ test("real Chromium preserves worker URLs, injects full module graphs, and fails
     await unroutedPage.close();
     assert.deepEqual(session.diagnostics(), {
       ambiguousWorkerRequestCount: 0,
-      captureLossCount: 2,
+      captureLossCount: 3,
       pendingWorkerRegistrationCount: 0,
-      transformFailureCount: 0,
+      transformFailureCount: 1,
       unsupportedWorkerCount: 2
     });
     assert.match(GPC_WORKER_CAPTURE_LOSS_WARNING, /request evidence may be incomplete/);
@@ -665,9 +879,10 @@ function workerRequest(frame: object, url: string) {
 }
 
 function response(status: number, body: string, headers: Record<string, string>) {
+  const bytes = new TextEncoder().encode(body);
   return {
+    body: async () => bytes,
     headers: () => headers,
-    status: () => status,
-    text: async () => body
+    status: () => status
   };
 }

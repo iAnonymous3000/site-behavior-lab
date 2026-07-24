@@ -1,4 +1,7 @@
 import assert from "node:assert/strict";
+import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import path from "node:path";
 import { afterEach, test } from "node:test";
 import { runtimeStatus } from "./runtime-status";
 
@@ -26,6 +29,7 @@ const R2_ENVS = [
   "SITE_BEHAVIOR_LAB_R2_ACCESS_KEY_ID",
   "SITE_BEHAVIOR_LAB_R2_SECRET_ACCESS_KEY"
 ] as const;
+const originalFetch = globalThis.fetch;
 
 afterEach(() => {
   delete process.env[SCAN_ACCESS_TOKEN_ENV];
@@ -50,6 +54,7 @@ afterEach(() => {
   delete process.env[DURABLE_JOBS_INTERNAL_TOKEN_ENV];
   delete process.env[DURABLE_JOBS_COORDINATOR_URL_ENV];
   for (const name of R2_ENVS) delete process.env[name];
+  globalThis.fetch = originalFetch;
 });
 
 test("runtimeStatus degrades instead of throwing when the store backend is misconfigured", async () => {
@@ -133,8 +138,14 @@ test("runtimeStatus reports ok status when production controls are configured", 
     configuredPath: true,
     maxAgeDays: 7,
     maxCount: 500,
-    minSurvivalMs: 60_000
+    minSurvivalMs: 60_000,
+    retentionDebtCount: 0,
+    retentionMaintenanceRequired: false,
+    retentionHealthy: true,
+    retentionCheckedAt: status.checks.reportStore.retentionCheckedAt,
+    retentionCheckMaxAgeMs: 30_000
   });
+  assert.match(status.checks.reportStore.retentionCheckedAt ?? "", /^\d{4}-\d{2}-\d{2}T/);
   assert.equal(status.checks.scannerEgress, "configured");
   assert.equal(status.checks.scannerEgressRegion, "unrecorded");
   assert.equal(status.checks.chromiumSandbox, "enabled");
@@ -149,6 +160,50 @@ test("runtimeStatus reports ok status when production controls are configured", 
     savedReportPages: true
   });
   assert.deepEqual(status.warnings, []);
+});
+
+test("runtimeStatus fails health and publication capabilities closed on durable retention debt", async () => {
+  const dir = await mkdtemp(path.join(tmpdir(), "sbl-runtime-retention-debt-"));
+  try {
+    process.env[SCAN_ACCESS_TOKEN_ENV] = "secret-key";
+    process.env[REPORT_STORE_DIR_ENV] = dir;
+    process.env[SCANNER_EGRESS_ENV] = "iad-lab-egress";
+    process.env[CHROMIUM_SANDBOX_ENV] = "1";
+    const debtDir = path.join(dir, ".retention-debt");
+    await mkdir(debtDir, { recursive: true });
+    await writeFile(
+      path.join(debtDir, `20260721-${"a".repeat(32)}.bundle`),
+      "1\n"
+    );
+    await writeFile(path.join(debtDir, "maintenance-required"), "1\n");
+    // A directory at a bundle member path makes unlink fail while leaving the
+    // ledger itself readable, modeling delete-only permission/transport debt.
+    await mkdir(path.join(dir, `20260721-${"a".repeat(32)}.provenance.json`));
+
+    const status = await runtimeStatus(loadedAdblock);
+    assert.equal(status.status, "degraded");
+    assert.equal(status.scansAvailable, false);
+    assert.equal(status.capabilities.savedReports, false);
+    assert.deepEqual(status.checks.reportStore, {
+      kind: "filesystem",
+      configuredPath: true,
+      maxAgeDays: 7,
+      maxCount: 500,
+      minSurvivalMs: 60_000,
+      retentionDebtCount: 1,
+      retentionMaintenanceRequired: true,
+      retentionHealthy: false,
+      retentionCheckedAt: status.checks.reportStore.retentionCheckedAt,
+      retentionCheckMaxAgeMs: 5_000
+    });
+    assert.match(status.checks.reportStore.retentionCheckedAt ?? "", /^\d{4}-\d{2}-\d{2}T/);
+    assert.equal(
+      status.warnings.some((warning) => warning.includes("Physical report retention")),
+      true
+    );
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
 });
 
 test("runtimeStatus exposes only a full validated build revision", async () => {
@@ -204,6 +259,11 @@ test("runtimeStatus exposes Node-only durable-job readiness without claiming edg
   process.env[DURABLE_JOBS_ENV] = "1";
   process.env[DURABLE_JOBS_INTERNAL_TOKEN_ENV] = "separate-private-coordinator-token";
   process.env[DURABLE_JOBS_COORDINATOR_URL_ENV] = "https://scan.sitebehavior.org";
+  globalThis.fetch = (async () =>
+    new Response(
+      "<ListBucketResult><IsTruncated>false</IsTruncated></ListBucketResult>",
+      { status: 200 }
+    )) as typeof fetch;
 
   const shortCountSurvival = await runtimeStatus(loadedAdblock);
   assert.equal(shortCountSurvival.status, "degraded");

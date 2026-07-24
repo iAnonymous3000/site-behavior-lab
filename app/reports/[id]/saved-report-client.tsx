@@ -1,9 +1,16 @@
 "use client";
 
 import { FlaskConical, Loader2, Moon, Sun } from "lucide-react";
-import { lazy, Suspense, useEffect, useState, type ReactNode } from "react";
+import { lazy, Suspense, useEffect, useRef, useState, type ReactNode } from "react";
 import { readLoadedReport } from "@/lib/client-report-reader";
+import {
+  LatestClientOperation,
+  fetchBytesResponseWithPolicy
+} from "@/lib/client-fetch-policy";
+import { parseDigestBoundReportJson } from "@/lib/client-report-integrity";
+import { BROWSER_PUBLIC_REPORT_JSON_MAX_BYTES } from "@/lib/report-resource-limits";
 import type { LoadedReport } from "@/lib/scan-report-view";
+import { useThemePreference } from "@/app/_hooks/use-theme-preference";
 import { staticAssetPath } from "../../client-runtime";
 
 const LazyReportRenderer = lazy(() =>
@@ -19,12 +26,14 @@ const LazyReportRenderer = lazy(() =>
 export function SavedReportClient({
   id,
   evidenceHref,
+  expectedEvidenceSha256,
   title,
   context,
   summary
 }: {
   id: string;
   evidenceHref: string;
+  expectedEvidenceSha256: string;
   title: string;
   context: ReactNode;
   summary: ReactNode;
@@ -32,31 +41,74 @@ export function SavedReportClient({
   const [loaded, setLoaded] = useState<LoadedReport | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const evidenceExplorerRef = useRef<HTMLElement | null>(null);
+  const evidenceOperationRef = useRef<LatestClientOperation | null>(null);
+  const evidenceIdentityRef = useRef({ id, evidenceHref, expectedEvidenceSha256 });
+  if (!evidenceOperationRef.current) evidenceOperationRef.current = new LatestClientOperation();
+  const evidenceOperation = evidenceOperationRef.current;
+
+  // A client-side route transition can reuse this controller. Invalidate the
+  // previous report's read immediately, and abort again on unmount.
+  useEffect(() => {
+    const identityChanged =
+      evidenceIdentityRef.current.id !== id || evidenceIdentityRef.current.evidenceHref !== evidenceHref;
+    const digestChanged = evidenceIdentityRef.current.expectedEvidenceSha256 !== expectedEvidenceSha256;
+    evidenceIdentityRef.current = { id, evidenceHref, expectedEvidenceSha256 };
+    if (identityChanged || digestChanged) {
+      setLoaded(null);
+      setLoading(false);
+      setError(null);
+    }
+    return () => evidenceOperation.cancel();
+  }, [evidenceHref, evidenceOperation, expectedEvidenceSha256, id]);
+
+  // The trigger disappears when the lazy explorer opens. Move focus to the
+  // replacement region so keyboard and screen-reader users do not fall back
+  // to the document body.
+  useEffect(() => {
+    if (loaded) evidenceExplorerRef.current?.focus();
+  }, [loaded]);
 
   async function loadEvidence() {
-    if (loaded || loading) return;
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await fetch(evidenceHref, { cache: "no-store" });
-      if (!response.ok) throw new Error(`Report evidence returned HTTP ${response.status}.`);
-      const read = await readLoadedReport((await response.json()) as unknown, "This saved report");
-      if (!read.ok) throw new Error(read.message);
-      if (read.loaded.wire.share?.id !== id) {
-        throw new Error("The evidence response did not match this report page.");
+    if (loaded) return;
+    await evidenceOperation.run(
+      async (signal) => {
+        const { bytes } = await fetchBytesResponseWithPolicy(evidenceHref, { cache: "no-store" }, {
+          label: "Report evidence",
+          maxBytes: BROWSER_PUBLIC_REPORT_JSON_MAX_BYTES,
+          signal,
+          httpError: (response) => new Error(`Report evidence returned HTTP ${response.status}.`)
+        });
+        const payload = await parseDigestBoundReportJson(
+          bytes,
+          expectedEvidenceSha256,
+          "Report evidence"
+        );
+        const read = await readLoadedReport(payload, "This saved report");
+        if (!read.ok) throw new Error(read.message);
+        if (read.loaded.wire.share?.id !== id) {
+          throw new Error("The evidence response did not match this report page.");
+        }
+        return read.loaded;
+      },
+      {
+        onStart: () => {
+          setLoading(true);
+          setError(null);
+        },
+        onSuccess: setLoaded,
+        onError: (readError) => {
+          setError(readError instanceof Error ? readError.message : "The full report evidence could not be opened.");
+        },
+        onSettled: () => setLoading(false)
       }
-      setLoaded(read.loaded);
-    } catch (readError) {
-      setError(readError instanceof Error ? readError.message : "The full report evidence could not be opened.");
-    } finally {
-      setLoading(false);
-    }
+    );
   }
 
   return (
     <>
       <a className="skip-link" href="#report">Skip to results</a>
-      <main className="app-shell report-page-shell">
+      <div className="app-shell report-page-shell">
         <header className="topbar">
           <a className="brand" href={staticAssetPath("/")} aria-label="Site Behavior Lab home">
             <span className="brand-mark"><FlaskConical size={22} aria-hidden="true" /></span>
@@ -72,7 +124,7 @@ export function SavedReportClient({
           </div>
         </header>
 
-        <div id="report">
+        <main id="report" tabIndex={-1}>
           {context}
           {!loaded && summary}
           {!loaded && (
@@ -93,11 +145,18 @@ export function SavedReportClient({
             </section>
           )}
           {loaded && (
-            <Suspense fallback={<p className="muted">Preparing the evidence explorer…</p>}>
-              <LazyReportRenderer loaded={loaded} liveApiServesReportPages />
-            </Suspense>
+            <section
+              aria-label="Interactive evidence explorer"
+              className="report-focus-target"
+              ref={evidenceExplorerRef}
+              tabIndex={-1}
+            >
+              <Suspense fallback={<p className="muted">Preparing the evidence explorer…</p>}>
+                <LazyReportRenderer loaded={loaded} liveApiServesReportPages />
+              </Suspense>
+            </section>
           )}
-        </div>
+        </main>
 
         <footer className="app-footer">
           <span>
@@ -115,28 +174,21 @@ export function SavedReportClient({
             universal claim.
           </span>
         </footer>
-      </main>
+      </div>
     </>
   );
 }
 
 function ThemeToggle() {
-  const [theme, setTheme] = useState<"light" | "dark" | null>(null);
-
-  useEffect(() => {
-    const stored = document.documentElement.dataset.theme as "light" | "dark" | undefined;
-    setTheme(stored ?? (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"));
-  }, []);
-
-  function toggle() {
-    const next = theme === "dark" ? "light" : "dark";
-    document.documentElement.dataset.theme = next;
-    try { localStorage.setItem("sbl-theme", next); } catch { /* localStorage unavailable */ }
-    setTheme(next);
-  }
+  const { theme, toggleTheme } = useThemePreference();
 
   return (
-    <button className="icon-button" type="button" onClick={toggle} aria-label="Toggle colour theme">
+    <button
+      className="icon-button"
+      type="button"
+      onClick={toggleTheme}
+      aria-label={theme === "dark" ? "Switch to light colour theme" : "Switch to dark colour theme"}
+    >
       {theme === "dark" ? <Sun size={18} aria-hidden="true" /> : <Moon size={18} aria-hidden="true" />}
     </button>
   );

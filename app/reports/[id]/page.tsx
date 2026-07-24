@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { cache } from "react";
 import corrections from "@/public/corrections.json";
 import { buildReportHeadline, reportPageTitle, type ReportHeadline } from "@/lib/report-headline";
 import { parseCorrectionsLedger, reportCorrections } from "@/lib/corrections-ledger";
 import { serializeJsonLd } from "@/lib/jsonld-script";
 import { buildReportDataset } from "@/lib/report-jsonld";
 import { readStoredReportForId } from "@/lib/report-source";
+import { requireFreshRuntimeReportRequest } from "@/lib/report-route-freshness";
 import { conciseMetadataText, reportMetadataDescription, reportMetadataTitle } from "@/lib/seo-metadata";
 import {
   displayRunView,
@@ -15,21 +17,26 @@ import {
   type ReportView
 } from "@/lib/scan-report-views";
 import { siteBaseUrl, siteOrigin, sitePagesBasePath } from "@/lib/site-url";
-import { listStaticReportIds } from "@/lib/static-report-files";
 import { ReportPageContext } from "@/app/_components/report-page-context";
 import { SavedReportClient } from "./saved-report-client";
 
 const STATIC_EXPORT = process.env.NEXT_PUBLIC_SITE_BEHAVIOR_LAB_STATIC_EXPORT === "1";
 const correctionsLedger = parseCorrectionsLedger(corrections);
+// React cache is scoped to this server render: metadata and the page share one
+// store read, while requireFreshRuntimeReportRequest still starts a fresh
+// render/store expiry check for every HTTP request.
+const readStoredReportForRequest = cache((id: string) => readStoredReportForId(id));
 
-export async function generateStaticParams() {
-  const ids = await listStaticReportIds();
-  return ids.map((id) => ({ id }));
-}
+// The isolated Pages build replaces this declaration and injects static params
+// in its copied worktree. Runtime source intentionally has no
+// generateStaticParams export: every request must re-read the store so its
+// immutable expiry cannot be bypassed by Next's Full Route Cache.
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  await requireFreshRuntimeReportRequest();
   const { id } = await params;
-  const result = await readStoredReportForId(id);
+  const result = await readStoredReportForRequest(id);
 
   if (result.outcome !== "found") {
     return {
@@ -85,8 +92,9 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 }
 
 export default async function SavedReportPage({ params }: { params: Promise<{ id: string }> }) {
+  await requireFreshRuntimeReportRequest();
   const { id } = await params;
-  const result = await readStoredReportForId(id);
+  const result = await readStoredReportForRequest(id);
   // A nonexistent report must answer HTTP 404, not a 200 shell whose client
   // then renders a soft "not found": crawlers and uptime checks read the
   // status code. (Static-export builds only prerender committed ids, which
@@ -126,6 +134,7 @@ export default async function SavedReportPage({ params }: { params: Promise<{ id
       <SavedReportClient
         id={id}
         evidenceHref={evidenceHref}
+        expectedEvidenceSha256={result.wireSha256}
         title={reportPageTitle(headline)}
         context={
           <ReportPageContext

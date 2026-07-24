@@ -39,6 +39,40 @@ const SHIELDS_MODES = new Set(["classification", "block-simulation"]);
 const PIXEL_MATCH_FIELDS = new Set(["email", "phone", "name", "address", "date_of_birth", "gender", "external_id"]);
 const POLICY_CLAIM_KINDS = new Set(["no-cookies", "no-third-party-cookies", "no-selling-or-sharing", "honors-gpc"]);
 
+/**
+ * Browser-safe ceilings for the frozen v1 reader. They mirror the active r2
+ * producer where the evidence families overlap; requests also match the
+ * original v1 producer cap. Managed historical reports remain below these
+ * limits, while an untrusted upload cannot turn an 8 MiB wire into unbounded
+ * validation or DOM work.
+ */
+export const BROWSER_V1_EVIDENCE_LIMITS = Object.freeze({
+  requests: 1_000,
+  domains: 1_000,
+  cookies: 1_000,
+  storage: 1_000,
+  fingerprintEvents: 1_000,
+  fingerprintDetections: 256,
+  fingerprintEvidenceEntries: 1_000,
+  cnameCloaks: 256,
+  pixelEvents: 512,
+  warnings: 64,
+  policyClaims: 32,
+  policyEntities: 100,
+  diffDomains: 1_000,
+  diffEntities: 1_000,
+  diffCookies: 1_000,
+  diffStorage: 1_000,
+  diffFingerprinting: 256,
+  diffPixels: 512,
+  diffProvenance: 1_000,
+  pixelEventNames: 100,
+  domainResourceTypes: 100,
+  warningChars: 600,
+  comparisonTitleChars: 160,
+  runLabelChars: 80
+});
+
 function isFiniteNumber(value: unknown): value is number {
   return typeof value === "number" && Number.isFinite(value);
 }
@@ -55,24 +89,40 @@ function isPositiveSafeInteger(value: unknown): value is number {
   return isSafeInteger(value) && value > 0;
 }
 
+// RFC 9110 status-code grammar is 3DIGIT, not 1xx-5xx: LinkedIn answers 999
+// and several WAFs answer other 9xx codes. Recording one is honest evidence,
+// so the range is the grammar's, and only shapes no server can send (negative,
+// fractional, four-digit) fail here.
 function isHttpStatus(value: unknown): value is number {
-  return isSafeInteger(value) && value >= 100 && value <= 599;
+  return isSafeInteger(value) && value >= 100 && value <= 999;
 }
 
 function isOptionalString(value: unknown): boolean {
   return value === undefined || typeof value === "string";
 }
 
-function isStringArray(value: unknown): value is string[] {
-  return Array.isArray(value) && value.every((entry) => typeof entry === "string");
+function isBoundedArray(
+  value: unknown,
+  maxEntries: number,
+  guard: (entry: unknown) => boolean
+): value is unknown[] {
+  return Array.isArray(value) && value.length <= maxEntries && value.every(guard);
+}
+
+function isBoundedStringArray(value: unknown, maxEntries: number): value is string[] {
+  return Array.isArray(value) && value.length <= maxEntries && value.every((entry) => typeof entry === "string");
+}
+
+function isBoundedText(value: unknown, maxChars: number): value is string {
+  return typeof value === "string" && value.length <= maxChars;
+}
+
+function isBoundedTextArray(value: unknown, maxEntries: number, maxChars: number): value is string[] {
+  return isBoundedStringArray(value, maxEntries) && value.every((entry) => entry.length <= maxChars);
 }
 
 function isHttpStatusArray(value: unknown): value is number[] {
   return Array.isArray(value) && value.every(isHttpStatus);
-}
-
-function isUniqueStringArray(value: unknown): value is string[] {
-  return isStringArray(value) && new Set(value).size === value.length;
 }
 
 function isUniqueHttpStatusArray(value: unknown): value is number[] {
@@ -137,7 +187,8 @@ function isV1Domain(value: unknown): boolean {
     (value.tracker === null || isV1Tracker(value.tracker)) &&
     (value.blockedByShields === undefined || typeof value.blockedByShields === "boolean") &&
     isUniqueHttpStatusArray(value.statuses) &&
-    isUniqueStringArray(value.resourceTypes)
+    isBoundedStringArray(value.resourceTypes, BROWSER_V1_EVIDENCE_LIMITS.domainResourceTypes) &&
+    new Set(value.resourceTypes).size === value.resourceTypes.length
   );
 }
 
@@ -174,7 +225,9 @@ function isV1FingerprintDetection(value: unknown): boolean {
   return (
     isPositiveSafeInteger(value.count) &&
     Object.values(value.evidence).every(
-      (entry) => typeof entry !== "number" || isNonNegativeSafeInteger(entry)
+      (entry) =>
+        (typeof entry !== "number" || isNonNegativeSafeInteger(entry)) &&
+        (!Array.isArray(entry) || entry.length <= BROWSER_V1_EVIDENCE_LIMITS.fingerprintEvidenceEntries)
     )
   );
 }
@@ -188,7 +241,8 @@ function isV1PixelEvent(value: unknown): boolean {
     isRecord(value) &&
     typeof value.platform === "string" &&
     typeof value.product === "string" &&
-    isUniqueStringArray(value.events) &&
+    isBoundedStringArray(value.events, BROWSER_V1_EVIDENCE_LIMITS.pixelEventNames) &&
+    new Set(value.events).size === value.events.length &&
     Array.isArray(value.advancedMatching) &&
     value.advancedMatching.every((field) => typeof field === "string" && PIXEL_MATCH_FIELDS.has(field)) &&
     new Set(value.advancedMatching).size === value.advancedMatching.length &&
@@ -205,13 +259,11 @@ function isV1PrivacyPolicy(value: unknown): boolean {
   return (
     isRecord(value) &&
     typeof value.url === "string" &&
-    Array.isArray(value.claims) &&
-    value.claims.every(
-      (claim) =>
-        isRecord(claim) && typeof claim.kind === "string" && POLICY_CLAIM_KINDS.has(claim.kind) && typeof claim.quote === "string"
+    isBoundedArray(value.claims, BROWSER_V1_EVIDENCE_LIMITS.policyClaims, (claim) =>
+      isRecord(claim) && typeof claim.kind === "string" && POLICY_CLAIM_KINDS.has(claim.kind) && typeof claim.quote === "string"
     ) &&
-    isStringArray(value.mentionedEntities) &&
-    isStringArray(value.unmentionedEntities) &&
+    isBoundedStringArray(value.mentionedEntities, BROWSER_V1_EVIDENCE_LIMITS.policyEntities) &&
+    isBoundedStringArray(value.unmentionedEntities, BROWSER_V1_EVIDENCE_LIMITS.policyEntities) &&
     isNonNegativeSafeInteger(value.policyTextLength)
   );
 }
@@ -307,22 +359,17 @@ function deepValidateV1Result(result: ScanResult): boolean {
   return (
     isV1Summary(value.summary) &&
     isV1Conditions(value.conditions) &&
-    Array.isArray(value.requests) &&
-    value.requests.every(isV1Request) &&
-    Array.isArray(value.domains) &&
-    value.domains.every(isV1Domain) &&
-    Array.isArray(value.cookies) &&
-    value.cookies.every(isV1Cookie) &&
-    Array.isArray(value.storage) &&
-    value.storage.every(isV1Storage) &&
-    Array.isArray(value.fingerprintEvents) &&
-    value.fingerprintEvents.every(isV1FingerprintEvent) &&
+    isBoundedArray(value.requests, BROWSER_V1_EVIDENCE_LIMITS.requests, isV1Request) &&
+    isBoundedArray(value.domains, BROWSER_V1_EVIDENCE_LIMITS.domains, isV1Domain) &&
+    isBoundedArray(value.cookies, BROWSER_V1_EVIDENCE_LIMITS.cookies, isV1Cookie) &&
+    isBoundedArray(value.storage, BROWSER_V1_EVIDENCE_LIMITS.storage, isV1Storage) &&
+    isBoundedArray(value.fingerprintEvents, BROWSER_V1_EVIDENCE_LIMITS.fingerprintEvents, isV1FingerprintEvent) &&
     (value.fingerprintDetections === undefined ||
-      (Array.isArray(value.fingerprintDetections) && value.fingerprintDetections.every(isV1FingerprintDetection))) &&
-    (value.cnameCloaks === undefined || (Array.isArray(value.cnameCloaks) && value.cnameCloaks.every(isV1CnameCloak))) &&
+      isBoundedArray(value.fingerprintDetections, BROWSER_V1_EVIDENCE_LIMITS.fingerprintDetections, isV1FingerprintDetection)) &&
+    (value.cnameCloaks === undefined ||
+      isBoundedArray(value.cnameCloaks, BROWSER_V1_EVIDENCE_LIMITS.cnameCloaks, isV1CnameCloak)) &&
     (value.pixelEvents === undefined ||
-      (Array.isArray(value.pixelEvents) &&
-        value.pixelEvents.every(isV1PixelEvent) &&
+      (isBoundedArray(value.pixelEvents, BROWSER_V1_EVIDENCE_LIMITS.pixelEvents, isV1PixelEvent) &&
         hasUniquePixelPlatforms(value.pixelEvents))) &&
     (value.privacyPolicy === undefined || isV1PrivacyPolicy(value.privacyPolicy)) &&
     (value.consentInteraction === undefined || isV1ConsentInteraction(value.consentInteraction)) &&
@@ -330,7 +377,7 @@ function deepValidateV1Result(result: ScanResult): boolean {
     // screenshot key entirely, and those legacy files must keep re-opening.
     // The projector canonicalizes it to null on output.
     (value.screenshot === undefined || value.screenshot === null || typeof value.screenshot === "string") &&
-    isStringArray(value.warnings) &&
+    isBoundedTextArray(value.warnings, BROWSER_V1_EVIDENCE_LIMITS.warnings, BROWSER_V1_EVIDENCE_LIMITS.warningChars) &&
     (value.share === undefined || isV1Share(value.share))
   );
 }
@@ -387,8 +434,10 @@ function isV1PixelEventChange(value: unknown): boolean {
     isRecord(value) &&
     typeof value.platform === "string" &&
     typeof value.product === "string" &&
-    isUniqueStringArray(value.events) &&
+    isBoundedStringArray(value.events, BROWSER_V1_EVIDENCE_LIMITS.pixelEventNames) &&
+    new Set(value.events).size === value.events.length &&
     Array.isArray(value.advancedMatching) &&
+    value.advancedMatching.length <= PIXEL_MATCH_FIELDS.size &&
     value.advancedMatching.every((field) => typeof field === "string" && PIXEL_MATCH_FIELDS.has(field)) &&
     new Set(value.advancedMatching).size === value.advancedMatching.length
   );
@@ -418,30 +467,36 @@ function isV1Diff(value: unknown): boolean {
     "storageEntries",
     "fingerprintEvents"
   ];
-  const changeArrays: Array<[string, (entry: unknown) => boolean]> = [
-    ["addedDomains", isV1DomainChange],
-    ["removedDomains", isV1DomainChange],
-    ["addedEntities", isV1EntityChange],
-    ["removedEntities", isV1EntityChange],
-    ["addedCookies", isV1CookieChange],
-    ["removedCookies", isV1CookieChange],
-    ["addedStorageKeys", isV1StorageKeyChange],
-    ["removedStorageKeys", isV1StorageKeyChange],
-    ["addedFingerprinting", isV1FingerprintingChange],
-    ["removedFingerprinting", isV1FingerprintingChange],
-    ["addedProvenance", isV1ProvenanceChange],
-    ["removedProvenance", isV1ProvenanceChange]
+  const changeArrays: Array<[string, number, (entry: unknown) => boolean]> = [
+    ["addedDomains", BROWSER_V1_EVIDENCE_LIMITS.diffDomains, isV1DomainChange],
+    ["removedDomains", BROWSER_V1_EVIDENCE_LIMITS.diffDomains, isV1DomainChange],
+    ["addedEntities", BROWSER_V1_EVIDENCE_LIMITS.diffEntities, isV1EntityChange],
+    ["removedEntities", BROWSER_V1_EVIDENCE_LIMITS.diffEntities, isV1EntityChange],
+    ["addedCookies", BROWSER_V1_EVIDENCE_LIMITS.diffCookies, isV1CookieChange],
+    ["removedCookies", BROWSER_V1_EVIDENCE_LIMITS.diffCookies, isV1CookieChange],
+    ["addedStorageKeys", BROWSER_V1_EVIDENCE_LIMITS.diffStorage, isV1StorageKeyChange],
+    ["removedStorageKeys", BROWSER_V1_EVIDENCE_LIMITS.diffStorage, isV1StorageKeyChange],
+    ["addedFingerprinting", BROWSER_V1_EVIDENCE_LIMITS.diffFingerprinting, isV1FingerprintingChange],
+    ["removedFingerprinting", BROWSER_V1_EVIDENCE_LIMITS.diffFingerprinting, isV1FingerprintingChange],
+    ["addedProvenance", BROWSER_V1_EVIDENCE_LIMITS.diffProvenance, isV1ProvenanceChange],
+    ["removedProvenance", BROWSER_V1_EVIDENCE_LIMITS.diffProvenance, isV1ProvenanceChange]
   ];
   return (
     requiredDeltas.every((field) => isV1MetricDelta(value[field])) &&
     (value.shieldsBlockedRequests === undefined || isV1MetricDelta(value.shieldsBlockedRequests)) &&
-    changeArrays.every(([field, check]) => Array.isArray(value[field]) && (value[field] as unknown[]).every(check)) &&
+    changeArrays.every(([field, maxEntries, check]) =>
+      Array.isArray(value[field]) &&
+      (value[field] as unknown[]).length <= maxEntries &&
+      (value[field] as unknown[]).every(check)
+    ) &&
     (value.addedPixelEvents === undefined ||
       (Array.isArray(value.addedPixelEvents) &&
+        value.addedPixelEvents.length <= BROWSER_V1_EVIDENCE_LIMITS.diffPixels &&
         value.addedPixelEvents.every(isV1PixelEventChange) &&
         hasUniquePixelPlatforms(value.addedPixelEvents))) &&
     (value.removedPixelEvents === undefined ||
       (Array.isArray(value.removedPixelEvents) &&
+        value.removedPixelEvents.length <= BROWSER_V1_EVIDENCE_LIMITS.diffPixels &&
         value.removedPixelEvents.every(isV1PixelEventChange) &&
         hasUniquePixelPlatforms(value.removedPixelEvents)))
   );
@@ -452,11 +507,11 @@ function deepValidateV1Comparison(report: ComparisonScanResult): boolean {
   return (
     typeof value.comparisonType === "string" &&
     COMPARISON_TYPES.has(value.comparisonType) &&
-    typeof value.title === "string" &&
+    isBoundedText(value.title, BROWSER_V1_EVIDENCE_LIMITS.comparisonTitleChars) &&
     (value.runLabels === undefined ||
       (isRecord(value.runLabels) &&
-        typeof value.runLabels.baseline === "string" &&
-        typeof value.runLabels.variant === "string")) &&
+        isBoundedText(value.runLabels.baseline, BROWSER_V1_EVIDENCE_LIMITS.runLabelChars) &&
+        isBoundedText(value.runLabels.variant, BROWSER_V1_EVIDENCE_LIMITS.runLabelChars))) &&
     typeof value.requestedUrl === "string" &&
     typeof value.scannedAt === "string" &&
     typeof value.device === "string" &&
@@ -464,7 +519,7 @@ function deepValidateV1Comparison(report: ComparisonScanResult): boolean {
     deepValidateV1Result(report.baseline) &&
     deepValidateV1Result(report.variant) &&
     isV1Diff(value.diff) &&
-    isStringArray(value.warnings) &&
+    isBoundedTextArray(value.warnings, BROWSER_V1_EVIDENCE_LIMITS.warnings, BROWSER_V1_EVIDENCE_LIMITS.warningChars) &&
     (value.share === undefined || isV1Share(value.share))
   );
 }

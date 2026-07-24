@@ -17,10 +17,16 @@
 /*
   Content-Security-Policy: default-src 'self'; base-uri 'self'; connect-src 'self' https://scan.sitebehavior.org https://cloudflareinsights.com; form-action 'self'; frame-ancestors 'none'; frame-src https://challenges.cloudflare.com; img-src 'self' data:; object-src 'none'; script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline'
   Strict-Transport-Security: max-age=31536000; includeSubDomains
-  Referrer-Policy: strict-origin-when-cross-origin
+  Referrer-Policy: no-referrer
   X-Content-Type-Options: nosniff
   X-Frame-Options: DENY
   Permissions-Policy: camera=(), geolocation=(), microphone=(), payment=(), serial=(), usb=()
+
+# The scan landing page receives client-only fragment prefills. Do not retain
+# its response in shared or browser caches if a legacy query-prefill link is
+# encountered and then scrubbed by the client.
+/
+  Cache-Control: no-store
 
 # Next's static image routes are extensionless PNG files. Declare their real
 # media type explicitly so Pages does not serve every social card as

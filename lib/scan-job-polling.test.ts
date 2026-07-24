@@ -7,10 +7,18 @@ import {
   ScanJobEndedError,
   type ScanJobPollFetcher
 } from "./scan-job-polling";
+import {
+  ClientFetchTimeoutError,
+  ClientResponseTooLargeError
+} from "./client-fetch-policy";
+import { buildReportShare } from "./report-locator";
+import { BROWSER_PUBLIC_REPORT_JSON_MAX_BYTES } from "./report-resource-limits";
 import { makeScanReportV1 } from "./scan-report-v2-fixtures";
 
 const JOB_ID = `20260718-${"a".repeat(32)}`;
 const REPORT_ID = `20260718-${"b".repeat(32)}`;
+const OTHER_JOB_ID = `20260718-${"c".repeat(32)}`;
+const OTHER_REPORT_ID = `20260718-${"d".repeat(32)}`;
 const STATUS_PATH = `/api/scans/${JOB_ID}`;
 
 test("an accepted job keeps polling past the old 180-second client limit", async () => {
@@ -20,7 +28,7 @@ test("an accepted job keeps polling past the old 180-second client limit", async
   const fetcher: ScanJobPollFetcher = async () => {
     calls += 1;
     if (calls <= 181) return jobResponse("queued");
-    return jobResponse("succeeded", { report: makeScanReportV1() });
+    return jobResponse("succeeded", { report: savedReport() });
   };
 
   const loaded = await pollAcceptedScanJob({
@@ -60,7 +68,7 @@ test("polling forwards only validated server progress in observed order", async 
       }
       return jobResponse("succeeded", {
         progress: { phase: "saving", completedRuns: 2, totalRuns: 2 },
-        report: makeScanReportV1()
+        report: savedReport()
       });
     },
     wait: async () => undefined,
@@ -87,7 +95,7 @@ test("polling ignores malformed progress instead of exposing untrusted fields", 
         ? jobResponse("running", {
             progress: { phase: "collecting", completedRuns: 0, totalRuns: 1, leaked: "secret" }
           })
-        : jobResponse("succeeded", { report: makeScanReportV1() });
+        : jobResponse("succeeded", { report: savedReport() });
     },
     wait: async () => undefined,
     onProgress: (progress) => seen.push(progress)
@@ -111,11 +119,12 @@ test("status polling retries 429/502/503 and honors bounded Retry-After", async 
       return new Response(stream, { status: 429, headers: { "Retry-After": "7" } });
     }
     if (calls === 2) return new Response("bad gateway", { status: 503 });
-    return jobResponse("succeeded", { report: makeScanReportV1() });
+    return jobResponse("succeeded", { report: savedReport() });
   };
 
   await pollAcceptedScanJob({
     statusPath: STATUS_PATH,
+    reportId: REPORT_ID,
     accessKey: "scanner-key",
     fetcher,
     wait: async (ms) => {
@@ -147,6 +156,7 @@ test("sustained transient status failures return a resumable ordinary error", as
   await assert.rejects(
     pollAcceptedScanJob({
       statusPath: STATUS_PATH,
+      reportId: REPORT_ID,
       fetcher,
       wait: async (ms) => {
         waits.push(ms);
@@ -161,6 +171,88 @@ test("sustained transient status failures return a resumable ordinary error", as
   assert.equal(calls, 4, "one request plus three bounded retries");
   assert.equal(cancelledBodies, 4);
   assert.deepEqual(waits, [1_000, 2_000, 4_000]);
+});
+
+test("each polling attempt bounds a connection that never returns headers", async () => {
+  let requestSignal: AbortSignal | null = null;
+  const fetcher: ScanJobPollFetcher = async (_url, init) => {
+    requestSignal = init.signal ?? null;
+    return new Promise<Response>(() => undefined);
+  };
+
+  await assert.rejects(
+    pollAcceptedScanJob({
+      statusPath: STATUS_PATH,
+      reportId: REPORT_ID,
+      fetcher,
+      attemptTimeoutMs: 5
+    }),
+    (error: unknown) =>
+      error instanceof ClientFetchTimeoutError && error.phase === "connect" && error.timeoutMs === 5
+  );
+  assert.equal((requestSignal as AbortSignal | null)?.aborted, true);
+});
+
+test("the per-attempt deadline remains armed while a status body is stalled", async () => {
+  const partial = new TextEncoder().encode('{"ok":true');
+  const response = new Response(
+    new ReadableStream<Uint8Array>({
+      start(controller) {
+        controller.enqueue(partial);
+      }
+    }),
+    { status: 200, headers: { "content-type": "application/json" } }
+  );
+
+  await assert.rejects(
+    pollAcceptedScanJob({
+      statusPath: STATUS_PATH,
+      reportId: REPORT_ID,
+      fetcher: async () => response,
+      attemptTimeoutMs: 5
+    }),
+    (error: unknown) =>
+      error instanceof ClientFetchTimeoutError && error.phase === "operation" && error.timeoutMs === 5
+  );
+});
+
+test("caller cancellation wins over the polling attempt deadline", async () => {
+  const controller = new AbortController();
+  const reason = new DOMException("The visitor cancelled the accepted scan.", "AbortError");
+  let markStarted: () => void = () => undefined;
+  const started = new Promise<void>((resolve) => {
+    markStarted = resolve;
+  });
+  const polling = pollAcceptedScanJob({
+    statusPath: STATUS_PATH,
+    reportId: REPORT_ID,
+    signal: controller.signal,
+    attemptTimeoutMs: 1_000,
+    fetcher: async () => {
+      markStarted();
+      return new Promise<Response>(() => undefined);
+    }
+  });
+  await started;
+  controller.abort(reason);
+  await assert.rejects(polling, (error: unknown) => error === reason);
+});
+
+test("status payloads cannot exceed the decompressed browser response cap", async () => {
+  const response = new Response(
+    new ReadableStream<Uint8Array>(),
+    { headers: { "content-length": String(BROWSER_PUBLIC_REPORT_JSON_MAX_BYTES + 1) } }
+  );
+
+  await assert.rejects(
+    pollAcceptedScanJob({
+      statusPath: STATUS_PATH,
+      reportId: REPORT_ID,
+      fetcher: async () => response
+    }),
+    (error: unknown) =>
+      error instanceof ClientResponseTooLargeError && error.maxBytes === BROWSER_PUBLIC_REPORT_JSON_MAX_BYTES
+  );
 });
 
 test("saved-report recovery retries transient faults and honors HTTP-date Retry-After", async () => {
@@ -178,7 +270,7 @@ test("saved-report recovery retries transient faults and honors HTTP-date Retry-
         headers: { "Retry-After": new Date(now + 5_000).toUTCString() }
       });
     }
-    return Response.json(makeScanReportV1());
+    return Response.json(savedReport());
   };
 
   const loaded = await pollAcceptedScanJob({
@@ -200,6 +292,7 @@ test("non-transient polling faults remain resumable errors, while real job endin
   await assert.rejects(
     pollAcceptedScanJob({
       statusPath: STATUS_PATH,
+      reportId: REPORT_ID,
       fetcher: async () => Response.json({ ok: false, error: "status backend broke" }, { status: 500 })
     }),
     (error: unknown) => error instanceof Error && !(error instanceof ScanJobEndedError) && /backend broke/.test(error.message)
@@ -208,6 +301,7 @@ test("non-transient polling faults remain resumable errors, while real job endin
   await assert.rejects(
     pollAcceptedScanJob({
       statusPath: STATUS_PATH,
+      reportId: REPORT_ID,
       fetcher: async () => jobResponse("expired", { error: "The durable deadline elapsed." })
     }),
     (error: unknown) =>
@@ -217,9 +311,60 @@ test("non-transient polling faults remain resumable errors, while real job endin
   await assert.rejects(
     pollAcceptedScanJob({
       statusPath: STATUS_PATH,
+      reportId: REPORT_ID,
       fetcher: async () => jobResponse("succeeded", { report: { secret: "not a report" } })
     }),
     (error: unknown) => error instanceof Error && !(error instanceof ScanJobEndedError)
+  );
+});
+
+test("successful status payloads require a 2xx response and the exact accepted job id", async () => {
+  await assert.rejects(
+    pollAcceptedScanJob({
+      statusPath: STATUS_PATH,
+      reportId: REPORT_ID,
+      fetcher: async () => Response.json(
+        { ok: true, jobId: JOB_ID, status: "succeeded", report: savedReport() },
+        { status: 500 }
+      )
+    }),
+    /could not be read \(HTTP 500\)/
+  );
+
+  await assert.rejects(
+    pollAcceptedScanJob({
+      statusPath: STATUS_PATH,
+      reportId: REPORT_ID,
+      fetcher: async () => Response.json({
+        ok: true,
+        jobId: OTHER_JOB_ID,
+        status: "succeeded",
+        report: savedReport()
+      })
+    }),
+    /could not be read \(HTTP 200\)/
+  );
+});
+
+test("completed and recovered reports require the exact reserved report identity", async () => {
+  await assert.rejects(
+    pollAcceptedScanJob({
+      statusPath: STATUS_PATH,
+      reportId: REPORT_ID,
+      fetcher: async () => jobResponse("succeeded", { report: savedReport(OTHER_REPORT_ID) })
+    }),
+    /did not match its reserved report identity/
+  );
+
+  await assert.rejects(
+    pollAcceptedScanJob({
+      statusPath: STATUS_PATH,
+      reportId: REPORT_ID,
+      fetcher: async (url) => url === STATUS_PATH
+        ? Response.json({ ok: false, error: "Scan job not found." }, { status: 404 })
+        : Response.json(savedReport(OTHER_REPORT_ID))
+    }),
+    /did not match its reserved report identity/
   );
 });
 
@@ -238,4 +383,10 @@ function jobResponse(
   extra: Record<string, unknown> = {}
 ): Response {
   return Response.json({ ok: true, jobId: JOB_ID, status, ...extra });
+}
+
+function savedReport(reportId = REPORT_ID) {
+  const report = makeScanReportV1();
+  report.share = buildReportShare(reportId);
+  return report;
 }

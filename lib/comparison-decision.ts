@@ -27,6 +27,7 @@
 
 import { comparisonEligibility, temporalPairEligibility } from "./comparison-eligibility";
 import { legacyV1MethodologyIdentity } from "./legacy-methodology";
+import { METRIC_EVIDENCE_SOURCES } from "./metric-evidence-sources";
 import { sha256Hex } from "./sha256";
 import type { ComparisonScanResult, ScanResult } from "./types";
 import type { MetricFamily, PublicScanReportV2 } from "./scan-report-v2";
@@ -437,7 +438,7 @@ export function describeComparabilityReason(reason: string): string {
   }
   const censored = reason.match(/^family-censored:(.+)$/);
   if (censored) {
-    return `The ${comparabilityArmName(censored[1])}'s collection was cut short by a recording cap, so its numbers are floors, not totals.`;
+    return `The ${comparabilityArmName(censored[1])} did not completely capture this evidence family, so its values are unavailable or incomplete rather than comparable totals.`;
   }
   const verificationFailed = reason.match(/^arm-verification-failed:(.+)$/);
   if (verificationFailed) {
@@ -456,6 +457,48 @@ function capitalizeSentence(text: string): string {
 
 function describeComparabilityReasons(reasons: readonly string[]): string[] {
   return [...new Set(reasons.map(describeComparabilityReason))];
+}
+
+function describeMetricComparabilityReasons(
+  report: Extract<PublicScanReportV2 | PublicScanReportV2R2, { reportType: "comparison" }>,
+  family: MetricFamily,
+  reasons: readonly string[]
+): string[] {
+  return [
+    ...new Set(
+      reasons.map((reason) => {
+        const censored = reason.match(/^family-censored:(baseline|variant)$/);
+        if (!censored) return describeComparabilityReason(reason);
+        const arm = censored[1] as "baseline" | "variant";
+        const run = report[arm];
+        const evidenceFamilies = METRIC_EVIDENCE_SOURCES[family];
+        const unsupported = evidenceFamilies.filter((evidenceFamily) =>
+          run.qualityFacts.captureLoss.some(
+            (loss) =>
+              loss.family === evidenceFamily &&
+              loss.detail === "pagegraph-unsupported"
+          )
+        );
+        if (unsupported.length > 0) {
+          return `The ${comparabilityArmName(arm)}'s PageGraph producer did not capture ${joinEvidenceFamilies(unsupported)} evidence, so this metric family is unavailable rather than an observed zero or comparable delta.`;
+        }
+        const capped =
+          run.qualityFacts.budgetsExhausted.length > 0 ||
+          run.qualityFacts.captureLoss.some(
+            (loss) => evidenceFamilies.includes(loss.family) && loss.kind === "cap"
+          );
+        return capped
+          ? `The ${comparabilityArmName(arm)}'s collection was cut short by a recording cap, so its numbers are floors, not totals.`
+          : describeComparabilityReason(reason);
+      })
+    )
+  ];
+}
+
+function joinEvidenceFamilies(families: readonly string[]): string {
+  if (families.length === 1) return families[0];
+  if (families.length === 2) return `${families[0]} and ${families[1]}`;
+  return `${families.slice(0, -1).join(", ")}, and ${families.at(-1)}`;
 }
 
 /**
@@ -481,7 +524,10 @@ export function v2ComparisonDecision(
       family,
       entry.eligible
         ? { mode: "comparable", reasons: [] }
-        : { mode: "raw-only", reasons: describeComparabilityReasons(entry.reasons) }
+        : {
+            mode: "raw-only",
+            reasons: describeMetricComparabilityReasons(report, family as MetricFamily, entry.reasons)
+          }
     ])
   ) as Record<MetricFamily, FamilyDecision>;
   if (

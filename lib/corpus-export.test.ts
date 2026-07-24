@@ -23,6 +23,21 @@ function makeEntry(overrides: Partial<DirectoryEntry> & { id: string }): Directo
     consentClicks: null,
     status: 200,
     runOutcome: "complete",
+    corpusCohort: {
+      id: "v1:test-methodology:producer-unrecorded",
+      schemaVersion: 1,
+      schemaRevision: null,
+      methodologyVersion: "test-methodology",
+      methodologyOrigin: "legacy-derived",
+      producer: null
+    },
+    producer: null,
+    acquisition: null,
+    buildCommit: null,
+    browserName: null,
+    browserVersion: "test-chromium",
+    egressLabel: "test-egress",
+    egressRegion: null,
     reportHasSuccessfulLoad: true,
     reportHasRequestCappedLoad: false,
     requestEvidenceComplete: true,
@@ -87,21 +102,24 @@ test("the JSON payload embeds the measured-corpus framing", () => {
   const payload = buildCorpusExportPayload(rows, {
     generatedAt: "2026-07-02T16:00:00.000Z",
     siteCount: 104,
-    measuredSampleSize: 101
+    measuredSampleSize: 101,
+    primaryCohortId: "v1:test-methodology:producer-unrecorded"
   });
 
   assert.equal(payload.reportCount, 1);
   // Coverage and measurement are separate concepts: siteCount is every site
-  // that loaded (capped recordings included), measuredSampleSize is the exact
-  // legacy-v1 passive percentile cohort, and the note defines both.
+  // that loaded (capped recordings included), measuredSampleSize is tied to
+  // one named methodology cohort, and the note defines both.
   assert.equal(payload.siteCount, 104);
   assert.equal(payload.measuredSampleSize, 101);
+  assert.equal(payload.primaryCohortId, "v1:test-methodology:producer-unrecorded");
   assert.equal(payload.note, CORPUS_EXPORT_NOTE);
   assert.match(payload.note, /not a random sample of the web/);
   assert.match(payload.note, /run-to-run variance/);
-  assert.match(payload.note, /measuredSampleSize is the exact current percentile cohort/);
-  assert.match(payload.note, /passive observe consent state/);
-  assert.match(payload.note, /cross-version cohort can differ/);
+  assert.match(payload.note, /measuredSampleSize is the denominator of primaryCohortId/);
+  assert.match(payload.note, /no percentile, category median, or leaderboard silently pools v1 and r2/);
+  assert.equal(payload.cohorts[0].denominator, 1);
+  assert.equal(payload.cohorts[0].methodologyVersion, "test-methodology");
   // Capped counts are floors/snapshots, never measured behavior.
   assert.match(payload.note, /floors cut off mid-collection/);
   assert.match(payload.note, /end-state snapshots of an interrupted visit/);
@@ -179,6 +197,19 @@ test("r2 rows keep click dispatch separate from both consent-arm verification st
         schemaRevision: 2,
         schemaOrigin: "v2",
         limited: false,
+        corpusCohort: {
+          id: "v2-r2:test-methodology:node-playwright",
+          schemaVersion: 2,
+          schemaRevision: 2,
+          methodologyVersion: "test-methodology",
+          methodologyOrigin: "recorded",
+          producer: "node-playwright"
+        },
+        producer: "node-playwright",
+        acquisition: "public-api",
+        buildCommit: "b".repeat(40),
+        browserName: "chromium",
+        egressRegion: "us-west",
         comparisonDecisionMode: "raw-only",
         compatibilityFingerprintOrigin: "recorded",
         compatibilityFingerprintMatched: false,
@@ -211,7 +242,16 @@ test("comparison metadata exports the fingerprint verdict but deliberately omits
         schemaVersion: 2,
         schemaRevision: 2,
         schemaOrigin: "v2",
-        limited: false
+        limited: false,
+        corpusCohort: {
+          id: "v2-r2:test-methodology:node-playwright",
+          schemaVersion: 2,
+          schemaRevision: 2,
+          methodologyVersion: "test-methodology",
+          methodologyOrigin: "recorded",
+          producer: "node-playwright"
+        },
+        producer: "node-playwright"
       })
     ],
     "https://sitebehavior.org"
@@ -239,12 +279,12 @@ test("CSV pins the header and escapes commas and quotes in headlines", () => {
 
   assert.equal(
     header,
-    "id,domain,category,category_label,report_url,json_url,scanned_at,report_type,comparison_type,device,gpc_enabled,consent_mode,consent_clicks,status,request_capped,request_evidence_complete,headline,third_party_requests,tracker_requests,third_party_cookies,shields_third_party_change,delta_third_party_requests,delta_tracker_requests,previous_report_id,previous_scanned_at,schema_version,schema_revision,schema_origin,limited,consent_choice_state,variant_consent_choice_state,comparison_decision_mode,compatibility_fingerprint_origin,compatibility_fingerprint_matched"
+    "id,domain,category,category_label,report_url,json_url,scanned_at,report_type,comparison_type,device,gpc_enabled,consent_mode,consent_clicks,status,request_capped,request_evidence_complete,headline,third_party_requests,tracker_requests,third_party_cookies,shields_third_party_change,delta_third_party_requests,delta_tracker_requests,previous_report_id,previous_scanned_at,schema_version,schema_revision,schema_origin,limited,consent_choice_state,variant_consent_choice_state,comparison_decision_mode,compatibility_fingerprint_origin,compatibility_fingerprint_matched,run_outcome,producer,acquisition,build_commit,methodology_version,methodology_origin,browser_name,browser_version,egress_label,egress_region,corpus_cohort_id,corpus_cohort_denominator,corpus_inclusion,corpus_exclusion_reasons"
   );
   assert.match(row, /"shop\.example told Google, Meta ""you were here""\."/);
   assert.match(row, /,desktop,yes,observe,,200,/);
   // This fixture is a historical v1, legacy-derived, limited row.
-  assert.match(row, /,1,,legacy-derived,yes,,,comparable,legacy-derived,true$/);
+  assert.match(row, /,1,,legacy-derived,yes,,,comparable,legacy-derived,true,complete,/);
   assert.equal(csv.endsWith("\r\n"), true);
 });
 
@@ -336,5 +376,83 @@ test("rows carry the schema generation so researchers can filter by wire version
   assert.equal(rows[0].limited, true);
   assert.match(CORPUS_EXPORT_NOTE, /schema_version/);
   assert.match(CORPUS_EXPORT_NOTE, /legacy-derived/);
-  assert.match(CORPUS_EXPORT_NOTE, /percentile distributions remain v1-only/);
+  assert.match(CORPUS_EXPORT_NOTE, /corpus_cohort_id/);
+});
+
+test("rows export provenance and auditable cohort inclusion without fingerprint digests", () => {
+  const cohort = {
+    id: "v2-r2:method-r2:node-playwright",
+    schemaVersion: 2 as const,
+    schemaRevision: 2 as const,
+    methodologyVersion: "method-r2",
+    methodologyOrigin: "recorded" as const,
+    producer: "node-playwright"
+  };
+  const rows = buildCorpusExportRows(
+    [
+      makeEntry({
+        id: "20260701-" + "1".repeat(32),
+        domain: "same.example",
+        scannedAt: "2026-07-02T00:00:00.000Z",
+        schemaVersion: 2,
+        schemaRevision: 2,
+        schemaOrigin: "v2",
+        limited: false,
+        corpusCohort: cohort,
+        producer: "node-playwright",
+        acquisition: "ci-workflow",
+        buildCommit: "c".repeat(40),
+        browserName: "chromium",
+        browserVersion: "140.0.0.0",
+        egressLabel: "controlled-egress",
+        egressRegion: "iad"
+      }),
+      makeEntry({
+        id: "20260702-" + "2".repeat(32),
+        domain: "same.example",
+        scannedAt: "2026-07-02T00:00:00.000Z",
+        schemaVersion: 2,
+        schemaRevision: 2,
+        schemaOrigin: "v2",
+        limited: false,
+        corpusCohort: cohort,
+        producer: "node-playwright",
+        acquisition: "ci-workflow",
+        buildCommit: "d".repeat(40),
+        browserName: "chromium",
+        browserVersion: "140.0.0.0",
+        egressLabel: "controlled-egress",
+        egressRegion: "iad"
+      }),
+      makeEntry({
+        id: "20260703-" + "3".repeat(32),
+        domain: "failed.example",
+        status: 403,
+        runOutcome: "failed",
+        schemaVersion: 2,
+        schemaRevision: 2,
+        schemaOrigin: "v2",
+        limited: false,
+        corpusCohort: cohort,
+        producer: "node-playwright"
+      })
+    ],
+    "https://sitebehavior.org"
+  );
+
+  assert.equal(rows[0].corpusInclusion, "excluded");
+  assert.deepEqual(rows[0].corpusExclusionReasons, ["superseded-by-newer-report"]);
+  assert.equal(rows[1].corpusInclusion, "included");
+  assert.ok(rows[1].id.localeCompare(rows[0].id) > 0, "equal timestamps use the shared report-id tie-break");
+  assert.equal(rows[1].corpusCohortDenominator, 1);
+  assert.equal(rows[1].methodologyVersion, "method-r2");
+  assert.equal(rows[1].acquisition, "ci-workflow");
+  assert.equal(rows[1].buildCommit, "d".repeat(40));
+  assert.equal(rows[1].browserName, "chromium");
+  assert.equal(rows[1].egressRegion, "iad");
+  assert.deepEqual(rows[2].corpusExclusionReasons, ["run-failed", "http-error-status"]);
+  for (const row of rows as unknown as Record<string, unknown>[]) {
+    assert.equal("baselineMeasurementEnvironmentFingerprint" in row, false);
+    assert.equal("variantMeasurementEnvironmentFingerprint" in row, false);
+  }
 });

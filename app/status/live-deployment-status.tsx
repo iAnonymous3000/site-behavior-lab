@@ -9,6 +9,8 @@ import {
   PUBLIC_STATUS_UI_REFRESH_MS,
   type LiveDeploymentEvaluation
 } from "@/lib/public-status";
+import { LatestClientOperation } from "@/lib/client-fetch-policy";
+import { runLiveDeploymentStatusCheck } from "@/lib/live-deployment-status-client";
 import { publicLibraryUrl } from "@/lib/site-url";
 
 const INITIAL: LiveDeploymentEvaluation = {
@@ -30,6 +32,9 @@ export function LiveDeploymentStatus() {
   const [evaluation, setEvaluation] = useState<LiveDeploymentEvaluation>(INITIAL);
   const [checking, setChecking] = useState(true);
   const latestEvidence = useRef<{ pages: unknown; scanner: unknown } | null>(null);
+  const statusOperationRef = useRef<LatestClientOperation | null>(null);
+  if (!statusOperationRef.current) statusOperationRef.current = new LatestClientOperation();
+  const statusOperation = statusOperationRef.current;
 
   const reevaluateLatest = useCallback(() => {
     const latest = latestEvidence.current;
@@ -37,31 +42,29 @@ export function LiveDeploymentStatus() {
   }, []);
 
   const check = useCallback(async () => {
-    setChecking(true);
-    const controller = new AbortController();
-    const timeout = window.setTimeout(() => controller.abort(), 8_000);
-    try {
-      const [pagesResponse, scannerResponse] = await Promise.all([
-        fetch(PAGES_RECEIPT_URL, { cache: "no-store", signal: controller.signal }),
-        fetch(scannerApiUrl("/api/health"), { cache: "no-store", signal: controller.signal })
-      ]);
-      if (!pagesResponse.ok || !scannerResponse.ok) throw new Error("status endpoint unavailable");
-      const pages = await pagesResponse.json() as unknown;
-      const scanner = await scannerResponse.json() as unknown;
-      latestEvidence.current = { pages, scanner };
-      const nextEvaluation = evaluateLiveDeployment(pages, scanner);
-      setEvaluation(nextEvaluation);
-    } catch {
-      latestEvidence.current = null;
-      setEvaluation({
-        ...INITIAL,
-        summary: "Current deployment status could not be verified from this browser. Unknown is not treated as healthy."
-      });
-    } finally {
-      window.clearTimeout(timeout);
-      setChecking(false);
-    }
-  }, []);
+    await runLiveDeploymentStatusCheck(
+      statusOperation,
+      {
+        pagesReceiptUrl: PAGES_RECEIPT_URL,
+        scannerHealthUrl: scannerApiUrl("/api/health")
+      },
+      {
+        onStart: () => setChecking(true),
+        onSuccess: ({ evidence, evaluation: nextEvaluation }) => {
+          latestEvidence.current = evidence;
+          setEvaluation(nextEvaluation);
+        },
+        onError: () => {
+          latestEvidence.current = null;
+          setEvaluation({
+            ...INITIAL,
+            summary: "Current deployment status could not be verified from this browser. Unknown is not treated as healthy."
+          });
+        },
+        onSettled: () => setChecking(false)
+      }
+    );
+  }, [statusOperation]);
 
   useEffect(() => {
     void check();
@@ -77,8 +80,9 @@ export function LiveDeploymentStatus() {
     return () => {
       window.clearInterval(interval);
       document.removeEventListener("visibilitychange", onVisibility);
+      statusOperation.cancel();
     };
-  }, [check, reevaluateLatest]);
+  }, [check, reevaluateLatest, statusOperation]);
 
   useEffect(() => {
     const expiryDelay = freshnessExpiryDelayMs(

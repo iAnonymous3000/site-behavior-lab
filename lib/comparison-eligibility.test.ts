@@ -8,9 +8,11 @@ import {
   runHitRequestCap,
   runHitResponseByteCap,
   runHitUploadByteCap,
+  runRequestEvidenceCapped,
   temporalPairEligibility
 } from "./comparison-eligibility";
-import { MAX_RECORDED_REQUESTS, ScanRequestBudget, ScanWarningCollector } from "./scan-runtime";
+import { GPC_WORKER_CAPTURE_LOSS_WARNING } from "./gpc-injection";
+import { INVALID_UPSTREAM_RESPONSE_WARNING, MAX_RECORDED_REQUESTS, ScanRequestBudget, ScanWarningCollector } from "./scan-runtime";
 import { SCAN_REPORT_SCHEMA_VERSION, type ScanConditions, type ScanResult } from "./types";
 
 test("the eligibility cap constant matches the scanner's recording cap", () => {
@@ -306,6 +308,34 @@ test("an exhausted aggregate upload-byte budget censors the visit", () => {
   const eligibility = comparisonEligibility(report);
   assert.equal(eligibility.eligible, false);
   assert.match(eligibility.reasons.join(" "), /upload-byte budget/);
+});
+
+test("all scanner-declared request capture loss fails the legacy comparison closed", () => {
+  const cases = [
+    {
+      warning: GPC_WORKER_CAPTURE_LOSS_WARNING,
+      reason: /GPC Worker capture loss/
+    },
+    {
+      warning: INVALID_UPSTREAM_RESPONSE_WARNING,
+      reason: /rejected invalid upstream responses/
+    },
+    {
+      warning: "The scan stopped opening additional proxy requests after reaching its connection and target safety budget.",
+      reason: /proxy connection and target safety budget/
+    }
+  ];
+
+  for (const { warning, reason } of cases) {
+    const incomplete = makeRun({ totalRequests: 20 });
+    incomplete.warnings = [warning];
+
+    assert.equal(runRequestEvidenceCapped(incomplete), true, warning);
+    const eligibility = comparisonEligibility(shieldsPair(makeRun({}), incomplete));
+    assert.equal(eligibility.eligible, false, warning);
+    assert.match(eligibility.reasons.join(" "), reason, warning);
+    assert.match(eligibility.reasons.join(" "), /request evidence is incomplete/, warning);
+  }
 });
 
 test("mismatched subjects, devices, and pipelines each disqualify", () => {

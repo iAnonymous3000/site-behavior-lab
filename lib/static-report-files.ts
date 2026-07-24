@@ -1,5 +1,7 @@
-import { access, readFile, readdir, unlink } from "node:fs/promises";
+import { access, readdir, unlink } from "node:fs/promises";
 import path from "node:path";
+import { BoundedUtf8FileReadError, readBoundedUtf8File } from "./bounded-utf8-file";
+import { syncDirectory } from "./exact-atomic-file";
 import { readManagedReport, type ManagedReportReadFailureReason } from "./managed-report-reader";
 import {
   committedSidecarFilename,
@@ -7,7 +9,13 @@ import {
   type RedactionProvenanceEntry
 } from "./redaction-provenance";
 import { REPORT_ID_PATTERN } from "./report-validation";
+import {
+  SERVER_STORED_PROVENANCE_SIDECAR_MAX_BYTES,
+  SERVER_STORED_REPORT_JSON_MAX_BYTES
+} from "./report-resource-limits";
 import type { ReadStoredScanReportError, StoredScanReport } from "./scan-report-reader";
+import { parseStrictJson } from "./strict-json";
+import { acquireReportCorpusLock } from "./report-corpus-lock";
 
 const STATIC_REPORT_FILE_PATTERN = /^([0-9]{8}-[0-9a-f]{32})\.json$/;
 const STATIC_SIDECAR_FILE_PATTERN = /^([0-9]{8}-[0-9a-f]{32})\.provenance\.json$/;
@@ -43,7 +51,6 @@ export async function listStaticReportCandidateIds(reportsDir: string): Promise<
   const entries = await readStaticDirectoryEntries(reportsDir);
 
   return entries
-    .filter((entry) => entry.isFile())
     .map((entry) => STATIC_REPORT_FILE_PATTERN.exec(entry.name)?.[1] ?? null)
     .filter((id): id is string => Boolean(id))
     .sort();
@@ -53,12 +60,10 @@ export async function listDanglingStaticSidecarIds(reportsDir: string): Promise<
   const entries = await readStaticDirectoryEntries(reportsDir);
   const reports = new Set(
     entries
-      .filter((entry) => entry.isFile())
       .map((entry) => STATIC_REPORT_FILE_PATTERN.exec(entry.name)?.[1] ?? null)
       .filter((id): id is string => Boolean(id))
   );
   return entries
-    .filter((entry) => entry.isFile())
     .map((entry) => STATIC_SIDECAR_FILE_PATTERN.exec(entry.name)?.[1] ?? null)
     .filter((id): id is string => id !== null && !reports.has(id))
     .sort();
@@ -92,14 +97,35 @@ export async function readStaticReportBundle(
 ): Promise<StaticReportBundleReadResult> {
   if (!REPORT_ID_PATTERN.test(id)) return { outcome: "not-found" };
 
-  const reportContents = await readOptionalFile(path.join(reportsDir, `${id}.json`));
+  let reportContents: string | null;
+  try {
+    reportContents = await readOptionalFile(
+      path.join(reportsDir, `${id}.json`),
+      SERVER_STORED_REPORT_JSON_MAX_BYTES
+    );
+  } catch (error) {
+    if (error instanceof BoundedUtf8FileReadError) return unreadableJson("invalid-report-json");
+    throw error;
+  }
   if (reportContents === null) return { outcome: "not-found" };
 
-  const sidecarContents = await readOptionalFile(path.join(reportsDir, committedSidecarFilename(id)));
+  let sidecarContents: string | null;
+  try {
+    sidecarContents = await readOptionalFile(
+      path.join(reportsDir, committedSidecarFilename(id)),
+      SERVER_STORED_PROVENANCE_SIDECAR_MAX_BYTES
+    );
+  } catch (error) {
+    if (error instanceof BoundedUtf8FileReadError) return unreadableJson("invalid-sidecar-json");
+    throw error;
+  }
   let parsedSidecar: unknown;
   if (sidecarContents !== null) {
     try {
-      parsedSidecar = JSON.parse(sidecarContents) as unknown;
+      parsedSidecar = parseStrictJson(
+        sidecarContents,
+        SERVER_STORED_PROVENANCE_SIDECAR_MAX_BYTES
+      );
     } catch {
       // The managed reader owns the named invalid-sidecar-json outcome.
     }
@@ -130,37 +156,62 @@ export async function readStaticReportBundle(
 /** Sidecar first, report second; both absences are verified before success. */
 export async function removeStaticReportBundle(reportsDir: string, id: string): Promise<void> {
   if (!REPORT_ID_PATTERN.test(id)) throw new Error(`Invalid static report id: ${id}`);
+  const lock = await acquireReportCorpusLock(reportsDir, `remove-${id}`);
+  try {
+    await removeStaticReportBundleUnderLock(reportsDir, id);
+  } finally {
+    await lock.release();
+  }
+}
+
+/**
+ * Delete one pair while the caller holds the shared report-corpus lock.
+ * Exported only so compound writers such as retention can hold one lock over
+ * discovery, planning, and every deletion instead of racing themselves.
+ */
+export async function removeStaticReportBundleUnderLock(reportsDir: string, id: string): Promise<void> {
+  if (!REPORT_ID_PATTERN.test(id)) throw new Error(`Invalid static report id: ${id}`);
   const files = [
     path.join(reportsDir, committedSidecarFilename(id)),
     path.join(reportsDir, `${id}.json`)
   ];
-  let firstError: unknown;
-
   for (const file of files) {
     try {
       await unlink(file);
+      // Sidecar deletion must be durable before report deletion so a crash can
+      // leave only an unattested report, never a dangling valid-looking
+      // provenance object whose report disappeared first.
+      await syncDirectory(reportsDir);
     } catch (error) {
-      if (!isErrno(error, "ENOENT") && firstError === undefined) firstError = error;
+      if (!isErrno(error, "ENOENT")) throw error;
     }
+    await assertAbsent(file);
   }
-  for (const file of files) {
-    try {
-      await access(file);
-      firstError ??= new Error(`Static report deletion was not durable: ${file}`);
-    } catch (error) {
-      if (!isErrno(error, "ENOENT") && firstError === undefined) firstError = error;
-    }
-  }
-  if (firstError !== undefined) throw firstError;
 }
 
-async function readOptionalFile(file: string): Promise<string | null> {
+async function assertAbsent(file: string): Promise<void> {
   try {
-    return await readFile(file, "utf8");
+    await access(file);
+  } catch (error) {
+    if (isErrno(error, "ENOENT")) return;
+    throw error;
+  }
+  throw new Error(`Static report deletion was not durable: ${file}`);
+}
+
+async function readOptionalFile(file: string, maxBytes: number): Promise<string | null> {
+  try {
+    return (await readBoundedUtf8File(file, maxBytes)).contents;
   } catch (error) {
     if (isErrno(error, "ENOENT")) return null;
     throw error;
   }
+}
+
+function unreadableJson(
+  reason: Extract<ManagedReportReadFailureReason, "invalid-report-json" | "invalid-sidecar-json">
+): StaticReportBundleReadResult {
+  return { outcome: "unreadable", error: "invalid", reason };
 }
 
 async function readStaticDirectoryEntries(reportsDir: string) {

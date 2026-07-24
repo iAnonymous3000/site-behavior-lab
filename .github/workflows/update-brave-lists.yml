@@ -17,9 +17,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
-  # Lets the post-push step dispatch CI (see 'Trigger CI on the pushed commit').
-  actions: write
+  contents: read
 
 # Shared with scan.yml and scan-featured.yml: one writer at a time per ref.
 concurrency:
@@ -33,11 +31,15 @@ env:
 jobs:
   refresh-lists:
     name: Refresh and validate filter lists
+    # A manual run may target any ref. Never let an arbitrary feature ref
+    # become the base of the repository-wide refresh proposal.
+    if: github.ref_type == 'branch' && github.ref_name == github.event.repository.default_branch
     runs-on: ubuntu-latest
     permissions:
       contents: write
       actions: write
       issues: write
+      pull-requests: write
     steps:
       - name: Checkout
         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
@@ -45,8 +47,13 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
-          node-version: 24
+          node-version: 24.14.1
           cache: npm
+
+      - name: Verify pinned Node and npm
+        run: |
+          test "$(node --version)" = "v24.14.1"
+          test "$(npm --version)" = "11.11.0"
 
       - name: Install dependencies
         run: npm ci
@@ -66,10 +73,20 @@ jobs:
       - name: Run unit tests against the new snapshot
         run: npm run test:unit
 
-      - name: Commit refreshed lists
+      # Remote list bytes are third-party measurement inputs. Validation may
+      # prepare a proposal, but it must never advance main or production without
+      # a human-reviewed PR. GITHUB_TOKEN-created PRs do not trigger CI, so the
+      # following step dispatches CI on the proposal branch only; its promotion
+      # guard requires refs/heads/main and therefore cannot deploy the proposal.
+      - name: Publish reviewed refresh proposal
         id: commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BASE_BRANCH: ${{ github.event.repository.default_branch }}
+          PROPOSAL_BRANCH: automation/brave-list-refresh
         run: |
-          echo "pushed=false" >> "$GITHUB_OUTPUT"
+          set -euo pipefail
+          echo "proposed=false" >> "$GITHUB_OUTPUT"
           git config user.name "iAnonymous3000"
           git config user.email "32236127+iAnonymous3000@users.noreply.github.com"
           git add lib/adblock-wasm/brave-default-filters.txt.gz lib/adblock-wasm/brave-default-filters.meta.json
@@ -77,29 +94,63 @@ jobs:
             echo "No filter list changes to commit."
             exit 0
           fi
-          git commit -m "Refresh the vendored Brave Shields default filter lists"
-          # A validated list refresh must not be lost to a non-fast-forward race
-          # with a push that landed after checkout: rebase and retry.
-          for attempt in 1 2 3; do
-            if git push; then
-              echo "pushed=true" >> "$GITHUB_OUTPUT"
-              exit 0
-            fi
-            echo "Push rejected (attempt ${attempt}); rebasing onto the latest ${GITHUB_REF_NAME}."
-            git pull --rebase origin "${GITHUB_REF_NAME}"
-          done
-          git push
-          echo "pushed=true" >> "$GITHUB_OUTPUT"
 
-      - name: Trigger CI on the pushed commit
-        # Pushes made with GITHUB_TOKEN never fire `on: push` workflows, so the
-        # commit above would stay untested and the CI-gated production branch
-        # would never receive it. Dispatch CI explicitly; that tested CI run
-        # advances `production` itself once all required jobs pass.
-        if: steps.commit.outputs.pushed == 'true'
+          remote_oid=""
+          if git fetch origin "$PROPOSAL_BRANCH"; then
+            remote_oid=$(git rev-parse FETCH_HEAD)
+          fi
+          git checkout -B "$PROPOSAL_BRANCH"
+          git commit -m "Refresh the vendored Brave Shields default filter lists"
+
+          if [[ -n "$remote_oid" ]]; then
+            git push \
+              --force-with-lease="refs/heads/${PROPOSAL_BRANCH}:${remote_oid}" \
+              origin "HEAD:refs/heads/${PROPOSAL_BRANCH}"
+          else
+            git push origin "HEAD:refs/heads/${PROPOSAL_BRANCH}"
+          fi
+
+          proposal_body="$RUNNER_TEMP/brave-list-refresh-pr.md"
+          printf '%s\n' \
+            '<!-- site-behavior-lab:brave-list-refresh-pr -->' \
+            '# Reviewed Brave Shields list refresh' \
+            '' \
+            'This proposal contains newly fetched third-party filter-list bytes from the repository-pinned Brave catalog and reviewed URL lock.' \
+            '' \
+            '- The fetcher forbids redirects and non-approved hosts or paths.' \
+            '- Every source and the combined ruleset are byte-capped and SHA-256 recorded.' \
+            '- The WASM engine check and unit suite passed before this proposal was published.' \
+            '- Merging still requires normal review and a fresh main-branch CI run.' \
+            > "$proposal_body"
+
+          pr_number=$(gh pr list \
+            --repo "$GITHUB_REPOSITORY" \
+            --state open \
+            --head "$PROPOSAL_BRANCH" \
+            --limit 2 \
+            --json number \
+            --jq 'if length > 1 then error("multiple open Brave-list refresh PRs") elif length == 1 then .[0].number else empty end')
+          if [[ -z "$pr_number" ]]; then
+            gh pr create \
+              --repo "$GITHUB_REPOSITORY" \
+              --base "$BASE_BRANCH" \
+              --head "$PROPOSAL_BRANCH" \
+              --title "Refresh the vendored Brave Shields default filter lists" \
+              --body-file "$proposal_body"
+          else
+            gh pr edit "$pr_number" \
+              --repo "$GITHUB_REPOSITORY" \
+              --title "Refresh the vendored Brave Shields default filter lists" \
+              --body-file "$proposal_body"
+          fi
+          echo "proposed=true" >> "$GITHUB_OUTPUT"
+
+      - name: Trigger non-promoting CI on the proposal branch
+        if: steps.commit.outputs.proposed == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh workflow run ci.yml --ref main
+          PROPOSAL_BRANCH: automation/brave-list-refresh
+        run: gh workflow run ci.yml --ref "$PROPOSAL_BRANCH"
 
       - name: Prepare scheduled Brave-list refresh alert
         id: brave_list_alert
@@ -113,11 +164,11 @@ jobs:
           if [[ "$BRAVE_LIST_JOB_STATUS" == "success" ]]; then
             failed=false
             outcome=completed
-            summary="The scheduled fetch, engine validation, unit suite, commit step, and any required CI dispatch completed."
+            summary="The scheduled fetch, engine validation, unit suite, reviewed-PR proposal step, and any required non-promoting CI dispatch completed."
           else
             failed=true
             outcome=failed
-            summary="The scheduled refresh did not complete every required fetch, validation, publication, and dispatch step."
+            summary="The scheduled refresh did not complete every required fetch, validation, proposal, and non-promoting CI dispatch step."
           fi
 
           run_url="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
@@ -236,8 +287,13 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
-          node-version: 24
+          node-version: 24.14.1
           cache: npm
+
+      - name: Verify pinned Node and npm
+        run: |
+          test "$(node --version)" = "v24.14.1"
+          test "$(npm --version)" = "11.11.0"
 
       - name: Install integrity-checked package metadata
         run: npm ci --ignore-scripts

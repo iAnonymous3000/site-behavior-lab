@@ -1,7 +1,11 @@
+import { parseStrictJson } from "./strict-json";
+
 const JOB_ID_PATTERN = /^[0-9]{8}-[0-9a-f]{32}$/;
 
 export const DURABLE_SCAN_JOB_REGISTRY_TTL_MS = 75 * 60 * 1_000;
 export const DURABLE_SCAN_JOB_REGISTRY_MAX_ROWS = 500;
+export const DURABLE_SCAN_JOB_ACCEPTED_RESPONSE_MAX_BYTES = 4 * 1024;
+export const DURABLE_SCAN_JOB_ACCEPTED_RESPONSE_TIMEOUT_MS = 5_000;
 
 type SqlValue = ArrayBuffer | string | number | null;
 
@@ -79,14 +83,18 @@ export function findDurableScanJob(
 export async function durableRegistrationFromAcceptedResponse(
   response: Response,
   scanBody: string,
-  createdAt = Date.now()
+  createdAt = Date.now(),
+  responseTimeoutMs = DURABLE_SCAN_JOB_ACCEPTED_RESPONSE_TIMEOUT_MS
 ): Promise<DurableScanJobRegistration | null> {
   if (response.status !== 202) return null;
   assertTimestamp(createdAt);
+  if (!Number.isSafeInteger(responseTimeoutMs) || responseTimeoutMs <= 0) {
+    throw new TypeError("The accepted-response inspection timeout must be a positive integer.");
+  }
 
   let payload: unknown;
   try {
-    payload = await response.clone().json();
+    payload = await readAcceptedResponseJson(response, responseTimeoutMs);
   } catch {
     return null;
   }
@@ -112,6 +120,80 @@ export async function durableRegistrationFromAcceptedResponse(
     totalRuns: totalRunsFromScanBody(scanBody),
     createdAt
   };
+}
+
+/**
+ * Inspect the tiny container admission receipt without consuming the response
+ * that must still be forwarded to the browser. Response.clone() creates a tee,
+ * so only the clone is read and its decompressed bytes are capped before JSON
+ * parsing. Cancellation is deliberately started without awaiting it: a tee
+ * branch's cancellation promise does not settle until the forwarding branch is
+ * consumed, and registration is best-effort background work.
+ */
+async function readAcceptedResponseJson(response: Response, timeoutMs: number): Promise<unknown | null> {
+  const declaredLength = response.headers.get("content-length");
+  if (declaredLength !== null) {
+    const parsedLength = Number(declaredLength);
+    if (Number.isSafeInteger(parsedLength) && parsedLength > DURABLE_SCAN_JOB_ACCEPTED_RESPONSE_MAX_BYTES) {
+      return null;
+    }
+  }
+
+  let clone: Response;
+  try {
+    clone = response.clone();
+  } catch {
+    return null;
+  }
+  if (!clone.body) return null;
+
+  const reader = clone.body.getReader();
+  const bytes = new Uint8Array(DURABLE_SCAN_JOB_ACCEPTED_RESPONSE_MAX_BYTES);
+  let totalBytes = 0;
+  let cancelClone = false;
+  const timedOut = Symbol("accepted-response-timeout");
+  let timeoutHandle: ReturnType<typeof setTimeout> | undefined;
+  const timeout = new Promise<typeof timedOut>((resolve) => {
+    timeoutHandle = setTimeout(() => resolve(timedOut), timeoutMs);
+  });
+  try {
+    for (;;) {
+      const next = await Promise.race([reader.read(), timeout]);
+      if (next === timedOut) {
+        cancelClone = true;
+        return null;
+      }
+      if (next.done) break;
+      if (next.value.byteLength > DURABLE_SCAN_JOB_ACCEPTED_RESPONSE_MAX_BYTES - totalBytes) {
+        cancelClone = true;
+        return null;
+      }
+      bytes.set(next.value, totalBytes);
+      totalBytes += next.value.byteLength;
+    }
+  } catch {
+    cancelClone = true;
+    return null;
+  } finally {
+    if (timeoutHandle !== undefined) clearTimeout(timeoutHandle);
+    if (cancelClone) {
+      void reader.cancel().catch(() => undefined);
+    } else {
+      try {
+        reader.releaseLock();
+      } catch {
+        // A non-conforming response stream may retain its lock after EOF. No
+        // stateful work remains attached to the inspection branch.
+      }
+    }
+  }
+
+  try {
+    const text = new TextDecoder("utf-8", { fatal: true }).decode(bytes.subarray(0, totalBytes));
+    return parseStrictJson(text, DURABLE_SCAN_JOB_ACCEPTED_RESPONSE_MAX_BYTES);
+  } catch {
+    return null;
+  }
 }
 
 /** Best-effort edge write: an accepted container response always wins. */

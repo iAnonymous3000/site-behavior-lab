@@ -22,9 +22,11 @@ test("promotion fallback can repair a failed direct promotion but rechecks every
   assert.match(workflow, /actions: read/);
   assert.match(workflow, /actions\/runs\/\$\{CI_RUN_ID\}\/jobs\?per_page=100/);
   for (const job of [
+    "Supply-chain Security",
     "Typecheck, Unit Tests, Build",
     "Chromium Smoke Test",
-    "Docker Runtime and Public R2 Smoke"
+    "Docker Runtime and Public R2 Smoke",
+    "Attest exact-SHA evidence manifests"
   ]) {
     assert.match(workflow, new RegExp(job.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
   }
@@ -60,7 +62,13 @@ test("Docker smoke preserves v1 and explicitly proves public v2/r2 bundles", () 
   assert.doesNotMatch(r2SmokeServer, /server\.listen\(0, "0\.0\.0\.0"/);
 
   const deployedSmoke = readFileSync(path.join(root, "scripts", "smoke-deployed-scanner.mjs"), "utf8");
-  assert.match(deployedSmoke, /https:\/\/www\.iana\.org\//);
+  // The promote gate must not hard-depend on ONE third party: an ordered
+  // candidate list lets a single target's outage or bot wall fall through to
+  // an independent target, while an all-candidates failure stays red.
+  assert.match(deployedSmoke, /"https:\/\/www\.iana\.org\/ https:\/\/www\.w3\.org\/"/);
+  assert.match(deployedSmoke, /shieldsUrlCandidates/);
+  assert.match(deployedSmoke, /tolerateScanFailure: true/);
+  assert.match(deployedSmoke, /failed on every candidate target/);
   assert.doesNotMatch(deployedSmoke, /SMOKE_SHIELDS_URL=https:\/\/sitebehavior\.org/);
   assert.doesNotMatch(deployedSmoke, /SMOKE_SHIELDS_URL=https:\/\/example\.com/);
 });

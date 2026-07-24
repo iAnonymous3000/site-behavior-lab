@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { createServer } from "node:http";
 import { connect } from "node:net";
 import { test } from "node:test";
-import { closeSharedBrowserForTests, scanSite, stagedSingleVisitMeasurement } from "./scanner";
+import { closeSharedBrowserForTests, scanSiteWithMeasurement } from "./scanner";
 
 test("privacy-policy probing rejects server redirects and render-time navigation to another party", { timeout: 30_000 }, async () => {
   const foreignPolicyHits: string[] = [];
@@ -50,7 +50,7 @@ test("privacy-policy probing rejects server redirects and render-time navigation
 
   try {
     for (const mode of ["redirect", "render"] as const) {
-      const result = await scanSite(
+      const { result, measurement } = await scanSiteWithMeasurement(
         {
           url: `http://policy-origin.test/?mode=${mode}`,
           device: "desktop",
@@ -66,15 +66,13 @@ test("privacy-policy probing rejects server redirects and render-time navigation
         }
       );
 
-      const staged = stagedSingleVisitMeasurement(result);
-      assert.notEqual(staged, null);
-      const policyPhase = staged!.measurement.phases.find((phase) => phase.kind === "policy-analysis");
+      const policyPhase = measurement.measurement.phases.find((phase) => phase.kind === "policy-analysis");
       assert.notEqual(policyPhase, undefined);
-      const policyDetector = staged!.measurement.detectors["privacy-policy"];
+      const policyDetector = measurement.measurement.detectors["privacy-policy"];
       assert.equal(policyDetector.status, "failed");
       assert.equal(policyDetector.reason, "load-failed");
       assert.equal(policyDetector.phaseId, policyPhase!.phaseId);
-      assert.equal(staged!.evidence.privacyPolicy, undefined);
+      assert.equal(measurement.evidence.privacyPolicy, undefined);
       assert.equal(
         result.warnings.some((warning) => warning.includes("foreign-policy.test")),
         false,
@@ -121,7 +119,7 @@ test("observe-mode consent probing ignores page-owned geometry navigation hooks"
 
   process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION = "1";
   try {
-    const result = await scanSite(
+    const { result, measurement } = await scanSiteWithMeasurement(
       {
         url: "http://observe-subject.test/",
         device: "desktop",
@@ -137,16 +135,15 @@ test("observe-mode consent probing ignores page-owned geometry navigation hooks"
       }
     );
 
-    assert.equal(result.summary.pageTitle, "Trusted observe subject");
+    assert.equal(result.summary.pageTitle, "", "page-authored titles are withheld by redaction policy");
+    assert.equal(result.summary.status, 200, "the trusted observe subject answered the recorded visit");
     assert.equal(result.cookies.some((cookie) => cookie.name === "other-subject-cookie"), false);
     assert.equal(result.storage.some((entry) => entry.key === "other-subject-storage"), false);
     assert.equal(result.warnings.some((warning) => warning.includes("left the recorded site")), false);
 
-    const staged = stagedSingleVisitMeasurement(result);
-    assert.notEqual(staged, null);
     for (const family of ["requests", "cookies", "storage", "fingerprinting"] as const) {
       assert.equal(
-        staged!.measurement.qualityFacts.captureLoss.some(
+        measurement.measurement.qualityFacts.captureLoss.some(
           (loss) => loss.family === family && loss.phaseId === 0 && loss.kind === "dropped"
         ),
         false,

@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import {
   DurableScanJobCoordinatorError,
-  assertDurableScanJobInternalRequest
+  assertDurableScanJobInternalRequest,
+  readDurableScanJobInternalRequestJson
 } from "@/lib/durable-scan-job-node";
 import {
   isDurableScanJobPublicationReconciliationRequest,
@@ -18,7 +19,7 @@ type RouteContext = { params: Promise<{ id: string }> };
 export async function POST(request: Request, context: RouteContext): Promise<Response> {
   try {
     assertDurableScanJobInternalRequest(request);
-    const body: unknown = await request.json();
+    const body = await readDurableScanJobInternalRequestJson(request);
     const { id } = await context.params;
     if (!isDurableScanJobPublicationReconciliationRequest(body) || body.jobId !== id) {
       return controlError("Invalid durable scan-job reconciliation request.", 400);

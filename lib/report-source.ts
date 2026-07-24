@@ -2,6 +2,7 @@ import path from "node:path";
 import { REPORT_ID_PATTERN } from "./report-validation";
 import type { ReadStoredScanReportError, StoredScanReport } from "./scan-report-reader";
 import { readStaticReportBundle } from "./static-report-files";
+import { sha256Hex } from "./sha256";
 
 /**
  * Server/build-time report lookup shared by the report page, its social
@@ -15,7 +16,13 @@ import { readStaticReportBundle } from "./static-report-files";
  * must handle, never a silent null that reads as "not found".
  */
 export type ReportSourceReadResult =
-  | { outcome: "found"; stored: StoredScanReport; wire: string; origin: "committed" | "share-store" }
+  | {
+      outcome: "found";
+      stored: StoredScanReport;
+      wire: string;
+      wireSha256: string;
+      origin: "committed" | "share-store";
+    }
   | { outcome: "not-found" }
   | { outcome: "unreadable"; error: ReadStoredScanReportError; violations?: string[] };
 
@@ -32,7 +39,9 @@ export async function readStoredReportForId(id: string, rootDir = process.cwd())
   // store into a false "not found" for every report it holds.
   const { readStoredScanReportById } = await import("./report-store");
   const stored = await readStoredScanReportById(id);
-  return stored.outcome === "found" ? { ...stored, origin: "share-store" } : stored;
+  return stored.outcome === "found"
+    ? { ...stored, wireSha256: sha256Hex(stored.wire), origin: "share-store" }
+    : stored;
 }
 
 async function readCommittedReport(id: string, rootDir: string): Promise<ReportSourceReadResult | null> {
@@ -46,5 +55,11 @@ async function readCommittedReport(id: string, rootDir: string): Promise<ReportS
       ...(read.violations ? { violations: read.violations } : {})
     };
   }
-  return { outcome: "found", stored: read.stored, wire: read.wire, origin: "committed" };
+  return {
+    outcome: "found",
+    stored: read.stored,
+    wire: read.wire,
+    wireSha256: sha256Hex(read.wire),
+    origin: "committed"
+  };
 }

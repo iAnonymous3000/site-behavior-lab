@@ -1,6 +1,9 @@
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir } from "node:fs/promises";
 import path from "node:path";
 import { buildCorpusStats } from "./corpus-stats-builder";
+import { replaceUtf8FileAtomically } from "./exact-atomic-file";
+import { acquireReportCorpusLock } from "./report-corpus-lock";
+import { CORPUS_STATS_JSON_MAX_BYTES } from "./report-resource-limits";
 
 /**
  * CLI wrapper for the corpus percentile builder. Invoked (compiled to the
@@ -15,17 +18,25 @@ async function main(): Promise<void> {
   const rootDir = process.cwd();
   const reportsDir = path.join(rootDir, "public", "reports");
   const outPath = path.join(rootDir, "public", "corpus-stats.json");
+  await mkdir(reportsDir, { recursive: true });
+  const lock = await acquireReportCorpusLock(reportsDir, "build-corpus-stats");
+  try {
+    const { stats, warnings } = await buildCorpusStats(reportsDir);
+    for (const warning of warnings) {
+      console.warn(warning);
+    }
 
-  const { stats, warnings } = await buildCorpusStats(reportsDir);
-  for (const warning of warnings) {
-    console.warn(warning);
+    await replaceUtf8FileAtomically(
+      outPath,
+      `${JSON.stringify(stats, null, 2)}\n`,
+      CORPUS_STATS_JSON_MAX_BYTES
+    );
+    console.log(
+      `Corpus stats written: ${stats.sampleSize} fully measured site${stats.sampleSize === 1 ? "" : "s"} (coverage: ${stats.coverageSiteCount ?? stats.sampleSize} loaded; ${stats.cappedSiteCount ?? 0} request-capped).`
+    );
+  } finally {
+    await lock.release();
   }
-
-  await mkdir(path.dirname(outPath), { recursive: true });
-  await writeFile(outPath, `${JSON.stringify(stats, null, 2)}\n`);
-  console.log(
-    `Corpus stats written: ${stats.sampleSize} fully measured site${stats.sampleSize === 1 ? "" : "s"} (coverage: ${stats.coverageSiteCount ?? stats.sampleSize} loaded; ${stats.cappedSiteCount ?? 0} request-capped).`
-  );
 }
 
 main().catch((error) => {

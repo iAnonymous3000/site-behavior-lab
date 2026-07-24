@@ -1,4 +1,6 @@
 import { readLoadedReport, withoutLoadedReportShare } from "./client-report-reader";
+import { readClientFileArrayBuffer, readClientFileText } from "./client-file-policy";
+import { parseJsonTextWithPolicy } from "./client-fetch-policy";
 import {
   MAX_PAGEGRAPH_METADATA_BYTES,
   MAX_PAGEGRAPH_UPLOAD_BYTES,
@@ -22,7 +24,8 @@ export type TrustedPageGraphClientContext = {
  */
 export async function buildPageGraphReportFromUpload(
   selectionValue: PageGraphUploadSelection,
-  context: TrustedPageGraphClientContext
+  context: TrustedPageGraphClientContext,
+  signal?: AbortSignal
 ): Promise<PublicSingleReportV2R2> {
   const selection = pageGraphUploadSelection([selectionValue.graphml, selectionValue.metadata]);
   if (!FULL_GIT_SHA.test(context.buildCommit)) {
@@ -30,39 +33,54 @@ export async function buildPageGraphReportFromUpload(
   }
 
   const [artifactBuffer, metadataText] = await Promise.all([
-    selection.graphml.arrayBuffer(),
-    selection.metadata.text()
+    readClientFileArrayBuffer(selection.graphml, {
+      label: "The PageGraph capture",
+      maxBytes: MAX_PAGEGRAPH_UPLOAD_BYTES,
+      signal
+    }),
+    readClientFileText(selection.metadata, {
+      label: "The PageGraph metadata sidecar",
+      maxBytes: MAX_PAGEGRAPH_METADATA_BYTES,
+      signal
+    })
   ]);
-  if (artifactBuffer.byteLength <= 0 || artifactBuffer.byteLength > MAX_PAGEGRAPH_UPLOAD_BYTES) {
-    throw new Error(`PageGraph captures must be between 1 byte and ${MAX_PAGEGRAPH_UPLOAD_BYTES / 1024 / 1024} MB.`);
-  }
-  if (new TextEncoder().encode(metadataText).byteLength > MAX_PAGEGRAPH_METADATA_BYTES) {
-    throw new Error(`PageGraph metadata must not exceed ${MAX_PAGEGRAPH_METADATA_BYTES / 1024} KB.`);
-  }
 
   let metadata: unknown;
   try {
-    metadata = JSON.parse(metadataText) as unknown;
+    metadata = parseJsonTextWithPolicy(metadataText, "The PageGraph metadata sidecar");
   } catch {
     throw new Error("The PageGraph metadata sidecar is not valid JSON.");
   }
 
+  signal?.throwIfAborted();
   const { buildPageGraphScanReportV2R2 } = await import("./pagegraph-v2-r2-builder");
-  return buildPageGraphScanReportV2R2(new Uint8Array(artifactBuffer), metadata, {
+  signal?.throwIfAborted();
+  const report = buildPageGraphScanReportV2R2(new Uint8Array(artifactBuffer), metadata, {
     buildCommit: context.buildCommit,
     runId: context.runId,
     // Local uploads are intentionally unlinkable through public provenance.
     includeSourceArtifactDigest: false
   });
+  signal?.throwIfAborted();
+  return report;
 }
 
 /** Exact callback target for PageGraphR2UploadButton.onUploadPair. */
-export async function readPageGraphUpload(selection: PageGraphUploadSelection): Promise<LoadedReport> {
-  const report = await buildPageGraphReportFromUpload(selection, {
-    buildCommit: configuredClientBuildCommit(),
-    runId: newPageGraphRunId()
-  });
+export async function readPageGraphUpload(
+  selection: PageGraphUploadSelection,
+  signal?: AbortSignal
+): Promise<LoadedReport> {
+  const report = await buildPageGraphReportFromUpload(
+    selection,
+    {
+      buildCommit: configuredClientBuildCommit(),
+      runId: newPageGraphRunId()
+    },
+    signal
+  );
+  signal?.throwIfAborted();
   const read = await readLoadedReport(report, "This PageGraph capture");
+  signal?.throwIfAborted();
   if (!read.ok) throw new Error(read.message);
   return withoutLoadedReportShare(read.loaded);
 }

@@ -113,6 +113,36 @@ test("the current TCF interpreter projects both Purpose 11 legal-basis vectors a
   }
 });
 
+test("the TCF reader closes attacker-sized eventStatus text before returning", async () => {
+  const previousWindow = Object.getOwnPropertyDescriptor(globalThis, "window");
+  Object.defineProperty(globalThis, "window", {
+    configurable: true,
+    value: trustedTcfWindow({
+      __tcfapi: (
+        _command: string,
+        _version: number,
+        callback: (data: unknown, success: boolean) => void
+      ) => callback({
+        gdprApplies: true,
+        eventStatus: "x".repeat(8 * 1024 * 1024),
+        purpose: {
+          consents: { "1": true, "2": true },
+          legitimateInterests: { "1": false, "2": false }
+        }
+      }, true)
+    })
+  });
+  try {
+    const result = await readTcfApiState(100);
+    assert.equal(result.status, "read");
+    if (result.status !== "read") throw new Error("expected TCF read outcome");
+    assert.equal(result.eventStatus, null);
+  } finally {
+    if (previousWindow === undefined) Reflect.deleteProperty(globalThis, "window");
+    else Object.defineProperty(globalThis, "window", previousWindow);
+  }
+});
+
 test("the TCF reader distinguishes absent, empty, and malformed publisher restrictions", async () => {
   const previousWindow = Object.getOwnPropertyDescriptor(globalThis, "window");
   const readWith = async (publisher: unknown): Promise<TcfApiReadOutcome> => {

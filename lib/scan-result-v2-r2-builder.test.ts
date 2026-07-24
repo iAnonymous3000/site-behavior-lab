@@ -15,6 +15,10 @@ import {
   DETECTOR_VERSIONS
 } from "./measurement-kernel";
 import { readStoredScanReport } from "./scan-report-reader";
+import {
+  R2_NAVIGATION_STATUS_UNREPRESENTABLE,
+  R2_REQUEST_STATUS_UNREPRESENTABLE
+} from "./scan-report-v2-http-status";
 import { toPublicScanReportR2 } from "./scan-report-v2-r2-projection";
 import { scanReportV2R2SemanticViolations } from "./scan-report-v2-r2-evaluators";
 import { isEphemeralScanReportR2, isPublicScanReportV2R2 } from "./scan-report-v2-r2-validation";
@@ -31,6 +35,9 @@ import {
 } from "./scan-result-v2-r2-builder";
 import { trackerCatalogMetadata } from "./tracker-catalog";
 import { findTrackerMatch } from "./tracker-catalog";
+import { publicReportDigest } from "./canonical-json";
+import { redactPublicScanReportV2R2 } from "./scan-report-v2-r2-remediation";
+import { prepareScanReportBundle } from "./report-store";
 
 const BUILD_COMMIT_ENV = "SITE_BEHAVIOR_LAB_BUILD_COMMIT";
 process.env[BUILD_COMMIT_ENV] = "a".repeat(40);
@@ -118,6 +125,21 @@ function baseInput(): NodeScanReportV2R2Input {
     screenshot: "data:image/png;base64,PRIVATE_SCREENSHOT"
   };
 }
+
+test("real Node producer output is an exact managed-sanitizer fixed point", () => {
+  const report = buildNodeScanReportV2R2(baseInput());
+  const publicReport = toPublicScanReportR2(report);
+  assert.equal(
+    publicReportDigest(redactPublicScanReportV2R2(publicReport)),
+    publicReportDigest(publicReport)
+  );
+  const prepared = prepareScanReportBundle(report, {
+    shareId: `20260721-${"e".repeat(32)}`,
+    now: new Date("2026-07-21T12:00:00.000Z")
+  });
+  assert.equal(prepared.reportWire.includes("ephemeral"), false);
+  assert.equal(prepared.manifest.reportId, `20260721-${"e".repeat(32)}`);
+});
 
 function comparisonInput(
   axis: "gpc" | "shields" | "consent",
@@ -408,10 +430,68 @@ test("the Node builder emits a validator-clean r2 shell with current provenance 
   assert.equal(report.run.toolchain.normalizationVersion, NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION);
   assert.match(report.run.fingerprints.execution, /^[0-9a-f]{64}$/);
   assert.equal(report.run.quality.run.outcome, "complete");
-  assert.equal(report.run.summary.pageTitle, "Example Shop");
+  assert.equal(report.run.summary.pageTitle, "", "page-authored titles do not persist in public r2 reports");
   assert.deepEqual(report.run.summary.countsByPhase, [
     { phaseId: 0, totalRequests: 1, thirdPartyRequests: 0, knownTrackerRequests: 0 }
   ]);
+  assert.deepEqual(scanReportV2R2SemanticViolations(toPublicScanReportR2(report)), []);
+});
+
+test("valid 600-999 Node statuses fail closed at the frozen r2 boundary without inventing 599", () => {
+  const input = baseInput();
+  input.measurement.qualityFacts.status = 699;
+  input.evidence.requests[0].status = 699;
+
+  const report = buildNodeScanReportV2R2(input);
+  const publicReport = toPublicScanReportR2(report);
+
+  assert.equal(input.measurement.qualityFacts.status, 699, "the caller's staged facts are not mutated");
+  assert.equal(input.evidence.requests[0].status, 699, "the caller's request evidence is not mutated");
+  assert.equal(report.run.qualityFacts.status, null);
+  assert.equal(report.run.summary.status, null);
+  assert.equal(report.run.evidence.requests[0].status, null);
+  assert.equal(report.run.quality.run.outcome, "failed");
+  assert.equal(report.run.quality.run.reasons.includes("http-error-status"), true);
+  assert.equal(report.run.quality.byFamily.requests.outcome, "censored");
+  assert.deepEqual(
+    report.run.qualityFacts.captureLoss.filter((entry) => entry.detail?.startsWith("r2-")),
+    [
+      {
+        family: "requests",
+        phaseId: null,
+        kind: "dropped",
+        count: 1,
+        detail: R2_NAVIGATION_STATUS_UNREPRESENTABLE
+      },
+      {
+        family: "requests",
+        phaseId: 0,
+        kind: "dropped",
+        count: 1,
+        detail: R2_REQUEST_STATUS_UNREPRESENTABLE
+      }
+    ]
+  );
+  assert.equal(JSON.stringify(publicReport).includes('"status":599'), false);
+  assert.deepEqual(scanReportV2R2SemanticViolations(publicReport), []);
+  assert.equal(readStoredScanReport(publicReport).ok, true);
+});
+
+test("an unrepresentable subresource status censors requests without failing a successful navigation", () => {
+  const input = baseInput();
+  input.evidence.requests.push({
+    ...input.evidence.requests[0],
+    id: 2,
+    status: 799,
+    startedAtMs: 30
+  });
+
+  const report = buildNodeScanReportV2R2(input);
+  assert.equal(report.run.qualityFacts.status, 200);
+  assert.equal(report.run.evidence.requests[1].status, null);
+  assert.equal(report.run.quality.run.outcome, "complete");
+  assert.equal(report.run.quality.run.reasons.includes("http-error-status"), false);
+  assert.equal(report.run.quality.byFamily.requests.outcome, "censored");
   assert.deepEqual(scanReportV2R2SemanticViolations(toPublicScanReportR2(report)), []);
 });
 
@@ -666,9 +746,15 @@ test("opaque provenance and cookie enums cannot carry imported private strings",
 });
 
 test("request, cookie, and CNAME evidence is numerically valid and party-grounded", () => {
-  const badStatus = baseInput();
-  badStatus.measurement.qualityFacts.status = -1.5;
-  assert.throws(() => buildNodeScanReportV2R2(badStatus), /quality HTTP status/);
+  for (const status of [-1.5, 99, 1_000]) {
+    const badStatus = baseInput();
+    badStatus.measurement.qualityFacts.status = status;
+    assert.throws(() => buildNodeScanReportV2R2(badStatus), /quality HTTP status/);
+
+    const badRequestStatus = baseInput();
+    badRequestStatus.evidence.requests[0].status = status;
+    assert.throws(() => buildNodeScanReportV2R2(badRequestStatus), /request evidence HTTP status/);
+  }
 
   const duplicateRequest = baseInput();
   duplicateRequest.evidence.requests.push({ ...duplicateRequest.evidence.requests[0] });

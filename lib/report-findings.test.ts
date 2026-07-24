@@ -1,9 +1,18 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { createConsentComparisonReport, createGpcComparisonReport, createShieldsComparisonReport } from "./compare-reports";
+import { corpusCohortIdentityForView } from "./corpus-cohort";
+import { GPC_WORKER_CAPTURE_LOSS_WARNING } from "./gpc-injection";
 import { buildFindings, type Finding, type FindingIconKey } from "./report-findings";
 import type { CorpusStats } from "./corpus-stats";
-import { makeConsentInterventionReportV2R2, makeShieldsInterventionReportV2R2 } from "./scan-report-v2-r2-fixtures";
+import { INVALID_UPSTREAM_RESPONSE_WARNING } from "./scan-runtime";
+import { evaluateQuality } from "./scan-report-v2-evaluators";
+import { R2_NAVIGATION_STATUS_UNREPRESENTABLE } from "./scan-report-v2-http-status";
+import {
+  makeConsentInterventionReportV2R2,
+  makePublicSingleReportV2R2,
+  makeShieldsInterventionReportV2R2
+} from "./scan-report-v2-r2-fixtures";
 import { makePublicSingleReportV2 } from "./scan-report-v2-fixtures";
 import { viewFromV1Report, viewFromV2 } from "./scan-report-views";
 import {
@@ -64,6 +73,33 @@ test("an HTTP error load gets a failed-load bottom line, not a low-signal one", 
   assert.match(bottomLine.title, /blocked\.example did not load \(HTTP 403\)/);
   assert.match(bottomLine.lead, /HTTP 403/);
   assert.doesNotMatch(bottomLine.title, /few review signals/);
+});
+
+test("a failed r2 navigation with an unrepresentable status leads with incomplete navigation, not reassurance", () => {
+  const report = makePublicSingleReportV2R2();
+  report.run.qualityFacts.status = null;
+  report.run.summary.status = null;
+  report.run.qualityFacts.captureLoss.push({
+    family: "requests",
+    phaseId: null,
+    kind: "dropped",
+    count: 1,
+    detail: R2_NAVIGATION_STATUS_UNREPRESENTABLE
+  });
+  report.run.quality = evaluateQuality(report.run.qualityFacts, { observedRequests: report.run.evidence.requests.length });
+
+  const findings = buildFindings(viewFromV2(report, 2), null);
+  const bottomLine = findings[0];
+  assert.equal(bottomLine.id, "bottom-line");
+  assert.equal(bottomLine.level, "info");
+  assert.match(bottomLine.title, /main page did not complete a trustworthy load/);
+  assert.match(bottomLine.lead, /outside this frozen report format's representable range/);
+  assert.match(bottomLine.lead, /exact code is withheld instead of being coerced/);
+  assert.match(bottomLine.detail, /incomplete visit, not a positive privacy conclusion/);
+  assert.doesNotMatch(`${bottomLine.title} ${bottomLine.lead}`, /few review signals|HTTP \d{3}/);
+  assert.equal(byId(findings, "third-party-services").level, "info");
+  assert.equal(findings.some((finding) => finding.level === "ok" || finding.level === "quiet"), false);
+  assert.match(byId(findings, "third-party-cookies").detail, /absence describes only an incomplete visit/);
 });
 
 test("failed and request-capped visits never receive corpus benchmark labels", () => {
@@ -242,15 +278,15 @@ test("uses measured percentile wording when the corpus is usable, fixed threshol
   });
 
   const withCorpus = buildFindings(viewFromV1Report(result), makeCorpus(60));
-  assert.match(byId(withCorpus, "third-party-services").benchmark ?? "", /90th-percentile mark for .* across the 60 fully measured sites/);
-  assert.match(byId(withCorpus, "bottom-line").detail, /percentiles from the 60 fully measured sites/);
+  assert.match(byId(withCorpus, "third-party-services").benchmark ?? "", /90th-percentile mark for .* across the 60 sites measured for this metric/);
+  assert.match(byId(withCorpus, "bottom-line").detail, /each percentile card naming its metric-specific measured-site denominator/);
 
   // A corpus that also records its coverage names both concepts without
   // mislabeling loaded coverage as every attempted scan.
   const withCoverage = buildFindings(viewFromV1Report(result), { ...makeCorpus(60), coverageSiteCount: 62 });
   assert.match(
     byId(withCoverage, "bottom-line").detail,
-    /60 fully measured sites \(among 62 sites with a successful load; request-capped, post-choice consent, and v2 loads are included in that coverage but excluded from this legacy-v1 distribution, while failed or block-page attempts are outside it\)/
+    /legacy-v1 cohort, with each percentile card naming its metric-specific measured-site denominator \(among 62 sites with a successful load; request-capped, post-choice consent, and v2 loads are included in that coverage but excluded from this legacy-v1 cohort, while failed or block-page attempts are outside it\)/
   );
 
   const withoutCorpus = buildFindings(viewFromV1Report(result), null);
@@ -268,6 +304,40 @@ test("a v2 view is never benchmarked against the v1-only corpus", () => {
   const findings = buildFindings(view, makeCorpus(60));
   assert.doesNotMatch(byId(findings, "third-party-services").benchmark ?? "", /fully measured sites/);
   assert.match(byId(findings, "bottom-line").detail, /fixed reference thresholds/);
+});
+
+test("a version-2 corpus benchmarks only the report's exact methodology cohort", () => {
+  const view = viewFromV2(makePublicSingleReportV2(), 1);
+  const identity = corpusCohortIdentityForView(view);
+  const legacyCompatibility = makeCorpus(75);
+  const matching: CorpusStats = {
+    ...legacyCompatibility,
+    version: 2,
+    primaryCohortId: "v1:legacy:producer-unrecorded",
+    cohorts: [
+      {
+        ...identity,
+        sampleSize: 60,
+        metrics: legacyCompatibility.metrics
+      }
+    ]
+  };
+
+  const matched = buildFindings(view, matching);
+  assert.match(
+    byId(matched, "bottom-line").detail,
+    /each percentile card naming its metric-specific measured-site denominator/,
+    "the matching r1 methodology cohort is usable"
+  );
+  assert.match(byId(matched, "bottom-line").detail, /exact schema, methodology, and producer cohort/);
+  assert.doesNotMatch(byId(matched, "bottom-line").detail, /legacy-v1 distribution/);
+
+  const mismatched: CorpusStats = {
+    ...matching,
+    cohorts: matching.cohorts?.map((cohort) => ({ ...cohort, id: `${cohort.id}-different-method` }))
+  };
+  const rejected = buildFindings(view, mismatched);
+  assert.match(byId(rejected, "bottom-line").detail, /fixed reference thresholds/);
 });
 
 test("small corpora below the honesty gate fall back to fixed thresholds", () => {
@@ -761,6 +831,35 @@ test("an ineligible comparison replaces the story card with the disqualifying fa
   );
   assert.match(gpcCard.title, /not conclusive/);
   assert.match(gpcCard.lead, /different sites/);
+});
+
+test("request capture loss replaces the GPC finding with a non-comparative methodology card", () => {
+  const captureLossCases = [
+    { warning: GPC_WORKER_CAPTURE_LOSS_WARNING, reason: /GPC Worker capture loss/ },
+    { warning: INVALID_UPSTREAM_RESPONSE_WARNING, reason: /rejected invalid upstream responses/ },
+    {
+      warning: "The scan stopped opening additional proxy requests after reaching its connection and target safety budget.",
+      reason: /proxy connection and target safety budget/
+    }
+  ];
+
+  for (const { warning, reason } of captureLossCases) {
+    const baseline = makeResult({
+      firstPartyDomain: "shop.example",
+      domains: [makeTrackerDomain("ads.example", 100, "AdCo", "advertising")],
+      thirdPartyRequests: 100,
+      thirdPartyDomains: 10
+    });
+    const incompleteVariant = makeResult({ firstPartyDomain: "shop.example", thirdPartyRequests: 0, thirdPartyDomains: 0 });
+    incompleteVariant.warnings = [warning];
+
+    const card = byId(buildFindings(viewFromV1Report(gpcPair(baseline, incompleteVariant)), null), "gpc-comparison");
+    assert.equal(card.methodology, true, warning);
+    assert.match(card.title, /not conclusive/, warning);
+    assert.match(card.lead, reason, warning);
+    assert.doesNotMatch(card.lead, /fewer|lower|more|versus|changed/, warning);
+    assert.match(card.detail, /diff between them supports no claim/, warning);
+  }
 });
 
 test("listener-coverage cards are restricted to cross-site origins", () => {

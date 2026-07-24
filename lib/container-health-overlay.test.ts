@@ -9,7 +9,9 @@ test("the edge health overlay cannot turn a container refusal back into readines
   assert.equal(scansAvailableAfterEdgeOverlay(false, ["edge refused"]), false);
   assert.equal(scansAvailableAfterEdgeOverlay(true, ["edge refused"]), false);
   assert.equal(scansAvailableAfterEdgeOverlay(true, []), true);
-  assert.equal(scansAvailableAfterEdgeOverlay(undefined, []), true);
+  assert.equal(scansAvailableAfterEdgeOverlay(undefined, []), false);
+  assert.equal(scansAvailableAfterEdgeOverlay(null, []), false);
+  assert.equal(scansAvailableAfterEdgeOverlay("true", []), false);
 });
 
 test("the Containers Worker forwards the public-r2 rollout gate into Node", async () => {

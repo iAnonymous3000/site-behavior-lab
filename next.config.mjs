@@ -108,7 +108,7 @@ const nextConfig = {
               ].join("; ")
             },
             { key: "Strict-Transport-Security", value: "max-age=31536000; includeSubDomains" },
-            { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+            { key: "Referrer-Policy", value: "no-referrer" },
             { key: "X-Content-Type-Options", value: "nosniff" },
             { key: "X-Frame-Options", value: "DENY" },
             {
@@ -131,6 +131,10 @@ const nextConfig = {
             {
               source: "/(.*)",
               headers: securityHeaders
+            },
+            {
+              source: "/",
+              headers: noStoreHeaders
             },
             {
               source: "/api/:path*",

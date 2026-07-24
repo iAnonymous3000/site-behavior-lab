@@ -4,9 +4,13 @@ import { pathToFileURL } from "node:url";
 import { test } from "node:test";
 
 type BraveListFetchHelpers = {
+  CATALOG_COMMIT: string;
+  CATALOG_SHA256: string;
+  CATALOG_URL: string;
   collectDefaultSources(catalog: unknown): string[];
   isTransientHttpStatus(status: unknown): boolean;
   retryAfterMs(value: unknown, now?: number): number | null;
+  validateApprovedSourceUrl(value: string): string;
   fetchTextWithRetry(
     url: string,
     options?: {
@@ -15,6 +19,8 @@ type BraveListFetchHelpers = {
       now?: () => number;
       timeoutMs?: number;
       transientRetries?: number;
+      maxBytes?: number;
+      allowedUrls?: Iterable<string>;
       onRetry?: (value: { attempt: number; delayMs: number; reason: string }) => void;
     }
   ): Promise<string>;
@@ -37,6 +43,30 @@ test("Brave-list source collection keeps only unique default-enabled URLs", asyn
     ]),
     ["https://example.test/a", "https://example.test/b"]
   );
+});
+
+test("Brave-list catalog and source policy are immutable reviewed inputs", async () => {
+  const { CATALOG_COMMIT, CATALOG_SHA256, CATALOG_URL, validateApprovedSourceUrl } = await helpers;
+  assert.match(CATALOG_COMMIT, /^[a-f0-9]{40}$/);
+  assert.match(CATALOG_SHA256, /^[a-f0-9]{64}$/);
+  assert.equal(
+    CATALOG_URL,
+    `https://raw.githubusercontent.com/brave/adblock-resources/${CATALOG_COMMIT}/filter_lists/list_catalog.json`
+  );
+  assert.equal(
+    validateApprovedSourceUrl("https://easylist.to/easylist/easylist.txt"),
+    "https://easylist.to/easylist/easylist.txt"
+  );
+  for (const rejected of [
+    "http://easylist.to/easylist/easylist.txt",
+    "https://easylist.to:443/easylist/easylist.txt",
+    "https://easylist.to:444/easylist/easylist.txt",
+    "https://easylist.to/easylist/other.txt",
+    "https://raw.githubusercontent.com/attacker/repository/master/list.txt",
+    "https://127.0.0.1/list.txt"
+  ]) {
+    assert.throws(() => validateApprovedSourceUrl(rejected), /HTTPS|port, query, or fragment|host\/path policy/);
+  }
 });
 
 test("Brave-list fetch retries 429 and 5xx with bounded Retry-After handling", async () => {
@@ -157,4 +187,43 @@ test("Brave-list fetch applies a real per-attempt deadline", async () => {
     () => fetchTextWithRetry("https://example.test/hangs", { fetcher, timeoutMs: 5, transientRetries: 0 }),
     (error) => error instanceof Error && error.name === "TimeoutError"
   );
+});
+
+test("Brave-list fetch refuses redirects, unreviewed URLs, and decompressed oversize bodies without retrying", async () => {
+  const { fetchTextWithRetry } = await helpers;
+  let redirectCalls = 0;
+  const redirectFetcher = (async () => {
+    redirectCalls += 1;
+    return new Response(null, { status: 302, headers: { Location: "https://other.test/list" } });
+  }) as typeof fetch;
+  await assert.rejects(
+    () => fetchTextWithRetry("https://example.test/list", {
+      fetcher: redirectFetcher,
+      transientRetries: 2
+    }),
+    /redirect 302 is forbidden/
+  );
+  assert.equal(redirectCalls, 1);
+
+  await assert.rejects(
+    () => fetchTextWithRetry("https://example.test/list", {
+      allowedUrls: ["https://example.test/other"]
+    }),
+    /not present in the reviewed source lock/
+  );
+
+  let oversizeCalls = 0;
+  const oversizeFetcher = (async () => {
+    oversizeCalls += 1;
+    return new Response("12345");
+  }) as typeof fetch;
+  await assert.rejects(
+    () => fetchTextWithRetry("https://example.test/list", {
+      fetcher: oversizeFetcher,
+      maxBytes: 4,
+      transientRetries: 2
+    }),
+    /exceeds the 4-byte limit/
+  );
+  assert.equal(oversizeCalls, 1);
 });

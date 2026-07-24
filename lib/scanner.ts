@@ -65,7 +65,11 @@ import { resolveCnameCloaks, type CnameChainResolver } from "./cname-uncloaking"
 import type { CnameCloak, NetworkRequestRecord, TrackerMatch } from "./types";
 import { promises as dnsPromises } from "node:dns";
 import { PublicScanError } from "./public-errors";
-import { assertPublicHttpUrl, normalizeUrl } from "./url-safety";
+import {
+  assertPublicHttpUrl,
+  normalizeUrl,
+  PUBLIC_URL_DNS_TIMEOUT_MS
+} from "./url-safety";
 import { safeParseUrl } from "./report-url";
 import { redactUrlV2 } from "./redaction-v2";
 import { buildScanConditions, buildScanResult } from "./scan-result-builder";
@@ -84,8 +88,10 @@ import {
 import { chromiumSandboxEnabled } from "./chromium-sandbox";
 import {
   aggregateByteBudgetWarning,
-  collectStorageEntries,
+  collectBoundedPageTitle,
+  collectStorageEntriesWithCoverage,
   INVALID_UPSTREAM_RESPONSE_WARNING,
+  MAX_RECORDED_REQUEST_URL_CHARS,
   ScanNetworkRecorder,
   ScanRequestBudget,
   type ScanRequestBudgetDiagnostics,
@@ -94,18 +100,29 @@ import {
   verifyRoutedHttpRequest,
   withScanDeadline
 } from "./scan-runtime";
+import {
+  runScannerCleanupWithinDeadline,
+  SCANNER_OPERATION_TIMEOUT_MS,
+  withScannerOperationDeadline
+} from "./scanner-resource-lifecycle";
+import {
+  callBoundedElementCollector,
+  callBoundedPageCollector,
+  createBoundedPageCollectorKey,
+  installBoundedPageCollector
+} from "./bounded-page-collector";
 import type {
-  ConsentFactsR2,
-  ConsentObservationFactsR2,
-  MeasurementKernelResultR2
+  ConsentObservationFactsR2
 } from "./scan-result-v2-r2-builder";
 import type {
   BannerTransitionR2,
-  GpcVerificationFactsR2,
-  RunEvidenceR2,
-  ShieldsVerificationFactsR2
+  GpcVerificationFactsR2
 } from "./scan-report-v2-r2";
-import type { ConditionVector } from "./scan-report-v2";
+import {
+  createNodeScanMeasurementEnvelope,
+  type NodeScanMeasurement,
+  type NodeScanMeasurementEnvelope
+} from "./node-scan-measurement";
 import { scannerEgressRegion } from "./scanner-egress";
 import { isLikelyBotWallPage } from "./bot-wall-classifier";
 import {
@@ -168,6 +185,8 @@ export const MAX_SCAN_DURATION_MS = 45_000;
 // Active keystroke-exfiltration probe: how many fields to type into, the minimum
 // time budget needed to bother, and how long to watch for the sentinel leaving.
 const MAX_PROBE_FIELDS = 8;
+export const MAX_PROBE_FIELD_CANDIDATES = 64;
+export const MAX_PROBE_CAPTURED_REQUESTS = 1_000;
 const KEYSTROKE_PROBE_MIN_BUDGET_MS = 4_000;
 const KEYSTROKE_EXFIL_WAIT_MS = 2_500;
 // Batch-on-unload flush: budget needed to navigate away (firing pagehide so
@@ -211,6 +230,9 @@ const PRIVACY_POLICY_MIN_BUDGET_MS = 7_000;
 const PRIVACY_POLICY_NAV_TIMEOUT_MS = 8_000;
 const PRIVACY_POLICY_RENDER_WAIT_MS = 1_000;
 const MAX_POLICY_LINK_CANDIDATES = 12;
+export const MAX_POLICY_LINKS_INSPECTED = 2_000;
+export const MAX_POLICY_LINK_HREF_CHARS = MAX_RECORDED_REQUEST_URL_CHARS;
+export const MAX_POLICY_LINK_TEXT_CHARS = 80;
 const MAX_POLICY_PAGE_REQUESTS = 150;
 const MAX_POLICY_TEXT_CHARS = 400_000;
 let sharedBrowser: Browser | null = null;
@@ -458,38 +480,6 @@ export function retainedScanEvidenceDiagnostics(
   };
 }
 
-/**
- * Phase-1 collection artifact for a live Node single visit. It has the exact
- * measurement/evidence shape consumed by the staged r2 builder. It remains
- * process-local until a public or shadow r2 report is built from it.
- */
-export type StagedSingleVisitMeasurement = {
-  measurement: MeasurementKernelResultR2;
-  evidence: Omit<RunEvidenceR2, "consent">;
-  /** Recorded consent facts (RFC 15.4/15.5); present on every consent-mode run. */
-  consent?: ConsentFactsR2;
-  verificationFacts: {
-    gpc: GpcVerificationFactsR2;
-    shields: ShieldsVerificationFactsR2;
-  };
-  /**
-   * Raw builder inputs for public and shadow r2 emission (kernel step 4).
-   * Process-local only: the raw subject URLs here never serialize anywhere;
-   * the r2 builder applies its own redaction when a report is built from them.
-   */
-  emissionInputs: {
-    startedAt: string;
-    requestedUrl: string;
-    observedUrl: string;
-    conditions: ConditionVector;
-    adblockEngineLoaded: boolean;
-    pageTitle: string;
-    durationMs: number;
-    warnings: string[];
-    screenshot: string | null;
-  };
-};
-
 type PendingGpcReadback = {
   request: Request | null;
   header: GpcVerificationFactsR2["header"];
@@ -504,7 +494,13 @@ type PassiveBoundaryState = {
 
 type KeystrokeProbeOutcome =
   | { status: "complete"; detection: KeystrokeExfiltrationDetectionSummary | null }
-  | { status: "partial"; reason: "budget-unavailable" | "load-failed"; detection: null; subjectLost?: true }
+  | {
+      status: "partial";
+      reason: "budget-unavailable" | "load-failed";
+      detection: KeystrokeExfiltrationDetectionSummary | null;
+      captureLossCount?: number;
+      subjectLost?: true;
+    }
   | { status: "skipped"; reason: "load-failed"; detection: null; subjectLost: true }
   | { status: "failed"; reason: "scan-failed"; detection: null };
 
@@ -517,30 +513,19 @@ type ConsentChoiceProbeOutcome = {
   readableFrames: number;
 };
 
-const stagedSingleVisitMeasurements = new WeakMap<ScanResult, StagedSingleVisitMeasurement>();
 const publicHostCheckFailures = new WeakMap<Map<string, Promise<void>>, Map<string, number>>();
 const MAX_PUBLIC_HOST_CHECK_ATTEMPTS = 2;
 
-/**
- * Read the process-local phase-aware facts attached to a live v1 result.
- * Returning a clone prevents a future consumer from mutating the recorded
- * facts. The attachment is a WeakMap entry, never a public wire property.
- */
-export function stagedSingleVisitMeasurement(result: ScanResult): StagedSingleVisitMeasurement | null {
-  const measurement = stagedSingleVisitMeasurements.get(result);
-  return measurement ? structuredClone(measurement) : null;
-}
-
-/** Exported for parity tests; production calls this only at the final v1 seam. */
-export function attachStagedSingleVisitMeasurement(
-  result: ScanResult,
-  measurement: StagedSingleVisitMeasurement
-): ScanResult {
-  stagedSingleVisitMeasurements.set(result, structuredClone(measurement));
-  return result;
-}
-
+/** Frozen-v1 compatibility entrypoint for direct scanner consumers. */
 export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOptions = {}): Promise<ScanResult> {
+  return (await scanSiteWithMeasurement(payload, options)).result;
+}
+
+/** Real Node producer entrypoint: the v1 result and r2 facts travel together. */
+export async function scanSiteWithMeasurement(
+  payload: ScanRequestPayload,
+  options: ScanSiteOptions = {}
+): Promise<NodeScanMeasurementEnvelope> {
   throwIfScanAborted(options.signal);
   const started = Date.now();
   const measurementKernel = new MeasurementKernel<Request>(started);
@@ -548,7 +533,19 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
   const targetUrl = normalizeUrl(payload.url);
   const verifyPublicUrl = options.verifyPublicUrl ?? assertPublicHttpUrl;
   if (!options.publicUrlAlreadyVerified) {
-    await verifyPublicUrl(targetUrl);
+    await withScannerOperationDeadline(
+      (signal) =>
+        options.verifyPublicUrl
+          ? options.verifyPublicUrl(targetUrl)
+          : assertPublicHttpUrl(targetUrl, { signal, timeoutMs: PUBLIC_URL_DNS_TIMEOUT_MS }),
+      {
+        label: "initial public target verification",
+        timeoutMs: PUBLIC_URL_DNS_TIMEOUT_MS,
+        signal: options.signal,
+        createTimeoutError: () =>
+          new PublicScanError("Public host verification timed out. Try again shortly.", 503)
+      }
+    );
   }
 
   const warnings = new ScanWarningCollector([
@@ -577,6 +574,7 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
   }
   const verificationFlagOn = consentVerificationEnabled();
   const consentShadowRootCapability = randomBytes(32).toString("hex");
+  const boundedPageCollectorKey = createBoundedPageCollectorKey();
   const gpcWorkerInjection = payload.gpcEnabled ? createGpcWorkerInjectionSession() : null;
   let context: BrowserContext | null = null;
   const scanProxy = await startPublicScanProxy({
@@ -596,6 +594,7 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
     throwIfScanAborted(options.signal);
     context = await browser.newContext(createContextOptions(payload, scanProxy.server));
     throwIfScanAborted(options.signal);
+    await context.addInitScript(installBoundedPageCollector, boundedPageCollectorKey);
     if (payload.consentMode !== "observe" || verificationFlagOn) {
       await context.addInitScript(
         installConsentShadowRootCapture,
@@ -743,7 +742,7 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
     });
 
     // Kernel step 3 state (flag-gated): registered consent-state readback.
-    // Everything recorded here is staged r2 fact material. It remains private
+    // Everything recorded here is process-local r2 fact material. It remains private
     // until an r2 builder sanitizes and projects it onto a report wire.
     const verificationEnabled = payload.consentMode !== "observe" && verificationFlagOn;
     const consentObservations: ConsentObservationFactsR2[] = [];
@@ -843,10 +842,14 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
         ? trustedSubjectCandidate.toString()
         : targetUrl.toString();
     const trustedSubjectHostname = safeParseUrl(trustedSubjectUrl)!.hostname;
-    const trustedSubjectPageTitle = await withScanTimeout(page.title(), started).catch((error) => {
+    const trustedSubjectPageTitleRead = await withScanTimeout(
+      collectBoundedPageTitle(page, boundedPageCollectorKey),
+      started
+    ).catch((error) => {
       if (isScanBudgetError(error)) throw error;
-      return "";
+      return { value: "", truncated: false };
     });
+    const trustedSubjectPageTitle = trustedSubjectPageTitleRead.value;
     const trustedSubjectRequestIds = new Set(
       networkRecorder.publicRecords(trustedSubjectHostname).map((record) => record.id)
     );
@@ -971,6 +974,19 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
         );
       }
     };
+    const collectStorageSnapshot = async (phaseId: number): Promise<StorageRecord[]> => {
+      const collection = await collectStorageEntriesWithCoverage(page, boundedPageCollectorKey);
+      if (collection.truncated) {
+        measurementKernel.recordCaptureLoss({
+          family: "storage",
+          phaseId,
+          kind: "truncated",
+          count: Math.max(1, collection.omittedCount),
+          detail: "storage-snapshot"
+        });
+      }
+      return collection.records;
+    };
 
     // A non-2xx top-level response does not reject goto, so the scan otherwise
     // completes and an error/block page reads as a low-tracker (falsely "private")
@@ -1012,7 +1028,7 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
       // exactly where they were.
       const [passiveCookies, passiveStorage, passiveFingerprint] = await Promise.all([
         capturePassiveBoundary(withScanTimeout(collectCookies(context, trustedSubjectHostname), started)),
-        capturePassiveBoundary(withScanTimeout(collectStorageEntries(page), started)),
+        capturePassiveBoundary(withScanTimeout(collectStorageSnapshot(passivePhaseId), started)),
         capturePassiveBoundary(withScanTimeout(collectFingerprintObservationsWithCoverage(page.frames()), started))
       ]);
       // Capture-loss details use the registered budget vocabulary
@@ -1191,6 +1207,7 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
     }
 
     let tentativePageTitle = trustedSubjectPageTitle;
+    let tentativePageTitleTruncated = trustedSubjectPageTitleRead.truncated;
     let tentativeFinalUrl = trustedSubjectUrl;
     let tentativeCookies: CookieRecord[] = [];
     let tentativeStorage: PassiveBoundaryOutcome<StorageRecord[]> = { ok: false, kind: "dropped" };
@@ -1201,14 +1218,22 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
     };
     let tentativeScreenshot: string | null = null;
     let tentativePolicyLinks: PolicyLinkCandidate[] = [];
+    let tentativePolicyLinksTruncated = false;
 
     if (subjectStateTrusted) {
-      tentativePageTitle = await withScanTimeout(page.title(), started).catch((error) => {
+      const titleRead = await withScanTimeout(
+        collectBoundedPageTitle(page, boundedPageCollectorKey),
+        started
+      ).catch((error) => {
         if (isScanBudgetError(error)) throw error;
-        return "";
+        return { value: "", truncated: false };
       });
+      tentativePageTitle = titleRead.value;
+      tentativePageTitleTruncated = titleRead.truncated;
       tentativeCookies = await withScanTimeout(collectCookies(context, trustedSubjectHostname), started);
-      tentativeStorage = await capturePassiveBoundary(withScanTimeout(collectStorageEntries(page), started));
+      tentativeStorage = await capturePassiveBoundary(
+        withScanTimeout(collectStorageSnapshot(stateSnapshotPhaseId), started)
+      );
       tentativeFingerprintCollection = await withScanTimeout(
         collectFingerprintObservationsWithCoverage(page.frames()),
         started
@@ -1220,9 +1245,14 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
           .catch(() => null),
         started
       );
-      tentativePolicyLinks = await withScanTimeout(collectPrivacyPolicyLinks(page), started).catch(
-        () => [] as PolicyLinkCandidate[]
+      const policyLinkCollection = await withScanTimeout(
+        collectPrivacyPolicyLinks(page, boundedPageCollectorKey),
+        started
+      ).catch(
+        () => ({ links: [] as PolicyLinkCandidate[], truncated: false })
       );
+      tentativePolicyLinks = policyLinkCollection.links;
+      tentativePolicyLinksTruncated = policyLinkCollection.truncated;
       tentativeFinalUrl = page.url();
 
       // Every page-bound read above is tentative. A navigation can race any
@@ -1242,6 +1272,9 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
     }
 
     const pageTitle = subjectStateTrusted ? tentativePageTitle : trustedSubjectPageTitle;
+    const pageTitleTruncated = subjectStateTrusted
+      ? tentativePageTitleTruncated
+      : trustedSubjectPageTitleRead.truncated;
     const finalUrl = subjectStateTrusted ? tentativeFinalUrl : trustedSubjectUrl;
     const finalParsed = safeParseUrl(finalUrl) ?? targetUrl;
     const cookies = subjectStateTrusted ? tentativeCookies : passiveCookiesForTrustedSubject ?? [];
@@ -1280,6 +1313,15 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
           })),
           attributionIncomplete: false
         };
+    if (pageTitleTruncated) {
+      measurementKernel.recordCaptureLoss({
+        family: "detector-output",
+        phaseId: stateSnapshotPhaseId,
+        kind: "truncated",
+        count: 1,
+        detail: "page-title"
+      });
+    }
     if (fingerprintAttribution.attributionIncomplete) {
       // The observer exposes cumulative heuristic summaries. If a summary
       // changed across a phase boundary but cannot be losslessly differenced,
@@ -1348,6 +1390,7 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
     // flush unload beacons, so the policy page itself is visited later from
     // this frozen list, after the request log has been snapshotted.
     const policyLinks = subjectStateTrusted ? tentativePolicyLinks : [];
+    const policyLinksTruncated = subjectStateTrusted && tentativePolicyLinksTruncated;
 
     // Kernel step 3 (flag-gated): one post-choice reload to read the site's
     // REGISTERED consent state from a fresh document. It runs in its own
@@ -1421,7 +1464,9 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
                 const reloadCookies = await capturePassiveBoundary(
                   withScanTimeout(collectCookies(context, trustedSubjectHostname), started)
                 );
-                const reloadStorage = await capturePassiveBoundary(withScanTimeout(collectStorageEntries(page), started));
+                const reloadStorage = await capturePassiveBoundary(
+                  withScanTimeout(collectStorageSnapshot(reloadPhaseId), started)
+                );
                 if (!sameScanSubjectUrl(page.url(), trustedSubjectUrl)) {
                   // The async snapshots are tentative just like the interpreter
                   // reads above. Discard the entire reload-phase bundle if a
@@ -1516,7 +1561,14 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
     let keystrokeProbe: KeystrokeProbeOutcome | null = null;
     if (keystrokePhaseId !== null) {
       keystrokeProbe = await withScanTimeout(
-        probeKeystrokeExfiltration(page, trustedSubjectUrl, trustedSubjectHostname, started, warnings),
+        probeKeystrokeExfiltration(
+          page,
+          trustedSubjectUrl,
+          trustedSubjectHostname,
+          started,
+          warnings,
+          boundedPageCollectorKey
+        ),
         started
       ).catch(
         (error): KeystrokeProbeOutcome =>
@@ -1543,6 +1595,19 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
       });
     }
     const keystrokeDetection = keystrokeProbe?.detection ?? null;
+    const keystrokeCaptureLossCount =
+      keystrokeProbe && "captureLossCount" in keystrokeProbe
+        ? keystrokeProbe.captureLossCount ?? 0
+        : 0;
+    if (keystrokePhaseId !== null && keystrokeCaptureLossCount > 0) {
+      measurementKernel.recordCaptureLoss({
+        family: "detector-output",
+        phaseId: keystrokePhaseId,
+        kind: "truncated",
+        count: keystrokeCaptureLossCount,
+        detail: "keystroke-probe-capture"
+      });
+    }
     if (keystrokePhaseId === null) {
       measurementKernel.setDetector("keystroke-exfiltration", "skipped", {
         reason: activeProbeSubjectAvailable ? "budget-unavailable" : "load-failed"
@@ -1710,11 +1775,21 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
     const policyCandidate = pageLoadFailed ? null : pickPrivacyPolicyLink(policyLinks, finalParsed.hostname);
     const policyBudgetAvailable = MAX_SCAN_DURATION_MS - (Date.now() - started) >= PRIVACY_POLICY_MIN_BUDGET_MS;
     const policyPhaseId = policyCandidate && policyBudgetAvailable ? measurementKernel.beginPhase("policy-analysis") : null;
+    if (policyLinksTruncated) {
+      measurementKernel.recordCaptureLoss({
+        family: "detector-output",
+        phaseId: policyPhaseId,
+        kind: "truncated",
+        count: 1,
+        detail: "policy-link-candidates"
+      });
+    }
     let privacyPolicy: PrivacyPolicySummary | null = null;
     if (policyPhaseId !== null) {
       try {
         privacyPolicy = await probePrivacyPolicy({
           context,
+          boundedPageCollectorKey,
           links: policyLinks,
           firstPartyHostname: finalParsed.hostname,
           requests: publicRequests,
@@ -1722,11 +1797,17 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
           verifyPublicUrl,
           warnings
         });
-        measurementKernel.setDetector("privacy-policy", "complete", { phaseId: policyPhaseId });
+        measurementKernel.setDetector(
+          "privacy-policy",
+          policyLinksTruncated ? "partial" : "complete",
+          policyLinksTruncated
+            ? { reason: "budget-unavailable", phaseId: policyPhaseId }
+            : { phaseId: policyPhaseId }
+        );
       } catch {
         measurementKernel.setDetector("privacy-policy", "failed", { reason: "load-failed", phaseId: policyPhaseId });
       }
-    } else if (policyCandidate && !policyBudgetAvailable) {
+    } else if ((policyCandidate && !policyBudgetAvailable) || policyLinksTruncated) {
       measurementKernel.setDetector("privacy-policy", "skipped", { reason: "budget-unavailable" });
     } else if (!subjectStateTrusted || consentInteractionLeftSubject) {
       measurementKernel.setDetector("privacy-policy", "skipped", { reason: "load-failed" });
@@ -1843,7 +1924,7 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
     if (keystrokeDetection && keystrokePhaseId !== null) {
       phaseAwareFingerprintDetections.push({ ...keystrokeDetection, phaseId: keystrokePhaseId });
     }
-    const stagedMeasurement: StagedSingleVisitMeasurement = {
+    const measurement: NodeScanMeasurement = {
       measurement: {
         phases: finishedMeasurement.phases,
         detectors: finishedMeasurement.detectors,
@@ -1967,11 +2048,16 @@ export async function scanSite(payload: ScanRequestPayload, options: ScanSiteOpt
           : publicRequests.filter((item) => item.blockedByShields).length
         : undefined
     });
-    return attachStagedSingleVisitMeasurement(v1Result, stagedMeasurement);
+    return createNodeScanMeasurementEnvelope(v1Result, measurement);
   } finally {
     options.signal?.removeEventListener("abort", closeOnAbort);
-    await context?.close().catch(() => undefined);
-    await scanProxy.close().catch(() => undefined);
+    const contextToClose = context;
+    await runScannerCleanupWithinDeadline([
+      ...(contextToClose
+        ? [{ label: "Chromium context cleanup", run: () => contextToClose.close() }]
+        : []),
+      { label: "scan proxy cleanup", run: () => scanProxy.close() }
+    ]);
   }
 }
 
@@ -2341,13 +2427,24 @@ async function getSharedBrowser(): Promise<Browser> {
   // may not provide, and a launch that fails there would break every scan. Set
   // the env to "1" only after verifying a deployed scan succeeds with it. The
   // container process itself runs as a non-root user either way (Dockerfile).
-  browserLaunchPromise ??= chromium
-    .launch({
-      headless: true,
-      args: [...SCAN_CHROMIUM_LAUNCH_ARGS],
-      chromiumSandbox: chromiumSandboxEnabled(),
-      env: browserProcessEnvironment()
-    })
+  browserLaunchPromise ??= withScannerOperationDeadline<Browser>(
+    () => chromium.launch({
+        headless: true,
+        args: [...SCAN_CHROMIUM_LAUNCH_ARGS],
+        chromiumSandbox: chromiumSandboxEnabled(),
+        env: browserProcessEnvironment()
+      }),
+    {
+      label: "Chromium launch",
+      timeoutMs: SCANNER_OPERATION_TIMEOUT_MS,
+      createTimeoutError: () =>
+        new PublicScanError("The browser runtime could not start in time. Try again shortly.", 503),
+      // Playwright launch does not expose an AbortSignal. If it eventually
+      // materializes after losing the deadline race, close it immediately so
+      // a timed-out launch cannot leak a browser process.
+      onLateSuccess: (browser) => browser.close()
+    }
+  )
     .then(
     (browser) => {
       sharedBrowser = browser;
@@ -2375,7 +2472,11 @@ export async function closeSharedBrowserForTests(): Promise<void> {
   const browser = sharedBrowser;
   sharedBrowser = null;
   browserLaunchPromise = null;
-  await browser?.close().catch(() => undefined);
+  if (browser) {
+    await runScannerCleanupWithinDeadline([
+      { label: "shared Chromium test cleanup", run: () => browser.close() }
+    ]);
+  }
 }
 
 export function createContextOptions(payload: ScanRequestPayload, proxyServer: string): BrowserContextOptions {
@@ -2512,7 +2613,8 @@ async function probeKeystrokeExfiltration(
   trustedSubjectUrl: string,
   firstPartyHostname: string,
   started: number,
-  warnings: ScanWarningCollector
+  warnings: ScanWarningCollector,
+  boundedPageCollectorKey: string
 ): Promise<KeystrokeProbeOutcome> {
   if (MAX_SCAN_DURATION_MS - (Date.now() - started) < KEYSTROKE_PROBE_MIN_BUDGET_MS) {
     return { status: "partial", reason: "budget-unavailable", detection: null };
@@ -2522,34 +2624,35 @@ async function probeKeystrokeExfiltration(
   }
 
   const sentinel = createSentinel(randomBytes(6).toString("hex"));
-  const captured: CapturedRequest[] = [];
+  const captured = createProbeRequestCaptureState();
   const onRequest = (request: Request) => {
-    try {
-      const url = request.url();
-      const hostname = safeParseUrl(url)?.hostname;
-      if (!hostname) return;
-      captured.push({
-        domain: hostname,
-        thirdParty: isThirdParty(firstPartyHostname, hostname),
-        url,
-        body: safeRequestPostData(request)
-      });
-    } catch {
-      /* ignore a malformed request */
-    }
+    captureProbeRequest(captured, request, firstPartyHostname);
   };
 
   page.on("request", onRequest);
-  let typed: { count: number; types: string[]; subjectLost: boolean };
+  let typed: { count: number; types: string[]; subjectLost: boolean; omittedCandidateCount: number };
   try {
-    typed = await typeSentinelIntoFields(page, sentinel, trustedSubjectUrl);
+    typed = await typeSentinelIntoFields(
+      page,
+      sentinel,
+      trustedSubjectUrl,
+      boundedPageCollectorKey
+    );
     if (typed.subjectLost) {
       if (typed.count > 0) addKeystrokeProbeDisclosure(warnings, typed.count, false);
       return typed.count > 0
         ? { status: "partial", reason: "load-failed", detection: null, subjectLost: true }
         : { status: "skipped", reason: "load-failed", detection: null, subjectLost: true };
     }
-    if (typed.count === 0) return { status: "complete", detection: null };
+    if (typed.count === 0) {
+      const captureLossCount = Math.min(
+        Number.MAX_SAFE_INTEGER,
+        captured.captureLossCount + typed.omittedCandidateCount
+      );
+      return captureLossCount > 0
+        ? { status: "partial", reason: "budget-unavailable", detection: null, captureLossCount }
+        : { status: "complete", detection: null };
+    }
     const waitMs = Math.min(KEYSTROKE_EXFIL_WAIT_MS, MAX_SCAN_DURATION_MS - (Date.now() - started) - 250);
     if (waitMs > 0) await page.waitForTimeout(waitMs);
     if (!sameScanSubjectUrl(page.url(), trustedSubjectUrl)) {
@@ -2568,13 +2671,21 @@ async function probeKeystrokeExfiltration(
 
   addKeystrokeProbeDisclosure(warnings, typed.count);
 
-  return {
-    status: "complete",
-    detection: buildKeystrokeExfiltrationDetection(findSentinelLeaks(sentinelEncodings(sentinel), captured), {
+  const captureLossCount = Math.min(
+    Number.MAX_SAFE_INTEGER,
+    captured.captureLossCount + typed.omittedCandidateCount
+  );
+  const detection = buildKeystrokeExfiltrationDetection(
+    findSentinelLeaks(sentinelEncodings(sentinel), captured.requests),
+    {
       fieldsTyped: typed.count,
       fieldTypes: typed.types
-    })
-  };
+    }
+  );
+
+  return captureLossCount > 0
+    ? { status: "partial", reason: "budget-unavailable", detection, captureLossCount }
+    : { status: "complete", detection };
 }
 
 function addKeystrokeProbeDisclosure(
@@ -2609,42 +2720,55 @@ async function flushUnloadBeacons(page: Page, started: number): Promise<void> {
 export async function typeSentinelIntoFields(
   page: Page,
   sentinel: string,
-  trustedSubjectUrl: string
-): Promise<{ count: number; types: string[]; subjectLost: boolean }> {
+  trustedSubjectUrl: string,
+  boundedPageCollectorKey: string
+): Promise<{ count: number; types: string[]; subjectLost: boolean; omittedCandidateCount: number }> {
   if (!sameScanSubjectUrl(page.url(), trustedSubjectUrl)) {
-    return { count: 0, types: [], subjectLost: true };
+    return { count: 0, types: [], subjectLost: true, omittedCandidateCount: 0 };
   }
-  const handles = await page.$$(FILLABLE_FIELD_SELECTOR);
+  const locator = page.locator(FILLABLE_FIELD_SELECTOR);
+  const rawCandidateCount = await locator.count();
+  const totalCandidateCount = Number.isSafeInteger(rawCandidateCount) && rawCandidateCount > 0
+    ? rawCandidateCount
+    : 0;
+  const candidateCount = Math.min(totalCandidateCount, MAX_PROBE_FIELD_CANDIDATES);
+  const omittedCandidateCount = Math.max(0, totalCandidateCount - candidateCount);
   const types: string[] = [];
   let count = 0;
 
-  for (const handle of handles) {
+  for (
+    let candidateIndex = 0;
+    candidateIndex < candidateCount && count < MAX_PROBE_FIELDS;
+    candidateIndex += 1
+  ) {
+    const handle = await locator.nth(candidateIndex).elementHandle();
+    if (!handle) continue;
     if (!sameScanSubjectUrl(page.url(), trustedSubjectUrl)) {
       await handle.dispose().catch(() => undefined);
-      return { count, types, subjectLost: true };
-    }
-    if (count >= MAX_PROBE_FIELDS) {
-      await handle.dispose().catch(() => undefined);
-      continue;
+      return { count, types, subjectLost: true, omittedCandidateCount };
     }
     try {
       if (!(await handle.isVisible())) continue;
-      const fieldType = await handle.evaluate((element) => {
-        const node = element as HTMLElement;
-        if (node.tagName === "TEXTAREA") return "textarea";
-        if (node.isContentEditable) return "contenteditable";
-        return (node.getAttribute("type") || "text").toLowerCase();
-      });
-      if (!sameScanSubjectUrl(page.url(), trustedSubjectUrl)) return { count, types, subjectLost: true };
+      const rawFieldType = await callBoundedElementCollector(
+        handle,
+        boundedPageCollectorKey,
+        "fieldType"
+      );
+      const fieldType = isBoundedFieldType(rawFieldType) ? rawFieldType : "other";
+      if (!sameScanSubjectUrl(page.url(), trustedSubjectUrl)) {
+        return { count, types, subjectLost: true, omittedCandidateCount };
+      }
       await handle.focus();
-      if (!sameScanSubjectUrl(page.url(), trustedSubjectUrl)) return { count, types, subjectLost: true };
+      if (!sameScanSubjectUrl(page.url(), trustedSubjectUrl)) {
+        return { count, types, subjectLost: true, omittedCandidateCount };
+      }
       // Bind typing to the element handle from the trusted document. If a
       // navigation detaches it after the final origin check, Playwright throws;
       // page.keyboard.type could otherwise deliver the sentinel to whichever
       // element happens to gain focus in the replacement document.
       await handle.type(sentinel, { delay: 1 });
       // Some recorders only transmit on blur; never press Enter, which could submit.
-      await handle.evaluate((element) => (element as HTMLElement).blur());
+      await callBoundedElementCollector(handle, boundedPageCollectorKey, "blur");
       types.push(fieldType);
       count += 1;
     } catch {
@@ -2657,18 +2781,63 @@ export async function typeSentinelIntoFields(
   return {
     count,
     types,
-    subjectLost: !sameScanSubjectUrl(page.url(), trustedSubjectUrl)
+    subjectLost: !sameScanSubjectUrl(page.url(), trustedSubjectUrl),
+    omittedCandidateCount
   };
 }
 
+function isBoundedFieldType(value: unknown): value is string {
+  return typeof value === "string" && [
+    "textarea", "contenteditable", "date", "datetime-local", "email", "month",
+    "number", "password", "search", "tel", "text", "time", "url", "week", "other"
+  ].includes(value);
+}
+
+export type PolicyLinkCollection = {
+  links: PolicyLinkCandidate[];
+  truncated: boolean;
+};
+
 /** Links on the loaded page that plausibly point at a privacy policy. */
-async function collectPrivacyPolicyLinks(page: Page): Promise<PolicyLinkCandidate[]> {
-  const links = await page.evaluate(() =>
-    Array.from(document.querySelectorAll<HTMLAnchorElement>("a[href]"))
-      .map((anchor) => ({ href: anchor.href, text: (anchor.textContent || "").trim().slice(0, 80) }))
-      .filter((link) => /privacy/i.test(link.href) || /privacy/i.test(link.text))
-  );
-  return links.slice(0, MAX_POLICY_LINK_CANDIDATES);
+export async function collectPrivacyPolicyLinks(
+  page: Page,
+  boundedPageCollectorKey: string
+): Promise<PolicyLinkCollection> {
+  const wire = await callBoundedPageCollector(page, boundedPageCollectorKey, "links", {
+    maxCandidates: MAX_POLICY_LINK_CANDIDATES,
+    maxHrefChars: MAX_POLICY_LINK_HREF_CHARS,
+    maxInspected: MAX_POLICY_LINKS_INSPECTED,
+    maxTextChars: MAX_POLICY_LINK_TEXT_CHARS
+  });
+  if (typeof wire !== "string" || wire.length > 256 * 1024) {
+    return { links: [], truncated: true };
+  }
+  let result: unknown;
+  try {
+    result = JSON.parse(wire);
+  } catch {
+    return { links: [], truncated: true };
+  }
+
+  const candidate = result as Partial<PolicyLinkCollection>;
+  if (!result || typeof result !== "object" || !Array.isArray(candidate.links)) {
+    return { links: [], truncated: true };
+  }
+  const links = candidate.links
+    .filter(
+      (link): link is PolicyLinkCandidate =>
+        link !== null &&
+        typeof link === "object" &&
+        typeof link.href === "string" &&
+        link.href.length <= MAX_POLICY_LINK_HREF_CHARS &&
+        typeof link.text === "string" &&
+        link.text.length <= MAX_POLICY_LINK_TEXT_CHARS
+    )
+    .slice(0, MAX_POLICY_LINK_CANDIDATES);
+  return {
+    links,
+    truncated: candidate.truncated === true || links.length !== candidate.links.length
+  };
 }
 
 /**
@@ -2681,6 +2850,7 @@ async function collectPrivacyPolicyLinks(page: Page): Promise<PolicyLinkCandidat
  */
 async function probePrivacyPolicy(input: {
   context: BrowserContext;
+  boundedPageCollectorKey: string;
   links: PolicyLinkCandidate[];
   firstPartyHostname: string;
   requests: NetworkRequestRecord[];
@@ -2722,12 +2892,18 @@ async function probePrivacyPolicy(input: {
     if (renderWait > 0) await policyPage.waitForTimeout(renderWait);
     assertAllowedPrivacyPolicyPage(policyPage.url(), input.firstPartyHostname);
 
-    const policyText = await withScanDeadline(
-      policyPage.evaluate((cap) => (document.body?.innerText ?? "").slice(0, cap), MAX_POLICY_TEXT_CHARS),
+    const policyTextWire = await withScanDeadline(
+      callBoundedPageCollector(
+        policyPage,
+        input.boundedPageCollectorKey,
+        "text",
+        MAX_POLICY_TEXT_CHARS
+      ),
       input.started,
       MAX_SCAN_DURATION_MS,
       scanTimeoutError
     );
+    const policyText = boundedPolicyTextFromWire(policyTextWire);
     // Re-check after DOM extraction as a final race boundary. If the page
     // navigated while text was being read, neither its text nor URL is safe to
     // attribute to the original scan subject.
@@ -2754,6 +2930,18 @@ async function probePrivacyPolicy(input: {
   }
 }
 
+function boundedPolicyTextFromWire(wire: string | null): string {
+  if (typeof wire !== "string" || wire.length > MAX_POLICY_TEXT_CHARS + 128) return "";
+  try {
+    const value = JSON.parse(wire) as { value?: unknown };
+    return typeof value?.value === "string" && value.value.length <= MAX_POLICY_TEXT_CHARS
+      ? value.value
+      : "";
+  } catch {
+    return "";
+  }
+}
+
 function assertAllowedPrivacyPolicyPage(url: string, firstPartyHostname: string): void {
   if (!isAllowedPrivacyPolicyUrl(url, firstPartyHostname)) {
     // Do not include the attacker-controlled destination in the error: callers
@@ -2767,19 +2955,78 @@ function assertAllowedPrivacyPolicyPage(url: string, firstPartyHostname: string)
 // POST would be copied into scan memory and then JSON-parsed (pixel decoding) or
 // scanned for the keystroke sentinel. 64 KB is far above real pixel/beacon
 // payloads, so decoding stays lossless in practice while the work stays bounded.
-const MAX_CAPTURED_BODY_CHARS = 64_000;
+export const MAX_CAPTURED_BODY_CHARS = 64_000;
+
+type BoundedPostData = {
+  value: string | null;
+  truncated: boolean;
+};
+
+export type ProbeRequestCaptureState = {
+  requests: CapturedRequest[];
+  captureLossCount: number;
+};
+
+export function createProbeRequestCaptureState(): ProbeRequestCaptureState {
+  return { requests: [], captureLossCount: 0 };
+}
+
+function addProbeCaptureLoss(state: ProbeRequestCaptureState): void {
+  state.captureLossCount = Math.min(Number.MAX_SAFE_INTEGER, state.captureLossCount + 1);
+}
+
+/** Retain only bounded request evidence while the active probe listener is live. */
+export function captureProbeRequest(
+  state: ProbeRequestCaptureState,
+  request: Pick<Request, "postData" | "url">,
+  firstPartyHostname: string
+): void {
+  if (state.requests.length >= MAX_PROBE_CAPTURED_REQUESTS) {
+    addProbeCaptureLoss(state);
+    return;
+  }
+
+  try {
+    const url = request.url();
+    if (url.length > MAX_RECORDED_REQUEST_URL_CHARS) {
+      addProbeCaptureLoss(state);
+      return;
+    }
+    const hostname = safeParseUrl(url)?.hostname;
+    if (!hostname) {
+      addProbeCaptureLoss(state);
+      return;
+    }
+    const body = safeRequestPostDataWithCoverage(request);
+    if (body.truncated) addProbeCaptureLoss(state);
+    state.requests.push({
+      domain: hostname,
+      thirdParty: isThirdParty(firstPartyHostname, hostname),
+      url,
+      body: body.value
+    });
+  } catch {
+    addProbeCaptureLoss(state);
+  }
+}
 
 // Playwright exposes the POST body synchronously, but reading it can throw for
 // some request types; pixel decoding treats an unreadable body as "no body".
 // Over-long bodies are truncated (see MAX_CAPTURED_BODY_CHARS).
-function safeRequestPostData(request: Request): string | null {
+function safeRequestPostDataWithCoverage(request: Pick<Request, "postData">): BoundedPostData {
   try {
     const body = request.postData();
-    if (body === null) return null;
-    return body.length > MAX_CAPTURED_BODY_CHARS ? body.slice(0, MAX_CAPTURED_BODY_CHARS) : body;
+    if (body === null) return { value: null, truncated: false };
+    return body.length > MAX_CAPTURED_BODY_CHARS
+      ? { value: body.slice(0, MAX_CAPTURED_BODY_CHARS), truncated: true }
+      : { value: body, truncated: false };
   } catch {
-    return null;
+    return { value: null, truncated: false };
   }
+}
+
+function safeRequestPostData(request: Request): string | null {
+  return safeRequestPostDataWithCoverage(request).value;
 }
 
 function isTimeoutError(error: unknown): boolean {

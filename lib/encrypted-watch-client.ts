@@ -1,4 +1,5 @@
 import {
+  ENCRYPTED_WATCH_ACCESS_TOKEN_HEADER,
   ENCRYPTED_WATCH_CAPABILITY_HEADER,
   ENCRYPTED_WATCH_MAX_RUNS,
   ENCRYPTED_WATCH_TTL_MS,
@@ -10,9 +11,13 @@ import {
 } from "./encrypted-watch-contract";
 import { isScanJobId } from "./durable-scan-job-contract";
 import { SCAN_ACCESS_TOKEN_HEADER } from "./scan-token";
+import { fetchJsonResponseWithPolicy } from "./client-fetch-policy";
 
 const WATCH_FRAGMENT_PREFIX = "#watch=";
 const SAFE_ERROR_CODE_PATTERN = /^[a-z0-9][a-z0-9._-]{0,63}$/;
+
+/** Watch DTOs contain at most five compact run records; larger JSON is invalid. */
+export const MAX_ENCRYPTED_WATCH_JSON_BYTES = 64 * 1024;
 
 export type EncryptedWatchCredentials = Readonly<{
   watchId: string;
@@ -75,10 +80,18 @@ export type EncryptedWatchDeletion = Readonly<{
 export type EncryptedWatchClientFetcher = (input: string, init: RequestInit) => Promise<Response>;
 export type EncryptedWatchRandomBytes = (length: number) => Uint8Array;
 
+export type EncryptedWatchClientFetchTimeouts = Readonly<{
+  /** Test seam. Production callers use the shared client-policy default. */
+  connectTimeoutMs?: number;
+  /** Test seam. Production callers use the shared client-policy default. */
+  operationTimeoutMs?: number;
+}>;
+
 type EncryptedWatchClientRequest = Readonly<{
   resolveApiUrl: (path: string) => string;
   fetcher?: EncryptedWatchClientFetcher;
   accessToken?: string;
+  fetchTimeouts?: EncryptedWatchClientFetchTimeouts;
 }>;
 
 /**
@@ -90,6 +103,8 @@ export async function createEncryptedWatch(
   options: EncryptedWatchClientRequest &
     Readonly<{
       payload: EncryptedWatchPayload;
+      /** Edge-only operator credential for this creation endpoint. */
+      watchAccessToken?: string;
       turnstileToken?: string;
       /** Reuse this exact value after an uncertain POST outcome. */
       credentials?: EncryptedWatchCredentials;
@@ -126,26 +141,35 @@ export async function createEncryptedWatch(
   const accessToken = safeOptionalHeaderValue(options.accessToken);
   if (options.accessToken !== undefined && accessToken === null) throw new Error(message);
   if (accessToken) headers[SCAN_ACCESS_TOKEN_HEADER] = accessToken;
+  const watchAccessToken = safeOptionalHeaderValue(options.watchAccessToken);
+  if (options.watchAccessToken !== undefined && watchAccessToken === null) throw new Error(message);
+  if (watchAccessToken && watchAccessToken.length < 32) throw new Error(message);
+  if (watchAccessToken && watchAccessToken === accessToken) throw new Error(message);
+  if (watchAccessToken && watchAccessToken === credentials.capabilityToken) throw new Error(message);
+  if (watchAccessToken) headers[ENCRYPTED_WATCH_ACCESS_TOKEN_HEADER] = watchAccessToken;
 
   const turnstileToken = safeOptionalBodyToken(options.turnstileToken);
   if (options.turnstileToken !== undefined && turnstileToken === null) throw new Error(message);
 
-  const fetcher = options.fetcher ?? defaultFetcher;
-  let response: Response | null = null;
+  let boundedResponse: Awaited<ReturnType<typeof fetchEncryptedWatchJson>> | null = null;
   try {
-    response = await fetcher(options.resolveApiUrl("/api/watches"), {
-      method: "POST",
-      headers,
-      body: JSON.stringify({
-        url: options.payload.target.url,
-        device: options.payload.options.device,
-        gpcEnabled: options.payload.options.gpcEnabled,
-        ...(turnstileToken ? { turnstileToken } : {})
-      }),
-      cache: "no-store",
-      redirect: "error",
-      signal: options.signal
-    });
+    boundedResponse = await fetchEncryptedWatchJson(
+      options.resolveApiUrl("/api/watches"),
+      {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+          url: options.payload.target.url,
+          device: options.payload.options.device,
+          gpcEnabled: options.payload.options.gpcEnabled,
+          ...(turnstileToken ? { turnstileToken } : {})
+        }),
+        cache: "no-store",
+        redirect: "error"
+      },
+      options,
+      "Scheduled rescan creation response"
+    );
   } catch {
     // The server may have committed before the transport failed. Recover once
     // by the browser-held deterministic locator; an explicit retry can then
@@ -155,9 +179,11 @@ export async function createEncryptedWatch(
 
   let parsed: EncryptedWatchCreation | null = null;
   try {
-    if (!isJsonResponse(response)) throw new Error("non-JSON response");
-    const value = (await response.json()) as unknown;
-    parsed = response.status === 200 || response.status === 201 ? parseEncryptedWatchCreation(value) : null;
+    if (!isJsonResponse(boundedResponse.response)) throw new Error("non-JSON response");
+    parsed =
+      boundedResponse.response.status === 200 || boundedResponse.response.status === 201
+        ? parseEncryptedWatchCreation(boundedResponse.payload)
+        : null;
   } catch {
     parsed = null;
   }
@@ -316,20 +342,26 @@ async function performCapabilityRequest<T>(
     [ENCRYPTED_WATCH_CAPABILITY_HEADER]: options.credentials.capabilityToken
   };
   if (accessToken) headers[SCAN_ACCESS_TOKEN_HEADER] = accessToken;
-  const fetcher = options.fetcher ?? defaultFetcher;
   let response: Response;
+  let value: unknown;
   try {
-    response = await fetcher(options.resolveApiUrl(statusPath), {
-      method,
-      headers,
-      cache: "no-store",
-      redirect: "error",
-      signal: options.signal
-    });
+    const boundedResponse = await fetchEncryptedWatchJson(
+      options.resolveApiUrl(statusPath),
+      {
+        method,
+        headers,
+        cache: "no-store",
+        redirect: "error"
+      },
+      options,
+      "Scheduled rescan capability response"
+    );
+    response = boundedResponse.response;
+    if (!isJsonResponse(response)) throw new Error("non-JSON response");
+    value = boundedResponse.payload;
   } catch {
     throw new Error(message);
   }
-  const value = await readUnknownJson(response, message);
   // A canonical self-derived credential plus the watch route's exact 404 DTO
   // proves there is no matching watch left to delete. An HTML/generic 404 from
   // an older deployment is not authoritative and must retain the fragment.
@@ -533,8 +565,9 @@ function safeDecode(value: string): string {
 
 function safeOptionalHeaderValue(value: string | undefined): string | null {
   if (value === undefined) return "";
+  if (/[\r\n]/.test(value)) return null;
   const trimmed = value.trim();
-  return trimmed.length <= 4_096 && !/[\r\n]/.test(trimmed) ? trimmed : null;
+  return trimmed.length <= 4_096 ? trimmed : null;
 }
 
 function safeOptionalBodyToken(value: string | undefined): string | null {
@@ -555,15 +588,6 @@ function encodeBase64Url(bytes: Uint8Array): string {
   return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
 }
 
-async function readUnknownJson(response: Response, message: string): Promise<unknown> {
-  try {
-    if (!isJsonResponse(response)) throw new Error("non-JSON response");
-    return (await response.json()) as unknown;
-  } catch {
-    throw new Error(message);
-  }
-}
-
 function isJsonResponse(response: Response): boolean {
   return (response.headers.get("content-type") ?? "").toLowerCase().includes("application/json");
 }
@@ -576,6 +600,36 @@ function isAuthoritativeEncryptedWatchNotFound(value: unknown): boolean {
   );
 }
 
-function defaultFetcher(input: string, init: RequestInit): Promise<Response> {
-  return fetch(input, init);
+async function fetchEncryptedWatchJson(
+  input: string,
+  init: RequestInit,
+  options: EncryptedWatchClientRequest & Readonly<{ signal?: AbortSignal }>,
+  label: string
+) {
+  const fetchImpl = encryptedWatchFetchImpl(options.fetcher);
+  const timeouts = options.fetchTimeouts;
+  return fetchJsonResponseWithPolicy(input, init, {
+    label,
+    maxBytes: MAX_ENCRYPTED_WATCH_JSON_BYTES,
+    acceptResponse: () => true,
+    ...(options.signal ? { signal: options.signal } : {}),
+    ...(fetchImpl ? { fetchImpl } : {}),
+    ...(timeouts?.connectTimeoutMs === undefined
+      ? {}
+      : { connectTimeoutMs: timeouts.connectTimeoutMs }),
+    ...(timeouts?.operationTimeoutMs === undefined
+      ? {}
+      : { operationTimeoutMs: timeouts.operationTimeoutMs })
+  });
+}
+
+function encryptedWatchFetchImpl(
+  fetcher: EncryptedWatchClientFetcher | undefined
+): typeof fetch | undefined {
+  if (!fetcher) return undefined;
+  return ((input: RequestInfo | URL, init?: RequestInit) => {
+    const normalizedInput =
+      typeof input === "string" ? input : input instanceof URL ? input.href : input.url;
+    return fetcher(normalizedInput, init ?? {});
+  }) as typeof fetch;
 }

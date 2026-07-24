@@ -71,6 +71,7 @@ Start from [.env.example](../.env.example). For a public-but-safe deployment:
 | `SITE_BEHAVIOR_LAB_REPORT_STORE_BACKEND` | `filesystem` or `r2` | `filesystem` needs a persistent volume (below). `r2` stores reports in Cloudflare R2 so share links survive **redeploys and host replacement**, the durable, multi-node-ready option. |
 | `SITE_BEHAVIOR_LAB_REPORT_STORE_DIR` | `/var/lib/site-behavior-lab/reports` | Filesystem backend only. Must be a **persistent volume** or shared reports vanish on restart. |
 | `SITE_BEHAVIOR_LAB_R2_*` | bucket, endpoint, key id, secret, prefix | Required when `REPORT_STORE_BACKEND=r2`. Use an R2 API token scoped to the bucket (Object Read & Write). See [.env.example](../.env.example). |
+| `SITE_BEHAVIOR_LAB_REPORT_STORE_OPERATION_TIMEOUT_MS` | `30000` | Whole publication/pruning deadline, including mutation-queue wait, listing, and bounded physical deletes. Values are capped at two minutes. |
 | `SITE_BEHAVIOR_LAB_SCANNER_EGRESS` | a region/network label | Shown in report methodology and JSON export. |
 | `SITE_BEHAVIOR_LAB_TRUST_PROXY_HEADERS` | `1` | **Only** once Cloudflare fronts the origin and you block direct origin access (step 3). Without a trusted proxy this lets clients spoof their rate-limit identity. |
 | `SITE_BEHAVIOR_LAB_ASYNC_SCANS` | `0` (or `1`) | `1` returns `202 + jobId` so long scans do not hold the HTTP connection. With durable jobs off, execution remains single-process/in-memory and is suitable for one node. |
@@ -81,6 +82,7 @@ Start from [.env.example](../.env.example). For a public-but-safe deployment:
 | `SITE_BEHAVIOR_LAB_ENCRYPTED_WATCHES` | `0` | Cloudflare Containers only. Post-durability scheduled-rescan gate. The generic single-host topology has no shared watch scheduler and must keep this at `0`. |
 | `SITE_BEHAVIOR_LAB_ENCRYPTED_WATCHES_KEY` | unset | **Worker-only secret:** current canonical base64url encoding of exactly 32 random bytes for watch target/options encryption. Keep it isolated and never forward it into Node. |
 | `SITE_BEHAVIOR_LAB_ENCRYPTED_WATCHES_PREVIOUS_KEY` | unset | Optional Worker-only previous watch key for rotation across the bounded 30-day TTL. New writes always use the current key. |
+| `SITE_BEHAVIOR_LAB_ENCRYPTED_WATCHES_ACCESS_TOKEN` | unset | Optional Cloudflare Worker-only staging/operator second factor. Leave it unset for public self-service creation; when configured it is checked before Durable Object/quota work, hides the public creation capability, and never reaches Node. |
 
 `/api/health` reports `degraded` until the token, store dir, and egress label are
 all set; drive it from your load balancer and alert on `degraded`. A requested
@@ -174,28 +176,38 @@ target is refused at connection time.
 ## 7. Roll out durable execution (Cloudflare Containers only)
 
 The generic single-host topology does not have the Durable Object coordinator; keep
-`SITE_BEHAVIOR_LAB_DURABLE_JOBS=0` there. For the Cloudflare Containers topology:
+`SITE_BEHAVIOR_LAB_DURABLE_JOBS=0` there. For Cloudflare Containers, the detailed
+and authoritative procedure is the isolated-staging gate in
+[go-live-public-scanner.md](go-live-public-scanner.md). The required order is:
 
-1. Keep the public scanner token-gated and the durable flag at `0`. Publish the
+1. Keep the production durable flag at `0`. Pin one reviewed SHA and require its
+   worktree to be clean before any staging mutation. Publish the
    privacy/methodology disclosure before any target address rests in the queue.
-2. Set `SITE_BEHAVIOR_LAB_DURABLE_JOBS_KEY` as a Worker-only secret. Set the
-   distinct `SITE_BEHAVIOR_LAB_DURABLE_JOBS_INTERNAL_TOKEN` on the Worker and Node
-   sides, and set `SITE_BEHAVIOR_LAB_DURABLE_JOBS_COORDINATOR_URL` to the fixed
-   scanner origin. Confirm public R2 reports and the report store are healthy.
-3. Deploy with `SITE_BEHAVIOR_LAB_DURABLE_JOBS=1` while public ingress remains
-   locked. A missing key, internal token, coordinator URL, R2 dependency, or drain
-   schedule is a failed readiness gate; it must not silently use the in-memory
-   queue.
-4. Run the live lease-expiry canary without polling, health requests, or report
-   reads driving progress: abandon attempt 1, wait past its lease, and verify the
-   Durable Object schedule cold-starts attempt 2 under the same `reportId`.
-5. Verify the final status is `succeeded`, exactly one valid report/provenance
-   bundle exists, the encrypted active payload is gone, the two attempts used
-   distinct fences, and no third attempt exists. Run a second canary that commits
-   R2 but loses status resolution; it must reconcile the exact stored bundle to
-   success without another site visit.
-6. Run the ordinary authenticated scanner smoke and exact deployment-SHA checks.
-   Remove any fault-injection setting before reopening public ingress.
+2. Provision a temporary, access-token-gated staging Worker, Durable Object and
+   one-container application, staging-only R2 bucket and credential, and distinct
+   staging-only encryption, coordinator, scan-access, and fault-injection secrets.
+   Its coordinator URL must be its exact staging origin; do not reuse a production
+   resource or credential.
+3. Deploy that exact SHA to staging with durable jobs and the staging-only fault
+   hook enabled. A missing key, internal token, coordinator URL, R2 dependency,
+   private ingress gate, or drain schedule is a failed readiness gate.
+4. Run both live canaries in staging. Lease expiry must complete under the same
+   `reportId` after a true no-poll window with exactly two fenced claims. Lost
+   resolve must reconcile the exact stored report bundle with one execution claim
+   and no second site visit.
+5. Tear down the fault-enabled Worker, Durable Object namespace, container app,
+   bucket/lifecycle, dedicated R2 credential, staging DNS/certificate, and all
+   staging secrets. Capture exact absence receipts and verify canonical production
+   is still healthy with durable jobs disabled and no fault-injection surface.
+6. Only then prepare a **separate reviewed production change**: install newly
+   generated production-only secrets, change the durable flag to `1` without any
+   fault hook, deploy through the normal CI-gated path, run ordinary authenticated
+   scanner and exact-SHA checks, and soak with a documented rollback. Never run
+   replay fault injection against the production origin.
+
+This summary does not authorize a production flag change or any external resource
+mutation by itself. Follow the complete collision checks, canary receipts, abort
+path, teardown proof, and production transition in the authoritative runbook.
 
 The queue record contains only application-encrypted scheme + host + path and scan
 options for at most 75 minutes. It excludes IP/client hash, Turnstile and access

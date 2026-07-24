@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { DatabaseSync } from "node:sqlite";
 import { test } from "node:test";
 import {
+  DURABLE_SCAN_JOB_ACCEPTED_RESPONSE_MAX_BYTES,
   DURABLE_SCAN_JOB_REGISTRY_MAX_ROWS,
   DURABLE_SCAN_JOB_REGISTRY_TTL_MS,
   durableRegistrationFromAcceptedResponse,
@@ -57,6 +58,81 @@ test("non-202 and malformed submissions are never registered", async () => {
     ),
     null
   );
+});
+
+test("accepted-response inspection rejects invalid UTF-8 and duplicate keys", async () => {
+  const prefix = new TextEncoder().encode(
+    `{"ok":true,"status":"queued","jobId":"${JOB_ID}","reportId":"${REPORT_ID}","statusPath":"/api/scans/${JOB_ID}","note":"`
+  );
+  const suffix = new TextEncoder().encode('"}');
+  const invalidUtf8 = new Uint8Array(prefix.byteLength + 1 + suffix.byteLength);
+  invalidUtf8.set(prefix, 0);
+  invalidUtf8[prefix.byteLength] = 0xff;
+  invalidUtf8.set(suffix, prefix.byteLength + 1);
+  assert.equal(
+    await durableRegistrationFromAcceptedResponse(new Response(invalidUtf8, { status: 202 }), "{}", 1),
+    null
+  );
+
+  const duplicate = `{"ok":true,"ok":false,"status":"queued","jobId":"${JOB_ID}","reportId":"${REPORT_ID}","statusPath":"/api/scans/${JOB_ID}"}`;
+  assert.equal(
+    await durableRegistrationFromAcceptedResponse(new Response(duplicate, { status: 202 }), "{}", 1),
+    null
+  );
+});
+
+test("accepted-response inspection rejects declared oversized bodies without consuming the forward response", async () => {
+  const response = new Response("{}", {
+    status: 202,
+    headers: { "content-length": String(DURABLE_SCAN_JOB_ACCEPTED_RESPONSE_MAX_BYTES + 1) }
+  });
+
+  assert.equal(await durableRegistrationFromAcceptedResponse(response, "{}", 1), null);
+  assert.equal(response.bodyUsed, false);
+  assert.equal(await response.text(), "{}");
+});
+
+test("accepted-response inspection caps streamed bytes and leaves the original tee branch forwardable", async () => {
+  let sourceCancelled = false;
+  const oversized = new Uint8Array(DURABLE_SCAN_JOB_ACCEPTED_RESPONSE_MAX_BYTES + 1);
+  const response = new Response(new ReadableStream<Uint8Array>({
+    start(controller) {
+      controller.enqueue(oversized);
+    },
+    cancel() {
+      sourceCancelled = true;
+    }
+  }), { status: 202 });
+
+  assert.equal(await durableRegistrationFromAcceptedResponse(response, "{}", 1), null);
+  assert.equal(response.bodyUsed, false);
+
+  const forwardingReader = response.body?.getReader();
+  assert.ok(forwardingReader);
+  const forwarded = await forwardingReader.read();
+  assert.equal(forwarded.done, false);
+  assert.equal(forwarded.value?.byteLength, oversized.byteLength);
+  await forwardingReader.cancel();
+  assert.equal(sourceCancelled, true);
+});
+
+test("accepted-response inspection abandons a stalled clone without consuming the forward response", async () => {
+  let sourceCancelled = false;
+  const response = new Response(new ReadableStream<Uint8Array>({
+    cancel() {
+      sourceCancelled = true;
+    }
+  }), { status: 202 });
+
+  const startedAt = Date.now();
+  assert.equal(await durableRegistrationFromAcceptedResponse(response, "{}", 1, 20), null);
+  assert.ok(Date.now() - startedAt < 1_000);
+  assert.equal(response.bodyUsed, false);
+
+  // Cancel the forwarding branch so the tee can finish the already-started
+  // clone cancellation; the receipt timeout itself must never consume it.
+  await response.body?.cancel();
+  assert.equal(sourceCancelled, true);
 });
 
 test("durable write failures never replace or consume an accepted 202 response", async () => {

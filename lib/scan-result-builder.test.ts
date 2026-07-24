@@ -176,7 +176,7 @@ test("buildScanResult owns single-report shape and summary math", () => {
 
   assert.equal(result.reportType, "single");
   assert.deepEqual(result.summary, {
-    pageTitle: "Example",
+    pageTitle: "",
     status: 200,
     durationMs: 123,
     firstPartyDomain: "example.com",
@@ -244,7 +244,7 @@ test("buildScanResult is the default-deny public seam after matching and classif
     warnings: []
   });
 
-  assert.equal(result.summary.pageTitle, "Anna private page");
+  assert.equal(result.summary.pageTitle, "");
   assert.equal(result.conditions.requestedUrl, "https://example.com/{seg}/{seg}");
   assert.equal(result.conditions.finalUrl, "https://example.com/account/{n}");
   assert.equal(

@@ -5,12 +5,20 @@ import path from "node:path";
 import { afterEach, beforeEach, test } from "node:test";
 import { createComparisonReport } from "./compare-reports";
 import { buildCorpusStats } from "./corpus-stats-builder";
+import { LEGACY_V1_METHODOLOGY_UNSPECIFIED, NODE_SCANNER_METHODOLOGY_VERSION } from "./legacy-methodology";
 import { buildProvenanceEntry, committedSidecarFilename } from "./redaction-provenance";
 import { redactScanReportV1 } from "./redact-scan-report-v1";
 import { REDACTION_VERSION } from "./redaction-v2";
 import { buildStaticReportShare } from "./report-locator";
+import { scannerDisclosure } from "./scan-condition-disclosure";
 import { evaluateQuality } from "./scan-report-v2-evaluators";
+import { currentR2NormalizationForObserver } from "./scan-report-v2-normalization";
+import { buildFingerprints } from "./scan-report-v2-fingerprints";
 import { makePublicSingleReportV2R2 } from "./scan-report-v2-r2-fixtures";
+import {
+  r2ReportRuns,
+  redactPublicScanReportV2R2
+} from "./scan-report-v2-r2-remediation";
 import { makeScanReportV1 } from "./scan-report-v2-fixtures";
 import type { ScanReport, ScanResult } from "./types";
 
@@ -95,6 +103,24 @@ async function writeReportAndSidecar(id: string, report: unknown): Promise<void>
   await writeFile(path.join(reportsDir, committedSidecarFilename(id)), `${JSON.stringify(sidecar)}\n`);
 }
 
+function currentR2FixedPoint(report: ReturnType<typeof makePublicSingleReportV2R2>) {
+  for (const run of r2ReportRuns(report)) {
+    run.privacy.redactionVersion = REDACTION_VERSION;
+    const normalization = currentR2NormalizationForObserver(run.provenance.observer);
+    if (normalization === null) throw new Error("fixture observer has no current normalization");
+    run.toolchain.normalizationVersion = normalization;
+    run.fingerprints = buildFingerprints({
+      conditions: run.conditions,
+      provenance: run.provenance,
+      toolchain: run.toolchain,
+      detectors: run.detectors
+    });
+  }
+  const redacted = redactPublicScanReportV2R2(report);
+  if (redacted.reportType !== "single") throw new Error("expected a single fixture");
+  return redacted;
+}
+
 test("one data point per site, newest scan wins, percentiles over real sites", async () => {
   await writeReport(
     "20260601-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
@@ -115,6 +141,23 @@ test("one data point per site, newest scan wins, percentiles over real sites", a
   // one-fixture.dev contributes its NEWEST scan (40), not the older 10.
   assert.equal(stats.metrics.thirdPartyRequests?.max, 40);
   assert.equal(stats.metrics.thirdPartyRequests?.min, 20);
+});
+
+test("equal timestamps choose the lexicographically larger immutable report id", async () => {
+  const scannedAt = "2026-07-01T00:00:00.000Z";
+  await writeReport(
+    "20260701-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    makeResult({ firstPartyDomain: "tie-fixture.dev", thirdPartyRequests: 10, scannedAt })
+  );
+  await writeReport(
+    "20260701-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    makeResult({ firstPartyDomain: "tie-fixture.dev", thirdPartyRequests: 40, scannedAt })
+  );
+
+  const { stats } = await buildCorpusStats(reportsDir);
+  assert.equal(stats.sampleSize, 1);
+  assert.equal(stats.metrics.thirdPartyRequests?.min, 40);
+  assert.equal(stats.metrics.thirdPartyRequests?.max, 40);
 });
 
 test("redacted and unredacted host labels collapse to one corpus site", async () => {
@@ -144,11 +187,11 @@ test("a loaded v2 site stays covered even though its metrics are never measured"
   );
 
   const id = "20260710-cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd";
-  const r2 = makePublicSingleReportV2R2();
+  let r2 = makePublicSingleReportV2R2();
   const subject = { origin: "https://covered-fixture.dev", registrableDomain: "covered-fixture.dev", routeShape: "/" };
   r2.run.subject = { requested: subject, observed: { ...subject } };
-  r2.run.privacy.redactionVersion = REDACTION_VERSION;
   r2.share = buildStaticReportShare(id);
+  r2 = currentR2FixedPoint(r2);
   await writeFile(path.join(reportsDir, `${id}.json`), `${JSON.stringify(r2, null, 2)}\n`);
   await writeFile(
     path.join(reportsDir, committedSidecarFilename(id)),
@@ -172,14 +215,14 @@ test("a loaded v2 site stays covered even though its metrics are never measured"
 
 test("a failed v2 run is not counted as successful coverage even with status 200", async () => {
   const id = "20260710-efefefefefefefefefefefefefefefef";
-  const r2 = makePublicSingleReportV2R2();
+  let r2 = makePublicSingleReportV2R2();
   const subject = { origin: "https://blocked-fixture.dev", registrableDomain: "blocked-fixture.dev", routeShape: "/" };
   r2.run.subject = { requested: subject, observed: { ...subject } };
   r2.run.summary.status = 200;
   r2.run.qualityFacts = { ...r2.run.qualityFacts, botWallTitleMatched: true };
   r2.run.quality = evaluateQuality(r2.run.qualityFacts, { observedRequests: r2.run.evidence.requests.length });
-  r2.run.privacy.redactionVersion = REDACTION_VERSION;
   r2.share = buildStaticReportShare(id);
+  r2 = currentR2FixedPoint(r2);
   await writeRawManagedReport(id, r2);
 
   const { stats } = await buildCorpusStats(reportsDir);
@@ -187,16 +230,23 @@ test("a failed v2 run is not counted as successful coverage even with status 200
   assert.equal(stats.coverageSiteCount, 0);
 });
 
-test("r2 reports remain visible to the corpus but never enter the legacy v1 percentile cohort", async () => {
+test("r2 reports get a separate methodology cohort and never enter the legacy v1 compatibility view", async () => {
   await writeReport(
     "20260701-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
     makeResult({ firstPartyDomain: "legacy-fixture.dev", thirdPartyRequests: 20 })
   );
 
   const id = "20260710-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
-  const r2 = makePublicSingleReportV2R2();
-  r2.run.privacy.redactionVersion = REDACTION_VERSION;
+  let r2 = makePublicSingleReportV2R2();
+  const subject = { origin: "https://r2-fixture.dev", registrableDomain: "r2-fixture.dev", routeShape: "/" };
+  r2.run.subject = { requested: subject, observed: { ...subject } };
+  r2.run.qualityFacts = {
+    ...r2.run.qualityFacts,
+    captureLoss: [{ family: "cookies", phaseId: null, kind: "dropped", count: 1 }]
+  };
+  r2.run.quality = evaluateQuality(r2.run.qualityFacts, { observedRequests: r2.run.evidence.requests.length });
   r2.share = buildStaticReportShare(id);
+  r2 = currentR2FixedPoint(r2);
   await writeFile(path.join(reportsDir, `${id}.json`), `${JSON.stringify(r2, null, 2)}\n`);
   await writeFile(
     path.join(reportsDir, committedSidecarFilename(id)),
@@ -215,12 +265,41 @@ test("r2 reports remain visible to the corpus but never enter the legacy v1 perc
   assert.equal(stats.sampleSize, 1);
   assert.equal(stats.metrics.thirdPartyRequests?.min, 20);
   assert.equal(stats.metrics.thirdPartyRequests?.max, 20);
-  // The fixture's subject is the reserved example.com, so it stays out of
-  // coverage exactly as a reserved v1 report would.
-  assert.equal(stats.coverageSiteCount, 1);
-  assert.deepEqual(warnings, [
-    `Skipping corpus report ${id}.json: schemaVersion 2 metrics are not comparable to the v1 distribution.`
-  ]);
+  assert.equal(stats.coverageSiteCount, 2);
+  assert.equal(stats.version, 2);
+  assert.equal(stats.cohorts?.length, 2);
+  const r2Cohort = stats.cohorts?.find((cohort) => cohort.schemaVersion === 2);
+  assert.equal(r2Cohort?.sampleSize, 1);
+  assert.equal(r2Cohort?.metrics.thirdPartyRequests?.count, 1);
+  assert.equal(r2Cohort?.metrics.thirdPartyCookies, undefined, "cookie-only loss reduces only that metric denominator");
+  assert.equal(r2Cohort?.methodologyOrigin, "recorded");
+  assert.equal(r2Cohort?.producer, "node-playwright");
+  assert.deepEqual(warnings, []);
+});
+
+test("different legacy methodology tokens produce separate distributions", async () => {
+  const oldMethod = makeResult({ firstPartyDomain: "old-method.dev", thirdPartyRequests: 10 });
+  const newMethod = makeResult({ firstPartyDomain: "new-method.dev", thirdPartyRequests: 90 });
+  newMethod.conditions.scannerDisclosure = scannerDisclosure("node-playwright", {
+    chromiumVersion: newMethod.conditions.chromiumVersion,
+    locale: newMethod.conditions.locale,
+    scannerEgress: newMethod.conditions.scannerEgress,
+    shieldsMode: newMethod.conditions.shieldsMode,
+    timezone: newMethod.conditions.timezone
+  });
+  await writeReport("20260701-10101010101010101010101010101010", oldMethod);
+  await writeReport("20260701-20202020202020202020202020202020", newMethod);
+
+  const { stats } = await buildCorpusStats(reportsDir);
+  assert.equal(stats.cohorts?.length, 2);
+  assert.deepEqual(
+    stats.cohorts?.map((cohort) => ({ method: cohort.methodologyVersion, count: cohort.sampleSize, min: cohort.metrics.thirdPartyRequests?.min })),
+    [
+      { method: LEGACY_V1_METHODOLOGY_UNSPECIFIED, count: 1, min: 10 },
+      { method: NODE_SCANNER_METHODOLOGY_VERSION, count: 1, min: 90 }
+    ]
+  );
+  assert.equal(stats.sampleSize, 1, "the compatibility view selects one cohort instead of pooling both sites");
 });
 
 test("malformed reports fail the managed corpus build, never zero-coerce into the distribution", async () => {

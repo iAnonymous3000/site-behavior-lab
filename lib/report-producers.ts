@@ -1,5 +1,7 @@
 export type ReportProducerCapability = {
   producer: "node" | "cloudflare-worker" | "pagegraph";
+  /** Whether this producer belongs to the current cross-consumer contract. */
+  lifecycle: "active" | "retired-legacy";
   runtime: string;
   emitsScanReport: boolean;
   singleScan: boolean;
@@ -17,6 +19,7 @@ export type ReportProducerId = ReportProducerCapability["producer"];
 export const REPORT_PRODUCER_CAPABILITIES: readonly ReportProducerCapability[] = [
   {
     producer: "node",
+    lifecycle: "active",
     runtime: "Next.js / Playwright Chromium",
     emitsScanReport: true,
     singleScan: true,
@@ -30,6 +33,7 @@ export const REPORT_PRODUCER_CAPABILITIES: readonly ReportProducerCapability[] =
   },
   {
     producer: "cloudflare-worker",
+    lifecycle: "retired-legacy",
     runtime: "Cloudflare Worker / Browser Run",
     emitsScanReport: true,
     singleScan: true,
@@ -43,6 +47,7 @@ export const REPORT_PRODUCER_CAPABILITIES: readonly ReportProducerCapability[] =
   },
   {
     producer: "pagegraph",
+    lifecycle: "active",
     runtime: "Paired GraphML + sidecar r2 import",
     emitsScanReport: true,
     singleScan: true,
@@ -55,6 +60,16 @@ export const REPORT_PRODUCER_CAPABILITIES: readonly ReportProducerCapability[] =
     reportStore: "caller-managed"
   }
 ] as const;
+
+/**
+ * Producers whose artifacts must retain end-to-end reader, presentation,
+ * provenance, corpus, and comparison parity. Retired runtimes stay in the
+ * registry so old deployments can describe themselves honestly, but they do
+ * not silently expand the active compatibility obligation.
+ */
+export function activeReportProducerCapabilities(): readonly ReportProducerCapability[] {
+  return REPORT_PRODUCER_CAPABILITIES.filter((entry) => entry.lifecycle === "active");
+}
 
 /** Authoritative capability row for a producer; the source of truth for runtime health and UI gating. */
 export function producerCapability(producer: ReportProducerId): ReportProducerCapability {

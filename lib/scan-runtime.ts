@@ -2,8 +2,23 @@ import { isThirdParty } from "./domain-utils";
 import { safeParseUrl } from "./report-url";
 import { redactUrlV2 } from "./redaction-v2";
 import type { NetworkRequestRecord, StorageRecord, TrackerMatch } from "./types";
+import {
+  callBoundedPageCollector,
+  type BoundedCollectorEvaluateLike
+} from "./bounded-page-collector";
 
 export const MAX_RECORDED_REQUESTS = 1_000;
+// This must not exceed redaction-v2's raw URL ceiling. Rejecting before URL
+// parsing keeps a hostile page from turning one request slot into multi-megabyte
+// parser/classifier work that can never survive the public boundary anyway.
+export const MAX_RECORDED_REQUEST_URL_CHARS = 16_384;
+export const MAX_RECORDED_REQUEST_METHOD_CHARS = 64;
+export const MAX_RECORDED_RESOURCE_TYPE_CHARS = 64;
+export const MAX_PAGE_TITLE_CHARS = 512;
+export const MAX_CAPTURED_STORAGE_RECORDS = 1_000;
+export const MAX_CAPTURED_STORAGE_KEY_CHARS = 1_024;
+export const MAX_CAPTURED_STORAGE_TOTAL_KEY_CHARS = 256 * 1024;
+export const MAX_CAPTURED_STORAGE_TOTAL_VALUE_CHARS = 1024 * 1024;
 export const NON_HTTP_WARNING_EXAMPLE_LIMIT = 5;
 export const INVALID_UPSTREAM_RESPONSE_WARNING =
   "The scan proxy rejected one or more invalid upstream responses; request evidence may be incomplete.";
@@ -239,6 +254,10 @@ export class ScanNetworkRecorder<RequestT extends RecordedRequestLike> {
   }
 
   recordRequest(request: RequestT, startedAtMs: number): void {
+    // Reserve the bounded slot before reading or parsing any page-controlled
+    // strings. Invalid/overlong requests release it below so they cannot consume
+    // the retained-evidence budget, while post-cap requests stay O(1).
+    if (!this.requestBudget.allowRecordedRequest()) return;
     const record = buildRecordedRequestRecord({
       firstPartyHostname: this.options.firstPartyHostname,
       id: this.requestId + 1,
@@ -246,8 +265,10 @@ export class ScanNetworkRecorder<RequestT extends RecordedRequestLike> {
       startedAtMs,
       trackerMatcher: this.options.trackerMatcher
     });
-    if (!record) return;
-    if (!this.requestBudget.allowRecordedRequest()) return;
+    if (!record) {
+      this.requestBudget.releaseRecordedRequest();
+      return;
+    }
     this.requestId += 1;
 
     this.records.push({
@@ -299,11 +320,14 @@ function buildRecordedRequestRecord({
   trackerMatcher?: TrackerMatcher;
 }): NetworkRequestRecord | null {
   const requestUrl = request.url();
+  if (requestUrl.length > MAX_RECORDED_REQUEST_URL_CHARS) return null;
   const parsed = safeParseUrl(requestUrl);
   if (!parsed || !isHttpUrl(parsed)) return null;
 
   const domain = parsed.hostname;
   const thirdParty = isThirdParty(firstPartyHostname, domain);
+  const rawMethod = request.method();
+  const rawResourceType = request.resourceType();
 
   return {
     id,
@@ -312,8 +336,8 @@ function buildRecordedRequestRecord({
     // public seam that redacts the completed record and accounts for removals.
     url: requestUrl,
     domain,
-    method: request.method(),
-    resourceType: request.resourceType(),
+    method: rawMethod.length <= MAX_RECORDED_REQUEST_METHOD_CHARS ? rawMethod : "OTHER",
+    resourceType: rawResourceType.length <= MAX_RECORDED_RESOURCE_TYPE_CHARS ? rawResourceType : "other",
     status: null,
     thirdParty,
     tracker: thirdParty && trackerMatcher ? trackerMatcher(domain) : null,
@@ -343,14 +367,19 @@ export async function verifyRoutedHttpRequest({
   verifyPublicUrl: (url: URL) => Promise<void>;
   unverifiedWarning?: string;
 }): Promise<RoutedHttpRequestGuardResult> {
+  // Admission precedes URL parsing. Once the route budget is exhausted, an
+  // attacker cannot keep feeding large URL strings into the URL parser.
+  if (!requestBudget.allowRoutedHttpRequest()) {
+    return { action: "abort" };
+  }
   try {
+    if (requestUrl.length > MAX_RECORDED_REQUEST_URL_CHARS) {
+      warnings.addUnverifiedRequest(requestUrl, unverifiedWarning);
+      return { action: "abort" };
+    }
     const parsed = new URL(requestUrl);
     if (!isHttpUrl(parsed)) {
       warnings.addNonHttpRequest(requestUrl);
-      return { action: "abort" };
-    }
-
-    if (!requestBudget.allowRoutedHttpRequest()) {
       return { action: "abort" };
     }
 
@@ -362,25 +391,110 @@ export async function verifyRoutedHttpRequest({
   }
 }
 
-export type StoragePageLike = {
-  evaluate<T>(pageFunction: () => T): Promise<T>;
+export type BoundedPageEvaluateLike = BoundedCollectorEvaluateLike;
+
+export type BoundedPageTitle = {
+  value: string;
+  truncated: boolean;
 };
 
-export async function collectStorageEntries(page: StoragePageLike): Promise<StorageRecord[]> {
-  return page.evaluate(() => {
-    const readArea = (area: Storage, name: "localStorage" | "sessionStorage") =>
-      Array.from({ length: area.length }, (_, index) => {
-        const key = area.key(index) || "";
-        const value = area.getItem(key) || "";
-        return {
-          area: name,
-          key,
-          valueBytes: new Blob([value]).size
-        };
-      });
+/** Read no more title text across the browser/host boundary than can be used. */
+export async function collectBoundedPageTitle(
+  page: BoundedPageEvaluateLike,
+  collectorKey: string
+): Promise<BoundedPageTitle> {
+  const wire = await callBoundedPageCollector(page, collectorKey, "title", MAX_PAGE_TITLE_CHARS);
+  if (typeof wire !== "string" || wire.length > MAX_PAGE_TITLE_CHARS + 128) {
+    return { value: "", truncated: true };
+  }
+  let result: unknown;
+  try {
+    result = JSON.parse(wire);
+  } catch {
+    return { value: "", truncated: true };
+  }
 
-    return [...readArea(localStorage, "localStorage"), ...readArea(sessionStorage, "sessionStorage")];
+  if (
+    !result ||
+    typeof result !== "object" ||
+    typeof (result as BoundedPageTitle).value !== "string" ||
+    typeof (result as BoundedPageTitle).truncated !== "boolean" ||
+    (result as BoundedPageTitle).value.length > MAX_PAGE_TITLE_CHARS
+  ) {
+    return { value: "", truncated: true };
+  }
+  return result as BoundedPageTitle;
+}
+
+export type StorageEntryCollection = {
+  records: StorageRecord[];
+  omittedCount: number;
+  truncated: boolean;
+};
+
+/**
+ * Read storage inside the page under row, key, and aggregate text ceilings.
+ * Only the bounded result is serialized through Playwright. `omittedCount` is
+ * exact for the synchronous snapshot and lets producers record capture loss.
+ */
+export async function collectStorageEntriesWithCoverage(
+  page: BoundedPageEvaluateLike,
+  collectorKey: string
+): Promise<StorageEntryCollection> {
+  const wire = await callBoundedPageCollector(page, collectorKey, "storage", {
+    maxKeyChars: MAX_CAPTURED_STORAGE_KEY_CHARS,
+    maxRecords: MAX_CAPTURED_STORAGE_RECORDS,
+    maxTotalKeyChars: MAX_CAPTURED_STORAGE_TOTAL_KEY_CHARS,
+    maxTotalValueChars: MAX_CAPTURED_STORAGE_TOTAL_VALUE_CHARS
   });
+  if (typeof wire !== "string" || wire.length > 2 * 1024 * 1024) {
+    return { records: [], omittedCount: 1, truncated: true };
+  }
+  let result: unknown;
+  try {
+    result = JSON.parse(wire);
+  } catch {
+    return { records: [], omittedCount: 1, truncated: true };
+  }
+
+  if (
+    !result ||
+    typeof result !== "object" ||
+    !Array.isArray((result as StorageEntryCollection).records) ||
+    (result as StorageEntryCollection).records.length > MAX_CAPTURED_STORAGE_RECORDS
+  ) {
+    return { records: [], omittedCount: 1, truncated: true };
+  }
+
+  const candidate = result as StorageEntryCollection;
+  const records = candidate.records.filter(
+    (record) =>
+      record !== null &&
+      typeof record === "object" &&
+      (record.area === "localStorage" || record.area === "sessionStorage") &&
+      typeof record.key === "string" &&
+      record.key.length <= MAX_CAPTURED_STORAGE_KEY_CHARS &&
+      Number.isSafeInteger(record.valueBytes) &&
+      record.valueBytes >= 0
+  ).slice(0, MAX_CAPTURED_STORAGE_RECORDS);
+  const invalidCount = candidate.records.length - records.length;
+  const reportedOmitted = Number.isSafeInteger(candidate.omittedCount) && candidate.omittedCount >= 0
+    ? candidate.omittedCount
+    : 1;
+  const omittedCount = Math.min(Number.MAX_SAFE_INTEGER, reportedOmitted + invalidCount);
+  return {
+    records,
+    omittedCount,
+    truncated: candidate.truncated === true || omittedCount > 0
+  };
+}
+
+/** Compatibility projection for callers that cannot yet expose coverage. */
+export async function collectStorageEntries(
+  page: BoundedPageEvaluateLike,
+  collectorKey: string
+): Promise<StorageRecord[]> {
+  return (await collectStorageEntriesWithCoverage(page, collectorKey)).records;
 }
 
 function defaultScanTimeoutError(): Error {

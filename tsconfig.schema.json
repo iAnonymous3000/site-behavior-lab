@@ -27,6 +27,8 @@
     "lib/corrections-ledger-history-cli.ts",
     "lib/remediation-inventory-cli.ts",
     "lib/remediate-reports-cli.ts",
+    "lib/report-publication-artifact-cli.ts",
+    "lib/report-publication-archive-cli.ts",
     "lib/scan-report-v2-r2-limits.ts",
     "lib/scan-report-v2-r2-aggregate.ts",
     "lib/aggregate-v2-shadow-cli.ts",

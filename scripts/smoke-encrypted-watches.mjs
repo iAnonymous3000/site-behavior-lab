@@ -1,6 +1,10 @@
 #!/usr/bin/env node
 
 import { createHash, randomBytes } from "node:crypto";
+import {
+  readResponseJsonWithinLimit,
+  withHttpOperationDeadline
+} from "./http-response.mjs";
 
 // Operator-only live canary for encrypted scheduled rescans. It intentionally
 // performs one preflight, creates one watch with its first durable job, sends
@@ -8,7 +12,7 @@ import { createHash, randomBytes } from "node:crypto";
 // job status, one watch status, and deletes the watch.
 
 const LIVE_CONFIRMATION = "I_ACKNOWLEDGE_THIS_CREATES_A_LIVE_SCHEDULED_RESCAN";
-const STAGING_CONFIRMATION = "I_ACKNOWLEDGE_THIS_IS_A_GATED_STAGING_DEPLOYMENT";
+const STAGING_CONFIRMATION = "I_ACKNOWLEDGE_THIS_IS_AN_OPEN_TURNSTILE_STAGING_DEPLOYMENT";
 const WATCH_ID_PATTERN = /^[0-9a-f]{32}$/;
 const CAPABILITY_PATTERN = /^[A-Za-z0-9_-]{43}$/;
 const JOB_ID_PATTERN = /^[0-9]{8}-[0-9a-f]{32}$/;
@@ -17,6 +21,8 @@ const SAFE_ERROR_CODE_PATTERN = /^[a-z0-9][a-z0-9._-]{0,63}$/;
 const MAX_RUNS = 5;
 const WATCH_TTL_MS = 30 * 24 * 60 * 60 * 1_000;
 const WATCH_ID_DERIVATION_DOMAIN = "site-behavior-lab/encrypted-watch/id/v1";
+const CONTROL_RESPONSE_MAX_BYTES = 256 * 1024;
+const SCAN_STATUS_RESPONSE_MAX_BYTES = 32 * 1024 * 1024;
 
 class SmokeFailure extends Error {
   constructor(message) {
@@ -27,15 +33,25 @@ class SmokeFailure extends Error {
 
 let REQUEST_TIMEOUT_MS = 30_000;
 let baseUrl = "";
-let accessToken = "";
+let watchAccessToken = "";
+let turnstileToken = "";
 let targetUrl = "";
 let expectedDeployment = "";
 let noRequestMs = 0;
 let cleanup = null;
 try {
-  REQUEST_TIMEOUT_MS = positiveIntegerEnv("ENCRYPTED_WATCH_SMOKE_REQUEST_TIMEOUT_MS", 30_000);
+  REQUEST_TIMEOUT_MS = boundedIntegerEnv(
+    "ENCRYPTED_WATCH_SMOKE_REQUEST_TIMEOUT_MS",
+    30_000,
+    100,
+    60_000
+  );
   baseUrl = requiredOrigin("ENCRYPTED_WATCH_SMOKE_BASE_URL");
-  accessToken = requiredHeaderValue("ENCRYPTED_WATCH_SMOKE_ACCESS_TOKEN");
+  watchAccessToken = requiredHeaderValue("ENCRYPTED_WATCH_SMOKE_WATCH_ACCESS_TOKEN", 32);
+  turnstileToken = requiredHeaderValue("ENCRYPTED_WATCH_SMOKE_TURNSTILE_TOKEN");
+  if (watchAccessToken === turnstileToken) {
+    abort("The watch endpoint credential must be distinct from the Turnstile token.");
+  }
   targetUrl = requiredTargetUrl("ENCRYPTED_WATCH_SMOKE_TARGET_URL");
   expectedDeployment = requiredCommitSha("ENCRYPTED_WATCH_SMOKE_EXPECTED_SHA");
   noRequestMs = positiveIntegerEnv("ENCRYPTED_WATCH_SMOKE_NO_REQUEST_MS");
@@ -45,7 +61,7 @@ try {
   if (process.env.ENCRYPTED_WATCH_SMOKE_STAGING_CONFIRM !== STAGING_CONFIRMATION) {
     abort(
       `Set ENCRYPTED_WATCH_SMOKE_STAGING_CONFIRM=${STAGING_CONFIRMATION} only after verifying that the origin is ` +
-        "a separate access-token-gated staging deployment."
+        "a separate open, Turnstile-protected staging deployment with dedicated watch authorization."
     );
   }
   if (normalizedHostname(baseUrl) === "scan.sitebehavior.org") {
@@ -55,6 +71,9 @@ try {
   await readAttestedStagingHealth("pre-creation");
 
   const clientCredential = mintClientCredential();
+  if (clientCredential.capability === watchAccessToken) {
+    abort("The watch endpoint credential must be distinct from the browser management capability.");
+  }
   cleanup = {
     watchId: clientCredential.watchId,
     capability: clientCredential.capability,
@@ -63,17 +82,30 @@ try {
     notBefore: Date.now() + REQUEST_TIMEOUT_MS + noRequestMs
   };
   const creationUrl = `${baseUrl}/api/watches`;
-  assertLoggableUrl(creationUrl, "watch creation URL", [clientCredential.capability, targetUrl]);
-  const creationResponse = await guardedFetch(creationUrl, "/api/watches", {
-    method: "POST",
-    headers: capabilityHeaders(clientCredential.capability, {
-      "content-type": "application/json; charset=utf-8"
-    }),
-    body: JSON.stringify({ url: targetUrl, device: "desktop", gpcEnabled: true }),
-    cache: "no-store",
-    redirect: "error"
-  });
-  const creationPayload = await readJson(creationResponse, "/api/watches");
+  assertLoggableUrl(creationUrl, "watch creation URL", [
+    clientCredential.capability,
+    targetUrl,
+    watchAccessToken,
+    turnstileToken
+  ]);
+  const { response: creationResponse, value: creationPayload } = await guardedFetch(
+    creationUrl,
+    "/api/watches",
+    {
+      method: "POST",
+      headers: creationHeaders(clientCredential.capability, {
+        "content-type": "application/json; charset=utf-8"
+      }),
+      body: JSON.stringify({
+        url: targetUrl,
+        device: "desktop",
+        gpcEnabled: true,
+        turnstileToken
+      }),
+      cache: "no-store",
+      redirect: "error"
+    }
+  );
   const creation = parseWatchStatus(creationPayload, true);
   if (
     (creationResponse.status !== 200 && creationResponse.status !== 201) ||
@@ -101,11 +133,15 @@ try {
   }
   assertLoggableUrl(new URL(creation.statusPath, `${baseUrl}/`).href, "watch status URL", [
     creation.capability,
-    targetUrl
+    targetUrl,
+    watchAccessToken,
+    turnstileToken
   ]);
   assertLoggableUrl(new URL(initialRun.statusPath, `${baseUrl}/`).href, "initial run status URL", [
     creation.capability,
-    targetUrl
+    targetUrl,
+    watchAccessToken,
+    turnstileToken
   ]);
   if (JSON.stringify({ ...creationPayload, capability: undefined }).includes(targetUrl)) {
     abort("The creation metadata reflected the plaintext target.");
@@ -119,14 +155,19 @@ try {
   console.log("No-request window complete; reading exactly one initial-job status snapshot.");
 
   const initialStatusUrl = new URL(initialRun.statusPath, `${baseUrl}/`).href;
-  const initialStatusResponse = await guardedFetch(initialStatusUrl, "/api/scans/:id", {
-    headers: accessHeaders(),
-    cache: "no-store",
-    redirect: "error"
-  });
-  const initialStatus = await readJson(initialStatusResponse, "/api/scans/:id");
+  const initialStatusResponse = await guardedFetch(
+    initialStatusUrl,
+    "/api/scans/:id",
+    {
+      cache: "no-store",
+      redirect: "error"
+    },
+    SCAN_STATUS_RESPONSE_MAX_BYTES
+  );
+  const initialStatusHttpResponse = initialStatusResponse.response;
+  const initialStatus = initialStatusResponse.value;
   if (
-    !initialStatusResponse.ok ||
+    !initialStatusHttpResponse.ok ||
     initialStatus?.ok !== true ||
     initialStatus.jobId !== initialRun.jobId ||
     initialStatus.status !== "succeeded"
@@ -141,12 +182,15 @@ try {
   }
 
   const watchStatusUrl = new URL(creation.statusPath, `${baseUrl}/`).href;
-  const watchStatusResponse = await guardedFetch(watchStatusUrl, "/api/watches/:id", {
-    headers: capabilityHeaders(creation.capability),
-    cache: "no-store",
-    redirect: "error"
-  });
-  const watchStatusPayload = await readJson(watchStatusResponse, "/api/watches/:id");
+  const { response: watchStatusResponse, value: watchStatusPayload } = await guardedFetch(
+    watchStatusUrl,
+    "/api/watches/:id",
+    {
+      headers: capabilityHeaders(creation.capability),
+      cache: "no-store",
+      redirect: "error"
+    }
+  );
   const watchStatus = parseWatchStatus(watchStatusPayload, false);
   if (!watchStatusResponse.ok || !watchStatus || watchStatus.watchId !== creation.watchId) {
     abort("The capability-authenticated watch metadata could not be read.");
@@ -162,13 +206,16 @@ try {
     abort("The public watch status reflected capability or plaintext target material.");
   }
 
-  const deletionResponse = await guardedFetch(watchStatusUrl, "DELETE /api/watches/:id", {
-    method: "DELETE",
-    headers: capabilityHeaders(creation.capability),
-    cache: "no-store",
-    redirect: "error"
-  });
-  const deletion = await readJson(deletionResponse, "DELETE /api/watches/:id");
+  const { response: deletionResponse, value: deletion } = await guardedFetch(
+    watchStatusUrl,
+    "DELETE /api/watches/:id",
+    {
+      method: "DELETE",
+      headers: capabilityHeaders(creation.capability),
+      cache: "no-store",
+      redirect: "error"
+    }
+  );
   if (
     !deletionResponse.ok ||
     !hasExactKeys(deletion, ["ok", "watchId", "state"]) ||
@@ -192,21 +239,19 @@ try {
 
 async function readAttestedStagingHealth(phase) {
   const healthUrl = `${baseUrl}/api/health`;
-  assertLoggableUrl(healthUrl, `${phase} health URL`, []);
-  const response = await guardedFetch(healthUrl, "/api/health", {
-    headers: accessHeaders(),
+  assertLoggableUrl(healthUrl, `${phase} health URL`, [watchAccessToken, turnstileToken]);
+  const { response, value: health } = await guardedFetch(healthUrl, "/api/health", {
     cache: "no-store",
     redirect: "error"
   });
-  const health = await readJson(response, "/api/health");
   if (!response.ok || health?.ok !== true || health.status !== "ok") {
     abort(`The ${phase} staging health response is not ready.`);
   }
   if (!Array.isArray(health.warnings) || health.warnings.length !== 0) {
     abort(`The ${phase} staging health response must contain an explicitly empty warnings array.`);
   }
-  if (health.authenticated !== true || health.openAccess !== false) {
-    abort(`The ${phase} deployment is not positively attested as access-token gated.`);
+  if (health.authenticated !== false || health.openAccess !== true || health.turnstile !== true) {
+    abort(`The ${phase} deployment is not positively attested as open and Turnstile-protected.`);
   }
   if (health.deployment !== expectedDeployment) {
     abort(`The ${phase} deployment does not match the exact reviewed commit.`);
@@ -216,11 +261,17 @@ async function readAttestedStagingHealth(phase) {
     abort(`The ${phase} deployment does not advertise ready durable jobs.`);
   }
   const watches = health.checks?.encryptedWatches;
-  if (!watches || watches.requested !== true || watches.enabled !== true || watches.readiness !== "ready") {
+  if (
+    !watches ||
+    watches.requested !== true ||
+    watches.enabled !== true ||
+    watches.readiness !== "ready" ||
+    watches.creationAuthorization !== "operator"
+  ) {
     abort(`The ${phase} deployment does not advertise ready encrypted watches.`);
   }
-  if (health.capabilities?.scheduledRescans !== true) {
-    abort(`The ${phase} deployment does not advertise the scheduled-rescan capability.`);
+  if (health.capabilities?.scheduledRescans !== false) {
+    abort(`The ${phase} operator canary must keep public scheduled-rescan creation hidden.`);
   }
   return health;
 }
@@ -320,15 +371,23 @@ async function bestEffortDelete({ watchId, capability, notBefore }) {
   for (const delay of retryDelays) {
     if (delay > 0) await sleep(delay);
     try {
-      assertLoggableUrl(url, "cleanup watch URL", [capability, targetUrl]);
-      const response = await guardedFetch(url, "cleanup DELETE /api/watches/:id", {
-        method: "DELETE",
-        headers: capabilityHeaders(capability),
-        cache: "no-store",
-        redirect: "error"
-      });
+      assertLoggableUrl(url, "cleanup watch URL", [
+        capability,
+        targetUrl,
+        watchAccessToken,
+        turnstileToken
+      ]);
+      const { response, value: deletion } = await guardedFetch(
+        url,
+        "cleanup DELETE /api/watches/:id",
+        {
+          method: "DELETE",
+          headers: capabilityHeaders(capability),
+          cache: "no-store",
+          redirect: "error"
+        }
+      );
       if (response.status === 404) return;
-      const deletion = await readJson(response, "cleanup DELETE /api/watches/:id");
       if (
         response.ok &&
         hasExactKeys(deletion, ["ok", "watchId", "state"]) &&
@@ -347,12 +406,15 @@ async function bestEffortDelete({ watchId, capability, notBefore }) {
   );
 }
 
-function accessHeaders(extra = {}) {
-  return { ...extra, "x-site-behavior-lab-access-token": accessToken };
+function capabilityHeaders(capability, extra = {}) {
+  return { ...extra, "x-site-behavior-lab-watch-capability": capability };
 }
 
-function capabilityHeaders(capability, extra = {}) {
-  return accessHeaders({ ...extra, "x-site-behavior-lab-watch-capability": capability });
+function creationHeaders(capability, extra = {}) {
+  return capabilityHeaders(capability, {
+    ...extra,
+    "x-site-behavior-lab-watch-access-token": watchAccessToken
+  });
 }
 
 function mintClientCredential() {
@@ -366,22 +428,25 @@ function mintClientCredential() {
   return { watchId: digest.slice(0, 32), capability };
 }
 
-async function guardedFetch(input, label, init) {
+async function guardedFetch(input, label, init, maxBytes = CONTROL_RESPONSE_MAX_BYTES) {
   try {
-    return await fetch(input, { ...init, signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS) });
+    return await withHttpOperationDeadline(
+      { timeoutMs: REQUEST_TIMEOUT_MS, label },
+      async (signal) => {
+        const response = await fetch(input, { ...init, signal });
+        if (!(response.headers.get("content-type") ?? "").includes("application/json")) {
+          abort(`${label} returned HTTP ${response.status} with non-JSON content.`);
+        }
+        return {
+          response,
+          value: await readResponseJsonWithinLimit(response, { maxBytes, label })
+        };
+      }
+    );
   } catch (error) {
+    if (error instanceof RangeError) abort(error.message);
+    if (error instanceof SyntaxError) abort(`${label} returned invalid JSON.`);
     abort(`${label} failed before a valid response was received (${publicException(error)}).`);
-  }
-}
-
-async function readJson(response, label) {
-  if (!(response.headers.get("content-type") ?? "").includes("application/json")) {
-    abort(`${label} returned HTTP ${response.status} with non-JSON content.`);
-  }
-  try {
-    return await response.json();
-  } catch {
-    abort(`${label} returned invalid JSON.`);
   }
 }
 
@@ -452,9 +517,11 @@ function requiredCommitSha(name) {
   return value;
 }
 
-function requiredHeaderValue(name) {
+function requiredHeaderValue(name, minimumLength = 1) {
   const value = requiredEnv(name);
-  if (value.length > 4_096 || /[\r\n]/.test(value)) abort(`${name} is not a safe HTTP header value.`);
+  if (value.length < minimumLength || value.length > 4_096 || /[\r\n]/.test(value)) {
+    abort(`${name} is not a safe HTTP header value.`);
+  }
   return value;
 }
 
@@ -469,6 +536,16 @@ function positiveIntegerEnv(name, fallback) {
   if (!raw && fallback !== undefined) return fallback;
   const value = Number(raw);
   if (!Number.isSafeInteger(value) || value <= 0) abort(`${name} must be a positive integer.`);
+  return value;
+}
+
+function boundedIntegerEnv(name, fallback, minimum, maximum) {
+  const raw = process.env[name]?.trim();
+  if (!raw && fallback !== undefined) return fallback;
+  const value = Number(raw);
+  if (!Number.isSafeInteger(value) || value < minimum || value > maximum) {
+    abort(`${name} must be an integer from ${minimum} to ${maximum}.`);
+  }
   return value;
 }
 

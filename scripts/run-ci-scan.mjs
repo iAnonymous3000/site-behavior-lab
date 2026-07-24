@@ -8,12 +8,20 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { awaitSubmittedScanJob } from "./run-ci-scan-job.mjs";
 import { botBlockReason, isPublishableScanReport } from "./run-ci-scan-report.mjs";
+import {
+  readResponseJsonWithinLimit,
+  withHttpOperationDeadline
+} from "./http-response.mjs";
+import { prepareScanAdmission } from "./scan-admission.mjs";
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const reportsDir = path.join(rootDir, "public", "reports");
 const baseUrl = stripTrailingSlash(process.env.BASE_URL || "http://127.0.0.1:3100");
 const targetUrl = process.env.SCAN_URL?.trim();
 const reportIdPattern = /^[0-9]{8}-[0-9a-f]{32}$/;
+const scanRequestTimeoutMs = boundedIntegerEnv("CI_SCAN_REQUEST_TIMEOUT_MS", 300_000, 1_000, 600_000);
+const controlRequestTimeoutMs = 30_000;
+const jsonResponseMaxBytes = 32 * 1024 * 1024;
 
 if (!targetUrl) {
   console.error("SCAN_URL is required.");
@@ -138,12 +146,16 @@ function isJobSubmission(response) {
 }
 
 async function postJson(url, body) {
-  const response = await fetch(url, {
-    method: "POST",
-    headers: { "content-type": "application/json", ...accessHeaders() },
-    body: JSON.stringify(body)
-  });
-  const payload = await readJsonResponse(response);
+  const admission = prepareScanAdmission(body);
+  const { response, value: payload } = await requestJson(
+    url,
+    {
+      method: "POST",
+      headers: { "content-type": "application/json", ...accessHeaders(), ...admission.headers },
+      body: JSON.stringify(admission.body)
+    },
+    scanRequestTimeoutMs
+  );
   if (!response.ok && payload.ok !== false) {
     throw new Error(`Scan endpoint returned ${response.status}.`);
   }
@@ -151,16 +163,26 @@ async function postJson(url, body) {
 }
 
 async function fetchJson(url, headers = {}) {
-  const response = await fetch(url, { headers });
-  return readJsonResponse(response);
+  const { value } = await requestJson(url, { headers }, controlRequestTimeoutMs);
+  return value;
 }
 
-async function readJsonResponse(response) {
-  const contentType = response.headers.get("content-type") || "";
-  if (!contentType.includes("application/json")) {
-    throw new Error(`Expected JSON from ${response.url}, got ${response.status}.`);
-  }
-  return response.json();
+async function requestJson(url, init, timeoutMs) {
+  return withHttpOperationDeadline(
+    { timeoutMs, label: url },
+    async (signal) => {
+      const response = await fetch(url, { ...init, redirect: "error", signal });
+      const contentType = response.headers.get("content-type") || "";
+      if (!contentType.includes("application/json")) {
+        throw new Error(`Expected JSON from ${response.url}, got ${response.status}.`);
+      }
+      const value = await readResponseJsonWithinLimit(response, {
+        maxBytes: jsonResponseMaxBytes,
+        label: url
+      });
+      return { response, value };
+    }
+  );
 }
 
 function createReportId() {
@@ -171,6 +193,16 @@ function booleanEnv(name, fallback) {
   const value = process.env[name];
   if (value === undefined || value === "") return fallback;
   return /^(1|true|yes|on)$/i.test(value);
+}
+
+function boundedIntegerEnv(name, fallback, minimum, maximum) {
+  const raw = process.env[name]?.trim();
+  if (!raw) return fallback;
+  const value = Number(raw);
+  if (!Number.isSafeInteger(value) || value < minimum || value > maximum) {
+    throw new Error(`${name} must be an integer from ${minimum} to ${maximum}.`);
+  }
+  return value;
 }
 
 function stripTrailingSlash(value) {

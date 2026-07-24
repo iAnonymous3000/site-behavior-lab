@@ -3,10 +3,16 @@ import type {
   ReportRetentionMetadata,
   ReportStoreBackend,
   ReportStoreOperationOptions,
+  ReportRetentionDebtEntry,
   ReportWriteResult,
   StoredReportBlob,
   StoredReportEntry
 } from "./report-store-backend";
+import {
+  SERVER_STORED_PROVENANCE_SIDECAR_MAX_BYTES,
+  SERVER_STORED_REPORT_JSON_MAX_BYTES
+} from "./report-resource-limits";
+import { readDurableScanJobInternalResponseBytes } from "./durable-scan-job-internal-response";
 import { REPORT_ID_PATTERN } from "./report-validation";
 
 const R2_BUCKET_ENV = "SITE_BEHAVIOR_LAB_R2_BUCKET";
@@ -18,9 +24,22 @@ export const R2_REQUEST_TIMEOUT_MS_ENV = "SITE_BEHAVIOR_LAB_R2_REQUEST_TIMEOUT_M
 const CREATED_AT_METADATA_HEADER = "x-amz-meta-created-at";
 const EXPIRES_AT_METADATA_HEADER = "x-amz-meta-expires-at";
 export const R2_LIST_HEAD_CONCURRENCY = 8;
+export const R2_LIST_MAX_PAGES = 32;
+export const R2_LIST_MAX_REPORT_ENTRIES = 2_000;
+export const R2_LIST_MAX_SIDECAR_ENTRIES = 2_000;
+export const R2_LIST_MAX_CANDIDATES = 2_000;
+export const R2_LIST_MAX_HEAD_CANDIDATES = 1_000;
+export const R2_LIST_MAX_CONTINUATION_TOKEN_CHARS = 4_096;
 export const R2_UNCOMMITTED_HEAD_GRACE_MS = 15 * 60 * 1_000;
 export const DEFAULT_R2_REQUEST_TIMEOUT_MS = 10_000;
+export const R2_REPORT_RESPONSE_MAX_BYTES = SERVER_STORED_REPORT_JSON_MAX_BYTES;
+export const R2_SIDECAR_RESPONSE_MAX_BYTES = SERVER_STORED_PROVENANCE_SIDECAR_MAX_BYTES;
+export const R2_LIST_RESPONSE_MAX_BYTES = 2 * 1024 * 1024;
+export const R2_CONTROL_RESPONSE_MAX_BYTES = 64 * 1024;
 const MAX_R2_REQUEST_TIMEOUT_MS = 120_000;
+const RETENTION_DEBT_SEGMENT = "_retention-debt/";
+const RETENTION_MAINTENANCE_ID = "00000000-00000000000000000000000000000000";
+const RETENTION_MARKER_WIRE = "1\n";
 
 type ListedSidecar = { id: string; lastModifiedMs: number };
 
@@ -63,6 +82,20 @@ export class ReportStoreWriteConflictError extends Error {}
 
 export class ReportStoreRequestTimeoutError extends Error {}
 
+export class ReportStoreListBoundsError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "ReportStoreListBoundsError";
+  }
+}
+
+export class ReportStoreResponseInvalidUtf8Error extends Error {
+  constructor() {
+    super("R2 response body was not exact valid UTF-8.");
+    this.name = "ReportStoreResponseInvalidUtf8Error";
+  }
+}
+
 export function createR2ReportStoreBackend(
   config: R2ReportStoreConfig = r2ReportStoreConfigFromEnv(),
   deps: R2ReportStoreDeps = {}
@@ -79,6 +112,15 @@ export function createR2ReportStoreBackend(
     `${config.endpoint}/${encodeURIComponent(config.bucket)}/${encodeKey(`${config.prefix}${id}.json`)}`;
   const sidecarObjectUrl = (id: string): string =>
     `${config.endpoint}/${encodeURIComponent(config.bucket)}/${encodeKey(`${config.prefix}${id}.json.provenance.json`)}`;
+  const retentionDebtPrefix = `${config.prefix}${RETENTION_DEBT_SEGMENT}`;
+  const retentionDebtObjectUrl = (debt: ReportRetentionDebtEntry): string =>
+    `${config.endpoint}/${encodeURIComponent(config.bucket)}/${encodeKey(
+      `${retentionDebtPrefix}${debt.id}${debt.scope === "bundle" ? ".json" : ".json.provenance.json"}`
+    )}`;
+  const retentionMaintenanceObjectUrl = retentionDebtObjectUrl({
+    id: RETENTION_MAINTENANCE_ID,
+    scope: "bundle"
+  });
 
   // One signed dispatch with bounded retries on transient failures. A rejected
   // fetch (network error) or a retryable status marks the attempt's server-side
@@ -86,7 +128,8 @@ export function createR2ReportStoreBackend(
   // conflict caused by its own earlier attempt landing.
   async function send(
     input: string,
-    init: RequestInit
+    init: RequestInit,
+    successMaxBytes = R2_CONTROL_RESPONSE_MAX_BYTES
   ): Promise<{ response: Response; body: string; outcomeUnknown: boolean }> {
     init.signal?.throwIfAborted();
     let outcomeUnknown = false;
@@ -94,11 +137,12 @@ export function createR2ReportStoreBackend(
       init.signal?.throwIfAborted();
       let dispatched: { response: Response; body: string };
       try {
-        dispatched = await dispatchWithTimeout(input, init);
+        dispatched = await dispatchWithTimeout(input, init, successMaxBytes);
       } catch (error) {
         // A durable execution fence is authoritative. Retrying after it fires
         // can let a stale publication outlive its coordinator lease.
         if (init.signal?.aborted) throw init.signal.reason;
+        if (error instanceof ReportStoreResponseInvalidUtf8Error) throw error;
         outcomeUnknown = true;
         if (attempt >= RETRY_DELAYS_MS.length) throw error;
         await waitForRetry(RETRY_DELAYS_MS[attempt], init.signal);
@@ -145,7 +189,8 @@ export function createR2ReportStoreBackend(
 
   async function dispatchWithTimeout(
     input: string,
-    init: RequestInit
+    init: RequestInit,
+    successMaxBytes: number
   ): Promise<{ response: Response; body: string }> {
     init.signal?.throwIfAborted();
     const controller = new AbortController();
@@ -181,7 +226,26 @@ export function createR2ReportStoreBackend(
         // Keep the same attempt deadline active through body consumption. A
         // server can return headers and then stall its body; clearing the
         // deadline at headers would still freeze the report-store FIFO.
-        const body = await response.text();
+        const responseMaxBytes = response.ok
+          ? successMaxBytes
+          : Math.min(successMaxBytes, R2_CONTROL_RESPONSE_MAX_BYTES);
+        // HEAD Object uses Content-Length to describe the stored GET object,
+        // even though the HEAD response has no representation body. Do not
+        // mistake a healthy large report for an oversized control response;
+        // any non-conforming actual body remains stream-bounded below.
+        const bodyResponse = responseForBoundedBodyRead(response, init.method);
+        const bytes = await readDurableScanJobInternalResponseBytes(bodyResponse, signal, responseMaxBytes);
+        let body: string;
+        try {
+          body = new TextDecoder("utf-8", {
+            fatal: true,
+            // Keep a BOM in exact report/sidecar wires. Managed JSON
+            // validation must reject it rather than attest normalized bytes.
+            ignoreBOM: true
+          }).decode(bytes);
+        } catch {
+          throw new ReportStoreResponseInvalidUtf8Error();
+        }
         signal.throwIfAborted();
         return { response, body };
       })();
@@ -195,9 +259,10 @@ export function createR2ReportStoreBackend(
   async function readObject(
     input: string,
     action: string,
+    maxResponseBytes: number,
     signal?: AbortSignal
   ): Promise<{ contents: string; headers: Headers; lastModifiedMs: number } | null> {
-    const { response, body } = await send(input, { method: "GET", signal });
+    const { response, body } = await send(input, { method: "GET", signal }, maxResponseBytes);
     if (response.status === 404) {
       return null;
     }
@@ -206,7 +271,12 @@ export function createR2ReportStoreBackend(
   }
 
   async function readBlob(id: string, options?: ReportStoreOperationOptions): Promise<StoredReportBlob | null> {
-    const stored = await readObject(reportObjectUrl(id), "read report", options?.signal);
+    const stored = await readObject(
+      reportObjectUrl(id),
+      "read report",
+      R2_REPORT_RESPONSE_MAX_BYTES,
+      options?.signal
+    );
     if (!stored) return null;
     return {
       contents: stored.contents,
@@ -249,7 +319,12 @@ export function createR2ReportStoreBackend(
       if (outcomeUnknown) {
         let stored: Awaited<ReturnType<typeof readObject>> = null;
         try {
-          stored = await readObject(input, `read ${label}`, options?.signal);
+          stored = await readObject(
+            input,
+            `read ${label}`,
+            label === "report" ? R2_REPORT_RESPONSE_MAX_BYTES : R2_SIDECAR_RESPONSE_MAX_BYTES,
+            options?.signal
+          );
         } catch {
           if (options?.signal?.aborted) throw options.signal.reason;
         }
@@ -273,6 +348,19 @@ export function createR2ReportStoreBackend(
   async function deleteObject(input: string, action: string, signal?: AbortSignal): Promise<void> {
     const { response, body } = await send(input, { method: "DELETE", signal });
     if (response.status !== 404) assertOk(response, body, action);
+  }
+
+  async function writeRetentionMarker(input: string, signal?: AbortSignal): Promise<void> {
+    const { response, body } = await send(input, {
+      method: "PUT",
+      body: RETENTION_MARKER_WIRE,
+      headers: {
+        "content-length": String(RETENTION_MARKER_WIRE.length),
+        "content-type": "text/plain"
+      },
+      signal
+    });
+    assertOk(response, body, "persist report retention marker");
   }
 
   async function headRetention(
@@ -300,7 +388,12 @@ export function createR2ReportStoreBackend(
       return readBlob(id, options);
     },
     async readSidecar(id, options) {
-      const stored = await readObject(sidecarObjectUrl(id), "read report sidecar", options?.signal);
+      const stored = await readObject(
+        sidecarObjectUrl(id),
+        "read report sidecar",
+        R2_SIDECAR_RESPONSE_MAX_BYTES,
+        options?.signal
+      );
       return stored?.contents ?? null;
     },
     async remove(id, options) {
@@ -326,22 +419,158 @@ export function createR2ReportStoreBackend(
       // LIST snapshot. Removing only the stale commit marker is idempotent.
       await deleteObject(sidecarObjectUrl(id), "delete orphaned report sidecar", options?.signal);
     },
+    async markRetentionDebt(debt, options) {
+      await writeRetentionMarker(retentionDebtObjectUrl(debt), options?.signal);
+    },
+    async clearRetentionDebt(debt, options) {
+      await deleteObject(retentionDebtObjectUrl(debt), "clear report retention debt", options?.signal);
+    },
+    async retentionState(options) {
+      options?.signal?.throwIfAborted();
+      const debts = new Map<string, ReportRetentionDebtEntry>();
+      const seenContinuationTokens = new Set<string>();
+      let maintenanceRequired = false;
+      let continuationToken: string | null = null;
+      let pageCount = 0;
+      do {
+        if (pageCount >= R2_LIST_MAX_PAGES) {
+          throw new ReportStoreListBoundsError(
+            `R2 report retention debt exceeded ${R2_LIST_MAX_PAGES} pages.`
+          );
+        }
+        const { response, body } = await send(
+          listUrl(config, continuationToken, retentionDebtPrefix, 1_000),
+          { method: "GET", signal: options?.signal },
+          R2_LIST_RESPONSE_MAX_BYTES
+        );
+        assertOk(response, body, "list report retention debt");
+        pageCount += 1;
+        const listed = parseListResult(body, retentionDebtPrefix, {
+          maxEntries: 2_001,
+          maxSidecars: 2_000
+        });
+        for (const entry of listed.entries) {
+          if (entry.id === RETENTION_MAINTENANCE_ID) {
+            maintenanceRequired = true;
+          } else {
+            debts.set(`bundle:${entry.id}`, { id: entry.id, scope: "bundle" });
+          }
+        }
+        for (const id of listed.sidecarIds) {
+          debts.set(`sidecar:${id}`, { id, scope: "sidecar" });
+        }
+        if (debts.size > 2_000) {
+          throw new ReportStoreListBoundsError(
+            "R2 report retention debt exceeded the bounded 2,000-entry ledger."
+          );
+        }
+        const next = listed.nextContinuationToken;
+        if (next !== null) {
+          if (
+            next.length > R2_LIST_MAX_CONTINUATION_TOKEN_CHARS ||
+            next === continuationToken ||
+            seenContinuationTokens.has(next)
+          ) {
+            throw new ReportStoreListBoundsError(
+              "R2 report retention-debt continuation token repeated, did not advance, or exceeded its bound."
+            );
+          }
+          seenContinuationTokens.add(next);
+        }
+        continuationToken = next;
+      } while (continuationToken);
+      return { debts: [...debts.values()], maintenanceRequired };
+    },
+    async setRetentionMaintenanceRequired(required, options) {
+      if (required) {
+        await writeRetentionMarker(retentionMaintenanceObjectUrl, options?.signal);
+      } else {
+        await deleteObject(
+          retentionMaintenanceObjectUrl,
+          "clear report retention maintenance signal",
+          options?.signal
+        );
+      }
+    },
     async list(options) {
       options?.signal?.throwIfAborted();
-      const listedEntries: StoredReportEntry[] = [];
+      const listedEntriesById = new Map<string, StoredReportEntry>();
       const listedSidecars = new Map<string, number>();
+      const candidateIds = new Set<string>();
+      const seenContinuationTokens = new Set<string>();
+      let totalReportEntries = 0;
+      let totalSidecarEntries = 0;
+      let pageCount = 0;
       let continuationToken: string | null = null;
       do {
-        const { response, body } = await send(listUrl(config, continuationToken), {
-          method: "GET",
-          signal: options?.signal
-        });
+        if (pageCount >= R2_LIST_MAX_PAGES) {
+          throw new ReportStoreListBoundsError(
+            `R2 report listing exceeded ${R2_LIST_MAX_PAGES} pages.`
+          );
+        }
+        const { response, body } = await send(
+          listUrl(config, continuationToken),
+          { method: "GET", signal: options?.signal },
+          R2_LIST_RESPONSE_MAX_BYTES
+        );
         assertOk(response, body, "list reports");
-        const page = parseListResult(body, config.prefix);
-        listedEntries.push(...page.entries);
-        for (const sidecar of page.sidecars) listedSidecars.set(sidecar.id, sidecar.lastModifiedMs);
-        continuationToken = page.nextContinuationToken;
+        pageCount += 1;
+        const page = parseListResult(body, config.prefix, {
+          maxEntries: R2_LIST_MAX_REPORT_ENTRIES - totalReportEntries,
+          maxSidecars: R2_LIST_MAX_SIDECAR_ENTRIES - totalSidecarEntries
+        });
+        totalReportEntries += page.entries.length;
+        totalSidecarEntries += page.sidecars.length;
+
+        for (const entry of page.entries) {
+          addListCandidate(candidateIds, entry.id);
+          // A conforming S3 LIST snapshot contains each key once. If a faulty
+          // endpoint repeats a key under advancing tokens, retain one bounded
+          // candidate and conservatively keep its newest observed timestamp.
+          const prior = listedEntriesById.get(entry.id);
+          if (!prior || entry.lastModifiedMs >= prior.lastModifiedMs) {
+            listedEntriesById.set(entry.id, entry);
+          }
+        }
+        for (const sidecar of page.sidecars) {
+          addListCandidate(candidateIds, sidecar.id);
+          const prior = listedSidecars.get(sidecar.id);
+          if (prior === undefined || sidecar.lastModifiedMs >= prior) {
+            listedSidecars.set(sidecar.id, sidecar.lastModifiedMs);
+          }
+        }
+
+        const nextContinuationToken = page.nextContinuationToken;
+        if (page.isTruncated && nextContinuationToken === null) {
+          throw new ReportStoreListBoundsError(
+            "R2 report listing was truncated without a continuation token."
+          );
+        }
+        if (nextContinuationToken !== null) {
+          if (nextContinuationToken.length > R2_LIST_MAX_CONTINUATION_TOKEN_CHARS) {
+            throw new ReportStoreListBoundsError(
+              `R2 report listing continuation token exceeded ${R2_LIST_MAX_CONTINUATION_TOKEN_CHARS} characters.`
+            );
+          }
+          if (
+            nextContinuationToken === continuationToken ||
+            seenContinuationTokens.has(nextContinuationToken)
+          ) {
+            throw new ReportStoreListBoundsError(
+              "R2 report listing continuation token repeated or did not advance."
+            );
+          }
+          if (pageCount >= R2_LIST_MAX_PAGES) {
+            throw new ReportStoreListBoundsError(
+              `R2 report listing exceeded ${R2_LIST_MAX_PAGES} pages.`
+            );
+          }
+          seenContinuationTokens.add(nextContinuationToken);
+        }
+        continuationToken = nextContinuationToken;
       } while (continuationToken);
+
+      const listedEntries = [...listedEntriesById.values()];
 
       // Collect every page before deciding whether a bundle is committed: S3
       // pagination may place a report and its sidecar on different pages. HEAD
@@ -350,6 +579,21 @@ export function createR2ReportStoreBackend(
       // an in-flight cross-process save and do not need an immediate HEAD.
       const listedReportIds = new Set(listedEntries.map((entry) => entry.id));
       const listingNow = now();
+      let headCandidateCount = 0;
+      for (const entry of listedEntries) {
+        const sidecarPresent = listedSidecars.has(entry.id);
+        if (
+          sidecarPresent ||
+          listingNow - entry.lastModifiedMs >= R2_UNCOMMITTED_HEAD_GRACE_MS
+        ) {
+          headCandidateCount += 1;
+          if (headCandidateCount > R2_LIST_MAX_HEAD_CANDIDATES) {
+            throw new ReportStoreListBoundsError(
+              `R2 report listing exceeded ${R2_LIST_MAX_HEAD_CANDIDATES} retention HEAD candidates.`
+            );
+          }
+        }
+      }
       const enrichedCandidates = await mapWithConcurrency(
         listedEntries,
         R2_LIST_HEAD_CONCURRENCY,
@@ -417,19 +661,22 @@ function defaultSigner(config: R2ReportStoreConfig): (input: string, init: Reque
 
 export function parseListResult(
   xml: string,
-  prefix: string
+  prefix: string,
+  limits: { maxEntries?: number; maxSidecars?: number } = {}
 ): {
   entries: StoredReportEntry[];
   sidecarIds: string[];
   sidecars: ListedSidecar[];
+  isTruncated: boolean;
   nextContinuationToken: string | null;
 } {
+  const listBody = listBucketResultBody(xml);
   const entries: StoredReportEntry[] = [];
   const sidecarIds: string[] = [];
   const sidecars: ListedSidecar[] = [];
   const contentsPattern = /<Contents>([\s\S]*?)<\/Contents>/g;
   let match: RegExpExecArray | null;
-  while ((match = contentsPattern.exec(xml))) {
+  while ((match = contentsPattern.exec(listBody))) {
     const key = extractTag(match[1], "Key");
     if (!key || (prefix && !key.startsWith(prefix))) continue;
     const fileName = key.slice(prefix.length);
@@ -437,6 +684,11 @@ export function parseListResult(
     if (fileName.endsWith(sidecarSuffix)) {
       const id = fileName.slice(0, -sidecarSuffix.length);
       if (REPORT_ID_PATTERN.test(id)) {
+        if (sidecars.length >= (limits.maxSidecars ?? Number.POSITIVE_INFINITY)) {
+          throw new ReportStoreListBoundsError(
+            `R2 report listing exceeded ${R2_LIST_MAX_SIDECAR_ENTRIES} sidecar entries.`
+          );
+        }
         sidecarIds.push(id);
         sidecars.push({ id, lastModifiedMs: listedLastModified(match[1]) });
       }
@@ -444,6 +696,11 @@ export function parseListResult(
     }
     const id = fileName.replace(/\.json$/, "");
     if (id === fileName || !REPORT_ID_PATTERN.test(id)) continue;
+    if (entries.length >= (limits.maxEntries ?? Number.POSITIVE_INFINITY)) {
+      throw new ReportStoreListBoundsError(
+        `R2 report listing exceeded ${R2_LIST_MAX_REPORT_ENTRIES} report entries.`
+      );
+    }
     const lastModified = extractTag(match[1], "LastModified");
     const parsed = lastModified ? Date.parse(lastModified) : Number.NaN;
     entries.push({
@@ -456,9 +713,39 @@ export function parseListResult(
     });
   }
 
-  const truncated = extractTag(xml, "IsTruncated") === "true";
-  const nextContinuationToken = truncated ? extractTag(xml, "NextContinuationToken") : null;
-  return { entries, sidecarIds, sidecars, nextContinuationToken: nextContinuationToken || null };
+  const truncatedText = extractSingleTag(listBody, "IsTruncated", true);
+  if (truncatedText !== "true" && truncatedText !== "false") {
+    throw new ReportStoreListBoundsError(
+      "R2 report listing did not contain exactly one valid IsTruncated marker."
+    );
+  }
+  const isTruncated = truncatedText === "true";
+  const continuationTokens = extractTags(listBody, "NextContinuationToken", false);
+  if (
+    (isTruncated && (continuationTokens.length !== 1 || continuationTokens[0].length === 0)) ||
+    (!isTruncated && continuationTokens.length !== 0)
+  ) {
+    throw new ReportStoreListBoundsError(
+      "R2 report listing contained invalid continuation-token state."
+    );
+  }
+  return {
+    entries,
+    sidecarIds,
+    sidecars,
+    isTruncated,
+    nextContinuationToken: isTruncated ? continuationTokens[0] : null
+  };
+}
+
+function addListCandidate(candidateIds: Set<string>, id: string): void {
+  if (candidateIds.has(id)) return;
+  if (candidateIds.size >= R2_LIST_MAX_CANDIDATES) {
+    throw new ReportStoreListBoundsError(
+      `R2 report listing exceeded ${R2_LIST_MAX_CANDIDATES} unique report candidates.`
+    );
+  }
+  candidateIds.add(id);
 }
 
 function sidecarOnlyEntry(id: string, lastModifiedMs: number): StoredReportEntry {
@@ -497,9 +784,15 @@ async function mapWithConcurrency<T, U>(
   return results;
 }
 
-function listUrl(config: R2ReportStoreConfig, continuationToken: string | null): string {
+function listUrl(
+  config: R2ReportStoreConfig,
+  continuationToken: string | null,
+  prefix = config.prefix,
+  maxKeys?: number
+): string {
   const params = new URLSearchParams({ "list-type": "2" });
-  if (config.prefix) params.set("prefix", config.prefix);
+  if (prefix) params.set("prefix", prefix);
+  if (maxKeys !== undefined) params.set("max-keys", String(maxKeys));
   if (continuationToken) params.set("continuation-token", continuationToken);
   return `${config.endpoint}/${encodeURIComponent(config.bucket)}?${params.toString()}`;
 }
@@ -512,6 +805,17 @@ function parseLastModified(headers: Headers): number {
   const header = headers.get("last-modified");
   const parsed = header ? Date.parse(header) : Number.NaN;
   return Number.isFinite(parsed) ? parsed : Date.now();
+}
+
+function responseForBoundedBodyRead(response: Response, method: string | undefined): Response {
+  if (method?.toUpperCase() !== "HEAD" || !response.headers.has("content-length")) return response;
+  const headers = new Headers(response.headers);
+  headers.delete("content-length");
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers
+  });
 }
 
 function parseRetentionMetadata(headers: Headers): ReportRetentionMetadata | null {
@@ -568,12 +872,104 @@ function extractTag(xml: string, tag: string): string | null {
 }
 
 function decodeXmlEntities(value: string): string {
-  return value
-    .replaceAll("&amp;", "&")
-    .replaceAll("&lt;", "<")
-    .replaceAll("&gt;", ">")
-    .replaceAll("&quot;", '"')
-    .replaceAll("&apos;", "'");
+  let decoded = "";
+  for (let index = 0; index < value.length; index += 1) {
+    const character = value[index];
+    if (character !== "&") {
+      if (character === "<") {
+        throw new ReportStoreListBoundsError("R2 report listing contained malformed XML text.");
+      }
+      decoded += character;
+      continue;
+    }
+    const end = value.indexOf(";", index + 1);
+    if (end < 0 || end - index > 16) {
+      throw new ReportStoreListBoundsError("R2 report listing contained malformed XML text.");
+    }
+    const entity = value.slice(index + 1, end);
+    const named = XML_NAMED_ENTITIES[entity];
+    if (named !== undefined) {
+      decoded += named;
+    } else {
+      const codePoint = xmlNumericEntityCodePoint(entity);
+      if (codePoint === null) {
+        throw new ReportStoreListBoundsError("R2 report listing contained malformed XML text.");
+      }
+      decoded += String.fromCodePoint(codePoint);
+    }
+    index = end;
+  }
+  return decoded;
+}
+
+const XML_NAMED_ENTITIES: Readonly<Record<string, string>> = Object.freeze({
+  amp: "&",
+  lt: "<",
+  gt: ">",
+  quot: '"',
+  apos: "'"
+});
+
+function xmlNumericEntityCodePoint(entity: string): number | null {
+  const hexadecimal = /^#x([0-9a-fA-F]+)$/.exec(entity);
+  const decimal = /^#([0-9]+)$/.exec(entity);
+  const codePoint = hexadecimal
+    ? Number.parseInt(hexadecimal[1], 16)
+    : decimal
+      ? Number.parseInt(decimal[1], 10)
+      : Number.NaN;
+  if (
+    !Number.isSafeInteger(codePoint) ||
+    codePoint < 0 ||
+    codePoint > 0x10ffff ||
+    (codePoint >= 0xd800 && codePoint <= 0xdfff) ||
+    !isXmlCodePoint(codePoint)
+  ) {
+    return null;
+  }
+  return codePoint;
+}
+
+function isXmlCodePoint(codePoint: number): boolean {
+  return (
+    codePoint === 0x09 ||
+    codePoint === 0x0a ||
+    codePoint === 0x0d ||
+    (codePoint >= 0x20 && codePoint <= 0xd7ff) ||
+    (codePoint >= 0xe000 && codePoint <= 0xfffd) ||
+    (codePoint >= 0x10000 && codePoint <= 0x10ffff)
+  );
+}
+
+function listBucketResultBody(xml: string): string {
+  let document = xml.trim();
+  if (document.startsWith("<?xml")) {
+    const declarationEnd = document.indexOf("?>");
+    if (declarationEnd < 0) {
+      throw new ReportStoreListBoundsError("R2 report listing was not a valid ListBucketResult document.");
+    }
+    document = document.slice(declarationEnd + 2).trim();
+  }
+  const root = /^<ListBucketResult(?:\s+[^<>]*)?>([\s\S]*)<\/ListBucketResult>$/.exec(document);
+  if (!root) {
+    throw new ReportStoreListBoundsError("R2 report listing was not a valid ListBucketResult document.");
+  }
+  return root[1];
+}
+
+function extractTags(xml: string, tag: string, trim: boolean): string[] {
+  const values: string[] = [];
+  const pattern = new RegExp(`<${tag}>([\\s\\S]*?)</${tag}>`, "g");
+  let match: RegExpExecArray | null;
+  while ((match = pattern.exec(xml))) {
+    values.push(decodeXmlEntities(trim ? match[1].trim() : match[1]));
+  }
+  return values;
+}
+
+function extractSingleTag(xml: string, tag: string, trim: boolean): string | null {
+  const values = extractTags(xml, tag, trim);
+  return values.length === 1 ? values[0] : null;
 }
 
 function assertOk(response: Response, body: string, action: string): void {

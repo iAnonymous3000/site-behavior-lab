@@ -7,6 +7,7 @@ const ANSI_ESCAPE_PATTERN = /\u001b\[[0-?]*[ -/]*[@-~]/g;
 const CONTROL_CHARACTER_PATTERN = /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/g;
 const URL_PATTERN = /https?:\/\/\S+/gi;
 const MAX_DIAGNOSTIC_LENGTH = 500;
+const MAX_PUBLIC_SUMMARY_BYTES = 4 * 1024;
 const FEATURED_REFRESH_MARKER = "<!-- site-behavior-lab:featured-corpus-refresh -->";
 const FEATURED_UNAVAILABLE_REASONS = new Set([
   "automation-blocked",
@@ -357,7 +358,7 @@ export function buildFeaturedRefreshIssueReport({ failed, summary, branch, serve
   lines.push(
     failed
       ? "Per-target names and failure reasons are intentionally omitted from this public issue. " +
-          "Repository maintainers can inspect the bounded failed-run diagnostics artifact on the workflow run."
+          "Repository maintainers can inspect the private workflow logs linked from this run."
       : "Per-target diagnostic details are intentionally omitted from this public issue."
   );
   return `${lines.join("\n")}\n`;
@@ -387,7 +388,17 @@ async function prepareAlertFromEnvironment() {
   if (!reportPath) throw new Error("FEATURED_ALERT_REPORT_PATH is required.");
 
   let summary = null;
-  if (summaryPath) {
+  const publicSummaryWire = process.env.FEATURED_PUBLIC_SUMMARY_JSON;
+  if (publicSummaryWire !== undefined) {
+    if (Buffer.byteLength(publicSummaryWire, "utf8") <= MAX_PUBLIC_SUMMARY_BYTES) {
+      try {
+        summary = JSON.parse(publicSummaryWire);
+      } catch {
+        // Cross-job output is untrusted. Invalid aggregate JSON becomes an
+        // explicit failed refresh and is never interpolated into the issue.
+      }
+    }
+  } else if (summaryPath) {
     try {
       summary = JSON.parse(await readFile(summaryPath, "utf8"));
     } catch {
@@ -399,6 +410,7 @@ async function prepareAlertFromEnvironment() {
   const authoritative = isAuthoritativeFeaturedRefresh(process.env);
   const failed =
     process.env.FEATURED_SCAN_OUTCOME !== "success" ||
+    process.env.FEATURED_BATCH_HEALTHY === "false" ||
     process.env.FEATURED_JOB_STATUS !== "success" ||
     aggregate === null ||
     (authoritative && (!aggregate.fullCatalog || !aggregate.meetsFloor));
@@ -431,9 +443,18 @@ async function classifyPublicationFromEnvironment() {
   }
 
   const decision = featuredPublicationDecision(summary, process.env.FEATURED_SCAN_OUTCOME);
+  const aggregate = publicFeaturedScanSummary(summary);
   const outputPath = process.env.GITHUB_OUTPUT?.trim();
   if (outputPath) {
-    await appendFile(outputPath, `publishable=${decision.publishable}\nhealthy=${decision.healthy}\n`, "utf8");
+    const publicSummaryWire = JSON.stringify(aggregate);
+    if (Buffer.byteLength(publicSummaryWire, "utf8") > MAX_PUBLIC_SUMMARY_BYTES) {
+      throw new Error("Public featured summary exceeded its fixed cross-job output bound.");
+    }
+    await appendFile(
+      outputPath,
+      `publishable=${decision.publishable}\nhealthy=${decision.healthy}\npublic_summary=${publicSummaryWire}\n`,
+      "utf8"
+    );
   }
   console.log(
     decision.publishable

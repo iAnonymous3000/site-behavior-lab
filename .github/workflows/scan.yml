@@ -15,6 +15,14 @@ on:
         options:
           - desktop
           - mobile
+      report_mode:
+        description: Report contract (v1 is a manual compatibility lane only)
+        required: true
+        default: r2
+        type: choice
+        options:
+          - r2
+          - v1
       gpc_enabled:
         description: Send Global Privacy Control for single scans
         required: true
@@ -52,9 +60,7 @@ on:
       - site-behavior-scan
 
 permissions:
-  contents: write
-  # Lets the post-push step dispatch CI (see 'Trigger CI on the pushed commit').
-  actions: write
+  contents: read
 
 # All three repo-writing workflows (scan, scan-featured, update-brave-lists)
 # share one concurrency group per ref so their commit+push steps never race.
@@ -66,12 +72,17 @@ concurrency:
 env:
   CI: "1"
   NEXT_TELEMETRY_DISABLED: "1"
+  # Committed-report acquisition is forbidden from launching Chromium without
+  # its namespace/seccomp sandbox. Preflight and runtime health both assert it.
+  SITE_BEHAVIOR_LAB_CHROMIUM_SANDBOX: "1"
   # Internal scanner builds still render canonical metadata. Keep the build
   # fail-closed on the same public origin as CI and the deployed Pages site.
   NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SITE_URL: "https://sitebehavior.org"
-  # This workflow intentionally emits frozen v1 reports. Make both the mode and
-  # exact source revision observable through `/api/health` before scanning.
-  SITE_BEHAVIOR_LAB_PUBLIC_R2_REPORTS: "0"
+  # Repository dispatch is always r2. Only an explicit human dispatch may
+  # select frozen v1 compatibility; missing payload/config never downgrades a
+  # committed report.
+  FEATURED_REPORT_MODE: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.report_mode || 'r2' }}
+  FEATURED_R2_EGRESS_ATTESTED: ${{ vars.FEATURED_R2_EGRESS_ATTESTED || '' }}
   SITE_BEHAVIOR_LAB_BUILD_COMMIT: ${{ github.sha }}
   SCAN_URL: ${{ github.event.inputs.url || github.event.client_payload.url }}
   SCAN_DEVICE: ${{ github.event.inputs.device || github.event.client_payload.device || 'desktop' }}
@@ -89,7 +100,15 @@ env:
 jobs:
   scan:
     name: Generate Static Report
-    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      publication_artifact_id: ${{ steps.publication_artifact.outputs.artifact-id }}
+      publication_artifact_digest: ${{ steps.publication_artifact.outputs.artifact-digest }}
+    # A missing controlled-runner label falls back to GitHub-hosted execution
+    # only so the r2 preflight can fail visibly; it never falls back to v1.
+    # Explicit manual v1 compatibility remains on GitHub-hosted Ubuntu.
+    runs-on: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.report_mode == 'v1' && 'ubuntu-latest' || vars.FEATURED_RUNNER_LABEL || 'ubuntu-latest' }}
     steps:
       - name: Checkout
         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
@@ -97,17 +116,15 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
-          node-version: 24
-          cache: npm
+          node-version: 24.14.1
+
+      - name: Verify pinned Node and npm
+        run: |
+          test "$(node --version)" = "v24.14.1"
+          test "$(npm --version)" = "11.11.0"
 
       - name: Install dependencies
         run: npm ci
-
-      - name: Install Chromium
-        run: npx playwright install --with-deps chromium
-
-      - name: Build scanner app
-        run: npm run build
 
       # One dist/schema build for the WHOLE job (RFC 10.3): every later step
       # (the scan publisher, prune, manifest, corpus stats) sees the env flag
@@ -116,6 +133,27 @@ jobs:
         run: |
           node node_modules/typescript/bin/tsc -p tsconfig.schema.json
           echo "SITE_BEHAVIOR_LAB_SCHEMA_DIST_READY=1" >> "$GITHUB_ENV"
+
+      - name: Prepare committed report production
+        # Exact HEAD, a clean checkout, consent verification, and truthful
+        # r2 egress are checked before Next or Chromium can scan.
+        run: node dist/schema/lib/featured-report-preflight-cli.js
+
+      - name: Verify server-owned acquisition provenance
+        run: |
+          node -e '
+            const { runtimeReportAcquisition } = require("./dist/schema/lib/scan-report-acquisition.js");
+            const mode = process.env.FEATURED_REPORT_MODE;
+            const expected = mode === "r2" ? "ci-workflow" : "public-api";
+            const actual = runtimeReportAcquisition(mode);
+            if (actual !== expected) throw new Error(`Report acquisition is ${actual}, expected ${expected}.`);
+          '
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Build scanner app
+        run: npm run build
 
       - name: Start scanner app
         run: |
@@ -129,10 +167,11 @@ jobs:
             echo "::error::Port 3100 was already occupied before startup; refusing a stale scanner process."
             exit 1
           fi
-          if [[ -z "$SITE_BEHAVIOR_LAB_SCANNER_EGRESS_REGION" ]]; then
+          expected_egress_region="$SITE_BEHAVIOR_LAB_SCANNER_EGRESS_REGION"
+          if [[ -z "$expected_egress_region" ]]; then
             # Actions exports configured empty strings. The scanner treats an
-            # explicit blank as invalid, so omit it for this truthful v1-only
-            # runner whose region is intentionally unrecorded.
+            # explicit blank as invalid, so omit it for the manual v1
+            # compatibility lane whose region is intentionally unrecorded.
             unset SITE_BEHAVIOR_LAB_SCANNER_EGRESS_REGION
           fi
           node node_modules/next/dist/bin/next start --port 3100 > /tmp/site-behavior-lab-scan.log 2>&1 &
@@ -149,7 +188,7 @@ jobs:
               --output "$health_path" http://127.0.0.1:3100/api/health; then
               if node -e '
                 const fs = require("node:fs");
-                const [file, expectedSha] = process.argv.slice(1);
+                const [file, expectedSha, requestedMode, expectedRegion] = process.argv.slice(1);
                 let health;
                 try {
                   health = JSON.parse(fs.readFileSync(file, "utf8"));
@@ -162,12 +201,21 @@ jobs:
                 expect(health?.ok === true, "health.ok is not true");
                 expect(health?.deployment === expectedSha.toLowerCase(), `deployment is ${health?.deployment ?? "missing"}, expected ${expectedSha}`);
                 expect(health?.scansAvailable === true, "scansAvailable is not true");
-                expect(health?.checks?.publicR2Reports?.status === "disabled", `report mode is ${health?.checks?.publicR2Reports?.status ?? "missing"}, expected v1/disabled`);
+                expect(health?.checks?.chromiumSandbox === "enabled", `Chromium sandbox is ${health?.checks?.chromiumSandbox ?? "missing"}, expected enabled`);
+                const mode = requestedMode.trim().toLowerCase();
+                expect(mode === "v1" || mode === "r2", `unsupported requested mode ${requestedMode}`);
+                const expectedR2Status = mode === "r2" ? "enabled" : "disabled";
+                expect(health?.checks?.publicR2Reports?.status === expectedR2Status, `public r2 status is ${health?.checks?.publicR2Reports?.status ?? "missing"}, expected ${expectedR2Status}`);
+                const expectedRegionStatus = expectedRegion.trim() ? "configured" : "unrecorded";
+                expect(health?.checks?.scannerEgressRegion === expectedRegionStatus, `egress-region status is ${health?.checks?.scannerEgressRegion ?? "missing"}, expected ${expectedRegionStatus}`);
+                const expectedConsentStatus = mode === "r2" ? "enabled" : "disabled";
+                expect(health?.checks?.consentVerification === expectedConsentStatus, `consent-verification status is ${health?.checks?.consentVerification ?? "missing"}, expected ${expectedConsentStatus}`);
+                if (mode === "r2") expect(expectedRegion.trim() !== "", "r2 requires an expected stable egress region");
                 if (failures.length) {
                   console.error(`Scanner health contract rejected: ${failures.join("; ")}`);
                   process.exit(1);
                 }
-              ' "$health_path" "$GITHUB_SHA" && kill -0 "$app_pid" 2>/dev/null; then
+              ' "$health_path" "$GITHUB_SHA" "$FEATURED_REPORT_MODE" "$expected_egress_region" && kill -0 "$app_pid" 2>/dev/null; then
                 exit 0
               fi
             fi
@@ -183,9 +231,6 @@ jobs:
         env:
           BASE_URL: http://127.0.0.1:3100
 
-      - name: Prune retained static reports
-        run: npm run reports:prune
-
       - name: Verify report redaction and provenance
         run: npm run reports:remediate -- --check
 
@@ -195,21 +240,145 @@ jobs:
       - name: Build corpus stats
         run: npm run corpus:stats
 
-      - name: Upload report artifact
+      - name: Prepare bounded data-only publication artifact
+        env:
+          REPORT_ID: ${{ steps.scan.outputs.report_id }}
+        run: |
+          npm run reports:publication-artifact -- \
+            --prepare \
+            --artifact-dir "$RUNNER_TEMP/report-publication" \
+            --source-commit "$GITHUB_SHA" \
+            --kind single \
+            --report-mode "$FEATURED_REPORT_MODE" \
+            --expected-report-id "$REPORT_ID"
+
+      - name: Upload bounded data-only publication artifact
+        id: publication_artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: site-behavior-report-${{ steps.scan.outputs.report_id }}
-          path: |
-            ${{ steps.scan.outputs.report_path }}
-            ${{ steps.scan.outputs.sidecar_path }}
-            public/reports/index.json
-            public/corpus-stats.json
+          name: site-behavior-report-publication-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/report-publication/
           if-no-files-found: error
+          retention-days: 7
+
+  publish:
+    name: Validate and Publish Static Report
+    needs: scan
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      # GITHUB_TOKEN pushes do not recursively trigger CI, so the publisher
+      # explicitly dispatches the required workflow after a successful push.
+      actions: write
+    steps:
+      - name: Checkout exact acquisition source
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+
+      - name: Set up Node
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: 24.14.1
+          cache: npm
+
+      - name: Verify pinned Node and npm
+        run: |
+          test "$(node --version)" = "v24.14.1"
+          test "$(npm --version)" = "11.11.0"
+
+      - name: Install trusted validator dependencies without lifecycle scripts
+        run: npm ci --ignore-scripts
+
+      - name: Build the trusted publication validator once
+        run: |
+          node node_modules/typescript/bin/tsc -p tsconfig.schema.json
+          echo "SITE_BEHAVIOR_LAB_SCHEMA_DIST_READY=1" >> "$GITHUB_ENV"
+
+      - name: Verify immutable artifact identity
+        env:
+          ARTIFACT_ID: ${{ needs.scan.outputs.publication_artifact_id }}
+          ARTIFACT_DIGEST: ${{ needs.scan.outputs.publication_artifact_digest }}
+        run: |
+          [[ "$ARTIFACT_ID" =~ ^[1-9][0-9]*$ ]]
+          [[ "$ARTIFACT_DIGEST" =~ ^sha256:[0-9a-f]{64}$ || "$ARTIFACT_DIGEST" =~ ^[0-9a-f]{64}$ ]]
+
+      - name: Precheck exact raw artifact metadata
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ARTIFACT_ID: ${{ needs.scan.outputs.publication_artifact_id }}
+          ARTIFACT_DIGEST: ${{ needs.scan.outputs.publication_artifact_digest }}
+          ARTIFACT_NAME: site-behavior-report-publication-${{ github.run_id }}-${{ github.run_attempt }}
+        run: |
+          gh api --method GET \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            -f "name=$ARTIFACT_NAME" \
+            -f per_page=100 \
+            "repos/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/artifacts" \
+            > "$RUNNER_TEMP/report-publication-metadata.json"
+          npm run reports:publication-archive -- \
+            --validate-metadata \
+            --metadata "$RUNNER_TEMP/report-publication-metadata.json" \
+            --artifact-id "$ARTIFACT_ID" \
+            --artifact-name "$ARTIFACT_NAME" \
+            --run-id "$GITHUB_RUN_ID" \
+            --source-commit "$GITHUB_SHA" \
+            --digest "$ARTIFACT_DIGEST"
+
+      - name: Download raw artifact archive by immutable ID
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ARTIFACT_ID: ${{ needs.scan.outputs.publication_artifact_id }}
+        run: |
+          gh api --method GET \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "repos/${GITHUB_REPOSITORY}/actions/artifacts/${ARTIFACT_ID}/zip" \
+            > "$RUNNER_TEMP/report-publication.zip"
+
+      - name: Centrally validate and safely extract raw artifact archive
+        env:
+          ARTIFACT_ID: ${{ needs.scan.outputs.publication_artifact_id }}
+          ARTIFACT_DIGEST: ${{ needs.scan.outputs.publication_artifact_digest }}
+          ARTIFACT_NAME: site-behavior-report-publication-${{ github.run_id }}-${{ github.run_attempt }}
+        run: |
+          npm run reports:publication-archive -- \
+            --extract \
+            --metadata "$RUNNER_TEMP/report-publication-metadata.json" \
+            --archive "$RUNNER_TEMP/report-publication.zip" \
+            --artifact-dir "$RUNNER_TEMP/report-publication" \
+            --artifact-id "$ARTIFACT_ID" \
+            --artifact-name "$ARTIFACT_NAME" \
+            --run-id "$GITHUB_RUN_ID" \
+            --source-commit "$GITHUB_SHA" \
+            --digest "$ARTIFACT_DIGEST"
+
+      - name: Validate and copy only canonical new report data
+        run: |
+          npm run reports:publication-artifact -- \
+            --publish \
+            --artifact-dir "$RUNNER_TEMP/report-publication" \
+            --source-commit "$GITHUB_SHA" \
+            --kind single \
+            --report-mode "$FEATURED_REPORT_MODE"
+
+      - name: Rebuild trusted retention and aggregate outputs
+        run: |
+          npm run reports:prune
+          npm run reports:remediate -- --check
+          npm run reports:manifest
+          npm run corpus:stats
 
       - name: Commit static report
         id: commit
         run: |
           echo "pushed=false" >> "$GITHUB_OUTPUT"
+          if [[ "$GITHUB_REF_TYPE" != "branch" ]]; then
+            echo "::error::Committed reports may only publish to a branch."
+            exit 1
+          fi
           git config user.name "iAnonymous3000"
           git config user.email "32236127+iAnonymous3000@users.noreply.github.com"
           git add public/reports public/corpus-stats.json
@@ -217,11 +386,15 @@ jobs:
             echo "No report changes to commit."
             exit 0
           fi
-          git commit -m "Add site behavior scan report"
+          if [[ "$FEATURED_REPORT_MODE" == "v1" ]]; then
+            git commit -m "Add manual v1 compatibility scan report"
+          else
+            git commit -m "Add r2 site behavior scan report"
+          fi
           # Reports and pruning were validated against this exact checkout. If
           # the branch advanced, fail safely and rerun rather than transplanting
           # stale generated output onto a source tree it was never checked with.
-          if ! git push; then
+          if ! git push origin "HEAD:refs/heads/$GITHUB_REF_NAME"; then
             echo "::error::The branch advanced after report validation; refusing to rebase stale generated output. Rerun this workflow from the latest branch head."
             exit 1
           fi
@@ -235,4 +408,4 @@ jobs:
         if: steps.commit.outputs.pushed == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh workflow run ci.yml --ref main
+        run: gh workflow run ci.yml --ref "$GITHUB_REF_NAME"

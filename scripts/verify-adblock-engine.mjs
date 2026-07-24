@@ -19,10 +19,26 @@ const adblockDir = path.join(process.cwd(), "lib", "adblock-wasm");
 const meta = JSON.parse(readFileSync(path.join(adblockDir, "brave-default-filters.meta.json"), "utf8"));
 assert.deepEqual(
   Object.keys(meta).sort(),
-  ["catalog", "fetchedAt", "gzipBytes", "manifestDigest", "rawBytes", "rulesDigest", "sourceCount", "sources"].sort(),
+  [
+    "catalog",
+    "catalogCommit",
+    "catalogSha256",
+    "fetchedAt",
+    "gzipBytes",
+    "manifestDigest",
+    "rawBytes",
+    "rulesDigest",
+    "sourceCount",
+    "sources"
+  ].sort(),
   "unexpected Brave list metadata shape"
 );
-assert.equal(meta.catalog, "https://raw.githubusercontent.com/brave/adblock-resources/master/filter_lists/list_catalog.json");
+assert.equal(meta.catalogCommit, "87e925ec3ed08b28b96460b7615b033c52971fa9");
+assert.equal(meta.catalogSha256, "d701b93f8988851c1637548071bed1fe3f4a4abc8b138d4f3109d9373c3a3b0e");
+assert.equal(
+  meta.catalog,
+  `https://raw.githubusercontent.com/brave/adblock-resources/${meta.catalogCommit}/filter_lists/list_catalog.json`
+);
 assert.equal(new Date(meta.fetchedAt).toISOString(), meta.fetchedAt, "fetchedAt must be a canonical ISO timestamp");
 assert.ok(meta.sourceCount >= 20, `expected at least 20 source lists, got ${meta.sourceCount}`);
 assert.ok(Array.isArray(meta.sources), "sources must be an array");

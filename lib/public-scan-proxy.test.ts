@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import http from "node:http";
 import net, { type AddressInfo } from "node:net";
+import { Duplex } from "node:stream";
 import { test } from "node:test";
 import {
   MAX_PUBLIC_SCAN_PROXY_TRANSACTION_LIMIT,
@@ -327,6 +328,62 @@ test("a downstream abort closes the still-streaming upstream response", async (t
   assert.equal(proxy.getDiagnostics().invalidUpstreamResponseCount, 0);
   assert.equal(proxy.getDiagnostics().responseByteBudget.captureLoss, null);
   assert.equal(proxy.getDiagnostics().uploadByteBudget.captureLoss, null);
+});
+
+test("a tunnel keeps the response bytes still queued to the browser when the upstream closes", async (t) => {
+  const payload = Buffer.alloc(4 * 1024 * 1024, 0x42);
+  let upstream: Duplex | undefined;
+  const proxy = await tunnelDoubleProxy(8 * 1024 * 1024, (created) => {
+    upstream = created;
+  });
+
+  t.after(async () => {
+    await proxy.close();
+  });
+
+  const browser = await openTunnel(proxy.server, "tunnel.test:443");
+  // A browser that is not reading right now leaves the response queued on its
+  // socket. On a real connection that state lasts only for the moment between
+  // two reads, so the double is what makes the window observable at all.
+  upstream?.push(payload);
+  upstream?.push(null);
+  upstream?.resume();
+  await streamEvent(upstream, "end");
+  // The origin closes the connection immediately after its half-close, the
+  // ordinary one-shot shape that ends a tunnel while bytes are in flight.
+  upstream?.destroy();
+  await streamEvent(upstream, "close");
+
+  const delivered = await settleWithin(drainSocket(browser), 5_000);
+
+  assert.equal(delivered.received, payload.byteLength);
+  // A truncation here would be silent: the browser sees an ordinary close and
+  // the byte budget still reports every byte as forwarded.
+  assert.equal(delivered.hadError, false);
+  assert.equal(proxy.getDiagnostics().responseByteBudget.forwardedBytes, payload.byteLength);
+  assert.equal(proxy.getDiagnostics().responseByteBudget.captureLoss, null);
+});
+
+test("a tunnel whose upstream closes without half-closing still tears the browser socket down", async (t) => {
+  let upstream: Duplex | undefined;
+  const proxy = await tunnelDoubleProxy(1024, (created) => {
+    upstream = created;
+  });
+
+  t.after(async () => {
+    await proxy.close();
+  });
+
+  const browser = await openTunnel(proxy.server, "tunnel.test:443");
+  upstream?.push(Buffer.alloc(16, 0x42));
+  // No EOF: an aborted origin owes the browser nothing, so waiting for a
+  // half-close that will never arrive would leave the tunnel open forever.
+  upstream?.destroy();
+
+  const delivered = await settleWithin(drainSocket(browser), 1_000);
+
+  assert.ok(delivered.received <= 16);
+  assert.equal(browser.destroyed, true);
 });
 
 test("public scan proxy rejects response-byte overrides that could disable its safe cap", async () => {
@@ -791,6 +848,65 @@ async function budgetTestProxy(responseByteLimitBytes: number, uploadByteLimitBy
     resolveHost: async () => [{ address: "1.1.1.1", family: 4 }],
     connectUpstreamForTests: (target) => net.connect({ host: "127.0.0.1", port: target.port })
   });
+}
+
+/**
+ * A CONNECT upstream the test drives by hand. Only "connect" and the duplex
+ * itself are used by the tunnel path, and hand-driving the EOF and the close
+ * is the only way to reach the "browser socket still holds queued bytes"
+ * state without depending on kernel buffer timing.
+ */
+async function tunnelDoubleProxy(responseByteLimitBytes: number, onUpstream: (upstream: Duplex) => void) {
+  return startPublicScanProxy({
+    allowNonStandardPortsForTests: true,
+    responseByteLimitBytes,
+    resolveHost: async () => [{ address: "1.1.1.1", family: 4 }],
+    connectUpstreamForTests: () => {
+      const upstream = new Duplex({
+        read() {},
+        write(_chunk, _encoding, callback) {
+          callback();
+        }
+      });
+      setImmediate(() => upstream.emit("connect"));
+      onUpstream(upstream);
+      return upstream as unknown as net.Socket;
+    }
+  });
+}
+
+async function openTunnel(proxyServer: string, authority: string): Promise<net.Socket> {
+  const proxy = new URL(proxyServer);
+  const socket = net.connect({ host: proxy.hostname, port: Number(proxy.port) });
+  socket.on("error", () => {});
+  await new Promise<void>((resolve, reject) => {
+    socket.once("connect", () =>
+      socket.write([`CONNECT ${authority} HTTP/1.1`, `Host: ${authority}`, "", ""].join("\r\n"))
+    );
+    socket.once("data", (chunk: Buffer) => {
+      const statusLine = chunk.toString("latin1").split("\r\n")[0];
+      if (statusLine.startsWith("HTTP/1.1 200 ")) resolve();
+      else reject(new Error(`Tunnel refused: ${statusLine}`));
+    });
+    socket.once("error", reject);
+  });
+  socket.pause();
+  return socket;
+}
+
+async function drainSocket(socket: net.Socket): Promise<{ received: number; hadError: boolean }> {
+  return new Promise((resolve) => {
+    let received = 0;
+    socket.on("data", (chunk: Buffer) => {
+      received += chunk.byteLength;
+    });
+    socket.once("close", (hadError: boolean) => resolve({ received, hadError }));
+    socket.resume();
+  });
+}
+
+async function streamEvent(stream: Duplex | undefined, event: "end" | "close"): Promise<void> {
+  await new Promise<void>((resolve) => stream?.once(event, () => resolve()));
 }
 
 function portOf(server: net.Server): number {

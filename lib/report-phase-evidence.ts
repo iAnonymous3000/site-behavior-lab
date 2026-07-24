@@ -73,7 +73,7 @@ export function visitPhaseSpanLabel(phase: Pick<VisitPhaseRow, "startedAtMs" | "
   const start = phase.startedAtMs.toLocaleString("en-US");
   const end = phase.endedAtMs.toLocaleString("en-US");
   const duration = phase.durationMs.toLocaleString("en-US");
-  return `${start}–${end} ms (${duration} ms)`;
+  return `${start} to ${end} ms (${duration} ms)`;
 }
 
 /**

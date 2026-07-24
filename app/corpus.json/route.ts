@@ -15,9 +15,10 @@ export async function GET(): Promise<Response> {
     generatedAt: new Date().toISOString(),
     siteCount: coverageSiteCount,
     // This field promises the exact percentile cohort, not the directory's
-    // broader cross-version rollup cohort. The Pages build regenerates this
+    // named methodology cohort. The Pages build regenerates this
     // artifact immediately before Next compiles the route.
-    measuredSampleSize: corpusStats.sampleSize
+    measuredSampleSize: corpusStats.sampleSize,
+    primaryCohortId: corpusStats.primaryCohortId
   });
   return new Response(`${JSON.stringify(payload, null, 2)}\n`, {
     headers: { "content-type": "application/json; charset=utf-8" }

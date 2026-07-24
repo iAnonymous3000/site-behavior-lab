@@ -15,7 +15,7 @@ import {
   Shield,
   Sun
 } from "lucide-react";
-import { lazy, Suspense, useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import {
   PageGraphR2UploadButton,
   ReportUploadButton,
@@ -25,6 +25,7 @@ import { ScanControls } from "./_components/scan-controls";
 import { ScanRecoveryBanner } from "./_components/scan-recovery-banner";
 import { ScheduledRescans } from "./_components/scheduled-rescans";
 import { useScanRuntime } from "./_hooks/use-scan-runtime";
+import { useThemePreference } from "./_hooks/use-theme-preference";
 import {
   LIVE_SCAN_ENABLED,
   SCAN_WORKFLOW_URL,
@@ -34,19 +35,22 @@ import {
 } from "./client-runtime";
 import { committedReportLocation } from "@/lib/report-locator";
 import { scanJobProgressCopy } from "@/lib/scan-job-progress";
+import {
+  LatestClientOperation,
+  MAX_DIRECTORY_JSON_BYTES,
+  fetchJsonWithPolicy,
+  parseJsonTextWithPolicy
+} from "@/lib/client-fetch-policy";
+import { BROWSER_PUBLIC_REPORT_JSON_MAX_BYTES } from "@/lib/report-resource-limits";
+import { readClientFileText } from "@/lib/client-file-policy";
+import { isStaticReportManifest } from "@/lib/static-report-manifest-guard";
 import type { HomepageDiscovery, HomepageFeaturedGroup } from "@/lib/homepage-discovery";
 import { plural } from "@/lib/text-format";
 import { readLoadedReport, withoutLoadedReportShare } from "@/lib/client-report-reader";
-import { viewFromV1Report } from "@/lib/scan-report-views";
 // Type-only: the deep reader module stays lazy-loaded (client-report-reader);
 // a type import is erased at build time and adds nothing to the bundle.
 import type { LoadedReport } from "@/lib/scan-report-view";
-import type {
-  ComparisonScanResult,
-  ScanJobProgress,
-  ScanReport,
-  StaticReportManifestEntry
-} from "@/lib/types";
+import type { ScanJobProgress, StaticReportManifestEntry } from "@/lib/types";
 
 const LazyStaticReportGallery = lazy(() =>
   import("./_components/static-gallery").then((module) => ({ default: module.StaticReportGallery }))
@@ -97,6 +101,8 @@ export function SiteBehaviorApp({
     setLoading,
     scanning,
     activeScanJob,
+    pendingScanAdmission,
+    recoveringScanAdmission,
     activeScanProgress,
     cancellingScan,
     cancelScanError,
@@ -117,6 +123,7 @@ export function SiteBehaviorApp({
     updateAccessKey,
     acceptScheduledRescanTarget,
     resetTurnstileAfterScheduledRescanAttempt,
+    recoverPendingAdmission,
     resumeActiveScan,
     cancelActiveScan,
     dismissActiveScan
@@ -137,58 +144,124 @@ export function SiteBehaviorApp({
   const [staticReports, setStaticReports] = useState<StaticReportManifestEntry[] | null>(null);
   const [staticReportsError, setStaticReportsError] = useState<string | null>(null);
   const [archiveRequested, setArchiveRequested] = useState(false);
+  const reportRegionRef = useRef<HTMLElement | null>(null);
+  const archiveOperationRef = useRef<LatestClientOperation | null>(null);
+  const reportOpenOperationRef = useRef<LatestClientOperation | null>(null);
+  if (!archiveOperationRef.current) archiveOperationRef.current = new LatestClientOperation();
+  if (!reportOpenOperationRef.current) reportOpenOperationRef.current = new LatestClientOperation();
+  const archiveOperation = archiveOperationRef.current;
+  const reportOpenOperation = reportOpenOperationRef.current;
+
+  useEffect(() => () => {
+    archiveOperation.cancel();
+    reportOpenOperation.cancel();
+  }, [archiveOperation, reportOpenOperation]);
+
+  // Every producer replaces the workbench state with a report. Announce that
+  // transition at the shared result boundary instead of leaving focus on a
+  // submit/upload control that may have disappeared.
+  useEffect(() => {
+    if (loaded) reportRegionRef.current?.focus();
+  }, [loaded]);
 
   async function loadStaticArchive() {
     setArchiveRequested(true);
     if (!STATIC_EXPORT || staticReports !== null) return;
 
-    try {
-      const response = await fetch(staticAssetPath("/reports/index.json"), { cache: "no-store" });
-      if (!response.ok) throw new Error("Report manifest unavailable.");
-      const payload = (await response.json()) as unknown;
-      setStaticReports(isStaticReportManifest(payload) ? payload.reports : []);
-      setStaticReportsError(null);
-    } catch {
-      setStaticReports([]);
-      setStaticReportsError("Generated report index is not available.");
-    }
+    await archiveOperation.run(
+      async (signal) => {
+        const payload = await fetchJsonWithPolicy(staticAssetPath("/reports/index.json"), { cache: "no-store" }, {
+          label: "Generated report index",
+          maxBytes: MAX_DIRECTORY_JSON_BYTES,
+          signal,
+          httpError: () => new Error("Report manifest unavailable.")
+        });
+        if (!isStaticReportManifest(payload)) throw new Error("Generated report index was not valid.");
+        return payload.reports;
+      },
+      {
+        onStart: () => setStaticReportsError(null),
+        onSuccess: (reports) => {
+          setStaticReports(reports);
+          setStaticReportsError(null);
+        },
+        onError: (readError) => {
+          setStaticReports(null);
+          setStaticReportsError(
+            readError instanceof Error ? readError.message : "Generated report index is not available."
+          );
+        }
+      }
+    );
   }
 
   async function loadReportFile(file: File | null) {
     if (!file) return;
-    setLoading(true);
-    setError(null);
-    setLoaded(null);
-
-    try {
-      const payload = JSON.parse(await file.text()) as unknown;
-      const read = await readLoadedReport(payload, "This report JSON");
-      if (!read.ok) {
-        throw new Error(read.message);
-      }
-      setLoaded(withoutLoadedReportShare(read.loaded));
-    } catch (readError) {
-      setError(readError instanceof Error ? readError.message : "Report JSON could not be opened.");
-    } finally {
-      setLoading(false);
-    }
+    await reportOpenOperation.run(
+      async (signal) => {
+        const contents = await readClientFileText(file, {
+          label: "This report JSON",
+          maxBytes: BROWSER_PUBLIC_REPORT_JSON_MAX_BYTES,
+          signal
+        });
+        const payload = parseJsonTextWithPolicy(contents, "This report JSON");
+        signal.throwIfAborted();
+        const read = await readLoadedReport(payload, "This report JSON");
+        signal.throwIfAborted();
+        if (!read.ok) throw new Error(read.message);
+        return withoutLoadedReportShare(read.loaded);
+      },
+      reportOpenHandlers("Report JSON could not be opened.")
+    );
   }
 
   async function loadPageGraphFile(selection: PageGraphUploadSelection) {
-    setLoading(true);
-    setError(null);
-    setLoaded(null);
+    await reportOpenOperation.run(
+      async (signal) => {
+        // Code-split the strict r2 importer and graph parser so neither affects
+        // the first-load bundle. The importer verifies the digest-bound sidecar.
+        const { readPageGraphUpload } = await import("@/lib/pagegraph-client-import");
+        const opened = await readPageGraphUpload(selection, signal);
+        signal.throwIfAborted();
+        return opened;
+      },
+      reportOpenHandlers("The PageGraph capture pair could not be opened.")
+    );
+  }
 
-    try {
-      // Code-split the strict r2 importer and graph parser so neither affects
-      // the first-load bundle. The importer verifies the digest-bound sidecar.
-      const { readPageGraphUpload } = await import("@/lib/pagegraph-client-import");
-      setLoaded(await readPageGraphUpload(selection));
-    } catch (readError) {
-      setError(readError instanceof Error ? readError.message : "The PageGraph capture pair could not be opened.");
-    } finally {
-      setLoading(false);
-    }
+  function reportOpenHandlers(fallbackMessage: string) {
+    return {
+      onStart: () => {
+        setLoading(true);
+        setError(null);
+        setLoaded(null);
+      },
+      onSuccess: setLoaded,
+      onError: (readError: unknown) => {
+        setError(readError instanceof Error ? readError.message : fallbackMessage);
+      },
+      onSettled: () => setLoading(false)
+    };
+  }
+
+  function surfaceReportOperationError(message: string) {
+    reportOpenOperation.cancel();
+    setLoading(false);
+    setError(message);
+  }
+
+  function acceptCreatedComparison(comparison: LoadedReport) {
+    reportOpenOperation.cancel();
+    setLoading(false);
+    setError(null);
+    setLoaded(comparison);
+  }
+
+  function rejectCreatedComparison(message: string) {
+    reportOpenOperation.cancel();
+    setLoading(false);
+    setLoaded(null);
+    setError(message);
   }
 
   const statusClassName = `status-pill${STATIC_EXPORT ? " status-pill-static" : ""}${
@@ -198,7 +271,10 @@ export function SiteBehaviorApp({
     <ScanControls
       form={form}
       setForm={setForm}
-      onSubmit={handleSubmit}
+      onSubmit={(event) => {
+        reportOpenOperation.cancel();
+        void handleSubmit(event);
+      }}
       loading={loading}
       scanBlocked={scanBlocked || scheduledRescanCreateBusy}
       activeScanJob={Boolean(activeScanJob)}
@@ -211,7 +287,7 @@ export function SiteBehaviorApp({
       turnstileRequired={turnstileRequired}
       turnstileResetNonce={turnstileResetNonce}
       onTurnstileToken={setTurnstileToken}
-      onError={setError}
+      onError={surfaceReportOperationError}
       turnstileUnsupported={turnstileUnsupported}
       awaitingTurnstile={awaitingTurnstile}
       gpcComparisonEnabled={gpcComparisonEnabled}
@@ -232,7 +308,7 @@ export function SiteBehaviorApp({
         form={form}
         scanBlocked={scanBlocked}
         scanBusy={loading}
-        acceptedScanJob={Boolean(activeScanJob)}
+        acceptedScanJob={Boolean(activeScanJob || pendingScanAdmission)}
         scannerRequiresAccessKey={scannerRequiresAccessKey}
         turnstileRequired={turnstileRequired}
         turnstileToken={turnstileToken}
@@ -248,7 +324,7 @@ export function SiteBehaviorApp({
       <a className="skip-link" href="#report">
         Skip to results
       </a>
-      <main className="app-shell">
+      <div className="app-shell">
         <header className="topbar">
           <a className="brand" href={staticAssetPath("/")} aria-label="Site Behavior Lab home">
             <span className="brand-mark">
@@ -268,58 +344,54 @@ export function SiteBehaviorApp({
           </div>
         </header>
 
-        <section className="scan-workbench" id="scan">
+        <main>
+          <section className="scan-workbench" id="scan">
             {LIVE_SCAN_ENABLED ? (
               scanForm
             ) : (
-              <StaticPublicPanel onUploadReport={loadReportFile} onUploadError={setError} />
+              <StaticPublicPanel onUploadReport={loadReportFile} onUploadError={surfaceReportOperationError} />
             )}
 
-            <aside className="method-card">
+            <section className="method-card" aria-labelledby="method-card-title">
               <div className="method-icon">
                 <Shield size={20} aria-hidden="true" />
               </div>
               <div>
-                <h2>Evidence, then interpretation</h2>
+                <h2 id="method-card-title">Evidence, then interpretation</h2>
                 <p>
                   Reports disclose their scan conditions and exactly which evidence families were captured or
                   unsupported. Recorded signals describe one visit, not a verdict about the site.
                 </p>
               </div>
-            </aside>
-        </section>
+            </section>
+          </section>
 
-        {corpusHighlights && corpusHighlights.attemptedSiteCount > 0 && !loaded && !loading && !error && (
+        {corpusHighlights && corpusHighlights.attemptedSiteCount > 0 && !loaded && !loading && !error && !pendingScanAdmission && (
           <CorpusHero highlights={corpusHighlights} />
         )}
 
         <ScanRecoveryBanner
           error={error}
           acceptedJob={Boolean(activeScanJob)}
+          pendingAdmission={Boolean(pendingScanAdmission)}
+          recoveringAdmission={recoveringScanAdmission}
           loading={loading}
           cancelling={cancellingScan}
           cancellationError={cancelScanError}
           onResume={() => void resumeActiveScan()}
+          onCheckAdmission={() => void recoverPendingAdmission()}
           onCancel={() => void cancelActiveScan()}
           onDismiss={dismissActiveScan}
         />
 
-        <div id="report">
-          {!loaded && !loading && !activeScanJob && (
+          <section aria-label="Results" id="report" ref={reportRegionRef} tabIndex={-1}>
+          {!loaded && !loading && !activeScanJob && !pendingScanAdmission && (
             <EmptyState
               onUploadReport={loadReportFile}
               onUploadPageGraph={loadPageGraphFile}
-              onUploadError={setError}
-              onCreateComparison={(comparison) => {
-                setLoading(false);
-                setError(null);
-                setLoaded(loadedFromV1Wire(comparison));
-              }}
-              onComparisonError={(message) => {
-                setLoading(false);
-                setLoaded(null);
-                setError(message);
-              }}
+              onUploadError={surfaceReportOperationError}
+              onCreateComparison={acceptCreatedComparison}
+              onComparisonError={rejectCreatedComparison}
               liveScanEnabled={LIVE_SCAN_ENABLED}
               staticExport={STATIC_EXPORT}
               staticReports={staticReports}
@@ -353,7 +425,8 @@ export function SiteBehaviorApp({
               <LazyReportRenderer loaded={loaded} liveApiServesReportPages={liveApiServesReportPages} />
             </Suspense>
           )}
-        </div>
+          </section>
+        </main>
 
         <footer className="app-footer">
           <span>
@@ -391,7 +464,7 @@ export function SiteBehaviorApp({
             may be retried; attempts are never merged. Reproducible for this configuration, not a universal claim.
           </span>
         </footer>
-      </main>
+      </div>
     </>
   );
 }
@@ -423,9 +496,9 @@ function StaticPublicPanel({
           Open report file
         </ReportUploadButton>
         {SCAN_WORKFLOW_URL && (
-          <a className="secondary-button" href={SCAN_WORKFLOW_URL} target="_blank" rel="noreferrer" title="Requires repository access">
+          <a className="secondary-button" href={SCAN_WORKFLOW_URL} target="_blank" rel="noreferrer">
             <Github size={17} aria-hidden="true" />
-            Maintainer scan
+            Maintainer scan (repository access)
           </a>
         )}
       </div>
@@ -440,8 +513,8 @@ function CorpusHero({ highlights }: { highlights: CorpusHighlights }) {
       <h2 id="corpus-hero-title">What websites actually load: measured, not claimed.</h2>
       <p className="corpus-hero-lead">
         The public library covers {plural(highlights.loadedSiteCount, "successfully loaded site")} from controlled
-        visits. Each report records observable requests, cookies, and catalogued services from one visit—reproducible
-        evidence, not a privacy score or verdict.
+        visits. Each report records observable requests, cookies, and catalogued services from one visit:
+        reproducible evidence, not a privacy score or verdict.
       </p>
       {highlights.topCategories.length > 0 && (
         <div className="corpus-hero-cats">
@@ -472,70 +545,16 @@ function CorpusHero({ highlights }: { highlights: CorpusHighlights }) {
   );
 }
 
-function isStaticReportManifest(value: unknown): value is { reports: StaticReportManifestEntry[] } {
-  if (!value || typeof value !== "object" || !Array.isArray((value as { reports?: unknown }).reports)) {
-    return false;
-  }
-
-  return (value as { reports: unknown[] }).reports.every(isStaticReportManifestEntry);
-}
-
-function isStaticReportManifestEntry(value: unknown): value is StaticReportManifestEntry {
-  if (!value || typeof value !== "object") return false;
-  const entry = value as Partial<StaticReportManifestEntry> & { metrics?: Partial<StaticReportManifestEntry["metrics"]> };
-  const metrics = entry.metrics;
-  return (
-    typeof entry.id === "string" &&
-    typeof entry.title === "string" &&
-    typeof entry.headline === "string" &&
-    (entry.tone === "alarm" || entry.tone === "warn" || entry.tone === "info" || entry.tone === "calm") &&
-    typeof entry.domain === "string" &&
-    typeof entry.requestedUrl === "string" &&
-    typeof entry.scannedAt === "string" &&
-    (entry.reportType === "single" || entry.reportType === "comparison") &&
-    (entry.device === "desktop" || entry.device === "mobile") &&
-    (entry.historyKey === undefined || typeof entry.historyKey === "string") &&
-    (entry.comparisonHistoryKey === undefined || typeof entry.comparisonHistoryKey === "string") &&
-    metrics !== undefined &&
-    typeof metrics.totalRequests === "number" &&
-    typeof metrics.thirdPartyRequests === "number"
-  );
-}
-
-/**
- * Wrap the gallery's locally built v1 temporal comparison as a LoadedReport,
- * using the LIGHT view builder so that legacy-only path never pulls the deep
- * validators into the bundle. PageGraph imports use the paired r2 reader.
- */
-function loadedFromV1Wire(report: ScanReport): LoadedReport {
-  return { source: "v1", wire: report, view: viewFromV1Report(report) };
-}
-
 function ThemeToggle() {
-  const [theme, setTheme] = useState<"light" | "dark" | null>(null);
-
-  useEffect(() => {
-    const stored = document.documentElement.dataset.theme as "light" | "dark" | undefined;
-    if (stored) {
-      setTheme(stored);
-    } else {
-      setTheme(window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
-    }
-  }, []);
-
-  function toggle() {
-    const next = theme === "dark" ? "light" : "dark";
-    setTheme(next);
-    document.documentElement.dataset.theme = next;
-    try {
-      localStorage.setItem("sbl-theme", next);
-    } catch {
-      /* ignore */
-    }
-  }
+  const { theme, toggleTheme } = useThemePreference();
 
   return (
-    <button className="icon-button" type="button" onClick={toggle} aria-label="Toggle colour theme">
+    <button
+      className="icon-button"
+      type="button"
+      onClick={toggleTheme}
+      aria-label={theme === "dark" ? "Switch to light colour theme" : "Switch to dark colour theme"}
+    >
       {theme === "dark" ? <Sun size={18} aria-hidden="true" /> : <Moon size={18} aria-hidden="true" />}
     </button>
   );
@@ -559,7 +578,7 @@ function EmptyState({
   onUploadPageGraph: (selection: PageGraphUploadSelection) => Promise<void>;
   /** Surfaces picker-side rejections (e.g. the size cap) that never reach the upload handlers. */
   onUploadError: (message: string) => void;
-  onCreateComparison: (comparison: ComparisonScanResult) => void;
+  onCreateComparison: (comparison: LoadedReport) => void;
   onComparisonError: (message: string) => void;
   liveScanEnabled: boolean;
   staticExport: boolean;
@@ -570,6 +589,11 @@ function EmptyState({
   onLoadArchive: () => void;
 }) {
   const latestReport = homepageDiscovery?.latestReport ?? null;
+  const archiveToolsRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (archiveRequested) archiveToolsRef.current?.focus();
+  }, [archiveRequested]);
 
   return (
     <section className={`empty-state${staticExport ? " static-library-state" : ""}`}>
@@ -609,9 +633,9 @@ function EmptyState({
               Open GraphML + meta.json
             </PageGraphR2UploadButton>
             {SCAN_WORKFLOW_URL && (
-              <a className="secondary-button" href={SCAN_WORKFLOW_URL} target="_blank" rel="noreferrer" title="Requires repository access">
+              <a className="secondary-button" href={SCAN_WORKFLOW_URL} target="_blank" rel="noreferrer">
                 <Github size={17} aria-hidden="true" />
-                Maintainer scan
+                Maintainer scan (repository access)
               </a>
             )}
             {staticExport && !archiveRequested && (
@@ -622,17 +646,24 @@ function EmptyState({
           </div>
           <p className="homepage-tools-note">
             PageGraph imports require a <code>.graphml</code> file and its matching <code>.meta.json</code> sidecar.
+            Browser imports are capped at 8 MB for report JSON, 16 MB for GraphML, and 256 KB for metadata.
             Unsupported evidence families remain censored rather than guessed.
           </p>
           {staticExport && archiveRequested && (
-            <Suspense fallback={<p className="muted">Loading saved-report tools…</p>}>
-              <LazyStaticReportGallery
-                reports={staticReports}
-                error={staticReportsError}
-                onCreateComparison={onCreateComparison}
-                onComparisonError={onComparisonError}
-              />
-            </Suspense>
+            <div aria-label="Saved-report tools" ref={archiveToolsRef} tabIndex={-1}>
+              <Suspense fallback={<p className="muted" role="status">Loading saved-report tools…</p>}>
+                <LazyStaticReportGallery
+                  reports={staticReports}
+                  error={staticReportsError}
+                  onRetry={() => {
+                    archiveToolsRef.current?.focus();
+                    onLoadArchive();
+                  }}
+                  onCreateComparison={onCreateComparison}
+                  onComparisonError={onComparisonError}
+                />
+              </Suspense>
+            </div>
           )}
         </div>
       </details>

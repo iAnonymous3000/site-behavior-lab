@@ -6,14 +6,15 @@ import {
   pageGraphUploadSelection,
   type PageGraphUploadSelection
 } from "@/lib/pagegraph-upload-selection";
+import { assertClientFileReadable } from "@/lib/client-file-policy";
+import { BROWSER_PUBLIC_REPORT_JSON_MAX_BYTES } from "@/lib/report-resource-limits";
 
 export { pageGraphUploadSelection } from "@/lib/pagegraph-upload-selection";
 export type { PageGraphUploadSelection } from "@/lib/pagegraph-upload-selection";
 
-// Reports (even comparisons with two inline screenshots) stay well under a few
-// megabytes, and PageGraph exports under a few tens; anything past this bound
-// is not a plausible artifact and would only stall the tab in JSON/XML parsing.
-export const MAX_UPLOAD_BYTES = 32 * 1024 * 1024;
+// Keep local report uploads at the same decompressed byte ceiling as fetched
+// reports. The actual report readers repeat this check before File.text().
+export const MAX_UPLOAD_BYTES = BROWSER_PUBLIC_REPORT_JSON_MAX_BYTES;
 
 // Shared file-picker button. Resets the input after each pick so re-selecting
 // the same file fires onChange again; an optional onError surfaces a rejected
@@ -39,16 +40,16 @@ export function FileUploadButton({
         onChange={(event) => {
           const input = event.currentTarget;
           const file = input.files?.[0] ?? null;
-          const handled =
-            file && file.size > MAX_UPLOAD_BYTES
-              ? Promise.reject(
-                  new Error(
-                    `That file is ${Math.round(file.size / 1024 / 1024)} MB; uploads are limited to ${
-                      MAX_UPLOAD_BYTES / 1024 / 1024
-                    } MB.`
-                  )
-                )
-              : onSelect(file);
+          const handled = Promise.resolve()
+            .then(() => {
+              if (file) {
+                assertClientFileReadable(file, {
+                  label: "That report file",
+                  maxBytes: MAX_UPLOAD_BYTES
+                });
+              }
+            })
+            .then(() => onSelect(file));
           // Always catch: the size rejection is minted here (it never reaches
           // onSelect), so without this a caller that handles its own onSelect
           // errors would still leak an unhandled rejection.

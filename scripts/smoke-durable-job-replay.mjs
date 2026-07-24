@@ -7,12 +7,24 @@
 // capability in /api/health, and the operator independently confirms that staging
 // identity. There is no production override: production must never expose the hook.
 
+import { prepareScanAdmission } from "./scan-admission.mjs";
+import {
+  readResponseJsonWithinLimit,
+  withHttpOperationDeadline
+} from "./http-response.mjs";
+
 const CONFIRMATION = "I_ACKNOWLEDGE_THIS_SUBMITS_A_LIVE_SCAN";
 const STAGING_CONFIRMATION = "I_ACKNOWLEDGE_THIS_IS_A_GATED_STAGING_DEPLOYMENT";
 const REPORT_ID_PATTERN = /^[0-9]{8}-[0-9a-f]{32}$/;
 const COMMIT_SHA_PATTERN = /^[0-9a-f]{40}$/;
 const HEADER_NAME_PATTERN = /^x-[a-z0-9-]{1,100}$/;
-const REQUEST_TIMEOUT_MS = positiveIntegerEnv("DURABLE_REPLAY_REQUEST_TIMEOUT_MS", 30_000);
+const REQUEST_TIMEOUT_MS = boundedIntegerEnv(
+  "DURABLE_REPLAY_REQUEST_TIMEOUT_MS",
+  30_000,
+  100,
+  60_000
+);
+const JSON_RESPONSE_MAX_BYTES = 32 * 1024 * 1024;
 
 const baseUrl = requiredOrigin("DURABLE_REPLAY_BASE_URL");
 const accessToken = requiredHeaderValue("DURABLE_REPLAY_ACCESS_TOKEN");
@@ -50,23 +62,28 @@ if (noPollMs < minimumNoPollMs) {
 console.log(
   `Submitting ${faultMode} durable replay canary to ${baseUrl}; no status, health, or report request will be sent for ${noPollMs} ms.`
 );
-const submissionResponse = await guardedFetch(`${baseUrl}/api/scan`, {
-  method: "POST",
-  headers: authHeaders({
-    "content-type": "application/json; charset=utf-8",
-    [hook.modeHeaderName]: faultMode,
-    [hook.tokenHeaderName]: faultToken
-  }),
-  body: JSON.stringify({
-    url: targetUrl,
-    device: "desktop",
-    gpcEnabled: true,
-    consentMode: "observe"
-  }),
-  cache: "no-store",
-  redirect: "error"
+const admission = prepareScanAdmission({
+  url: targetUrl,
+  device: "desktop",
+  gpcEnabled: true,
+  consentMode: "observe"
 });
-const submission = await readJson(submissionResponse, "/api/scan");
+const { response: submissionResponse, value: submission } = await guardedFetch(
+  `${baseUrl}/api/scan`,
+  {
+    method: "POST",
+    headers: authHeaders({
+      "content-type": "application/json; charset=utf-8",
+      ...admission.headers,
+      [hook.modeHeaderName]: faultMode,
+      [hook.tokenHeaderName]: faultToken
+    }),
+    body: JSON.stringify(admission.body),
+    cache: "no-store",
+    redirect: "error"
+  },
+  "/api/scan"
+);
 if (submissionResponse.status !== 202 || !isDurableSubmission(submission)) {
   fail(
     `Fault-injected scan was not accepted as an async durable job (HTTP ${submissionResponse.status}: ` +
@@ -96,12 +113,15 @@ if (terminal.report !== undefined) {
   assertReportIdentity(terminal.report, reportId, "terminal job response");
 }
 
-const reportResponse = await guardedFetch(`${baseUrl}/api/reports/${reportId}`, {
-  headers: authHeaders(),
-  cache: "no-store",
-  redirect: "error"
-});
-const savedReport = await readJson(reportResponse, `/api/reports/${reportId}`);
+const { response: reportResponse, value: savedReport } = await guardedFetch(
+  `${baseUrl}/api/reports/${reportId}`,
+  {
+    headers: authHeaders(),
+    cache: "no-store",
+    redirect: "error"
+  },
+  `/api/reports/${reportId}`
+);
 if (!reportResponse.ok) {
   fail(`Saved report ${reportId} returned HTTP ${reportResponse.status} (${publicError(savedReport)}).`);
 }
@@ -129,14 +149,11 @@ await readAttestedStagingHealth("post-recovery");
 console.log(`PASS ${faultMode} recovered the same reportId (${reportId}) after an idle lease/replay window.`);
 
 async function readAttestedStagingHealth(phase) {
-  const health = await readJson(
-    await guardedFetch(`${baseUrl}/api/health`, {
-      headers: authHeaders(),
-      cache: "no-store",
-      redirect: "error"
-    }),
-    "/api/health"
-  );
+  const { value: health } = await guardedFetch(`${baseUrl}/api/health`, {
+    headers: authHeaders(),
+    cache: "no-store",
+    redirect: "error"
+  }, "/api/health");
   const hook = assertSafeFaultInjectionPrerequisites(health);
   if (health.deployment !== expectedDeployment) {
     fail(
@@ -213,12 +230,15 @@ async function readFirstPostIdleStatus(statusPath) {
   if (statusUrl.origin !== new URL(baseUrl).origin) {
     fail("The submitted job status path escaped the configured scanner origin.");
   }
-  const response = await guardedFetch(statusUrl, {
-    headers: authHeaders(),
-    cache: "no-store",
-    redirect: "error"
-  });
-  const status = await readJson(response, "/api/scans/:id");
+  const { response, value: status } = await guardedFetch(
+    statusUrl,
+    {
+      headers: authHeaders(),
+      cache: "no-store",
+      redirect: "error"
+    },
+    "/api/scans/:id"
+  );
   if (!response.ok || status?.ok !== true) {
     fail(`The first post-idle status read failed with HTTP ${response.status} (${publicError(status)}).`);
   }
@@ -258,28 +278,34 @@ function exposedFaultEvidence(status) {
   };
 }
 
-async function guardedFetch(input, init) {
+async function guardedFetch(input, init, label) {
   try {
-    return await fetch(input, { ...init, signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS) });
+    return await withHttpOperationDeadline(
+      { timeoutMs: REQUEST_TIMEOUT_MS, label },
+      async (signal) => {
+        const response = await fetch(input, { ...init, signal });
+        const contentType = response.headers.get("content-type") ?? "";
+        if (!contentType.includes("application/json")) {
+          fail(`${label} returned HTTP ${response.status} with non-JSON content.`);
+        }
+        return {
+          response,
+          value: await readResponseJsonWithinLimit(response, {
+            maxBytes: JSON_RESPONSE_MAX_BYTES,
+            label
+          })
+        };
+      }
+    );
   } catch (error) {
+    if (error instanceof RangeError) fail(error.message);
+    if (error instanceof SyntaxError) fail(`${label} returned invalid JSON.`);
     fail(`Request failed before a valid scanner response was received (${publicException(error)}).`);
   }
 }
 
 function authHeaders(extra = {}) {
   return { ...extra, "x-site-behavior-lab-access-token": accessToken };
-}
-
-async function readJson(response, label) {
-  const contentType = response.headers.get("content-type") ?? "";
-  if (!contentType.includes("application/json")) {
-    fail(`${label} returned HTTP ${response.status} with non-JSON content.`);
-  }
-  try {
-    return await response.json();
-  } catch {
-    fail(`${label} returned invalid JSON.`);
-  }
 }
 
 function requiredFaultMode() {
@@ -358,6 +384,16 @@ function positiveIntegerEnv(name, fallback) {
   if (!raw && fallback !== undefined) return fallback;
   const value = Number(raw);
   if (!Number.isSafeInteger(value) || value <= 0) fail(`${name} must be a positive integer.`);
+  return value;
+}
+
+function boundedIntegerEnv(name, fallback, minimum, maximum) {
+  const raw = process.env[name]?.trim();
+  if (!raw && fallback !== undefined) return fallback;
+  const value = Number(raw);
+  if (!Number.isSafeInteger(value) || value < minimum || value > maximum) {
+    fail(`${name} must be an integer from ${minimum} to ${maximum}.`);
+  }
   return value;
 }
 

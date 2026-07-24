@@ -1,6 +1,12 @@
 import { publicReportDigest } from "./canonical-json";
 import { redactScanReportV1 } from "./redact-scan-report-v1";
+import { REDACTION_VERSION } from "./redaction-v2";
+import {
+  SERVER_STORED_PROVENANCE_SIDECAR_MAX_BYTES,
+  SERVER_STORED_REPORT_JSON_MAX_BYTES
+} from "./report-resource-limits";
 import { isCanonicalReportShare } from "./report-locator";
+import { hasSafeReportCollections } from "./report-resource-policy";
 import {
   matchProvenance,
   type ProvenanceMatch,
@@ -11,9 +17,12 @@ import {
   type ReadStoredScanReportError,
   type StoredScanReport
 } from "./scan-report-reader";
+import { redactPublicScanReportV2R2 } from "./scan-report-v2-r2-remediation";
+import { parseStrictJson } from "./strict-json";
 
 export type ManagedReportReadFailureReason =
   | "invalid-report-json"
+  | "report-resource-limit"
   | "invalid-report"
   | "no-sidecar"
   | "invalid-sidecar-json"
@@ -62,10 +71,17 @@ export function readManagedReport(input: {
 }): ManagedReportReadResult {
   let publicReport: unknown;
   try {
-    publicReport = JSON.parse(input.reportContents) as unknown;
-  } catch (error) {
-    if (error instanceof SyntaxError) return failure("invalid-report-json");
-    throw error;
+    publicReport = parseStrictJson(input.reportContents, SERVER_STORED_REPORT_JSON_MAX_BYTES);
+  } catch {
+    return failure("invalid-report-json");
+  }
+
+  // Strict JSON and a wire-byte ceiling do not bound the decoded graph's
+  // cardinality. Reject amplified arrays, property sets, and render strings
+  // before schema guards, semantic evaluation, redaction checks, or SSR walk
+  // attacker-controlled collections.
+  if (!hasSafeReportCollections(publicReport)) {
+    return failure("report-resource-limit");
   }
 
   const reportRead = readStoredScanReport(publicReport);
@@ -88,6 +104,26 @@ export function readManagedReport(input: {
     return failure("redaction-not-idempotent");
   }
 
+  // Schema-r2 is mutable only at an explicit remediation boundary. A report
+  // already declaring the current revision must itself be a fixed point of
+  // the reviewed sanitizer; otherwise a forged v4 marker plus a matching
+  // sidecar could bless unsafe evidence. Older versions continue below to the
+  // provenance/version check so ordinary reads never perform a migration.
+  if (
+    reportRead.stored.schemaVersion === 2 &&
+    reportRead.stored.schemaRevision === 2 &&
+    embeddedRedactionVersions(reportRead.stored).every((version) => version === REDACTION_VERSION)
+  ) {
+    try {
+      const redacted = redactPublicScanReportV2R2(reportRead.stored.report);
+      if (publicReportDigest(redacted) !== publicReportDigest(publicReport)) {
+        return failure("redaction-not-idempotent");
+      }
+    } catch {
+      return failure("redaction-not-idempotent");
+    }
+  }
+
   const share = reportRead.stored.report.share;
   if (share && !isCanonicalReportShare(share, input.reportId)) {
     return failure("share-id-mismatch");
@@ -96,10 +132,9 @@ export function readManagedReport(input: {
   if (input.sidecarContents === null) return failure("no-sidecar");
   let sidecar: unknown;
   try {
-    sidecar = JSON.parse(input.sidecarContents) as unknown;
-  } catch (error) {
-    if (error instanceof SyntaxError) return failure("invalid-sidecar-json");
-    throw error;
+    sidecar = parseStrictJson(input.sidecarContents, SERVER_STORED_PROVENANCE_SIDECAR_MAX_BYTES);
+  } catch {
+    return failure("invalid-sidecar-json");
   }
 
   const provenance = matchProvenance(publicReport, sidecar, input.reportId);

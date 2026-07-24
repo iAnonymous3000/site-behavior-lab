@@ -15,6 +15,10 @@ import {
   type PageGraphCaptureMetadataV1
 } from "./pagegraph-v2-r2-builder";
 import { scanReportV2R2SemanticViolations } from "./scan-report-v2-r2-evaluators";
+import {
+  R2_NAVIGATION_STATUS_UNREPRESENTABLE,
+  R2_REQUEST_STATUS_UNREPRESENTABLE
+} from "./scan-report-v2-http-status";
 import { isPublicScanReportV2R2 } from "./scan-report-v2-r2-validation";
 import {
   familyUnsupportedOnRun,
@@ -23,6 +27,11 @@ import {
   viewFromV2
 } from "./scan-report-views";
 import { sha256BytesHex } from "./sha256";
+import { publicReportDigest } from "./canonical-json";
+import {
+  R2RedactionRemediationError,
+  redactPublicScanReportV2R2
+} from "./scan-report-v2-r2-remediation";
 
 const FIXTURE_DIR = path.join(process.cwd(), "lib", "__fixtures__", "pagegraph");
 const GRAPH_BYTES = new Uint8Array(readFileSync(path.join(FIXTURE_DIR, "real-wikipedia-2026-07-19.graphml")));
@@ -48,6 +57,12 @@ test("real PageGraph capture emits one passive, request-only, valid r2 report", 
   assert.match(fixtureText, /<data key="d23">DOM root<\/data>/);
   const report = buildPageGraphScanReportV2R2(GRAPH_BYTES, metadata(), CONTEXT);
 
+  assert.equal(
+    publicReportDigest(redactPublicScanReportV2R2(report)),
+    publicReportDigest(report),
+    "real PageGraph producer output is an exact managed-sanitizer fixed point"
+  );
+
   assert.equal(isPublicScanReportV2R2(report), true);
   assert.deepEqual(scanReportV2R2SemanticViolations(report), []);
   assert.equal(report.schemaRevision, 2);
@@ -61,6 +76,7 @@ test("real PageGraph capture emits one passive, request-only, valid r2 report", 
   assert.equal(report.run.conditions.headless, false);
   assert.equal(report.run.conditions.locale, "en-US");
   assert.equal(report.run.conditions.timezone, "America/Los_Angeles");
+  assert.equal(report.run.summary.pageTitle, "", "page-authored titles do not persist in public PageGraph reports");
   assert.deepEqual(report.run.phases, [{ phaseId: 0, kind: "passive-load", startedAtMs: 0, endedAtMs: 15_459 }]);
   assert.equal(report.run.evidence.requests.length, 5);
   assert.equal(report.run.evidence.requests.every((request) => request.phaseId === 0), true);
@@ -87,6 +103,72 @@ test("real PageGraph capture emits one passive, request-only, valid r2 report", 
   assert.equal(report.run.warnings.some((warning) => warning.includes("request observations only")), true);
   assert.equal(report.run.warnings.some((warning) => warning.includes("not script-to-request causality")), true);
   assert.equal(report.run.warnings.some((warning) => warning.includes("quality and coverage declarations")), true);
+});
+
+test("PageGraph producer identity fails closed on impossible non-request evidence", () => {
+  const report = buildPageGraphScanReportV2R2(GRAPH_BYTES, metadata(), CONTEXT);
+  report.run.evidence.storageFinal.push({ area: "localStorage", key: "safe", valueBytes: 1 });
+  assert.throws(
+    () => redactPublicScanReportV2R2(report),
+    (error: unknown) =>
+      error instanceof R2RedactionRemediationError && error.reason === "sanitizer-rejected-evidence"
+  );
+});
+
+test("PageGraph r2 records valid 600-999 statuses as explicit frozen-wire limitations", () => {
+  const original = new TextDecoder().decode(GRAPH_BYTES);
+  const graphml = original.replace(
+    '<data key="d42">complete</data>',
+    '<data key="d42">699</data>'
+  );
+  const target = metadata();
+  target.quality.status = 699;
+
+  const report = buildPageGraphScanReportV2R2(bytesFor(graphml, target), target, CONTEXT);
+  assert.equal(report.run.qualityFacts.status, null);
+  assert.equal(report.run.summary.status, null);
+  assert.equal(report.run.evidence.requests.some((request) => request.status === null), true);
+  assert.equal(report.run.evidence.requests.some((request) => request.status === 599), false);
+  assert.equal(report.run.quality.run.outcome, "failed");
+  assert.equal(report.run.quality.run.reasons.includes("http-error-status"), true);
+  assert.equal(report.run.quality.byFamily.requests.outcome, "censored");
+  assert.equal(
+    report.run.qualityFacts.captureLoss.some(
+      (entry) => entry.detail === R2_NAVIGATION_STATUS_UNREPRESENTABLE && entry.phaseId === null && entry.count === 1
+    ),
+    true
+  );
+  assert.equal(
+    report.run.qualityFacts.captureLoss.some(
+      (entry) => entry.detail === R2_REQUEST_STATUS_UNREPRESENTABLE && entry.phaseId === 0 && entry.count === 1
+    ),
+    true
+  );
+  assert.equal(isPublicScanReportV2R2(report), true);
+  assert.deepEqual(scanReportV2R2SemanticViolations(report), []);
+});
+
+test("PageGraph r2 rejects malformed statuses but admits the complete three-digit grammar before normalization", () => {
+  const accepted = metadata();
+  accepted.quality.status = 999;
+  assert.equal(parsePageGraphCaptureMetadata(accepted).quality.status, 999);
+
+  for (const status of [99, 1_000, 200.5]) {
+    const target = metadata();
+    target.quality.status = status;
+    assert.throws(() => parsePageGraphCaptureMetadata(target), /100 through 999/);
+  }
+
+  const original = new TextDecoder().decode(GRAPH_BYTES);
+  const malformedGraph = original.replace(
+    '<data key="d42">complete</data>',
+    '<data key="d42">1000</data>'
+  );
+  const target = metadata();
+  assert.throws(
+    () => buildPageGraphScanReportV2R2(bytesFor(malformedGraph, target), target, CONTEXT),
+    /request 1 HTTP status.*100 through 999/
+  );
 });
 
 test("PageGraph unsupported sentinels require the exact r2 producer and family set", () => {

@@ -3,5 +3,5 @@ export function scansAvailableAfterEdgeOverlay(
   containerScansAvailable: unknown,
   edgeRefusals: readonly string[]
 ): boolean {
-  return containerScansAvailable !== false && edgeRefusals.length === 0;
+  return containerScansAvailable === true && edgeRefusals.length === 0;
 }

@@ -2,6 +2,8 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { buildCategoryRollups, type CategoryRollup } from "./category-rollups";
 import type { CompatibilityFingerprint, ComparisonDecision } from "./comparison-decision";
+import { corpusCohortIdentityForView, type CorpusCohortIdentity } from "./corpus-cohort";
+import { preferCorpusRepresentative } from "./corpus-representative";
 import { domainsMatch } from "./featured-sites";
 import { buildReportHeadline, type HeadlineTone } from "./report-headline";
 import { trackingServiceRequests } from "./report-insights";
@@ -80,6 +82,22 @@ export type DirectoryEntry = {
   status: number | null;
   /** Evaluator-derived outcome; status 200 can still be a failed/bot-wall run. */
   runOutcome: "complete" | "failed";
+  /** Versioned schema + methodology + recorded-producer statistical cohort. */
+  corpusCohort: CorpusCohortIdentity;
+  /** Recorded v2 producer/observer; null on v1, which never recorded it. */
+  producer: string | null;
+  /** Recorded acquisition path; null on v1. */
+  acquisition: string | null;
+  /** Self-reported producer build commit; null on v1. */
+  buildCommit: string | null;
+  /** Recorded browser family/name; null when frozen v1 did not name it separately. */
+  browserName: string | null;
+  /** Recorded browser version; null when absent. */
+  browserVersion: string | null;
+  /** Recorded egress label (legacy-derived field on v1). */
+  egressLabel: string;
+  /** Recorded egress region; null when absent or never recorded by v1. */
+  egressRegion: string | null;
   /** Whether the single run or either primary comparison arm loaded successfully. */
   reportHasSuccessfulLoad: boolean;
   /** Whether any successfully loaded arm hit the exact request-recording cap. */
@@ -140,6 +158,14 @@ type CorpusExportMetadata = Pick<
   | "comparisonDecisionMode"
   | "compatibilityFingerprintOrigin"
   | "compatibilityFingerprintMatched"
+  | "corpusCohort"
+  | "producer"
+  | "acquisition"
+  | "buildCommit"
+  | "browserName"
+  | "browserVersion"
+  | "egressLabel"
+  | "egressRegion"
 >;
 
 /**
@@ -156,7 +182,15 @@ export function corpusExportMetadataForView(view: ReportView): CorpusExportMetad
     variantConsentChoiceState: arms?.variant.consent?.choiceState ?? null,
     comparisonDecisionMode: decision?.mode ?? null,
     compatibilityFingerprintOrigin: decision?.compatibility.origin ?? null,
-    compatibilityFingerprintMatched: decision?.compatibility.matched ?? null
+    compatibilityFingerprintMatched: decision?.compatibility.matched ?? null,
+    corpusCohort: corpusCohortIdentityForView(view),
+    producer: lead.provenance?.observer ?? null,
+    acquisition: lead.provenance?.acquisition ?? null,
+    buildCommit: lead.provenance?.buildCommit ?? null,
+    browserName: lead.conditions.browserName,
+    browserVersion: lead.conditions.browserVersion,
+    egressLabel: lead.conditions.scannerEgress,
+    egressRegion: lead.conditions.scannerEgressRegion
   };
 }
 
@@ -166,10 +200,11 @@ export type CorpusOverview = {
   sitemapReports: { id: string; lastModifiedAt: string }[];
   rollups: CategoryRollup[];
   heaviest: DirectoryEntry[];
+  /** Exact cohort used for rollups, leaderboard, and siteCount; null when no eligible rows exist. */
+  aggregateCohort: CorpusCohortIdentity | null;
   /**
-   * Distinct sites in the cross-version passive sample (loaded, uncapped, no
-   * post-choice consent lead): the basis of the rollups, leaderboard, and
-   * since-last-scan pairing.
+   * Distinct sites in aggregateCohort's passive sample (loaded, uncapped, no
+   * post-choice consent lead): the basis of rollups and the leaderboard.
    */
   siteCount: number;
   /**
@@ -248,7 +283,6 @@ async function buildCorpusOverview(): Promise<CorpusOverview> {
   // visit. Keep them out of since-last-scan pairing, category medians, and the
   // leaderboard just as the percentile builder does.
   const measuredLoaded = loadedEntries.filter(({ entry }) => entryEligibleForCorpusRollups(entry));
-  const measured = measuredLoaded.map(({ entry }) => entry);
 
   // "Since last comparable visit": each site's newest report is paired only
   // with a predecessor carrying the separate compatible passive-history key.
@@ -267,7 +301,8 @@ async function buildCorpusOverview(): Promise<CorpusOverview> {
   // requirements. A historical Shields pair must not pin a site's ordinary
   // request/cookie metrics forever, but its paired delta remains the newest
   // available Shields observation until a newer eligible pair exists.
-  const sites = selectSiteDataPoints(measured);
+  const aggregate = selectAggregateCorpusCohort(measuredLoaded.map(({ entry }) => entry));
+  const sites = selectSiteDataPoints(aggregate.entries);
 
   const rollups = buildCategoryRollups(
     sites.map((site) => ({
@@ -289,7 +324,41 @@ async function buildCorpusOverview(): Promise<CorpusOverview> {
     .map(({ entry, lastModifiedAt }) => ({ id: entry.id, lastModifiedAt }))
     .sort((left, right) => left.id.localeCompare(right.id));
 
-  return { entries, sitemapReports, rollups, heaviest, siteCount: sites.length, ...siteCounts };
+  return {
+    entries,
+    sitemapReports,
+    rollups,
+    heaviest,
+    aggregateCohort: aggregate.cohort,
+    siteCount: sites.length,
+    ...siteCounts
+  };
+}
+
+/**
+ * Select one explicit measurement cohort for a corpus-wide aggregate. The
+ * largest independently represented site cohort wins; ties are stable by
+ * cohort id. This keeps an r2 migration visible without ever blending r2 and
+ * legacy-v1 measurements in one denominator.
+ */
+export function selectAggregateCorpusCohort(entries: DirectoryEntry[]): {
+  cohort: CorpusCohortIdentity | null;
+  entries: DirectoryEntry[];
+} {
+  const byCohort = new Map<string, DirectoryEntry[]>();
+  for (const entry of entries) {
+    const list = byCohort.get(entry.corpusCohort.id);
+    if (list) list.push(entry);
+    else byCohort.set(entry.corpusCohort.id, [entry]);
+  }
+  const selected = [...byCohort.values()].sort((left, right) => {
+    const leftSites = new Set(left.map((entry) => entry.domain)).size;
+    const rightSites = new Set(right.map((entry) => entry.domain)).size;
+    return rightSites - leftSites || left[0].corpusCohort.id.localeCompare(right[0].corpusCohort.id);
+  })[0];
+  return selected
+    ? { cohort: selected[0].corpusCohort, entries: selected }
+    : { cohort: null, entries: [] };
 }
 
 /**
@@ -298,11 +367,7 @@ async function buildCorpusOverview(): Promise<CorpusOverview> {
  * is the best available observation of current behavior.
  */
 export function preferAsSiteDataPoint(candidate: DirectoryEntry, existing: DirectoryEntry): boolean {
-  const candidateAt = Date.parse(candidate.scannedAt);
-  const existingAt = Date.parse(existing.scannedAt);
-  if (!Number.isFinite(candidateAt)) return false;
-  if (!Number.isFinite(existingAt)) return true;
-  return candidateAt > existingAt || (candidateAt === existingAt && candidate.id.localeCompare(existing.id) > 0);
+  return preferCorpusRepresentative(candidate, existing);
 }
 
 /**
@@ -311,6 +376,10 @@ export function preferAsSiteDataPoint(candidate: DirectoryEntry, existing: Direc
  * entries that are also rendered individually.
  */
 export function selectSiteDataPoints(entries: DirectoryEntry[]): DirectoryEntry[] {
+  const cohortIds = new Set(entries.map((entry) => entry.corpusCohort.id));
+  if (cohortIds.size > 1) {
+    throw new Error("Corpus aggregate input mixed methodology cohorts; select one cohort before aggregation.");
+  }
   const currentByDomain = new Map<string, DirectoryEntry>();
   const shieldsByDomain = new Map<string, DirectoryEntry>();
 

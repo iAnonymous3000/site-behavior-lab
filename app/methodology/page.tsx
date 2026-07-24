@@ -188,8 +188,11 @@ export default function MethodologyPage() {
           distribution. Corpus coverage counts distinct sites with a successful single run or primary comparison arm,
           including capped recordings; two successful primary arms still count the site once. A site
           represented only by failed or block-page visits was attempted but is outside that loaded coverage count.
-          The fully measured sample is narrower still. Percentile wording activates only after 50
-          fully measured sites; v2 reports use fixed reference thresholds until a matching-methodology cohort exists.
+          Each metric&apos;s measured sample can be narrower still when that evidence family was censored.
+          Percentile wording activates only after both the exact methodology cohort and that metric&apos;s own
+          distribution contain at least 50 eligible sites; each percentile card names the metric-specific
+          denominator. V2 reports use fixed reference thresholds until a matching-methodology cohort and metric
+          sample reach that gate.
           The wording is anchored to the stored percentile mark, not the percentage of sites strictly below a value,
           because ties can make those different. The corpus is curated, not a random sample of the web. Site history
           pages compare a site only against its own earlier reports with a compatible schema, method, browser, device,

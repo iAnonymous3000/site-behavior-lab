@@ -5,6 +5,7 @@ import {
   copyFile,
   lstat,
   mkdir,
+  readFile,
   readdir,
   readlink,
   rm,
@@ -41,6 +42,20 @@ const skippedNames = new Set([
 const serverOnlyAppDirs = [
   path.join(rootDir, "app", "api")
 ];
+const runtimeReportRouteFiles = [
+  path.join("app", "reports", "[id]", "page.tsx"),
+  path.join("app", "reports", "[id]", "opengraph-image.tsx"),
+  path.join("app", "reports", "[id]", "twitter-image.tsx")
+];
+const runtimeReportRouteMode = 'export const dynamic = "force-dynamic";';
+const staticReportRouteMode = 'export const dynamic = "force-static";';
+const staticReportRouteImplementation = `${staticReportRouteMode}
+
+export async function generateStaticParams() {
+  const { listStaticReportIds } = await import("@/lib/static-report-files");
+  const ids = await listStaticReportIds();
+  return ids.map((id) => ({ id }));
+}`;
 
 function isInside(childPath, parentPath) {
   const relative = path.relative(parentPath, childPath);
@@ -98,6 +113,28 @@ async function copyTrackedTree(sourceRoot, destinationRoot) {
   }
 }
 
+async function prepareStaticReportRouteMode(destinationRoot) {
+  // Runtime shares are expiry-bound and must be request-rendered. Pages has no
+  // runtime store: its isolated, exact-HEAD worktree alone converts these three
+  // copied routes to static generation for the committed public corpus. The
+  // runtime source intentionally lacks generateStaticParams so Next cannot
+  // classify an expiry-bound route as SSG.
+  for (const relativePath of runtimeReportRouteFiles) {
+    const routePath = path.join(destinationRoot, relativePath);
+    const source = await readFile(routePath, "utf8");
+    const occurrences = source.split(runtimeReportRouteMode).length - 1;
+    if (occurrences !== 1) {
+      throw new Error(
+        `Expected exactly one runtime report route-mode declaration in ${relativePath}; found ${occurrences}.`
+      );
+    }
+    if (source.includes("export async function generateStaticParams")) {
+      throw new Error(`Runtime report route unexpectedly exports static params: ${relativePath}`);
+    }
+    await writeFile(routePath, source.replace(runtimeReportRouteMode, staticReportRouteImplementation));
+  }
+}
+
 function runCommand(command, args, options) {
   return new Promise((resolve, reject) => {
     const child = spawn(command, args, {
@@ -143,6 +180,7 @@ async function main() {
   await rm(workDir, { recursive: true, force: true });
   await rm(outDir, { recursive: true, force: true });
   await copyTrackedTree(rootDir, workDir);
+  await prepareStaticReportRouteMode(workDir);
   await symlink(nodeModulesDir, path.join(workDir, "node_modules"), "dir");
 
   const nextBin = path.join(workDir, "node_modules", ".bin", process.platform === "win32" ? "next.cmd" : "next");

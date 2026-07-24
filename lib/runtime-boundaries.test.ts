@@ -18,6 +18,7 @@ const NODE_ONLY_MODULES = new Set([
   "lib/access-control.ts",
   "lib/adblock-engine.ts",
   "lib/keystroke-exfiltration.ts",
+  "lib/node-scan-measurement.ts",
   "lib/public-scan-proxy.ts",
   "lib/report-store.ts",
   "lib/runtime-status.ts",
@@ -37,7 +38,12 @@ const WORKER_BLOCKED_PACKAGES = new Set(["next/server", "playwright"]);
 test("Cloudflare Worker imports stay out of Node-only modules", async () => {
   await assertBoundary({
     name: "cloudflare-worker",
-    entrypoints: ["cloudflare/worker.ts", "cloudflare/container-worker.ts"],
+    entrypoints: [
+      "cloudflare/worker.ts",
+      "cloudflare/container-worker.ts",
+      "cloudflare/r2-remediation-worker.ts",
+      "cloudflare/r2-delete-canary-worker.ts"
+    ],
     blockedLocalModules: NODE_ONLY_MODULES,
     blockedPackages: WORKER_BLOCKED_PACKAGES
   });

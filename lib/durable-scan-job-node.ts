@@ -1,4 +1,7 @@
 import { timingSafeEqual } from "node:crypto";
+import { readDurableScanJobInternalResponseBytes } from "./durable-scan-job-internal-response";
+import { readRequestBodyWithinLimit } from "./edge-scan-gate";
+import { parseStrictJson } from "./strict-json";
 import {
   DURABLE_SCAN_JOB_COORDINATOR_PATH_PREFIX,
   DURABLE_SCAN_JOB_INTERNAL_HEADER,
@@ -32,6 +35,8 @@ export {
 
 export const DURABLE_SCAN_JOB_HEARTBEAT_INTERVAL_MS = 30_000;
 export const DURABLE_SCAN_JOB_COORDINATOR_TIMEOUT_MS = 10_000;
+export const DURABLE_SCAN_JOB_COORDINATOR_RESPONSE_MAX_BYTES = 8 * 1024;
+export const DURABLE_SCAN_JOB_INTERNAL_REQUEST_MAX_BYTES = 64 * 1024;
 
 export type DurableScanJobActivation = DurableScanJobExecutionOwner & {
   reportId: string;
@@ -74,6 +79,25 @@ export function assertDurableScanJobInternalRequest(
   const presented = (request.headers.get(DURABLE_SCAN_JOB_INTERNAL_HEADER) ?? "").trim();
   if (!validInternalToken(expected) || !secretTokensEqual(expected, presented)) {
     throw new DurableScanJobCoordinatorError("Unauthorized durable scan-job control request.", 401);
+  }
+}
+
+/** Parse one authenticated private control request without buffering an unbounded body. */
+export async function readDurableScanJobInternalRequestJson(
+  request: Request,
+  maxBytes = DURABLE_SCAN_JOB_INTERNAL_REQUEST_MAX_BYTES
+): Promise<unknown> {
+  if (!Number.isSafeInteger(maxBytes) || maxBytes <= 0) {
+    throw new TypeError("The durable scan-job internal request limit must be a positive integer.");
+  }
+  const body = await readRequestBodyWithinLimit(request, maxBytes);
+  if (body === null) {
+    throw new DurableScanJobCoordinatorError("The durable scan-job control request is too large.", 413);
+  }
+  try {
+    return parseStrictJson(body, maxBytes);
+  } catch {
+    throw new DurableScanJobCoordinatorError("The durable scan-job control request must be valid JSON.", 400);
   }
 }
 
@@ -174,7 +198,11 @@ export function createDurableScanJobCoordinatorClient(
       // Consume the response so the Container/Worker request lifecycle can
       // settle; the bounded signal also prevents a stalled body from pinning a
       // scan worker forever.
-      await response.arrayBuffer();
+      await readDurableScanJobInternalResponseBytes(
+        response,
+        requestController.signal,
+        DURABLE_SCAN_JOB_COORDINATOR_RESPONSE_MAX_BYTES
+      );
     } catch (error) {
       throw new DurableScanJobCoordinatorError("The durable scan-job coordinator could not be reached.", null, {
         cause: error

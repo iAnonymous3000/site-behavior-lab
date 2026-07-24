@@ -1,6 +1,13 @@
+import {
+  readResponseJsonWithinLimit,
+  withHttpOperationDeadline
+} from "./http-response.mjs";
+
 const TRANSIENT_HTTP_STATUSES = new Set([429, 502, 503]);
 const MAX_TRANSIENT_RETRIES_PER_CYCLE = 3;
 const MAX_TRANSIENT_BACKOFF_MS = 30_000;
+const STATUS_REQUEST_TIMEOUT_MS = 30_000;
+const STATUS_RESPONSE_MAX_BYTES = 32 * 1024 * 1024;
 
 /**
  * Resolve one accepted scan using the coordinator's terminal state as the
@@ -26,8 +33,7 @@ export async function awaitSubmittedScanJob({
   const statusUrl = sameOriginStatusUrl(baseUrl, submission.statusPath);
   const startedAt = now();
   for (;;) {
-    const response = await fetchWithTransientRetry(statusUrl, { fetcher, headers, wait, now });
-    const status = await readJsonResponse(response, statusUrl);
+    const status = await fetchJsonWithTransientRetry(statusUrl, { fetcher, headers, wait, now });
 
     if (isRecord(status) && status.ok === true && status.status === "succeeded") {
       if (!isPublishableScanReport(status.report)) {
@@ -71,24 +77,35 @@ export function retryAfterMs(value, now = Date.now()) {
   return Math.min(Math.max(0, timestamp - now), MAX_TRANSIENT_BACKOFF_MS);
 }
 
-async function fetchWithTransientRetry(url, { fetcher, headers, wait, now }) {
+async function fetchJsonWithTransientRetry(url, { fetcher, headers, wait, now }) {
   let transientRetries = 0;
   for (;;) {
-    const response = await fetcher(url, { cache: "no-store", headers });
-    if (!TRANSIENT_HTTP_STATUSES.has(response.status)) return response;
+    const attempt = await withHttpOperationDeadline(
+      { timeoutMs: STATUS_REQUEST_TIMEOUT_MS, label: url },
+      async (signal) => {
+        const response = await fetcher(url, { cache: "no-store", headers, signal });
+        if (!TRANSIENT_HTTP_STATUSES.has(response.status)) {
+          return { done: true, value: await readJsonResponse(response, url) };
+        }
+        const status = response.status;
+        const retryAfter = response.headers.get("Retry-After");
+        try {
+          await response.body?.cancel();
+        } catch {
+          /* discarded response */
+        }
+        return { done: false, status, retryAfter };
+      }
+    );
+    if (attempt.done) return attempt.value;
 
-    const status = response.status;
-    try {
-      await response.body?.cancel();
-    } catch {
-      /* discarded response */
-    }
+    const { status, retryAfter } = attempt;
     if (transientRetries >= MAX_TRANSIENT_RETRIES_PER_CYCLE) {
       throw new Error(`Scan job status remained temporarily unavailable (HTTP ${status}).`);
     }
     transientRetries += 1;
     const fallback = Math.min(1_000 * 2 ** (transientRetries - 1), MAX_TRANSIENT_BACKOFF_MS);
-    await wait(retryAfterMs(response.headers.get("Retry-After"), now()) ?? fallback);
+    await wait(retryAfterMs(retryAfter, now()) ?? fallback);
   }
 }
 
@@ -97,7 +114,10 @@ async function readJsonResponse(response, url) {
   if (!contentType.includes("application/json")) {
     throw new Error(`Expected JSON from ${url}, got ${response.status}.`);
   }
-  return response.json();
+  return readResponseJsonWithinLimit(response, {
+    maxBytes: STATUS_RESPONSE_MAX_BYTES,
+    label: url
+  });
 }
 
 function sameOriginStatusUrl(baseUrl, statusPath) {

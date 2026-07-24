@@ -1,11 +1,26 @@
-/** Fixed, non-user-controlled contract for the production scan synthetic. */
-export const PRODUCTION_SYNTHETIC_TARGET = "https://www.iana.org/domains/reserved";
+/**
+ * Fixed, non-user-controlled contract for the production scan synthetic.
+ *
+ * Ordered candidate targets: the monitor proves the scanner with the primary
+ * target and falls through to a later, independently operated target only
+ * when the earlier target's scan itself fails (outage, block, timeout). That
+ * keeps the hourly alert about the SCANNER instead of any one third party,
+ * while every candidate stays a fixed harmless page: the credential still
+ * authorizes nothing caller-controlled.
+ */
+export const PRODUCTION_SYNTHETIC_TARGETS: readonly string[] = Object.freeze([
+  "https://www.iana.org/domains/reserved",
+  "https://www.w3.org/TR/"
+]);
+
+export const PRODUCTION_SYNTHETIC_TARGET = PRODUCTION_SYNTHETIC_TARGETS[0];
 
 const PRODUCTION_SYNTHETIC_KEYS = new Set(["url", "device", "gpcEnabled", "consentMode"]);
 
 /**
- * The monitor credential authorizes exactly one harmless scan shape, never an
- * arbitrary caller-provided target or comparison.
+ * The monitor credential authorizes exactly one harmless scan shape against
+ * one of the fixed candidate targets, never an arbitrary caller-provided
+ * target or comparison.
  */
 export function isProductionSyntheticScanPayload(value: unknown): boolean {
   if (!value || typeof value !== "object" || Array.isArray(value)) return false;
@@ -14,7 +29,8 @@ export function isProductionSyntheticScanPayload(value: unknown): boolean {
   return (
     keys.length === PRODUCTION_SYNTHETIC_KEYS.size &&
     keys.every((key) => PRODUCTION_SYNTHETIC_KEYS.has(key)) &&
-    record.url === PRODUCTION_SYNTHETIC_TARGET &&
+    typeof record.url === "string" &&
+    PRODUCTION_SYNTHETIC_TARGETS.includes(record.url) &&
     record.device === "desktop" &&
     record.gpcEnabled === true &&
     record.consentMode === "observe"

@@ -14,6 +14,15 @@ import { buildComparisonDiffV2, evaluateQuality } from "./scan-report-v2-evaluat
 import { evaluateComparabilityR2 } from "./scan-report-v2-r2-evaluators";
 import { buildFingerprints } from "./scan-report-v2-fingerprints";
 import { makeScanRunV2 } from "./scan-report-v2-fixtures";
+import {
+  DETECTOR_REGISTRY_DIGEST,
+  DETECTOR_REGISTRY_VERSION,
+  DETECTOR_VERSIONS
+} from "./measurement-kernel";
+import { NODE_ADBLOCK_ENGINE_VERSION } from "./legacy-methodology";
+import { NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION } from "./scan-report-v2-normalization";
+import { NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION } from "./scan-report-v2-r2-producer-contract";
+import { trackerCatalogMetadata } from "./tracker-catalog";
 import type {
   ConsentEvidenceR2,
   ExperimentR2,
@@ -38,6 +47,28 @@ export function makeScanRunV2R2(overrides: RunOverrides = {}): ScanRunV2R2 {
     ...(overrides.gpc !== undefined ? { gpc: overrides.gpc } : {}),
     ...(overrides.consent !== undefined ? { consent: overrides.consent } : {})
   };
+  run.provenance = {
+    ...run.provenance,
+    methodologyVersion: NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION,
+    detectorRegistry: { version: DETECTOR_REGISTRY_VERSION, digest: DETECTOR_REGISTRY_DIGEST }
+  };
+  run.toolchain = {
+    ...run.toolchain,
+    trackerCatalog: {
+      source: trackerCatalogMetadata.source,
+      version: trackerCatalogMetadata.version,
+      entries: trackerCatalogMetadata.entries,
+      digest: trackerCatalogMetadata.digest
+    },
+    adblock:
+      run.toolchain.adblock === null
+        ? null
+        : { ...run.toolchain.adblock, engineVersion: NODE_ADBLOCK_ENGINE_VERSION },
+    normalizationVersion: NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION
+  };
+  for (const id of Object.keys(run.detectors) as Array<keyof typeof run.detectors>) {
+    run.detectors[id] = { ...run.detectors[id], version: DETECTOR_VERSIONS[id] };
+  }
   run.fingerprints = buildFingerprints({
     conditions: run.conditions,
     provenance: run.provenance,

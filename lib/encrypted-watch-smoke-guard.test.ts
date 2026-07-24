@@ -3,19 +3,28 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { test } from "node:test";
 
-test("the encrypted-watch canary is staging-gated and keeps an actual no-request window", async () => {
+test("the encrypted-watch canary proves open-scan coexistence and keeps an actual no-request window", async () => {
   const source = await readFile(
     path.join(process.cwd(), "scripts/smoke-encrypted-watches.mjs"),
     "utf8"
   );
   assert.match(source, /I_ACKNOWLEDGE_THIS_CREATES_A_LIVE_SCHEDULED_RESCAN/);
-  assert.match(source, /I_ACKNOWLEDGE_THIS_IS_A_GATED_STAGING_DEPLOYMENT/);
+  assert.match(source, /I_ACKNOWLEDGE_THIS_IS_AN_OPEN_TURNSTILE_STAGING_DEPLOYMENT/);
   assert.match(source, /normalizedHostname\(baseUrl\) === "scan\.sitebehavior\.org"/);
-  assert.match(source, /health\.authenticated !== true \|\| health\.openAccess !== false/);
+  assert.match(
+    source,
+    /health\.authenticated !== false \|\| health\.openAccess !== true \|\| health\.turnstile !== true/
+  );
   assert.match(source, /watches\.readiness !== "ready"/);
+  assert.match(source, /watches\.creationAuthorization !== "operator"/);
+  assert.match(source, /health\.capabilities\?\.scheduledRescans !== false/);
   assert.match(source, /health\.deployment !== expectedDeployment/);
   assert.match(source, /const clientCredential = mintClientCredential\(\)/);
-  assert.match(source, /headers: capabilityHeaders\(clientCredential\.capability/);
+  assert.match(source, /ENCRYPTED_WATCH_SMOKE_WATCH_ACCESS_TOKEN/);
+  assert.match(source, /ENCRYPTED_WATCH_SMOKE_TURNSTILE_TOKEN/);
+  assert.match(source, /headers: creationHeaders\(clientCredential\.capability/);
+  assert.match(source, /x-site-behavior-lab-watch-access-token/);
+  assert.doesNotMatch(source, /ENCRYPTED_WATCH_SMOKE_ACCESS_TOKEN/);
   assert.match(source, /site-behavior-lab\/encrypted-watch\/id\/v1/);
   assert.match(source, /randomBytes\(32\)/);
 

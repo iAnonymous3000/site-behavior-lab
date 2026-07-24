@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { entryEligibleForCorpusRollups, loadCorpusOverview, type DirectoryEntry } from "@/lib/corpus-overview";
 import { reportPagePath } from "@/lib/report-locator";
+import { scanPrefillHref } from "@/lib/scan-prefill";
 import { conciseMetadataText, publicPageMetadata } from "@/lib/seo-metadata";
 import { siteProfileKey, siteProfilePath } from "@/lib/site-profile";
 import { formatDelta } from "@/lib/temporal-deltas";
@@ -56,6 +57,7 @@ export default async function SiteProfilePage({ params }: { params: Promise<{ do
   const compatibleChanges = profile.entries.filter((entry) => entry.sinceLastScan);
   const exactRescanUrl = safeNavigableHttpUrl(latest.requestedUrl) ? latest.requestedUrl : null;
   const rescanUrl = exactRescanUrl ?? `https://${profile.domain}/`;
+  const rescanHref = scanPrefillHref(rescanUrl) ?? "/#scan";
 
   return (
     <main className="site-profile-page">
@@ -73,7 +75,7 @@ export default async function SiteProfilePage({ params }: { params: Promise<{ do
         <h1>{profile.domain}</h1>
         <p>{latest.headline}</p>
         <div className="site-profile-actions">
-          <Link className="primary-button" href={`/?url=${encodeURIComponent(rescanUrl)}#scan`}>
+          <Link className="primary-button" href={rescanHref}>
             {exactRescanUrl ? "Scan this exact route again" : "Scan this site again"}
           </Link>
           <Link className="secondary-button" href={`${reportPagePath(latest.id)}/`}>

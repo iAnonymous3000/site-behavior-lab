@@ -14,7 +14,10 @@ const refreshJob = workflow.slice(refreshStart, driftStart);
 test("scheduled Brave-list refresh failures stay red and reconcile one isolated issue", () => {
   assert.notEqual(refreshStart, -1);
   assert.notEqual(driftStart, -1);
-  assert.match(refreshJob, /permissions:\n\s+contents: write\n\s+actions: write\n\s+issues: write/);
+  assert.match(
+    refreshJob,
+    /permissions:\n\s+contents: write\n\s+actions: write\n\s+issues: write\n\s+pull-requests: write/
+  );
   assert.match(refreshJob, /id: brave_list_alert\n\s+if: always\(\) && github\.event_name == 'schedule'/);
   assert.match(refreshJob, /BRAVE_LIST_JOB_STATUS: \$\{\{ job\.status \}\}/);
   assert.match(refreshJob, /site-behavior-lab:brave-list-refresh/);
@@ -30,6 +33,25 @@ test("scheduled Brave-list refresh failures stay red and reconcile one isolated 
     refreshJob,
     /- name: Preserve scheduled Brave-list refresh failure[\s\S]*::error title=Brave Shields list refresh failed::[\s\S]*exit 1/
   );
+});
+
+test("Brave-list refresh can publish only a reviewed proposal branch", () => {
+  assert.match(
+    refreshJob,
+    /if: github\.ref_type == 'branch' && github\.ref_name == github\.event\.repository\.default_branch/
+  );
+  assert.match(refreshJob, /BASE_BRANCH: \$\{\{ github\.event\.repository\.default_branch \}\}/);
+  assert.match(refreshJob, /PROPOSAL_BRANCH: automation\/brave-list-refresh/);
+  assert.match(refreshJob, /git checkout -B "\$PROPOSAL_BRANCH"/);
+  assert.match(refreshJob, /HEAD:refs\/heads\/\$\{PROPOSAL_BRANCH\}/);
+  assert.match(refreshJob, /gh pr create/);
+  assert.match(refreshJob, /--base "\$BASE_BRANCH"/);
+  assert.match(refreshJob, /gh pr edit/);
+  assert.match(refreshJob, /Trigger non-promoting CI on the proposal branch/);
+  assert.match(refreshJob, /gh workflow run ci\.yml --ref "\$PROPOSAL_BRANCH"/);
+  assert.doesNotMatch(refreshJob, /gh workflow run ci\.yml --ref main/);
+  assert.doesNotMatch(refreshJob, /git pull --rebase/);
+  assert.doesNotMatch(refreshJob, /git push origin "\$\{?GITHUB_REF_NAME/);
 });
 
 test("manual runs and the separate drift job cannot reconcile Brave-list refresh health", () => {

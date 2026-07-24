@@ -15,8 +15,12 @@ import {
   evaluateComparabilityR2,
   scanReportV2R2SemanticViolations
 } from "./scan-report-v2-r2-evaluators";
-import { buildComparisonDiffV2 } from "./scan-report-v2-evaluators";
+import { buildComparisonDiffV2, evaluateQuality } from "./scan-report-v2-evaluators";
 import { buildFingerprints } from "./scan-report-v2-fingerprints";
+import {
+  R2_NAVIGATION_STATUS_UNREPRESENTABLE,
+  R2_REQUEST_STATUS_UNREPRESENTABLE
+} from "./scan-report-v2-http-status";
 import {
   CONSENT_VERIFICATION_UNAVAILABLE_METHOD,
   type PublicScanReportV2R2,
@@ -102,6 +106,53 @@ test("every valid r2 fixture passes structural validation and has zero semantic 
     // r2 payloads are NOT r1 payloads: the r1 validator must reject them.
     assert.equal(isPublicScanReportV2(fixture), false, `${label}: r1 must reject revision 2`);
   }
+});
+
+test("frozen-r2 HTTP status limitation markers are structurally valid and semantically closed", () => {
+  const navigation = makePublicSingleReportV2R2();
+  navigation.run.qualityFacts.status = null;
+  navigation.run.summary.status = null;
+  navigation.run.qualityFacts.captureLoss.push({
+    family: "requests",
+    phaseId: null,
+    kind: "dropped",
+    count: 1,
+    detail: R2_NAVIGATION_STATUS_UNREPRESENTABLE
+  });
+  navigation.run.quality = evaluateQuality(navigation.run.qualityFacts, {
+    observedRequests: navigation.run.evidence.requests.length
+  });
+  assert.equal(isPublicScanReportV2R2(navigation), true);
+  assert.deepEqual(violationsOf(navigation), []);
+  assert.equal(navigation.run.quality.run.outcome, "failed");
+
+  const ungroundedRequest = makePublicSingleReportV2R2();
+  ungroundedRequest.run.qualityFacts.captureLoss.push({
+    family: "requests",
+    phaseId: 0,
+    kind: "dropped",
+    count: 1,
+    detail: R2_REQUEST_STATUS_UNREPRESENTABLE
+  });
+  ungroundedRequest.run.quality = evaluateQuality(ungroundedRequest.run.qualityFacts, {
+    observedRequests: ungroundedRequest.run.evidence.requests.length
+  });
+  assert.equal(isPublicScanReportV2R2(ungroundedRequest), true);
+  assert.equal(
+    violationsOf(ungroundedRequest).some((entry) => entry.includes("exceeds null request statuses")),
+    true
+  );
+
+  const malformedNavigation = structuredClone(navigation);
+  const marker = malformedNavigation.run.qualityFacts.captureLoss.find(
+    (entry) => entry.detail === R2_NAVIGATION_STATUS_UNREPRESENTABLE
+  );
+  assert.ok(marker);
+  marker.phaseId = 0;
+  assert.equal(
+    violationsOf(malformedNavigation).some((entry) => entry.includes("navigation HTTP status marker has an invalid shape")),
+    true
+  );
 });
 
 test("Shields pairs refuse a delta between classification matches and simulation blocks", () => {

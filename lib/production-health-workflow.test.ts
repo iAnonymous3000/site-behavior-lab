@@ -4,6 +4,7 @@ import path from "node:path";
 import { test } from "node:test";
 import {
   PRODUCTION_SYNTHETIC_TARGET,
+  PRODUCTION_SYNTHETIC_TARGETS,
   isProductionSyntheticMonitorToken,
   isProductionSyntheticScanPayload
 } from "./production-synthetic";
@@ -16,6 +17,12 @@ const synthetic = readFileSync(path.join(root, "scripts", "smoke-production-synt
 
 test("production health derives the durable-jobs expectation from the checked-out production config", () => {
   assert.match(workflow, /with:\n\s+ref: production/);
+  assert.match(
+    workflow,
+    /uses: actions\/setup-node@a0853c24544627f65ddf259abe73b1d18a591444[\s\S]*?node-version: 24\.14\.1/
+  );
+  assert.match(workflow, /test "\$\(node --version\)" = "v24\.14\.1"/);
+  assert.match(workflow, /test "\$\(npm --version\)" = "11\.11\.0"/);
   assert.match(
     workflow,
     /PRODUCTION_CONFIG_FILE: \$\{\{ github\.workspace \}\}\/wrangler\.container\.jsonc/
@@ -120,6 +127,7 @@ test("production health requires exact encrypted-watch readiness and capability 
   assert.match(enabledBranch, /encryptedWatches\?\.requested === true/);
   assert.match(enabledBranch, /encryptedWatches\?\.enabled === true/);
   assert.match(enabledBranch, /encryptedWatches\?\.readiness === "ready"/);
+  assert.match(enabledBranch, /encryptedWatches\?\.creationAuthorization === "public"/);
   assert.match(enabledBranch, /scheduledRescans === true/);
 
   const disabledBranch = workflow.slice(disabledStart, postureEnd);
@@ -183,9 +191,19 @@ test("the activated production synthetic proves scan execution plus remote repor
   assert.match(synthetic, /function assertFixedSyntheticReport/);
   assert.match(synthetic, /report\.schemaVersion !== 2 \|\| report\.schemaRevision !== 2/);
   assert.match(synthetic, /report\.run\?\.subject\?\.observed/);
-  assert.match(synthetic, /const \{ runId, startedAt \} = assertFixedSyntheticReport\(report, resolved\.queuedReportId\)/);
+  assert.match(
+    synthetic,
+    /const \{ runId, startedAt \} = assertFixedSyntheticReport\(report, target, submissionStartedAt, resolved\.queuedReportId\)/
+  );
   assert.match(synthetic, /savedReportRetainsScreenshot/);
-  assert.match(synthetic, /assertFixedSyntheticReport\(saved, report\.share\.id, startedAt\)/);
+  assert.match(synthetic, /assertFixedSyntheticReport\(saved, target, submissionStartedAt, report\.share\.id, startedAt\)/);
+  // The ordered fallback stays bounded to the fixed candidates and only a
+  // target-attributable scan failure may fall through.
+  assert.match(synthetic, /class TargetScanFailure extends Error/);
+  assert.match(synthetic, /const syntheticTargets = \[/);
+  assert.match(synthetic, /https:\/\/www\.iana\.org\/domains\/reserved/);
+  assert.match(synthetic, /https:\/\/www\.w3\.org\/TR\//);
+  assert.match(synthetic, /failed on every candidate target/);
   assert.match(synthetic, /savedRunId !== runId/);
   assert.match(synthetic, /submissionResponse\.status/);
   assert.match(synthetic, /response\.status !== 200/);
@@ -199,7 +217,8 @@ test("the activated production synthetic proves scan execution plus remote repor
   assert.match(synthetic, /sameOriginUrl\(report\.share\.jsonPath/);
   assert.match(synthetic, /sameOriginUrl\(report\.share\.path/);
   assert.match(synthetic, /canonical contract gate/);
-  assert.match(synthetic, /AbortSignal\.timeout\(timeout\)/);
+  assert.match(synthetic, /withHttpOperationDeadline\([\s\S]*timeoutMs: timeout/);
+  assert.match(synthetic, /fetch\(url,[\s\S]*redirect: "error",[\s\S]*signal/);
   assert.match(synthetic, /PRODUCTION_SYNTHETIC_REQUEST_TIMEOUT_MS/);
   assert.match(synthetic, /PRODUCTION_SYNTHETIC_TOTAL_TIMEOUT_MS/);
   assert.match(workflow, /timeout-minutes: 12/);
@@ -210,7 +229,11 @@ test("the activated production synthetic proves scan execution plus remote repor
   assert.match(containerWorker, /constantTimeEqual\(suppliedMonitorToken, expectedMonitorToken\)/);
   assert.match(containerWorker, /isProductionSyntheticMonitorToken\(expectedMonitorToken\)/);
   assert.match(containerWorker, /isProductionSyntheticScanPayload\(payload\)/);
-  assert.match(containerWorker, /forwardedHeaders\.delete\(SYNTHETIC_MONITOR_TOKEN_HEADER\)/);
+  const scanHeaders = containerWorker.slice(
+    containerWorker.indexOf("function scanForwardHeaders("),
+    containerWorker.indexOf("function forwardToContainer(")
+  );
+  assert.match(scanHeaders, /headers\.delete\(SYNTHETIC_MONITOR_TOKEN_HEADER\)/);
   const centralForwarder = containerWorker.slice(
     containerWorker.indexOf("function forwardToContainer("),
     containerWorker.indexOf("function frontDoorOrigin(")
@@ -224,7 +247,15 @@ test("the activated production synthetic proves scan execution plus remote repor
     consentMode: "observe"
   };
   assert.equal(isProductionSyntheticScanPayload(exactPayload), true);
+  // Every fixed candidate target is authorized, and nothing else: the ordered
+  // fallback never widens the credential beyond the allowlisted pages.
+  assert.equal(PRODUCTION_SYNTHETIC_TARGETS[0], PRODUCTION_SYNTHETIC_TARGET);
+  assert.equal(PRODUCTION_SYNTHETIC_TARGETS.length >= 2, true);
+  for (const url of PRODUCTION_SYNTHETIC_TARGETS) {
+    assert.equal(isProductionSyntheticScanPayload({ ...exactPayload, url }), true);
+  }
   assert.equal(isProductionSyntheticScanPayload({ ...exactPayload, url: "https://example.com/" }), false);
+  assert.equal(isProductionSyntheticScanPayload({ ...exactPayload, url: "https://www.w3.org/" }), false);
   assert.equal(isProductionSyntheticScanPayload({ ...exactPayload, compareShields: true }), false);
   assert.equal(isProductionSyntheticScanPayload({ ...exactPayload, device: "mobile" }), false);
   assert.equal(isProductionSyntheticMonitorToken("x".repeat(31)), false);

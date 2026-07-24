@@ -5,6 +5,10 @@ import net from "node:net";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
+import {
+  readResponseJsonWithinLimit,
+  withHttpOperationDeadline
+} from "./http-response.mjs";
 import { savedReportRetainsScreenshot } from "./smoke-deployed-scanner-report.mjs";
 import { startSmokeR2Server } from "./smoke-r2-server.mjs";
 
@@ -24,6 +28,8 @@ const image = process.env.DOCKER_SMOKE_IMAGE || "site-behavior-lab:smoke";
 const token = process.env.DOCKER_SMOKE_SCAN_ACCESS_TOKEN || "docker-smoke-token";
 const skipBuild = /^(1|true|yes|on)$/i.test(process.env.DOCKER_SMOKE_SKIP_BUILD || "");
 const publicR2Smoke = /^(1|true|yes|on)$/i.test(process.env.DOCKER_SMOKE_PUBLIC_R2 || "");
+const healthRequestTimeoutMs = 10_000;
+const healthResponseMaxBytes = 256 * 1024;
 // Playwright's version-pinned default Docker seccomp profile plus the user-
 // namespace syscalls Chromium's sandbox needs. Keep it in lockstep with the
 // Playwright image/package pin rather than removing syscall filtering or
@@ -237,8 +243,22 @@ async function waitForHealth(baseUrl) {
 
   while (Date.now() < deadline) {
     try {
-      const response = await fetch(`${baseUrl}/api/health`);
-      const health = await response.json();
+      const timeoutMs = Math.max(1, Math.min(healthRequestTimeoutMs, deadline - Date.now()));
+      const { response, health } = await withHttpOperationDeadline(
+        { timeoutMs, label: "Docker scanner health" },
+        async (signal) => {
+          const response = await fetch(`${baseUrl}/api/health`, {
+            cache: "no-store",
+            redirect: "error",
+            signal
+          });
+          const health = await readResponseJsonWithinLimit(response, {
+            maxBytes: healthResponseMaxBytes,
+            label: "Docker scanner health"
+          });
+          return { response, health };
+        }
+      );
       if (response.ok && health.ok === true) return health;
       lastError = `health returned ${response.status}`;
     } catch (error) {

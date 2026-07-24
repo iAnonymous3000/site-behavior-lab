@@ -230,6 +230,10 @@ a {
   max-width: var(--maxw);
 }
 
+.app-shell > main {
+  min-width: 0;
+}
+
 /* ---- Top bar ---- */
 .topbar {
   align-items: center;
@@ -790,7 +794,10 @@ a {
   min-height: 40px;
   padding: 0 16px;
   text-decoration: none;
-  transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.1s;
+  /* Background/text token cross-fades can briefly produce a low-contrast
+     midpoint when the colour theme changes. Swap those colours atomically;
+     border and press motion can still animate safely. */
+  transition: border-color 0.15s, transform 0.1s;
   white-space: nowrap;
 }
 
@@ -854,6 +861,24 @@ a {
   font-size: 12px;
   line-height: 1.5;
   margin: 10px 0 0;
+}
+
+.run-mode-descriptions {
+  display: grid;
+  gap: 4px;
+  margin-top: 7px;
+}
+
+.run-mode-unavailable,
+.control-help {
+  color: var(--text-subtle);
+  font-size: 11px;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.control-help {
+  margin-top: 6px;
 }
 
 .segmented-control {
@@ -1611,6 +1636,16 @@ a {
   grid-column: 1 / -1;
 }
 
+.report-focus-target {
+  border-radius: var(--radius);
+  scroll-margin-top: 16px;
+}
+
+.report-focus-target:focus-visible,
+#report:focus-visible {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 42%, transparent);
+}
+
 .report-breadcrumbs {
   color: var(--text-muted);
   font-size: 12px;
@@ -1809,6 +1844,14 @@ a {
 
 .report-header a:hover {
   color: var(--accent-strong);
+}
+
+.request-evidence-explanation {
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 1.45;
+  margin: 9px 0 0;
+  max-width: 72ch;
 }
 
 .report-actions {
@@ -3443,6 +3486,14 @@ a {
 /* ---- Data sections / tables ---- */
 .data-section {
   overflow: hidden;
+}
+
+/* These summaries sit inside intentionally clipped cards. Draw their keyboard
+   ring inward so all four edges stay visible instead of being cut off by the
+   card's overflow boundary. */
+.data-section > summary:focus-visible,
+.state-change-disclosure > summary:focus-visible {
+  box-shadow: inset 0 0 0 3px var(--accent);
 }
 
 /* ---- Recorded v2 visit phases and snapshot changes ---- */

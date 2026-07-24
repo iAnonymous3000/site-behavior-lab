@@ -46,6 +46,14 @@ test("the aggregation CLI writes one create-only artifact and a hash-bound local
     assert.equal(result.receipt.createdAt, "2026-07-13T20:00:00.000Z");
     assert.equal(result.receipt.counterbalanced, true);
     assert.equal(result.receipt.strength, "observed-difference");
+    assert.equal(result.analysis.status, "descriptive-only");
+    assert.deepEqual(result.analysis.pairDenominator, {
+      recordedPairs: 2,
+      abPairs: 1,
+      baPairs: 1,
+      counterbalanced: true
+    });
+    assert.equal(result.analysis.inference.replicatedEffectClaimAllowed, false);
     assert.deepEqual(result.receipt.inputs.map((entry) => entry.sha256), [sha256(primaryWire), sha256(supportingWire)]);
     assert.deepEqual(result.receipt.inputs.map((entry) => entry.pairId), [
       "pair-gpc-r2",
@@ -73,6 +81,7 @@ test("the aggregation CLI writes one create-only artifact and a hash-bound local
     const receiptWire = await readFile(result.receiptPath, "utf8");
     assert.equal(receiptWire.includes(directory), false, "receipt never leaks local absolute paths");
     assert.match(formatV2ShadowAggregationResult(result), /does not represent a replicated-effect claim/);
+    assert.match(formatV2ShadowAggregationResult(result), /confidence and population-effect intervals remain unavailable/);
 
     await assert.rejects(
       () =>

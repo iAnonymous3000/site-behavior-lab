@@ -50,6 +50,12 @@ export function ReportHeader({
     : safeNavigableHttpUrl(run.conditions.finalUrl);
   const title = view.title || run.pageTitle;
   const selectedRequestEvidence = requestEvidenceState(evidenceRun);
+  const requestEvidenceExplanation =
+    selectedRequestEvidence === "capped"
+      ? "The selected visit hit the request-recording cap. Activity counts are lower bounds, while cookie and storage figures are end-state snapshots of the interrupted visit."
+      : selectedRequestEvidence === "incomplete"
+        ? "The selected visit did not finish collecting request evidence. Request counts are lower bounds; Run quality records the reason."
+        : null;
   const [shareCopied, setShareCopied] = useState(false);
 
   async function handleShare(event: MouseEvent<HTMLAnchorElement>) {
@@ -86,12 +92,8 @@ export function ReportHeader({
           <span className="report-provenance">{schemaProvenanceLabel(view)}</span>
           {selectedRequestEvidence !== "complete" && (
             <span
+              aria-describedby="request-evidence-explanation"
               className="capped-chip"
-              title={
-                selectedRequestEvidence === "capped"
-                  ? "The selected visit hit the request-recording cap: its activity counts are floors cut off mid-collection, and cookie and storage figures are end-state snapshots of an interrupted visit."
-                  : "The selected visit did not finish collecting request evidence. Its request counts are lower bounds; see Run quality for the recorded reason."
-              }
             >
               {selectedRequestEvidence === "capped" ? "recording capped" : "request evidence incomplete"}
             </span>
@@ -106,6 +108,11 @@ export function ReportHeader({
         ) : (
           <span className="report-url">{run.conditions.finalUrl}</span>
         )}
+        {requestEvidenceExplanation && (
+          <p className="request-evidence-explanation" id="request-evidence-explanation">
+            {requestEvidenceExplanation}
+          </p>
+        )}
       </div>
       <div className="report-actions">
         {sharePath && (
@@ -118,18 +125,19 @@ export function ReportHeader({
           </>
         )}
         <button
+          aria-describedby="csv-export-description"
           className="secondary-button"
           type="button"
           onClick={onDownloadCsv}
-          title={
-            csvArmLabel
-              ? `Download the "${csvArmLabel}" visit's request log as CSV (follows the evidence switcher below)`
-              : "Download the request log as CSV"
-          }
         >
           <Download size={17} aria-hidden="true" />
           {csvArmLabel ? `CSV · ${csvArmLabel}` : "CSV"}
         </button>
+        <span className="visually-hidden" id="csv-export-description">
+          {csvArmLabel
+            ? `Downloads the ${csvArmLabel} visit's request log and follows the evidence switcher below.`
+            : "Downloads the request log as CSV."}
+        </span>
         <button className="secondary-button" type="button" onClick={onDownload}>
           <Download size={17} aria-hidden="true" />
           JSON

@@ -6,6 +6,7 @@ import {
   corpusExportMetadataForView,
   entryEligibleForCorpusRollups,
   preferAsSiteDataPoint,
+  selectAggregateCorpusCohort,
   selectSiteDataPoints,
   summarizeCorpusSiteCounts,
   type DirectoryEntry
@@ -93,6 +94,12 @@ test("researcher-export metadata keeps v1 derivation and r2 recorded states dist
   assert.equal(v1.comparisonDecisionMode, "raw-only");
   assert.equal(v1.compatibilityFingerprintOrigin, "legacy-derived");
   assert.equal(v1.compatibilityFingerprintMatched, true);
+  assert.equal(v1.corpusCohort.schemaVersion, 1);
+  assert.equal(v1.corpusCohort.methodologyOrigin, "legacy-derived");
+  assert.equal(v1.producer, null);
+  assert.equal(v1.acquisition, null);
+  assert.equal(v1.browserName, null);
+  assert.equal(v1.egressRegion, null);
 
   const r2Pair = corpusExportMetadataForView(viewFromV2(makeConsentInterventionReportV2R2(), 2));
   assert.equal(r2Pair.consentChoiceState, "verified", "consent comparison leads with accept-all");
@@ -100,6 +107,12 @@ test("researcher-export metadata keeps v1 derivation and r2 recorded states dist
   assert.equal(r2Pair.comparisonDecisionMode, "comparable");
   assert.equal(r2Pair.compatibilityFingerprintOrigin, "recorded");
   assert.equal(r2Pair.compatibilityFingerprintMatched, true);
+  assert.equal(r2Pair.corpusCohort.schemaRevision, 2);
+  assert.equal(r2Pair.corpusCohort.methodologyOrigin, "recorded");
+  assert.equal(r2Pair.producer, "node-playwright");
+  assert.equal(r2Pair.acquisition, "operator-cli");
+  assert.equal(r2Pair.browserName, "chromium");
+  assert.equal(r2Pair.egressRegion, "us");
 
   const r2Single = corpusExportMetadataForView(viewFromV2(makeConsentSingleReportV2R2(), 2));
   assert.equal(r2Single.consentChoiceState, "verified");
@@ -132,6 +145,21 @@ function makeEntry(overrides: Partial<DirectoryEntry> & { id: string }): Directo
     finalUrl: "https://shop.example/",
     status: 200,
     runOutcome: "complete",
+    corpusCohort: {
+      id: "v1:test-methodology:producer-unrecorded",
+      schemaVersion: 1,
+      schemaRevision: null,
+      methodologyVersion: "test-methodology",
+      methodologyOrigin: "legacy-derived",
+      producer: null
+    },
+    producer: null,
+    acquisition: null,
+    buildCommit: null,
+    browserName: null,
+    browserVersion: "test-chromium",
+    egressLabel: "test-egress",
+    egressRegion: null,
     reportHasSuccessfulLoad: true,
     reportHasRequestCappedLoad: false,
     requestEvidenceComplete: true,
@@ -157,6 +185,15 @@ test("preferAsSiteDataPoint uses the newest eligible behavior report regardless 
   assert.equal(preferAsSiteDataPoint(gpc, shields), true);
 });
 
+test("preferAsSiteDataPoint uses the shared report-id tie-break at an equal timestamp", () => {
+  const scannedAt = "2026-07-05T00:00:00.000Z";
+  const lower = makeEntry({ id: "20260705-" + "a".repeat(32), scannedAt });
+  const higher = makeEntry({ id: "20260705-" + "b".repeat(32), scannedAt });
+
+  assert.equal(preferAsSiteDataPoint(higher, lower), true);
+  assert.equal(preferAsSiteDataPoint(lower, higher), false);
+});
+
 test("site data points combine newest behavior with the newest eligible Shields pair", () => {
   const oldShields = makeEntry({
     id: "shields-old",
@@ -175,6 +212,25 @@ test("site data points combine newest behavior with the newest eligible Shields 
   assert.equal(site.id, "gpc-new");
   assert.equal(site.thirdPartyRequests, 12);
   assert.equal(site.shieldsThirdPartyChange, -20);
+});
+
+test("aggregate selection names one methodology cohort and mixed direct aggregation fails closed", () => {
+  const legacy = makeEntry({ id: "legacy", domain: "legacy.example" });
+  const r2Cohort = {
+    id: "v2-r2:method-b:node-playwright",
+    schemaVersion: 2 as const,
+    schemaRevision: 2 as const,
+    methodologyVersion: "method-b",
+    methodologyOrigin: "recorded" as const,
+    producer: "node-playwright"
+  };
+  const r2a = makeEntry({ id: "r2-a", domain: "a.example", corpusCohort: r2Cohort });
+  const r2b = makeEntry({ id: "r2-b", domain: "b.example", corpusCohort: r2Cohort });
+
+  const selected = selectAggregateCorpusCohort([legacy, r2a, r2b]);
+  assert.equal(selected.cohort?.id, r2Cohort.id);
+  assert.deepEqual(selected.entries.map((entry) => entry.id), ["r2-a", "r2-b"]);
+  assert.throws(() => selectSiteDataPoints([legacy, r2a]), /mixed methodology cohorts/);
 });
 
 test("preferAsSiteDataPoint picks the newest scan within a kind, not the heaviest", () => {

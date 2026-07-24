@@ -2,6 +2,9 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
   durableScanJobCancellationResponse,
+  DurableScanJobRecoveryTimeoutError,
+  DURABLE_SCAN_JOB_RECOVERY_ERROR_MAX_BYTES,
+  DURABLE_SCAN_JOB_RECOVERY_REPORT_MAX_BYTES,
   publicDurableScanJobStatus,
   recoverDurableScanJobCancellationResponse,
   recoverDurableScanJobResponse,
@@ -79,13 +82,86 @@ test("unknown jobs retain the container's original 404 without probing reports",
   assert.equal(probes, 0);
 });
 
-test("report rate limits and storage faults never become false expiry", async () => {
+test("report rate limits and storage faults are bounded and sanitized without false expiry", async () => {
   for (const status of [429, 500]) {
-    const probe = Response.json({ ok: false, error: `probe ${status}` }, { status });
+    const probe = Response.json(
+      { ok: false, error: `private internal probe ${status}` },
+      {
+        status,
+        headers: {
+          "x-internal-storage-detail": "secret",
+          "retry-after": status === 429 ? "17" : "not-safe"
+        }
+      }
+    );
     const response = await recover({ reportResponse: probe });
-    assert.equal(response, probe);
+    assert.notEqual(response, probe);
     assert.equal(response.status, status);
+    assert.equal(response.headers.get("x-internal-storage-detail"), null);
+    assert.equal(response.headers.get("retry-after"), status === 429 ? "17" : null);
+    const wire = await response.text();
+    assert.doesNotMatch(wire, /private internal probe|storage-detail|secret/i);
+    assert.deepEqual(JSON.parse(wire), {
+      ok: false,
+      error: "The saved scan report is temporarily unavailable during restart recovery."
+    });
   }
+});
+
+test("non-success report bodies remain bounded and cannot leak internal responses", async () => {
+  let cancelled = false;
+  const response = await recover({
+    reportResponse: new Response(
+      new ReadableStream<Uint8Array>({
+        cancel() {
+          cancelled = true;
+          return new Promise<void>(() => undefined);
+        }
+      }),
+      {
+        status: 500,
+        headers: {
+          "content-length": String(DURABLE_SCAN_JOB_RECOVERY_ERROR_MAX_BYTES + 1),
+          "x-internal-error": "database credentials"
+        }
+      }
+    )
+  });
+
+  assert.equal(cancelled, true);
+  assert.equal(response.status, 502);
+  assert.equal(response.headers.get("x-internal-error"), null);
+  assert.deepEqual(await response.json(), {
+    ok: false,
+    error: "The saved scan report could not be read during restart recovery."
+  });
+});
+
+test("authoritative status also sanitizes bounded non-success report responses", async () => {
+  const response = await recoverDurableScanJobSnapshotResponse(
+    { jobId: JOB_ID, reportId: REPORT_ID, state: "succeeded", totalRuns: 1 },
+    missingResponse(),
+    {
+      fetchReport: async () =>
+        new Response("private backend overload detail", {
+          status: 503,
+          headers: {
+            "retry-after": "9",
+            "x-internal-backend": "secret"
+          }
+        })
+    }
+  );
+
+  assert.equal(response.status, 503);
+  assert.equal(response.headers.get("retry-after"), "9");
+  assert.equal(response.headers.get("x-internal-backend"), null);
+  const wire = await response.text();
+  assert.doesNotMatch(wire, /private backend|internal-backend|secret/i);
+  assert.deepEqual(JSON.parse(wire), {
+    ok: false,
+    error: "The saved scan report is temporarily unavailable during durable recovery."
+  });
 });
 
 test("registry and report transport failures preserve the original retryable 404", async () => {
@@ -118,6 +194,153 @@ test("malformed successful report responses become named gateway errors", async 
   });
 });
 
+test("durable recovery rejects oversized successful report bodies before buffering", async () => {
+  let restartCancelled = false;
+  const restart = await recover({
+    reportResponse: declaredOversizedReportResponse(() => { restartCancelled = true; })
+  });
+  assert.equal(restart.status, 502);
+  assert.equal(restartCancelled, true);
+  assert.deepEqual(await restart.json(), {
+    ok: false,
+    error: "The saved scan report could not be read during restart recovery."
+  });
+
+  let snapshotCancelled = false;
+  const snapshot = await recoverDurableScanJobSnapshotResponse(
+    { jobId: JOB_ID, reportId: REPORT_ID, state: "succeeded", totalRuns: 2 },
+    missingResponse(),
+    {
+      fetchReport: async () => declaredOversizedReportResponse(() => { snapshotCancelled = true; })
+    }
+  );
+  assert.equal(snapshot.status, 502);
+  assert.equal(snapshotCancelled, true);
+  assert.deepEqual(await snapshot.json(), {
+    ok: false,
+    error: "The saved scan report could not be read during durable recovery."
+  });
+});
+
+test("authoritative recovery bounds report time-to-headers and aborts the fetch signal", async () => {
+  let fetchSignalAborted = false;
+  const seen: unknown[] = [];
+  const response = await recoverDurableScanJobSnapshotResponse(
+    { jobId: JOB_ID, reportId: REPORT_ID, state: "succeeded", totalRuns: 2 },
+    missingResponse(),
+    {
+      fetchReport: async (_reportId, signal) => {
+        signal.addEventListener("abort", () => {
+          fetchSignalAborted = true;
+        }, { once: true });
+        await new Promise<void>(() => undefined);
+        return Response.json({});
+      },
+      operationTimeoutMs: 10,
+      onReportError: (error) => seen.push(error)
+    }
+  );
+
+  assert.equal(response.status, 503);
+  assert.equal(fetchSignalAborted, true);
+  assert.equal(seen.length, 1);
+  assert.deepEqual(await response.json(), {
+    ok: false,
+    error: "The saved scan report could not be read during durable recovery."
+  });
+});
+
+test("authoritative recovery's same deadline covers a stalled successful body", async () => {
+  let cancelled = false;
+  const response = await recoverDurableScanJobSnapshotResponse(
+    { jobId: JOB_ID, reportId: REPORT_ID, state: "succeeded", totalRuns: 1 },
+    missingResponse(),
+    {
+      fetchReport: async () =>
+        new Response(
+          new ReadableStream<Uint8Array>({
+            start(controller) {
+              controller.enqueue(new Uint8Array([123]));
+            },
+            cancel() {
+              cancelled = true;
+            }
+          }),
+          { status: 200 }
+        ),
+      operationTimeoutMs: 10
+    }
+  );
+  assert.equal(response.status, 503);
+  assert.equal(cancelled, true);
+});
+
+test("Phase-1 report recovery also bounds headers while preserving its retryable original response", async () => {
+  const original = missingResponse();
+  let signalAborted = false;
+  const response = await recoverDurableScanJobResponse(JOB_ID, original, {
+    findRegistration: async () => REGISTRATION,
+    fetchReport: async (_reportId, signal) => {
+      signal.addEventListener("abort", () => {
+        signalAborted = true;
+      }, { once: true });
+      await new Promise<void>(() => undefined);
+      return Response.json({});
+    },
+    operationTimeoutMs: 10
+  });
+  assert.equal(response, original);
+  assert.equal(signalAborted, true);
+});
+
+test("Phase-1 recovery's whole deadline includes the Durable Object registry lookup", async () => {
+  const original = missingResponse();
+  let lookupSignalAborted = false;
+  let reportProbes = 0;
+  const seen: unknown[] = [];
+  const response = await recoverDurableScanJobResponse(JOB_ID, original, {
+    findRegistration: async (_jobId, signal) => {
+      signal.addEventListener("abort", () => {
+        lookupSignalAborted = true;
+      }, { once: true });
+      await new Promise<void>(() => undefined);
+      return REGISTRATION;
+    },
+    fetchReport: async () => {
+      reportProbes += 1;
+      return Response.json({});
+    },
+    operationTimeoutMs: 10,
+    onRegistryError: (error) => seen.push(error)
+  });
+
+  assert.equal(response, original);
+  assert.equal(lookupSignalAborted, true);
+  assert.equal(reportProbes, 0);
+  assert.equal(seen.length, 1);
+});
+
+test("a stalled saved-report 404 remains retryable instead of fabricating expiry", async () => {
+  const original = missingResponse();
+  let cancelled = false;
+  const response = await recoverDurableScanJobResponse(JOB_ID, original, {
+    findRegistration: async () => REGISTRATION,
+    fetchReport: async () =>
+      new Response(
+        new ReadableStream<Uint8Array>({
+          cancel() {
+            cancelled = true;
+          }
+        }),
+        { status: 404 }
+      ),
+    operationTimeoutMs: 10
+  });
+
+  assert.equal(response, original);
+  assert.equal(cancelled, true);
+});
+
 test("DELETE recovery is control-only and never returns a saved report", async () => {
   const response = await recoverDurableScanJobCancellationResponse(JOB_ID, missingResponse(), {
     findRegistration: async () => REGISTRATION
@@ -136,6 +359,28 @@ test("DELETE for an unknown job preserves the original 404", async () => {
     findRegistration: async () => null
   });
   assert.equal(response, original);
+});
+
+test("DELETE recovery's whole deadline includes the Durable Object registry lookup", async () => {
+  const original = missingResponse();
+  let lookupSignalAborted = false;
+  const seen: unknown[] = [];
+  const response = await recoverDurableScanJobCancellationResponse(JOB_ID, original, {
+    findRegistration: async (_jobId, signal) => {
+      signal.addEventListener("abort", () => {
+        lookupSignalAborted = true;
+      }, { once: true });
+      await new Promise<void>(() => undefined);
+      return REGISTRATION;
+    },
+    operationTimeoutMs: 10,
+    onRegistryError: (error) => seen.push(error)
+  });
+
+  assert.equal(response, original);
+  assert.equal(lookupSignalAborted, true);
+  assert.equal(seen.length, 1);
+  assert.ok(seen[0] instanceof DurableScanJobRecoveryTimeoutError);
 });
 
 test("internal durable states collapse to the existing public status vocabulary", () => {
@@ -259,6 +504,16 @@ function missingResponse(): Response {
   return Response.json(
     { ok: false, error: "Scan job not found." },
     { status: 404, headers: { "access-control-allow-origin": "https://sitebehavior.org" } }
+  );
+}
+
+function declaredOversizedReportResponse(onCancel: () => void): Response {
+  return new Response(
+    new ReadableStream<Uint8Array>({ cancel: onCancel }),
+    {
+      status: 200,
+      headers: { "content-length": String(DURABLE_SCAN_JOB_RECOVERY_REPORT_MAX_BYTES + 1) }
+    }
   );
 }
 

@@ -108,10 +108,15 @@ Encrypted scheduled rescans are another independent post-durability gate. The
 default Durable Object remains their authoritative encrypted store and scheduler;
 each due watch is freshly prepared by Node, then routed as a normal durable job.
 Keep `SITE_BEHAVIOR_LAB_ENCRYPTED_WATCHES=0` until durable execution is live and
-proven. Enabled watches also require the configured scan access-token gate;
-open public ingress remains valid for ordinary scans but blocks watch readiness
-and creation. Its two encryption keys are Worker-only and are never part of
-`ScannerContainer.envVars`; see [encrypted-watches.md](encrypted-watches.md).
+proven. Public watch creation uses the same Turnstile and atomic quota gate as
+an ordinary open scan, so the existing browser UI remains self-service. An
+optional isolated watch-only second factor is reserved for staging/operator
+canaries and hides the public creation capability while configured. It and the
+two encryption keys are Worker-only and never part of `ScannerContainer.envVars`; see
+[encrypted-watches.md](encrypted-watches.md).
+The committed `wrangler.container.watch-staging.jsonc` describes the separate,
+temporary open/Turnstile canary topology; it is not a production deployment and
+must never share production R2, Durable Object, container, DNS, or credentials.
 
 > **Verify these against current Cloudflare docs**, the `@cloudflare/containers` routing
 > helper (`getContainer`), the Durable Object migration shape (`new_sqlite_classes`), and
@@ -149,6 +154,7 @@ SITE_BEHAVIOR_LAB_ENCRYPTED_WATCHES=0                    # separate post-durabil
 # Worker secrets only; never forward into the container:
 # SITE_BEHAVIOR_LAB_ENCRYPTED_WATCHES_KEY=<32-byte unpadded base64url>
 # SITE_BEHAVIOR_LAB_ENCRYPTED_WATCHES_PREVIOUS_KEY=<optional prior key>
+# SITE_BEHAVIOR_LAB_ENCRYPTED_WATCHES_ACCESS_TOKEN=<optional staging/operator second factor>
 SITE_BEHAVIOR_LAB_CHROMIUM_SANDBOX=1                    # asserted by health + deployed smoke
 SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN=<strong secret>     # operator-gated launch (see §6)
 ```
@@ -176,11 +182,41 @@ outside the preflight worklist.
    legacy population was being written, stop and establish object-specific
    evidence instead of applying one guessed lifetime to every object.
 
+With promotion and writers still gated, migrate the committed corpus first in
+the same maintenance window. Review the first command's exact report/sidecar
+counts before authorizing `--apply`; it performs no writes. After apply,
+regenerate every derived artifact and require the managed-reader check to pass:
+
+```bash
+npm run reports:remediate
+npm run reports:remediate -- --apply
+npm run corpus:stats
+npm run reports:manifest
+npm run reports:remediate -- --check
+git diff --check
+```
+
+The apply preserves filenames, embedded report/run/pair identities, and the
+committed `createdAt` clock. A schema-r2 v3 report additionally requires its
+exact digest-matching v3 sidecar, no-expiry clock, and reviewed producer
+normalization; missing, mixed, or self-declared provenance blocks the entire
+preflight before any report is written. Do not publish these static changes yet:
+the retained R2 plane must pass the corresponding migration below before the
+strict v4 code is deployed.
+
+Record the versioned `transitionAudit` from the dry run and compare it with the
+apply result. It separately counts page titles withheld, explicit-port fields
+removed, and IP-literal fields rejected. These are v3-to-v4 policy-transition
+counts, not additions to the frozen seven-field public privacy-counter
+vocabulary. A final `--check` must report zero for all three transition counts.
+
 The one-off operator Worker is never deployed: it runs through a remote
 Wrangler development session bound to the production bucket. `GET /` is
-read-only and returns aggregate counts only. `POST /apply` requires an ephemeral
-bearer token. Pass the historical max age explicitly (the shown value is the
-legacy default):
+read-only and returns aggregate counts only, including the same versioned
+`transitionAudit`. `POST /apply` requires an ephemeral bearer token. Save the
+dry-run, apply, and final dry-run JSON receipts and require the apply transition
+counts to equal preflight and the final counts to be zero. Pass the historical
+max age explicitly (the shown value is the legacy default):
 
 ```bash
 TOKEN=$(openssl rand -hex 32)
@@ -225,6 +261,13 @@ new live SHA and health are verified, run `GET /` once more and require
 remain skipped). Only then remove the temporary scan token and deliberately
 restore the intended public posture. There must be no ungated old-writer window
 between remediation and rollout.
+
+This is a coordinated cutover, not a claim that live R2 is already remediated.
+The repository can prove the planner and local corpus path; only the operator
+`GET`/`POST /apply`/`GET` receipts against the bound production bucket can prove
+the live state. Do not roll back to a v3 writer after v4 objects exist. If the
+new deployment fails, keep ingress gated and repair or redeploy a v4-compatible
+SHA rather than reopening an old-writer window.
 
 ## 4. Deploy
 
@@ -313,17 +356,22 @@ R2 is the smoke default. A self-host intentionally using a filesystem store must
 set `SMOKE_EXPECTED_STORAGE=filesystem`; that checks the configured backend but
 cannot prove the host volume survives replacement.
 
-The default Shields target is the independently hosted `https://www.iana.org/`, so a
-sitebehavior.org outage cannot block promotion of its own repair. Point
-`SMOKE_SHIELDS_URL` at a tracker-heavy site to also eyeball non-zero engine-blocked
-and baseline filter-match counts. A quick manual check of the same essentials:
+The default Shields targets are an ordered candidate list of independently
+hosted sites (`https://www.iana.org/`, then `https://www.w3.org/`): a
+sitebehavior.org outage cannot block promotion of its own repair, and no single
+third party's outage or bot wall can block every promotion either. A later
+candidate runs only after an earlier candidate's scan failed; if every
+candidate fails to scan, the smoke stays red (independent targets all failing
+indicates scanner-side breakage). Point `SMOKE_SHIELDS_URL` (space-separated
+list) at a tracker-heavy site to also eyeball non-zero engine-blocked and
+baseline filter-match counts. A quick manual check of the same essentials:
 
 ```bash
 curl -s https://scan.sitebehavior.org/api/health | jq '{capabilities, chromiumSandbox: .checks.chromiumSandbox}'
 # expect chromiumSandbox: "enabled" plus singleScan/Shields/savedReports capabilities
 ```
 
-### Activate the scheduled production synthetic
+### Production synthetic (active)
 
 Every delivered production-health run calls the distinct public
 `/api/health/public-ingress` preflight first. The Worker submits a deliberately
@@ -335,10 +383,12 @@ submitted, no quota was consumed, and the monitor bypass was not used. This is
 stronger than configuration-only health, but it is not an end-to-end visitor
 scan; keep the manual browser challenge check in the go-live runbook.
 
-After the commit containing the synthetic lane is live on the `production` branch,
-configure one new random value in both control planes. The Cloudflare secret stays in
-the front Worker and bypasses Turnstile only for the monitor's authenticated
-`POST /api/scan`; the GitHub secret is disclosed only to the hourly workflow step.
+The reference deployment has this lane active. For a fresh deployment or a
+credential rotation, configure one new random value in both control planes only
+after the commit containing the lane is live on the `production` branch. The
+Cloudflare secret stays in the front Worker and bypasses Turnstile only for the
+monitor's authenticated `POST /api/scan`; the GitHub secret is disclosed only to
+the hourly workflow step.
 
 ```bash
 SBL_MONITOR_TOKEN="$(openssl rand -hex 32)"
@@ -352,16 +402,150 @@ unset SBL_MONITOR_TOKEN
 gh workflow run production-health.yml --ref main
 ```
 
-The separate operator-only synthetic performs one neutral IANA scan, polls it to completion, verifies the
-public v2/r2 result, reads the exact persisted report back from R2, and renders its
-HTML report page. Every request rejects redirects, returned capability URLs are
-restricted to the exact scanner origin and expected path, and per-request plus
-whole-run deadlines bound failure handling. Its report follows the ordinary seven-day/500-report retention
-policy; it is not the still-separate delete canary. The workflow requests four
-best-effort checks per hour, runs this synthetic on the hourly `:07` schedule, and
-maintains one canonical failure issue. For an actual detection-latency SLA, have an
-independent scheduler send the `production-health` repository dispatch; GitHub cron
-delivery can be delayed.
+The separate operator-only synthetic performs one neutral IANA scan, polls it to
+completion, verifies the public v2/r2 result, reads the exact persisted report back
+from R2, and renders its HTML report page. Every request rejects redirects,
+returned capability URLs are restricted to the exact scanner origin and expected
+path, and per-request plus whole-run deadlines bound failure handling. Its report
+follows the ordinary seven-day/500-report retention policy; the synthetic never
+deletes that report and is not the still-separate delete canary. The workflow
+requests four best-effort checks per hour, runs this synthetic on the hourly `:07`
+schedule, and maintains one canonical failure issue. For an actual
+detection-latency SLA, have an independent scheduler send the `production-health`
+repository dispatch; GitHub cron delivery can be delayed.
+
+### External controls the synthetic does not prove
+
+Keep these as four separate operator receipts; neither `/api/health` nor the
+active scan/write/read/render synthetic can attest them:
+
+1. Verify that the Cloudflare WAF ceiling on `POST /api/scan` exists and is above
+   the stricter in-app minute/day quota, then record a non-production proof that it
+   rejects traffic at the intended boundary.
+2. Verify the effective Worker/container log-retention window and execute one
+   bounded query that can diagnose a failed health or synthetic run without
+   retaining report evidence or target details beyond the documented policy.
+3. Activate the repo's code-ready R2 delete-canary Worker only after the bounded
+   contract below passes locally. It accepts no caller-selected object key, uses
+   only `health/r2-delete-canary/`, and requires its own bearer token. Its
+   write/read/**delete** transaction must prove the exact object is absent after
+   deletion. Do not reuse a scanner, synthetic, staging, Turnstile, durable-job,
+   watch, or R2 API credential for the invocation token.
+4. Establish a platform-compatible independent egress backstop that preserves the
+   scanner's connect-time IP pinning, or keep the absence explicitly accepted and
+   reviewed. Cloudflare Containers internet-disable/interception is not a drop-in
+   control for the current raw-TCP proxy path.
+
+### Activate the dedicated R2 delete canary
+
+The repository includes the bounded implementation, tests, production-health
+lane, and [`wrangler.r2-delete-canary.jsonc`](../wrangler.r2-delete-canary.jsonc).
+That is **code-ready, not live**: do not claim deletion coverage until the
+dedicated Worker is deployed, its independent credential and exact HTTPS origin
+are configured, and both the direct smoke and production-health readback pass.
+The Worker binding reaches the production reports bucket, but its request surface
+accepts no object key and its implementation can touch only the fixed health
+prefix; it never operates under `reports/`.
+
+Deploy it fail-closed first. With no secret installed, every request is
+unauthorized. Then generate and install one distinct token. Capture the exact
+credential-free HTTPS origin printed by Wrangler; do not place `/run`, a query,
+credentials, or a fragment in the configured origin:
+
+```bash
+set -euo pipefail
+umask 077
+R2_DELETE_CANARY_TOKEN_FILE="$(mktemp)"
+export R2_DELETE_CANARY_TOKEN_FILE
+openssl rand -hex 32 > "$R2_DELETE_CANARY_TOKEN_FILE"
+
+npx wrangler deploy -c wrangler.r2-delete-canary.jsonc
+npx wrangler secret put SITE_BEHAVIOR_LAB_R2_DELETE_CANARY_TOKEN \
+  -c wrangler.r2-delete-canary.jsonc < "$R2_DELETE_CANARY_TOKEN_FILE"
+
+# Set this to the exact origin emitted by the deploy, for example the dedicated
+# workers.dev origin. It must be this canary Worker, never the scanner origin.
+R2_DELETE_CANARY_ORIGIN=https://<dedicated-delete-canary-origin>
+export R2_DELETE_CANARY_ORIGIN
+```
+
+First prove the deployed Worker directly through the same strict client used by
+production health. A pass requires authenticated `POST /run`, a create-only write
+beneath `health/r2-delete-canary/`, exact marker readback, deletion, and a final
+absence readback:
+
+```bash
+PRODUCTION_R2_DELETE_CANARY_URL="$R2_DELETE_CANARY_ORIGIN" \
+PRODUCTION_R2_DELETE_CANARY_TOKEN="$(tr -d '\r\n' < "$R2_DELETE_CANARY_TOKEN_FILE")" \
+node scripts/smoke-production-r2-delete.mjs
+```
+
+Only after that direct receipt passes, configure both GitHub values. Only then make credential loss fail loudly
+by setting the gate required. Production health
+intentionally fails when the gate, URL, or token is absent:
+
+```bash
+gh secret set PRODUCTION_R2_DELETE_CANARY_TOKEN \
+  < "$R2_DELETE_CANARY_TOKEN_FILE"
+gh variable set PRODUCTION_R2_DELETE_CANARY_URL \
+  --body "$R2_DELETE_CANARY_ORIGIN"
+gh variable set PRODUCTION_R2_DELETE_CANARY_REQUIRED --body 1
+
+gh workflow run production-health.yml --ref main
+```
+
+Read back that dispatched run and require the step **Run isolated production R2
+write/read/delete canary** to pass with the summary `one isolated health object,
+absence verified`. Then remove the temporary local token file:
+
+```bash
+rm -f "$R2_DELETE_CANARY_TOKEN_FILE"
+unset R2_DELETE_CANARY_TOKEN_FILE R2_DELETE_CANARY_ORIGIN
+```
+
+The application records a durable, content-free debt marker before each expiry
+or count-pruning delete and clears it only after physical deletion succeeds.
+`/api/health` degrades and report publication is refused while any marker or
+bounded-maintenance continuation remains. Expired reads stay `404` and never
+become readable merely because deletion failed. To prevent public health polling
+from amplifying signed R2 work, concurrent checks share one process-local probe;
+successful retention state is reused for at most 30 seconds and failed state for
+at most five seconds. `retentionCheckedAt` and `retentionCheckMaxAgeMs` disclose
+that freshness. Publication never uses this cache and always preflights retention
+directly. Configure an independent R2
+lifecycle backstop one whole day beyond the ordinary seven-day application TTL;
+it is disaster cleanup, not evidence that application deletion works:
+
+```bash
+npx wrangler r2 bucket lifecycle list site-behavior-lab-reports
+npx wrangler r2 bucket lifecycle add site-behavior-lab-reports \
+  reports-retention-backstop-8d reports/ --expire-days 8
+npx wrangler r2 bucket lifecycle list site-behavior-lab-reports
+```
+
+This lifecycle mutation is an action-time production gate: inspect the current
+rules, obtain approval, add only an equivalent missing `reports/` rule, and read
+it back before release. Never shorten it to the application TTL, because the
+platform rule must not race the app's provenance-aware bundle deletion.
+
+For rollback or teardown, disable the required contract before removing either
+half of its configuration, then remove the GitHub URL/token and delete only the
+dedicated Worker. Never delete or rename the production reports bucket as part of
+this rollback:
+
+```bash
+gh variable set PRODUCTION_R2_DELETE_CANARY_REQUIRED --body 0
+gh variable delete PRODUCTION_R2_DELETE_CANARY_URL
+gh secret delete PRODUCTION_R2_DELETE_CANARY_TOKEN
+npx wrangler delete site-behavior-lab-r2-delete-canary --force \
+  -c wrangler.r2-delete-canary.jsonc
+```
+
+Confirm the captured canary origin is unreachable, the exact Worker is absent,
+production scanner health remains green on its expected SHA, and the last
+successful canary receipt showed absence after deletion. If the final canary
+failed after creating an object, investigate and remove only its exact fixed-prefix
+health object before considering teardown complete.
 
 ## 8. Verify private v2/r2 shadows before the schema alias flip
 

@@ -1,0 +1,81 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  // Temporary open/Turnstile staging used only for the encrypted-watch
+  // coexistence canary. It is distinct from both production and the
+  // whole-origin-token-gated durable replay staging deployment.
+  "name": "site-behavior-lab-watch-staging",
+  "main": "cloudflare/container-worker.ts",
+  "compatibility_date": "2026-06-19",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 1
+  },
+
+  "secrets": {
+    "required": [
+      "TURNSTILE_SECRET_KEY",
+      "SITE_BEHAVIOR_LAB_DURABLE_JOBS_KEY",
+      "SITE_BEHAVIOR_LAB_DURABLE_JOBS_INTERNAL_TOKEN",
+      "SITE_BEHAVIOR_LAB_ENCRYPTED_WATCHES_KEY",
+      "SITE_BEHAVIOR_LAB_ENCRYPTED_WATCHES_ACCESS_TOKEN",
+      "SITE_BEHAVIOR_LAB_R2_ENDPOINT",
+      "SITE_BEHAVIOR_LAB_R2_ACCESS_KEY_ID",
+      "SITE_BEHAVIOR_LAB_R2_SECRET_ACCESS_KEY"
+    ]
+  },
+
+  "workers_dev": false,
+  "preview_urls": false,
+  "routes": [
+    {
+      "pattern": "scan-watch-staging.sitebehavior.org",
+      "custom_domain": true,
+      "previews_enabled": false
+    }
+  ],
+
+  "vars": {
+    "SITE_BEHAVIOR_LAB_ALLOWED_ORIGIN": "https://sitebehavior.org",
+
+    // This is the exact coexistence condition under test. Do not configure a
+    // SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN secret on this Worker.
+    "SITE_BEHAVIOR_LAB_ALLOW_UNAUTHENTICATED_SCANS": "1",
+    "SITE_BEHAVIOR_LAB_PUBLIC_SCAN_RATE_LIMIT_PER_MINUTE": "6",
+    "SITE_BEHAVIOR_LAB_PUBLIC_SCAN_RATE_LIMIT_PER_DAY": "120",
+
+    "SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION": "1",
+    "SITE_BEHAVIOR_LAB_PUBLIC_R2_REPORTS": "1",
+    "SITE_BEHAVIOR_LAB_DURABLE_JOBS": "1",
+    "SITE_BEHAVIOR_LAB_DURABLE_JOBS_COORDINATOR_URL": "https://scan-watch-staging.sitebehavior.org",
+    "SITE_BEHAVIOR_LAB_CONTAINER_SHARDING": "0",
+    "SITE_BEHAVIOR_LAB_CONTAINER_SHARD_COUNT": "1",
+    "SITE_BEHAVIOR_LAB_ENCRYPTED_WATCHES": "1",
+    "SITE_BEHAVIOR_LAB_REPORT_MIN_SURVIVAL_MS": "4500000",
+    "SITE_BEHAVIOR_LAB_REPORT_STORE_OPERATION_TIMEOUT_MS": "30000",
+
+    // Use a staging-only bucket and credentials; never point this temporary
+    // topology at production objects or credentials.
+    "SITE_BEHAVIOR_LAB_R2_BUCKET": "site-behavior-lab-reports-watch-staging",
+    "SITE_BEHAVIOR_LAB_R2_PREFIX": "reports/",
+    "SITE_BEHAVIOR_LAB_CHROMIUM_SANDBOX": "1"
+  },
+
+  "containers": [
+    {
+      "name": "site-behavior-lab-watch-staging-container",
+      "class_name": "ScannerContainer",
+      "image": "./Dockerfile",
+      "image_vars": {
+        "SITE_BEHAVIOR_LAB_BUILD_COMMIT": "__SITE_BEHAVIOR_LAB_BUILD_COMMIT__"
+      },
+      "instance_type": "standard-2",
+      "max_instances": 1
+    }
+  ],
+
+  "durable_objects": {
+    "bindings": [{ "name": "SCANNER", "class_name": "ScannerContainer" }]
+  },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["ScannerContainer"] }]
+}

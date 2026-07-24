@@ -1,8 +1,9 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
   // Full Node/Playwright scanner (live Shields) on Cloudflare Containers.
-  // Deployed separately from wrangler.jsonc (the Browser Run GPC worker) so the
-  // existing live worker is untouched. Runbook: docs/deploy-cloudflare-containers.md
+  // This is the live production config. The retired Browser Run self-host path is
+  // explicitly named wrangler.browser-run.jsonc; no root wrangler.jsonc exists.
+  // Runbook: docs/deploy-cloudflare-containers.md
   "name": "site-behavior-lab-scanner",
   "main": "cloudflare/container-worker.ts",
   "compatibility_date": "2026-06-19",
@@ -72,14 +73,16 @@
 
     // Independent post-durability gate for encrypted seven-day scheduled
     // rescans. Enabling requires a distinct Worker-only current watch key; an
-    // optional previous key supports rotation across the bounded 30-day TTL.
-    // Neither key is forwarded into the Node container.
+    // optional previous key supports rotation. Public creation uses Turnstile
+    // plus atomic quota. The optional watch access token is only an operator
+    // canary second factor and must stay absent for the public browser UI.
     "SITE_BEHAVIOR_LAB_ENCRYPTED_WATCHES": "0",
 
     // Durable job/status metadata lives for 75 minutes. Keep the public report
     // alive for at least the same interval so a lost status response can recover
     // the committed report instead of fabricating expiry.
     "SITE_BEHAVIOR_LAB_REPORT_MIN_SURVIVAL_MS": "4500000",
+    "SITE_BEHAVIOR_LAB_REPORT_STORE_OPERATION_TIMEOUT_MS": "30000",
 
     // Forwarded into the Node container. The deployed smoke test requires the
     // effective launch state to be "enabled" in /api/health.

@@ -160,7 +160,7 @@ export function buildReportCardSubhead(view: ReportView, headline = buildReportH
           ? ` The engine directly stopped ${pluralRequests(engineBlocks.count)}; the difference may also include prevented follow-on requests and run-to-run variance.`
           : " This is an observed difference between two visits and may include run-to-run variance.";
       const concise =
-        `Brave-list block simulation in this scanner—not a live Brave-browser visit: ` +
+        `Brave-list block simulation in this scanner, not a live Brave-browser visit: ` +
         `${pluralRequests(total)} without blocking; ${pluralRequests(removed, "fewer third-party request")} in the blocking visit.` +
         directBlockNote;
       if (concise.length <= OG_REPORT_SUBHEAD_MAX_CHARACTERS) return concise;

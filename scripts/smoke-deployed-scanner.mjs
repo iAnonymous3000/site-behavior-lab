@@ -9,7 +9,7 @@
 // Usage:
 //   SCAN_BASE_URL=https://scan.sitebehavior.org \
 //   [SMOKE_SCAN_ACCESS_TOKEN=<token>] \
-//   [SMOKE_SHIELDS_URL=https://www.iana.org/] \
+//   [SMOKE_SHIELDS_URL="https://www.iana.org/ https://www.w3.org/"] \
 //   [SMOKE_EXPECTED_STORAGE=r2|filesystem] \
 //   npm run test:smoke:scanner
 //
@@ -37,16 +37,33 @@ import {
   singleReportTotalRequests,
   ssrfGuardRefusalReason
 } from "./smoke-deployed-scanner-report.mjs";
+import { prepareScanAdmission } from "./scan-admission.mjs";
+import {
+  readResponseJsonWithinLimit,
+  readResponseTextWithinLimit,
+  withHttpOperationDeadline
+} from "./http-response.mjs";
 
 const baseUrl = (process.env.SCAN_BASE_URL || "").trim().replace(/\/+$/, "");
 const token = (process.env.SMOKE_SCAN_ACCESS_TOKEN || process.env.SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN || "").trim();
-// r2 verification requires at least one subresource to reach the engine. Use a
-// neutral, independently hosted standards site so a sitebehavior.org outage
-// cannot block promotion of the commit that repairs that outage.
-const shieldsUrl = (process.env.SMOKE_SHIELDS_URL || "https://www.iana.org/").trim();
+// r2 verification requires at least one subresource to reach the engine. Use
+// neutral, independently hosted standards sites so a sitebehavior.org outage
+// cannot block promotion of the commit that repairs that outage. The list is
+// ordered: a later candidate runs only after an earlier candidate's SCAN
+// failed (target-side unavailability), so no single third party's outage or
+// bot wall can block every promotion. Scanner-side contract violations still
+// fail immediately regardless of target.
+const shieldsUrlCandidates = (process.env.SMOKE_SHIELDS_URL || "https://www.iana.org/ https://www.w3.org/")
+  .trim()
+  .split(/\s+/)
+  .filter(Boolean);
 const expectedStorage = (process.env.SMOKE_EXPECTED_STORAGE || "r2").trim();
 const POLL_INTERVAL_MS = 2000;
 const MAX_POLLS = 120; // ~4 min ceiling for a Shields comparison (two visits)
+const requestTimeoutMs = boundedIntegerEnv("SMOKE_SCANNER_REQUEST_TIMEOUT_MS", 30_000, 1_000, 60_000);
+const controlResponseMaxBytes = 256 * 1024;
+const reportResponseMaxBytes = 32 * 1024 * 1024;
+const htmlResponseMaxBytes = 2 * 1024 * 1024;
 
 if (!baseUrl) {
   fail("Set SCAN_BASE_URL to the deployed scanner origin, e.g. https://scan.sitebehavior.org");
@@ -64,6 +81,16 @@ function fail(message) {
   process.exit(1);
 }
 
+function boundedIntegerEnv(name, fallback, minimum, maximum) {
+  const raw = process.env[name]?.trim();
+  if (!raw) return fallback;
+  const value = Number(raw);
+  if (!Number.isSafeInteger(value) || value < minimum || value > maximum) {
+    fail(`${name} must be an integer from ${minimum} to ${maximum}.`);
+  }
+  return value;
+}
+
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
@@ -74,22 +101,56 @@ function authHeaders(extra = {}) {
   return headers;
 }
 
-async function readJson(response, label) {
-  const contentType = response.headers.get("content-type") || "";
-  if (!contentType.includes("application/json")) {
-    fail(`${label} returned ${response.status} with non-JSON content`);
+async function requestJson(url, init, label, maxBytes = reportResponseMaxBytes) {
+  return guardedRequest(url, init, label, async (response) => {
+    const contentType = response.headers.get("content-type") || "";
+    if (!contentType.includes("application/json")) {
+      fail(`${label} returned ${response.status} with non-JSON content`);
+    }
+    try {
+      return await readResponseJsonWithinLimit(response, { maxBytes, label });
+    } catch (error) {
+      if (error instanceof RangeError) fail(error.message);
+      if (error instanceof SyntaxError) fail(`${label} returned malformed JSON`);
+      throw error;
+    }
+  });
+}
+
+async function requestText(url, init, label) {
+  return guardedRequest(url, init, label, (response) =>
+    readResponseTextWithinLimit(response, { maxBytes: htmlResponseMaxBytes, label })
+  );
+}
+
+async function guardedRequest(url, init, label, read) {
+  try {
+    return await withHttpOperationDeadline(
+      { timeoutMs: requestTimeoutMs, label },
+      async (signal) => {
+        const response = await fetch(url, { ...init, redirect: "error", signal });
+        return { response, value: await read(response) };
+      }
+    );
+  } catch (error) {
+    if (error instanceof RangeError) fail(error.message);
+    fail(`${label} request failed or exceeded its ${requestTimeoutMs}ms deadline`);
   }
-  return response.json();
 }
 
 // Submit a scan and return the raw API payload (a report, or an async submission).
 async function submitScan(body) {
-  const response = await fetch(`${baseUrl}/api/scan`, {
-    method: "POST",
-    headers: authHeaders({ "content-type": "application/json" }),
-    body: JSON.stringify(body)
-  });
-  return { status: response.status, payload: await readJson(response, "/api/scan") };
+  const admission = prepareScanAdmission(body);
+  const { response, value: payload } = await requestJson(
+    `${baseUrl}/api/scan`,
+    {
+      method: "POST",
+      headers: authHeaders({ "content-type": "application/json", ...admission.headers }),
+      body: JSON.stringify(admission.body)
+    },
+    "/api/scan"
+  );
+  return { status: response.status, payload };
 }
 
 function isAsyncSubmission(payload) {
@@ -101,10 +162,10 @@ function isReport(payload) {
 }
 
 // Resolve a submission to a finished report, polling the job status if async.
-async function resolveReport(submission, label) {
+async function resolveReport(submission, label, { tolerateScanFailure = false } = {}) {
   const { payload } = submission;
-  if (isReport(payload)) return payload;
-  if (isAsyncSubmission(payload)) return pollJob(payload.statusPath, label);
+  if (isReport(payload)) return { report: payload };
+  if (isAsyncSubmission(payload)) return pollJob(payload.statusPath, label, { tolerateScanFailure });
   const errorText = payload && typeof payload.error === "string" ? payload.error : "";
   if (/turnstile/i.test(errorText)) {
     fail(
@@ -116,42 +177,64 @@ async function resolveReport(submission, label) {
   fail(`${label}: scan was not accepted (${errorText || JSON.stringify(payload)})`);
 }
 
-async function pollJob(statusPath, label) {
+async function pollJob(statusPath, label, { tolerateScanFailure = false } = {}) {
   const url = /^https?:\/\//i.test(statusPath) ? statusPath : `${baseUrl}${statusPath}`;
   for (let attempt = 0; attempt < MAX_POLLS; attempt += 1) {
-    const response = await fetch(url, { headers: authHeaders(), cache: "no-store" });
-    const data = await readJson(response, "/api/scans/:id");
+    const { response, value: data } = await requestJson(
+      url,
+      { headers: authHeaders(), cache: "no-store" },
+      "/api/scans/:id"
+    );
     if (!data.ok) fail(`${label}: job poll failed (${data.error || response.status})`);
     if (data.status === "succeeded") {
-      if (data.report) return data.report;
+      if (data.report) return { report: data.report };
       fail(`${label}: job succeeded without a report`);
     }
     if (data.status === "failed" || data.status === "expired" || data.status === "cancelled") {
-      fail(`${label}: job ${data.status} (${data.error || "no reason given"})`);
+      // The scanner infrastructure answered every poll; only the SCAN of this
+      // particular target failed. That is attributable to the target when a
+      // caller has an independent fallback target to prove the scanner with.
+      const reason = `job ${data.status} (${data.error || "no reason given"})`;
+      if (tolerateScanFailure) return { scanFailure: reason };
+      fail(`${label}: ${reason}`);
     }
     await sleep(POLL_INTERVAL_MS);
   }
-  fail(`${label}: job did not finish within ${(MAX_POLLS * POLL_INTERVAL_MS) / 1000}s`);
+  const timeoutReason = `job did not finish within ${(MAX_POLLS * POLL_INTERVAL_MS) / 1000}s`;
+  if (tolerateScanFailure) return { scanFailure: timeoutReason };
+  fail(`${label}: ${timeoutReason}`);
 }
 
 async function fetchSavedReport(jsonPath) {
   const url = /^https?:\/\//i.test(jsonPath) ? jsonPath : `${baseUrl}${jsonPath}`;
-  const response = await fetch(url, { headers: authHeaders(), cache: "no-store" });
-  return readJson(response, jsonPath);
+  const { value } = await requestJson(
+    url,
+    { headers: authHeaders(), cache: "no-store" },
+    jsonPath
+  );
+  return value;
 }
 
 // Fetch the human-shareable HTML report page (the thing the Share button links
 // to). JSON readback alone does not prove a deployment can render this page.
 async function fetchReportPage(pagePath) {
   const url = /^https?:\/\//i.test(pagePath) ? pagePath : `${baseUrl}${pagePath}`;
-  const response = await fetch(url, { headers: authHeaders(), cache: "no-store" });
+  const { response, value: body } = await requestText(
+    url,
+    { headers: authHeaders(), cache: "no-store" },
+    pagePath
+  );
   const contentType = response.headers.get("content-type") || "";
-  return { ok: response.ok, status: response.status, contentType, body: await response.text() };
+  return { ok: response.ok, status: response.status, contentType, body };
 }
 
 async function checkHealth() {
-  const response = await fetch(`${baseUrl}/api/health`, { headers: authHeaders(), cache: "no-store" });
-  const health = await readJson(response, "/api/health");
+  const { value: health } = await requestJson(
+    `${baseUrl}/api/health`,
+    { headers: authHeaders(), cache: "no-store" },
+    "/api/health",
+    controlResponseMaxBytes
+  );
   if (!health.ok) fail(`health is not ok: ${health.error || JSON.stringify(health.warnings || [])}`);
   const capabilities = health.capabilities || {};
   if (!capabilities.singleScan) fail("health does not advertise singleScan");
@@ -173,7 +256,7 @@ async function checkHealth() {
 }
 
 async function checkSingleScan() {
-  const report = await resolveReport(
+  const { report } = await resolveReport(
     await submitScan({
       url: "https://example.com/?token=smoke-secret#frag",
       device: "desktop",
@@ -204,28 +287,47 @@ async function checkSingleScan() {
 }
 
 async function checkShieldsComparison() {
-  const report = await resolveReport(
-    await submitScan({
-      url: shieldsUrl,
-      device: "desktop",
-      compareShields: true,
-      consentMode: "observe"
-    }),
-    "Shields comparison"
-  );
-  if (!isShieldsComparisonReport(report)) {
-    fail("Shields request did not produce a Shields comparison report");
+  const candidateFailures = [];
+  for (const shieldsUrl of shieldsUrlCandidates) {
+    const outcome = await resolveReport(
+      await submitScan({
+        url: shieldsUrl,
+        device: "desktop",
+        compareShields: true,
+        consentMode: "observe"
+      }),
+      "Shields comparison",
+      // One target's outage or bot wall is attributable to that target and
+      // must not block promotion while another candidate can still prove the
+      // scanner. When EVERY candidate fails to scan, the aggregate failure
+      // below stays red: independent targets all failing indicates
+      // scanner-side breakage.
+      { tolerateScanFailure: true }
+    );
+    if (outcome.scanFailure) {
+      candidateFailures.push(`${shieldsUrl}: ${outcome.scanFailure}`);
+      console.warn(
+        `WARN Shields smoke target ${shieldsUrl} did not produce a scan (${outcome.scanFailure}); trying the next candidate target.`
+      );
+      continue;
+    }
+    const report = outcome.report;
+    if (!isShieldsComparisonReport(report)) {
+      fail("Shields request did not produce a Shields comparison report");
+    }
+    if (!hasShieldsComparisonDiff(report)) fail("Shields comparison is missing its diff");
+    if (!shieldsEngineActive(report)) {
+      fail(`Shields comparison ran without the ad-block engine active: ${shieldsPostureSummary(report)}`);
+    }
+    // Two DIFFERENT measurements, never blended: the variant's engine-aborted
+    // count and the baseline's filter-list matches while loading normally.
+    const { baseline: filterMatches, variant: engineBlocked } = shieldsBlockedCounts(report);
+    pass(
+      `live Shields comparison ran on ${shieldsUrl} (engine active; engine-blocked: ${engineBlocked ?? "n/a"}, baseline filter matches: ${filterMatches ?? "n/a"})`
+    );
+    return;
   }
-  if (!hasShieldsComparisonDiff(report)) fail("Shields comparison is missing its diff");
-  if (!shieldsEngineActive(report)) {
-    fail(`Shields comparison ran without the ad-block engine active: ${shieldsPostureSummary(report)}`);
-  }
-  // Two DIFFERENT measurements, never blended: the variant's engine-aborted
-  // count and the baseline's filter-list matches while loading normally.
-  const { baseline: filterMatches, variant: engineBlocked } = shieldsBlockedCounts(report);
-  pass(
-    `live Shields comparison ran on ${shieldsUrl} (engine active; engine-blocked: ${engineBlocked ?? "n/a"}, baseline filter matches: ${filterMatches ?? "n/a"})`
-  );
+  fail(`Shields comparison failed on every candidate target: ${candidateFailures.join("; ")}`);
 }
 
 function shieldsPostureSummary(report) {
@@ -282,7 +384,11 @@ async function checkSsrfRefusal() {
   if (isAsyncSubmission(payload)) {
     const url = /^https?:\/\//i.test(payload.statusPath) ? payload.statusPath : `${baseUrl}${payload.statusPath}`;
     for (let attempt = 0; attempt < MAX_POLLS; attempt += 1) {
-      const data = await readJson(await fetch(url, { headers: authHeaders(), cache: "no-store" }), "/api/scans/:id");
+      const { value: data } = await requestJson(
+        url,
+        { headers: authHeaders(), cache: "no-store" },
+        "/api/scans/:id"
+      );
       if (data.status === "failed") {
         const reason = ssrfGuardRefusalReason(data);
         if (!reason) fail(`link-local scan job failed, but not at the URL-safety guard (${data.error || "no reason given"})`);

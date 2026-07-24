@@ -70,7 +70,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ categ
         <p className="eyebrow">Controlled-visit evidence · {category.sites.length} canonical sites</p>
         <h1>What {category.label.toLowerCase()} sites loaded</h1>
         <p>
-          Descriptive results from one newest eligible passive visit per site—not a ranking, privacy grade, causal
+          Descriptive results from one newest eligible passive visit per site, not a ranking, privacy grade, causal
           claim or representative sample of all {category.label.toLowerCase()} sites.
         </p>
         <p className={styles.updated}>Newest included observation: <time dateTime={category.lastScannedAt}>{formatDate(category.lastScannedAt)}</time></p>
@@ -90,8 +90,10 @@ export default async function CategoryPage({ params }: { params: Promise<{ categ
           <div><dt>Catalogued tracking-service requests</dt><dd>{rollup.medianTrackers.toLocaleString()}</dd></div>
           <div>
             <dt>Third-party cookies</dt>
-            <dd>{rollup.medianCookies === null ? "Not measured" : rollup.medianCookies.toLocaleString()}</dd>
-            <small>{rollup.cookieMeasuredSites} of {rollup.siteCount} sites had complete cookie evidence</small>
+            <dd>
+              {rollup.medianCookies === null ? "Not measured" : rollup.medianCookies.toLocaleString()}
+              <small>{rollup.cookieMeasuredSites} of {rollup.siteCount} sites had complete cookie evidence</small>
+            </dd>
           </div>
         </dl>
         {rollup.shieldsPairedSites > 0 && (

@@ -5,6 +5,7 @@ import {
   deleteEncryptedWatch,
   encodeEncryptedWatchCredentialsFragment,
   encryptedWatchManagementUrl,
+  MAX_ENCRYPTED_WATCH_JSON_BYTES,
   mintEncryptedWatchCredentials,
   parseEncryptedWatchCreation,
   parseEncryptedWatchCredentialsFragment,
@@ -14,6 +15,7 @@ import {
   type EncryptedWatchCredentials
 } from "./encrypted-watch-client";
 import {
+  ENCRYPTED_WATCH_ACCESS_TOKEN_HEADER,
   ENCRYPTED_WATCH_CAPABILITY_HEADER,
   ENCRYPTED_WATCH_CADENCE_MS,
   ENCRYPTED_WATCH_MAX_RUNS,
@@ -70,7 +72,7 @@ function jsonResponse(value: unknown, statusCode = 200): Response {
   });
 }
 
-test("watch creation uses the established access header and keeps the target out of the URL", async () => {
+test("watch creation sends distinct scanner and watch-only access headers and keeps the target out of the URL", async () => {
   const requests: Array<{ input: string; init: RequestInit }> = [];
   const created = await createEncryptedWatch({
     payload: {
@@ -79,6 +81,7 @@ test("watch creation uses the established access header and keeps the target out
       options: { device: "mobile", gpcEnabled: true, reportMode: "r2", comparison: "none" }
     },
     accessToken: " access-token ",
+    watchAccessToken: " watch-only-operator-token-0123456789abcdef ",
     turnstileToken: " turnstile-token ",
     credentials: CREDENTIALS,
     resolveApiUrl: (path) => `https://scanner.example${path}`,
@@ -99,6 +102,10 @@ test("watch creation uses the established access header and keeps the target out
   assert.equal(request.init.redirect, "error");
   const headers = new Headers(request.init.headers);
   assert.equal(headers.get(SCAN_ACCESS_TOKEN_HEADER), "access-token");
+  assert.equal(
+    headers.get(ENCRYPTED_WATCH_ACCESS_TOKEN_HEADER),
+    "watch-only-operator-token-0123456789abcdef"
+  );
   assert.equal(headers.get(ENCRYPTED_WATCH_CAPABILITY_HEADER), CAPABILITY);
   assert.deepEqual(JSON.parse(String(request.init.body)), {
     url: TARGET,
@@ -107,9 +114,10 @@ test("watch creation uses the established access header and keeps the target out
     turnstileToken: "turnstile-token"
   });
   assert.equal(String(request.init.body).includes("access-token"), false);
+  assert.equal(String(request.init.body).includes("watch-only-operator-token"), false);
 });
 
-test("creation credentials are 256-bit, domain-separated, retained before POST, and reusable", async () => {
+test("public creation needs no watch secret and retains one reusable 256-bit capability", async () => {
   const minted = await mintEncryptedWatchCredentials(() => TOKEN_BYTES);
   assert.deepEqual(minted, CREDENTIALS);
   let retained: EncryptedWatchCredentials | null = null;
@@ -128,6 +136,7 @@ test("creation credentials are 256-bit, domain-separated, retained before POST, 
       resolveApiUrl: (path) => `https://scanner.example${path}`,
       fetcher: async (_input, init) => {
         assert.deepEqual(retained, CREDENTIALS, "credentials must be retained before POST");
+        assert.equal(new Headers(init.headers).get(ENCRYPTED_WATCH_ACCESS_TOKEN_HEADER), null);
         seenCapabilities.push(new Headers(init.headers).get(ENCRYPTED_WATCH_CAPABILITY_HEADER) ?? "");
         return jsonResponse({ ...status(), capability: CAPABILITY }, statusCode);
       }
@@ -146,6 +155,7 @@ test("an uncertain POST performs one deterministic capability recovery GET", asy
       target: { url: TARGET },
       options: { device: "desktop", gpcEnabled: true, reportMode: "r2", comparison: "none" }
     },
+    watchAccessToken: "watch-only-operator-token-0123456789abcdef",
     credentials: CREDENTIALS,
     resolveApiUrl: (path) => `https://scanner.example${path}`,
     fetcher: async (input, init) => {
@@ -161,9 +171,110 @@ test("an uncertain POST performs one deterministic capability recovery GET", asy
   assert.equal(requests[0].init.method, "POST");
   assert.equal(requests[1].input, `https://scanner.example/api/watches/${WATCH_ID}`);
   assert.equal(requests[1].init.method, "GET");
+  assert.equal(
+    new Headers(requests[0].init.headers).get(ENCRYPTED_WATCH_ACCESS_TOKEN_HEADER),
+    "watch-only-operator-token-0123456789abcdef"
+  );
+  assert.equal(new Headers(requests[1].init.headers).get(ENCRYPTED_WATCH_ACCESS_TOKEN_HEADER), null);
   for (const request of requests) {
     assert.equal(request.input.includes(CAPABILITY), false);
     assert.equal(new Headers(request.init.headers).get(ENCRYPTED_WATCH_CAPABILITY_HEADER), CAPABILITY);
+  }
+});
+
+test("a creation connection timeout aborts the POST and performs one bounded recovery GET", async () => {
+  const requests: Array<{ input: string; init: RequestInit }> = [];
+  let postAborted = false;
+  const created = await createEncryptedWatch({
+    payload: {
+      version: 1,
+      target: { url: TARGET },
+      options: { device: "desktop", gpcEnabled: true, reportMode: "r2", comparison: "none" }
+    },
+    credentials: CREDENTIALS,
+    fetchTimeouts: { connectTimeoutMs: 10, operationTimeoutMs: 100 },
+    resolveApiUrl: (path) => `https://scanner.example${path}`,
+    fetcher: (input, init) => {
+      requests.push({ input, init });
+      if (requests.length === 2) return Promise.resolve(jsonResponse(status()));
+      const signal = init.signal;
+      if (!signal) return Promise.reject(new Error("missing bounded-fetch signal"));
+      return new Promise((_resolve, reject) => {
+        signal.addEventListener("abort", () => {
+          postAborted = true;
+          reject(signal.reason);
+        }, { once: true });
+      });
+    }
+  });
+
+  assert.deepEqual(created.credentials, CREDENTIALS);
+  assert.equal(postAborted, true);
+  assert.equal(requests.length, 2);
+  assert.equal(requests[0]?.init.method, "POST");
+  assert.equal(requests[1]?.init.method, "GET");
+});
+
+test("a creation recovery body is operation-bounded and never triggers a third request", async () => {
+  let calls = 0;
+  let recoveryBodyCancelled = false;
+  await assert.rejects(
+    createEncryptedWatch({
+      payload: {
+        version: 1,
+        target: { url: TARGET },
+        options: { device: "desktop", gpcEnabled: true, reportMode: "r2", comparison: "none" }
+      },
+      credentials: CREDENTIALS,
+      fetchTimeouts: { connectTimeoutMs: 100, operationTimeoutMs: 10 },
+      resolveApiUrl: (path) => `https://scanner.example${path}`,
+      fetcher: async () => {
+        calls += 1;
+        if (calls === 1) return jsonResponse({ ok: true, malformed: true }, 201);
+        return new Response(new ReadableStream<Uint8Array>({
+          start(controller) {
+            controller.enqueue(new TextEncoder().encode('{"ok":'));
+          },
+          cancel() {
+            recoveryBodyCancelled = true;
+          }
+        }), { headers: { "content-type": "application/json" } });
+      }
+    }),
+    /The scheduled rescan could not be created/
+  );
+  assert.equal(calls, 2);
+  assert.equal(recoveryBodyCancelled, true);
+});
+
+test("watch creation refuses aliased or unsafe endpoint authorization before the network", async () => {
+  for (const watchAccessToken of [
+    "same-access-token-value-0123456789",
+    CAPABILITY,
+    "short",
+    "unsafe\nvalue"
+  ]) {
+    let attempted = false;
+    await assert.rejects(
+      createEncryptedWatch({
+        payload: {
+          version: 1,
+          target: { url: TARGET },
+          options: { device: "desktop", gpcEnabled: true, reportMode: "r2", comparison: "none" }
+        },
+        credentials: CREDENTIALS,
+        accessToken:
+          watchAccessToken === CAPABILITY ? "different-access-token-value-012345" : "same-access-token-value-0123456789",
+        watchAccessToken,
+        resolveApiUrl: (path) => `https://scanner.example${path}`,
+        fetcher: async () => {
+          attempted = true;
+          return jsonResponse({ ...status(), capability: CAPABILITY }, 201);
+        }
+      }),
+      /The scheduled rescan could not be created/
+    );
+    assert.equal(attempted, false);
   }
 });
 
@@ -234,6 +345,87 @@ test("watch read and delete send the capability only in its custom header", asyn
     assert.equal(new Headers(request.init.headers).get(ENCRYPTED_WATCH_CAPABILITY_HEADER), CAPABILITY);
     assert.equal(new Headers(request.init.headers).get(SCAN_ACCESS_TOKEN_HEADER), "access-token");
     assert.equal(request.init.redirect, "error");
+  }
+});
+
+test("capability reads abort when headers do not arrive and expose only the uniform error", async () => {
+  let transportAborted = false;
+  let calls = 0;
+  await assert.rejects(
+    readEncryptedWatch({
+      credentials: CREDENTIALS,
+      fetchTimeouts: { connectTimeoutMs: 10, operationTimeoutMs: 100 },
+      resolveApiUrl: (path) => `https://scanner.example${path}`,
+      fetcher: (_input, init) => {
+        calls += 1;
+        const signal = init.signal;
+        if (!signal) return Promise.reject(new Error("missing bounded-fetch signal"));
+        return new Promise((_resolve, reject) => {
+          signal.addEventListener("abort", () => {
+            transportAborted = true;
+            reject(signal.reason);
+          }, { once: true });
+        });
+      }
+    }),
+    (error: unknown) => {
+      assert.equal((error as Error).message, "The scheduled rescan capability is invalid or unavailable.");
+      return true;
+    }
+  );
+  assert.equal(calls, 1);
+  assert.equal(transportAborted, true);
+});
+
+test("capability reads abort a stalled response body under the operation deadline", async () => {
+  let bodyCancelled = false;
+  await assert.rejects(
+    readEncryptedWatch({
+      credentials: CREDENTIALS,
+      fetchTimeouts: { connectTimeoutMs: 100, operationTimeoutMs: 10 },
+      resolveApiUrl: (path) => `https://scanner.example${path}`,
+      fetcher: async () => new Response(new ReadableStream<Uint8Array>({
+        start(controller) {
+          controller.enqueue(new TextEncoder().encode('{"ok":'));
+        },
+        cancel() {
+          bodyCancelled = true;
+        }
+      }), { headers: { "content-type": "application/json" } })
+    }),
+    /The scheduled rescan capability is invalid or unavailable/
+  );
+  assert.equal(bodyCancelled, true);
+});
+
+test("capability reads reject declared and streamed JSON above the fixed watch limit", async () => {
+  const oversizedResponses = [
+    () => new Response("{}", {
+      headers: {
+        "content-type": "application/json",
+        "content-length": String(MAX_ENCRYPTED_WATCH_JSON_BYTES + 1)
+      }
+    }),
+    () => new Response(new ReadableStream<Uint8Array>({
+      start(controller) {
+        controller.enqueue(new Uint8Array(MAX_ENCRYPTED_WATCH_JSON_BYTES + 1));
+        controller.close();
+      }
+    }), { headers: { "content-type": "application/json" } })
+  ];
+
+  for (const response of oversizedResponses) {
+    await assert.rejects(
+      readEncryptedWatch({
+        credentials: CREDENTIALS,
+        resolveApiUrl: (path) => `https://scanner.example${path}`,
+        fetcher: async () => response()
+      }),
+      (error: unknown) => {
+        assert.equal((error as Error).message, "The scheduled rescan capability is invalid or unavailable.");
+        return true;
+      }
+    );
   }
 });
 

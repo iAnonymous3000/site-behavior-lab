@@ -23,17 +23,23 @@ test("watch creation commits quota, first job, shard, watch, and history under o
   assert.ok(method.indexOf("await this.ensureImmediateDurablePumpWake()") < method.lastIndexOf("transactionSync"));
 });
 
-test("creation prelooks a browser-held capability, gates expensive key work, and recovers duplicate commits", async () => {
+test("creation resolves any optional endpoint second factor before capability, DO, quota, and key work", async () => {
   const source = await workerSource();
   const handler = source.slice(
-    source.indexOf("async function handleEncryptedWatchCreation("),
+    source.indexOf("async function handleEncryptedWatchCreationWithinDeadline("),
     source.indexOf("function encryptedWatchAdmissionProofMatches(")
   );
-  assert.match(handler, /encryptedWatchIngressIsTokenGated/);
-  assert.ok(handler.indexOf("encryptedWatchIngressIsTokenGated") < handler.indexOf("findEncryptedWatch"));
+  assert.match(handler, /optionalEncryptedWatchAccessToken/);
+  assert.match(handler, /encryptedWatchAccessTokenMatches/);
+  assert.ok(handler.indexOf("optionalEncryptedWatchAccessToken") < handler.indexOf("createEncryptedWatchCredentialFromToken"));
+  assert.ok(handler.indexOf("encryptedWatchAccessTokenMatches") < handler.indexOf("getContainer(env.SCANNER)"));
+  assert.ok(handler.indexOf("encryptedWatchAccessTokenMatches") < handler.indexOf("chargeEncryptedWatchReadRateLimit"));
+  assert.ok(handler.indexOf("constantTimeEqual(capabilityToken, watchCreationAccessToken)") < handler.indexOf("getContainer(env.SCANNER)"));
+  assert.match(handler, /authorization and management capabilities must be distinct/);
   assert.ok(handler.indexOf("chargeEncryptedWatchReadRateLimit") < handler.indexOf("findEncryptedWatch"));
   assert.ok(handler.indexOf("findEncryptedWatch") < handler.indexOf("gateScanRequest"));
   assert.ok(handler.indexOf("gateScanRequest") < handler.indexOf("importEncryptedWatchKeyring"));
+  assert.ok(handler.indexOf("gateScanRequest") < handler.indexOf("admitEncryptedWatchPreparation"));
   assert.match(handler, /prepareUrl\.pathname = `\$\{DURABLE_SCAN_JOB_NODE_PATH_PREFIX\}\/prepare-watch`/);
   assert.match(handler, /headers: \{ "content-type": "application\/json; charset=utf-8" \}/);
   assert.doesNotMatch(
@@ -42,9 +48,73 @@ test("creation prelooks a browser-held capability, gates expensive key work, and
   );
   assert.match(handler, /createEncryptedWatchCredentialFromToken/);
   assert.match(handler, /admitEncryptedWatchPreparation\([\s\S]*capabilityToken/);
+  assert.match(handler, /readRequestBodyWithinLimit\([\s\S]*signal[\s\S]*REQUEST_BODY_OPERATION_TIMEOUT_MS/);
+  assert.match(handler, /gateScanRequest\(request, body, env, "defer", undefined, signal\)/);
+  assert.match(handler, /awaitDurableScanJobAdmissionStep/);
+  assert.match(handler, /readDurableScanJobInternalResponseBytes\(preparedResponse, signal\)/);
+  assert.match(handler, /admitEncryptedWatchPreparation\([\s\S]*commitNotAfter/);
   assert.match(handler, /catch \{[\s\S]*scanner\.findEncryptedWatch\(/);
   assert.match(handler, /encryptedWatchAdmissionProofMatches/);
   assert.match(handler, /result\.status === "refused"[\s\S]*scanner\.findEncryptedWatch/);
+});
+
+test("scheduled-rescan creation has one caller-composed deadline through its final commit", async () => {
+  const source = await workerSource();
+  const wrapper = source.slice(
+    source.indexOf("async function handleEncryptedWatchCreation(request:"),
+    source.indexOf("async function handleEncryptedWatchCreationWithinDeadline(")
+  );
+  const method = source.slice(
+    source.indexOf("async admitEncryptedWatchPreparation("),
+    source.indexOf("findEncryptedWatch(", source.indexOf("async admitEncryptedWatchPreparation("))
+  );
+  assert.match(wrapper, /withDurableScanJobAdmissionDeadline/);
+  assert.match(wrapper, /handleEncryptedWatchCreationWithinDeadline\([\s\S]*signal,[\s\S]*commitNotAfter/);
+  assert.match(wrapper, /\{ signal: request\.signal \}/);
+  assert.match(method, /assertDurableAdmissionCommitActive\(commitNotAfter, now\)/);
+  assert.ok(
+    method.lastIndexOf("assertDurableAdmissionCommitActive(commitNotAfter, now)") <
+      method.indexOf("commitPublicScanRateLimitedOperation"),
+    "the authoritative clock fence must run before quota, job, shard, watch, or history mutation"
+  );
+  assert.match(
+    method,
+    /commitPublicScanRateLimitedOperation\([\s\S]*admitEncryptedWatch\([\s\S]*\(\) => assertDurableAdmissionCommitActive\(commitNotAfter\)/
+  );
+});
+
+test("the public scheduled-rescan UI uses Turnstile and never receives the operator second factor", async () => {
+  const source = await readFile(
+    path.join(process.cwd(), "app/_components/scheduled-rescans.tsx"),
+    "utf8"
+  );
+  const creation = source.slice(
+    source.indexOf("const created = await createEncryptedWatch({"),
+    source.indexOf("pendingCreationRef.current = null", source.indexOf("const created = await createEncryptedWatch({"))
+  );
+  assert.match(creation, /accessToken,/);
+  assert.match(creation, /turnstileToken: createTurnstileToken/);
+  assert.doesNotMatch(creation, /watchAccessToken\s*:/);
+  assert.match(source, /health hides this UI when it is set/);
+});
+
+test("scheduled-rescan UI fences every network action behind one latest-operation epoch", async () => {
+  const source = await readFile(
+    path.join(process.cwd(), "app/_components/scheduled-rescans.tsx"),
+    "utf8"
+  );
+  assert.match(source, /import \{ LatestClientOperation \} from "@\/lib\/client-fetch-policy"/);
+  assert.match(source, /requestOperationRef = useRef\(new LatestClientOperation\(\)\)/);
+  assert.equal((source.match(/requestOperationRef\.current\.run\(/g) ?? []).length, 4);
+  assert.match(source, /requestOperationRef\.current\.cancel\(\)/);
+  assert.match(source, /createNetworkAttemptedRef/);
+  assert.match(source, /settleActiveCreate/);
+  assert.doesNotMatch(source, /requestControllerRef/);
+  const fragmentRecovery = source.slice(
+    source.indexOf("async function recoverFromFragment()"),
+    source.indexOf("if (recovered && !(await scheduledRescanCredentialsMatchDerivedId(recovered)))")
+  );
+  assert.match(fragmentRecovery, /requestOperationRef\.current\.cancel\(\)/);
 });
 
 test("watch reads and idempotent deletes rate-limit before capability work and never decrypt", async () => {
@@ -62,12 +132,18 @@ test("watch reads and idempotent deletes rate-limit before capability work and n
   assert.match(handler, /await getContainer\(env\.SCANNER\)\.deleteEncryptedWatch\(watchId, capabilityHash\)/);
   assert.doesNotMatch(handler, /if \(!deleted\)/);
   assert.doesNotMatch(handler, /decryptEncryptedWatchClaim/);
+  assert.doesNotMatch(handler, /ENCRYPTED_WATCH_ACCESS_TOKEN_HEADER|optionalEncryptedWatchAccessToken/);
 });
 
 test("due watches share the durable pump and resolve only after fresh private preparation and admission", async () => {
   const source = await workerSource();
   const pump = source.slice(source.indexOf("async pumpDurableScanJobs("), source.indexOf("private async activateDurableClaim("));
-  assert.ok(pump.indexOf("await this.admitDueEncryptedWatchRuns()") < pump.indexOf("claimDurableScanJobs"));
+  assert.match(pump, /runDurableScanJobPumpTurn/);
+  assert.ok(
+    pump.indexOf("dispatchCore: (context)") < pump.indexOf("listOptionalItems: (context)"),
+    "ordinary durable-job dispatch must precede optional scheduled-rescan work"
+  );
+  assert.match(pump, /persistImmediateSuccessor: \(\) => this\.ensureDurablePumpFallbackSchedule\(\)/);
   assert.equal((source.match(/const DURABLE_SCAN_JOB_PUMP_CALLBACK/g) ?? []).length, 1);
 
   const due = source.slice(
@@ -76,6 +152,8 @@ test("due watches share the durable pump and resolve only after fresh private pr
   );
   assert.ok(due.indexOf("decryptEncryptedWatchClaim") < due.indexOf("privateEncryptedWatchPreparationRequest"));
   assert.ok(due.indexOf("privateEncryptedWatchPreparationRequest") < due.indexOf("admitDurableScanJob"));
+  assert.match(due, /context\.signal/);
+  assert.match(due, /throwIfDurablePumpAborted/);
   assert.match(due, /const committedAt = Date\.now\(\)/);
   assert.match(due, /resolveEncryptedWatchLease\([\s\S]*now: committedAt/);
 });
@@ -84,9 +162,10 @@ test("watch capabilities terminate at the edge and watch drift does not disable 
   const source = await workerSource();
   const forward = source.slice(source.indexOf("function forwardToContainer("), source.indexOf("function frontDoorOrigin("));
   assert.match(forward, /headers\.delete\(ENCRYPTED_WATCH_CAPABILITY_HEADER\)/);
+  assert.match(forward, /headers\.delete\(ENCRYPTED_WATCH_ACCESS_TOKEN_HEADER\)/);
 
   const health = source.slice(source.indexOf("async function patchHealthResponse("), source.indexOf("export async function durableJobsEdgeHealthCheck("));
-  assert.match(health, /scheduledRescans: encryptedWatches\.check\.readiness === "ready"/);
+  assert.match(health, /encryptedWatches\.check\.readiness === "ready"[\s\S]*encryptedWatches\.check\.creationAuthorization === "public"[\s\S]*refusals\.length === 0/);
   assert.match(
     health,
     /encryptedWatches\.check\.readiness === "ready"[\s\S]*ensureEncryptedWatchPumpWake\(\)/
@@ -107,21 +186,63 @@ test("watch capabilities terminate at the edge and watch drift does not disable 
     source.indexOf("export async function encryptedWatchesEdgeHealthCheck("),
     source.indexOf("function encryptedWatchNodeHealth(")
   );
-  assert.match(watchHealth, /encryptedWatchIngressIsTokenGated/);
-  assert.match(watchHealth, /Encrypted watches require access-token-gated scanner ingress\./);
+  assert.match(watchHealth, /optionalEncryptedWatchAccessToken/);
+  assert.match(watchHealth, /operator authorization is configured but invalid or not isolated\./);
+  assert.doesNotMatch(watchHealth, /publicScanGateStatus|encryptedWatchIngressIsTokenGated/);
   const watchConfig = source.slice(
     source.indexOf("function requireEncryptedWatchConfig("),
     source.indexOf("function requireDurableScanJobInternalToken(")
   );
   assert.match(watchConfig, /SITE_BEHAVIOR_LAB_SYNTHETIC_MONITOR_TOKEN/);
+  assert.match(watchConfig, /const accessToken = optionalEncryptedWatchAccessToken\(env\)/);
+  assert.match(watchConfig, /durable\.internalToken,[\s\S]*accessToken \?\? ""/);
   assert.match(
     source,
     /SITE_BEHAVIOR_LAB_ENCRYPTED_WATCHES: this\.env\.SITE_BEHAVIOR_LAB_ENCRYPTED_WATCHES \?\? "0"/
   );
   assert.doesNotMatch(
     source.slice(source.indexOf("envVars ="), source.indexOf("private durableEncryptionKeyPromise")),
-    /SITE_BEHAVIOR_LAB_ENCRYPTED_WATCHES_(?:KEY|PREVIOUS_KEY)/
+    /SITE_BEHAVIOR_LAB_ENCRYPTED_WATCHES_(?:KEY|PREVIOUS_KEY|ACCESS_TOKEN)/
   );
+});
+
+test("watch auth and health coexist with the open public scanner contract", async () => {
+  const source = await workerSource();
+  const creation = source.slice(
+    source.indexOf("async function handleEncryptedWatchCreationWithinDeadline("),
+    source.indexOf("function encryptedWatchAdmissionProofMatches(")
+  );
+  assert.doesNotMatch(creation, /SITE_BEHAVIOR_LAB_ALLOW_UNAUTHENTICATED_SCANS/);
+  assert.match(creation, /Unauthorized scheduled-rescan creation\./);
+  assert.match(creation, /else if \(presentedWatchAccessToken !== null\)/);
+  assert.match(creation, /creation authorization is not configured\./);
+  assert.match(creation, /gateScanRequest\(request, body, env, "defer", undefined, signal\)/);
+  assert.match(creation, /rateLimit\.cost !== 1/);
+
+  const healthPatch = source.slice(
+    source.indexOf("async function patchHealthResponse("),
+    source.indexOf("export async function durableJobsEdgeHealthCheck(")
+  );
+  assert.match(healthPatch, /encryptedWatches\.check\.creationAuthorization === "public"/);
+  const watchMisconfiguration = healthPatch.slice(
+    healthPatch.indexOf('if (encryptedWatches.check.readiness === "misconfigured")'),
+    healthPatch.indexOf("health.limits =")
+  );
+  assert.doesNotMatch(watchMisconfiguration, /health\.scansAvailable = false/);
+});
+
+test("watch staging proves coexistence while the committed production flag stays disabled", async () => {
+  const [production, staging] = await Promise.all([
+    readFile(path.join(process.cwd(), "wrangler.container.jsonc"), "utf8"),
+    readFile(path.join(process.cwd(), "wrangler.container.watch-staging.jsonc"), "utf8")
+  ]);
+  assert.match(production, /"SITE_BEHAVIOR_LAB_ENCRYPTED_WATCHES"\s*:\s*"0"/);
+  assert.match(staging, /"SITE_BEHAVIOR_LAB_ENCRYPTED_WATCHES"\s*:\s*"1"/);
+  assert.match(staging, /"SITE_BEHAVIOR_LAB_ALLOW_UNAUTHENTICATED_SCANS"\s*:\s*"1"/);
+  assert.match(staging, /"TURNSTILE_SECRET_KEY"/);
+  assert.match(staging, /"SITE_BEHAVIOR_LAB_ENCRYPTED_WATCHES_ACCESS_TOKEN"/);
+  assert.doesNotMatch(staging, /"SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN"/);
+  assert.doesNotMatch(staging, /"SITE_BEHAVIOR_LAB_DURABLE_REPLAY_FAULTS"/);
 });
 
 test("optional watch-history faults cannot roll back ordinary durable terminal mutations", async () => {
@@ -132,7 +253,6 @@ test("optional watch-history faults cannot roll back ordinary durable terminal m
   );
   assert.match(safe, /try \{[\s\S]*recordEncryptedWatchRunTerminalOutcome/);
   assert.match(safe, /catch \{/);
-  assert.match(safe, /INNER JOIN encrypted_watch_runs runs ON runs\.job_id = jobs\.job_id/);
 
   const cancellation = source.slice(source.indexOf("async cancelDurableJob("), source.indexOf("async heartbeatDurableJob("));
   const resolution = source.slice(source.indexOf("async resolveDurableJob("), source.indexOf("async pumpDurableScanJobs("));
@@ -140,4 +260,11 @@ test("optional watch-history faults cannot roll back ordinary durable terminal m
   assert.match(resolution, /this\.recordEncryptedWatchTerminalOutcomeSafely/);
   assert.doesNotMatch(cancellation, /recordEncryptedWatchRunTerminalOutcome\(this\.ctx/);
   assert.doesNotMatch(resolution, /recordEncryptedWatchRunTerminalOutcome\(this\.ctx/);
+
+  const purge = source.slice(
+    source.indexOf("private purgeDurableScanJobState("),
+    source.indexOf("private durableEncryptionKey(")
+  );
+  assert.match(purge, /settleSynchronizeAndPurgeDurableScanJobs\(this\.ctx\.storage\.sql, now\)/);
+  assert.doesNotMatch(purge, /Safely|purgeDurableScanJobs/);
 });

@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import { publicReportDigest } from "./canonical-json";
 import { readManagedReport } from "./managed-report-reader";
 import {
   historicalR2MaxAgeDays,
@@ -8,8 +9,30 @@ import {
   r2ReportRetentionSource
 } from "./r2-report-remediation";
 import { REDACTION_VERSION } from "./redaction-v2";
+import { REDACTION_TRANSITION_AUDIT_VERSION } from "./redaction-transition-audit";
+import { buildProvenanceEntry } from "./redaction-provenance";
 import { buildReportShare } from "./report-locator";
+import {
+  MIGRATABLE_REDACTION_V3_NORMALIZATIONS,
+  REDACTION_V3_TO_V4_NORMALIZATION_SUFFIX
+} from "./scan-report-v2-normalization";
+import { buildFingerprints } from "./scan-report-v2-fingerprints";
 import { makePublicSingleReportV2, makeScanReportV1 } from "./scan-report-v2-fixtures";
+import {
+  makePublicSingleReportV2R2,
+  makeSupportingPairInterventionReportV2R2
+} from "./scan-report-v2-r2-fixtures";
+import {
+  MIGRATABLE_REDACTION_VERSION,
+  r2ReportRuns
+} from "./scan-report-v2-r2-remediation";
+import {
+  HISTORICAL_NODE_R2_V3_ADBLOCK_ENGINE_VERSION,
+  HISTORICAL_NODE_R2_V3_DETECTOR_REGISTRY_DIGEST,
+  HISTORICAL_NODE_R2_V3_DETECTOR_REGISTRY_VERSION,
+  HISTORICAL_NODE_R2_V3_METHODOLOGY_VERSION
+} from "./scan-report-v2-r2-producer-contract";
+import type { ScanRunV2R2 } from "./scan-report-v2-r2";
 
 const REPORT_ID = `20260712-${"a".repeat(32)}`;
 const OTHER_ID = `20260712-${"b".repeat(32)}`;
@@ -54,6 +77,62 @@ test("inventory pairs managed objects and blocks dangling or unknown keys", () =
         { key: "reports/not-a-managed-object.json", issue: "unrecognized-object" }
       ]
     }
+  );
+});
+
+test("R2 planning rejects nested duplicate report and sidecar keys before digesting", () => {
+  const duplicateReport = legacyWire().replace(
+    /"pageTitle":"[^"]*"/,
+    '"pageTitle":"Alice private account token","pageTitle":""'
+  );
+  assert.deepEqual(
+    planR2ReportRemediation({
+      reportId: REPORT_ID,
+      reportContents: duplicateReport,
+      sidecarContents: null,
+      retentionSource: METADATA_SOURCE,
+      writtenAt: WRITTEN_AT,
+      now: WRITTEN_AT
+    }),
+    { ok: false, reportId: REPORT_ID, issue: "invalid-report-json" }
+  );
+
+  assert.deepEqual(
+    planR2ReportRemediation({
+      reportId: REPORT_ID,
+      reportContents: legacyWire(),
+      sidecarContents: '{"ignored":{"secret":"Alice","secret":""}}',
+      retentionSource: METADATA_SOURCE,
+      writtenAt: WRITTEN_AT,
+      now: WRITTEN_AT
+    }),
+    { ok: false, reportId: REPORT_ID, issue: "invalid-sidecar-json" }
+  );
+});
+
+test("R2 planning rejects BOM-prefixed report and sidecar wires", () => {
+  assert.deepEqual(
+    planR2ReportRemediation({
+      reportId: REPORT_ID,
+      reportContents: `\uFEFF${legacyWire()}`,
+      sidecarContents: null,
+      retentionSource: METADATA_SOURCE,
+      writtenAt: WRITTEN_AT,
+      now: WRITTEN_AT
+    }),
+    { ok: false, reportId: REPORT_ID, issue: "invalid-report-json" }
+  );
+
+  assert.deepEqual(
+    planR2ReportRemediation({
+      reportId: REPORT_ID,
+      reportContents: legacyWire(),
+      sidecarContents: "\uFEFF{}",
+      retentionSource: METADATA_SOURCE,
+      writtenAt: WRITTEN_AT,
+      now: WRITTEN_AT
+    }),
+    { ok: false, reportId: REPORT_ID, issue: "invalid-sidecar-json" }
   );
 });
 
@@ -346,12 +425,12 @@ test("foreign embedded share identity blocks the whole-object rewrite", () => {
   assert.deepEqual(plan, { ok: false, reportId: REPORT_ID, issue: "report-identity-changed" });
 });
 
-test("legacy v2 cannot be blessed as redaction v3 while current v2 can be re-attested", () => {
-  const old = makePublicSingleReportV2();
-  old.share = buildReportShare(REPORT_ID);
+test("v2/r1 stays unsupported while an exactly attested r2/v3 report migrates to v4", () => {
+  const r1 = makePublicSingleReportV2();
+  r1.share = buildReportShare(REPORT_ID);
   const rejected = planR2ReportRemediation({
     reportId: REPORT_ID,
-    reportContents: JSON.stringify(old),
+    reportContents: JSON.stringify(r1),
     sidecarContents: null,
     retentionSource: METADATA_SOURCE,
     writtenAt: WRITTEN_AT,
@@ -361,19 +440,199 @@ test("legacy v2 cannot be blessed as redaction v3 while current v2 can be re-att
     ok: false,
     reportId: REPORT_ID,
     issue: "unsupported-report-schema",
-    detail: "redaction-version-mismatch"
+    detail: "only schema-r2 has a reviewed migration"
   });
 
-  old.run.privacy.redactionVersion = REDACTION_VERSION;
-  const accepted = planR2ReportRemediation({
+  const source = legacyV3R2Report();
+  const sourceSidecar = buildProvenanceEntry({
     reportId: REPORT_ID,
-    reportContents: JSON.stringify(old),
-    sidecarContents: null,
+    publicReport: source,
+    writtenAt: WRITTEN_AT,
+    createdAt: CLOCK.createdAt,
+    expiresAt: CLOCK.expiresAt,
+    redactionVersion: MIGRATABLE_REDACTION_VERSION
+  });
+  const migrated = planR2ReportRemediation({
+    reportId: REPORT_ID,
+    reportContents: JSON.stringify(source),
+    sidecarContents: JSON.stringify(sourceSidecar),
     retentionSource: METADATA_SOURCE,
     writtenAt: WRITTEN_AT,
     now: WRITTEN_AT
   });
-  assert.equal(accepted.ok, true);
-  if (!accepted.ok) throw new Error("expected current-v2 remediation");
-  assert.equal(accepted.action, "rewrite");
+  assert.equal(migrated.ok, true);
+  if (!migrated.ok || migrated.action !== "rewrite") throw new Error("expected r2/v3 migration");
+  assert.equal(migrated.reportChanged, true);
+  assert.deepEqual(migrated.retention, CLOCK);
+  assert.deepEqual(migrated.transitionAudit, {
+    version: REDACTION_TRANSITION_AUDIT_VERSION,
+    pageTitlesWithheld: 1,
+    explicitPortFieldsRemoved: 2,
+    ipLiteralFieldsRejected: 0
+  });
+
+  const output = JSON.parse(migrated.reportWire) as ReturnType<typeof legacyV3R2Report>;
+  assert.equal(output.run.privacy.redactionVersion, REDACTION_VERSION);
+  assert.equal(output.run.summary.pageTitle, "");
+  assert.equal(output.run.subject.requested.origin, "https://example.com");
+  assert.equal(
+    output.run.toolchain.normalizationVersion,
+    `${legacyNodeNormalization()}+${REDACTION_V3_TO_V4_NORMALIZATION_SUFFIX}`
+  );
+  assert.equal(
+    readManagedReport({
+      reportId: REPORT_ID,
+      reportContents: migrated.reportWire,
+      sidecarContents: migrated.sidecarWire,
+      retention: CLOCK
+    }).ok,
+    true
+  );
+
+  const fixedPoint = planR2ReportRemediation({
+    reportId: REPORT_ID,
+    reportContents: migrated.reportWire,
+    sidecarContents: migrated.sidecarWire,
+    retentionSource: METADATA_SOURCE,
+    writtenAt: WRITTEN_AT,
+    now: WRITTEN_AT
+  });
+  assert.equal(fixedPoint.ok, true);
+  if (!fixedPoint.ok) throw new Error("expected migrated fixed point");
+  assert.equal(fixedPoint.action, "current");
+  assert.deepEqual(fixedPoint.transitionAudit, {
+    version: REDACTION_TRANSITION_AUDIT_VERSION,
+    pageTitlesWithheld: 0,
+    explicitPortFieldsRemoved: 0,
+    ipLiteralFieldsRejected: 0
+  });
 });
+
+test("r2/v3 migration rejects missing, mismatched, and contradictory provenance", () => {
+  const source = legacyV3R2Report();
+  const validSidecar = buildProvenanceEntry({
+    reportId: REPORT_ID,
+    publicReport: source,
+    writtenAt: WRITTEN_AT,
+    createdAt: CLOCK.createdAt,
+    expiresAt: CLOCK.expiresAt,
+    redactionVersion: MIGRATABLE_REDACTION_VERSION
+  });
+  const base = {
+    reportId: REPORT_ID,
+    reportContents: JSON.stringify(source),
+    retentionSource: METADATA_SOURCE,
+    writtenAt: WRITTEN_AT,
+    now: WRITTEN_AT
+  };
+
+  for (const [sidecarContents, detail] of [
+    [null, "v3 report has no provenance sidecar"],
+    [JSON.stringify({ ...validSidecar, publicDigest: "0".repeat(64) }), "v3 sidecar digest mismatch"],
+    [
+      JSON.stringify({ ...validSidecar, createdAt: "2026-07-12T09:00:00.000Z" }),
+      "v3 sidecar retention clock mismatch"
+    ]
+  ] as const) {
+    assert.deepEqual(planR2ReportRemediation({ ...base, sidecarContents }), {
+      ok: false,
+      reportId: REPORT_ID,
+      issue: "ambiguous-v3-provenance",
+      detail
+    });
+  }
+});
+
+test("r2/v3 migration rejects mixed embedded redaction versions", () => {
+  const source = makeSupportingPairInterventionReportV2R2();
+  for (const run of r2ReportRuns(source)) {
+    markHistoricalNodeV3(run);
+    run.fingerprints = buildFingerprints({
+      conditions: run.conditions,
+      provenance: run.provenance,
+      toolchain: run.toolchain,
+      detectors: run.detectors
+    });
+  }
+  r2ReportRuns(source)[0].privacy.redactionVersion = REDACTION_VERSION;
+  source.share = buildReportShare(REPORT_ID);
+  assert.deepEqual(
+    planR2ReportRemediation({
+      reportId: REPORT_ID,
+      reportContents: JSON.stringify(source),
+      sidecarContents: null,
+      retentionSource: METADATA_SOURCE,
+      writtenAt: WRITTEN_AT,
+      now: WRITTEN_AT
+    }),
+    {
+      ok: false,
+      reportId: REPORT_ID,
+      issue: "ambiguous-v3-provenance",
+      detail: "mixed-redaction-versions"
+    }
+  );
+});
+
+test("the R2 planner rejects a schema-r2 identity bound to another share", () => {
+  const source = legacyV3R2Report();
+  source.share = buildReportShare(OTHER_ID);
+  const sidecar = buildProvenanceEntry({
+    reportId: REPORT_ID,
+    publicReport: source,
+    writtenAt: WRITTEN_AT,
+    createdAt: CLOCK.createdAt,
+    expiresAt: CLOCK.expiresAt,
+    redactionVersion: MIGRATABLE_REDACTION_VERSION
+  });
+  assert.deepEqual(
+    planR2ReportRemediation({
+      reportId: REPORT_ID,
+      reportContents: JSON.stringify(source),
+      sidecarContents: JSON.stringify(sidecar),
+      retentionSource: METADATA_SOURCE,
+      writtenAt: WRITTEN_AT,
+      now: WRITTEN_AT
+    }),
+    { ok: false, reportId: REPORT_ID, issue: "report-identity-changed" }
+  );
+});
+
+function legacyNodeNormalization(): string {
+  const [identity] = MIGRATABLE_REDACTION_V3_NORMALIZATIONS["node-playwright"];
+  if (!identity) throw new Error("missing reviewed v3 fixture identity");
+  return identity;
+}
+
+function markHistoricalNodeV3(run: ScanRunV2R2): void {
+  run.privacy.redactionVersion = MIGRATABLE_REDACTION_VERSION;
+  run.toolchain.normalizationVersion = legacyNodeNormalization();
+  run.provenance.methodologyVersion = HISTORICAL_NODE_R2_V3_METHODOLOGY_VERSION;
+  run.provenance.detectorRegistry = {
+    version: HISTORICAL_NODE_R2_V3_DETECTOR_REGISTRY_VERSION,
+    digest: HISTORICAL_NODE_R2_V3_DETECTOR_REGISTRY_DIGEST
+  };
+  if (run.toolchain.adblock !== null) {
+    run.toolchain.adblock.engineVersion = HISTORICAL_NODE_R2_V3_ADBLOCK_ENGINE_VERSION;
+  }
+}
+
+function legacyV3R2Report() {
+  const report = makePublicSingleReportV2R2();
+  report.share = buildReportShare(REPORT_ID);
+  markHistoricalNodeV3(report.run);
+  report.run.summary.pageTitle = "Private account for Alice";
+  report.run.subject.requested.origin = "https://example.com:8443";
+  report.run.subject.observed.origin = "https://example.com:8443";
+  report.run.fingerprints = buildFingerprints({
+    conditions: report.run.conditions,
+    provenance: report.run.provenance,
+    toolchain: report.run.toolchain,
+    detectors: report.run.detectors
+  });
+  // Make accidental mutation by the pure planner visible in the test fixture.
+  const before = publicReportDigest(report);
+  const clone = structuredClone(report);
+  assert.equal(publicReportDigest(report), before);
+  return clone;
+}

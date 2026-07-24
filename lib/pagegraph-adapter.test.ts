@@ -104,3 +104,14 @@ test("pageGraphToScanResult rejects non-HTTP target URLs", () => {
     /requestedUrl must be an HTTP\(S\) URL/
   );
 });
+
+test("the legacy PageGraph adapter preserves the full three-digit HTTP status grammar", () => {
+  const result = pageGraphToScanResult({
+    requestedUrl: "https://example.com/",
+    status: 699,
+    requests: [{ url: "https://example.com/", status: 799 }]
+  });
+
+  assert.equal(result.summary.status, 699);
+  assert.equal(result.requests[0].status, 799);
+});

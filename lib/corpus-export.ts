@@ -1,4 +1,6 @@
 import { csvCell } from "./csv-export";
+import { preferCorpusRepresentative } from "./corpus-representative";
+import { corpusSiteDomainKey } from "./corpus-site-domain";
 import type { DirectoryEntry } from "./corpus-overview";
 
 /**
@@ -42,6 +44,29 @@ export type CorpusExportRow = {
   consentClicks: string | null;
   /** Lead run's top-level HTTP status; >= 400 means an error/block page, not the site. */
   status: number | null;
+  /** Evaluator-backed outcome (legacy-derived for v1, recorded for v2). */
+  runOutcome: DirectoryEntry["runOutcome"];
+  /** Recorded producer/observer; null on v1. */
+  producer: string | null;
+  /** Recorded acquisition path; null on v1. */
+  acquisition: string | null;
+  /** Self-reported producer build commit; null on v1. */
+  buildCommit: string | null;
+  /** Methodology token defining the statistical cohort. */
+  methodologyVersion: string;
+  methodologyOrigin: "recorded" | "legacy-derived";
+  browserName: string | null;
+  browserVersion: string | null;
+  egressLabel: string;
+  egressRegion: string | null;
+  /** Versioned schema/methodology/producer cohort; never a cross-version pool. */
+  corpusCohortId: string;
+  /** Distinct-site denominator after this cohort's passive-run quality gates. */
+  corpusCohortDenominator: number;
+  /** Whether this exact row represents its site in that cohort's statistics. */
+  corpusInclusion: "included" | "excluded";
+  /** Machine-readable reasons; empty only when corpusInclusion is included. */
+  corpusExclusionReasons: CorpusExclusionReason[];
   /** Lead run hit the request-recording cap: every count is a floor, not measured behavior. */
   requestCapped: boolean;
   /** Whether the lead run's request family is complete enough for aggregation. */
@@ -80,6 +105,15 @@ export type CorpusExportRow = {
   compatibilityFingerprintMatched: DirectoryEntry["compatibilityFingerprintMatched"];
 };
 
+export type CorpusExclusionReason =
+  | "run-failed"
+  | "missing-http-status"
+  | "http-error-status"
+  | "request-evidence-incomplete"
+  | "request-recording-cap"
+  | "post-choice-consent-lead"
+  | "superseded-by-newer-report";
+
 export const CORPUS_EXPORT_NOTE = [
   "One row per published report. A single report records one automated, controlled Chromium visit; a comparison report pairs two such visits, one per compared condition.",
   "The corpus is a curated set of sites (popular, mostly commercial, plus a diversity seed list), not a random sample of the web, so treat cross-site statistics as describing this corpus only.",
@@ -93,11 +127,12 @@ export const CORPUS_EXPORT_NOTE = [
   "The flattened corpus deliberately omits the raw baseline and variant fingerprint digests: they remain available in the linked full reports, while repeating stable digests here would add linkability and noise without a documented corpus consumer.",
   "Rows with a status of 400 or higher reflect an error or block page (the site refusing the automated visit), not the site's normal behavior. request_capped is the exact 1,000-request recording-cap flag; those activity counts are floors cut off mid-collection. request_evidence_complete is the broader request-family completeness flag, so it can be false for other bounded capture loss while request_capped remains false.",
   "Rows with request_evidence_complete false have lower-bound request counts and stay out of this project's percentiles, category medians, leaderboards, and since-last-scan deltas, as do failed loads and post-choice consent lead runs. A request-capped row also has cookie and storage figures that are end-state snapshots of an interrupted visit.",
-  "siteCount counts distinct sites with a successful single run or primary comparison arm, including request-capped recordings; two successful primary arms do not count a site twice. measuredSampleSize is the exact current percentile cohort: distinct sites whose newest eligible legacy-v1 lead run loaded successfully, had complete request evidence, and remained in the passive observe consent state.",
-  "Category medians and leaderboards apply the same passive-run exclusions across every supported schema generation, so their cross-version cohort can differ from measuredSampleSize.",
+  "corpus_cohort_id is a versioned schema, methodology, and recorded-producer identity. corpus_cohort_denominator is the distinct-site passive-run denominator for that exact cohort; no percentile, category median, or leaderboard silently pools v1 and r2 or different methodology tokens.",
+  "corpus_inclusion and corpus_exclusion_reasons state whether a row is the newest eligible representative for its site in that cohort. Excluded rows remain published and auditable; they never contribute a zero or truncated measurement.",
+  "siteCount counts distinct sites with a successful single run or primary comparison arm, including request-capped recordings; two successful primary arms do not count a site twice. measuredSampleSize is the denominator of primaryCohortId, the top-level compatibility cohort in corpus-stats.json; the cohorts collection names every separate methodology denominator.",
   "Delta fields compare a site's newest report against its previous successfully loaded, request-complete report only when kind, requested/final subject, schema revision, methodology, browser environment, device/viewport, intervention state, filter-list engine/source/count, known snapshot dates (which may differ), and tracker-catalog identity are compatible; an unknown setup never matches another unknown. The deltas can still reflect run-to-run variance as well as real site changes.",
   "schema_version/schema_revision record the report's wire generation, schema_origin marks legacy-derived (v1) rows whose derived facts were never recorded as v2 fact, and limited marks rows whose schema revision supports only descriptive (never causal) claims.",
-  "Historical v1 rows are legacy-derived and limited; r2 rows carry recorded facts and may be non-limited. Filter by these columns before aggregation: this project's current percentile distributions remain v1-only and never mix r2 metrics into the legacy cohort.",
+  "Historical v1 rows are legacy-derived and limited; r2 rows carry recorded facts and may be non-limited. producer, acquisition, build_commit, browser, egress, run_outcome, methodology_version, and methodology_origin make each row's provenance and quality filterable; null or blank means the generation never recorded the fact.",
   "shields_third_party_change is the SIGNED third-party request change of an eligible Brave-list blocking pair: the blocking visit's count minus the unblocked baseline's (Brave's ad-block engine and default Shields lists, simulated in this scanner's browser, not a live Brave-browser visit), so a negative value means fewer requests with blocking on and a positive value means more; increases are real paired-visit observations (ad rotation, fallback loading) and are reported signed, not clamped to zero.",
   "It is never a count of individually blocked requests, which each blocking run records separately. shieldsChangeSummary in this payload counts the rows with a non-null change by direction (decreased / flat / increased).",
   "Full methodology and per-report evidence are linked from each row."
@@ -105,6 +140,7 @@ export const CORPUS_EXPORT_NOTE = [
 
 export function buildCorpusExportRows(entries: DirectoryEntry[], origin: string): CorpusExportRow[] {
   const base = origin.replace(/\/+$/, "");
+  const inclusion = corpusInclusionForEntries(entries);
   return entries.map((entry) => ({
     id: entry.id,
     domain: entry.domain,
@@ -120,6 +156,20 @@ export function buildCorpusExportRows(entries: DirectoryEntry[], origin: string)
     consentMode: entry.consentMode,
     consentClicks: entry.consentClicks,
     status: entry.status,
+    runOutcome: entry.runOutcome,
+    producer: entry.producer,
+    acquisition: entry.acquisition,
+    buildCommit: entry.buildCommit,
+    methodologyVersion: entry.corpusCohort.methodologyVersion,
+    methodologyOrigin: entry.corpusCohort.methodologyOrigin,
+    browserName: entry.browserName,
+    browserVersion: entry.browserVersion,
+    egressLabel: entry.egressLabel,
+    egressRegion: entry.egressRegion,
+    corpusCohortId: entry.corpusCohort.id,
+    corpusCohortDenominator: inclusion.denominators.get(entry.corpusCohort.id) ?? 0,
+    corpusInclusion: inclusion.reasons.get(entry.id)?.length ? "excluded" : "included",
+    corpusExclusionReasons: inclusion.reasons.get(entry.id) ?? [],
     requestCapped: entry.capped,
     requestEvidenceComplete: entry.requestEvidenceComplete,
     headline: entry.headline,
@@ -143,6 +193,45 @@ export function buildCorpusExportRows(entries: DirectoryEntry[], origin: string)
   }));
 }
 
+function corpusInclusionForEntries(entries: DirectoryEntry[]): {
+  reasons: Map<string, CorpusExclusionReason[]>;
+  denominators: Map<string, number>;
+} {
+  const reasons = new Map<string, CorpusExclusionReason[]>();
+  const newestEligible = new Map<string, DirectoryEntry>();
+
+  for (const entry of entries) {
+    const entryReasons: CorpusExclusionReason[] = [];
+    if (entry.runOutcome !== "complete") entryReasons.push("run-failed");
+    if (entry.status === null) entryReasons.push("missing-http-status");
+    else if (entry.status >= 400) entryReasons.push("http-error-status");
+    if (!entry.requestEvidenceComplete) entryReasons.push("request-evidence-incomplete");
+    if (entry.capped) entryReasons.push("request-recording-cap");
+    if (entry.consentMode === "accept-all" || entry.consentMode === "reject-all") {
+      entryReasons.push("post-choice-consent-lead");
+    }
+    reasons.set(entry.id, entryReasons);
+    if (entryReasons.length > 0) continue;
+
+    const domain = corpusSiteDomainKey(entry.domain) || entry.domain.toLowerCase();
+    const key = `${entry.corpusCohort.id}\u0000${domain}`;
+    const current = newestEligible.get(key);
+    if (!current || preferCorpusRepresentative(entry, current)) newestEligible.set(key, entry);
+  }
+
+  const selectedIds = new Set([...newestEligible.values()].map((entry) => entry.id));
+  for (const entry of entries) {
+    const entryReasons = reasons.get(entry.id) as CorpusExclusionReason[];
+    if (entryReasons.length === 0 && !selectedIds.has(entry.id)) entryReasons.push("superseded-by-newer-report");
+  }
+
+  const denominators = new Map<string, number>();
+  for (const entry of newestEligible.values()) {
+    denominators.set(entry.corpusCohort.id, (denominators.get(entry.corpusCohort.id) ?? 0) + 1);
+  }
+  return { reasons, denominators };
+}
+
 export type CorpusExportPayload = {
   generatedAt: string;
   note: string;
@@ -150,8 +239,12 @@ export type CorpusExportPayload = {
   reportCount: number;
   /** Distinct sites with at least one successful load, including capped recordings. */
   siteCount: number;
-  /** Exact legacy-v1 passive-run cohort used by the current percentile artifact. */
+  /** Exact primaryCohortId passive-run denominator used by the compatibility view. */
   measuredSampleSize: number;
+  /** Cohort backing measuredSampleSize/top-level corpus-stats compatibility fields. */
+  primaryCohortId: string | null;
+  /** Auditable per-methodology denominators derived from the exported rows. */
+  cohorts: CorpusExportCohort[];
   /**
    * Direction mix of the rows carrying a non-null shields_third_party_change:
    * decreased (< 0, fewer with blocking), flat (0), increased (> 0). Published
@@ -160,6 +253,18 @@ export type CorpusExportPayload = {
    */
   shieldsChangeSummary: ShieldsChangeSummary;
   reports: CorpusExportRow[];
+};
+
+export type CorpusExportCohort = {
+  id: string;
+  schemaVersion: 1 | 2;
+  schemaRevision: 1 | 2 | null;
+  methodologyVersion: string;
+  methodologyOrigin: "recorded" | "legacy-derived";
+  producer: string | null;
+  denominator: number;
+  includedRows: number;
+  excludedRows: number;
 };
 
 export type ShieldsChangeSummary = {
@@ -181,7 +286,7 @@ export function summarizeShieldsChanges(rows: CorpusExportRow[]): ShieldsChangeS
 
 export function buildCorpusExportPayload(
   rows: CorpusExportRow[],
-  input: { generatedAt: string; siteCount: number; measuredSampleSize: number }
+  input: { generatedAt: string; siteCount: number; measuredSampleSize: number; primaryCohortId?: string | null }
 ): CorpusExportPayload {
   return {
     generatedAt: input.generatedAt,
@@ -190,9 +295,32 @@ export function buildCorpusExportPayload(
     reportCount: rows.length,
     siteCount: input.siteCount,
     measuredSampleSize: input.measuredSampleSize,
+    primaryCohortId: input.primaryCohortId ?? null,
+    cohorts: summarizeExportCohorts(rows),
     shieldsChangeSummary: summarizeShieldsChanges(rows),
     reports: rows
   };
+}
+
+export function summarizeExportCohorts(rows: CorpusExportRow[]): CorpusExportCohort[] {
+  const byId = new Map<string, CorpusExportCohort>();
+  for (const row of rows) {
+    const current = byId.get(row.corpusCohortId) ?? {
+      id: row.corpusCohortId,
+      schemaVersion: row.schemaVersion,
+      schemaRevision: row.schemaRevision,
+      methodologyVersion: row.methodologyVersion,
+      methodologyOrigin: row.methodologyOrigin,
+      producer: row.producer,
+      denominator: row.corpusCohortDenominator,
+      includedRows: 0,
+      excludedRows: 0
+    };
+    if (row.corpusInclusion === "included") current.includedRows += 1;
+    else current.excludedRows += 1;
+    byId.set(row.corpusCohortId, current);
+  }
+  return [...byId.values()].sort((left, right) => left.id.localeCompare(right.id));
 }
 
 const CSV_HEADER = [
@@ -229,7 +357,23 @@ const CSV_HEADER = [
   "variant_consent_choice_state",
   "comparison_decision_mode",
   "compatibility_fingerprint_origin",
-  "compatibility_fingerprint_matched"
+  "compatibility_fingerprint_matched",
+  // Additive export evolution: keep every historical column in its original
+  // position and append new provenance/cohort fields for positional readers.
+  "run_outcome",
+  "producer",
+  "acquisition",
+  "build_commit",
+  "methodology_version",
+  "methodology_origin",
+  "browser_name",
+  "browser_version",
+  "egress_label",
+  "egress_region",
+  "corpus_cohort_id",
+  "corpus_cohort_denominator",
+  "corpus_inclusion",
+  "corpus_exclusion_reasons"
 ] as const;
 
 export function corpusExportToCsv(rows: CorpusExportRow[]): string {
@@ -267,7 +411,21 @@ export function corpusExportToCsv(rows: CorpusExportRow[]): string {
     row.variantConsentChoiceState ?? "",
     row.comparisonDecisionMode ?? "",
     row.compatibilityFingerprintOrigin ?? "",
-    row.compatibilityFingerprintMatched === null ? "" : row.compatibilityFingerprintMatched ? "true" : "false"
+    row.compatibilityFingerprintMatched === null ? "" : row.compatibilityFingerprintMatched ? "true" : "false",
+    row.runOutcome,
+    row.producer ?? "",
+    row.acquisition ?? "",
+    row.buildCommit ?? "",
+    row.methodologyVersion,
+    row.methodologyOrigin,
+    row.browserName ?? "",
+    row.browserVersion ?? "",
+    row.egressLabel,
+    row.egressRegion ?? "",
+    row.corpusCohortId,
+    row.corpusCohortDenominator,
+    row.corpusInclusion,
+    row.corpusExclusionReasons.join(";")
   ]);
   return [CSV_HEADER, ...lines].map((line) => line.map(csvCell).join(",")).join("\r\n").concat("\r\n");
 }

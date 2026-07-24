@@ -9,6 +9,7 @@ import {
 } from "./pagegraph-client-import";
 import {
   MAX_PAGEGRAPH_METADATA_BYTES,
+  MAX_PAGEGRAPH_UPLOAD_BYTES,
   pageGraphUploadSelection
 } from "./pagegraph-upload-selection";
 import { isPublicScanReportV2R2 } from "./scan-report-v2-r2-validation";
@@ -68,6 +69,37 @@ test("pair selection requires same-stem bounded GraphML and metadata files", () 
   );
 });
 
+test("oversized PageGraph pairs fail before either browser file is allocated", async () => {
+  let graphReads = 0;
+  let metadataReads = 0;
+  const graphml = {
+    name: "capture.graphml",
+    size: MAX_PAGEGRAPH_UPLOAD_BYTES + 1,
+    arrayBuffer: async () => {
+      graphReads += 1;
+      return new ArrayBuffer(0);
+    }
+  } as File;
+  const metadata = {
+    name: "capture.meta.json",
+    size: META.byteLength,
+    text: async () => {
+      metadataReads += 1;
+      return new TextDecoder().decode(META);
+    }
+  } as File;
+
+  await assert.rejects(
+    buildPageGraphReportFromUpload(
+      { graphml, metadata },
+      { buildCommit: "a".repeat(40), runId: "pagegraph-client-test-oversized" }
+    ),
+    /captures must be between/
+  );
+  assert.equal(graphReads, 0);
+  assert.equal(metadataReads, 0);
+});
+
 test("client orchestration fails closed on missing build identity and malformed metadata", async () => {
   assert.throws(() => configuredClientBuildCommit(""), /cannot identify its source commit/);
   assert.equal(configuredClientBuildCommit("A".repeat(40)), "a".repeat(40));
@@ -82,6 +114,20 @@ test("client orchestration fails closed on missing build identity and malformed 
     buildPageGraphReportFromUpload(bad, {
       buildCommit: "a".repeat(40),
       runId: "pagegraph-client-test-0003"
+    }),
+    /not valid JSON/
+  );
+
+  const duplicate = selection();
+  const metadataText = new TextDecoder().decode(META);
+  duplicate.metadata = uploadFile(
+    "real-wikipedia-2026-07-19.meta.json",
+    new TextEncoder().encode(metadataText.replace(/\{\s*/, '{"capture":{},'))
+  );
+  await assert.rejects(
+    buildPageGraphReportFromUpload(duplicate, {
+      buildCommit: "a".repeat(40),
+      runId: "pagegraph-client-test-duplicate-key"
     }),
     /not valid JSON/
   );

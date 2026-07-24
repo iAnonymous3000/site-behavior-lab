@@ -19,13 +19,25 @@ import {
   Shield,
   ShieldCheck
 } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { clientReportRuntime, staticAssetPath } from "../client-runtime";
+import {
+  LatestClientOperation,
+  MAX_CORPUS_STATS_JSON_BYTES,
+  fetchJsonWithPolicy
+} from "@/lib/client-fetch-policy";
 import { isCorpusStats, type CorpusStats } from "@/lib/corpus-stats";
 import { buildFindings, type FindingIconKey } from "@/lib/report-findings";
 import { buildReportHeadline } from "@/lib/report-headline";
+import {
+  buildEvidenceHash,
+  findingEvidenceLink,
+  requestTimingSummary,
+  type EvidenceArm
+} from "@/lib/report-evidence-navigation";
 import { gpcRunMeasurement, shieldsRunMeasurement } from "@/lib/report-insights";
 import { committedReportLocation, locateReport, type ReportRuntime } from "@/lib/report-locator";
+import { buildRequestTimelineModel } from "@/lib/request-timeline";
 import {
   displayRunView,
   familyUnsupportedOnRun,
@@ -165,6 +177,9 @@ let corpusStatsCache: CorpusStats | null | undefined;
 
 function useCorpusStats(): CorpusStats | null {
   const [corpus, setCorpus] = useState<CorpusStats | null>(corpusStatsCache ?? null);
+  const operationRef = useRef<LatestClientOperation | null>(null);
+  if (!operationRef.current) operationRef.current = new LatestClientOperation();
+  const operation = operationRef.current;
 
   useEffect(() => {
     if (corpusStatsCache !== undefined) {
@@ -172,25 +187,26 @@ function useCorpusStats(): CorpusStats | null {
       return;
     }
 
-    let cancelled = false;
-
-    async function loadCorpus() {
-      try {
-        const response = await fetch(staticAssetPath("/corpus-stats.json"), { cache: "no-store" });
-        if (!response.ok) throw new Error("Corpus stats unavailable.");
-        const payload = (await response.json()) as unknown;
-        corpusStatsCache = isCorpusStats(payload) ? payload : null;
-      } catch {
-        corpusStatsCache = null;
+    void operation.run(
+      (signal) => fetchJsonWithPolicy(staticAssetPath("/corpus-stats.json"), { cache: "no-store" }, {
+        label: "Corpus statistics",
+        maxBytes: MAX_CORPUS_STATS_JSON_BYTES,
+        signal,
+        httpError: () => new Error("Corpus stats unavailable.")
+      }),
+      {
+        onSuccess: (payload) => {
+          corpusStatsCache = isCorpusStats(payload) ? payload : null;
+          setCorpus(corpusStatsCache);
+        },
+        onError: () => {
+          corpusStatsCache = null;
+          setCorpus(null);
+        }
       }
-      if (!cancelled) setCorpus(corpusStatsCache ?? null);
-    }
-
-    void loadCorpus();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+    );
+    return () => operation.cancel();
+  }, [operation]);
 
   return corpus;
 }
@@ -213,6 +229,10 @@ const FINDING_ICONS: Record<FindingIconKey, typeof Eye> = {
 export function FindingsBoard({ view }: { view: ReportView }) {
   const corpus = useCorpusStats();
   const findings = buildFindings(view, corpus);
+  const evidenceArm: EvidenceArm | undefined =
+    view.reportType === "comparison"
+      ? buildReportHeadline(view).focusArm ?? (view.comparison?.temporalPair ? "variant" : "baseline")
+      : undefined;
 
   return (
     <section className="findings-board">
@@ -229,6 +249,7 @@ export function FindingsBoard({ view }: { view: ReportView }) {
       <div className="finding-list">
         {findings.map((finding) => {
           const Icon = FINDING_ICONS[finding.icon];
+          const evidenceLink = findingEvidenceLink(finding.id, evidenceArm);
           return (
             <article className={`finding-card tile-${finding.level}`} key={finding.id}>
               <div className="finding-icon">
@@ -241,6 +262,15 @@ export function FindingsBoard({ view }: { view: ReportView }) {
                 <div className="finding-meta">
                   <span>{finding.evidence}</span>
                   {finding.benchmark && <span>{finding.benchmark}</span>}
+                  {evidenceLink && (
+                    <a
+                      className="glossary-link"
+                      href={buildEvidenceHash(evidenceLink.target)}
+                      aria-label={`${evidenceLink.label} for ${finding.title}`}
+                    >
+                      {evidenceLink.label}
+                    </a>
+                  )}
                 </div>
               </div>
             </article>
@@ -433,23 +463,31 @@ export function TrafficViz({ run }: { run: RunView }) {
 
 function RequestTimeline({ requests }: { requests: NetworkRequestRecord[] }) {
   if (requests.length === 0) return null;
-  const maxTime = Math.max(...requests.map((request) => request.startedAtMs), 1);
+  const { marks, maxTime } = buildRequestTimelineModel(requests);
+  const timingSummary = requestTimingSummary(requests);
   const width = 1000;
   const height = 44;
 
   return (
     <div className="timeline">
-      <svg viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none" role="img" aria-label="When requests fired during the visit">
-        {/* Keyed with the index: v2 evidence rows are phase-tagged, so one
-            request id can legitimately appear in several phases. */}
-        {requests.map((request, index) => {
-          const x = (request.startedAtMs / maxTime) * (width - 2);
-          const color = request.tracker
+      <p className="muted">
+        {timingSummary}{" "}
+        <a href={buildEvidenceHash({ section: "requests" })}>Open the request log for exact timing and request details.</a>
+      </p>
+      <svg
+        viewBox={`0 0 ${width} ${height}`}
+        preserveAspectRatio="none"
+        aria-hidden="true"
+        focusable="false"
+      >
+        {marks.map((mark, index) => {
+          const x = mark.xRatio * (width - 2);
+          const color = mark.role === "tracker"
             ? "var(--sig-warn)"
-            : request.thirdParty
+            : mark.role === "third-party"
               ? "var(--sig-info)"
               : "var(--sig-quiet)";
-          return <rect key={`${request.id}:${index}`} x={x} y={request.tracker ? 4 : request.thirdParty ? 12 : 20} width={2} height={height - 24} fill={color} opacity={0.85} rx={1} />;
+          return <rect key={index} x={x} y={mark.role === "tracker" ? 4 : mark.role === "third-party" ? 12 : 20} width={2} height={height - 24} fill={color} opacity={0.85} rx={1} />;
         })}
       </svg>
       <div className="timeline-axis">

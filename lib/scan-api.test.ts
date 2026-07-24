@@ -21,7 +21,15 @@ import {
   makePublicSingleReportV2R2,
   makeShieldsInterventionReportV2R2
 } from "./scan-report-v2-r2-fixtures";
-import { scanResultWithStagedR2Run } from "./scan-report-v2-runtime-fixtures";
+import {
+  scanMeasurementEnvelopeWithR2Run,
+  testMeasurementEnvelopeForResult
+} from "./scan-report-v2-runtime-fixtures";
+import {
+  createNodeScanMeasurementEnvelope,
+  type NodeScanMeasurement,
+  type NodeScanMeasurementEnvelope
+} from "./node-scan-measurement";
 import {
   BUILD_COMMIT_ENV,
   PUBLIC_R2_REPORTS_ENV,
@@ -75,7 +83,7 @@ test("runScanRequest rejects unauthorized scans before charging rate limits", as
   const scannedPayloads: ScanRequestPayload[] = [];
   const scan: ScanRunner = async (payload) => {
     scannedPayloads.push(payload);
-    return makeScanResult(payload);
+    return testMeasurementEnvelopeForResult(makeScanResult(payload));
   };
 
   await assert.rejects(
@@ -94,7 +102,7 @@ test("runScanRequest rejects unauthorized scans before charging rate limits", as
 
 test("runScanRequest accepts authorized scans", async () => {
   process.env[SCAN_ACCESS_TOKEN_ENV] = "secret-key";
-  const scan: ScanRunner = async (payload) => makeScanResult(payload);
+  const scan: ScanRunner = async (payload) => testMeasurementEnvelopeForResult(makeScanResult(payload));
 
   const result = expectV1Report(
     await runScanRequest(
@@ -156,19 +164,24 @@ test("prepareScanRequest cancels an oversized chunked body before buffering the 
   let chunksServed = 0;
   let cancelled = false;
   const chunk = new Uint8Array(2_048).fill(120);
-  const stream = new ReadableStream<Uint8Array>({
-    pull(controller) {
-      if (chunksServed >= 5) {
-        controller.close();
-        return;
+  const stream = new ReadableStream<Uint8Array>(
+    {
+      pull(controller) {
+        if (chunksServed >= 5) {
+          controller.close();
+          return;
+        }
+        chunksServed += 1;
+        controller.enqueue(chunk);
+      },
+      cancel() {
+        cancelled = true;
       }
-      chunksServed += 1;
-      controller.enqueue(chunk);
     },
-    cancel() {
-      cancelled = true;
-    }
-  });
+    // Disable the stream implementation's speculative prefetch so this test
+    // measures consumer reads, not environment-dependent queueing behavior.
+    { highWaterMark: 0 }
+  );
   const request = { headers: new Headers(), body: stream } as unknown as Request;
 
   await assert.rejects(
@@ -196,7 +209,7 @@ test("executePreparedScan charges rate limits only after acquiring a scan slot",
     stateDuringScan = scanLimitStateForTests();
     scannedPayloads.push(payload);
     assert.equal(options?.publicUrlAlreadyVerified, true);
-    return makeScanResult(payload);
+    return testMeasurementEnvelopeForResult(makeScanResult(payload));
   };
 
   const result = expectV1Report(await executePreparedScan(prepared, scan, async (report) => report));
@@ -241,7 +254,7 @@ test("post-publication shadow work cannot hold the v1 result or scan slot", { ti
     const result = expectV1Report(
       await executePreparedScan(
         prepared,
-        async (payload) => makeScanResult(payload),
+        async (payload) => testMeasurementEnvelopeForResult(makeScanResult(payload)),
         async (report) => report,
         undefined,
         false,
@@ -265,7 +278,7 @@ test("runScanRequest does not charge rate limit quota for blocked target URLs", 
   const scannedPayloads: ScanRequestPayload[] = [];
   const scan: ScanRunner = async (payload) => {
     scannedPayloads.push(payload);
-    return makeScanResult(payload);
+    return testMeasurementEnvelopeForResult(makeScanResult(payload));
   };
 
   for (let index = 0; index < RATE_LIMIT_MAX + 1; index += 1) {
@@ -300,7 +313,7 @@ test("runScanRequest does not charge rate limit quota for blocked target URLs", 
 });
 
 test("runScanRequest rate-limits before resolving hostname targets", async () => {
-  const scan: ScanRunner = async (payload) => makeScanResult(payload);
+  const scan: ScanRunner = async (payload) => testMeasurementEnvelopeForResult(makeScanResult(payload));
 
   for (let index = 0; index < RATE_LIMIT_MAX; index += 1) {
     await runScanRequest(makeScanRequest(`https://1.1.1.1/?n=${index}`), scan);
@@ -322,7 +335,7 @@ test("runScanRequest can run and persist a GPC off/on comparison", async () => {
       ...payload,
       url: `${payload.url}#verified=${options?.publicUrlAlreadyVerified === true}`
     });
-    return makeScanResult(payload, payload.gpcEnabled ? 3 : 5);
+    return testMeasurementEnvelopeForResult(makeScanResult(payload, payload.gpcEnabled ? 3 : 5));
   };
 
   const result = expectV1Report(
@@ -353,7 +366,7 @@ test("executePreparedScan honors the drawn arm order in both directions", async 
     const scannedPayloads: ScanRequestPayload[] = [];
     const scan: ScanRunner = async (payload) => {
       scannedPayloads.push(payload);
-      return makeScanResult(payload, payload.gpcEnabled ? 3 : 5);
+      return testMeasurementEnvelopeForResult(makeScanResult(payload, payload.gpcEnabled ? 3 : 5));
     };
     const prepared: PreparedScanRequest = {
       clientKey: `order-${executedFirst}`,
@@ -403,29 +416,37 @@ test("the public r2 gate returns and persists a single plus every comparison axi
     };
     const scan: ScanRunner = async (payload, options) => {
       if (kind === "single") {
-        return scanResultWithStagedR2Run(makePublicSingleReportV2R2().run, `data:image/png;base64,${kind}`);
+        return scanMeasurementEnvelopeWithR2Run(makePublicSingleReportV2R2().run, `data:image/png;base64,${kind}`);
       }
       if (kind === "gpc") {
         const fixture = makeGpcInterventionReportV2R2();
-        return scanResultWithStagedR2Run(payload.gpcEnabled ? fixture.variant : fixture.baseline, `data:image/png;base64,${kind}`);
+        return scanMeasurementEnvelopeWithR2Run(payload.gpcEnabled ? fixture.variant : fixture.baseline, `data:image/png;base64,${kind}`);
       }
       if (kind === "shields") {
         const fixture = makeShieldsInterventionReportV2R2();
-        return scanResultWithStagedR2Run(
+        return scanMeasurementEnvelopeWithR2Run(
           options?.shieldsBlockingEnabled ? fixture.variant : fixture.baseline,
           `data:image/png;base64,${kind}`
         );
       }
       const fixture = makeConsentInterventionReportV2R2();
-      return scanResultWithStagedR2Run(
+      return scanMeasurementEnvelopeWithR2Run(
         payload.consentMode === "reject-all" ? fixture.variant : fixture.baseline,
         `data:image/png;base64,${kind}`
       );
     };
 
+    let beforeSaveCalls = 0;
     const result = await executePreparedScan(prepared, scan, saveScanReport, undefined, false, {
-      drawComparisonFirstArm: () => "baseline"
+      drawComparisonFirstArm: () => "baseline",
+      beforeSave: (report) => {
+        beforeSaveCalls += 1;
+        assert.equal("measurement" in report, false);
+        assert.equal("result" in report, false);
+        assert.equal(JSON.stringify(report).includes("runtime-private"), false);
+      }
     });
+    assert.equal(beforeSaveCalls, 1);
     assert.equal(result.schemaVersion, 2);
     if (result.schemaVersion !== 2) throw new Error("expected public r2 result");
     assert.equal(result.schemaRevision, 2);
@@ -479,13 +500,43 @@ test("public r2 failures never fall back to or persist a v1 report", async () =>
         prepared,
         async (payload) => {
           scanCalls += 1;
-          return makeScanResult(payload);
+          return { result: makeScanResult(payload) } as NodeScanMeasurementEnvelope;
         },
         save,
         undefined,
         false
       ),
-    /missing its process-local r2 measurement facts/
+    /missing its explicit r2 measurement envelope/
+  );
+  assert.equal(scanCalls, 1);
+  assert.equal(saveCalls, 0);
+
+  scanCalls = 0;
+  await assert.rejects(
+    () =>
+      executePreparedScan(
+        prepared,
+        async () => {
+          scanCalls += 1;
+          const envelope = scanMeasurementEnvelopeWithR2Run(makePublicSingleReportV2R2().run);
+          return createNodeScanMeasurementEnvelope(
+            {
+              ...envelope.result,
+              conditions: {
+                ...envelope.result.conditions,
+                gpcEnabled: !envelope.result.conditions.gpcEnabled
+              }
+            },
+            structuredClone(envelope.measurement) as NodeScanMeasurement
+          );
+        },
+        save,
+        undefined,
+        false
+      ),
+    (error) =>
+      error instanceof Error &&
+      /result and r2 measurement envelope disagree on: gpc/.test(error.message)
   );
   assert.equal(scanCalls, 1);
   assert.equal(saveCalls, 0);
@@ -495,7 +546,7 @@ test("public r2 failures never fall back to or persist a v1 report", async () =>
   await assert.rejects(
     () => executePreparedScan(prepared, async (payload) => {
       scanCalls += 1;
-      return makeScanResult(payload);
+      return { result: makeScanResult(payload) } as NodeScanMeasurementEnvelope;
     }, save, undefined, false),
     (error) => error instanceof PublicScanError && error.status === 503 && /CONSENT_VERIFICATION/.test(error.message)
   );
@@ -518,7 +569,7 @@ test("public r2 keeps independently enabled shadow emission off the response pat
       compareConsent: false,
       rateLimitCost: 1
     },
-    async () => scanResultWithStagedR2Run(makePublicSingleReportV2R2().run),
+    async () => scanMeasurementEnvelopeWithR2Run(makePublicSingleReportV2R2().run),
     async (report) => report,
     undefined,
     false,
@@ -540,7 +591,7 @@ test("public r2 preflights default persistence before scan quota or Chromium", a
   let scanCalls = 0;
   const scan: ScanRunner = async () => {
     scanCalls += 1;
-    return scanResultWithStagedR2Run(makePublicSingleReportV2R2().run);
+    return scanMeasurementEnvelopeWithR2Run(makePublicSingleReportV2R2().run);
   };
 
   await assert.rejects(
@@ -584,7 +635,7 @@ test("runScanRequest can run and persist a Shields off/on comparison", async () 
   const scan: ScanRunner = async (payload, options) => {
     scannedPayloads.push(payload);
     scanOptions.push(options);
-    return makeScanResult(payload, options?.shieldsBlockingEnabled ? 3 : 8);
+    return testMeasurementEnvelopeForResult(makeScanResult(payload, options?.shieldsBlockingEnabled ? 3 : 8));
   };
 
   const result = expectV1Report(
@@ -627,7 +678,9 @@ test("runScanRequest can run and persist a consent accept/reject comparison", as
   const scannedPayloads: ScanRequestPayload[] = [];
   const scan: ScanRunner = async (payload) => {
     scannedPayloads.push(payload);
-    return makeScanResult(payload, payload.consentMode === "accept-all" ? 9 : 2);
+    return testMeasurementEnvelopeForResult(
+      makeScanResult(payload, payload.consentMode === "accept-all" ? 9 : 2)
+    );
   };
 
   const result = expectV1Report(
@@ -663,7 +716,7 @@ test("runScanRequest charges comparisons as two rate-limit tokens", async () => 
   const scannedPayloads: ScanRequestPayload[] = [];
   const scan: ScanRunner = async (payload) => {
     scannedPayloads.push(payload);
-    return makeScanResult(payload);
+    return testMeasurementEnvelopeForResult(makeScanResult(payload));
   };
 
   for (let index = 0; index < Math.floor(RATE_LIMIT_MAX / 2); index += 1) {
@@ -708,7 +761,13 @@ test("executePreparedScan does not charge rate limits when the scan slot queue t
   void executePreparedScan(prepared, hang, save, 50);
 
   await assert.rejects(
-    () => executePreparedScan(prepared, async (payload) => makeScanResult(payload), save, 50),
+    () =>
+      executePreparedScan(
+        prepared,
+        async (payload) => testMeasurementEnvelopeForResult(makeScanResult(payload)),
+        save,
+        50
+      ),
     (error) => error instanceof PublicScanError && error.status === 503
   );
 
@@ -721,7 +780,7 @@ test("executePreparedScan does not charge rate limits when the scan slot queue t
 });
 
 test("runScanRequest returns a redacted v1 result when report persistence fails", async () => {
-  const scan: ScanRunner = async (payload) => makeSensitiveScanResult(payload);
+  const scan: ScanRunner = async (payload) => testMeasurementEnvelopeForResult(makeSensitiveScanResult(payload));
   const warn = console.warn;
   console.warn = () => undefined;
   let result: Awaited<ReturnType<typeof runScanRequest>> | undefined;
@@ -738,23 +797,28 @@ test("runScanRequest returns a redacted v1 result when report persistence fails"
   if (v1Result.reportType === "comparison") throw new Error("expected single report");
   assert.equal(v1Result.ok, true);
   assert.equal(v1Result.share, undefined);
-  assert.equal(v1Result.summary.pageTitle, "Private customer dashboard");
+  assert.equal(v1Result.summary.pageTitle, "");
   assert.equal(v1Result.cookies[0].name, "[redacted]");
   assert.equal(v1Result.storage[0].key, "[redacted]");
   assert.equal(JSON.stringify(v1Result).includes("patient_session_secret"), false);
   assert.equal(JSON.stringify(v1Result).includes("patient_private_record"), false);
+  assert.equal(JSON.stringify(v1Result).includes("Private customer dashboard"), false);
   assert.equal(v1Result.warnings.includes("Shareable report could not be saved on this host; JSON export is still available."), true);
 });
 
 test("runScanRequest keeps the normal sanitized share when v1 persistence succeeds", async () => {
   const result = expectV1Report(
-    await runScanRequest(makeScanRequest("https://1.1.1.1/"), async (payload) => makeSensitiveScanResult(payload))
+    await runScanRequest(
+      makeScanRequest("https://1.1.1.1/"),
+      async (payload) => testMeasurementEnvelopeForResult(makeSensitiveScanResult(payload))
+    )
   );
   if (result.reportType === "comparison") throw new Error("expected single report");
 
-  assert.equal(result.summary.pageTitle, "Private customer dashboard");
+  assert.equal(result.summary.pageTitle, "");
   assert.equal(result.cookies[0].name, "[redacted]");
   assert.equal(result.storage[0].key, "[redacted]");
+  assert.equal(JSON.stringify(result).includes("Private customer dashboard"), false);
   assert.equal(result.warnings.includes("Shareable report could not be saved on this host; JSON export is still available."), false);
   assert.equal(result.share?.path.startsWith("/reports/"), true);
   assert.deepEqual(await readV1Report(result.share?.id || ""), result);
@@ -778,7 +842,7 @@ test("executePreparedScan awaits the publication fence before invoking the saver
   const events: string[] = [];
   const execution = executePreparedScan(
     prepared,
-    async (payload) => makeScanResult(payload),
+    async (payload) => testMeasurementEnvelopeForResult(makeScanResult(payload)),
     async (report) => {
       events.push("save");
       return report;
@@ -787,6 +851,9 @@ test("executePreparedScan awaits the publication fence before invoking the saver
     false,
     {
       beforeSave: (report) => {
+        assert.equal("measurement" in report, false);
+        assert.equal("result" in report, false);
+        assert.doesNotThrow(() => JSON.stringify(report));
         events.push(`fence:${report.schemaVersion}`);
         return fence;
       }
@@ -816,7 +883,7 @@ test("executePreparedScan reports observed browser stages and completed comparis
     options?.onProgress?.("launching");
     options?.onProgress?.("navigating");
     options?.onProgress?.("collecting");
-    return makeScanResult(payload);
+    return testMeasurementEnvelopeForResult(makeScanResult(payload));
   };
 
   await executePreparedScan(prepared, scan, async (report) => report, undefined, false, {

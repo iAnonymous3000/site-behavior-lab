@@ -2,13 +2,25 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
   R2_LIST_HEAD_CONCURRENCY,
+  R2_LIST_MAX_CANDIDATES,
+  R2_LIST_MAX_CONTINUATION_TOKEN_CHARS,
+  R2_LIST_MAX_HEAD_CANDIDATES,
+  R2_LIST_MAX_PAGES,
+  R2_LIST_MAX_REPORT_ENTRIES,
+  R2_LIST_MAX_SIDECAR_ENTRIES,
+  R2_LIST_RESPONSE_MAX_BYTES,
+  R2_REPORT_RESPONSE_MAX_BYTES,
+  R2_SIDECAR_RESPONSE_MAX_BYTES,
   R2_UNCOMMITTED_HEAD_GRACE_MS,
+  ReportStoreListBoundsError,
+  ReportStoreResponseInvalidUtf8Error,
   ReportStoreWriteConflictError,
   createR2ReportStoreBackend,
   parseListResult,
   type R2ReportStoreConfig,
   type R2ReportStoreDeps
 } from "./report-store-r2";
+import { SERVER_STORED_PROVENANCE_SIDECAR_MAX_BYTES } from "./report-resource-limits";
 
 const CONFIG: R2ReportStoreConfig = {
   bucket: "reports-bucket",
@@ -98,6 +110,134 @@ test("R2 writes and reads the provenance sidecar beside the report key", async (
   assert.equal(requests[0].method, "PUT");
   assert.equal(requests[0].headers["content-length"], String(new TextEncoder().encode(sidecar).byteLength));
   assert.equal(requests[1].method, "GET");
+});
+
+test("R2 persists content-free retention debt and maintenance markers outside report keys", async () => {
+  const debt = { id: VALID_ID, scope: "bundle" as const };
+  const stateXml = `<ListBucketResult>
+    <Contents><Key>reports/_retention-debt/${VALID_ID}.json</Key><LastModified>2026-06-20T12:00:00.000Z</LastModified></Contents>
+    <Contents><Key>reports/_retention-debt/00000000-00000000000000000000000000000000.json</Key><LastModified>2026-06-20T12:00:00.000Z</LastModified></Contents>
+    <IsTruncated>false</IsTruncated>
+  </ListBucketResult>`;
+  const { backend, requests } = backendWith([
+    new Response(null, { status: 200 }),
+    new Response(null, { status: 200 }),
+    new Response(stateXml, { status: 200 }),
+    new Response(null, { status: 200 }),
+    new Response(null, { status: 200 })
+  ]);
+
+  await backend.markRetentionDebt(debt);
+  await backend.setRetentionMaintenanceRequired(true);
+  assert.deepEqual(await backend.retentionState(), {
+    debts: [debt],
+    maintenanceRequired: true
+  });
+  await backend.clearRetentionDebt(debt);
+  await backend.setRetentionMaintenanceRequired(false);
+
+  assert.equal(
+    new URL(requests[0].url).pathname,
+    `/reports-bucket/reports/_retention-debt/${VALID_ID}.json`
+  );
+  assert.equal(requests[0].method, "PUT");
+  assert.equal(requests[0].body, "1\n");
+  assert.equal(new URL(requests[2].url).searchParams.get("prefix"), "reports/_retention-debt/");
+  assert.equal(requests[3].method, "DELETE");
+  assert.equal(requests[4].method, "DELETE");
+});
+
+test("R2 retention debt pagination remains recoverable beyond one service page", async () => {
+  const secondId = "20260620-11111111111111111111111111111111";
+  const firstPage = `<ListBucketResult>
+    <Contents><Key>reports/_retention-debt/${VALID_ID}.json</Key><LastModified>2026-06-20T12:00:00.000Z</LastModified></Contents>
+    <IsTruncated>true</IsTruncated><NextContinuationToken>debt-page-2</NextContinuationToken>
+  </ListBucketResult>`;
+  const secondPage = `<ListBucketResult>
+    <Contents><Key>reports/_retention-debt/${secondId}.json.provenance.json</Key><LastModified>2026-06-20T12:00:01.000Z</LastModified></Contents>
+    <IsTruncated>false</IsTruncated>
+  </ListBucketResult>`;
+  const { backend, requests } = backendWith([
+    new Response(firstPage, { status: 200 }),
+    new Response(secondPage, { status: 200 })
+  ]);
+
+  assert.deepEqual(await backend.retentionState(), {
+    debts: [
+      { id: VALID_ID, scope: "bundle" },
+      { id: secondId, scope: "sidecar" }
+    ],
+    maintenanceRequired: false
+  });
+  assert.equal(requests.length, 2);
+  assert.equal(new URL(requests[1].url).searchParams.get("continuation-token"), "debt-page-2");
+  assert.equal(new URL(requests[1].url).searchParams.get("max-keys"), "1000");
+});
+
+test("R2 report and sidecar reads reject malformed UTF-8 before managed validation", async () => {
+  const malformed = new Uint8Array([0x7b, 0x22, 0x78, 0x22, 0x3a, 0x22, 0xc3, 0x28, 0x22, 0x7d]);
+  for (const read of [
+    (backend: ReturnType<typeof backendWith>["backend"]) => backend.read(VALID_ID),
+    (backend: ReturnType<typeof backendWith>["backend"]) => backend.readSidecar(VALID_ID)
+  ]) {
+    const { backend, requests } = backendWith([new Response(malformed.slice(), { status: 200 })]);
+    await assert.rejects(() => read(backend), ReportStoreResponseInvalidUtf8Error);
+    assert.equal(requests.length, 1, "deterministic object corruption must not be retried");
+  }
+});
+
+test("R2 exact object decoding preserves a leading BOM for strict JSON rejection", async () => {
+  const wire = new Uint8Array([0xef, 0xbb, 0xbf, 0x7b, 0x7d, 0x0a]);
+  const { backend } = backendWith([new Response(wire, { status: 200 })]);
+  assert.equal((await backend.read(VALID_ID))?.contents, "\uFEFF{}\n");
+});
+
+test("R2 sidecar reads use the shared server-stored provenance cap", () => {
+  assert.equal(R2_SIDECAR_RESPONSE_MAX_BYTES, SERVER_STORED_PROVENANCE_SIDECAR_MAX_BYTES);
+  assert.equal(R2_SIDECAR_RESPONSE_MAX_BYTES, 16 * 1024);
+});
+
+test("R2 LIST and control bodies reject malformed UTF-8 without retrying", async () => {
+  const malformed = new Uint8Array([0x3c, 0x78, 0xc3, 0x28, 0x3e]);
+  const listed = backendWith([new Response(malformed.slice(), { status: 200 })]);
+  await assert.rejects(() => listed.backend.list(), ReportStoreResponseInvalidUtf8Error);
+  assert.equal(listed.requests.length, 1);
+
+  const successfulControl = backendWith([new Response(malformed.slice(), { status: 200 })]);
+  await assert.rejects(
+    () => successfulControl.backend.write(VALID_ID, "{}\n"),
+    ReportStoreResponseInvalidUtf8Error
+  );
+  assert.equal(successfulControl.requests.length, 1);
+
+  const failedControl = backendWith([new Response(malformed.slice(), { status: 403 })]);
+  await assert.rejects(
+    () => failedControl.backend.write(VALID_ID, "{}\n"),
+    ReportStoreResponseInvalidUtf8Error
+  );
+  assert.equal(failedControl.requests.length, 1);
+});
+
+test("R2 streamed byte caps trust actual bytes while declared length remains an early ceiling", async () => {
+  const underdeclared = new Uint8Array(R2_SIDECAR_RESPONSE_MAX_BYTES + 1).fill(0x20);
+  const actualOverflow = backendWith([
+    new Response(underdeclared, { status: 200, headers: { "content-length": "1" } }),
+    new Response(underdeclared.slice(), { status: 200, headers: { "content-length": "1" } }),
+    new Response(underdeclared.slice(), { status: 200, headers: { "content-length": "1" } })
+  ]);
+  await assert.rejects(
+    () => actualOverflow.backend.readSidecar(VALID_ID),
+    new RegExp(`exceeded ${R2_SIDECAR_RESPONSE_MAX_BYTES} bytes`)
+  );
+
+  const valid = "{}\n";
+  const overdeclaredWithinCap = backendWith([
+    new Response(valid, {
+      status: 200,
+      headers: { "content-length": String(R2_SIDECAR_RESPONSE_MAX_BYTES) }
+    })
+  ]);
+  assert.equal(await overdeclaredWithinCap.backend.readSidecar(VALID_ID), valid);
 });
 
 test("R2 write declares the UTF-8 byte length rather than the JavaScript string length", async () => {
@@ -388,6 +528,31 @@ test("R2 read treats missing or malformed custom retention metadata as unknown",
   assert.equal((await backend.read(VALID_ID))?.retention, null);
 });
 
+test("R2 report, sidecar, and list reads enforce operation-specific decompressed byte caps", async () => {
+  for (const scenario of [
+    {
+      maxBytes: R2_REPORT_RESPONSE_MAX_BYTES,
+      run: (responses: Response[]) => backendWith(responses).backend.read(VALID_ID)
+    },
+    {
+      maxBytes: R2_SIDECAR_RESPONSE_MAX_BYTES,
+      run: (responses: Response[]) => backendWith(responses).backend.readSidecar(VALID_ID)
+    },
+    {
+      maxBytes: R2_LIST_RESPONSE_MAX_BYTES,
+      run: (responses: Response[]) => backendWith(responses).backend.list()
+    }
+  ]) {
+    let cancellations = 0;
+    const responses = Array.from(
+      { length: 3 },
+      () => declaredOversizedResponse(scenario.maxBytes, () => { cancellations += 1; })
+    );
+    await assert.rejects(() => scenario.run(responses), /exceeded .* bytes/);
+    assert.equal(cancellations, 3);
+  }
+});
+
 test("R2 read returns null for a missing object", async () => {
   const { backend } = backendWith([new Response(null, { status: 404 })]);
   assert.equal(await backend.read(VALID_ID), null);
@@ -458,6 +623,141 @@ test("R2 list paginates, keeps valid ids, and reads retention independently of r
   assert.equal(requests[3].method, "HEAD");
 });
 
+test("R2 treats continuation tokens as opaque XML text and forwards the exact single-decoded value", async () => {
+  const encodedToken = "opaque&amp;lt;token";
+  const exactToken = "opaque&lt;token";
+  const first = `<ListBucketResult xmlns="http://s3.amazonaws.com/doc/2006-03-01/">
+    <IsTruncated>true</IsTruncated>
+    <NextContinuationToken>${encodedToken}</NextContinuationToken>
+  </ListBucketResult>`;
+  const second = listPage();
+  const { backend, requests } = backendWith([
+    new Response(first, { status: 200 }),
+    new Response(second, { status: 200 })
+  ]);
+
+  assert.deepEqual(await backend.list(), []);
+  assert.equal(new URL(requests[1].url).searchParams.get("continuation-token"), exactToken);
+  assert.equal(
+    parseListResult(
+      `<ListBucketResult><IsTruncated>true</IsTruncated><NextContinuationToken>&#38;lt;</NextContinuationToken></ListBucketResult>`,
+      "reports/"
+    ).nextContinuationToken,
+    "&lt;"
+  );
+});
+
+test("R2 LIST rejects malformed roots and ambiguous or missing truncation state", () => {
+  for (const xml of [
+    `<NotListBucketResult><IsTruncated>false</IsTruncated></NotListBucketResult>`,
+    `<ListBucketResult></ListBucketResult>`,
+    `<ListBucketResult><IsTruncated>FALSE</IsTruncated></ListBucketResult>`,
+    `<ListBucketResult><IsTruncated>false</IsTruncated><IsTruncated>false</IsTruncated></ListBucketResult>`,
+    `<ListBucketResult><IsTruncated>false</IsTruncated><NextContinuationToken>unexpected</NextContinuationToken></ListBucketResult>`,
+    `<ListBucketResult><IsTruncated>true</IsTruncated></ListBucketResult>`
+  ]) {
+    assert.throws(() => parseListResult(xml, "reports/"), ReportStoreListBoundsError);
+  }
+});
+
+test("R2 list rejects missing, repeated, cyclic, and oversized continuation tokens before HEAD work", async () => {
+  for (const pages of [
+    [listPage({ truncated: true })],
+    [
+      listPage({ nextContinuationToken: "same-token" }),
+      listPage({ nextContinuationToken: "same-token" })
+    ],
+    [
+      listPage({ nextContinuationToken: "token-a" }),
+      listPage({ nextContinuationToken: "token-b" }),
+      listPage({ nextContinuationToken: "token-a" })
+    ],
+    [listPage({ nextContinuationToken: "x".repeat(R2_LIST_MAX_CONTINUATION_TOKEN_CHARS + 1) })]
+  ]) {
+    const { backend, requests } = backendWith(
+      pages.map((page) => new Response(page, { status: 200 }))
+    );
+    await assert.rejects(() => backend.list(), ReportStoreListBoundsError);
+    assert.equal(requests.every((request) => request.method === "GET"), true);
+  }
+});
+
+test("R2 list refuses a pagination stream that exceeds the finite page budget", async () => {
+  const pages = Array.from({ length: R2_LIST_MAX_PAGES }, (_, index) =>
+    new Response(listPage({ nextContinuationToken: `token-${index + 1}` }), { status: 200 })
+  );
+  const { backend, requests } = backendWith(pages);
+
+  await assert.rejects(
+    () => backend.list(),
+    new RegExp(`exceeded ${R2_LIST_MAX_PAGES} pages`)
+  );
+  assert.equal(requests.length, R2_LIST_MAX_PAGES);
+  assert.equal(requests.every((request) => request.method === "GET"), true);
+});
+
+test("R2 list caps aggregate report and sidecar records before retaining oversized arrays", async () => {
+  for (const scenario of [
+    {
+      count: R2_LIST_MAX_REPORT_ENTRIES + 1,
+      page: (ids: string[]) => listPage({ reportIds: ids }),
+      message: `exceeded ${R2_LIST_MAX_REPORT_ENTRIES} report entries`
+    },
+    {
+      count: R2_LIST_MAX_SIDECAR_ENTRIES + 1,
+      page: (ids: string[]) => listPage({ sidecarIds: ids }),
+      message: `exceeded ${R2_LIST_MAX_SIDECAR_ENTRIES} sidecar entries`
+    }
+  ]) {
+    const ids = Array.from({ length: scenario.count }, (_, index) => listReportId(index));
+    const splitAt = Math.floor((scenario.count - 1) / 2);
+    const { backend, requests } = backendWith([
+      new Response(
+        listPageContents(scenario.page(ids.slice(0, splitAt)), "next-page"),
+        { status: 200 }
+      ),
+      new Response(scenario.page(ids.slice(splitAt)), { status: 200 })
+    ]);
+    await assert.rejects(() => backend.list(), new RegExp(scenario.message));
+    assert.deepEqual(requests.map((request) => request.method), ["GET", "GET"]);
+  }
+});
+
+test("R2 list caps the unique report/sidecar union before maps or metadata requests grow", async () => {
+  const reportCount = Math.floor(R2_LIST_MAX_CANDIDATES / 2) + 1;
+  const sidecarCount = R2_LIST_MAX_CANDIDATES - reportCount + 1;
+  const reportIds = Array.from({ length: reportCount }, (_, index) => listReportId(index));
+  const sidecarIds = Array.from(
+    { length: sidecarCount },
+    (_, index) => listReportId(reportCount + index)
+  );
+  const { backend, requests } = backendWith([
+    new Response(listPage({ reportIds, sidecarIds }), { status: 200 })
+  ]);
+
+  await assert.rejects(
+    () => backend.list(),
+    new RegExp(`exceeded ${R2_LIST_MAX_CANDIDATES} unique report candidates`)
+  );
+  assert.deepEqual(requests.map((request) => request.method), ["GET"]);
+});
+
+test("R2 list caps retention HEAD candidates before dispatching any HEAD request", async () => {
+  const ids = Array.from(
+    { length: R2_LIST_MAX_HEAD_CANDIDATES + 1 },
+    (_, index) => listReportId(index)
+  );
+  const { backend, requests } = backendWith([
+    new Response(listPage({ reportIds: ids, sidecarIds: ids }), { status: 200 })
+  ]);
+
+  await assert.rejects(
+    () => backend.list(),
+    new RegExp(`exceeded ${R2_LIST_MAX_HEAD_CANDIDATES} retention HEAD candidates`)
+  );
+  assert.deepEqual(requests.map((request) => request.method), ["GET"]);
+});
+
 test("R2 list exposes reports without sidecars as uncommitted bundles without issuing HEAD", async () => {
   const now = Date.parse("2026-07-14T12:00:00.000Z");
   const recent = new Date(now - R2_UNCOMMITTED_HEAD_GRACE_MS + 1_000).toISOString();
@@ -492,6 +792,25 @@ test("R2 bounded-HEADs old report-only bundles so immutable expiry can be reconc
   const entries = await backend.list();
   assert.equal(entries.length, 1);
   assert.equal(entries[0].committed, false);
+  assert.deepEqual(entries[0].retention, RETENTION);
+  assert.deepEqual(requests.map((request) => request.method), ["GET", "HEAD"]);
+});
+
+test("R2 retention HEAD does not treat the stored object Content-Length as a response body", async () => {
+  const page = `<ListBucketResult>
+    <Contents><Key>reports/${VALID_ID}.json</Key><LastModified>2026-06-20T12:00:00.000Z</LastModified></Contents>
+    <Contents><Key>reports/${VALID_ID}.json.provenance.json</Key><LastModified>2026-06-20T12:00:01.000Z</LastModified></Contents>
+    <IsTruncated>false</IsTruncated>
+  </ListBucketResult>`;
+  const { backend, requests } = backendWith([
+    new Response(page, { status: 200 }),
+    new Response(null, {
+      status: 200,
+      headers: retentionHeaders({ "content-length": String(R2_REPORT_RESPONSE_MAX_BYTES) })
+    })
+  ]);
+
+  const entries = await backend.list();
   assert.deepEqual(entries[0].retention, RETENTION);
   assert.deepEqual(requests.map((request) => request.method), ["GET", "HEAD"]);
 });
@@ -597,3 +916,42 @@ test("R2 status reports the bucket and prefix", () => {
     configuredPath: true
   });
 });
+
+function declaredOversizedResponse(maxBytes: number, onCancel: () => void): Response {
+  return new Response(
+    new ReadableStream<Uint8Array>({ cancel: onCancel }),
+    { status: 200, headers: { "content-length": String(maxBytes + 1) } }
+  );
+}
+
+function listReportId(index: number): string {
+  return `20260620-${index.toString(16).padStart(32, "0")}`;
+}
+
+function listPage(options: {
+  reportIds?: string[];
+  sidecarIds?: string[];
+  truncated?: boolean;
+  nextContinuationToken?: string;
+} = {}): string {
+  const contents = [
+    ...(options.reportIds ?? []).map(
+      (id) => `<Contents><Key>reports/${id}.json</Key><LastModified>2026-06-20T12:00:00.000Z</LastModified></Contents>`
+    ),
+    ...(options.sidecarIds ?? []).map(
+      (id) => `<Contents><Key>reports/${id}.json.provenance.json</Key><LastModified>2026-06-20T12:00:01.000Z</LastModified></Contents>`
+    )
+  ].join("");
+  const truncated = options.truncated ?? options.nextContinuationToken !== undefined;
+  const token = options.nextContinuationToken === undefined
+    ? ""
+    : `<NextContinuationToken>${options.nextContinuationToken}</NextContinuationToken>`;
+  return `<ListBucketResult>${contents}<IsTruncated>${truncated}</IsTruncated>${token}</ListBucketResult>`;
+}
+
+function listPageContents(page: string, nextContinuationToken: string): string {
+  return page.replace(
+    "<IsTruncated>false</IsTruncated>",
+    `<IsTruncated>true</IsTruncated><NextContinuationToken>${nextContinuationToken}</NextContinuationToken>`
+  );
+}

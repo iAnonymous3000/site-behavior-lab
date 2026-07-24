@@ -1,0 +1,8 @@
+{
+  "schemaVersion": 1,
+  "status": "development",
+  "version": "0.1.0",
+  "releaseTag": null,
+  "stablePublicApi": false,
+  "npmPublication": "disabled"
+}

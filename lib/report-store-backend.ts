@@ -1,7 +1,14 @@
-import { mkdir, readFile, readdir, stat, unlink, writeFile } from "node:fs/promises";
+import { mkdir, readdir, stat, unlink, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { BoundedUtf8FileReadError, readBoundedUtf8File } from "./bounded-utf8-file";
 import { committedSidecarFilename } from "./redaction-provenance";
+import {
+  SERVER_STORED_PROVENANCE_SIDECAR_MAX_BYTES,
+  SERVER_STORED_REPORT_JSON_MAX_BYTES,
+  SERVER_STORED_RETENTION_METADATA_MAX_BYTES
+} from "./report-resource-limits";
 import { createR2ReportStoreBackend } from "./report-store-r2";
+import { parseStrictJson, StrictJsonError } from "./strict-json";
 
 export type ReportStoreKind = "filesystem" | "r2";
 
@@ -48,6 +55,19 @@ export type ReportStoreOperationOptions = {
   signal?: AbortSignal;
 };
 
+export type ReportRetentionDebtScope = "bundle" | "sidecar";
+
+export type ReportRetentionDebtEntry = {
+  id: string;
+  scope: ReportRetentionDebtScope;
+};
+
+export type ReportRetentionState = {
+  debts: ReportRetentionDebtEntry[];
+  /** Durable signal that another bounded maintenance pass is required. */
+  maintenanceRequired: boolean;
+};
+
 export type ReportStoreBackendStatus =
   | { kind: "filesystem"; path: string; configuredPath: boolean }
   | { kind: "r2"; bucket: string; prefix: string; configuredPath: boolean };
@@ -76,6 +96,20 @@ export interface ReportStoreBackend {
   remove(id: string, options?: ReportStoreOperationOptions): Promise<void>;
   /** Idempotently removes only an orphaned provenance sidecar, never the report. */
   removeSidecar(id: string, options?: ReportStoreOperationOptions): Promise<void>;
+  /** Persist before a retention delete; clear only after physical deletion succeeds. */
+  markRetentionDebt(
+    debt: ReportRetentionDebtEntry,
+    options?: ReportStoreOperationOptions
+  ): Promise<void>;
+  clearRetentionDebt(
+    debt: ReportRetentionDebtEntry,
+    options?: ReportStoreOperationOptions
+  ): Promise<void>;
+  retentionState(options?: ReportStoreOperationOptions): Promise<ReportRetentionState>;
+  setRetentionMaintenanceRequired(
+    required: boolean,
+    options?: ReportStoreOperationOptions
+  ): Promise<void>;
   list(options?: ReportStoreOperationOptions): Promise<StoredReportEntry[]>;
   status(): ReportStoreBackendStatus;
 }
@@ -105,6 +139,10 @@ export function createFilesystemReportStoreBackend(): ReportStoreBackend {
   const filePath = (id: string): string => path.join(dir, `${id}.json`);
   const sidecarPath = (id: string): string => path.join(dir, committedSidecarFilename(id));
   const retentionPath = (id: string): string => path.join(dir, `${id}.retention.json`);
+  const retentionDebtDir = path.join(dir, ".retention-debt");
+  const retentionDebtPath = (debt: ReportRetentionDebtEntry): string =>
+    path.join(retentionDebtDir, `${debt.id}.${debt.scope}`);
+  const retentionMaintenancePath = path.join(retentionDebtDir, "maintenance-required");
 
   return {
     kind: "filesystem",
@@ -149,13 +187,15 @@ export function createFilesystemReportStoreBackend(): ReportStoreBackend {
     async read(id, options) {
       options?.signal?.throwIfAborted();
       try {
-        const stats = await stat(filePath(id));
+        const report = await readBoundedUtf8File(
+          filePath(id),
+          SERVER_STORED_REPORT_JSON_MAX_BYTES,
+          options?.signal
+        );
         options?.signal?.throwIfAborted();
-        const contents = await readFile(filePath(id), "utf8");
+        const retention = await readRetentionFile(retentionPath(id), options?.signal);
         options?.signal?.throwIfAborted();
-        const retention = await readRetentionFile(retentionPath(id));
-        options?.signal?.throwIfAborted();
-        return { contents, lastModifiedMs: stats.mtimeMs, retention };
+        return { contents: report.contents, lastModifiedMs: report.lastModifiedMs, retention };
       } catch (error) {
         if (isErrno(error, "ENOENT")) return null;
         throw error;
@@ -164,7 +204,11 @@ export function createFilesystemReportStoreBackend(): ReportStoreBackend {
     async readSidecar(id, options) {
       options?.signal?.throwIfAborted();
       try {
-        const contents = await readFile(sidecarPath(id), "utf8");
+        const { contents } = await readBoundedUtf8File(
+          sidecarPath(id),
+          SERVER_STORED_PROVENANCE_SIDECAR_MAX_BYTES,
+          options?.signal
+        );
         options?.signal?.throwIfAborted();
         return contents;
       } catch (error) {
@@ -183,6 +227,61 @@ export function createFilesystemReportStoreBackend(): ReportStoreBackend {
       // Reconciliation deliberately touches only the commit marker. A report
       // may have appeared after the listing snapshot in another process.
       await removeFiles([sidecarPath(id)], options);
+    },
+    async markRetentionDebt(debt, options) {
+      options?.signal?.throwIfAborted();
+      await mkdir(retentionDebtDir, { recursive: true });
+      options?.signal?.throwIfAborted();
+      try {
+        await writeFile(retentionDebtPath(debt), "1\n", { flag: "wx" });
+      } catch (error) {
+        if (!isErrno(error, "EEXIST")) throw error;
+      }
+      options?.signal?.throwIfAborted();
+    },
+    async clearRetentionDebt(debt, options) {
+      await removeFiles([retentionDebtPath(debt)], options);
+    },
+    async retentionState(options) {
+      options?.signal?.throwIfAborted();
+      let entries;
+      try {
+        entries = await readdir(retentionDebtDir, { withFileTypes: true });
+      } catch (error) {
+        if (isErrno(error, "ENOENT")) return { debts: [], maintenanceRequired: false };
+        throw error;
+      }
+      const debts: ReportRetentionDebtEntry[] = [];
+      let maintenanceRequired = false;
+      for (const entry of entries) {
+        options?.signal?.throwIfAborted();
+        if (!entry.isFile()) continue;
+        if (entry.name === "maintenance-required") {
+          maintenanceRequired = true;
+          continue;
+        }
+        const match = /^([0-9]{8}-[0-9a-f]{32})\.(bundle|sidecar)$/.exec(entry.name);
+        if (!match) continue;
+        if (debts.length >= 2_000) {
+          throw new Error("Report retention debt exceeded the bounded 2,000-entry ledger.");
+        }
+        debts.push({ id: match[1], scope: match[2] as ReportRetentionDebtScope });
+      }
+      return { debts, maintenanceRequired };
+    },
+    async setRetentionMaintenanceRequired(required, options) {
+      options?.signal?.throwIfAborted();
+      if (!required) {
+        await removeFiles([retentionMaintenancePath], options);
+        return;
+      }
+      await mkdir(retentionDebtDir, { recursive: true });
+      try {
+        await writeFile(retentionMaintenancePath, "1\n", { flag: "wx" });
+      } catch (error) {
+        if (!isErrno(error, "EEXIST")) throw error;
+      }
+      options?.signal?.throwIfAborted();
     },
     async list(options) {
       options?.signal?.throwIfAborted();
@@ -217,7 +316,7 @@ export function createFilesystemReportStoreBackend(): ReportStoreBackend {
           files.push({
             id,
             lastModifiedMs: stats.mtimeMs,
-            retention: reportPresent ? await readRetentionFile(retentionPath(id)) : null,
+            retention: reportPresent ? await readRetentionFile(retentionPath(id), options?.signal) : null,
             reportPresent,
             sidecarPresent,
             committed: reportPresent && sidecarPresent && entryNames.has(committedSidecarFilename(id))
@@ -245,12 +344,23 @@ export function isReportRetentionMetadata(value: unknown): value is ReportRetent
   );
 }
 
-async function readRetentionFile(file: string): Promise<ReportRetentionMetadata | null> {
+async function readRetentionFile(file: string, signal?: AbortSignal): Promise<ReportRetentionMetadata | null> {
   try {
-    const parsed = JSON.parse(await readFile(file, "utf8")) as unknown;
+    const { contents } = await readBoundedUtf8File(
+      file,
+      SERVER_STORED_RETENTION_METADATA_MAX_BYTES,
+      signal
+    );
+    const parsed = parseStrictJson(contents, SERVER_STORED_RETENTION_METADATA_MAX_BYTES);
     return isReportRetentionMetadata(parsed) ? parsed : null;
   } catch (error) {
-    if (isErrno(error, "ENOENT") || error instanceof SyntaxError) return null;
+    if (
+      isErrno(error, "ENOENT") ||
+      error instanceof BoundedUtf8FileReadError ||
+      error instanceof StrictJsonError
+    ) {
+      return null;
+    }
     throw error;
   }
 }

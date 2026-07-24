@@ -1,5 +1,6 @@
 import type { LoadedReport } from "./scan-report-view";
 import { withoutReportShare } from "./report-locator";
+import { hasBrowserSafeReportCollections } from "./client-report-resource-policy";
 
 /**
  * The client surfaces' seam onto the canonical version-aware reader (RFC
@@ -34,6 +35,9 @@ function loadViewModule(): Promise<ViewModule> {
 }
 
 export async function readLoadedReport(payload: unknown, subject = "This file"): Promise<LoadedReportRead> {
+  if (!hasBrowserSafeReportCollections(payload)) {
+    return { ok: false, message: `${subject} exceeds this app's safe report evidence limits.` };
+  }
   const { readScanTransportPayload } = await loadViewModule();
   const result = readScanTransportPayload(payload);
 

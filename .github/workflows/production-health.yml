@@ -37,6 +37,17 @@ jobs:
           ref: production
           fetch-depth: 1
 
+      - name: Set up Node
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: 24.14.1
+
+      - name: Verify exact Node and npm runtime
+        run: |
+          set -euo pipefail
+          test "$(node --version)" = "v24.14.1"
+          test "$(npm --version)" = "11.11.0"
+
       - name: Record expected production revision and gated feature states
         env:
           PRODUCTION_CONFIG_FILE: ${{ github.workspace }}/wrangler.container.jsonc
@@ -266,6 +277,8 @@ jobs:
               "encrypted watches must report enabled when enabled in production config");
             assertPosture(health?.checks?.encryptedWatches?.readiness === "ready",
               "encrypted watches must report ready when enabled in production config");
+            assertPosture(health?.checks?.encryptedWatches?.creationAuthorization === "public",
+              "production encrypted watches must use the public Turnstile and atomic-quota creation path");
             assertPosture(health?.capabilities?.scheduledRescans === true,
               "scheduled rescans must be advertised when encrypted watches are ready");
           } else if (expectedEncryptedWatches === "0") {
@@ -387,6 +400,38 @@ jobs:
           npm run test:smoke:production-synthetic
           echo "- Operator-only synthetic: **passed** (fixed scan contract, persisted report, and render readback)" >> "$GITHUB_STEP_SUMMARY"
 
+      - name: Resolve R2 delete-canary activation
+        id: r2_delete_canary
+        if: >-
+          github.event_name == 'workflow_dispatch' ||
+          github.event.schedule == '7 * * * *' ||
+          github.event.client_payload.synthetic == true
+        env:
+          PRODUCTION_R2_DELETE_CANARY_URL: ${{ vars.PRODUCTION_R2_DELETE_CANARY_URL }}
+          PRODUCTION_R2_DELETE_CANARY_TOKEN: ${{ secrets.PRODUCTION_R2_DELETE_CANARY_TOKEN }}
+          PRODUCTION_R2_DELETE_CANARY_REQUIRED: ${{ vars.PRODUCTION_R2_DELETE_CANARY_REQUIRED }}
+        run: |
+          set -euo pipefail
+          if [[ "$PRODUCTION_R2_DELETE_CANARY_REQUIRED" != "1" ]]; then
+            echo "::error title=Production R2 delete canary not required::Set PRODUCTION_R2_DELETE_CANARY_REQUIRED=1 only after the dedicated canary has passed direct readback."
+            exit 1
+          fi
+          if [[ -z "$PRODUCTION_R2_DELETE_CANARY_URL" || -z "$PRODUCTION_R2_DELETE_CANARY_TOKEN" ]]; then
+            echo "::error title=Production R2 delete canary missing::The required dedicated Worker URL and token must both be configured."
+            exit 1
+          fi
+          echo "configured=true" >> "$GITHUB_OUTPUT"
+
+      - name: Run isolated production R2 write/read/delete canary
+        if: steps.r2_delete_canary.outputs.configured == 'true'
+        env:
+          PRODUCTION_R2_DELETE_CANARY_URL: ${{ vars.PRODUCTION_R2_DELETE_CANARY_URL }}
+          PRODUCTION_R2_DELETE_CANARY_TOKEN: ${{ secrets.PRODUCTION_R2_DELETE_CANARY_TOKEN }}
+          PRODUCTION_R2_DELETE_CANARY_TIMEOUT_MS: "30000"
+        run: |
+          node scripts/smoke-production-r2-delete.mjs
+          echo "- R2 write/read/delete canary: **passed** (one isolated health object, absence verified)" >> "$GITHUB_STEP_SUMMARY"
+
       - name: Prepare public-safe production-health alert
         id: production_health_alert
         if: always()
@@ -398,11 +443,11 @@ jobs:
           if [[ "$HEALTH_JOB_STATUS" == "success" ]]; then
             failed=false
             outcome=completed
-            summary="The delivered production posture checks, visitor-ingress preflight, and any activated operator synthetic completed successfully."
+            summary="The delivered production posture checks, visitor-ingress preflight, and any activated operator canaries completed successfully."
           else
             failed=true
             outcome=failed
-            summary="A delivered production posture check, visitor-ingress preflight, activated operator synthetic, or required alerting step failed."
+            summary="A delivered production posture check, visitor-ingress preflight, activated operator canary, or required alerting step failed."
           fi
           run_url="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
           printf '%s\n' \

@@ -13,17 +13,38 @@
 import { Container, getContainer } from "@cloudflare/containers";
 import { scanCorsHeaders } from "../lib/cors";
 import {
+  SCAN_ADMISSION_CAPABILITY_HEADER,
+  SCAN_ADMISSION_COMMITMENT_HEADER,
+  SCAN_ADMISSION_RECOVERY_PATH,
+  hashScanAdmissionCapabilityToken,
+  scanAdmissionCredentialFromHeaders,
+  scanAdmissionSemanticsFromBody
+} from "../lib/scan-admission-capability";
+import {
+  ScanAdmissionCapacityError,
+  ScanAdmissionConflictError,
+  commitIdempotentScanAdmission,
+  findScanAdmission,
+  findScanAdmissionRateLimited,
+  type ScanAdmissionSnapshot,
+  type ScanAdmissionStoreKey
+} from "../lib/scan-admission-store";
+import {
   handleAggregateMetricsRequest,
   type AggregateMetricsDataset
 } from "../lib/privacy-safe-observability-edge";
 import { PRIVACY_SAFE_OBSERVABILITY_PATH } from "../lib/privacy-safe-observability";
 import { scansAvailableAfterEdgeOverlay } from "../lib/container-health-overlay";
+import { forwardContainerResponseWithinDeadline } from "../lib/container-forward-response";
 import { toPublicError } from "../lib/public-errors";
+import { parsePublicReportReadPath } from "../lib/report-read-edge";
 import {
   isProductionSyntheticMonitorToken,
   isProductionSyntheticScanPayload
 } from "../lib/production-synthetic";
 import {
+  ENCRYPTED_WATCH_ACCESS_TOKEN_ENV,
+  ENCRYPTED_WATCH_ACCESS_TOKEN_HEADER,
   ENCRYPTED_WATCH_CAPABILITY_HEADER,
   ENCRYPTED_WATCH_ENCRYPTION_KEY_ENV,
   ENCRYPTED_WATCH_PREVIOUS_ENCRYPTION_KEY_ENV,
@@ -33,7 +54,8 @@ import {
   type EncryptedWatchPayload
 } from "../lib/encrypted-watch-contract";
 import {
-  encryptedWatchIngressIsTokenGated,
+  encryptedWatchAccessTokenIsIsolated,
+  encryptedWatchAccessTokenMatches,
   encryptedWatchPayloadFromPreparation,
   isEncryptedWatchCreationBody,
   parseEncryptedWatchPublicPath
@@ -74,16 +96,19 @@ import {
   DURABLE_SCAN_JOBS_ENV,
   isDurableScanJobExecutionOwner,
   isDurableScanJobNodePrivatePath,
+  isScanJobId,
   parseDurableScanJobCoordinatorPath,
   readDurableScanJobPreparation,
   stripDurableScanJobInternalHeaders,
   type DurableScanJobExecutionOwner,
-  type DurableScanJobPreparation
+  type DurableScanJobPreparation,
+  type DurableScanJobSubmission
 } from "../lib/durable-scan-job-contract";
 import {
   DEFAULT_PUBLIC_SCAN_RATE_LIMIT_PER_DAY,
   DEFAULT_PUBLIC_SCAN_RATE_LIMIT_PER_MINUTE,
   EdgeScanGateError,
+  REQUEST_BODY_OPERATION_TIMEOUT_MS,
   assertTurnstileToken,
   constantTimeEqual,
   formatPublicScanRetryAfter,
@@ -96,6 +121,7 @@ import {
   readRequestBodyWithinLimit,
   scanAccessTokenMatches,
   scanTokenCost,
+  turnstileAdmissionIdempotencyKey,
   withPublicScanAccessCheck
 } from "../lib/edge-scan-gate";
 import {
@@ -131,7 +157,6 @@ import {
   listExpiredDurableScanJobLeases,
   listPastDeadlineDurableScanJobs,
   preflightDurableScanJobAdmission,
-  purgeDurableScanJobs,
   reconcileExpiredPublishingDurableScanJob,
   requeueOrFailExpiredDurableScanJobLease,
   resolveDurableScanJob,
@@ -139,9 +164,22 @@ import {
   type DurableScanJobEncryptionKey,
   type DurableScanJobSnapshot
 } from "../lib/durable-scan-job-store";
+import { settleSynchronizeAndPurgeDurableScanJobs } from "../lib/durable-scan-job-retention";
+import {
+  readDurableScanJobInternalResponseBytes,
+  readDurableScanJobInternalResponseJson
+} from "../lib/durable-scan-job-internal-response";
+import {
+  parseEdgeHealthResponseText,
+  readEdgeHealthResponseText,
+  withEdgeHealthDeadline
+} from "../lib/edge-health-response";
 import {
   AUTHENTICATED_SCAN_RATE_LIMIT_PER_MINUTE,
   assertPublicScanRateLimitCharge,
+  chargeDurableScanJobReadRateLimit as chargeDurableScanJobReadRateLimitInStore,
+  chargeEncryptedWatchReadRateLimit as chargeEncryptedWatchReadRateLimitInStore,
+  chargeReportReadRateLimit as chargeReportReadRateLimitInStore,
   chargePublicScanRateLimit as chargePublicScanRateLimitInStore,
   commitPublicScanRateLimitedOperation,
   peekPublicScanRateLimit as peekPublicScanRateLimitInStore,
@@ -150,7 +188,9 @@ import {
   type PublicScanRateLimitResult
 } from "../lib/public-scan-rate-limit-store";
 import {
+  awaitDurableScanJobAdmissionStep,
   chooseDurableScanJobPumpWakeAt,
+  DurableScanJobAdmissionTimeoutError,
   durablePumpReuseNeedsAlarmKick,
   durableReconciliationTimeoutMs,
   durableScanJobAdmissionProofMatches,
@@ -158,8 +198,14 @@ import {
   durableScanJobNodeHealthState,
   durableScanJobSecretsAreDistinct,
   durableScanJobsFlagState,
-  finalizeDurableScanJobAdmission
+  finalizeDurableScanJobAdmission,
+  throwIfDurableScanJobAdmissionAborted,
+  withDurableScanJobAdmissionDeadline
 } from "../lib/durable-scan-job-edge-wiring";
+import {
+  runDurableScanJobPumpTurn,
+  type DurableScanJobPumpTaskContext
+} from "../lib/durable-scan-job-pump-controller";
 import {
   DURABLE_CONTAINER_SHARD_COUNT_ENV,
   DURABLE_CONTAINER_SHARDING_ENV,
@@ -213,12 +259,14 @@ type Env = {
   SITE_BEHAVIOR_LAB_ENCRYPTED_WATCHES?: string;
   SITE_BEHAVIOR_LAB_ENCRYPTED_WATCHES_KEY?: string;
   SITE_BEHAVIOR_LAB_ENCRYPTED_WATCHES_PREVIOUS_KEY?: string;
+  SITE_BEHAVIOR_LAB_ENCRYPTED_WATCHES_ACCESS_TOKEN?: string;
   SITE_BEHAVIOR_LAB_CONTAINER_SHARDING?: string;
   SITE_BEHAVIOR_LAB_CONTAINER_SHARD_COUNT?: string;
   SITE_BEHAVIOR_LAB_DEPLOYMENT_ENVIRONMENT?: string;
   SITE_BEHAVIOR_LAB_DURABLE_REPLAY_FAULTS?: string;
   SITE_BEHAVIOR_LAB_DURABLE_REPLAY_FAULT_TOKEN?: string;
   SITE_BEHAVIOR_LAB_REPORT_MIN_SURVIVAL_MS?: string;
+  SITE_BEHAVIOR_LAB_REPORT_STORE_OPERATION_TIMEOUT_MS?: string;
   // "1" waives the Turnstile requirement for open access (atomic rate limit only).
   // Without it, open access with no TURNSTILE_SECRET_KEY fails closed.
   SITE_BEHAVIOR_LAB_ACCEPT_NO_TURNSTILE_RISK?: string;
@@ -281,9 +329,25 @@ type DurableScanJobCancellationResult =
   | { status: "conflict" };
 
 type DurableScanJobAdmissionResult =
-  | { status: "success"; snapshot: DurableScanJobSnapshot }
+  | {
+      status: "success";
+      admission: ScanAdmissionSnapshot;
+      snapshot: DurableScanJobSnapshot | null;
+      recovered: boolean;
+    }
   | { status: "rate-limited"; retryAfterSeconds: number }
+  | { status: "conflict" }
+  | { status: "expired" }
   | { status: "refused" };
+
+type ScanAdmissionLookupResult =
+  | { status: "found"; admission: ScanAdmissionSnapshot }
+  | { status: "not-found" }
+  | { status: "conflict" };
+
+type ScanAdmissionRecoveryResult =
+  | ScanAdmissionLookupResult
+  | { status: "rate-limited"; retryAfterSeconds: number };
 
 type EncryptedWatchAdmissionResult =
   | {
@@ -292,7 +356,13 @@ type EncryptedWatchAdmissionResult =
       capability: string;
     }
   | { status: "rate-limited"; retryAfterSeconds: number }
+  | { status: "expired" }
   | { status: "refused" };
+
+type EncryptedWatchPumpItem = Readonly<{
+  claim: EncryptedWatchClaim;
+  keyring: EncryptedWatchKeyring;
+}>;
 
 class DurableScanJobRateLimitError extends EdgeScanGateError {
   constructor(scope: PublicScanRateLimitCharge["scope"], retryAfterSeconds: number) {
@@ -310,6 +380,20 @@ class DurableScanJobRefusedError extends Error {
   constructor() {
     super("The authoritative durable scan-job admission was refused.");
     this.name = "DurableScanJobRefusedError";
+  }
+}
+
+class DurableScanJobAdmissionDeadlineExpiredError extends Error {
+  constructor() {
+    super("The durable scan-job admission commit deadline expired.");
+    this.name = "DurableScanJobAdmissionDeadlineExpiredError";
+  }
+}
+
+class ScanAdmissionConflictGateError extends EdgeScanGateError {
+  constructor() {
+    super("This scan-admission capability is already bound to a different request.", 409);
+    this.name = "ScanAdmissionConflictGateError";
   }
 }
 
@@ -354,6 +438,8 @@ export class ScannerContainer extends Container<Env> {
     SITE_BEHAVIOR_LAB_DURABLE_JOBS_COORDINATOR_URL:
       this.env.SITE_BEHAVIOR_LAB_DURABLE_JOBS_COORDINATOR_URL ?? "",
     SITE_BEHAVIOR_LAB_REPORT_MIN_SURVIVAL_MS: this.env.SITE_BEHAVIOR_LAB_REPORT_MIN_SURVIVAL_MS ?? "",
+    SITE_BEHAVIOR_LAB_REPORT_STORE_OPERATION_TIMEOUT_MS:
+      this.env.SITE_BEHAVIOR_LAB_REPORT_STORE_OPERATION_TIMEOUT_MS ?? "30000",
     SITE_BEHAVIOR_LAB_CHROMIUM_SANDBOX: this.env.SITE_BEHAVIOR_LAB_CHROMIUM_SANDBOX ?? "",
     // Shadow output is always the operator-only R2 prefix in Containers; the
     // rollout controls are owned at the Worker boundary and forwarded exactly.
@@ -401,39 +487,17 @@ export class ScannerContainer extends Container<Env> {
   }
 
   chargeDurableJobReadRateLimit(input: { clientHash: string }): PublicScanRateLimitResult {
-    if (!/^[a-f0-9]{64}$/.test(input.clientHash)) {
-      throw new Error("Invalid durable scan-job read-rate-limit charge.");
-    }
     const now = Date.now();
-    return this.ctx.storage.transactionSync(() => {
-      const sql = this.ctx.storage.sql;
-      sql.exec(
-        "CREATE TABLE IF NOT EXISTS public_scan_rate_limits (bucket TEXT PRIMARY KEY, used INTEGER NOT NULL, expires_at INTEGER NOT NULL)"
-      );
-      sql.exec("DELETE FROM public_scan_rate_limits WHERE expires_at <= ?", now);
-      const durationMs = 60_000;
-      const windowId = Math.floor(now / durationMs);
-      const expiresAt = (windowId + 1) * durationMs;
-      const bucket = `durable-status/${windowId}/${input.clientHash}`;
-      const row = sql
-        .exec<{ used: number }>(
-          "SELECT used FROM public_scan_rate_limits WHERE bucket = ? AND expires_at > ?",
-          bucket,
-          now
-        )
-        .toArray()[0];
-      const used = row?.used ?? 0;
-      if (used + 1 > 120) {
-        return { allowed: false, retryAfterSeconds: Math.max(1, Math.ceil((expiresAt - now) / 1_000)) };
-      }
-      sql.exec(
-        "INSERT INTO public_scan_rate_limits (bucket, used, expires_at) VALUES (?, ?, ?) ON CONFLICT(bucket) DO UPDATE SET used = excluded.used, expires_at = excluded.expires_at",
-        bucket,
-        used + 1,
-        expiresAt
-      );
-      return { allowed: true };
-    });
+    return this.ctx.storage.transactionSync(() =>
+      chargeDurableScanJobReadRateLimitInStore(this.ctx.storage.sql, input.clientHash, now)
+    );
+  }
+
+  chargeReportReadRateLimit(input: { clientHash: string }): PublicScanRateLimitResult {
+    const now = Date.now();
+    return this.ctx.storage.transactionSync(() =>
+      chargeReportReadRateLimitInStore(this.ctx.storage.sql, input.clientHash, now)
+    );
   }
 
   /**
@@ -452,6 +516,41 @@ export class ScannerContainer extends Container<Env> {
     return this.ctx.storage.transactionSync(() => findDurableScanJob(this.ctx.storage.sql, jobId, now));
   }
 
+  /** Resolve an accepted browser admission without retaining its raw bearer. */
+  findCommittedScanAdmission(key: ScanAdmissionStoreKey): ScanAdmissionLookupResult {
+    const now = Date.now();
+    try {
+      const admission = this.ctx.storage.transactionSync(() =>
+        findScanAdmission(this.ctx.storage.sql, key, now)
+      );
+      return admission ? { status: "found", admission } : { status: "not-found" };
+    } catch (error) {
+      if (error instanceof ScanAdmissionConflictError) return { status: "conflict" };
+      throw error;
+    }
+  }
+
+  /** Charge the accountless recovery read before touching admission state. */
+  recoverCommittedScanAdmission(input: {
+    key: ScanAdmissionStoreKey;
+    clientHash: string;
+  }): ScanAdmissionRecoveryResult {
+    const now = Date.now();
+    try {
+      return this.ctx.storage.transactionSync(() =>
+        findScanAdmissionRateLimited(
+          this.ctx.storage.sql,
+          input.key,
+          input.clientHash,
+          now
+        )
+      );
+    } catch (error) {
+      if (error instanceof ScanAdmissionConflictError) return { status: "conflict" };
+      throw error;
+    }
+  }
+
   /**
    * Commit the public quota charge, first durable job, immutable shard route,
    * encrypted watch, and first bounded history link as one authoritative unit.
@@ -460,8 +559,15 @@ export class ScannerContainer extends Container<Env> {
     preparation: DurableScanJobPreparation,
     payload: EncryptedWatchPayload,
     rateLimit: PublicScanRateLimitCharge,
-    capabilityToken: string
+    capabilityToken: string,
+    commitNotAfter: number
   ): Promise<EncryptedWatchAdmissionResult> {
+    try {
+      assertDurableAdmissionCommitActive(commitNotAfter);
+    } catch (error) {
+      if (error instanceof DurableScanJobAdmissionDeadlineExpiredError) return { status: "expired" };
+      throw error;
+    }
     assertPublicScanRateLimitCharge(rateLimit);
     if (rateLimit.cost !== 1 || preparation.payload.rateLimitCost !== 1) {
       throw new Error("Encrypted watches require an exact single-scan quota charge.");
@@ -492,11 +598,18 @@ export class ScannerContainer extends Container<Env> {
         payload: preparation.payload
       })
     ]);
+    try {
+      assertDurableAdmissionCommitActive(commitNotAfter);
+    } catch (error) {
+      if (error instanceof DurableScanJobAdmissionDeadlineExpiredError) return { status: "expired" };
+      throw error;
+    }
 
     let preflight: PublicScanRateLimitResult;
     try {
       preflight = this.ctx.storage.transactionSync(() => {
         const now = Date.now();
+        assertDurableAdmissionCommitActive(commitNotAfter, now);
         ensureDurableScanJobStore(this.ctx.storage.sql);
         ensureEncryptedWatchStore(this.ctx.storage.sql);
         this.purgeDurableScanJobState(now);
@@ -505,6 +618,7 @@ export class ScannerContainer extends Container<Env> {
         return peekPublicScanRateLimitInStore(this.ctx.storage.sql, rateLimit, now);
       });
     } catch (error) {
+      if (error instanceof DurableScanJobAdmissionDeadlineExpiredError) return { status: "expired" };
       if (
         error instanceof DurableScanJobCapacityError ||
         error instanceof DurableScanJobStateError ||
@@ -521,8 +635,15 @@ export class ScannerContainer extends Container<Env> {
 
     await this.ensureImmediateDurablePumpWake();
     try {
+      assertDurableAdmissionCommitActive(commitNotAfter);
+    } catch (error) {
+      if (error instanceof DurableScanJobAdmissionDeadlineExpiredError) return { status: "expired" };
+      throw error;
+    }
+    try {
       return this.ctx.storage.transactionSync(() => {
         const now = Date.now();
+        assertDurableAdmissionCommitActive(commitNotAfter, now);
         const committed = commitPublicScanRateLimitedOperation(
           this.ctx.storage.sql,
           rateLimit,
@@ -533,7 +654,8 @@ export class ScannerContainer extends Container<Env> {
             const snapshot = admitEncryptedWatch(this.ctx.storage.sql, watchAdmission);
             pruneDurableContainerShardRoutes(this.ctx.storage.sql);
             return snapshot;
-          }
+          },
+          () => assertDurableAdmissionCommitActive(commitNotAfter)
         );
         if (committed.status === "rate-limited") return committed;
         return {
@@ -543,6 +665,7 @@ export class ScannerContainer extends Container<Env> {
         };
       });
     } catch (error) {
+      if (error instanceof DurableScanJobAdmissionDeadlineExpiredError) return { status: "expired" };
       if (
         error instanceof DurableScanJobCapacityError ||
         error instanceof DurableScanJobStateError ||
@@ -574,39 +697,10 @@ export class ScannerContainer extends Container<Env> {
   }
 
   chargeEncryptedWatchReadRateLimit(input: { clientHash: string }): PublicScanRateLimitResult {
-    if (!/^[a-f0-9]{64}$/.test(input.clientHash)) {
-      throw new Error("Invalid encrypted-watch read-rate-limit charge.");
-    }
     const now = Date.now();
-    return this.ctx.storage.transactionSync(() => {
-      const sql = this.ctx.storage.sql;
-      sql.exec(
-        "CREATE TABLE IF NOT EXISTS public_scan_rate_limits (bucket TEXT PRIMARY KEY, used INTEGER NOT NULL, expires_at INTEGER NOT NULL)"
-      );
-      sql.exec("DELETE FROM public_scan_rate_limits WHERE expires_at <= ?", now);
-      const durationMs = 60_000;
-      const windowId = Math.floor(now / durationMs);
-      const expiresAt = (windowId + 1) * durationMs;
-      const bucket = `encrypted-watch-read/${windowId}/${input.clientHash}`;
-      const used =
-        sql
-          .exec<{ used: number }>(
-            "SELECT used FROM public_scan_rate_limits WHERE bucket = ? AND expires_at > ?",
-            bucket,
-            now
-          )
-          .toArray()[0]?.used ?? 0;
-      if (used + 1 > 120) {
-        return { allowed: false, retryAfterSeconds: Math.max(1, Math.ceil((expiresAt - now) / 1_000)) };
-      }
-      sql.exec(
-        "INSERT INTO public_scan_rate_limits (bucket, used, expires_at) VALUES (?, ?, ?) ON CONFLICT(bucket) DO UPDATE SET used = excluded.used, expires_at = excluded.expires_at",
-        bucket,
-        used + 1,
-        expiresAt
-      );
-      return { allowed: true };
-    });
+    return this.ctx.storage.transactionSync(() =>
+      chargeEncryptedWatchReadRateLimitInStore(this.ctx.storage.sql, input.clientHash, now)
+    );
   }
 
   async ensureEncryptedWatchPumpWake(): Promise<boolean> {
@@ -637,8 +731,16 @@ export class ScannerContainer extends Container<Env> {
   async admitDurablePreparation(
     preparation: DurableScanJobPreparation,
     replayFaultMode: DurableReplayFaultMode | null,
-    rateLimit: PublicScanRateLimitCharge
+    rateLimit: PublicScanRateLimitCharge,
+    scanAdmissionKey: ScanAdmissionStoreKey,
+    commitNotAfter: number
   ): Promise<DurableScanJobAdmissionResult> {
+    try {
+      assertDurableAdmissionCommitActive(commitNotAfter);
+    } catch (error) {
+      if (error instanceof DurableScanJobAdmissionDeadlineExpiredError) return { status: "expired" };
+      throw error;
+    }
     assertPublicScanRateLimitCharge(rateLimit);
     if (!publicScanRateLimitChargeMatchesCost(rateLimit, preparation.payload.rateLimitCost)) {
       throw new Error("The durable scan-job quota cost does not match its prepared payload.");
@@ -659,6 +761,7 @@ export class ScannerContainer extends Container<Env> {
       createdAt: preparation.payload.admittedAt,
       payload: preparation.payload
     });
+    assertDurableAdmissionCommitActive(commitNotAfter);
 
     // Reject full/colliding or quota-exhausted admissions before calling
     // Container.schedule(), whose singleton alarm write would otherwise be
@@ -668,13 +771,37 @@ export class ScannerContainer extends Container<Env> {
     let rateLimitPreflight: PublicScanRateLimitResult;
     try {
       const now = Date.now();
-      rateLimitPreflight = this.ctx.storage.transactionSync(() => {
+      const preflight = this.ctx.storage.transactionSync(() => {
+        assertDurableAdmissionCommitActive(commitNotAfter, now);
+        const existing = findScanAdmission(this.ctx.storage.sql, scanAdmissionKey, now);
+        if (existing) {
+          return {
+            existing,
+            existingSnapshot: findDurableScanJobSnapshot(this.ctx.storage.sql, existing.jobId),
+            rateLimit: { allowed: true } as const
+          };
+        }
         ensureDurableScanJobStore(this.ctx.storage.sql);
         this.purgeDurableScanJobState(now);
         preflightDurableScanJobAdmission(this.ctx.storage.sql, admission);
-        return peekPublicScanRateLimitInStore(this.ctx.storage.sql, rateLimit, now);
+        return {
+          existing: null,
+          existingSnapshot: null,
+          rateLimit: peekPublicScanRateLimitInStore(this.ctx.storage.sql, rateLimit, now)
+        };
       });
+      if (preflight.existing) {
+        return {
+          status: "success",
+          admission: preflight.existing,
+          snapshot: preflight.existingSnapshot,
+          recovered: true
+        };
+      }
+      rateLimitPreflight = preflight.rateLimit;
     } catch (error) {
+      if (error instanceof DurableScanJobAdmissionDeadlineExpiredError) return { status: "expired" };
+      if (error instanceof ScanAdmissionConflictError) return { status: "conflict" };
       if (error instanceof DurableScanJobCapacityError || error instanceof DurableScanJobStateError) {
         return { status: "refused" };
       }
@@ -685,10 +812,18 @@ export class ScannerContainer extends Container<Env> {
     }
     await this.ensureImmediateDurablePumpWake();
     try {
+      assertDurableAdmissionCommitActive(commitNotAfter);
+    } catch (error) {
+      if (error instanceof DurableScanJobAdmissionDeadlineExpiredError) return { status: "expired" };
+      throw error;
+    }
+    try {
       return this.ctx.storage.transactionSync(() => {
         const now = Date.now();
-        const committed = commitPublicScanRateLimitedOperation(
+        assertDurableAdmissionCommitActive(commitNotAfter, now);
+        const committed = commitIdempotentScanAdmission(
           this.ctx.storage.sql,
+          scanAdmissionKey,
           rateLimit,
           now,
           () => {
@@ -702,18 +837,43 @@ export class ScannerContainer extends Container<Env> {
                 now
               });
             }
-            return admitted;
-          }
+            return {
+              registration: {
+                jobId: admitted.jobId,
+                reportId: admitted.reportId,
+                totalRuns: admitted.totalRuns,
+                createdAt: admitted.createdAt
+              },
+              value: admitted
+            };
+          },
+          () => assertDurableAdmissionCommitActive(commitNotAfter)
         );
         if (committed.status === "rate-limited") {
           return committed;
         }
-        return { status: "success" as const, snapshot: committed.value };
+        if (committed.status === "recovered") {
+          return {
+            status: "success" as const,
+            admission: committed.admission,
+            snapshot: findDurableScanJobSnapshot(this.ctx.storage.sql, committed.admission.jobId),
+            recovered: true
+          };
+        }
+        return {
+          status: "success" as const,
+          admission: committed.admission,
+          snapshot: committed.value,
+          recovered: false
+        };
       });
     } catch (error) {
+      if (error instanceof DurableScanJobAdmissionDeadlineExpiredError) return { status: "expired" };
+      if (error instanceof ScanAdmissionConflictError) return { status: "conflict" };
       if (error instanceof DurableScanJobCapacityError || error instanceof DurableScanJobStateError) {
         return { status: "refused" };
       }
+      if (error instanceof ScanAdmissionCapacityError) return { status: "refused" };
       throw error;
     }
   }
@@ -805,7 +965,7 @@ export class ScannerContainer extends Container<Env> {
               true
             )
           )
-          .then((response) => response.arrayBuffer())
+          .then((response) => readDurableScanJobInternalResponseBytes(response))
           .then(() => undefined)
           .catch((error) => {
             // Cancellation correctness comes from the DO transition; local
@@ -948,146 +1108,37 @@ export class ScannerContainer extends Container<Env> {
     }
 
     try {
-      // Watches share this persistent driver. A due rescan becomes an ordinary
-      // queued durable job before the normal claim pass below, with no polling
-      // request and no second alarm system.
-      await this.admitDueEncryptedWatchRuns();
-      const now = Date.now();
-      const expired = this.ctx.storage.transactionSync(() => {
-        ensureDurableScanJobStore(this.ctx.storage.sql);
-        this.purgeDurableScanJobState(now);
-        return listExpiredDurableScanJobLeases(this.ctx.storage.sql, now);
+      const turn = await runDurableScanJobPumpTurn<
+        DurableScanJobSnapshot,
+        DurableScanJobSnapshot,
+        EncryptedWatchPumpItem
+      >({
+        listExpiredCoreItems: () => this.listExpiredDurablePumpItems(),
+        processExpiredCoreItem: (snapshot, context) =>
+          this.processExpiredDurablePumpItem(snapshot, context),
+        listDeadlineCoreItems: () => this.listDeadlineDurablePumpItems(),
+        processDeadlineCoreItem: (snapshot, context) =>
+          this.processDeadlineDurablePumpItem(snapshot, context),
+        dispatchCore: (context) => this.dispatchDurablePumpCore(context),
+        listOptionalItems: (context) => this.listEncryptedWatchPumpItems(context),
+        processOptionalItem: async (item, context) => ({
+          producedCoreWork: await this.admitEncryptedWatchClaim(item.keyring, item.claim, context)
+        }),
+        persistImmediateSuccessor: () => this.ensureDurablePumpFallbackSchedule(),
+        onFailure: ({ phase, error }) => {
+          console.error(`Durable scan-job pump isolated a failed ${phase} item.`, error);
+        }
       });
-
-      for (const snapshot of expired) {
-        if (snapshot.state === "leased") {
-          this.ctx.storage.transactionSync(() => {
-            requeueOrFailExpiredDurableScanJobLease(this.ctx.storage.sql, {
-              jobId: snapshot.jobId,
-              generation: snapshot.leaseGeneration,
-              now
-            });
-          });
-          continue;
-        }
-        if (
-          snapshot.state === "publishing" &&
-          snapshot.deadlineAt > now &&
-          this.reconciliationIsDue(snapshot, now)
-        ) {
-          const outcome = await this.reconcileExpiredDurablePublication(snapshot, now);
-          const completedAt = Date.now();
-          if (outcome === "retryable" && completedAt >= snapshot.deadlineAt) {
-            this.ctx.storage.transactionSync(() => {
-              reconcileExpiredPublishingDurableScanJob(this.ctx.storage.sql, {
-                jobId: snapshot.jobId,
-                generation: snapshot.leaseGeneration,
-                now: completedAt,
-                result: "expired"
-              });
-              this.clearDurableReconciliationBackoff(snapshot.jobId);
-            });
-          }
-        }
+      if (turn.status === "yielded") {
+        console.log(
+          JSON.stringify({
+            event: "durable-scan-job-pump-yielded",
+            reason: turn.yieldReason,
+            attempted: turn.attempted,
+            failures: turn.failures
+          })
+        );
       }
-
-      // Deadline processing runs after lease recovery so publishing gets one
-      // final exact R2 reconciliation instead of being blindly expired.
-      const pastDeadline = this.ctx.storage.transactionSync(() =>
-        listPastDeadlineDurableScanJobs(this.ctx.storage.sql, now)
-      );
-      for (const snapshot of pastDeadline) {
-        if (snapshot.state === "publishing") {
-          const settlementAt = this.durablePublicationSettlementAt(snapshot);
-          if (now < settlementAt) {
-            await this.scheduleNextDurablePump(settlementAt);
-            continue;
-          }
-          const outcome = await this.reconcileExpiredDurablePublication(snapshot, now, true);
-          if (outcome === "retryable") {
-            const expirationAt = Date.now();
-            this.ctx.storage.transactionSync(() => {
-              reconcileExpiredPublishingDurableScanJob(this.ctx.storage.sql, {
-                jobId: snapshot.jobId,
-                generation: snapshot.leaseGeneration,
-                now: expirationAt,
-                result: "expired"
-              });
-              this.clearDurableReconciliationBackoff(snapshot.jobId);
-            });
-          }
-        } else {
-          this.ctx.storage.transactionSync(() => {
-            expireDurableScanJob(this.ctx.storage.sql, { jobId: snapshot.jobId, now });
-          });
-        }
-      }
-
-      // Persist a fresh idempotent driver before claim consumes an attempt. A
-      // failed pre-arm leaves every row queued; once it succeeds, a later
-      // recompute failure cannot prevent this pump from activating raw owners.
-      await this.scheduleNextDurablePump();
-      const credentials = await createDurableScanJobLeaseCredentials(DURABLE_SCAN_JOB_EXECUTION_CAPACITY);
-      const claims = this.ctx.storage.transactionSync(() =>
-        claimDurableScanJobs(this.ctx.storage.sql, {
-          now: Date.now(),
-          capacity: DURABLE_SCAN_JOB_EXECUTION_CAPACITY,
-          credentials
-        })
-      );
-      const key = await this.durableEncryptionKey();
-      const activations: Array<{ claim: DurableScanJobClaim; preparation: DurableScanJobPreparation["payload"] }> = [];
-      for (const claim of claims) {
-        try {
-          const preparation = await decryptDurableScanJobClaim(key, claim);
-          const abandoned = await this.triggerStagingLeaseExpiryFault({
-            jobId: claim.jobId,
-            generation: claim.leaseGeneration,
-            leaseToken: claim.leaseToken
-          });
-          if (abandoned) {
-            console.log(
-              JSON.stringify({
-                event: "durable-replay-fault-triggered",
-                mode: abandoned.mode,
-                jobId: abandoned.jobId,
-                generation: abandoned.triggeredGeneration
-              })
-            );
-            // Leave generation one leased and untouched. The persistent pump's
-            // scheduled expiry is the canary under test; no request/poll drives it.
-            continue;
-          }
-          activations.push({ claim, preparation });
-        } catch (error) {
-          console.error("Could not decrypt an admitted durable scan job; failing the fenced lease.", error);
-          try {
-            const tokenHash = await hashDurableScanJobLeaseToken(claim.leaseToken);
-            this.ctx.storage.transactionSync(() => {
-              resolveDurableScanJob(this.ctx.storage.sql, {
-                jobId: claim.jobId,
-                generation: claim.leaseGeneration,
-                tokenHash,
-                now: Date.now(),
-                outcome: "failed",
-                reason: "payload-invalid"
-              });
-            });
-          } catch (resolveError) {
-            console.error("Could not terminalize an invalid durable scan-job payload.", resolveError);
-          }
-        }
-      }
-
-      // The next lease/deadline/purge wake is durable before Node activation.
-      try {
-        await this.scheduleNextDurablePump();
-      } catch (error) {
-        // The pre-claim driver is already durable. Keep activating now because
-        // this pump is the only holder of the plaintext lease tokens.
-        console.error("Could not recompute the post-claim durable pump schedule.", error);
-      }
-      await Promise.all(activations.map(({ claim, preparation }) => this.activateDurableClaim(claim, preparation)));
     } catch (error) {
       console.error("Durable scan-job pump failed.", error);
     } finally {
@@ -1097,9 +1148,188 @@ export class ScannerContainer extends Container<Env> {
     }
   }
 
+  private listExpiredDurablePumpItems(): DurableScanJobSnapshot[] {
+    const now = Date.now();
+    return this.ctx.storage.transactionSync(() => {
+      ensureDurableScanJobStore(this.ctx.storage.sql);
+      this.purgeDurableScanJobState(now);
+      return listExpiredDurableScanJobLeases(this.ctx.storage.sql, now);
+    });
+  }
+
+  private async processExpiredDurablePumpItem(
+    snapshot: DurableScanJobSnapshot,
+    context: DurableScanJobPumpTaskContext
+  ): Promise<void> {
+    throwIfDurablePumpAborted(context.signal);
+    const now = Date.now();
+    if (snapshot.state === "leased") {
+      this.ctx.storage.transactionSync(() => {
+        requeueOrFailExpiredDurableScanJobLease(this.ctx.storage.sql, {
+          jobId: snapshot.jobId,
+          generation: snapshot.leaseGeneration,
+          now
+        });
+      });
+      return;
+    }
+    if (
+      snapshot.state !== "publishing" ||
+      snapshot.deadlineAt <= now ||
+      !this.reconciliationIsDue(snapshot, now)
+    ) {
+      return;
+    }
+
+    const outcome = await this.reconcileExpiredDurablePublication(
+      snapshot,
+      now,
+      false,
+      false,
+      context.signal,
+      context.remainingTimeMs
+    );
+    throwIfDurablePumpAborted(context.signal);
+    const completedAt = Date.now();
+    if (outcome === "retryable" && completedAt >= snapshot.deadlineAt) {
+      this.ctx.storage.transactionSync(() => {
+        reconcileExpiredPublishingDurableScanJob(this.ctx.storage.sql, {
+          jobId: snapshot.jobId,
+          generation: snapshot.leaseGeneration,
+          now: completedAt,
+          result: "expired"
+        });
+        this.clearDurableReconciliationBackoff(snapshot.jobId);
+      });
+    }
+  }
+
+  private listDeadlineDurablePumpItems(): DurableScanJobSnapshot[] {
+    return this.ctx.storage.transactionSync(() =>
+      listPastDeadlineDurableScanJobs(this.ctx.storage.sql, Date.now())
+    );
+  }
+
+  private async processDeadlineDurablePumpItem(
+    snapshot: DurableScanJobSnapshot,
+    context: DurableScanJobPumpTaskContext
+  ): Promise<void> {
+    throwIfDurablePumpAborted(context.signal);
+    const now = Date.now();
+    if (snapshot.state === "publishing") {
+      // The final re-arm derives the exact settlement wake. Avoid another
+      // uncancellable scheduler await inside this bounded per-row operation.
+      if (now < this.durablePublicationSettlementAt(snapshot)) return;
+      const outcome = await this.reconcileExpiredDurablePublication(
+        snapshot,
+        now,
+        true,
+        false,
+        context.signal,
+        context.remainingTimeMs
+      );
+      throwIfDurablePumpAborted(context.signal);
+      if (outcome === "retryable") {
+        const expirationAt = Date.now();
+        this.ctx.storage.transactionSync(() => {
+          reconcileExpiredPublishingDurableScanJob(this.ctx.storage.sql, {
+            jobId: snapshot.jobId,
+            generation: snapshot.leaseGeneration,
+            now: expirationAt,
+            result: "expired"
+          });
+          this.clearDurableReconciliationBackoff(snapshot.jobId);
+        });
+      }
+      return;
+    }
+
+    this.ctx.storage.transactionSync(() => {
+      expireDurableScanJob(this.ctx.storage.sql, { jobId: snapshot.jobId, now });
+    });
+  }
+
+  private async dispatchDurablePumpCore(context: DurableScanJobPumpTaskContext): Promise<void> {
+    throwIfDurablePumpAborted(context.signal);
+    // The callback-entry prearm is already a durable immediate recovery driver,
+    // so claiming does not depend on another uncancellable schedule() await.
+    const credentials = await createDurableScanJobLeaseCredentials(DURABLE_SCAN_JOB_EXECUTION_CAPACITY);
+    throwIfDurablePumpAborted(context.signal);
+    const claims = this.ctx.storage.transactionSync(() =>
+      claimDurableScanJobs(this.ctx.storage.sql, {
+        now: Date.now(),
+        capacity: DURABLE_SCAN_JOB_EXECUTION_CAPACITY,
+        credentials
+      })
+    );
+    const key = await this.durableEncryptionKey();
+    throwIfDurablePumpAborted(context.signal);
+    const activations: Array<{
+      claim: DurableScanJobClaim;
+      preparation: DurableScanJobPreparation["payload"];
+    }> = [];
+
+    for (const claim of claims) {
+      throwIfDurablePumpAborted(context.signal);
+      try {
+        const preparation = await decryptDurableScanJobClaim(key, claim);
+        throwIfDurablePumpAborted(context.signal);
+        const abandoned = await this.triggerStagingLeaseExpiryFault({
+          jobId: claim.jobId,
+          generation: claim.leaseGeneration,
+          leaseToken: claim.leaseToken
+        });
+        throwIfDurablePumpAborted(context.signal);
+        if (abandoned) {
+          console.log(
+            JSON.stringify({
+              event: "durable-replay-fault-triggered",
+              mode: abandoned.mode,
+              jobId: abandoned.jobId,
+              generation: abandoned.triggeredGeneration
+            })
+          );
+          // Leave generation one leased and untouched. The persistent pump's
+          // scheduled expiry is the canary under test; no request/poll drives it.
+          continue;
+        }
+        activations.push({ claim, preparation });
+      } catch (error) {
+        if (context.signal.aborted) throw durablePumpAbortReason(context.signal);
+        console.error("Could not decrypt an admitted durable scan job; failing the fenced lease.", error);
+        try {
+          const tokenHash = await hashDurableScanJobLeaseToken(claim.leaseToken);
+          throwIfDurablePumpAborted(context.signal);
+          this.ctx.storage.transactionSync(() => {
+            resolveDurableScanJob(this.ctx.storage.sql, {
+              jobId: claim.jobId,
+              generation: claim.leaseGeneration,
+              tokenHash,
+              now: Date.now(),
+              outcome: "failed",
+              reason: "payload-invalid"
+            });
+          });
+        } catch (resolveError) {
+          if (context.signal.aborted) throw durablePumpAbortReason(context.signal);
+          console.error("Could not terminalize an invalid durable scan-job payload.", resolveError);
+        }
+      }
+    }
+
+    await Promise.all(
+      activations.map(({ claim, preparation }) =>
+        this.activateDurableClaim(claim, preparation, context.signal, context.remainingTimeMs)
+      )
+    );
+    throwIfDurablePumpAborted(context.signal);
+  }
+
   private async activateDurableClaim(
     claim: DurableScanJobClaim,
-    payload: DurableScanJobPreparation["payload"]
+    payload: DurableScanJobPreparation["payload"],
+    signal?: AbortSignal,
+    timeoutMs = 60_000
   ): Promise<void> {
     const config = requireDurableScanJobConfig(this.env);
     let response: Response;
@@ -1116,14 +1346,19 @@ export class ScannerContainer extends Container<Env> {
           payload,
           coordinatorUrl: config.coordinatorUrl,
           internalToken: config.internalToken
-        }
+        },
+        false,
+        timeoutMs,
+        signal
       );
-      await response.arrayBuffer();
+      await readDurableScanJobInternalResponseBytes(response, signal);
+      if (signal) throwIfDurablePumpAborted(signal);
       if (!response.ok) {
         console.error(`Durable scan-job activation returned HTTP ${response.status}.`);
       }
     } catch (error) {
       // Leave the lease untouched. Its scheduled expiry is the retry fence.
+      if (signal?.aborted) return;
       console.error("Could not activate a durable scan-job lease.", error);
     }
   }
@@ -1140,63 +1375,84 @@ export class ScannerContainer extends Container<Env> {
     }
   }
 
-  /** Claim, decrypt, freshly revalidate, and admit due watches under the same pump. */
-  private async admitDueEncryptedWatchRuns(): Promise<void> {
+  /** Claim due optional watches only after ordinary durable-job dispatch. */
+  private async listEncryptedWatchPumpItems(
+    context: DurableScanJobPumpTaskContext
+  ): Promise<EncryptedWatchPumpItem[]> {
+    throwIfDurablePumpAborted(context.signal);
     if (encryptedWatchesFlagState(this.env[ENCRYPTED_WATCHES_ENV]) !== "enabled") {
       this.maintainEncryptedWatchRetention();
-      return;
+      return [];
     }
     try {
       requireEncryptedWatchConfig(this.env);
     } catch {
       this.maintainEncryptedWatchRetention();
-      return;
+      return [];
     }
 
     let keyring: EncryptedWatchKeyring;
     try {
       keyring = await this.encryptedWatchKeyring();
-    } catch {
+      throwIfDurablePumpAborted(context.signal);
+    } catch (error) {
+      if (context.signal.aborted) throw durablePumpAbortReason(context.signal);
       // Key errors are surfaced through health. Do not turn an optional feature
       // misconfiguration into an ordinary durable-scan outage or a hot loop.
       this.maintainEncryptedWatchRetention();
-      return;
+      return [];
     }
 
-    let claims: EncryptedWatchClaim[];
-    try {
-      const credentials = await createEncryptedWatchLeaseCredentials(DURABLE_SCAN_JOB_EXECUTION_CAPACITY);
-      claims = this.ctx.storage.transactionSync(() =>
-        claimDueEncryptedWatches(this.ctx.storage.sql, {
-          now: Date.now(),
-          capacity: DURABLE_SCAN_JOB_EXECUTION_CAPACITY,
-          credentials
-        })
-      );
-      await Promise.all(claims.map((claim) => this.admitEncryptedWatchClaim(keyring, claim)));
-    } catch {
-      console.error("Could not process encrypted scheduled-rescan claims.");
-    }
+    const credentials = await createEncryptedWatchLeaseCredentials(DURABLE_SCAN_JOB_EXECUTION_CAPACITY);
+    throwIfDurablePumpAborted(context.signal);
+    const claims = this.ctx.storage.transactionSync(() =>
+      claimDueEncryptedWatches(this.ctx.storage.sql, {
+        now: Date.now(),
+        capacity: DURABLE_SCAN_JOB_EXECUTION_CAPACITY,
+        credentials
+      })
+    );
+    return claims.map((claim) => ({ claim, keyring }));
   }
 
-  private async admitEncryptedWatchClaim(keyring: EncryptedWatchKeyring, claim: EncryptedWatchClaim): Promise<void> {
+  private async admitEncryptedWatchClaim(
+    keyring: EncryptedWatchKeyring,
+    claim: EncryptedWatchClaim,
+    context: DurableScanJobPumpTaskContext
+  ): Promise<boolean> {
+    throwIfDurablePumpAborted(context.signal);
     let payload: EncryptedWatchPayload;
     try {
       payload = await decryptEncryptedWatchClaim(keyring, claim);
-    } catch {
-      await this.failEncryptedWatchClaim(claim, "payload-invalid");
-      return;
+      throwIfDurablePumpAborted(context.signal);
+    } catch (error) {
+      if (context.signal.aborted) throw durablePumpAbortReason(context.signal);
+      await this.failEncryptedWatchClaim(claim, "payload-invalid", context.signal);
+      return false;
     }
 
     let preparedResponse: Response;
     try {
-      preparedResponse = await this.privateEncryptedWatchPreparationRequest(payload);
-    } catch {
-      await this.failEncryptedWatchClaim(claim, "prepare-unavailable");
-      return;
+      preparedResponse = await this.privateEncryptedWatchPreparationRequest(
+        payload,
+        context.signal,
+        context.remainingTimeMs
+      );
+    } catch (error) {
+      if (context.signal.aborted) throw durablePumpAbortReason(context.signal);
+      await this.failEncryptedWatchClaim(claim, "prepare-unavailable", context.signal);
+      return false;
     }
-    const preparation = readDurableScanJobPreparation(preparedResponse);
-    await preparedResponse.arrayBuffer().catch(() => undefined);
+    let preparation: DurableScanJobPreparation | null;
+    try {
+      preparation = readDurableScanJobPreparation(preparedResponse);
+      await readDurableScanJobInternalResponseBytes(preparedResponse, context.signal);
+      throwIfDurablePumpAborted(context.signal);
+    } catch (error) {
+      if (context.signal.aborted) throw durablePumpAbortReason(context.signal);
+      await this.failEncryptedWatchClaim(claim, "prepare-invalid", context.signal);
+      return false;
+    }
     const retained = preparation ? encryptedWatchPayloadFromPreparation(preparation) : null;
     if (
       preparedResponse.status !== 202 ||
@@ -1204,8 +1460,8 @@ export class ScannerContainer extends Container<Env> {
       !retained ||
       JSON.stringify(retained) !== JSON.stringify(payload)
     ) {
-      await this.failEncryptedWatchClaim(claim, "prepare-refused");
-      return;
+      await this.failEncryptedWatchClaim(claim, "prepare-refused", context.signal);
+      return false;
     }
 
     try {
@@ -1213,12 +1469,14 @@ export class ScannerContainer extends Container<Env> {
         this.durableEncryptionKey(),
         hashEncryptedWatchLeaseToken(claim.leaseToken)
       ]);
+      throwIfDurablePumpAborted(context.signal);
       const admission = await createDurableScanJobAdmission(durableKey, {
         jobId: preparation.submission.jobId,
         reportId: preparation.submission.reportId,
         createdAt: preparation.payload.admittedAt,
         payload: preparation.payload
       });
+      throwIfDurablePumpAborted(context.signal);
       const sharding = requireDurableContainerShardingPlan(this.env);
       const containerRoute = selectDurableContainerShard(preparation.submission.jobId, sharding.shardCount);
       this.ctx.storage.transactionSync(() => {
@@ -1240,15 +1498,24 @@ export class ScannerContainer extends Container<Env> {
         });
         pruneDurableContainerShardRoutes(this.ctx.storage.sql);
       });
+      return true;
     } catch (error) {
-      if (error instanceof EncryptedWatchStateError && error.code === "lease-invalid") return;
-      await this.failEncryptedWatchClaim(claim, "admission-refused");
+      if (context.signal.aborted) throw durablePumpAbortReason(context.signal);
+      if (error instanceof EncryptedWatchStateError && error.code === "lease-invalid") return false;
+      await this.failEncryptedWatchClaim(claim, "admission-refused", context.signal);
+      return false;
     }
   }
 
-  private async failEncryptedWatchClaim(claim: EncryptedWatchClaim, _errorCode: string): Promise<void> {
+  private async failEncryptedWatchClaim(
+    claim: EncryptedWatchClaim,
+    _errorCode: string,
+    signal?: AbortSignal
+  ): Promise<void> {
     try {
+      if (signal) throwIfDurablePumpAborted(signal);
       const tokenHash = await hashEncryptedWatchLeaseToken(claim.leaseToken);
+      if (signal) throwIfDurablePumpAborted(signal);
       this.ctx.storage.transactionSync(() => {
         resolveEncryptedWatchLease(this.ctx.storage.sql, {
           watchId: claim.watchId,
@@ -1259,6 +1526,7 @@ export class ScannerContainer extends Container<Env> {
         });
       });
     } catch (error) {
+      if (signal?.aborted) throw durablePumpAbortReason(signal);
       // Delete/expiry or a newer generation legitimately fences this resolver.
       if (!(error instanceof EncryptedWatchStateError)) {
         console.error("Could not terminalize an encrypted scheduled-rescan lease.");
@@ -1266,7 +1534,11 @@ export class ScannerContainer extends Container<Env> {
     }
   }
 
-  private privateEncryptedWatchPreparationRequest(payload: EncryptedWatchPayload): Promise<Response> {
+  private privateEncryptedWatchPreparationRequest(
+    payload: EncryptedWatchPayload,
+    signal?: AbortSignal,
+    timeoutMs = 60_000
+  ): Promise<Response> {
     const token = requireDurableScanJobConfig(this.env).internalToken;
     return this.containerFetch(
       new Request(`http://container.internal${DURABLE_SCAN_JOB_NODE_PATH_PREFIX}/prepare-watch`, {
@@ -1276,7 +1548,7 @@ export class ScannerContainer extends Container<Env> {
           [DURABLE_SCAN_JOB_INTERNAL_HEADER]: token
         },
         body: JSON.stringify(payload),
-        signal: AbortSignal.timeout(60_000)
+        signal: durablePumpRequestSignal(signal, timeoutMs)
       })
     );
   }
@@ -1285,8 +1557,11 @@ export class ScannerContainer extends Container<Env> {
     snapshot: DurableScanJobSnapshot,
     now: number,
     force = false,
-    allowDisabled = false
+    allowDisabled = false,
+    signal?: AbortSignal,
+    maximumTimeoutMs = DURABLE_SCAN_JOB_RECONCILIATION_TIMEOUT_MS
   ): Promise<"transitioned" | "retryable"> {
+    if (signal) throwIfDurablePumpAborted(signal);
     if (!force && !this.reconciliationIsDue(snapshot, now)) return "retryable";
     const maintenanceAt = Date.now();
     this.ctx.storage.transactionSync(() => this.purgeDurableScanJobState(maintenanceAt));
@@ -1318,7 +1593,7 @@ export class ScannerContainer extends Container<Env> {
     const reconciliationTimeoutMs = durableReconciliationTimeoutMs(
       reconciliationStartedAt,
       Math.min(snapshot.purgeAt, storePurgeAt ?? snapshot.purgeAt),
-      DURABLE_SCAN_JOB_RECONCILIATION_TIMEOUT_MS
+      Math.min(DURABLE_SCAN_JOB_RECONCILIATION_TIMEOUT_MS, maximumTimeoutMs)
     );
     if (reconciliationTimeoutMs <= 0) {
       this.ctx.storage.transactionSync(() => this.purgeDurableScanJobState(reconciliationStartedAt));
@@ -1336,9 +1611,11 @@ export class ScannerContainer extends Container<Env> {
           manifest
         },
         allowDisabled,
-        reconciliationTimeoutMs
+        reconciliationTimeoutMs,
+        signal
       );
-    } catch {
+    } catch (error) {
+      if (signal?.aborted) throw durablePumpAbortReason(signal);
       const completedAt = Date.now();
       const purged = completedAt >= snapshot.purgeAt;
       this.ctx.storage.transactionSync(() => {
@@ -1350,10 +1627,12 @@ export class ScannerContainer extends Container<Env> {
 
     let result: unknown;
     try {
-      result = await response.json();
+      result = await readDurableScanJobInternalResponseJson(response, signal);
     } catch {
+      if (signal?.aborted) throw durablePumpAbortReason(signal);
       result = null;
     }
+    if (signal) throwIfDurablePumpAborted(signal);
     const outcome = durableReconciliationOutcome(result, snapshot);
     const completedAt = Date.now();
     if (!response.ok || outcome === "retryable") {
@@ -1394,7 +1673,8 @@ export class ScannerContainer extends Container<Env> {
     method: "POST" | "DELETE",
     body: unknown,
     allowDisabled = false,
-    timeoutMs = 60_000
+    timeoutMs = 60_000,
+    signal?: AbortSignal
   ): Promise<Response> {
     // Every job-scoped container call resolves through this server-owned,
     // admission-persisted route. No public/private request body can choose a
@@ -1414,7 +1694,7 @@ export class ScannerContainer extends Container<Env> {
       body: JSON.stringify(body),
       // A wedged cold start or backend read must yield back to the persistent
       // lease/backoff schedule rather than strand the DO callback indefinitely.
-      signal: AbortSignal.timeout(timeoutMs)
+      signal: durablePumpRequestSignal(signal, timeoutMs)
     });
     // Index zero is intentionally the historical default singleton, so the
     // configured max_instances ceiling includes the coordinator's warm Node
@@ -1828,52 +2108,18 @@ export class ScannerContainer extends Container<Env> {
       recordEncryptedWatchRunTerminalOutcome(this.ctx.storage.sql, input);
     } catch {
       // Encrypted watches are optional. A damaged watch schema/history must not
-      // roll back ordinary durable cancellation, resolution, or hard purging.
+      // roll back an ordinary durable cancellation or resolution. Hard purge
+      // uses the strict transactional synchronization path below.
       console.error("Could not persist encrypted scheduled-rescan terminal history.");
     }
   }
 
-  private syncEncryptedWatchTerminalHistorySafely(): void {
-    try {
-      ensureEncryptedWatchStore(this.ctx.storage.sql);
-      const terminalRows = this.ctx.storage.sql
-        .exec<{
-          job_id: string;
-          state: "succeeded" | "failed" | "expired" | "cancelled";
-          terminal_reason: string | null;
-          finished_at: number;
-        }>(
-          `SELECT jobs.job_id, jobs.state, jobs.terminal_reason, jobs.finished_at
-           FROM durable_scan_jobs jobs
-           INNER JOIN encrypted_watch_runs runs ON runs.job_id = jobs.job_id
-           WHERE jobs.state IN ('succeeded','failed','expired','cancelled')
-             AND runs.terminal_outcome IS NULL`
-        )
-        .toArray();
-      for (const row of terminalRows) {
-        this.recordEncryptedWatchTerminalOutcomeSafely({
-          jobId: row.job_id,
-          now: row.finished_at,
-          resolution:
-            row.state === "succeeded"
-              ? { outcome: "succeeded" }
-              : {
-                  outcome: row.state,
-                  errorCode: sanitizedWatchTerminalErrorCode(row.terminal_reason, row.state)
-                }
-        });
-      }
-    } catch {
-      console.error("Could not synchronize encrypted scheduled-rescan terminal history.");
-    }
-  }
-
   private purgeDurableScanJobState(now: number): number {
-    // Watch history must outlive the short durable-job tombstone. Copy terminal
-    // truth before any row can cross its immutable purge horizon; the core
-    // operation is replay-idempotent and a no-op for ordinary jobs.
-    this.syncEncryptedWatchTerminalHistorySafely();
-    const purged = purgeDurableScanJobs(this.ctx.storage.sql, now);
+    // This method is called only inside transactionSync. Hard-expired work is
+    // terminalized, linked watch truth is copied strictly, and only then are
+    // tombstones removed. Any history conflict throws and rolls back all three
+    // steps rather than leaving a watch run permanently queued.
+    const { purged } = settleSynchronizeAndPurgeDurableScanJobs(this.ctx.storage.sql, now);
     // The backoff table has no foreign key because Durable Object SQLite
     // migrations must tolerate the pre-feature schema. Couple every purge to
     // explicit orphan pruning so disabled/status-only traffic cannot retain it.
@@ -2185,7 +2431,24 @@ export default {
     // own view onto its response, otherwise the UI never shows the Turnstile
     // widget the gate then requires, and every public scan 400s.
     if (request.method === "GET" && url.pathname === "/api/health") {
-      return patchHealthResponse(await forwardToContainer(request, env), env);
+      return handleContainerHealthRequest(request, env);
+    }
+
+    const isScanAdmissionRecovery = url.pathname === SCAN_ADMISSION_RECOVERY_PATH && !url.search;
+    if (isScanAdmissionRecovery) {
+      if (request.method === "OPTIONS") {
+        return new Response(null, {
+          status: 204,
+          headers: scanCorsHeaders(request.headers.get("origin"), env.SITE_BEHAVIOR_LAB_ALLOWED_ORIGIN)
+        });
+      }
+      if (request.method === "GET") {
+        return recoverCommittedScanAdmission(request, env);
+      }
+      return new Response(null, {
+        status: 404,
+        headers: scanCorsHeaders(request.headers.get("origin"), env.SITE_BEHAVIOR_LAB_ALLOWED_ORIGIN)
+      });
     }
 
     const isScan = request.method === "POST" && url.pathname === "/api/scan";
@@ -2209,50 +2472,130 @@ export default {
       return recoverRegisteredScanJob(request, env, scanJobId, response);
     }
 
-    // Report reads and CORS preflight forward straight to the container.
+    const reportRead = parsePublicReportReadPath(request.method, url.pathname);
+    if (reportRead) {
+      const refusal = await enforcePublicReportReadRateLimit(request, env);
+      if (refusal) return refusal;
+    }
+
+    // Non-scan routes forward only after any route-specific edge controls.
     if (!isScan) {
       return forwardToContainer(request, env);
     }
 
-    // Read the scan body once: the gate inspects it, then it is forwarded
-    // verbatim. The size cap is enforced before buffering (declared length
-    // short-circuits, chunked bodies stream through the cap), so a tokenless
-    // caller cannot force a large allocation just by posting one.
-    const body = await readRequestBodyWithinLimit(request, MAX_BODY_BYTES);
+    const durableAdmission = durableScanJobsEnabled(env);
+    let replayFaultMode: DurableReplayFaultMode | null = null;
+    if (durableAdmission) {
+      try {
+        return await withDurableScanJobAdmissionDeadline(async (signal, commitNotAfter) => {
+          // Body receipt, Siteverify, Node preparation (headers and body), and
+          // authoritative commit share one caller-composed deadline.
+          const body = await readRequestBodyWithinLimit(request, MAX_BODY_BYTES, {
+            signal,
+            timeoutMs: REQUEST_BODY_OPERATION_TIMEOUT_MS
+          });
+          if (body === null) {
+            return gateErrorResponse(
+              new EdgeScanGateError("The scan request is too large.", 413),
+              request,
+              env
+            );
+          }
+          // Authenticate before capability lookup, but do not redeem Turnstile
+          // or touch quota for an exact committed retry. This whole sequence,
+          // including Siteverify, Node preparation, and DO commit, shares one
+          // caller-composed operation deadline.
+          await gateScanRequest(request, body, env, "authorize", undefined, signal);
+          replayFaultMode = await readStagingDurableReplayFaultRequest(request, env);
+          const scanAdmissionKey = await scanAdmissionStoreKey(request.headers, body);
+          throwIfDurableScanJobAdmissionAborted(signal);
+          if (!scanAdmissionKey) {
+            throw new EdgeScanGateError("A canonical scan-admission capability is required.", 400);
+          }
+          const existing = await getContainer(env.SCANNER).findCommittedScanAdmission(scanAdmissionKey);
+          throwIfDurableScanJobAdmissionAborted(signal);
+          if (existing.status === "conflict") throw new ScanAdmissionConflictGateError();
+          if (existing.status === "found") {
+            return scanAdmissionResponse(existing.admission, request, env, 202);
+          }
+
+          const deferredRateLimit = await gateScanRequest(
+            request,
+            body,
+            env,
+            "defer",
+            scanAdmissionKey.capabilityHash,
+            signal
+          );
+          throwIfDurableScanJobAdmissionAborted(signal);
+          if (!deferredRateLimit) throw new Error("Durable scan admission did not produce a quota charge.");
+
+          const forwardedHeaders = scanForwardHeaders(request.headers);
+          const forwarded = new Request(request.url, {
+            method: "POST",
+            headers: forwardedHeaders,
+            body,
+            signal
+          });
+          return submitDurableScanJob(
+            forwarded,
+            env,
+            replayFaultMode,
+            deferredRateLimit,
+            scanAdmissionKey,
+            signal,
+            commitNotAfter
+          );
+        }, { signal: request.signal });
+      } catch (error) {
+        if (request.signal.aborted) {
+          return gateErrorResponse(
+            new EdgeScanGateError("The request ended before scan admission completed.", 499),
+            request,
+            env
+          );
+        }
+        if (error instanceof DurableScanJobAdmissionTimeoutError) {
+          console.error("Durable scan-job admission exceeded its whole-operation deadline.", error);
+          return durableUnavailableResponse(request, env);
+        }
+        return gateErrorResponse(error, request, env);
+      }
+    }
+
+    // Phase 1 remains a separate compatibility path, but its public body read
+    // is still finite and caller-cancellable before gate or container work.
+    let body: string | null;
+    try {
+      body = await readRequestBodyWithinLimit(request, MAX_BODY_BYTES, {
+        signal: request.signal,
+        timeoutMs: REQUEST_BODY_OPERATION_TIMEOUT_MS
+      });
+    } catch (error) {
+      return gateErrorResponse(error, request, env);
+    }
     if (body === null) {
       return gateErrorResponse(new EdgeScanGateError("The scan request is too large.", 413), request, env);
     }
 
-    const durableAdmission = durableScanJobsEnabled(env);
-    let deferredRateLimit: PublicScanRateLimitCharge | null;
     try {
-      deferredRateLimit = await gateScanRequest(
-        request,
-        body,
-        env,
-        durableAdmission ? "defer" : "charge"
-      );
+      await gateScanRequest(request, body, env, "charge", undefined, request.signal);
     } catch (error) {
       return gateErrorResponse(error, request, env);
     }
 
-    let replayFaultMode: DurableReplayFaultMode | null;
     try {
       replayFaultMode = await readStagingDurableReplayFaultRequest(request, env);
     } catch (error) {
       return gateErrorResponse(error, request, env);
     }
-    const forwardedHeaders = new Headers(request.headers);
-    // These credentials and controls are edge-only even on staging. Never let
-    // them reach Node request logs, preparation code, or report material.
-    forwardedHeaders.delete(DURABLE_REPLAY_FAULT_MODE_HEADER);
-    forwardedHeaders.delete(DURABLE_REPLAY_FAULT_TOKEN_HEADER);
-    forwardedHeaders.delete(SYNTHETIC_MONITOR_TOKEN_HEADER);
-    const forwarded = new Request(request.url, { method: "POST", headers: forwardedHeaders, body });
-    if (durableAdmission) {
-      if (!deferredRateLimit) return durableUnavailableResponse(request, env);
-      return submitDurableScanJob(forwarded, env, replayFaultMode, deferredRateLimit);
-    }
+    const forwardedHeaders = scanForwardHeaders(request.headers);
+    const forwarded = new Request(request.url, {
+      method: "POST",
+      headers: forwardedHeaders,
+      body,
+      signal: request.signal
+    });
     const response = await forwardToContainer(forwarded, env);
     ctx.waitUntil(
       recordAcceptedScanJob(
@@ -2349,21 +2692,14 @@ function requireEncryptedWatchConfig(env: Env): EncryptedWatchConfig {
   if (encryptedWatchesFlagState(env[ENCRYPTED_WATCHES_ENV]) !== "enabled") {
     throw new Error("Encrypted watches are disabled.");
   }
-  if (
-    !encryptedWatchIngressIsTokenGated({
-      accessToken: env.SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN,
-      allowUnauthenticated: env.SITE_BEHAVIOR_LAB_ALLOW_UNAUTHENTICATED_SCANS,
-      turnstileSecret: env.TURNSTILE_SECRET_KEY
-    })
-  ) {
-    throw new Error("Encrypted watches require access-token-gated scanner ingress.");
-  }
+  const accessToken = optionalEncryptedWatchAccessToken(env);
   const durable = requireDurableScanJobConfig(env);
   const current = env[ENCRYPTED_WATCH_ENCRYPTION_KEY_ENV] ?? "";
   const previous = env[ENCRYPTED_WATCH_PREVIOUS_ENCRYPTION_KEY_ENV];
   const sharedSecrets = [
     durable.encryptionKey,
     durable.internalToken,
+    accessToken ?? "",
     env.SITE_BEHAVIOR_LAB_SYNTHETIC_MONITOR_TOKEN ?? "",
     env.SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN ?? "",
     env.TURNSTILE_SECRET_KEY ?? "",
@@ -2377,6 +2713,28 @@ function requireEncryptedWatchConfig(env: Env): EncryptedWatchConfig {
     throw new Error("Encrypted-watch keys are not isolated.");
   }
   return { current, ...(previous !== undefined ? { previous } : {}) };
+}
+
+function optionalEncryptedWatchAccessToken(env: Env): string | null {
+  const token = env[ENCRYPTED_WATCH_ACCESS_TOKEN_ENV];
+  if (token === undefined || token === "") return null;
+  if (
+    !encryptedWatchAccessTokenIsIsolated(token, [
+      env[ENCRYPTED_WATCH_ENCRYPTION_KEY_ENV] ?? "",
+      env[ENCRYPTED_WATCH_PREVIOUS_ENCRYPTION_KEY_ENV] ?? "",
+      env[DURABLE_SCAN_JOB_ENCRYPTION_KEY_ENV] ?? "",
+      env[DURABLE_SCAN_JOB_INTERNAL_TOKEN_ENV] ?? "",
+      env.SITE_BEHAVIOR_LAB_DURABLE_REPLAY_FAULT_TOKEN ?? "",
+      env.SITE_BEHAVIOR_LAB_SYNTHETIC_MONITOR_TOKEN ?? "",
+      env.SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN ?? "",
+      env.TURNSTILE_SECRET_KEY ?? "",
+      env.SITE_BEHAVIOR_LAB_R2_ACCESS_KEY_ID ?? "",
+      env.SITE_BEHAVIOR_LAB_R2_SECRET_ACCESS_KEY ?? ""
+    ])
+  ) {
+    throw new Error("Encrypted-watch creation authorization is not configured or isolated.");
+  }
+  return token!.trim();
 }
 
 function requireDurableScanJobInternalToken(env: Env): string {
@@ -2412,8 +2770,12 @@ async function submitDurableScanJob(
   request: Request,
   env: Env,
   replayFaultMode: DurableReplayFaultMode | null,
-  rateLimit: PublicScanRateLimitCharge
+  rateLimit: PublicScanRateLimitCharge,
+  scanAdmissionKey: ScanAdmissionStoreKey,
+  signal: AbortSignal,
+  commitNotAfter: number
 ): Promise<Response> {
+  throwIfDurableScanJobAdmissionAborted(signal);
   let config: DurableScanJobConfig;
   try {
     config = requireDurableScanJobConfig(env);
@@ -2425,18 +2787,29 @@ async function submitDurableScanJob(
     console.error("Durable scan-job admission is unavailable.", error);
     return durableUnavailableResponse(request, env);
   }
+  throwIfDurableScanJobAdmissionAborted(signal);
 
   let preparedResponse: Response;
   try {
     const prepareUrl = new URL(request.url);
     prepareUrl.pathname = `${DURABLE_SCAN_JOB_NODE_PATH_PREFIX}/prepare`;
     prepareUrl.search = "";
-    preparedResponse = await forwardToContainer(
-      new Request(prepareUrl, { method: "POST", headers: request.headers, body: request.body }),
-      env,
-      config.internalToken
+    preparedResponse = await awaitDurableScanJobAdmissionStep(
+      () =>
+        forwardToContainer(
+          new Request(prepareUrl, {
+            method: "POST",
+            headers: request.headers,
+            body: request.body,
+            signal
+          }),
+          env,
+          config.internalToken
+        ),
+      signal
     );
   } catch (error) {
+    if (signal.aborted) throw error;
     console.error("Could not prepare a durable scan job in Node.", error);
     return durableUnavailableResponse(request, env);
   }
@@ -2447,22 +2820,32 @@ async function submitDurableScanJob(
   )) {
     publicHeaders.set(name, value);
   }
+  const preparation =
+    preparedResponse.status === 202
+      ? readDurableScanJobPreparation(preparedResponse)
+      : null;
+  let preparedBody: Uint8Array;
+  try {
+    preparedBody = await awaitDurableScanJobAdmissionStep(
+      () => readDurableScanJobInternalResponseBytes(preparedResponse, signal),
+      signal
+    );
+  } catch (error) {
+    if (signal.aborted) throw error;
+    console.error("Node returned an unreadable durable scan-job preparation body.", error);
+    return durableUnavailableResponse(request, env);
+  }
+  throwIfDurableScanJobAdmissionAborted(signal);
   if (preparedResponse.status === 404) {
-    await preparedResponse.arrayBuffer().catch(() => undefined);
     return durableUnavailableResponse(request, env);
   }
   if (preparedResponse.status !== 202) {
-    return new Response(preparedResponse.body, {
+    return new Response(new Uint8Array(preparedBody), {
       status: preparedResponse.status,
       statusText: preparedResponse.statusText,
       headers: publicHeaders
     });
   }
-
-  const preparation = readDurableScanJobPreparation(preparedResponse);
-  // Consume the private response before the DO RPC; the public response below
-  // is reconstructed exclusively from the strict DTO.
-  await preparedResponse.arrayBuffer().catch(() => undefined);
   if (!preparation) {
     console.error("Node returned an invalid durable scan-job preparation header.");
     return durableUnavailableResponse(request, env);
@@ -2475,7 +2858,9 @@ async function submitDurableScanJob(
       const result = await getContainer(env.SCANNER).admitDurablePreparation(
         value,
         replayFaultMode,
-        rateLimit
+        rateLimit,
+        scanAdmissionKey,
+        commitNotAfter
       );
       // Expected full/collision control flow crossed RPC as a plain envelope;
       // throw only here, in the edge isolate, so exact readback can still
@@ -2486,31 +2871,49 @@ async function submitDurableScanJob(
       if (result.status === "refused") {
         throw new DurableScanJobRefusedError();
       }
-      if (!durableScanJobAdmissionProofMatches(result.snapshot, value)) {
+      if (result.status === "conflict") {
+        throw new ScanAdmissionConflictGateError();
+      }
+      if (result.status === "expired") {
+        throw new DurableScanJobAdmissionTimeoutError();
+      }
+      if (!result.recovered && !durableScanJobAdmissionProofMatches(result.snapshot, value)) {
         throw new DurableScanJobCapacityError();
       }
-      return result.snapshot;
+      return scanAdmissionSubmission(result.admission);
     },
     (error) => {
       admissionError = error;
       if (
         !(error instanceof DurableScanJobCapacityError) &&
         !(error instanceof DurableScanJobRefusedError) &&
-        !(error instanceof DurableScanJobRateLimitError)
+        !(error instanceof DurableScanJobRateLimitError) &&
+        !(error instanceof ScanAdmissionConflictGateError) &&
+        !(error instanceof DurableScanJobAdmissionTimeoutError)
       ) {
         console.error("Could not commit durable scan-job admission.", error);
       }
     },
-    async (value) => {
-      const snapshot = await getContainer(env.SCANNER).findDurableJob(value.submission.jobId);
-      return durableScanJobAdmissionProofMatches(snapshot, value);
+    async () => {
+      const recovered = await getContainer(env.SCANNER).findCommittedScanAdmission(scanAdmissionKey);
+      if (recovered.status === "conflict") throw new ScanAdmissionConflictGateError();
+      return recovered.status === "found"
+        ? scanAdmissionSubmission(recovered.admission)
+        : false;
     },
     (error, attempt) =>
       error instanceof DurableScanJobRateLimitError ||
-      (attempt === 1 && error instanceof DurableScanJobRefusedError)
+      error instanceof ScanAdmissionConflictGateError ||
+      error instanceof DurableScanJobAdmissionTimeoutError ||
+      (attempt === 1 && error instanceof DurableScanJobRefusedError),
+    (committed) => durableScanJobSubmissionFromUnknown(committed),
+    { signal }
   );
   if (!admission.accepted) {
     if (admissionError instanceof DurableScanJobRateLimitError) {
+      return gateErrorResponse(admissionError, request, env);
+    }
+    if (admissionError instanceof ScanAdmissionConflictGateError) {
       return gateErrorResponse(admissionError, request, env);
     }
     // No store/schedule failure detail and no private header reaches the caller.
@@ -2523,6 +2926,74 @@ async function submitDurableScanJob(
 }
 
 async function handleEncryptedWatchCreation(request: Request, env: Env): Promise<Response> {
+  try {
+    return await withDurableScanJobAdmissionDeadline(
+      (signal, commitNotAfter) =>
+        handleEncryptedWatchCreationWithinDeadline(
+          request,
+          env,
+          signal,
+          commitNotAfter
+        ),
+      { signal: request.signal }
+    );
+  } catch (error) {
+    if (request.signal.aborted) {
+      return gateErrorResponse(
+        new EdgeScanGateError("The request ended before scheduled-rescan creation completed.", 499),
+        request,
+        env
+      );
+    }
+    if (error instanceof DurableScanJobAdmissionTimeoutError) {
+      console.error("Scheduled-rescan creation exceeded its whole-operation deadline.", error);
+      return encryptedWatchUnavailableResponse(request, env);
+    }
+    return gateErrorResponse(error, request, env);
+  }
+}
+
+async function handleEncryptedWatchCreationWithinDeadline(
+  request: Request,
+  env: Env,
+  signal: AbortSignal,
+  commitNotAfter: number
+): Promise<Response> {
+  throwIfDurableScanJobAdmissionAborted(signal);
+  // Public self-service creation uses the ordinary scan gate below. A staging
+  // or operator deployment may configure an additional watch-only credential;
+  // when it does, reject missing/wrong authorization before capability hashing,
+  // Durable Object wakeup, quota, body parsing, or Turnstile work.
+  let watchCreationAccessToken: string | null = null;
+  if (encryptedWatchesFlagState(env[ENCRYPTED_WATCHES_ENV]) === "enabled") {
+    try {
+      watchCreationAccessToken = optionalEncryptedWatchAccessToken(env);
+    } catch {
+      return encryptedWatchUnavailableResponse(request, env);
+    }
+    const presentedWatchAccessToken = request.headers.get(ENCRYPTED_WATCH_ACCESS_TOKEN_HEADER);
+    if (watchCreationAccessToken) {
+      let authorized = false;
+      try {
+        authorized = await encryptedWatchAccessTokenMatches(request.headers, watchCreationAccessToken);
+      } catch {
+        return encryptedWatchUnavailableResponse(request, env);
+      }
+      if (!authorized) {
+        return gateErrorResponse(
+          new EdgeScanGateError("Unauthorized scheduled-rescan creation.", 401),
+          request,
+          env
+        );
+      }
+    } else if (presentedWatchAccessToken !== null) {
+      return gateErrorResponse(
+        new EdgeScanGateError("Scheduled-rescan creation authorization is not configured.", 401),
+        request,
+        env
+      );
+    }
+  }
   const capabilityToken = request.headers.get(ENCRYPTED_WATCH_CAPABILITY_HEADER) ?? "";
   let edgeCredential: Awaited<ReturnType<typeof createEncryptedWatchCredentialFromToken>>;
   try {
@@ -2534,19 +3005,20 @@ async function handleEncryptedWatchCreation(request: Request, env: Env): Promise
       env
     );
   }
-  // A valid capability may still recover an existing record during rollback,
-  // but an enabled watch deployment must never expose its coordinator-wide
-  // capacity through the ordinary open/Turnstile scan path.
-  if (
-    encryptedWatchesFlagState(env[ENCRYPTED_WATCHES_ENV]) === "enabled" &&
-    !encryptedWatchIngressIsTokenGated({
-      accessToken: env.SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN,
-      allowUnauthenticated: env.SITE_BEHAVIOR_LAB_ALLOW_UNAUTHENTICATED_SCANS,
-      turnstileSecret: env.TURNSTILE_SECRET_KEY
-    })
-  ) {
-    return encryptedWatchUnavailableResponse(request, env);
+  if (watchCreationAccessToken) {
+    try {
+      if (await constantTimeEqual(capabilityToken, watchCreationAccessToken)) {
+        return gateErrorResponse(
+          new EdgeScanGateError("Scheduled-rescan authorization and management capabilities must be distinct.", 400),
+          request,
+          env
+        );
+      }
+    } catch {
+      return encryptedWatchUnavailableResponse(request, env);
+    }
   }
+  // A valid capability may still recover an existing record during rollback.
   const scanner = getContainer(env.SCANNER);
   try {
     const clientHash = await publicClientHash(request.headers);
@@ -2571,7 +3043,10 @@ async function handleEncryptedWatchCreation(request: Request, env: Env): Promise
     return encryptedWatchUnavailableResponse(request, env);
   }
 
-  const body = await readRequestBodyWithinLimit(request, MAX_BODY_BYTES);
+  const body = await readRequestBodyWithinLimit(request, MAX_BODY_BYTES, {
+    signal,
+    timeoutMs: REQUEST_BODY_OPERATION_TIMEOUT_MS
+  });
   if (body === null) {
     return gateErrorResponse(new EdgeScanGateError("The scheduled-rescan request is too large.", 413), request, env);
   }
@@ -2601,8 +3076,9 @@ async function handleEncryptedWatchCreation(request: Request, env: Env): Promise
 
   let rateLimit: PublicScanRateLimitCharge | null;
   try {
-    rateLimit = await gateScanRequest(request, body, env, "defer");
+    rateLimit = await gateScanRequest(request, body, env, "defer", undefined, signal);
   } catch (error) {
+    if (signal.aborted) throw error;
     return gateErrorResponse(error, request, env);
   }
   if (!rateLimit || rateLimit.cost !== 1) return encryptedWatchUnavailableResponse(request, env);
@@ -2618,33 +3094,51 @@ async function handleEncryptedWatchCreation(request: Request, env: Env): Promise
       importEncryptedWatchKeyring(watchConfig)
     ]);
   } catch {
+    if (signal.aborted) throw durableAdmissionAbortReason(signal);
     return encryptedWatchUnavailableResponse(request, env);
   }
+  throwIfDurableScanJobAdmissionAborted(signal);
 
   let preparedResponse: Response;
   try {
     const prepareUrl = new URL(request.url);
     prepareUrl.pathname = `${DURABLE_SCAN_JOB_NODE_PATH_PREFIX}/prepare-watch`;
     prepareUrl.search = "";
-    preparedResponse = await forwardToContainer(
-      new Request(prepareUrl, {
-        method: "POST",
-        // Access, Turnstile, capability, forwarding, and declared-length
-        // headers terminate at the edge. The private Node boundary receives
-        // only this content type plus the server-injected internal token.
-        headers: { "content-type": "application/json; charset=utf-8" },
-        body: JSON.stringify(requestedPayload)
-      }),
-      env,
-      config.internalToken
+    preparedResponse = await awaitDurableScanJobAdmissionStep(
+      () =>
+        forwardToContainer(
+          new Request(prepareUrl, {
+            method: "POST",
+            // Access, Turnstile, capability, forwarding, and declared-length
+            // headers terminate at the edge. The private Node boundary receives
+            // only this content type plus the server-injected internal token.
+            headers: { "content-type": "application/json; charset=utf-8" },
+            body: JSON.stringify(requestedPayload),
+            signal
+          }),
+          env,
+          config.internalToken
+        ),
+      signal
     );
-  } catch {
+  } catch (error) {
+    if (signal.aborted) throw error;
     return encryptedWatchUnavailableResponse(request, env);
   }
   const preparation = readDurableScanJobPreparation(preparedResponse);
   const payload = preparation ? encryptedWatchPayloadFromPreparation(preparation) : null;
   const nodeStatus = preparedResponse.status;
-  const nodeBody = await preparedResponse.arrayBuffer().catch(() => new ArrayBuffer(0));
+  let nodeBody: Uint8Array;
+  try {
+    nodeBody = await awaitDurableScanJobAdmissionStep(
+      () => readDurableScanJobInternalResponseBytes(preparedResponse, signal),
+      signal
+    );
+  } catch (error) {
+    if (signal.aborted) throw error;
+    nodeBody = new Uint8Array();
+  }
+  throwIfDurableScanJobAdmissionAborted(signal);
   if (
     nodeStatus !== 202 ||
     !preparation ||
@@ -2659,20 +3153,26 @@ async function handleEncryptedWatchCreation(request: Request, env: Env): Promise
         "content-type": "application/json; charset=utf-8",
         "cache-control": "no-store"
       });
-      return new Response(nodeBody, { status: nodeStatus, headers });
+      return new Response(new Uint8Array(nodeBody), { status: nodeStatus, headers });
     }
     return encryptedWatchUnavailableResponse(request, env);
   }
 
   let result: EncryptedWatchAdmissionResult;
   try {
-    result = await scanner.admitEncryptedWatchPreparation(
-      preparation,
-      payload,
-      rateLimit,
-      capabilityToken
+    result = await awaitDurableScanJobAdmissionStep<EncryptedWatchAdmissionResult>(
+      () =>
+        scanner.admitEncryptedWatchPreparation(
+          preparation,
+          payload,
+          rateLimit,
+          capabilityToken,
+          commitNotAfter
+        ) as unknown as PromiseLike<EncryptedWatchAdmissionResult>,
+      signal
     );
-  } catch {
+  } catch (error) {
+    if (signal.aborted) throw error;
     // The caller already holds the exact capability material. Recover a lost
     // RPC response only from an exact authoritative watch/job linkage; unlike
     // minting solely inside the DO, a committed watch can never become an
@@ -2707,6 +3207,9 @@ async function handleEncryptedWatchCreation(request: Request, env: Env): Promise
       // Preserve the authoritative quota result when no exact recovery exists.
     }
     return gateErrorResponse(new DurableScanJobRateLimitError(rateLimit.scope, result.retryAfterSeconds), request, env);
+  }
+  if (result.status === "expired") {
+    return encryptedWatchUnavailableResponse(request, env);
   }
   if (result.status === "refused") {
     try {
@@ -2914,15 +3417,19 @@ async function handleDurableScanJobRequest(
   }
 
   return recoverDurableScanJobSnapshotResponse(snapshot, source, {
-    fetchReport: (reportId) => {
+    fetchReport: (reportId, signal) => {
       const reportUrl = new URL(request.url);
       reportUrl.pathname = `/api/reports/${reportId}`;
       reportUrl.search = "";
       const headers = new Headers(request.headers);
       headers.delete("content-length");
       headers.delete("content-type");
-      return forwardToContainer(new Request(reportUrl, { method: "GET", headers }), env);
+      return forwardToContainer(
+        new Request(reportUrl, { method: "GET", headers, signal }),
+        env
+      );
     },
+    signal: request.signal,
     onReportError: (error) => console.error("Could not read a durable scan-job report.", error),
     ...(stagingFault
       ? {
@@ -2980,7 +3487,16 @@ async function handleDurableScanJobCoordinatorRequest(
   const presented = request.headers.get(DURABLE_SCAN_JOB_INTERNAL_HEADER)?.trim() ?? "";
   if (!presented || !(await constantTimeEqual(presented, config.internalToken))) return privateRouteNotFound();
 
-  const wire = await readRequestBodyWithinLimit(request, MAX_COORDINATOR_BODY_BYTES);
+  let wire: string | null;
+  try {
+    wire = await readRequestBodyWithinLimit(request, MAX_COORDINATOR_BODY_BYTES, {
+      signal: request.signal,
+      timeoutMs: REQUEST_BODY_OPERATION_TIMEOUT_MS
+    });
+  } catch (error) {
+    const status = toPublicError(error).status;
+    return privateControlResponse(status === 408 || status === 499 ? status : 400);
+  }
   if (wire === null) return privateControlResponse(400);
   let body: unknown;
   try {
@@ -3102,6 +3618,150 @@ function privateControlResponse(status: number): Response {
   return new Response(null, { status, headers: { "cache-control": "no-store" } });
 }
 
+async function scanAdmissionStoreKey(
+  headers: Headers,
+  body: string
+): Promise<ScanAdmissionStoreKey | null> {
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(body) as unknown;
+  } catch {
+    return null;
+  }
+  const semantics = scanAdmissionSemanticsFromBody(parsed);
+  if (!semantics) return null;
+  const credential = await scanAdmissionCredentialFromHeaders(headers, semantics);
+  if (!credential) return null;
+  return Object.freeze({
+    capabilityHash: await hashScanAdmissionCapabilityToken(credential.capabilityToken),
+    requestCommitment: credential.requestCommitment
+  });
+}
+
+async function scanAdmissionStoreKeyFromRecoveryHeaders(
+  headers: Headers
+): Promise<ScanAdmissionStoreKey | null> {
+  const credential = await scanAdmissionCredentialFromHeaders(headers);
+  if (!credential) return null;
+  return Object.freeze({
+    capabilityHash: await hashScanAdmissionCapabilityToken(credential.capabilityToken),
+    requestCommitment: credential.requestCommitment
+  });
+}
+
+function scanAdmissionSubmission(admission: ScanAdmissionSnapshot): DurableScanJobSubmission {
+  return {
+    ok: true,
+    jobId: admission.jobId,
+    status: "queued",
+    statusPath: `/api/scans/${admission.jobId}`,
+    reportId: admission.reportId
+  };
+}
+
+function durableScanJobSubmissionFromUnknown(value: unknown): DurableScanJobSubmission | null {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return null;
+  const record = value as Record<string, unknown>;
+  const keys = Object.keys(record).sort();
+  const expected = ["jobId", "ok", "reportId", "status", "statusPath"].sort();
+  if (
+    keys.length !== expected.length ||
+    keys.some((key, index) => key !== expected[index]) ||
+    record.ok !== true ||
+    record.status !== "queued" ||
+    !isScanJobId(record.jobId) ||
+    !isScanJobId(record.reportId) ||
+    record.jobId === record.reportId ||
+    record.statusPath !== `/api/scans/${record.jobId}`
+  ) {
+    return null;
+  }
+  return {
+    ok: true,
+    jobId: record.jobId,
+    status: "queued",
+    statusPath: record.statusPath,
+    reportId: record.reportId
+  };
+}
+
+function scanAdmissionResponse(
+  admission: ScanAdmissionSnapshot,
+  request: Request,
+  env: Env,
+  status: 200 | 202
+): Response {
+  return new Response(JSON.stringify(scanAdmissionSubmission(admission)), {
+    status,
+    headers: {
+      ...scanCorsHeaders(request.headers.get("origin"), env.SITE_BEHAVIOR_LAB_ALLOWED_ORIGIN),
+      "content-type": "application/json; charset=utf-8",
+      "cache-control": "no-store"
+    }
+  });
+}
+
+async function recoverCommittedScanAdmission(request: Request, env: Env): Promise<Response> {
+  try {
+    await authorizeScanAdmissionRecovery(request, env);
+    const key = await scanAdmissionStoreKeyFromRecoveryHeaders(request.headers);
+    if (!key) throw new EdgeScanGateError("A canonical scan-admission capability is required.", 400);
+    const result = await getContainer(env.SCANNER).recoverCommittedScanAdmission({
+      key,
+      clientHash: await publicClientHash(request.headers)
+    });
+    if (result.status === "rate-limited") {
+      throw new EdgeScanGateError(
+        `Too many scan-admission recovery requests. Try again in about ${formatPublicScanRetryAfter(result.retryAfterSeconds)}.`,
+        429
+      );
+    }
+    if (result.status === "conflict") throw new ScanAdmissionConflictGateError();
+    if (result.status === "found") return scanAdmissionResponse(result.admission, request, env, 200);
+    return new Response(JSON.stringify({ ok: false, error: "No committed scan admission was found." }), {
+      status: 404,
+      headers: {
+        ...scanCorsHeaders(request.headers.get("origin"), env.SITE_BEHAVIOR_LAB_ALLOWED_ORIGIN),
+        "content-type": "application/json; charset=utf-8",
+        "cache-control": "no-store"
+      }
+    });
+  } catch (error) {
+    return gateErrorResponse(error, request, env);
+  }
+}
+
+async function authorizeScanAdmissionRecovery(request: Request, env: Env): Promise<void> {
+  const expectedMonitorToken = env.SITE_BEHAVIOR_LAB_SYNTHETIC_MONITOR_TOKEN?.trim();
+  const suppliedMonitorToken = request.headers.get(SYNTHETIC_MONITOR_TOKEN_HEADER)?.trim();
+  if (
+    isProductionSyntheticMonitorToken(expectedMonitorToken) &&
+    suppliedMonitorToken &&
+    (await constantTimeEqual(suppliedMonitorToken, expectedMonitorToken))
+  ) {
+    return;
+  }
+
+  const expectedToken = env.SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN?.trim();
+  if (expectedToken) {
+    if (!(await scanAccessTokenMatches(request.headers, expectedToken))) {
+      throw new EdgeScanGateError("Unauthorized scan request.", 401);
+    }
+    return;
+  }
+  if (env.SITE_BEHAVIOR_LAB_ALLOW_UNAUTHENTICATED_SCANS !== "1") {
+    throw new EdgeScanGateError("This scanner is not configured for public scans.", 503);
+  }
+  if (
+    openScanBlockedForMissingTurnstile({
+      turnstileSecret: env.TURNSTILE_SECRET_KEY?.trim(),
+      acceptNoTurnstileRisk: env.SITE_BEHAVIOR_LAB_ACCEPT_NO_TURNSTILE_RISK
+    })
+  ) {
+    throw new EdgeScanGateError("Public scans require Turnstile.", 503);
+  }
+}
+
 function durableUnavailableResponse(request: Request, env: Env): Response {
   return new Response(JSON.stringify({ ok: false, error: "Durable scan jobs are temporarily unavailable." }), {
     status: 503,
@@ -3133,33 +3793,61 @@ async function recoverRegisteredScanJob(
   jobId: string,
   missingJobResponse: Response
 ): Promise<Response> {
-  const findRegistration = (id: string) => getContainer(env.SCANNER).findRegisteredScanJob(id);
+  const scanner = getContainer(env.SCANNER);
+  const findRegistration = (id: string, signal?: AbortSignal) => {
+    // Durable Object RPC has no transport-level AbortSignal parameter. The
+    // recovery helper races this promise against its whole-operation signal;
+    // this entry fence also prevents starting a lookup after that budget ends.
+    signal?.throwIfAborted();
+    return scanner.findRegisteredScanJob(id);
+  };
   const onRegistryError = (error: unknown) => console.error("Could not read the durable scan-job registry.", error);
 
   if (request.method === "DELETE") {
     return recoverDurableScanJobCancellationResponse(jobId, missingJobResponse, {
       findRegistration,
+      signal: request.signal,
       onRegistryError
     });
   }
 
   return recoverDurableScanJobResponse(jobId, missingJobResponse, {
     findRegistration,
-    fetchReport: (reportId) => {
+    fetchReport: (reportId, signal) => {
       const reportUrl = new URL(request.url);
       reportUrl.pathname = `/api/reports/${reportId}`;
       reportUrl.search = "";
       const headers = new Headers(request.headers);
       headers.delete("content-length");
       headers.delete("content-type");
-      return forwardToContainer(new Request(reportUrl, { method: "GET", headers }), env);
+      return forwardToContainer(
+        new Request(reportUrl, { method: "GET", headers, signal }),
+        env
+      );
     },
+    signal: request.signal,
     onRegistryError,
     onReportError: (error) => console.error("Could not probe a saved report during scan-job recovery.", error)
   });
 }
 
-function forwardToContainer(request: Request, env: Env, trustedInternalToken?: string): Promise<Response> {
+function scanForwardHeaders(input: Headers): Headers {
+  const headers = stripDurableScanJobInternalHeaders(input);
+  // These credentials and controls are edge-only even on staging. Never let
+  // them reach Node request logs, preparation code, or report material.
+  headers.delete(DURABLE_REPLAY_FAULT_MODE_HEADER);
+  headers.delete(DURABLE_REPLAY_FAULT_TOKEN_HEADER);
+  headers.delete(SYNTHETIC_MONITOR_TOKEN_HEADER);
+  headers.delete(SCAN_ADMISSION_CAPABILITY_HEADER);
+  headers.delete(SCAN_ADMISSION_COMMITMENT_HEADER);
+  return headers;
+}
+
+async function forwardToContainer(
+  request: Request,
+  env: Env,
+  trustedInternalToken?: string
+): Promise<Response> {
   // The container trusts x-real-ip for per-client rate limiting
   // (SITE_BEHAVIOR_LAB_TRUST_PROXY_HEADERS=1). This Worker is the only ingress, so
   // strip any client-supplied forwarding headers (anti-spoof) and set x-real-ip
@@ -3176,7 +3864,13 @@ function forwardToContainer(request: Request, env: Env, trustedInternalToken?: s
   headers.delete(SYNTHETIC_MONITOR_TOKEN_HEADER);
   // Accountless watch credentials terminate at the edge and must never appear
   // in Node request logs, report material, assets, or fallback routes.
+  headers.delete(ENCRYPTED_WATCH_ACCESS_TOKEN_HEADER);
   headers.delete(ENCRYPTED_WATCH_CAPABILITY_HEADER);
+  // Scan-admission recovery credentials terminate at the edge. Node receives
+  // only the authenticated private preparation DTO, never the browser bearer
+  // or its semantic commitment.
+  headers.delete(SCAN_ADMISSION_CAPABILITY_HEADER);
+  headers.delete(SCAN_ADMISSION_COMMITMENT_HEADER);
   headers.delete("x-real-ip");
   headers.delete("x-forwarded-for");
   const clientIp = request.headers.get("cf-connecting-ip")?.trim();
@@ -3186,7 +3880,29 @@ function forwardToContainer(request: Request, env: Env, trustedInternalToken?: s
   // One warm singleton instance keeps the scanner's in-memory async job queue
   // coherent (a client polls /api/scans/:id on the same instance). Shard on a
   // key here once a single instance is not enough.
-  return getContainer(env.SCANNER).fetch(new Request(request, { headers }));
+  try {
+    return await forwardContainerResponseWithinDeadline(
+      (signal) =>
+        getContainer(env.SCANNER).fetch(
+          new Request(request, { headers, signal })
+        ),
+      { signal: request.signal }
+    );
+  } catch (error) {
+    console.error("Scanner container forwarding failed before a response could be streamed.", error);
+    return containerUnavailableResponse(request, env);
+  }
+}
+
+function containerUnavailableResponse(request: Request, env: Env): Response {
+  return new Response(JSON.stringify({ ok: false, error: "The scanner is temporarily unavailable." }), {
+    status: 503,
+    headers: {
+      ...scanCorsHeaders(request.headers.get("origin"), env.SITE_BEHAVIOR_LAB_ALLOWED_ORIGIN),
+      "content-type": "application/json; charset=utf-8",
+      "cache-control": "no-store"
+    }
+  });
 }
 
 /** Public front-door origin to redirect the backend root to, from the configured allow-list origin. */
@@ -3295,14 +4011,37 @@ function cachedTurnstileConfigurationProbe(
   return result;
 }
 
-/** Overlay the front Worker's gate decision (auth / open access / Turnstile) onto the container health. */
-async function patchHealthResponse(response: Response, env: Env): Promise<Response> {
-  const text = await response.text();
-  let body = text;
-
+async function handleContainerHealthRequest(request: Request, env: Env): Promise<Response> {
   try {
-    const health = JSON.parse(text) as Record<string, unknown>;
-    if (health && typeof health === "object") {
+    return await withEdgeHealthDeadline(
+      async (signal) => {
+        const response = await forwardToContainer(new Request(request, { signal }), env);
+        return patchHealthResponse(response, env, signal);
+      },
+      { signal: request.signal }
+    );
+  } catch {
+    const headers = new Headers(
+      scanCorsHeaders(request.headers.get("origin"), env.SITE_BEHAVIOR_LAB_ALLOWED_ORIGIN)
+    );
+    headers.set("cache-control", "no-store");
+    headers.set("content-type", "application/json; charset=utf-8");
+    return Response.json(
+      {
+        ok: false,
+        status: "error",
+        scansAvailable: false,
+        error: "Scanner health is temporarily unavailable."
+      },
+      { status: 503, headers }
+    );
+  }
+}
+
+/** Overlay the front Worker's gate decision (auth / open access / Turnstile) onto the container health. */
+async function patchHealthResponse(response: Response, env: Env, signal?: AbortSignal): Promise<Response> {
+  const text = await readEdgeHealthResponseText(response, signal);
+  const health = parseEdgeHealthResponseText(text);
       const gate = publicScanGateStatus({
         accessToken: env.SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN,
         allowUnauthenticated: env.SITE_BEHAVIOR_LAB_ALLOW_UNAUTHENTICATED_SCANS,
@@ -3347,7 +4086,13 @@ async function patchHealthResponse(response: Response, env: Env): Promise<Respon
       };
       health.capabilities = {
         ...(typeof health.capabilities === "object" && health.capabilities ? health.capabilities : {}),
-        scheduledRescans: encryptedWatches.check.readiness === "ready"
+        // The public browser has no operator secret. Keep its creation surface
+        // hidden on a canary/operator deployment that requires the optional
+        // watch-only second factor; external canaries can still exercise it.
+        scheduledRescans:
+          encryptedWatches.check.readiness === "ready" &&
+          encryptedWatches.check.creationAuthorization === "public" &&
+          refusals.length === 0
       };
       if (refusals.length > 0) {
         health.status = "degraded";
@@ -3381,11 +4126,7 @@ async function patchHealthResponse(response: Response, env: Env): Promise<Respon
           DEFAULT_PUBLIC_SCAN_RATE_LIMIT_PER_DAY
         )
       };
-      body = JSON.stringify(health);
-    }
-  } catch {
-    // Non-JSON health (e.g. an error page) passes through untouched.
-  }
+  const body = JSON.stringify(health);
 
   // Preserve the container's headers (CORS, content-type); drop the now-stale length.
   const headers = new Headers(response.headers);
@@ -3573,11 +4314,11 @@ export async function encryptedWatchesEdgeHealthCheck(
     | "SITE_BEHAVIOR_LAB_ENCRYPTED_WATCHES"
     | "SITE_BEHAVIOR_LAB_ENCRYPTED_WATCHES_KEY"
     | "SITE_BEHAVIOR_LAB_ENCRYPTED_WATCHES_PREVIOUS_KEY"
+    | "SITE_BEHAVIOR_LAB_ENCRYPTED_WATCHES_ACCESS_TOKEN"
     | "SITE_BEHAVIOR_LAB_DURABLE_JOBS"
     | "SITE_BEHAVIOR_LAB_DURABLE_JOBS_KEY"
     | "SITE_BEHAVIOR_LAB_DURABLE_JOBS_INTERNAL_TOKEN"
     | "SITE_BEHAVIOR_LAB_DURABLE_JOBS_COORDINATOR_URL"
-    | "SITE_BEHAVIOR_LAB_ALLOW_UNAUTHENTICATED_SCANS"
     | "SITE_BEHAVIOR_LAB_SYNTHETIC_MONITOR_TOKEN"
     | "SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN"
     | "TURNSTILE_SECRET_KEY"
@@ -3589,6 +4330,7 @@ export async function encryptedWatchesEdgeHealthCheck(
     requested: boolean;
     enabled: boolean;
     readiness: "disabled" | "ready" | "misconfigured";
+    creationAuthorization?: "public" | "operator";
     reasons?: string[];
   };
   reasons: string[];
@@ -3612,14 +4354,11 @@ export async function encryptedWatchesEdgeHealthCheck(
   if (!durableJobs.enabled || durableJobs.readiness !== "ready") {
     reasons.push("Encrypted watches require durable scan jobs to be ready at the edge.");
   }
-  if (
-    !encryptedWatchIngressIsTokenGated({
-      accessToken: env.SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN,
-      allowUnauthenticated: env.SITE_BEHAVIOR_LAB_ALLOW_UNAUTHENTICATED_SCANS,
-      turnstileSecret: env.TURNSTILE_SECRET_KEY
-    })
-  ) {
-    reasons.push("Encrypted watches require access-token-gated scanner ingress.");
+  let creationAuthorization: "public" | "operator" = "public";
+  try {
+    creationAuthorization = optionalEncryptedWatchAccessToken(env as Env) ? "operator" : "public";
+  } catch {
+    reasons.push("Encrypted-watch operator authorization is configured but invalid or not isolated.");
   }
   if (reasons.length === 0) {
     try {
@@ -3635,7 +4374,15 @@ export async function encryptedWatchesEdgeHealthCheck(
       reasons
     };
   }
-  return { check: { requested: true, enabled: true, readiness: "ready" }, reasons: [] };
+  return {
+    check: {
+      requested: true,
+      enabled: true,
+      readiness: "ready",
+      creationAuthorization
+    },
+    reasons: []
+  };
 }
 
 function encryptedWatchNodeHealth(checks: unknown): { requested: boolean; ready: boolean } {
@@ -3684,7 +4431,9 @@ async function gateScanRequest(
   request: Request,
   body: string,
   env: Env,
-  chargeMode: "charge" | "defer"
+  chargeMode: "authorize" | "charge" | "defer",
+  turnstileAdmissionCapabilityHash?: ArrayBuffer,
+  signal?: AbortSignal
 ): Promise<PublicScanRateLimitCharge | null> {
   const payload = parseScanGatePayload(body);
   const clientHash = await publicClientHash(request.headers);
@@ -3703,6 +4452,7 @@ async function gateScanRequest(
     if (!isProductionSyntheticScanPayload(payload)) {
       throw new EdgeScanGateError("The synthetic monitor credential is limited to its fixed scan contract.", 400);
     }
+    if (chargeMode === "authorize") return null;
     if (chargeMode === "charge") return null;
     // A future durable production lane charges the monitor like other trusted
     // operator traffic, never against a visitor's public quota.
@@ -3721,6 +4471,7 @@ async function gateScanRequest(
     if (!(await scanAccessTokenMatches(request.headers, expectedToken))) {
       throw new EdgeScanGateError("Unauthorized scan request.", 401);
     }
+    if (chargeMode === "authorize") return null;
     if (chargeMode === "charge") return null;
     // The non-durable token path continues to use Node's process-local limiter.
     // Durable admission needs the equivalent policy inside the authoritative DO
@@ -3745,9 +4496,19 @@ async function gateScanRequest(
 
   const secret = env.TURNSTILE_SECRET_KEY?.trim();
   if (secret) {
+    if (chargeMode === "authorize") return null;
     const token =
       typeof payload.turnstileToken === "string" ? payload.turnstileToken : request.headers.get("cf-turnstile-response") || "";
-    await assertTurnstileToken({ secret, token, remoteIp: request.headers.get("cf-connecting-ip") });
+    const idempotencyKey = turnstileAdmissionCapabilityHash && token
+      ? await turnstileAdmissionIdempotencyKey(turnstileAdmissionCapabilityHash, token)
+      : undefined;
+    await assertTurnstileToken({
+      secret,
+      token,
+      remoteIp: request.headers.get("cf-connecting-ip"),
+      signal,
+      ...(idempotencyKey ? { idempotencyKey } : {})
+    });
   } else if (
     openScanBlockedForMissingTurnstile({
       turnstileSecret: secret,
@@ -3759,6 +4520,8 @@ async function gateScanRequest(
       503
     );
   }
+
+  if (chargeMode === "authorize") return null;
 
   const rateLimit: PublicScanRateLimitCharge = {
     scope: "public",
@@ -3809,6 +4572,40 @@ function parseScanGatePayload(body: string): ScanGatePayload {
   }
 }
 
+async function enforcePublicReportReadRateLimit(request: Request, env: Env): Promise<Response | null> {
+  let decision: PublicScanRateLimitResult;
+  try {
+    const clientHash = await publicClientHash(request.headers);
+    decision = await getContainer(env.SCANNER).chargeReportReadRateLimit({ clientHash });
+  } catch (error) {
+    console.error("Could not charge the public report-read quota.", error);
+    return reportReadGateResponse(
+      503,
+      "Report reads are temporarily unavailable.",
+      5
+    );
+  }
+  if (decision.allowed) return null;
+  return reportReadGateResponse(
+    429,
+    "Too many report requests. Try again shortly.",
+    decision.retryAfterSeconds
+  );
+}
+
+function reportReadGateResponse(status: 429 | 503, message: string, retryAfterSeconds: number): Response {
+  return new Response(JSON.stringify({ ok: false, error: message }), {
+    status,
+    headers: {
+      "cache-control": "no-store",
+      "content-type": "application/json; charset=utf-8",
+      "retry-after": String(Math.max(1, Math.ceil(retryAfterSeconds))),
+      "x-content-type-options": "nosniff",
+      "x-robots-tag": "noindex, noarchive"
+    }
+  });
+}
+
 function gateErrorResponse(error: unknown, request: Request, env: Env): Response {
   const publicError = toPublicError(error);
   return new Response(JSON.stringify({ ok: false, error: publicError.message }), {
@@ -3820,13 +4617,35 @@ function gateErrorResponse(error: unknown, request: Request, env: Env): Response
   });
 }
 
+function assertDurableAdmissionCommitActive(commitNotAfter: number, now = Date.now()): void {
+  if (!Number.isSafeInteger(commitNotAfter) || commitNotAfter <= 0) {
+    throw new Error("Invalid durable scan-job admission commit deadline.");
+  }
+  if (!Number.isSafeInteger(now) || now < 0) {
+    throw new Error("Invalid durable scan-job admission clock.");
+  }
+  if (now >= commitNotAfter) throw new DurableScanJobAdmissionDeadlineExpiredError();
+}
+
+function durableAdmissionAbortReason(signal: AbortSignal): unknown {
+  return signal.reason ?? new DOMException("The durable admission operation was aborted.", "AbortError");
+}
+
+function durablePumpRequestSignal(signal: AbortSignal | undefined, timeoutMs: number): AbortSignal {
+  const timeout = AbortSignal.timeout(Math.max(1, Math.floor(timeoutMs)));
+  return signal ? AbortSignal.any([signal, timeout]) : timeout;
+}
+
+function durablePumpAbortReason(signal: AbortSignal): unknown {
+  return signal.reason ?? new DOMException("The durable scan-job pump task was aborted.", "AbortError");
+}
+
+function throwIfDurablePumpAborted(signal: AbortSignal): void {
+  if (signal.aborted) throw durablePumpAbortReason(signal);
+}
+
 function minimumTimestamp(left: number | null, right: number | null): number | null {
   if (left === null) return right;
   if (right === null) return left;
   return Math.min(left, right);
-}
-
-function sanitizedWatchTerminalErrorCode(reason: string | null, fallback: string): string {
-  const candidate = (reason ?? fallback).trim().toLowerCase();
-  return /^[a-z0-9._-]{1,64}$/.test(candidate) ? candidate : fallback;
 }

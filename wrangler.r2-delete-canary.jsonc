@@ -1,0 +1,21 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  // Dedicated operator-only proof for production R2 write/read/delete. The
+  // Worker accepts no object key, can touch only its fixed health prefix, and
+  // requires a distinct SITE_BEHAVIOR_LAB_R2_DELETE_CANARY_TOKEN secret.
+  "name": "site-behavior-lab-r2-delete-canary",
+  "main": "cloudflare/r2-delete-canary-worker.ts",
+  "compatibility_date": "2026-07-21",
+  "workers_dev": true,
+  "preview_urls": false,
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 1
+  },
+  "r2_buckets": [
+    {
+      "binding": "REPORTS",
+      "bucket_name": "site-behavior-lab-reports"
+    }
+  ]
+}

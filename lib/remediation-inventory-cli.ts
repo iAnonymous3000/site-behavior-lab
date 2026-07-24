@@ -1,7 +1,13 @@
 import { readdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { publicReportDigest } from "./canonical-json";
 import { inventoryV1Report, summarizeInventories, type ReportRemediationInventory } from "./remediation-inventory";
 import { readStoredScanReport } from "./scan-report-reader";
+import {
+  R2RedactionRemediationError,
+  r2ReportRedactionVersion,
+  redactPublicScanReportV2R2
+} from "./scan-report-v2-r2-remediation";
 import { REDACTION_ALLOWLISTS_VERSION, REDACTION_VERSION } from "./redaction-v2";
 
 /**
@@ -34,6 +40,7 @@ async function main(): Promise<void> {
 
   const entries: ReportRemediationInventory[] = [];
   const skipped: string[] = [];
+  const r2 = { reports: 0, v3: 0, v4: 0, rewrites: 0, rejected: 0 };
   for (const file of files) {
     const parsed: unknown = JSON.parse(await readFile(path.join(reportsDir, file), "utf8"));
     const read = readStoredScanReport(parsed);
@@ -41,17 +48,31 @@ async function main(): Promise<void> {
       skipped.push(`${file}: unreadable (${read.error})`);
       continue;
     }
-    if (read.stored.schemaVersion !== 1) {
-      // v2 reports were redacted by the v2 sanitizer at write time by
-      // definition; the remediation inventory audits v1-era artifacts.
-      skipped.push(`${file}: schemaVersion 2 (not a v1-era artifact)`);
+    if (read.stored.schemaVersion === 2) {
+      if (read.stored.schemaRevision !== 2) {
+        skipped.push(`${file}: schemaVersion 2 revision ${read.stored.schemaRevision} has no reviewed migration`);
+        continue;
+      }
+      r2.reports += 1;
+      try {
+        const version = r2ReportRedactionVersion(read.stored.report);
+        if (version === 3) r2.v3 += 1;
+        if (version === REDACTION_VERSION) r2.v4 += 1;
+        const redacted = redactPublicScanReportV2R2(read.stored.report);
+        if (publicReportDigest(redacted) !== publicReportDigest(read.stored.report)) r2.rewrites += 1;
+      } catch (error) {
+        r2.rejected += 1;
+        skipped.push(
+          `${file}: schema-r2 remediation rejected (${error instanceof R2RedactionRemediationError ? error.reason : "unknown error"})`
+        );
+      }
       continue;
     }
     entries.push(inventoryV1Report(REPORT_FILE_PATTERN.exec(file)![1], read.stored.report));
   }
 
   const totals = summarizeInventories(entries);
-  console.log(`Redaction v2 dry-run inventory (sanitizer v${REDACTION_VERSION}, allowlists ${REDACTION_ALLOWLISTS_VERSION})`);
+  console.log(`Redaction dry-run inventory (sanitizer v${REDACTION_VERSION}, allowlists ${REDACTION_ALLOWLISTS_VERSION})`);
   console.log(`Reports analyzed: ${totals.reports}${skipped.length ? `, skipped ${skipped.length}` : ""}`);
   console.log(`Reports with URL or name/key changes: ${totals.reportsWithUrlOrNameChanges} (not a full-transform rewrite count)`);
   console.log(`URL fields: ${totals.changedUrlFields.toLocaleString("en-US")} of ${totals.totalUrlFields.toLocaleString("en-US")} would change`);
@@ -71,12 +92,17 @@ async function main(): Promise<void> {
       `${totals.riskSignals.tokenLikePathSegments.toLocaleString("en-US")} token-shaped path segments, ` +
       `${totals.riskSignals.unallowlistedSubdomainLabels.toLocaleString("en-US")} non-allowlisted subdomain labels generalized`
   );
+  console.log(
+    `Schema-r2: ${r2.reports} report(s), ${r2.v3} v3, ${r2.v4} v${REDACTION_VERSION}, ` +
+      `${r2.rewrites} transform rewrite(s), ${r2.rejected} rejected. ` +
+      `Use reports:remediate for sidecar/clock proof.`
+  );
   for (const line of skipped) console.log(`Skipped ${line}`);
 
   if (outFile) {
     await writeFile(
       outFile,
-      `${JSON.stringify({ redactionVersion: REDACTION_VERSION, allowlists: REDACTION_ALLOWLISTS_VERSION, generatedAt: new Date().toISOString(), totals, reports: entries }, null, 2)}\n`
+      `${JSON.stringify({ redactionVersion: REDACTION_VERSION, allowlists: REDACTION_ALLOWLISTS_VERSION, generatedAt: new Date().toISOString(), totals, r2, reports: entries }, null, 2)}\n`
     );
     console.log(`Full inventory (with before/after examples) written to ${outFile}. Operator artifact: contains stored URLs; do not commit.`);
   }
