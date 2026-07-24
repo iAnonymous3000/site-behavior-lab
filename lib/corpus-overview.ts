@@ -6,7 +6,6 @@ import { preferCorpusRepresentative } from "./corpus-representative";
 import { domainsMatch } from "./featured-sites";
 import { buildReportHeadline, type HeadlineTone } from "./report-headline";
 import { trackingServiceRequests } from "./report-insights";
-import { readStoredReportForId } from "./report-source";
 import {
   comparisonArmViews,
   displayRunView,
@@ -16,7 +15,7 @@ import {
   type ReportView
 } from "./scan-report-view";
 import { isReservedReportDomain } from "./reserved-report-domains";
-import { listStaticReportIds } from "./static-report-files";
+import { listStaticReportBundles } from "./static-report-files";
 import {
   comparisonHistoryPairingKey,
   computeComparableSinceLastScan,
@@ -424,19 +423,20 @@ type LoadedDirectoryEntry = {
 };
 
 async function loadDirectoryEntries(catalog: CatalogEntry[]): Promise<LoadedDirectoryEntry[]> {
-  const ids = await listStaticReportIds();
+  // The corpus audit already strict-parsed, sanitizer-checked, and
+  // digest-verified every committed bundle, so reuse what it read instead of
+  // re-reading and re-validating the same files immediately afterwards.
+  const bundles = await listStaticReportBundles();
   const entries: LoadedDirectoryEntry[] = [];
 
-  for (const id of ids) {
+  for (const { id, stored } of bundles) {
     // The stored read keeps the schema metadata: the directory and researcher
     // exports carry schema version/revision/origin/limited per row, so a v2
     // row is distinguishable from a legacy-derived v1 row. Every readable
     // generation joins the directory (RFC 14.8 atomic consumer migration);
     // the corpus-stats builder keeps its own measurement-cohort policy (v2
     // metrics never join the v1 percentile distribution).
-    const readResult = await readStoredReportForId(id);
-    if (readResult.outcome !== "found") continue;
-    const view = toReportView(readResult.stored);
+    const view = toReportView(stored);
 
     // Lead with the baseline (off / unprotected) run for GPC/Shields so the directory
     // lists and ranks what each site actually did, not the protected residual.
@@ -502,7 +502,7 @@ async function loadDirectoryEntries(catalog: CatalogEntry[]): Promise<LoadedDire
       capped: runHitRequestRecordingCap(run),
       requestedUrl: run.conditions.requestedUrl,
       finalUrl: run.conditions.finalUrl,
-      schemaVersion: readResult.stored.schemaVersion,
+      schemaVersion: stored.schemaVersion,
       schemaRevision: view.revision,
       schemaOrigin: view.origin,
       limited: view.limited,
@@ -518,7 +518,7 @@ async function loadDirectoryEntries(catalog: CatalogEntry[]): Promise<LoadedDire
       consentClicks: entry.consentClicks,
       requestedUrl: entry.requestedUrl,
       finalUrl: entry.finalUrl,
-      comparisonHistoryCohort: comparisonHistoryCohortForStoredReport(readResult.stored, view)
+      comparisonHistoryCohort: comparisonHistoryCohortForStoredReport(stored, view)
     });
     entries.push({
       entry,

@@ -31,17 +31,34 @@ export class StaticReportBundleError extends Error {
 }
 
 export async function listStaticReportIds(rootDir = process.cwd()): Promise<string[]> {
+  return (await listStaticReportBundles(rootDir)).map((entry) => entry.id);
+}
+
+/**
+ * The audited corpus with the bundles the audit already read.
+ *
+ * Recognizing a committed bundle is not a directory listing: it strict-parses
+ * the report and its sidecar, re-runs the public sanitizer to prove the
+ * redaction fixed point, and recomputes the canonical digest. That work is
+ * ~99% CPU and is the fail-closed publication gate, so it must stay. Returning
+ * only the ids threw it away, and every caller then re-read and re-validated
+ * the identical files, which cost a measured 8 seconds per pass over the
+ * current corpus for no additional guarantee.
+ */
+export async function listStaticReportBundles(
+  rootDir = process.cwd()
+): Promise<{ id: string; stored: StoredScanReport }[]> {
   const reportsDir = path.join(rootDir, "public", "reports");
   const dangling = await listDanglingStaticSidecarIds(reportsDir);
   if (dangling.length > 0) throw new StaticReportBundleError(dangling[0], "dangling-sidecar");
 
-  const readable: string[] = [];
+  const readable: { id: string; stored: StoredScanReport }[] = [];
   for (const id of await listStaticReportCandidateIds(reportsDir)) {
     const read = await readStaticReportBundle(reportsDir, id);
     if (read.outcome !== "found") {
       throw new StaticReportBundleError(id, read.outcome === "not-found" ? "missing-report" : read.reason);
     }
-    readable.push(id);
+    readable.push({ id, stored: read.stored });
   }
   return readable;
 }

@@ -2559,39 +2559,6 @@ a {
   text-align: center;
 }
 
-/* ---- Directory page (server-rendered, indexable index of scanned sites) ---- */
-.directory-page {
-  margin: 0 auto;
-  max-width: 980px;
-  padding: 48px 24px 80px;
-}
-
-.directory-header {
-  margin-bottom: 24px;
-}
-
-.directory-header h1 {
-  font-size: clamp(26px, 4vw, 36px);
-  letter-spacing: -0.02em;
-  margin: 4px 0 8px;
-}
-
-.directory-header p {
-  color: var(--text-muted);
-  margin: 0 0 8px;
-  max-width: 70ch;
-}
-
-.directory-back a {
-  color: var(--accent);
-  font-weight: 600;
-  text-decoration: none;
-}
-
-.directory-back a:hover {
-  text-decoration: underline;
-}
-
 /* ---- Legal / prose pages (privacy) ---- */
 .legal-page {
   margin: 0 auto;
@@ -2898,137 +2865,6 @@ a {
   }
 }
 
-.directory-list {
-  display: grid;
-  gap: 12px;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.directory-history-note {
-  color: var(--text-muted);
-  font-size: 13px;
-  line-height: 1.45;
-  margin: 0 0 14px;
-}
-
-.directory-row {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-left: 4px solid var(--tone-color, var(--sig-quiet));
-  border-radius: var(--radius-sm);
-}
-
-.directory-row.tone-alarm { --tone-color: var(--sig-loud); }
-.directory-row.tone-warn  { --tone-color: var(--sig-warn); }
-.directory-row.tone-info  { --tone-color: var(--sig-info); }
-.directory-row.tone-calm  { --tone-color: var(--sig-ok); }
-
-.directory-row > .directory-report-link {
-  color: inherit;
-  display: grid;
-  gap: 8px;
-  padding: 14px 16px;
-  text-decoration: none;
-}
-
-.directory-row > .directory-report-link:hover .directory-domain {
-  color: var(--accent-strong);
-}
-
-.directory-row > .directory-profile-link {
-  border-top: 1px solid var(--border);
-  color: var(--accent);
-  display: block;
-  font-size: 12px;
-  padding: 9px 16px 10px;
-  text-decoration: none;
-}
-
-.directory-row > .directory-profile-link:hover {
-  text-decoration: underline;
-  text-underline-offset: 2px;
-}
-
-.directory-row-top {
-  align-items: baseline;
-  display: flex;
-  /* Long type chips (e.g. "consent comparison (no banner clicked)") drop to
-     their own line instead of crushing the domain into a vertical letter stack
-     (the domain wraps anywhere, the chip doesn't). */
-  flex-wrap: wrap;
-  gap: 4px 10px;
-  justify-content: space-between;
-}
-
-.directory-domain {
-  font-size: 15px;
-  font-weight: 700;
-  overflow-wrap: anywhere;
-}
-
-.directory-type {
-  color: var(--text-subtle);
-  font-size: 11px;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  white-space: nowrap;
-}
-
-.directory-headline {
-  color: var(--text-muted);
-  font-size: 13.5px;
-  line-height: 1.35;
-  overflow-wrap: anywhere;
-}
-
-/* Truncated-recording marker: the visit hit the request cap, so its counts
-   are floors/snapshots and the site is excluded from corpus statistics. */
-.capped-chip {
-  border: 1px solid var(--sig-warn);
-  border-radius: 999px;
-  color: var(--sig-warn);
-  font-size: 10px;
-  letter-spacing: 0.04em;
-  line-height: 1.6;
-  padding: 0 7px;
-  text-transform: uppercase;
-  white-space: nowrap;
-}
-
-.directory-metrics {
-  color: var(--text-subtle);
-  display: flex;
-  flex-wrap: wrap;
-  font-size: 12px;
-  gap: 12px;
-}
-
-.directory-metrics b {
-  color: var(--text);
-  font-variant-numeric: tabular-nums;
-}
-
-/* Descriptive visit-to-visit delta on a site's newest compatible report. */
-.directory-since {
-  color: var(--text-subtle);
-  font-size: 11.5px;
-  font-style: italic;
-  font-variant-numeric: tabular-nums;
-}
-
-.directory-export {
-  color: var(--text-muted);
-  font-size: 13px;
-}
-
-.directory-export a {
-  color: var(--accent);
-  text-decoration: underline;
-  text-underline-offset: 2px;
-}
 
 /* ---- Site history profiles ---- */
 .site-profile-page {
@@ -4436,14 +4272,6 @@ details[open] > summary .disclosure-chevron {
     padding: 24px 14px 48px;
   }
 
-  .directory-page {
-    padding: 24px 14px 48px;
-  }
-
-  .directory-list {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
   .site-profile-current {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -4684,22 +4512,6 @@ details[open] > summary .disclosure-chevron {
     min-width: 0;
   }
 
-  /* Long comparison labels are wider than the directory card's content box
-     at 320px. Let the grid/flex descendants shrink and wrap instead of making
-     the entire page adopt the label's min-content width. */
-  .directory-row,
-  .directory-row > .directory-report-link,
-  .directory-row-top,
-  .directory-headline,
-  .directory-metrics {
-    min-width: 0;
-  }
-
-  .directory-type {
-    max-width: 100%;
-    overflow-wrap: anywhere;
-    white-space: normal;
-  }
 
   /* Ubuntu's system font is slightly wider than macOS at this breakpoint.
      Let full-width actions shrink below their label's intrinsic width instead

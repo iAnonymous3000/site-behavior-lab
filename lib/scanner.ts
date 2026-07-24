@@ -166,6 +166,41 @@ export type ScanRouteDecision = {
   shieldsMatched?: boolean;
 };
 
+/**
+ * Shields verification facts for the passive load, frozen at ONE boundary.
+ *
+ * The three counters must stay commensurable, because the r2 evaluator refuses
+ * any run where `requestsActuallyBlocked <= requestsMatched <= requestsEvaluated`
+ * does not hold, and a refused run is not a degraded report but a failed scan.
+ *
+ * `boundaryCounters` are the route-time totals snapshotted the instant the
+ * passive load settled. A classification arm cannot use its `requestsMatched`
+ * directly because matched requests are removed there, so it recounts from the
+ * retained per-request flags; that recount must be restricted to the SAME
+ * boundary, since a straggler can still be recorded into the passive phase
+ * after the snapshot and would otherwise be matched against a frozen
+ * denominator that never saw it.
+ */
+export function freezePassiveShieldsFacts(input: {
+  boundaryCounters: { requestsEvaluated: number; requestsMatched: number; requestsActuallyBlocked: number };
+  retainedRequests: readonly { id: number; phaseId: number; blockedByShields?: boolean | undefined }[];
+  passivePhaseId: number;
+  boundaryRequestIds: ReadonlySet<number>;
+  blockingEnabled: boolean;
+}): { requestsEvaluated: number; requestsMatched: number; requestsActuallyBlocked: number } {
+  const retainedPassiveMatches = input.retainedRequests.filter(
+    (request) =>
+      request.phaseId === input.passivePhaseId &&
+      request.blockedByShields === true &&
+      input.boundaryRequestIds.has(request.id)
+  ).length;
+  return {
+    requestsEvaluated: input.boundaryCounters.requestsEvaluated,
+    requestsMatched: input.blockingEnabled ? input.boundaryCounters.requestsMatched : retainedPassiveMatches,
+    requestsActuallyBlocked: input.boundaryCounters.requestsActuallyBlocked
+  };
+}
+
 export function fingerprintFrameCoverageStatus(
   coverage: Pick<FingerprintObservationCollection, "attemptedFrames" | "readableFrames">
 ): "complete" | "failed" | "partial" {
@@ -511,6 +546,13 @@ type PassiveBoundaryOutcome<T> =
 type ConsentChoiceProbeOutcome = {
   summary: ConsentInteractionSummary;
   readableFrames: number;
+  /**
+   * True when the probe declined to start because too little scan budget was
+   * left. Distinct from "no frame was readable": one is the scanner running out
+   * of time, the other is the page's frames refusing evaluation, and the
+   * detector ledger records different reasons for them.
+   */
+  budgetExhausted?: boolean;
 };
 
 const publicHostCheckFailures = new WeakMap<Map<string, Promise<void>>, Map<string, number>>();
@@ -1114,7 +1156,11 @@ export async function scanSiteWithMeasurement(
       markConsentInteractionSubjectLoss(consentPhaseId);
     }
     if (consentPhaseId !== null && consentProbeState.failure === null && consentProbe?.readableFrames === 0) {
-      consentProbeState.failure = "engine-unavailable";
+      // A probe that never started because the budget ran out is not an
+      // unreadable page. Both produce zero readable frames, so without the
+      // explicit signal the budget case was reported as an engine failure and
+      // the budget branch below could never be reached.
+      consentProbeState.failure = consentProbe.budgetExhausted ? "budget-unavailable" : "engine-unavailable";
     }
     if (consentPhaseId !== null) {
       if (consentInteractionLeftSubject) {
@@ -1678,22 +1724,13 @@ export async function scanSiteWithMeasurement(
     const publicRequests = subjectStateTrusted && activeProbeSubjectAvailable && !activeProbeSubjectLost
       ? allPublicRequests
       : allPublicRequests.filter((record) => trustedRequestIdsBeforeActiveProbe.has(record.id));
-    // Freeze route facts at the same boundary as retained request evidence.
-    // Classification matches derive from those retained flags, while block
-    // simulation uses the route count because matched requests were removed.
-    const retainedPassiveShieldsMatches = phaseAwareRequests.filter(
-      (request) => request.phaseId === passivePhaseId && request.blockedByShields === true
-    ).length;
-    // Verification facts are tagged to passive-load, so every counter must be
-    // frozen at that phase boundary. Later consent/probe traffic remains useful
-    // evidence but must not silently inflate the intervention arm's readback.
-    const frozenShieldsFacts = {
-      requestsEvaluated: trustedSubjectShieldsFacts.requestsEvaluated,
-      requestsMatched: options.shieldsBlockingEnabled
-        ? trustedSubjectShieldsFacts.requestsMatched
-        : retainedPassiveShieldsMatches,
-      requestsActuallyBlocked: trustedSubjectShieldsFacts.requestsActuallyBlocked
-    };
+    const frozenShieldsFacts = freezePassiveShieldsFacts({
+      boundaryCounters: trustedSubjectShieldsFacts,
+      retainedRequests: phaseAwareRequests,
+      passivePhaseId,
+      boundaryRequestIds: trustedSubjectRequestIds,
+      blockingEnabled: options.shieldsBlockingEnabled === true
+    });
     // This is the existing v1 request-log snapshot boundary. Requests from the
     // later policy visit are intentionally excluded, and no late main-page
     // event should stretch the active phase after its evidence was frozen.
@@ -2554,7 +2591,7 @@ async function applyConsentChoice(
   const summary: ConsentInteractionSummary = { mode: choice, clicked: false };
   let readableFrames = 0;
   if (MAX_SCAN_DURATION_MS - (Date.now() - started) < CONSENT_CLICK_MIN_BUDGET_MS) {
-    return { summary, readableFrames };
+    return { summary, readableFrames, budgetExhausted: true };
   }
 
   const args = consentClickArgs(choice, shadowRootCapability);
@@ -2631,6 +2668,11 @@ async function probeKeystrokeExfiltration(
 
   page.on("request", onRequest);
   let typed: { count: number; types: string[]; subjectLost: boolean; omittedCandidateCount: number };
+  // Disclosure must survive a mid-probe failure. Typing has already happened by
+  // the time anything below can throw, and those requests stay in the retained
+  // log, so a scan that reports them without saying the scanner provoked them
+  // is publishing its own traffic as the site's.
+  let typedFieldCount = 0;
   try {
     typed = await typeSentinelIntoFields(
       page,
@@ -2638,6 +2680,7 @@ async function probeKeystrokeExfiltration(
       trustedSubjectUrl,
       boundedPageCollectorKey
     );
+    typedFieldCount = typed.count;
     if (typed.subjectLost) {
       if (typed.count > 0) addKeystrokeProbeDisclosure(warnings, typed.count, false);
       return typed.count > 0
@@ -2664,6 +2707,7 @@ async function probeKeystrokeExfiltration(
     // here never discards the real-time captures above.
     await flushUnloadBeacons(page, started).catch(() => undefined);
   } catch {
+    if (typedFieldCount > 0) addKeystrokeProbeDisclosure(warnings, typedFieldCount);
     return { status: "failed", reason: "scan-failed", detection: null };
   } finally {
     page.off("request", onRequest);

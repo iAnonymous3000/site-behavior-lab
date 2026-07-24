@@ -20,6 +20,7 @@ import {
   createProbeRequestCaptureState,
   decideRoutedRequest,
   fingerprintFrameCoverageStatus,
+  freezePassiveShieldsFacts,
   MAX_RECORDED_REQUESTS,
   MAX_CAPTURED_BODY_CHARS,
   MAX_PROBE_CAPTURED_REQUESTS,
@@ -2374,4 +2375,44 @@ test("scanSite forces loopback literals through the connect-time proxy", { timeo
   } finally {
     await closeSharedBrowserForTests();
   }
+});
+
+test("frozen Shields facts stay commensurable when a straggler lands after the boundary", () => {
+  // The r2 evaluator refuses a run unless
+  // requestsActuallyBlocked <= requestsMatched <= requestsEvaluated, and a
+  // refused run is a failed scan, not a degraded report. The route counters are
+  // snapshotted the instant the passive load settles, so a match recounted from
+  // a request recorded into the passive phase AFTER that instant would be
+  // measured against a denominator that never saw it.
+  const boundaryCounters = { requestsEvaluated: 2, requestsMatched: 2, requestsActuallyBlocked: 0 };
+  const boundaryRequestIds = new Set([1, 2]);
+  const retainedRequests = [
+    { id: 1, phaseId: 0, blockedByShields: true },
+    { id: 2, phaseId: 0, blockedByShields: true },
+    // Straggler: same phase, recorded after the snapshot.
+    { id: 3, phaseId: 0, blockedByShields: true },
+    // Later phases never belong to a passive-load fact at all.
+    { id: 4, phaseId: 1, blockedByShields: true }
+  ];
+
+  const classification = freezePassiveShieldsFacts({
+    boundaryCounters,
+    retainedRequests,
+    passivePhaseId: 0,
+    boundaryRequestIds,
+    blockingEnabled: false
+  });
+  assert.deepEqual(classification, { requestsEvaluated: 2, requestsMatched: 2, requestsActuallyBlocked: 0 });
+  assert.equal(classification.requestsMatched <= classification.requestsEvaluated, true);
+
+  // A blocking arm reads the route counters directly: its matched requests were
+  // removed, so there is nothing retained to recount.
+  const blocking = freezePassiveShieldsFacts({
+    boundaryCounters: { requestsEvaluated: 9, requestsMatched: 4, requestsActuallyBlocked: 4 },
+    retainedRequests,
+    passivePhaseId: 0,
+    boundaryRequestIds,
+    blockingEnabled: true
+  });
+  assert.deepEqual(blocking, { requestsEvaluated: 9, requestsMatched: 4, requestsActuallyBlocked: 4 });
 });

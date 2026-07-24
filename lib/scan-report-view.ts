@@ -59,10 +59,17 @@ export type LoadedReport =
     };
 
 /**
- * A stored report has already passed the deep reader and contains no ephemeral
- * screenshot shell. Build the exact client render envelope on the server so a
- * permalink can ship evidence in its initial HTML instead of showing a generic
- * shell and fetching the same JSON again after hydration.
+ * The canonical mapping from a stored report to the client render envelope. A
+ * stored report has already passed the deep reader and contains no ephemeral
+ * screenshot shell, so the envelope is a pure projection.
+ *
+ * This module is NOT on the permalink's server render path, and must not be:
+ * `app/reports/[id]/saved-report-client.tsx` deliberately keeps its own inline
+ * copy of this projection so a client page never statically imports this file,
+ * which would pull the whole reader graph into the browser bundle. This
+ * function therefore has no production caller today; it stays as the reference
+ * the client copy mirrors and as the shared helper for tests and any future
+ * server-side consumer. Change the two together.
  */
 export function loadedReportFromStored(stored: StoredScanReport): LoadedReport {
   const view = toReportView(stored);

@@ -43,6 +43,15 @@ ENV NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SITE_URL=${NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SITE_
 ARG NEXT_PUBLIC_SITE_BEHAVIOR_LAB_TURNSTILE_SITE_KEY="0x4AAAAAADo4etedrrGyi43a"
 ENV NEXT_PUBLIC_SITE_BEHAVIOR_LAB_TURNSTILE_SITE_KEY=${NEXT_PUBLIC_SITE_BEHAVIOR_LAB_TURNSTILE_SITE_KEY}
 
+# Public evidence-library origin, inlined into the client bundle. The container's
+# /status/ page fetches <origin>/deployment.json to compare the live site and
+# scanner revisions, so a self-host that leaves the default in place compares
+# its own revision against sitebehavior.org and reports "degraded" for an
+# unrelated project's deploy. Override with --build-arg to your own Pages
+# origin. Scheme and host only.
+ARG NEXT_PUBLIC_SITE_BEHAVIOR_LAB_LIBRARY_ORIGIN="https://sitebehavior.org"
+ENV NEXT_PUBLIC_SITE_BEHAVIOR_LAB_LIBRARY_ORIGIN=${NEXT_PUBLIC_SITE_BEHAVIOR_LAB_LIBRARY_ORIGIN}
+
 COPY package.json package-lock.json ./
 RUN npm ci && npx playwright install chromium
 
