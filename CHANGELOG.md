@@ -126,6 +126,10 @@ activation gate has passed or that the corresponding production control is live.
 
 ### Fixed
 
+- Single-column mobile grid collapses now use `minmax(0, 1fr)` like their
+  desktop counterparts, so an item whose font-dependent minimum content width
+  exceeds the viewport (as on CI's font set at 390px) can no longer blow the
+  track out and force page-level horizontal overflow.
 - The runtime container image no longer ships the base image's global package
   managers (npm, npx, yarn, corepack, whose bundled tar, undici, and sigstore
   copies carried fixed-upstream HIGH/CRITICAL advisories the app never
