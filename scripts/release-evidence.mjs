@@ -556,7 +556,14 @@ async function runCli() {
 const invokedPath = process.argv[1] ? realpathSync(path.resolve(process.argv[1])) : null;
 if (invokedPath === realpathSync(fileURLToPath(import.meta.url))) {
   runCli().catch((error) => {
-    console.error(error instanceof Error ? error.message : error);
+    const message = error instanceof Error ? error.message : String(error);
+    console.error(message);
+    // Surface the refusal reason as a checks-API annotation so a failed
+    // required gate is diagnosable from the public run summary, not only
+    // from authenticated log access.
+    if (process.env.GITHUB_ACTIONS === "true") {
+      console.error(`::error title=Release evidence failed::${message}`);
+    }
     process.exitCode = 1;
   });
 }
