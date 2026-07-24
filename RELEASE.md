@@ -32,9 +32,11 @@ Given the same source and artifact bytes, it serializes identically. Static
 evidence lists every output file with its byte length and SHA-256 and validates
 `deployment.json`. Container evidence records the exact local image ID, rootfs
 layer IDs, OCI source/revision labels, architecture, size, embedded runtime
-build commit, and independently executed Node 24.17.0/npm 11.13.0 versions. The
-version probes use the exact image ID with pulling and networking disabled, a
-read-only root filesystem, every capability dropped, and no-new-privileges.
+build commit, the independently executed Node 24.17.0 version, and the asserted
+absence of any package manager in the runtime image (the runner stage strips
+the base's global npm/yarn/corepack). The probes use the exact image ID with
+pulling and networking disabled, a read-only root filesystem, every capability
+dropped, and no-new-privileges.
 
 Generate a static receipt outside the worktree after a clean static build:
 
@@ -176,11 +178,14 @@ a later candidate and must be refreshed before any readiness claim:
   Node `24.14.1` with npm `11.11.0`; that toolchain mismatch and the public preview posture are
   release-control gaps even though the observed production SHA converged.
 
-The digest-pinned Playwright base and existing smoke image were independently
-verified at Node 24.17.0 with npm 11.13.0. Dockerfile build assertions and the
-hardened release-evidence probes enforce those exact container versions. They
-are intentionally distinct from the repository and Actions Node 24.14.1/npm
-11.11.0 pins; neither toolchain is presented as parity with the other.
+The digest-pinned Playwright base is verified at Node 24.17.0 with npm 11.13.0
+during the build, and the runtime stage then strips every global package
+manager, so the smoke image runs the app with node alone. Dockerfile build
+assertions and the hardened release-evidence probes enforce the exact
+container Node version plus that package-manager absence. The container
+runtime is intentionally distinct from the repository and Actions Node
+24.14.1/npm 11.11.0 pins; neither toolchain is presented as parity with the
+other.
 
 The source, deployment, WAF, and log observations are useful operational
 evidence for that exact snapshot. The governance, toolchain, and public-preview

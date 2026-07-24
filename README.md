@@ -96,7 +96,7 @@ npm run dev
 
 Open `http://127.0.0.1:3000`.
 
-The digest-pinned Playwright container base and the smoke-tested application image are independently verified at Node 24.17.0 with npm 11.13.0. That is intentionally distinct from the host/Actions authoring toolchain above: the Docker build fails if the base versions drift, and container release evidence re-runs both binaries from the exact image ID with no network, a read-only root filesystem, all capabilities dropped, and no-new-privileges. Neither runtime is inferred from the other.
+The digest-pinned Playwright container base is verified at Node 24.17.0 with npm 11.13.0 during the build, which is intentionally distinct from the host/Actions authoring toolchain above; the Docker build fails if the base versions drift. The runtime stage then removes every global package manager (npm, npx, yarn, corepack) and the WebKit-only GStreamer "bad" plugins, so the shipped image serves the built app with node alone. Container release evidence re-runs the node binary from the exact image ID with no network, a read-only root filesystem, all capabilities dropped, and no-new-privileges, and independently asserts that no npm binary answers from that image.
 
 ## Configuration
 

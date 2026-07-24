@@ -197,8 +197,12 @@ if (args[0] === "run") {
     process.exit(0);
   }
   if (entrypoint === "--entrypoint=npm") {
-    process.stdout.write((process.env.FIXTURE_CONTAINER_NPM || "11.13.0") + "\\n");
-    process.exit(0);
+    if (process.env.FIXTURE_CONTAINER_NPM) {
+      process.stdout.write(process.env.FIXTURE_CONTAINER_NPM + "\\n");
+      process.exit(0);
+    }
+    process.stderr.write("exec: \\"npm\\": executable file not found\\n");
+    process.exit(127);
   }
   process.exit(2);
 }
@@ -245,7 +249,7 @@ process.stdout.write(JSON.stringify([{
     sourceCommit: fixture.commit,
     runtime: {
       node: "24.17.0",
-      npm: "11.13.0",
+      npm: "absent",
       probeIsolation: {
         pull: "never",
         network: "none",
@@ -300,17 +304,25 @@ process.stdout.write(JSON.stringify([{
   assert.notEqual(wrongRuntime.status, 0);
   assert.match(wrongRuntime.stderr, /requires node 24\.17\.0, not v24\.18\.0/);
 
-  const wrongNpm = runEvidence(
-    fixture.root,
-    ["--container-image", "site-behavior-lab:smoke"],
-    {
-      DOCKER_BIN: docker,
-      FIXTURE_COMMIT: fixture.commit,
-      FIXTURE_CONTAINER_NPM: "11.14.0"
-    }
-  );
-  assert.notEqual(wrongNpm.status, 0);
-  assert.match(wrongNpm.stderr, /requires npm 11\.13\.0, not 11\.14\.0/);
+  // A runtime image that ships ANY answering package manager is rejected,
+  // including one at the base's own pinned version: the contract is absence,
+  // not a version.
+  for (const presentNpm of ["11.13.0", "11.14.0"]) {
+    const npmPresent = runEvidence(
+      fixture.root,
+      ["--container-image", "site-behavior-lab:smoke"],
+      {
+        DOCKER_BIN: docker,
+        FIXTURE_COMMIT: fixture.commit,
+        FIXTURE_CONTAINER_NPM: presentNpm
+      }
+    );
+    assert.notEqual(npmPresent.status, 0, presentNpm);
+    assert.match(
+      npmPresent.stderr,
+      new RegExp(`must not ship a package manager; npm answered with ${presentNpm.replaceAll(".", "\\.")}`)
+    );
+  }
 });
 
 test("evidence paths cannot escape through artifact or output symlinks", { skip: hostToolchainSkip }, async (t) => {
@@ -378,7 +390,7 @@ const args = process.argv.slice(2);
 if (args[0] === "run") {
   const entrypoint = args.find((value) => value.startsWith("--entrypoint="));
   if (entrypoint === "--entrypoint=node") process.stdout.write("v24.17.0\\n");
-  else if (entrypoint === "--entrypoint=npm") process.stdout.write("11.13.0\\n");
+  else if (entrypoint === "--entrypoint=npm") process.exit(127);
   else process.exit(2);
   process.exit(0);
 }

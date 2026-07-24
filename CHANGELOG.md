@@ -126,6 +126,13 @@ activation gate has passed or that the corresponding production control is live.
 
 ### Fixed
 
+- The runtime container image no longer ships the base image's global package
+  managers (npm, npx, yarn, corepack, whose bundled tar, undici, and sigstore
+  copies carried fixed-upstream HIGH/CRITICAL advisories the app never
+  executes) or the WebKit-only GStreamer "bad" plugins. Container release
+  evidence now asserts the package-manager absence instead of a version, and
+  the blocking Trivy image gate passes on real findings removal, not
+  suppression.
 - A consent control identified by a known CMP selector keeps its CMP
   attribution when its page-owned click handler throws on the first dispatch
   and the control only reacts to the later generic-tier retry; the report no

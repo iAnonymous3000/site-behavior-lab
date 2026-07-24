@@ -25,12 +25,15 @@ mandatory. The first real GitHub run still has to prove outbound advisory/DB
 access and the current absence of findings; static workflow tests cannot supply
 that receipt.
 
-The digest-pinned Playwright base and smoke-tested application image are
-independently verified at Node 24.17.0/npm 11.13.0. Dockerfile assertions fail
-the build if those base versions drift. Release evidence then executes both
-version commands from the exact inspected image ID with `--pull=never`, no
-network, a read-only root filesystem, all capabilities dropped, and
-no-new-privileges. This is a verified-but-distinct container runtime, not
+The digest-pinned Playwright base is verified at Node 24.17.0/npm 11.13.0 and
+Dockerfile assertions fail the build if those base versions drift. The runtime
+stage then removes the base's global npm/yarn/corepack (whose bundled tar,
+undici, and sigstore copies would otherwise ship as unexecuted vulnerable
+code) and the WebKit-only GStreamer "bad" plugins. Release evidence executes
+the node version command from the exact inspected image ID with `--pull=never`,
+no network, a read-only root filesystem, all capabilities dropped, and
+no-new-privileges, and separately asserts that no npm binary answers from that
+image. This is a verified-but-distinct container runtime, not
 parity with the Node 24.14.1/npm 11.11.0 host and Actions toolchain.
 
 ## Third-party inventory

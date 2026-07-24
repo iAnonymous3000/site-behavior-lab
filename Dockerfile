@@ -77,6 +77,20 @@ COPY --from=build /app/public ./public
 COPY --from=build /app/scripts/public-build-commit.mjs ./scripts/public-build-commit.mjs
 COPY --from=build /app/next.config.mjs ./next.config.mjs
 
+# The runtime serves the already-built app with node alone. Remove the base
+# image's global package managers (their bundled tar, undici, and sigstore
+# copies are exactly the kind of fixed-upstream vulnerable code this image
+# would otherwise ship without ever executing) and the WebKit-only GStreamer
+# "bad" plugin set that the Chromium-only scanner never loads. The build stage
+# above still uses the base's npm; this stage must end with no package manager
+# at all, and container release evidence independently asserts that absence.
+RUN apt-get purge -y gstreamer1.0-plugins-bad libgstreamer-plugins-bad1.0-0 \
+  && rm -rf /var/lib/apt/lists/* \
+  && rm -rf /usr/lib/node_modules /usr/local/lib/node_modules \
+  && rm -f /usr/bin/npm /usr/bin/npx /usr/bin/corepack /usr/bin/yarn /usr/bin/yarnpkg \
+    /usr/local/bin/npm /usr/local/bin/npx /usr/local/bin/corepack /usr/local/bin/yarn /usr/local/bin/yarnpkg \
+  && ! command -v npm && ! command -v npx && ! command -v yarn && ! command -v corepack
+
 # Scans open attacker-controlled pages, so the runtime must not be root. The
 # scanner also launches Chromium with an explicit environment allowlist, so its
 # child processes do not inherit R2, Turnstile, or access-token secrets from the

@@ -132,6 +132,15 @@ test("Playwright package, lockfile, installation, and container base use one exa
   assert.deepEqual(runtimePin.slice(1), [REQUIRED_CONTAINER_NODE, REQUIRED_CONTAINER_NPM]);
   assert.notEqual(REQUIRED_CONTAINER_NODE, REQUIRED_NODE, "container and host Node pins are intentionally distinct");
   assert.notEqual(REQUIRED_CONTAINER_NPM, REQUIRED_NPM, "container and host npm pins are intentionally distinct");
+
+  // The runner stage must strip every global package manager (the base's npm
+  // bundle carries its own tar/undici/sigstore copies) and assert the absence,
+  // matching the release-evidence container probe's absence contract.
+  const runnerDockerfile = source("Dockerfile");
+  const runnerStage = runnerDockerfile.slice(runnerDockerfile.indexOf("FROM playwright-base AS runner"));
+  assert.match(runnerStage, /rm -rf \/usr\/lib\/node_modules \/usr\/local\/lib\/node_modules/);
+  assert.match(runnerStage, /apt-get purge -y gstreamer1\.0-plugins-bad libgstreamer-plugins-bad1\.0-0/);
+  assert.match(runnerStage, /! command -v npm && ! command -v npx && ! command -v yarn && ! command -v corepack/);
 });
 
 test("tldts manifest, lockfile, and installation use one exact version", () => {

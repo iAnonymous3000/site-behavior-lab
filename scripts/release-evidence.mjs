@@ -19,7 +19,6 @@ const REQUIRED_NODE = "24.14.1";
 const REQUIRED_NPM = "11.11.0";
 const REQUIRED_PACKAGE_MANAGER = `npm@${REQUIRED_NPM}`;
 const REQUIRED_CONTAINER_NODE = "24.17.0";
-const REQUIRED_CONTAINER_NPM = "11.13.0";
 const DOCKER_TIMEOUT_MS = 30_000;
 const DOCKER_MAX_BUFFER_BYTES = 1024 * 1024;
 
@@ -273,7 +272,7 @@ function containerArtifactEvidence(root, image, commit, release, dockerBin) {
 
   const runtime = {
     node: containerRuntimeVersion(root, dockerBin, imageId, "node", REQUIRED_CONTAINER_NODE),
-    npm: containerRuntimeVersion(root, dockerBin, imageId, "npm", REQUIRED_CONTAINER_NPM),
+    npm: containerPackageManagerAbsence(root, dockerBin, imageId),
     probeIsolation: {
       pull: "never",
       network: "none",
@@ -330,6 +329,42 @@ function containerRuntimeVersion(root, dockerBin, imageId, executable, expectedV
     );
   }
   return actualVersion;
+}
+
+/**
+ * The runtime image must ship no package manager: the base's global npm
+ * bundles its own tar, undici, and sigstore copies, so the runner stage
+ * removes the whole global toolchain and this probe fails closed if any npm
+ * binary ever answers from the exact tested image again.
+ */
+function containerPackageManagerAbsence(root, dockerBin, imageId) {
+  const args = [
+    "run",
+    "--rm",
+    "--pull=never",
+    "--network=none",
+    "--read-only",
+    "--cap-drop=ALL",
+    "--security-opt=no-new-privileges:true",
+    "--entrypoint=npm",
+    imageId,
+    "--version"
+  ];
+  let output;
+  try {
+    output = execFileSync(dockerBin, args, {
+      cwd: root,
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "pipe"],
+      timeout: DOCKER_TIMEOUT_MS,
+      maxBuffer: DOCKER_MAX_BUFFER_BYTES
+    }).trim();
+  } catch {
+    return "absent";
+  }
+  throw new Error(
+    `Tested container image must not ship a package manager; npm answered with ${output || "an empty version"}`
+  );
 }
 
 async function fileEvidence(root, relative) {
