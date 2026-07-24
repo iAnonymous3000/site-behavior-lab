@@ -1170,6 +1170,13 @@ function expectedBuildCommit() {
 }
 
 main().catch((error) => {
-  console.error(error instanceof Error ? error.message : error);
+  const message = error instanceof Error ? error.message : String(error);
+  console.error(message);
+  // Surface the failing check as a checks-API annotation so a red required
+  // gate is diagnosable from the public run summary, not only from
+  // authenticated log access.
+  if (process.env.GITHUB_ACTIONS === "true") {
+    console.error(`::error title=Static export smoke failed::${message}`);
+  }
   process.exit(1);
 });
