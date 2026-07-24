@@ -346,6 +346,32 @@ export function interventionAxisDelta(baseline: ScanRunV2, variant: ScanRunV2): 
   return differing.length === 1 ? differing[0] : null;
 }
 
+/**
+ * Whether an intervention pair is stored in its canonical orientation: the
+ * baseline arm holds the UNINTERVENED state and the variant holds the declared
+ * intervention (RFC 4.1).
+ *
+ * Orientation is not cosmetic. Every published label, every delta sign, and
+ * every causal sentence is positional: `runLabels` names runs[0] "GPC off" /
+ * "No blocking" / "Accept-all click" purely by position, and the diff subtracts
+ * baseline from variant. A pair whose arms are swapped therefore validates its
+ * axis, its subject, and its fingerprints while inverting the entire narrative.
+ * The v1 reader has always enforced this (lib/comparison-eligibility.ts) and so
+ * has the node producer; this is the same rule for the v2 reader, which
+ * previously only checked THAT one axis differed, never WHICH way.
+ */
+export function canonicalInterventionOrientation(
+  axis: InterventionAxis,
+  baseline: { conditions: ScanRunV2["conditions"] },
+  variant: { conditions: ScanRunV2["conditions"] }
+): boolean {
+  if (axis === "gpc") return baseline.conditions.gpc === false && variant.conditions.gpc === true;
+  if (axis === "shields") {
+    return baseline.conditions.shields === "classification" && variant.conditions.shields === "block-simulation";
+  }
+  return baseline.conditions.consent === "accept-all" && variant.conditions.consent === "reject-all";
+}
+
 export function evaluateComparability(
   experiment: Experiment,
   baseline: ScanRunV2,
@@ -365,7 +391,14 @@ export function evaluateComparability(
       experiment.axis === "consent" &&
       (baseline.evidence.consent?.controlActivated !== true ||
         variant.evidence.consent?.controlActivated !== true);
-    if (interventionAxisDelta(baseline, variant) !== experiment.axis || missingConsentActivation) {
+    const axisMoved = interventionAxisDelta(baseline, variant) === experiment.axis;
+    // Orientation is checked at EVERY evaluator version, not gated behind
+    // version 2 like the consent-activation rule: a swapped pair does not
+    // become a valid experiment by having been recorded under an older
+    // evaluator, and a canonically oriented pair recomputes identically, so
+    // this cannot change the verdict of any correctly built report.
+    const swappedArms = axisMoved && !canonicalInterventionOrientation(experiment.axis, baseline, variant);
+    if (!axisMoved || swappedArms || missingConsentActivation) {
       // A consent visit that never activated its requested control remains
       // valid per-run raw evidence, but it did not produce the declared
       // accept-vs-reject pair. Pair-level ineligibility keeps every family

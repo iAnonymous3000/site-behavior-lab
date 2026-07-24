@@ -23,6 +23,7 @@ import {
 } from "./scan-report-v2-http-status";
 import {
   CONSENT_VERIFICATION_UNAVAILABLE_METHOD,
+  type PublicComparisonReportV2R2,
   type PublicScanReportV2R2,
   type PublicSingleReportV2R2
 } from "./scan-report-v2-r2";
@@ -640,4 +641,39 @@ test("historical TCF readers remain valid while mixed TCF interpreter versions r
     reasons: ["dependency-version-mismatch:consent-interpreter"]
   });
   assert.deepEqual(violationsOf(crossVersion), [], "the denied comparison is itself a valid report");
+});
+
+test("an arm-swapped intervention pair is design-invalid at every evaluator version", () => {
+  // Every published label and delta sign is positional: runLabels names runs[0]
+  // "GPC off" / "No blocking" / "Accept-all click" by position alone, and the
+  // diff subtracts baseline from variant. A pair stored with its arms reversed
+  // therefore matches its axis, subject, and fingerprints while inverting the
+  // whole narrative. The v1 reader has always refused this shape.
+  const swaps: { label: string; report: PublicComparisonReportV2R2 }[] = [
+    { label: "gpc", report: makeGpcInterventionReportV2R2() },
+    { label: "shields", report: makeShieldsInterventionReportV2R2() },
+    { label: "consent", report: makeConsentInterventionReportV2R2() }
+  ];
+
+  for (const { label, report } of swaps) {
+    const canonical = evaluateComparabilityR2(report.experiment, report.baseline, report.variant);
+    assert.deepEqual(canonical.pairValidity, { eligible: true, reasons: [] }, `${label}: canonical`);
+
+    // Only the arms move: the axis still differs by exactly one step, so the
+    // pre-existing interventionAxisDelta check cannot catch this.
+    const swapped = evaluateComparabilityR2(report.experiment, report.variant, report.baseline);
+    assert.deepEqual(
+      swapped.pairValidity,
+      { eligible: false, reasons: ["design-invalid"] },
+      `${label}: swapped`
+    );
+    for (const [family, entry] of Object.entries(swapped.perMetric)) {
+      assert.equal(entry.eligible, false, `${label}:${family}`);
+    }
+
+    // Orientation is not gated behind evaluator version 2: an older recorded
+    // evaluator does not make a swapped pair a valid experiment.
+    const swappedV1 = evaluateComparabilityR2(report.experiment, report.variant, report.baseline, "1", "1");
+    assert.equal(swappedV1.pairValidity.eligible, false, `${label}: swapped at evaluator 1`);
+  }
 });

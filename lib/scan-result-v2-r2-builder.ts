@@ -66,6 +66,7 @@ import {
 } from "./scan-report-v2-r2";
 import {
   buildComparisonDiffV2,
+  canonicalInterventionOrientation,
   deriveObservationConsistency,
   evaluateQuality,
   interventionAxisDelta
@@ -458,20 +459,17 @@ export function buildNodeComparisonScanReportV2R2(
   return report;
 }
 
+/**
+ * Producer-side orientation guard. It shares one definition with the reader's
+ * comparability evaluator so the two can never drift into disagreeing about
+ * which arm is the control.
+ */
 function assertCanonicalNodeIntervention(
   axis: "gpc" | "shields" | "consent",
   baseline: ScanRunV2R2,
   variant: ScanRunV2R2
 ): void {
-  const canonical =
-    (axis === "gpc" && baseline.conditions.gpc === false && variant.conditions.gpc === true) ||
-    (axis === "shields" &&
-      baseline.conditions.shields === "classification" &&
-      variant.conditions.shields === "block-simulation") ||
-    (axis === "consent" &&
-      baseline.conditions.consent === "accept-all" &&
-      variant.conditions.consent === "reject-all");
-  if (!canonical) {
+  if (!canonicalInterventionOrientation(axis, baseline, variant)) {
     throw new Error(`Comparison ${axis} arms are not in the canonical baseline/variant orientation.`);
   }
 }
