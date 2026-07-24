@@ -287,3 +287,64 @@ test("production health keeps the public ingress preflight separate from the ope
   assert.match(preflight, /turnstileConfigurationProbeCache\.secret === secret/);
   assert.match(preflight, /result,\s*secret\s*\};/);
 });
+
+test("production health only closes its canonical issue when it re-ran every lane the issue is waiting on", () => {
+  // Three of the four hourly schedules never execute the synthetic or the R2
+  // canary. Without lane scoping, one of those shallow runs retracts a deep
+  // alarm fifteen minutes after it was raised and reports a recovery nothing
+  // measured. Issue #13 accumulated twelve open/close comments this way.
+  assert.match(workflow, /id: synthetic_run/);
+  assert.match(workflow, /id: r2_delete_canary_run/);
+  assert.match(workflow, /SYNTHETIC_OUTCOME: \$\{\{ steps\.synthetic_run\.outcome \}\}/);
+  assert.match(workflow, /R2_DELETE_CANARY_OUTCOME: \$\{\{ steps\.r2_delete_canary_run\.outcome \}\}/);
+  assert.match(workflow, /POSTURE_OUTCOME: \$\{\{ steps\.posture\.outcome \}\}/);
+  assert.match(workflow, /echo "coverage=\$\{coverage\}" >> "\$GITHUB_OUTPUT"/);
+  assert.match(workflow, /COVERAGE_MARKER_PREFIX: "<!-- site-behavior-lab:production-health-required-lanes: "/);
+  assert.match(workflow, /covers_required_lanes\(\)/);
+  assert.match(workflow, /if covers_required_lanes "\$issue_required_lanes" "\$HEALTH_COVERAGE"; then/);
+  assert.match(workflow, /Production health issue kept open/);
+  // A failing shallow run must not shrink an open issue's requirement set.
+  assert.match(workflow, /required_lanes=\$\(printf/);
+});
+
+test("production health treats an in-flight rollout as pending, not as a production failure", () => {
+  // A promoted commit takes minutes of Cloudflare build time. Failing the
+  // monitor during that window files a public incident for an ordinary
+  // deploy, which is what happened on every promotion in the 2026-07-24 wave.
+  assert.match(workflow, /id: rollout/);
+  assert.match(workflow, /fetch-depth: 0/);
+  assert.match(workflow, /git merge-base --is-ancestor "\$scanner" HEAD/);
+  assert.match(workflow, /\[\[ -n "\$scanner" && "\$scanner" == "\$pages" \]\]/);
+  assert.match(workflow, /\(\( age_minutes < ROLLOUT_BUDGET_MINUTES \)\)/);
+  assert.match(workflow, /ROLLOUT_BUDGET_MINUTES: \$\{\{ vars\.PRODUCTION_ROLLOUT_BUDGET_MINUTES \|\| '45' \}\}/);
+  assert.match(workflow, /Production rollout in progress/);
+  // Past the budget, or on an unknown revision, it is still a hard failure.
+  assert.match(workflow, /::error title=Production rollout stale::/);
+  // Contract assertions describe the promoted revision, so they must not be
+  // evaluated against the one still being replaced.
+  const deferred = workflow.match(/if: steps\.rollout\.outputs\.pending != 'true'/g) ?? [];
+  assert.equal(deferred.length >= 3, true);
+});
+
+test("an unactivated operator canary is a disclosed gap, never a production incident", () => {
+  // The runbook requires a direct write/read/delete readback BEFORE
+  // PRODUCTION_R2_DELETE_CANARY_REQUIRED is set, so the un-set state is the
+  // documented starting position. Hard-failing on it made the :07 lane red
+  // every hour while production itself was healthy.
+  const activation = workflow.slice(
+    workflow.indexOf("- name: Resolve R2 delete-canary activation"),
+    workflow.indexOf("- name: Run isolated production R2 write/read/delete canary")
+  );
+  assert.match(activation, /if \[\[ "\$PRODUCTION_R2_DELETE_CANARY_REQUIRED" != "1" \]\]; then\n\s+echo "configured=false"/);
+  assert.match(activation, /::warning title=Operator R2 delete canary not activated::/);
+  assert.match(activation, /exit 0/);
+  // Once required, a missing credential is still a hard failure.
+  assert.match(activation, /::error title=Production R2 delete canary missing::/);
+});
+
+test("production health never cancels a delivered probe and never alerts on a cancelled run", () => {
+  assert.match(workflow, /group: production-health\n(?:\s*#[^\n]*\n)*\s+cancel-in-progress: false/);
+  assert.match(workflow, /if \[\[ "\$HEALTH_JOB_STATUS" == "cancelled" \]\]; then/);
+  assert.match(workflow, /echo "failed=cancelled" >> "\$GITHUB_OUTPUT"/);
+  assert.match(workflow, /if \[\[ "\$HEALTH_FAILED" == "cancelled" \]\]; then\n\s+echo "The run was cancelled; leaving the canonical issue untouched\."/);
+});

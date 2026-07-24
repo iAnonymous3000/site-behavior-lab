@@ -20,7 +20,11 @@ permissions:
 
 concurrency:
   group: production-health
-  cancel-in-progress: true
+  # Never cancel a delivered probe. The :07 lane owns the bounded synthetic and
+  # the R2 canary and is the slowest run of the hour, so cancel-in-progress
+  # would preferentially kill exactly the run that proves the most, and a
+  # cancelled run reaches the alert path as a production failure.
+  cancel-in-progress: false
 
 jobs:
   scanner:
@@ -35,7 +39,11 @@ jobs:
         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
         with:
           ref: production
-          fetch-depth: 1
+          # Full history so the rollout gate can prove that a live revision is
+          # a genuinely earlier promotion (`git merge-base --is-ancestor`)
+          # rather than an unknown or hand-rolled-back commit. `production` is
+          # only ever fast-forwarded, so every prior deployment is an ancestor.
+          fetch-depth: 0
 
       - name: Set up Node
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
@@ -111,11 +119,19 @@ jobs:
           NODE
 
       - name: Wait for exact scanner and Pages revisions
+        id: rollout
         env:
           HEALTH_URL: https://scan.sitebehavior.org/api/health
           PAGES_DEPLOYMENT_URL: https://sitebehavior.org/deployment.json
+          # A promoted commit is not deployed instantly: Cloudflare Pages and
+          # Workers Builds each run their own build. Within this budget, an
+          # older but already-promoted revision is a rollout in progress, not a
+          # production failure. Past it, the deploy is genuinely stuck and the
+          # monitor must say so.
+          ROLLOUT_BUDGET_MINUTES: ${{ vars.PRODUCTION_ROLLOUT_BUDGET_MINUTES || '45' }}
         run: |
           set -euo pipefail
+          echo "pending=false" >> "$GITHUB_OUTPUT"
           for attempt in {1..6}; do
             scanner=""
             pages=""
@@ -131,6 +147,23 @@ jobs:
               break
             fi
             if [[ "$attempt" == 6 ]]; then
+              # An in-flight rollout is provable, not assumed: both live
+              # revisions must be the SAME commit and that commit must be a
+              # real ancestor of the promoted head, so an unknown, forked, or
+              # hand-rolled-back revision still fails immediately.
+              promoted_at=$(git log -1 --format=%ct HEAD)
+              age_minutes=$(( ( $(date +%s) - promoted_at ) / 60 ))
+              if [[ -n "$scanner" && "$scanner" == "$pages" ]] &&
+                git merge-base --is-ancestor "$scanner" HEAD 2>/dev/null &&
+                (( age_minutes < ROLLOUT_BUDGET_MINUTES )); then
+                echo "pending=true" >> "$GITHUB_OUTPUT"
+                echo "::warning title=Production rollout in progress::production serves ${scanner}; ${EXPECTED_PRODUCTION_SHA} was promoted ${age_minutes}m ago and is still deploying (budget ${ROLLOUT_BUDGET_MINUTES}m)."
+                {
+                  echo "- Rollout: **in progress** (production serves \`${scanner}\`, promoted \`${EXPECTED_PRODUCTION_SHA}\` is ${age_minutes}m old)"
+                  echo "- Posture checks: **deferred** until the promoted revision is live"
+                } >> "$GITHUB_STEP_SUMMARY"
+                break
+              fi
               echo "::error title=Production rollout stale::expected $EXPECTED_PRODUCTION_SHA, scanner=${scanner:-unavailable}, Pages=${pages:-unavailable}"
               exit 1
             fi
@@ -139,6 +172,11 @@ jobs:
           done
 
       - name: Fetch live Pages report contract
+        # Every check below asserts the contract of the PROMOTED revision. While
+        # that revision is still deploying they would be asserted against the
+        # previous one, so they are deferred rather than evaluated against the
+        # wrong source.
+        if: steps.rollout.outputs.pending != 'true'
         env:
           SCHEMA_URL: https://sitebehavior.org/scan-report.schema.json
         run: |
@@ -153,6 +191,7 @@ jobs:
             "$SCHEMA_URL" > "$RUNNER_TEMP/production-scan-report-schema.json"
 
       - name: Probe visitor-facing ingress dependencies without submitting a scan
+        if: steps.rollout.outputs.pending != 'true'
         env:
           PUBLIC_INGRESS_URL: https://scan.sitebehavior.org/api/health/public-ingress
         run: |
@@ -167,6 +206,8 @@ jobs:
             "$PUBLIC_INGRESS_URL" > "$RUNNER_TEMP/production-public-ingress.json"
 
       - name: Validate availability and production posture
+        id: posture
+        if: steps.rollout.outputs.pending != 'true'
         env:
           HEALTH_FILE: ${{ runner.temp }}/production-health.json
           PAGES_DEPLOYMENT_FILE: ${{ runner.temp }}/production-pages-deployment.json
@@ -370,9 +411,10 @@ jobs:
       - name: Resolve synthetic-monitor activation
         id: synthetic_monitor
         if: >-
-          github.event_name == 'workflow_dispatch' ||
+          steps.rollout.outputs.pending != 'true' &&
+          (github.event_name == 'workflow_dispatch' ||
           github.event.schedule == '7 * * * *' ||
-          github.event.client_payload.synthetic == true
+          github.event.client_payload.synthetic == true)
         env:
           PRODUCTION_SYNTHETIC_MONITOR_TOKEN: ${{ secrets.PRODUCTION_SYNTHETIC_MONITOR_TOKEN }}
           PRODUCTION_SYNTHETIC_MONITOR_REQUIRED: ${{ vars.PRODUCTION_SYNTHETIC_MONITOR_REQUIRED }}
@@ -390,6 +432,7 @@ jobs:
           fi
 
       - name: Run production scan, R2 readback, and report-page synthetic
+        id: synthetic_run
         if: steps.synthetic_monitor.outputs.configured == 'true'
         env:
           SCAN_BASE_URL: https://scan.sitebehavior.org
@@ -403,18 +446,27 @@ jobs:
       - name: Resolve R2 delete-canary activation
         id: r2_delete_canary
         if: >-
-          github.event_name == 'workflow_dispatch' ||
+          steps.rollout.outputs.pending != 'true' &&
+          (github.event_name == 'workflow_dispatch' ||
           github.event.schedule == '7 * * * *' ||
-          github.event.client_payload.synthetic == true
+          github.event.client_payload.synthetic == true)
         env:
           PRODUCTION_R2_DELETE_CANARY_URL: ${{ vars.PRODUCTION_R2_DELETE_CANARY_URL }}
           PRODUCTION_R2_DELETE_CANARY_TOKEN: ${{ secrets.PRODUCTION_R2_DELETE_CANARY_TOKEN }}
           PRODUCTION_R2_DELETE_CANARY_REQUIRED: ${{ vars.PRODUCTION_R2_DELETE_CANARY_REQUIRED }}
         run: |
           set -euo pipefail
+          # Activation order mirrors the synthetic monitor above it, and the
+          # runbook: the dedicated canary Worker must pass a direct readback
+          # BEFORE PRODUCTION_R2_DELETE_CANARY_REQUIRED is set. An operator who
+          # has not reached that step has an un-activated canary, which is a
+          # disclosed gap, not a production incident. Once required, a missing
+          # or broken credential IS a failure.
           if [[ "$PRODUCTION_R2_DELETE_CANARY_REQUIRED" != "1" ]]; then
-            echo "::error title=Production R2 delete canary not required::Set PRODUCTION_R2_DELETE_CANARY_REQUIRED=1 only after the dedicated canary has passed direct readback."
-            exit 1
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+            echo "::warning title=Operator R2 delete canary not activated::Deploy the dedicated canary Worker, verify a direct write/read/delete readback, then set PRODUCTION_R2_DELETE_CANARY_REQUIRED=1."
+            echo "- R2 write/read/delete canary: **not activated** (operator configuration is incomplete)" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
           fi
           if [[ -z "$PRODUCTION_R2_DELETE_CANARY_URL" || -z "$PRODUCTION_R2_DELETE_CANARY_TOKEN" ]]; then
             echo "::error title=Production R2 delete canary missing::The required dedicated Worker URL and token must both be configured."
@@ -423,6 +475,7 @@ jobs:
           echo "configured=true" >> "$GITHUB_OUTPUT"
 
       - name: Run isolated production R2 write/read/delete canary
+        id: r2_delete_canary_run
         if: steps.r2_delete_canary.outputs.configured == 'true'
         env:
           PRODUCTION_R2_DELETE_CANARY_URL: ${{ vars.PRODUCTION_R2_DELETE_CANARY_URL }}
@@ -438,12 +491,35 @@ jobs:
         env:
           HEALTH_JOB_STATUS: ${{ job.status }}
           HEALTH_REPORT_FILE: ${{ runner.temp }}/production-health-alert.md
+          ROLLOUT_PENDING: ${{ steps.rollout.outputs.pending }}
+          POSTURE_OUTCOME: ${{ steps.posture.outcome }}
+          SYNTHETIC_OUTCOME: ${{ steps.synthetic_run.outcome }}
+          R2_DELETE_CANARY_OUTCOME: ${{ steps.r2_delete_canary_run.outcome }}
         run: |
           set -euo pipefail
+          # Which lanes this invocation actually EXECUTED. Only these may be
+          # claimed as proven, and only an issue whose recorded lanes are all
+          # covered here may be closed. A skipped step reports "skipped"; a
+          # step that never ran at all reports the empty string.
+          lanes=()
+          [[ "$POSTURE_OUTCOME" == "success" || "$POSTURE_OUTCOME" == "failure" ]] && lanes+=("posture")
+          [[ "$SYNTHETIC_OUTCOME" == "success" || "$SYNTHETIC_OUTCOME" == "failure" ]] && lanes+=("synthetic")
+          [[ "$R2_DELETE_CANARY_OUTCOME" == "success" || "$R2_DELETE_CANARY_OUTCOME" == "failure" ]] && lanes+=("r2-delete")
+          [[ "$ROLLOUT_PENDING" == "true" ]] && lanes+=("rollout-pending")
+          coverage="$(IFS=,; echo "${lanes[*]:-none}")"
+          echo "coverage=${coverage}" >> "$GITHUB_OUTPUT"
+
+          if [[ "$HEALTH_JOB_STATUS" == "cancelled" ]]; then
+            # A cancelled run measured nothing. Reporting it as a production
+            # failure would file an incident for an infrastructure event.
+            echo "failed=cancelled" >> "$GITHUB_OUTPUT"
+            echo "::warning title=Production health run cancelled::No production claim was measured; the canonical issue is left unchanged."
+            exit 0
+          fi
           if [[ "$HEALTH_JOB_STATUS" == "success" ]]; then
             failed=false
             outcome=completed
-            summary="The delivered production posture checks, visitor-ingress preflight, and any activated operator canaries completed successfully."
+            summary="Every production check this run executed completed successfully."
           else
             failed=true
             outcome=failed
@@ -457,6 +533,7 @@ jobs:
             "$summary" \
             '' \
             "- Outcome: **${outcome}**" \
+            "- Checks executed: **${coverage}**" \
             "- Workflow run: [run ${GITHUB_RUN_ID}, attempt ${GITHUB_RUN_ATTEMPT}](${run_url})" \
             '' \
             'The issue intentionally contains only aggregate status; inspect the linked private workflow logs for bounded diagnostics.' \
@@ -472,8 +549,14 @@ jobs:
           MANAGED_ISSUE_LABEL: site-behavior-lab-production-health
           HEALTH_REPORT_FILE: ${{ runner.temp }}/production-health-alert.md
           HEALTH_FAILED: ${{ steps.production_health_alert.outputs.failed }}
+          HEALTH_COVERAGE: ${{ steps.production_health_alert.outputs.coverage }}
+          COVERAGE_MARKER_PREFIX: "<!-- site-behavior-lab:production-health-required-lanes: "
         run: |
           set -euo pipefail
+          if [[ "$HEALTH_FAILED" == "cancelled" ]]; then
+            echo "The run was cancelled; leaving the canonical issue untouched."
+            exit 0
+          fi
           if ! gh api --silent "repos/${GITHUB_REPOSITORY}/labels/${MANAGED_ISSUE_LABEL}"; then
             gh api --silent --method POST "repos/${GITHUB_REPOSITORY}/labels" \
               -f "name=${MANAGED_ISSUE_LABEL}" \
@@ -514,20 +597,55 @@ jobs:
               }
               const selected = managed[0] ?? legacy[0];
               if (selected) {
-                process.stdout.write(`${selected.issue.number}|${selected.issue.state}|${legacy.length === 1 ? "true" : "false"}`);
+                // Lanes the open issue is waiting on. Absent on a legacy or
+                // pre-upgrade body, which then requires no specific lane.
+                const prefix = process.env.COVERAGE_MARKER_PREFIX;
+                const line = selected.issue.body
+                  .split("\n")
+                  .map((value) => value.trim())
+                  .find((value) => value.startsWith(prefix));
+                const required = line ? line.slice(prefix.length).replace(/-->$/, "").trim() : "";
+                process.stdout.write(
+                  `${selected.issue.number}|${selected.issue.state}|${legacy.length === 1 ? "true" : "false"}|${required}`
+                );
               }
             });
           ')
-          IFS='|' read -r issue_number issue_state issue_needs_label <<< "$match"
+          IFS='|' read -r issue_number issue_state issue_needs_label issue_required_lanes <<< "$match"
           if [[ -z "$match" ]]; then
             issue_number=""
             issue_state=""
             issue_needs_label="false"
+            issue_required_lanes=""
           elif [[ "$issue_needs_label" == "true" ]]; then
             gh issue edit "$issue_number" --repo "$GITHUB_REPOSITORY" --add-label "$MANAGED_ISSUE_LABEL"
           fi
 
+          covers_required_lanes() {
+            # Every lane the open issue is waiting on must have been executed by
+            # THIS run. Three of the four hourly runs never execute the deep
+            # lanes, so without this a shallow pass would retract a synthetic or
+            # canary alarm it never re-measured.
+            local required="$1" executed="$2" lane
+            [[ -z "$required" ]] && return 0
+            IFS=',' read -ra required_lanes <<< "$required"
+            for lane in "${required_lanes[@]}"; do
+              [[ -z "$lane" || "$lane" == "none" || "$lane" == "rollout-pending" ]] && continue
+              [[ ",${executed}," == *",${lane},"* ]] || return 1
+            done
+            return 0
+          }
+
           if [[ "$HEALTH_FAILED" == "true" ]]; then
+            # A failing run must not shrink what an open issue is waiting on:
+            # a shallow failure that superseded a deep one would otherwise let
+            # the next shallow pass close an unproven deep lane.
+            required_lanes="$HEALTH_COVERAGE"
+            if [[ "$issue_state" == "open" && -n "$issue_required_lanes" ]]; then
+              required_lanes=$(printf '%s\n%s\n' "${issue_required_lanes//,/$'\n'}" "${HEALTH_COVERAGE//,/$'\n'}" |
+                grep -v '^$' | grep -v '^none$' | sort -u | paste -sd, -)
+            fi
+            printf '\n%s%s -->\n' "$COVERAGE_MARKER_PREFIX" "${required_lanes:-none}" >> "$HEALTH_REPORT_FILE"
             if [[ -z "$issue_number" ]]; then
               gh issue create --repo "$GITHUB_REPOSITORY" --title "$ISSUE_TITLE" --body-file "$HEALTH_REPORT_FILE" --label "$MANAGED_ISSUE_LABEL"
             else
@@ -538,8 +656,13 @@ jobs:
             fi
           elif [[ "$HEALTH_FAILED" == "false" ]]; then
             if [[ -n "$issue_number" && "$issue_state" == "open" ]]; then
-              gh issue edit "$issue_number" --repo "$GITHUB_REPOSITORY" --title "$ISSUE_TITLE" --body-file "$HEALTH_REPORT_FILE"
-              gh issue close "$issue_number" --repo "$GITHUB_REPOSITORY" --reason completed --comment "The production health monitor recovered."
+              if covers_required_lanes "$issue_required_lanes" "$HEALTH_COVERAGE"; then
+                gh issue edit "$issue_number" --repo "$GITHUB_REPOSITORY" --title "$ISSUE_TITLE" --body-file "$HEALTH_REPORT_FILE"
+                gh issue close "$issue_number" --repo "$GITHUB_REPOSITORY" --reason completed --comment "The production health monitor recovered; this run re-ran every check the issue was waiting on (${HEALTH_COVERAGE})."
+              else
+                echo "::notice title=Production health issue kept open::this run executed ${HEALTH_COVERAGE} but the open issue is waiting on ${issue_required_lanes}."
+                echo "- Canonical issue: **kept open** (waiting on ${issue_required_lanes}, this run executed ${HEALTH_COVERAGE})" >> "$GITHUB_STEP_SUMMARY"
+              fi
             fi
           else
             echo "::error title=Invalid production health status::The alert preparer returned an invalid failure status."
