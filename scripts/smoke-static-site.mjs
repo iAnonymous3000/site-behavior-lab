@@ -1128,6 +1128,20 @@ async function assertNoHorizontalOverflow(page, label) {
     };
     const leaves = overflowing.filter((element) => ![...element.children].some((child) => overflowingSet.has(child)));
     const offenders = [...new Set([...leaves, ...overflowing])].slice(0, 6).map(describe);
+    // Ancestor chain of the first leaf: an offender wider than every ancestor
+    // implicates a sizing rule (or transform) between it and the page shell.
+    const ancestry = [];
+    for (let node = leaves[0]?.parentElement; node && node !== document.documentElement && ancestry.length < 8; node = node.parentElement) {
+      const bounds = node.getBoundingClientRect();
+      const style = getComputedStyle(node);
+      const className = typeof node.className === "string" && node.className.trim()
+        ? `.${node.className.trim().split(/\s+/).join(".")}`
+        : "";
+      ancestry.push(
+        `${node.tagName.toLowerCase()}${className} w=${Math.round(bounds.width * 10) / 10} ` +
+          `pad=${style.paddingLeft}/${style.paddingRight} disp=${style.display} cols=${style.gridTemplateColumns.slice(0, 40)}`
+      );
+    }
     // Layout-context probes: whether the mobile collapse actually applied,
     // and whether every stylesheet is present and readable when it did not.
     const workbench = document.querySelector(".scan-workbench");
@@ -1148,6 +1162,7 @@ async function assertNoHorizontalOverflow(page, label) {
       clientWidth,
       dpr: window.devicePixelRatio,
       offenders,
+      ancestry,
       workbenchColumns,
       narrowMediaMatches,
       sheets: document.styleSheets.length,
@@ -1169,7 +1184,7 @@ async function assertNoHorizontalOverflow(page, label) {
       `scroll=${measurement.scrollWidth}, dpr=${measurement.dpr}, ` +
       `workbench=${JSON.stringify(measurement.workbenchColumns)}, mq1100=${measurement.narrowMediaMatches}, ` +
       `sheets=${measurement.sheets}, rules=${measurement.ruleCount}, unreadable=${measurement.unreadableSheets}` +
-      `${details ? `; ${details}` : ""})`
+      `${details ? `; ${details}` : ""}; ancestry: ${measurement.ancestry.join(" | ")})`
   );
 }
 
