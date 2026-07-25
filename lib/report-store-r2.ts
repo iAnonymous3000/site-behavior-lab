@@ -972,7 +972,29 @@ function extractSingleTag(xml: string, tag: string, trim: boolean): string | nul
   return values.length === 1 ? values[0] : null;
 }
 
+/**
+ * The upstream HTTP status is carried on the error VALUE, not only inside its
+ * message. classifyReportStoreFailure reads `status` deliberately, because a
+ * message regex would have to parse the very text the public health projection
+ * exists to keep off the wire. A bare Error left every R2 HTTP failure
+ * classified "unknown", so the unauthorized, unreachable, and
+ * malformed-response tokens were unreachable for the only backend that
+ * produces HTTP failures at all.
+ */
+export class ReportStoreHttpError extends Error {
+  constructor(
+    message: string,
+    readonly status: number
+  ) {
+    super(message);
+    this.name = "ReportStoreHttpError";
+  }
+}
+
 function assertOk(response: Response, body: string, action: string): void {
   if (response.ok) return;
-  throw new Error(`Failed to ${action} (HTTP ${response.status}). ${body.slice(0, 200)}`.trim());
+  throw new ReportStoreHttpError(
+    `Failed to ${action} (HTTP ${response.status}). ${body.slice(0, 200)}`.trim(),
+    response.status
+  );
 }

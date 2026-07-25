@@ -150,10 +150,17 @@ export async function runtimeStatus(
     );
   }
   if (!store.public.retentionHealthy) {
+    // A maintenance pass that threw forces healthy:false while the debt ledger
+    // may still re-read clean, which produced "requires maintenance (0 durable
+    // deletion debt marker(s))": a demand for maintenance justified by a count
+    // that says there is none. Zero measured debt beside an unhealthy verdict
+    // means the pass did not complete, not that debt was found.
     warnings.push(
       store.public.retentionDebtCount === null
         ? "Physical report-retention state could not be verified; publication is disabled."
-        : `Physical report retention requires maintenance (${store.public.retentionDebtCount} durable deletion debt marker(s)).`
+        : store.public.retentionDebtCount > 0
+          ? `Physical report retention requires maintenance (${store.public.retentionDebtCount} durable deletion debt marker(s)).`
+          : "Physical report retention could not be confirmed; the maintenance pass did not complete."
     );
   }
   if (!adblock.active) {

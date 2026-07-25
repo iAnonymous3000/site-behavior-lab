@@ -3,6 +3,7 @@ import { test } from "node:test";
 import { classifyReportStoreFailure } from "./report-store-failure-reason";
 import {
   ReportStoreConfigError,
+  ReportStoreHttpError,
   ReportStoreListBoundsError,
   ReportStoreRequestTimeoutError,
   ReportStoreResponseInvalidUtf8Error,
@@ -30,6 +31,16 @@ test("upstream status codes and filesystem errnos classify without reading the m
   assert.equal(classifyReportStoreFailure(Object.assign(new Error(secretish), { status: 503 })), "unreachable");
   assert.equal(classifyReportStoreFailure(Object.assign(new Error(secretish), { status: 429 })), "unreachable");
   assert.equal(classifyReportStoreFailure(Object.assign(new Error(secretish), { status: 404 })), "malformed-response");
+  // Classify the error the R2 backend actually throws, not only a hand-made
+  // stand-in carrying a status. assertOk threw a bare Error, so every real R2
+  // HTTP failure classified "unknown" and these three tokens were unreachable
+  // for the only backend that produces HTTP failures.
+  assert.equal(classifyReportStoreFailure(new ReportStoreHttpError(secretish, 403)), "unauthorized");
+  assert.equal(classifyReportStoreFailure(new ReportStoreHttpError(secretish, 401)), "unauthorized");
+  assert.equal(classifyReportStoreFailure(new ReportStoreHttpError(secretish, 503)), "unreachable");
+  assert.equal(classifyReportStoreFailure(new ReportStoreHttpError(secretish, 429)), "unreachable");
+  assert.equal(classifyReportStoreFailure(new ReportStoreHttpError(secretish, 408)), "unreachable");
+  assert.equal(classifyReportStoreFailure(new ReportStoreHttpError(secretish, 404)), "malformed-response");
   assert.equal(classifyReportStoreFailure(Object.assign(new Error(secretish), { code: "ENOENT" })), "misconfigured");
   assert.equal(classifyReportStoreFailure(Object.assign(new Error(secretish), { code: "EACCES" })), "misconfigured");
   assert.equal(classifyReportStoreFailure(Object.assign(new Error(secretish), { code: "ECONNREFUSED" })), "unreachable");

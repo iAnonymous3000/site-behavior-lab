@@ -7,7 +7,12 @@ import {
   NODE_SCANNER_METHODOLOGY_VERSION,
   NODE_SHIELDS_REQUEST_CONTEXT_VERSION
 } from "./legacy-methodology";
-import { redactScanReportV1, redactScanResultV1 } from "./redact-scan-report-v1";
+import {
+  assertKnownPixelEventVocabulary,
+  redactPixelEvents,
+  redactScanReportV1,
+  redactScanResultV1
+} from "./redact-scan-report-v1";
 import { scannerDisclosure } from "./scan-condition-disclosure";
 import { aggregateByteBudgetWarning, INVALID_UPSTREAM_RESPONSE_WARNING } from "./scan-runtime";
 import { readStoredScanReport } from "./scan-report-reader";
@@ -441,4 +446,34 @@ test("both CNAME disclosure generations survive redaction; look-alike page text 
 
   const { report } = redactScanResultV1(input);
   assert.deepEqual(report.warnings, [...input.warnings.slice(0, 3), "[redacted warning]"]);
+});
+
+test("an inherited Object.prototype key cannot pass the pixel catalog's fail-closed guard", () => {
+  // PIXEL_PRODUCTS[platform] on a plain object literal resolves inherited
+  // members, so "constructor" returned a truthy Function, walked past the
+  // `if (!catalog) continue` guard, and then threw on catalog.events. The
+  // scanner only emits literal platform names, but imported and uploaded
+  // reports carry values that are not ours.
+  for (const platform of ["constructor", "toString", "__proto__", "valueOf", "hasOwnProperty"]) {
+    assert.deepEqual(
+      redactPixelEvents([{ platform, product: "x", events: ["SecretEventName"], advancedMatching: [], requests: 1 }]),
+      [],
+      `${platform} must be dropped, not thrown on`
+    );
+    assert.throws(() =>
+      assertKnownPixelEventVocabulary({
+        platform,
+        product: "x",
+        events: [],
+        advancedMatching: [],
+        requests: 1
+      })
+    );
+  }
+  // A real platform still round-trips.
+  assert.equal(
+    redactPixelEvents([{ platform: "Meta", product: "Meta Pixel", events: ["PageView"], advancedMatching: [], requests: 1 }])
+      .length,
+    1
+  );
 });

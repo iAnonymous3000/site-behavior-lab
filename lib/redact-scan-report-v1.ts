@@ -184,6 +184,21 @@ const CURATED_TRACKER_MATCHES = (JSON.parse(canonicalTrackerCatalogContents()) a
     return match === null ? [] : [match];
   });
 
+/**
+ * Own-property lookup only. `PIXEL_PRODUCTS[platform]` on a plain object
+ * literal resolves inherited Object.prototype members, so a platform value of
+ * "constructor", "toString", or "valueOf" returned a truthy Function and
+ * walked straight past the `if (!catalog) continue` fail-closed guard, then
+ * threw on `catalog.events`. The scanner only ever emits literal platform
+ * names, but this function is also reachable from imported and uploaded
+ * reports, where the value is not ours.
+ */
+function pixelCatalogFor(platform: string): (typeof PIXEL_PRODUCTS)[keyof typeof PIXEL_PRODUCTS] | null {
+  return Object.hasOwn(PIXEL_PRODUCTS, platform)
+    ? PIXEL_PRODUCTS[platform as keyof typeof PIXEL_PRODUCTS]
+    : null;
+}
+
 const PIXEL_PRODUCTS = {
   Meta: {
     product: "Meta Pixel",
@@ -1014,7 +1029,7 @@ function redactPageGraphInitiatorType(value: string): string {
  * vocabulary cannot disappear while its detector still claims completeness.
  */
 export function assertKnownPixelEventVocabulary(event: PixelEventSummary): void {
-  const catalog = PIXEL_PRODUCTS[event.platform as keyof typeof PIXEL_PRODUCTS];
+  const catalog = pixelCatalogFor(event.platform);
   if (!catalog || event.product !== catalog.product) {
     throw new Error("Unknown pixel platform or product vocabulary.");
   }
@@ -1030,7 +1045,7 @@ export function redactPixelEvents(events: PixelEventSummary[]): PixelEventSummar
   const redacted: PixelEventSummary[] = [];
 
   for (const event of events) {
-    const catalog = PIXEL_PRODUCTS[event.platform as keyof typeof PIXEL_PRODUCTS];
+    const catalog = pixelCatalogFor(event.platform);
     if (!catalog) continue;
     const allowedEvents = catalog.events as ReadonlySet<string>;
     const sanitizedEvents = Array.from(

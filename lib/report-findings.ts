@@ -897,6 +897,42 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
   // "Quiet" here means nothing warn-or-louder surfaced; the hedged absence
   // cards themselves sit at "info" on a censored run and must not read as
   // review-worthy signals.
+  // Built BEFORE the bottom line so its level is part of overallLevel. While
+  // it was spliced in afterwards, a warn-level Shields card could never raise
+  // the bottom line, so a visit with ten or more matched requests could still
+  // headline "few review signals".
+  const shieldsMeasurement = shieldsRunMeasurement(run);
+  if (shieldsMeasurement) {
+    const blocked = shieldsMeasurement.count;
+    const simulated = shieldsMeasurement.kind === "engine-blocked";
+    findings.unshift({
+      id: "shields-blocked",
+      icon: "shield-check",
+      level: blocked === 0 ? "ok" : blocked >= 10 ? "warn" : "info",
+      title:
+        blocked > 0
+          ? simulated
+            ? `Brave's blocking engine stopped ${blocked.toLocaleString("en-US")} requests in this visit`
+            : `${blocked.toLocaleString("en-US")} of ${run.counts.totalRequests.toLocaleString("en-US")} requests matched Brave Shields filter lists`
+          : simulated
+            ? "Brave's blocking engine stopped nothing in this visit"
+            : "No requests matched Brave Shields filter lists",
+      lead:
+        blocked > 0
+          ? simulated
+            ? `Brave's ad-block engine running Shields' default filter lists stopped ${plural(blocked, "request")} from loading, a block simulation in this scanner's browser, not a live Brave-browser visit.`
+            : `${plural(blocked, "request")} matched the default filter lists of Brave Shields, the ad and tracker blocker built into the Brave browser, while loading normally.`
+          : "No requests matched the default filter lists of Brave Shields, the ad and tracker blocker built into the Brave browser.",
+      detail: simulated
+        ? "Measured with Brave's own ad-block engine and default filter lists actively blocking (network requests only, so no cosmetic or CNAME-based blocking). Blocked requests are not in this run's totals, and requests a blocked script would have made never started."
+        : "Computed with Brave's own ad-block engine and default filter lists in classification mode: matched requests were not blocked by the scanner and remain in this report's observed request counts. Matching shows what Shields would target on this visit's traffic; an actual Shields visit blocks these and also prevents their follow-on requests, so this number is neither a measured block count nor the total effect.",
+      // The catalog count is run-wide: it is a separate labeling layer, not a
+      // proven subset of the Shields-matched requests, so the sentence must
+      // not chain the two sets together.
+      evidence: `The hand-curated service catalog separately labels ${plural(run.counts.knownTrackerRequests, "request")} in this visit.`
+    });
+  }
+
   const censorshipNotes = runCensorshipNotes(run);
   const unsupportedFamilies = unsupportedEvidenceFamilies(run);
   // Methodology cards (an ineligible pair) are about this report, not the
@@ -939,38 +975,6 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
         : "The cards below translate the evidence into plain language; severity reflects fixed reference thresholds, not measured population percentiles. The request log, domain table, and methodology remain below for verification.",
     evidence: `${plural(run.counts.totalRequests, "request")} observed in one controlled visit.`
   });
-
-  const shieldsMeasurement = shieldsRunMeasurement(run);
-  if (shieldsMeasurement) {
-    const blocked = shieldsMeasurement.count;
-    const simulated = shieldsMeasurement.kind === "engine-blocked";
-    findings.splice(1, 0, {
-      id: "shields-blocked",
-      icon: "shield-check",
-      level: blocked === 0 ? "ok" : blocked >= 10 ? "warn" : "info",
-      title:
-        blocked > 0
-          ? simulated
-            ? `Brave's blocking engine stopped ${blocked.toLocaleString("en-US")} requests in this visit`
-            : `${blocked.toLocaleString("en-US")} of ${run.counts.totalRequests.toLocaleString("en-US")} requests matched Brave Shields filter lists`
-          : simulated
-            ? "Brave's blocking engine stopped nothing in this visit"
-            : "No requests matched Brave Shields filter lists",
-      lead:
-        blocked > 0
-          ? simulated
-            ? `Brave's ad-block engine running Shields' default filter lists stopped ${plural(blocked, "request")} from loading, a block simulation in this scanner's browser, not a live Brave-browser visit.`
-            : `${plural(blocked, "request")} matched the default filter lists of Brave Shields, the ad and tracker blocker built into the Brave browser, while loading normally.`
-          : "No requests matched the default filter lists of Brave Shields, the ad and tracker blocker built into the Brave browser.",
-      detail: simulated
-        ? "Measured with Brave's own ad-block engine and default filter lists actively blocking (network requests only, so no cosmetic or CNAME-based blocking). Blocked requests are not in this run's totals, and requests a blocked script would have made never started."
-        : "Computed with Brave's own ad-block engine and default filter lists in classification mode: matched requests were not blocked by the scanner and remain in this report's observed request counts. Matching shows what Shields would target on this visit's traffic; an actual Shields visit blocks these and also prevents their follow-on requests, so this number is neither a measured block count nor the total effect.",
-      // The catalog count is run-wide: it is a separate labeling layer, not a
-      // proven subset of the Shields-matched requests, so the sentence must
-      // not chain the two sets together.
-      evidence: `The hand-curated service catalog separately labels ${plural(run.counts.knownTrackerRequests, "request")} in this visit.`
-    });
-  }
 
   // Emit every finding. The conditionals above bound this to at most ~9 cards,
   // all of them meaningful; a fixed cap here silently dropped the last-pushed

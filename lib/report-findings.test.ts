@@ -1330,3 +1330,22 @@ test("a fingerprint observer that never read a frame cannot publish a clean abse
     true
   );
 });
+
+test("a warn-level Shields card raises the bottom line instead of being outranked by it", () => {
+  // The Shields card used to be spliced in after overallLevel was computed, so
+  // a visit with ten or more matched requests could still headline "few review
+  // signals" while a warn card sat directly beneath it.
+  const result = makeResult({ totalRequests: 40 });
+  result.summary.shieldsBlockedRequests = 12;
+  result.conditions.adblock = { active: true, engine: "loaded" } as never;
+
+  const findings = buildFindings(viewFromV1Report(result), null);
+  const shields = byId(findings, "shields-blocked");
+  assert.equal(shields.level, "warn");
+  const bottomLine = byId(findings, "bottom-line");
+  assert.equal(bottomLine.level, "warn");
+  assert.match(bottomLine.title, /review-worthy signals/);
+  // The Shields card still renders immediately under the bottom line.
+  assert.equal(findings[0].id, "bottom-line");
+  assert.equal(findings[1].id, "shields-blocked");
+});

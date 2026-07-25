@@ -109,6 +109,46 @@ test("every valid r2 fixture passes structural validation and has zero semantic 
   }
 });
 
+test("a post-boundary Shields straggler is retained without failing the build", () => {
+  // requestsMatched is frozen at the passive-load settle boundary, but the
+  // passive phase stays open until the next phase begins, so a filter-list
+  // match that lands after the snapshot is legitimately retained, flagged, and
+  // deliberately uncounted. An exact-equality rule turned that ordinary
+  // straggler into a thrown build and failed a healthy user-facing scan.
+  const report = makeShieldsInterventionReportV2R2();
+  const arm = report.variant;
+  const shields = arm.verificationFacts!.shields!;
+  if (arm.conditions.shields !== "classification") return;
+  const straggler = {
+    ...arm.evidence.requests[0],
+    id: arm.evidence.requests.length + 1,
+    phaseId: shields.phaseId,
+    blockedByShields: true
+  };
+  arm.evidence.requests.push(straggler);
+  assert.equal(isPublicScanReportV2R2(report), true);
+  assert.deepEqual(
+    violationsOf(report).filter((entry) => entry.includes("blockedByShields")),
+    []
+  );
+
+  // The reverse direction is still evidence loss and must still be refused: a
+  // counted match with no retained flag means a flag went missing.
+  const missing = makeShieldsInterventionReportV2R2();
+  const missingArm = missing.variant;
+  if (missingArm.conditions.shields !== "classification") return;
+  missingArm.verificationFacts!.shields!.requestsMatched =
+    missingArm.evidence.requests.filter(
+      (request) =>
+        request.phaseId === missingArm.verificationFacts!.shields!.phaseId &&
+        request.blockedByShields === true
+    ).length + 1;
+  assert.equal(
+    violationsOf(missing).some((entry) => entry.includes("fewer than shields requestsMatched")),
+    true
+  );
+});
+
 test("frozen-r2 HTTP status limitation markers are structurally valid and semantically closed", () => {
   const navigation = makePublicSingleReportV2R2();
   navigation.run.qualityFacts.status = null;

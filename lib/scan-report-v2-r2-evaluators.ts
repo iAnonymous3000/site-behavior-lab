@@ -451,8 +451,15 @@ function factsViolationsR2(run: ScanRunV2R2, label: string): string[] {
     if (run.conditions.shields === "block-simulation" && flagged !== 0) {
       violations.push(`${label}: a block-simulation run retains blockedByShields flags in evidence`);
     }
-    if (run.conditions.shields === "classification" && flagged !== shields.requestsMatched) {
-      violations.push(`${label}: retained blockedByShields flags disagree with shields requestsMatched`);
+    // `requestsMatched` is frozen at the passive-load settle boundary, but the
+    // passive phase stays open until the next phase begins, so a filter-list
+    // match that lands after that snapshot is legitimately retained, flagged,
+    // and deliberately uncounted. Demanding exact equality turned that ordinary
+    // straggler into a thrown build and failed an otherwise healthy scan on the
+    // user-facing r2 path. Only the reverse direction is evidence loss: a
+    // counted match with no retained flag means a flag went missing.
+    if (run.conditions.shields === "classification" && flagged < shields.requestsMatched) {
+      violations.push(`${label}: retained blockedByShields flags are fewer than shields requestsMatched`);
     }
     const summaryBlocked = run.summary.counts.shieldsBlockedRequests;
     if (!shields.engineLoaded) {
