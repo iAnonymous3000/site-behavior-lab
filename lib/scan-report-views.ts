@@ -16,6 +16,9 @@ import {
 } from "./comparison-decision";
 import {
   runHitFingerprintObserverCaptureLoss,
+  runHitGpcWorkerCaptureLoss,
+  runHitInvalidUpstreamResponseCaptureLoss,
+  runHitProxyTrafficBudget,
   runHitRequestCap,
   runHitResponseByteCap,
   runHitUploadByteCap
@@ -555,6 +558,14 @@ function runViewFromV1(result: ScanResult, label: RunView["label"], scannedAt: s
   if (runHitRequestCap(result)) reasons.push("budget-exhausted:request-cap");
   if (runHitResponseByteCap(result)) reasons.push("budget-exhausted:response-byte-cap");
   if (runHitUploadByteCap(result)) reasons.push("budget-exhausted:upload-byte-cap");
+  // The three request-family losses runRequestEvidenceCapped also recognizes.
+  // Omitting them here made the same wire disagree with itself: the corpus and
+  // export paths treated the run's request evidence as incomplete while the
+  // rendered view derived a clean quality block and published the counts
+  // without a hedge.
+  if (runHitGpcWorkerCaptureLoss(result)) reasons.push("capture-loss:gpc-worker");
+  if (runHitInvalidUpstreamResponseCaptureLoss(result)) reasons.push("capture-loss:invalid-upstream-response");
+  if (runHitProxyTrafficBudget(result)) reasons.push("budget-exhausted:proxy-traffic");
   // Not a budget: the instrument itself did not run. Scoped to the families it
   // actually covers rather than censoring the whole run.
   if (runHitFingerprintObserverCaptureLoss(result)) reasons.push("capture-loss:fingerprint-observer");
@@ -1029,8 +1040,14 @@ const QUALITY_REASON_NOTES: Record<string, string> = {
     "the visit hit the scanner's total response-byte budget, so it stopped loading further content",
   "budget-exhausted:upload-byte-cap":
     "the visit hit the scanner's total request-byte budget, so it stopped forwarding further uploads",
+  "budget-exhausted:proxy-traffic":
+    "the visit hit the scan proxy's traffic budget, so it stopped forwarding further traffic",
   "capture-loss:fingerprint-observer":
-    "the in-page fingerprint observer could not read every frame, so the fingerprinting evidence is incomplete"
+    "the in-page fingerprint observer could not read every frame, so the fingerprinting evidence is incomplete",
+  "capture-loss:gpc-worker":
+    "the Worker instrumentation could not record every request, so the request evidence is incomplete",
+  "capture-loss:invalid-upstream-response":
+    "the scan proxy rejected one or more invalid upstream responses, so the request evidence is incomplete"
 };
 
 /**
@@ -1139,9 +1156,19 @@ export function familyCensoredOnRun(run: RunView, family: string): boolean {
   // A capture loss is narrower than an exhausted budget: it names the one
   // instrument that failed, so it censors only the families that instrument
   // feeds. A dead fingerprint observer says nothing about the request log.
-  return (
+  if (
     (family === "fingerprinting" || family === "detector-output") &&
     run.quality.reasons.includes("capture-loss:fingerprint-observer")
+  ) {
+    return true;
+  }
+  // Worker instrumentation loss and a rejected upstream response both drop
+  // recorded requests and nothing else, which is why runRequestEvidenceCapped
+  // counts them. They belong to the request family here for the same reason.
+  return (
+    family === "requests" &&
+    (run.quality.reasons.includes("capture-loss:gpc-worker") ||
+      run.quality.reasons.includes("capture-loss:invalid-upstream-response"))
   );
 }
 

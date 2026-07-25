@@ -27,6 +27,22 @@ test("mapRequestType maps Playwright resource types to adblock request types", (
   assert.equal(mapRequestType("websocket"), "websocket");
 });
 
+test("a frame navigation is typed subdocument, which is a different filter option", () => {
+  // Playwright reports `document` for a navigation in any frame, but
+  // adblock-rust separates the top-level `document` from a nested
+  // `subdocument`. Typing every iframe load as `document` evaluated
+  // $document and $subdocument rules against the wrong type on any site with a
+  // third-party frame, which moves the published Shields counts.
+  assert.equal(mapRequestType("document"), "document");
+  assert.equal(mapRequestType("document", { subFrame: false }), "document");
+  assert.equal(mapRequestType("document", { subFrame: true }), "subdocument");
+  // The flag only reclassifies navigations; a subresource loaded from inside a
+  // frame keeps its own type.
+  assert.equal(mapRequestType("script", { subFrame: true }), "script");
+  assert.equal(mapRequestType("image", { subFrame: true }), "image");
+  assert.equal(mapRequestType("totally-unknown", { subFrame: true }), "other");
+});
+
 test("mapRequestType falls back to 'other' for unknown or non-network types", () => {
   assert.equal(mapRequestType("eventsource"), "other");
   assert.equal(mapRequestType("manifest"), "other");

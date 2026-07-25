@@ -55,8 +55,17 @@ const REQUEST_TYPE_MAP: Record<string, string> = {
   other: "other"
 };
 
-export function mapRequestType(resourceType: string): string {
-  return REQUEST_TYPE_MAP[resourceType] ?? "other";
+/**
+ * Playwright reports `document` for a navigation in ANY frame, while
+ * adblock-rust separates the top-level `document` from a nested `subdocument`.
+ * Collapsing both to `document` evaluated `$document` and `$subdocument` filter
+ * options against the wrong request type on every site that loads a
+ * third-party iframe, which moves the published Shields matched and blocked
+ * counts. Callers that can see the frame pass `subFrame`.
+ */
+export function mapRequestType(resourceType: string, options?: { subFrame?: boolean }): string {
+  const mapped = REQUEST_TYPE_MAP[resourceType] ?? "other";
+  return mapped === "document" && options?.subFrame === true ? "subdocument" : mapped;
 }
 
 // webpack (the Next server bundle) replaces __non_webpack_require__ with Node's

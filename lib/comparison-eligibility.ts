@@ -356,15 +356,15 @@ export function runHitUploadByteCap(run: ScanResult): boolean {
   return run.warnings.some((warning) => warning.includes(UPLOAD_BYTE_CAP_WARNING_FRAGMENT));
 }
 
-function runHitGpcWorkerCaptureLoss(run: ScanResult): boolean {
+export function runHitGpcWorkerCaptureLoss(run: ScanResult): boolean {
   return run.warnings.some((warning) => warning.includes(GPC_WORKER_CAPTURE_LOSS_WARNING_FRAGMENT));
 }
 
-function runHitInvalidUpstreamResponseCaptureLoss(run: ScanResult): boolean {
+export function runHitInvalidUpstreamResponseCaptureLoss(run: ScanResult): boolean {
   return run.warnings.some((warning) => warning.includes(INVALID_UPSTREAM_RESPONSE_WARNING_FRAGMENT));
 }
 
-function runHitProxyTrafficBudget(run: ScanResult): boolean {
+export function runHitProxyTrafficBudget(run: ScanResult): boolean {
   return run.warnings.some((warning) => warning.includes(PROXY_TRAFFIC_BUDGET_WARNING_FRAGMENT));
 }
 

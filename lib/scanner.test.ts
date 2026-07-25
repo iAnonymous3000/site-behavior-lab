@@ -1246,7 +1246,12 @@ test("decideRoutedRequest uses child documents and parent documents for their re
   assert.deepEqual(calls, [
     { sourceUrl: "https://frame.example/embed", requestType: "script" },
     { sourceUrl: "https://top.example/page", requestType: "image" },
-    { sourceUrl: "https://top.example/page", requestType: "document" }
+    // Playwright reports `document` for a navigation in any frame, but
+    // adblock-rust separates the top-level `document` from a nested
+    // `subdocument`. Typing this iframe navigation `document` evaluated
+    // $document and $subdocument rules against the wrong request type on every
+    // site that loads a third-party frame.
+    { sourceUrl: "https://top.example/page", requestType: "subdocument" }
   ]);
 });
 
@@ -1515,6 +1520,72 @@ test("scanSite marks fingerprint coverage partial when a poisoned main frame is 
           loss.count >= 1
       ),
       true
+    );
+  } finally {
+    await closeSharedBrowserForTests();
+    await new Promise<void>((resolve) => upstream.close(() => resolve()));
+  }
+});
+
+test("a fingerprint observer that read no frame at all records the same capture loss", { timeout: 20_000 }, async () => {
+  // "failed" coverage (readableFrames === 0) is the strongest reason to hedge,
+  // but the r2 producer only recorded a loss for "partial", so a page that
+  // defeated the observer outright emitted quality.byFamily.fingerprinting
+  // "complete" and the report published an unhedged "No fingerprint-like API
+  // calls observed". The v1 warning covered both states all along.
+  const upstream = createServer((_request, response) => {
+    response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+    // Same canvas flood the partial-coverage test uses, but with no readable
+    // iframe beside it: the observer loses coverage in the only frame there is,
+    // so readableFrames is 0 and the status is "failed" rather than "partial".
+    response.end(`<!doctype html><title>no readable fingerprint frame</title>
+      <script>
+        for (let index = 0; index <= 256; index += 1) {
+          const canvas = document.createElement("canvas");
+          canvas.getContext("2d").fillText("abcdefghij", 0, 16);
+        }
+      </script>`);
+  });
+  await new Promise<void>((resolve, reject) => {
+    upstream.once("error", reject);
+    upstream.listen(0, "127.0.0.1", resolve);
+  });
+  const address = upstream.address();
+  assert.ok(address && typeof address === "object");
+
+  try {
+    const { result, measurement: staged } = await scanSiteWithMeasurement(
+      {
+        url: "http://fingerprint-failed.test/",
+        device: "desktop",
+        gpcEnabled: false,
+        consentMode: "observe"
+      },
+      {
+        publicUrlAlreadyVerified: true,
+        verifyPublicUrl: async () => undefined,
+        resolvePublicHost: async () => [{ address: "93.184.216.34", family: 4 }],
+        connectProxyUpstreamForTests: () => connect(address.port, "127.0.0.1"),
+        resolveCnameChain: async () => []
+      }
+    );
+    assert.equal(
+      result.warnings.includes(FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING),
+      true,
+      "a dead observer must be disclosed on the v1 wire"
+    );
+    // The r2 facts must agree with that warning, because familyCensoredOnRun
+    // consults byFamily first on recorded quality and never reads warning text.
+    assert.equal(
+      staged!.measurement.qualityFacts.captureLoss.some(
+        (loss) =>
+          loss.family === "fingerprinting" &&
+          loss.kind === "dropped" &&
+          loss.detail === "fingerprint-observer" &&
+          loss.count >= 1
+      ),
+      true,
+      "a dead observer must also be a recorded fingerprinting capture loss"
     );
   } finally {
     await closeSharedBrowserForTests();

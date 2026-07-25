@@ -1390,7 +1390,14 @@ export async function scanSiteWithMeasurement(
         count: 1
       });
     }
-    if (subjectStateTrusted && fingerprintFrameCoverage === "partial") {
+    // Every non-complete coverage, not only "partial". A "failed" observer read
+    // zero frames, which is the strongest possible reason to hedge, yet it
+    // recorded no capture loss: evaluateQuality builds byFamily strictly from
+    // the loss ledger, familyCensoredOnRun consults byFamily first on recorded
+    // v2 quality, and the report then published "No fingerprint-like API calls
+    // observed" at ok level for a page that defeated the instrument. The v1
+    // warning above already covers both states; the r2 facts now agree with it.
+    if (subjectStateTrusted && fingerprintFrameCoverage !== "complete") {
       measurementKernel.recordCaptureLoss({
         family: "fingerprinting",
         phaseId: stateSnapshotPhaseId,
@@ -1772,12 +1779,40 @@ export async function scanSiteWithMeasurement(
     // for a known tracker. The oracle is the curated catalog (named) first, then
     // the broader Brave Shields engine (which carries the CNAME-cloak vendors the
     // small catalog lacks). Best-effort and bounded, DNS can never stall the scan.
+    // Probe the engine with the request types this host was actually seen
+    // carrying, not a single hardcoded "other". Cloaked vendors are commonly
+    // listed with a type option ($script, $xmlhttprequest, $image), and a rule
+    // carrying one can never match a probe typed "other", so the oracle
+    // silently missed exactly the vendors it exists to un-hide.
+    const observedRequestTypesByHost = new Map<string, Set<string>>();
+    for (const record of publicRequests) {
+      let host: string;
+      try {
+        host = new URL(record.url).hostname.toLowerCase();
+      } catch {
+        continue;
+      }
+      const types = observedRequestTypesByHost.get(host) ?? new Set<string>();
+      types.add(mapRequestType(record.resourceType));
+      observedRequestTypesByHost.set(host, types);
+    }
     const matchCnameTracker = (host: string): TrackerMatch | null => {
       const named = findTrackerMatch(host);
       if (named) return named;
-      if (adblockEngine && adblockEngine.check(`https://${host}/`, finalUrl, mapRequestType("other"))) {
-        const registrable = partyKey(host);
-        return { domain: registrable, entity: registrable, category: "tracking (Brave Shields list)", confidence: "shields-list" };
+      if (adblockEngine) {
+        const observed = observedRequestTypesByHost.get(host.toLowerCase());
+        const probeTypes = observed && observed.size > 0 ? [...observed] : [mapRequestType("other")];
+        for (const requestType of probeTypes) {
+          if (adblockEngine.check(`https://${host}/`, finalUrl, requestType)) {
+            const registrable = partyKey(host);
+            return {
+              domain: registrable,
+              entity: registrable,
+              category: "tracking (Brave Shields list)",
+              confidence: "shields-list"
+            };
+          }
+        }
       }
       return null;
     };
@@ -2330,7 +2365,7 @@ export async function decideRoutedRequest({
         adblockEngine.checkWithMethod(
           requestUrl,
           shieldsContext.sourceUrl,
-          mapRequestType(request.resourceType()),
+          mapRequestType(request.resourceType(), { subFrame: requestIsSubFrameNavigation(request) }),
           shieldsMethod
         )
       : undefined;
@@ -2434,6 +2469,19 @@ function safeParentFrame(frame: RouteFrameLike): RouteFrameLike | null {
   } catch {
     return null;
   }
+}
+
+/**
+ * A navigation into a nested browsing context, which adblock-rust types as
+ * `subdocument` rather than `document`. Playwright uses the same
+ * `document` resource type for both, so the frame's parent is the only
+ * available discriminator. Unknown frame topology falls back to the top-level
+ * type, matching the previous behavior rather than guessing.
+ */
+function requestIsSubFrameNavigation(request: RoutedRequestLike): boolean {
+  if (request.resourceType() !== "document") return false;
+  const frame = safeRequestFrame(request);
+  return frame !== null && safeParentFrame(frame) !== null;
 }
 
 function safeRequestFrame(request: RoutedRequestLike): RouteFrameLike | null {
