@@ -41,6 +41,15 @@ created only after the revision it names is already promoted:
    `date-released` to `CITATION.cff`; and moves the accumulated `Unreleased`
    entries into a `## [<version>] - <date>` section, leaving an empty
    `Unreleased` heading for the next line of work.
+
+   Bumping the version rewrites `package-lock.json`, which is a pinned
+   supply-chain input, so the same commit must regenerate the inventory or CI's
+   required supply-chain gate fails on a stale digest:
+
+   ```bash
+   node scripts/third-party-inventory.mjs
+   npm run supply-chain:third-party:check
+   ```
 2. Let CI go green and let the promotion job advance `production`.
 3. Run the **Cut Release Tag** workflow with that version. It re-verifies the
    policy, refuses to move an existing tag, requires the revision to be an

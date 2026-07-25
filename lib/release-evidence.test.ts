@@ -722,3 +722,17 @@ test("the released state is verified, not merely permitted", { skip: hostToolcha
   assert.notEqual(strayRefused.status, 0);
   assert.match(strayRefused.stderr, /Release tag set for 0\.1\.0 must be exactly v0\.1\.0/);
 });
+
+test("the release runbook regenerates the supply-chain input its own version bump rewrites", async () => {
+  const releaseGuide = await source("RELEASE.md");
+  // Bumping the version rewrites package-lock.json, which THIRD_PARTY_INVENTORY
+  // pins by digest. Cutting 0.2.0 without regenerating it took CI red on the
+  // required supply-chain gate, exactly as a stale Brave-list inventory did.
+  assert.match(releaseGuide, /node scripts\/third-party-inventory\.mjs/);
+  assert.match(releaseGuide, /npm run supply-chain:third-party:check/);
+  assert.match(releaseGuide, /pinned\s+supply-chain input/);
+  const bumpStep = releaseGuide.indexOf("bumps `package.json` and `package-lock.json`");
+  const regenerate = releaseGuide.indexOf("node scripts/third-party-inventory.mjs");
+  assert.notEqual(bumpStep, -1);
+  assert.ok(regenerate > bumpStep, "the regeneration must be documented with the bump that requires it");
+});
