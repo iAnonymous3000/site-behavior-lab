@@ -40,14 +40,21 @@ test("repository metadata truthfully describes one private development line", as
   const changelog = await source("CHANGELOG.md");
   const releaseGuide = await source("RELEASE.md");
 
-  assert.deepEqual(policy, {
-    schemaVersion: 1,
-    status: "development",
-    version: "0.1.0",
-    releaseTag: null,
-    stablePublicApi: false,
-    npmPublication: "disabled"
-  });
+  // Pre-1.0 milestone releases: a tag marks a reviewed, CI-green, promoted
+  // revision with an attested receipt. It never upgrades the API or publication
+  // claims, which both states keep disabled.
+  assert.equal(policy.schemaVersion, 2);
+  assert.equal(["development", "released"].includes(policy.status), true);
+  assert.match(policy.version, /^0\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/);
+  assert.equal(policy.stablePublicApi, false);
+  assert.equal(policy.npmPublication, "disabled");
+  if (policy.status === "released") {
+    assert.equal(policy.releaseTag, `v${policy.version}`);
+    assert.match(policy.releaseDate, /^\d{4}-\d{2}-\d{2}$/);
+  } else {
+    assert.equal(policy.releaseTag, null);
+    assert.equal(policy.releaseDate, null);
+  }
   assert.equal(manifest.private, true);
   assert.equal(manifest.version, policy.version);
   assert.equal(lock.version, policy.version);
@@ -56,11 +63,30 @@ test("repository metadata truthfully describes one private development line", as
   assert.deepEqual(manifest.engines, { node: "24.14.1", npm: "11.11.0" });
   assert.equal(lock.packages[""].packageManager, manifest.packageManager);
   assert.deepEqual(lock.packages[""].engines, manifest.engines);
-  assert.match(citation, /^version: "0\.1\.0"$/m);
-  assert.match(changelog, /^## Unreleased$/m);
-  assert.doesNotMatch(changelog, /^## \[?0\.1\.0\]?\s+-/m);
+  assert.match(citation, new RegExp(`^version: "${policy.version}"$`, "m"));
+  // Ongoing work always has a home, in either state.
+  assert.equal((changelog.match(/^## Unreleased$/gm) ?? []).length, 1);
+  const datedForVersion = new RegExp(`^## \\[?${policy.version.replace(/\./g, "\\.")}\\]?\\s+-\\s*(\\d{4}-\\d{2}-\\d{2})$`, "m");
+  if (policy.status === "released") {
+    assert.match(citation, new RegExp(`^date-released: "${policy.releaseDate}"$`, "m"));
+    const dated = changelog.match(datedForVersion);
+    assert.notEqual(dated, null, "a released changelog must carry its dated section");
+    assert.equal(dated![1], policy.releaseDate);
+  } else {
+    assert.doesNotMatch(citation, /^date-released:/m);
+    assert.doesNotMatch(changelog, datedForVersion);
+  }
   assert.equal(manifest.scripts["release:evidence"], "node scripts/release-evidence.mjs");
-  assert.match(releaseGuide, /private `0\.1\.0` development line/);
+  assert.match(releaseGuide, /pre-1\.0 development\s+line/);
+  // The guide must state what a tag does and does not claim, and must keep the
+  // ordering that makes the claim true: promote first, then tag.
+  assert.match(releaseGuide, /What a release tag claims/);
+  assert.match(releaseGuide, /promoted to `production` before the tag existed/);
+  assert.match(releaseGuide, /does not claim API stability/);
+  assert.match(releaseGuide, /schema contracts \(v1 frozen,\s+v2\/r1, v2\/r2\) version\s+independently/);
+  assert.match(releaseGuide, /Cutting a release/);
+  assert.match(releaseGuide, /release\.tagExists/);
+  assert.match(releaseGuide, /release\.evidencesReleaseCommit/);
   assert.match(releaseGuide, /does \*\*not\*\* claim that a[\s\S]*separately deployed Cloudflare artifact/);
   assert.match(releaseGuide, /Critical-operation claims additionally require/);
   assert.match(
@@ -143,7 +169,7 @@ test("static evidence is deterministic and changes on artifact tampering", { ski
   assert.equal(receipt.source.commit, fixture.commit);
   assert.equal(receipt.source.requiredNode, "24.14.1");
   assert.equal(receipt.source.requiredNpm, "11.11.0");
-  assert.equal(receipt.release.status, "development");
+  assert.equal(["development", "released"].includes(receipt.release.status), true);
   assert.equal(receipt.artifacts[0].name, "static-pages");
   assert.equal(receipt.artifacts[0].deployment.deployment, fixture.commit);
   assert.deepEqual(
@@ -507,10 +533,11 @@ async function makeFixture(t: TestContext, options: { policyVersion?: string } =
   await writeFile(
     path.join(root, "release-policy.json"),
     `${JSON.stringify({
-      schemaVersion: 1,
+      schemaVersion: 2,
       status: "development",
       version: options.policyVersion ?? "0.1.0",
       releaseTag: null,
+      releaseDate: null,
       stablePublicApi: false,
       npmPublication: "disabled"
     })}\n`
@@ -563,3 +590,37 @@ function runEvidence(cwd: string, args: string[], overrides: NodeJS.ProcessEnv =
 function git(cwd: string, args: string[]): string {
   return execFileSync("git", args, { cwd, encoding: "utf8" });
 }
+
+test("the release workflow tags only a promoted, CI-green revision and attests its receipt", async () => {
+  const workflow = await source(".github/workflows/release.yml");
+
+  // A release is curated: a human dispatches it, and only from the default
+  // branch.
+  assert.match(workflow, /on:\n\s+workflow_dispatch:/);
+  assert.match(
+    workflow,
+    /if: github\.ref_type == 'branch' && github\.ref_name == github\.event\.repository\.default_branch/
+  );
+
+  // The four refusals that make the tag mean something.
+  assert.match(workflow, /release-policy\.json status must be released before a tag is cut/);
+  assert.match(workflow, /already exists; releases are immutable/);
+  assert.match(workflow, /git merge-base --is-ancestor HEAD origin\/production/);
+  assert.match(workflow, /No successful CI run recorded for/);
+
+  // The tag is bound to an attested exact-source receipt, which is this
+  // repository's existing provenance mechanism rather than a new one.
+  assert.match(workflow, /npm run release:evidence --/);
+  assert.match(workflow, /uses: actions\/attest@[a-f0-9]{40} # v4\.2\.0/);
+  assert.ok(
+    workflow.indexOf("uses: actions/attest@") < workflow.indexOf("git tag -a"),
+    "the receipt must be attested before the tag is created"
+  );
+  assert.match(workflow, /git tag -a "\$TAG"/);
+  assert.match(workflow, /git push origin "refs\/tags\/\$\{TAG\}"/);
+
+  // A tag must never quietly widen what the project claims.
+  assert.match(workflow, /A release may not claim a stable public API or npm publication/);
+  assert.match(workflow, /no stable public API and no npm publication/i);
+  assert.match(workflow, /permissions:\n\s+contents: read/);
+});

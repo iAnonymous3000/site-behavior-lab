@@ -2,16 +2,57 @@
 
 ## Current release state
 
-Site Behavior Lab is on the private `0.1.0` development line. It has no stable
-public API, no npm publication, no declared release tag, and no dated changelog
-release. A public deployment can be useful and production-operated without
-turning this source line into a stable software release. The machine-readable
-source of that status is [`release-policy.json`](release-policy.json).
+Site Behavior Lab cuts curated milestones on a private, pre-1.0 development
+line. It has no stable public API and no npm publication, and a tag never
+changes either: `release-policy.json` keeps `stablePublicApi` and
+`npmPublication` disabled in both the `development` and `released` states, and
+the evidence gate refuses any policy that says otherwise. A public deployment
+can be useful and production-operated without turning this source line into a
+stable software release.
 
-Do not call the project stable, generally available, critical-software ready,
-or released from a green local checkout alone. `CHANGELOG.md` remains
-`Unreleased` until a separately reviewed release decision assigns a version,
-date, and immutable tag.
+Do not call the project stable, generally available, or critical-software ready
+from a green local checkout, or from the existence of a tag. The
+machine-readable source of the current status is
+[`release-policy.json`](release-policy.json).
+
+## What a release tag claims
+
+A `vX.Y.Z` tag claims exactly this, and nothing else:
+
+- the tagged revision passed every required CI gate;
+- it was promoted to `production` before the tag existed;
+- an exact-source release receipt was generated for it and attested through the
+  same Sigstore keyless path CI already uses for exact-SHA evidence; and
+- `CHANGELOG.md` carries a dated section for that version and `CITATION.cff`
+  carries the matching `date-released`.
+
+It does not claim API stability, support commitments, or that any externally
+operated control was activated. The ScanReport schema contracts (v1 frozen,
+v2/r1, v2/r2) version independently of this line; a release never moves them.
+
+## Cutting a release
+
+Releases are curated, not automatic. The order matters, because the tag is
+created only after the revision it names is already promoted:
+
+1. Land a commit that sets `release-policy.json` to `status: "released"` with
+   the new `version`, `releaseTag: "v<version>"`, and today's `releaseDate`;
+   bumps `package.json` and `package-lock.json` to the same version; adds
+   `date-released` to `CITATION.cff`; and moves the accumulated `Unreleased`
+   entries into a `## [<version>] - <date>` section, leaving an empty
+   `Unreleased` heading for the next line of work.
+2. Let CI go green and let the promotion job advance `production`.
+3. Run the **Cut Release Tag** workflow with that version. It re-verifies the
+   policy, refuses to move an existing tag, requires the revision to be an
+   ancestor of `production`, requires a recorded successful CI run for the exact
+   SHA, rebuilds the static artifact, generates and attests the receipt, and
+   only then creates and pushes the annotated tag.
+
+Between steps 1 and 3 the policy truthfully says `released` while no tag exists
+yet. That window is expected, and the receipt records it: `release.tagExists`
+and `release.evidencesReleaseCommit` say whether the tag is present and whether
+the evidenced commit is the tagged one, so a receipt built from a later commit
+on the same version never implies it describes the released tree.
 
 ## Exact-source evidence
 

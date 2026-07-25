@@ -7,6 +7,16 @@ public API or a 1.0 release.
 
 ## Unreleased
 
+Work landing after the 0.2.0 milestone. Nothing here is released.
+
+## [0.2.0] - 2026-07-25
+
+First tagged milestone of the pre-1.0 development line. This does not declare a
+stable public API, and npm publication stays disabled: the tag marks a reviewed,
+CI-green, promoted source revision with an attested evidence receipt, nothing
+more. The ScanReport schema contracts (v1 frozen, v2/r1, v2/r2) version
+independently of this line and are unchanged by it.
+
 These entries describe source-level work on the private development line. A
 feature-gated path, test, canary, or runbook is not evidence that its external
 activation gate has passed or that the corresponding production control is live.

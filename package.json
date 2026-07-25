@@ -1,6 +1,6 @@
 {
   "name": "site-behavior-lab",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Evidence-first, reproducible web behavior scans with privacy-reduced reports.",
   "homepage": "https://sitebehavior.org",
   "repository": {

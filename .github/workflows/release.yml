@@ -1,0 +1,174 @@
+name: Cut Release Tag
+
+# Curated milestone releases for the pre-1.0 development line.
+#
+# A tag here claims exactly one thing: this source revision was reviewed, passed
+# every CI gate, reached production, and has an attested exact-source evidence
+# receipt. It does NOT claim a stable public API, npm publication, or general
+# availability; release-policy.json keeps both of those disabled and the
+# evidence gate refuses any policy that says otherwise.
+#
+# The tag is created only AFTER its commit is CI-green and promoted, so the
+# release commit legitimately carries a `released` policy with no tag yet. That
+# window is what `evidencesReleaseCommit` in the receipt records honestly.
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Version to tag; must equal release-policy.json version
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-tag
+  cancel-in-progress: false
+
+env:
+  CI: "1"
+  NEXT_TELEMETRY_DISABLED: "1"
+  NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SITE_URL: "https://sitebehavior.org"
+
+jobs:
+  cut:
+    name: Verify and tag a promoted release revision
+    # A release may only ever be cut from the default branch.
+    if: github.ref_type == 'branch' && github.ref_name == github.event.repository.default_branch
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: read
+      id-token: write
+      attestations: write
+    steps:
+      - name: Checkout full history
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: 24.14.1
+          cache: npm
+
+      - name: Verify exact Node and npm runtime
+        run: |
+          set -euo pipefail
+          test "$(node --version)" = "v24.14.1"
+          test "$(npm --version)" = "11.11.0"
+
+      - name: Verify the release policy names exactly this version
+        env:
+          REQUESTED_VERSION: ${{ github.event.inputs.version }}
+        run: |
+          set -euo pipefail
+          node <<'NODE'
+          const fs = require("node:fs");
+          const policy = JSON.parse(fs.readFileSync("release-policy.json", "utf8"));
+          const requested = process.env.REQUESTED_VERSION.trim();
+          const fail = (message) => {
+            console.error(`::error title=Release refused::${message}`);
+            process.exit(1);
+          };
+          if (policy.schemaVersion !== 2) fail("release-policy.json must use schemaVersion 2.");
+          if (policy.status !== "released") fail("release-policy.json status must be released before a tag is cut.");
+          if (policy.version !== requested) fail(`Requested ${requested} but the policy declares ${policy.version}.`);
+          if (policy.releaseTag !== `v${policy.version}`) fail("The policy tag must be v<version>.");
+          if (policy.stablePublicApi !== false || policy.npmPublication !== "disabled") {
+            fail("A release may not claim a stable public API or npm publication.");
+          }
+          console.log(`Policy declares ${policy.releaseTag} dated ${policy.releaseDate}.`);
+          NODE
+
+      - name: Refuse to move an existing tag
+        env:
+          TAG: v${{ github.event.inputs.version }}
+        run: |
+          set -euo pipefail
+          git fetch origin --tags --quiet
+          if git rev-parse -q --verify "refs/tags/${TAG}" >/dev/null; then
+            echo "::error title=Release refused::${TAG} already exists; releases are immutable."
+            exit 1
+          fi
+
+      - name: Require the revision to be already promoted to production
+        run: |
+          set -euo pipefail
+          git fetch origin production --quiet
+          if ! git merge-base --is-ancestor HEAD origin/production; then
+            echo "::error title=Release refused::HEAD is not reachable from production; only a promoted revision may be tagged."
+            exit 1
+          fi
+
+      - name: Require a green CI run for this exact revision
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          conclusion=$(gh api \
+            "repos/${GITHUB_REPOSITORY}/actions/workflows/ci.yml/runs?head_sha=${GITHUB_SHA}&status=success&per_page=1" \
+            --jq '.workflow_runs | length')
+          if [[ "$conclusion" -lt 1 ]]; then
+            echo "::error title=Release refused::No successful CI run recorded for ${GITHUB_SHA}."
+            exit 1
+          fi
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Build the static artifact this receipt describes
+        run: |
+          set -euo pipefail
+          npm run build:pages
+          npm run test:smoke:static
+
+      - name: Generate the exact-source release receipt
+        run: >-
+          npm run release:evidence --
+          --static-dir out
+          --output "$RUNNER_TEMP/site-behavior-lab-${{ github.event.inputs.version }}-release-evidence.json"
+
+      - name: Attest the release receipt
+        id: attest_release
+        uses: actions/attest@f7c74d28b9d84cb8768d0b8ca14a4bac6ef463e6 # v4.2.0
+        with:
+          subject-path: ${{ runner.temp }}/site-behavior-lab-${{ github.event.inputs.version }}-release-evidence.json
+
+      - name: Preserve the release receipt
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: site-behavior-lab-release-${{ github.event.inputs.version }}
+          path: ${{ runner.temp }}/site-behavior-lab-${{ github.event.inputs.version }}-release-evidence.json
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Create the annotated release tag
+        env:
+          TAG: v${{ github.event.inputs.version }}
+          BUNDLE: ${{ steps.attest_release.outputs.attestation-url }}
+        run: |
+          set -euo pipefail
+          git config user.name "iAnonymous3000"
+          git config user.email "32236127+iAnonymous3000@users.noreply.github.com"
+          git tag -a "$TAG" -m "$(printf '%s\n\n%s\n%s\n' \
+            "Site Behavior Lab ${TAG}" \
+            "Pre-1.0 milestone. No stable public API and no npm publication." \
+            "Attested exact-source release receipt: ${BUNDLE}")"
+          git push origin "refs/tags/${TAG}"
+          echo "Tagged ${TAG} at ${GITHUB_SHA}."
+
+      - name: Record the release in the run summary
+        env:
+          TAG: v${{ github.event.inputs.version }}
+          BUNDLE: ${{ steps.attest_release.outputs.attestation-url }}
+        run: |
+          {
+            echo "- Tag: \`${TAG}\` at \`${GITHUB_SHA}\`"
+            echo "- Promoted to production and CI-green before tagging"
+            echo "- Attested release receipt: ${BUNDLE}"
+            echo "- Claims: pre-1.0 milestone only; no stable public API, no npm publication"
+          } >> "$GITHUB_STEP_SUMMARY"

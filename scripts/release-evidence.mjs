@@ -18,6 +18,9 @@ const OCI_SOURCE = "org.opencontainers.image.source";
 const OCI_REVISION = "org.opencontainers.image.revision";
 const OCI_TITLE = "org.opencontainers.image.title";
 const OCI_LICENSES = "org.opencontainers.image.licenses";
+const RELEASE_POLICY_SCHEMA_VERSION = 2;
+const RELEASE_DATE_PATTERN = /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/;
+const RELEASE_TAG_PATTERN = /^v0\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/;
 const REQUIRED_NODE = "24.14.1";
 const REQUIRED_NPM = "11.11.0";
 const REQUIRED_PACKAGE_MANAGER = `npm@${REQUIRED_NPM}`;
@@ -48,9 +51,29 @@ export async function buildReleaseEvidence({
   const releaseTags = git(root, ["tag", "--list", release.version, `v${release.version}`])
     .split(/\r?\n/)
     .filter(Boolean);
-  if (releaseTags.length !== 0) {
-    throw new Error(`Development release policy conflicts with existing tag ${releaseTags[0]}`);
+  if (release.status !== "released") {
+    if (releaseTags.length !== 0) {
+      throw new Error(`Development release policy conflicts with existing tag ${releaseTags[0]}`);
+    }
+  } else {
+    if (!RELEASE_TAG_PATTERN.test(release.tag)) {
+      throw new Error("A released policy must name a pre-1.0 v<version> tag");
+    }
+    if (releaseTags.length > 1 || (releaseTags.length === 1 && releaseTags[0] !== release.tag)) {
+      throw new Error(`Release tag set for ${release.version} must be exactly ${release.tag}`);
+    }
   }
+  // Whether THIS commit is the one the release tag names. A released policy
+  // stays in place while work continues toward the next version, so a receipt
+  // built after the release must not imply it evidences the released tree. The
+  // tag is created only after its commit is CI-green and promoted, so it is
+  // legitimately absent on the release commit itself until then.
+  const taggedCommit =
+    release.status === "released" && releaseTags.length === 1
+      ? git(root, ["rev-list", "-n", "1", release.tag]).trim().toLowerCase()
+      : null;
+  release.tagExists = taggedCommit !== null;
+  release.evidencesReleaseCommit = taggedCommit !== null && taggedCommit === commit;
   const evidence = {
     schemaVersion: 1,
     evidenceKind: "exact-source-and-tested-artifact-manifest",
@@ -91,19 +114,36 @@ async function releaseMetadata(root) {
   const citation = await readFile(path.join(root, "CITATION.cff"), "utf8");
   const changelog = await readFile(path.join(root, "CHANGELOG.md"), "utf8");
 
-  if (policy?.schemaVersion !== 1) throw new Error("release-policy.json must use schemaVersion 1");
-  if (policy?.status !== "development") {
-    throw new Error("This evidence schema currently permits only the truthful development release state");
+  if (policy?.schemaVersion !== RELEASE_POLICY_SCHEMA_VERSION) {
+    throw new Error(`release-policy.json must use schemaVersion ${RELEASE_POLICY_SCHEMA_VERSION}`);
   }
-  if (policy?.releaseTag !== null || policy?.stablePublicApi !== false || policy?.npmPublication !== "disabled") {
-    throw new Error("Development release policy must keep tag, stable-API, and npm-publication claims disabled");
+  if (policy?.status !== "development" && policy?.status !== "released") {
+    throw new Error("release-policy.json status must be exactly development or released");
   }
-  if (packageManifest?.private !== true) throw new Error("Development release policy requires package.json private=true");
+  const released = policy.status === "released";
+  // Neither state may claim a stable public API or npm publication: this line
+  // is pre-1.0 by policy, and a tagged milestone does not change that.
+  if (policy?.stablePublicApi !== false || policy?.npmPublication !== "disabled") {
+    throw new Error("Release policy must keep stable-API and npm-publication claims disabled");
+  }
+  if (!released && policy?.releaseTag !== null) {
+    throw new Error("Development release policy must not name a release tag");
+  }
+  if (!released && policy?.releaseDate !== null) {
+    throw new Error("Development release policy must not claim a release date");
+  }
+  if (released && policy?.releaseTag !== `v${policy.version}`) {
+    throw new Error("A released policy must name the tag v<version> for its own version");
+  }
+  if (released && !RELEASE_DATE_PATTERN.test(policy?.releaseDate ?? "")) {
+    throw new Error("A released policy must carry one YYYY-MM-DD release date");
+  }
+  if (packageManifest?.private !== true) throw new Error("Release policy requires package.json private=true");
   if (typeof packageManifest?.version !== "string" || packageManifest.version !== policy.version) {
     throw new Error("package.json and release-policy.json versions must match exactly");
   }
   if (!/^0\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/.test(policy.version)) {
-    throw new Error("Development release policy requires one pre-1.0 semantic version");
+    throw new Error("Release policy requires one pre-1.0 semantic version");
   }
   if (packageManifest?.engines?.node !== REQUIRED_NODE) {
     throw new Error(`Release evidence requires the repository Node engine to remain exactly ${REQUIRED_NODE}`);
@@ -143,23 +183,37 @@ async function releaseMetadata(root) {
   if (citationVersions.length !== 1 || citationVersions[0] !== policy.version) {
     throw new Error("CITATION.cff must declare exactly the release-policy.json version");
   }
-  if (/^date-released:/m.test(citation)) {
+  const citationDates = [...citation.matchAll(/^date-released:\s*["']?([0-9]{4}-[0-9]{2}-[0-9]{2})["']?\s*$/gm)].map(
+    (match) => match[1]
+  );
+  if (!released && citation.match(/^date-released:/m)) {
     throw new Error("Development CITATION.cff must not claim a release date");
   }
+  if (released && (citationDates.length !== 1 || citationDates[0] !== policy.releaseDate)) {
+    throw new Error("A released CITATION.cff must carry exactly the policy's release date");
+  }
+  // Ongoing work always has somewhere to go, in both states.
   const unreleasedSections = [...changelog.matchAll(/^## Unreleased\s*$/gm)];
   if (unreleasedSections.length !== 1) {
-    throw new Error("Development release policy requires one explicit Unreleased changelog section");
+    throw new Error("Release policy requires one explicit Unreleased changelog section");
   }
   const escapedVersion = policy.version.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  if (new RegExp(`^## \\[?${escapedVersion}\\]?\\s+-`, "m").test(changelog)) {
+  const datedSections = [
+    ...changelog.matchAll(new RegExp(`^## \\[?${escapedVersion}\\]?\\s+-\\s*([0-9]{4}-[0-9]{2}-[0-9]{2})\\s*$`, "gm"))
+  ];
+  if (!released && datedSections.length !== 0) {
     throw new Error("Development changelog must not claim a dated release for the current version");
+  }
+  if (released && (datedSections.length !== 1 || datedSections[0][1] !== policy.releaseDate)) {
+    throw new Error("A released changelog must carry exactly one dated section for its own version and date");
   }
 
   const repository = normalizeRepository(packageManifest?.repository?.url);
   return {
     status: policy.status,
     version: policy.version,
-    tag: null,
+    tag: released ? policy.releaseTag : null,
+    releaseDate: released ? policy.releaseDate : null,
     stablePublicApi: false,
     npmPublication: "disabled",
     requiredNode: packageManifest.engines.node,
