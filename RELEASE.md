@@ -245,20 +245,20 @@ evidence for that exact snapshot. The governance, toolchain, and public-preview
 observations are release-policy blockers, and none of these receipts replaces
 fresh verification for the final clean commit.
 
-## Creating a future tagged release
+## Widening what a release may claim
 
-The current evidence schema intentionally accepts only `development`. A future
-release requires an explicit change that is reviewed together:
+The evidence schema accepts `development` and `released`, and it verifies the
+released state rather than merely permitting it. It refuses a stable-API claim,
+npm publication, a `1.0.0` or later version, and a tag that does not match
+`v<version>`. Those refusals are the contract: widening any of them is a
+separate, explicitly reviewed change to `scripts/release-evidence.mjs` and its
+tests, never a side effect of cutting a version.
 
-1. choose the version and compatibility promise;
-2. move the final notes from `Unreleased` to a dated version section and add a
-   fresh empty `Unreleased` section;
-3. synchronize package, lockfile, citation, and release policy;
-4. extend the policy/evidence contract for the selected release state and
-   exact tag;
-5. pass the full candidate and live-proof gates above; and
-6. create the immutable tag only after those identities and required approvals
-   are recorded.
+Reaching a `1.0.0` therefore takes more than a version bump. It requires a
+written compatibility promise for the public report, feed, and export surfaces,
+the durability and corpus gates in `docs/go-live-public-scanner.md`, the
+supply-chain license review, and only then a reviewed widening of the evidence
+schema.
 
 Never infer a tag, stable API, or general-availability claim from the `0.x`
 package version or from the existence of a public production deployment.

@@ -19,6 +19,13 @@ on:
         description: Version to tag; must equal release-policy.json version
         required: true
         type: string
+      commit:
+        description: >-
+          Exact commit to tag. Leave empty to tag the commit that declared this
+          version, which is almost always what a release means. Set it only to
+          deliberately include work that landed after the declaration.
+        required: false
+        type: string
 
 permissions:
   contents: read
@@ -61,6 +68,65 @@ jobs:
           test "$(node --version)" = "v24.14.1"
           test "$(npm --version)" = "11.11.0"
 
+      # A dispatch runs at whatever the default branch tip happens to be, which
+      # is not what a release names: the tip drifts as ordinary work lands after
+      # the declaration. Resolve the exact revision first and make every gate,
+      # the receipt, and the tag itself describe that revision instead.
+      - name: Resolve the exact revision this release names
+        env:
+          REQUESTED_VERSION: ${{ github.event.inputs.version }}
+          REQUESTED_COMMIT: ${{ github.event.inputs.commit }}
+        run: |
+          set -euo pipefail
+          git fetch origin main --quiet
+          requested_version="$(printf '%s' "$REQUESTED_VERSION" | tr -d '[:space:]')"
+          declaring=""
+          # The declaring commit is the newest change to release-policy.json
+          # that first put this version in place. Walking history is exact and
+          # needs no operator input, so the safe revision is also the default.
+          while read -r candidate; do
+            version="$(git show "${candidate}:release-policy.json" 2>/dev/null | node -e '
+              let raw = "";
+              process.stdin.on("data", (chunk) => { raw += chunk; });
+              process.stdin.on("end", () => {
+                try { process.stdout.write(String(JSON.parse(raw).version ?? "")); } catch { process.stdout.write(""); }
+              });
+            ')"
+            if [[ "$version" == "$requested_version" ]]; then
+              declaring="$candidate"
+            elif [[ -n "$declaring" ]]; then
+              break
+            fi
+          done < <(git log --format=%H origin/main -- release-policy.json)
+          if [[ -z "$declaring" ]]; then
+            echo "::error title=Release refused::No commit on main declares release-policy.json version ${requested_version}."
+            exit 1
+          fi
+          if [[ -n "${REQUESTED_COMMIT//[[:space:]]/}" ]]; then
+            release_sha="$(git rev-parse --verify "${REQUESTED_COMMIT//[[:space:]]/}^{commit}")"
+          else
+            release_sha="$declaring"
+          fi
+          if ! git merge-base --is-ancestor "$release_sha" origin/main; then
+            echo "::error title=Release refused::${release_sha} is not reachable from main."
+            exit 1
+          fi
+          ahead="$(git rev-list --count "${declaring}..${release_sha}")"
+          if [[ "$release_sha" != "$declaring" ]]; then
+            if ! git merge-base --is-ancestor "$declaring" "$release_sha"; then
+              echo "::error title=Release refused::${release_sha} does not contain the commit that declared ${requested_version}."
+              exit 1
+            fi
+            echo "::warning title=Tagging past the declaration::${release_sha} is ${ahead} commit(s) after the commit that declared ${requested_version} (${declaring}); those commits are tagged as part of this release."
+          fi
+          git checkout --quiet --detach "$release_sha"
+          {
+            echo "RELEASE_SHA=${release_sha}"
+            echo "RELEASE_DECLARING_SHA=${declaring}"
+            echo "RELEASE_COMMITS_AFTER_DECLARATION=${ahead}"
+          } >> "$GITHUB_ENV"
+          echo "Release revision ${release_sha} (declared at ${declaring}, ${ahead} commit(s) later)."
+
       - name: Verify the release policy names exactly this version
         env:
           REQUESTED_VERSION: ${{ github.event.inputs.version }}
@@ -99,8 +165,8 @@ jobs:
         run: |
           set -euo pipefail
           git fetch origin production --quiet
-          if ! git merge-base --is-ancestor HEAD origin/production; then
-            echo "::error title=Release refused::HEAD is not reachable from production; only a promoted revision may be tagged."
+          if ! git merge-base --is-ancestor "$RELEASE_SHA" origin/production; then
+            echo "::error title=Release refused::${RELEASE_SHA} is not reachable from production; only a promoted revision may be tagged."
             exit 1
           fi
 
@@ -110,10 +176,10 @@ jobs:
         run: |
           set -euo pipefail
           conclusion=$(gh api \
-            "repos/${GITHUB_REPOSITORY}/actions/workflows/ci.yml/runs?head_sha=${GITHUB_SHA}&status=success&per_page=1" \
+            "repos/${GITHUB_REPOSITORY}/actions/workflows/ci.yml/runs?head_sha=${RELEASE_SHA}&status=success&per_page=1" \
             --jq '.workflow_runs | length')
           if [[ "$conclusion" -lt 1 ]]; then
-            echo "::error title=Release refused::No successful CI run recorded for ${GITHUB_SHA}."
+            echo "::error title=Release refused::No successful CI run recorded for ${RELEASE_SHA}."
             exit 1
           fi
 
@@ -154,12 +220,12 @@ jobs:
           set -euo pipefail
           git config user.name "iAnonymous3000"
           git config user.email "32236127+iAnonymous3000@users.noreply.github.com"
-          git tag -a "$TAG" -m "$(printf '%s\n\n%s\n%s\n' \
+          git tag -a "$TAG" "$RELEASE_SHA" -m "$(printf '%s\n\n%s\n%s\n' \
             "Site Behavior Lab ${TAG}" \
             "Pre-1.0 milestone. No stable public API and no npm publication." \
             "Attested exact-source release receipt: ${BUNDLE}")"
           git push origin "refs/tags/${TAG}"
-          echo "Tagged ${TAG} at ${GITHUB_SHA}."
+          echo "Tagged ${TAG} at ${RELEASE_SHA}."
 
       - name: Record the release in the run summary
         env:
@@ -167,7 +233,8 @@ jobs:
           BUNDLE: ${{ steps.attest_release.outputs.attestation-url }}
         run: |
           {
-            echo "- Tag: \`${TAG}\` at \`${GITHUB_SHA}\`"
+            echo "- Tag: \`${TAG}\` at \`${RELEASE_SHA}\`"
+            echo "- Version declared at \`${RELEASE_DECLARING_SHA}\` (${RELEASE_COMMITS_AFTER_DECLARATION} later commit(s) included)"
             echo "- Promoted to production and CI-green before tagging"
             echo "- Attested release receipt: ${BUNDLE}"
             echo "- Claims: pre-1.0 milestone only; no stable public API, no npm publication"

@@ -619,8 +619,23 @@ test("the release workflow tags only a promoted, CI-green revision and attests i
   // The four refusals that make the tag mean something.
   assert.match(workflow, /release-policy\.json status must be released before a tag is cut/);
   assert.match(workflow, /already exists; releases are immutable/);
-  assert.match(workflow, /git merge-base --is-ancestor HEAD origin\/production/);
+  assert.match(workflow, /git merge-base --is-ancestor "\$RELEASE_SHA" origin\/production/);
   assert.match(workflow, /No successful CI run recorded for/);
+
+  // A dispatch runs at the branch tip, which drifts away from the revision the
+  // release actually names. Every gate, the receipt, and the tag must describe
+  // the resolved revision, so no step may fall back to the dispatch SHA.
+  assert.match(workflow, /git checkout --quiet --detach "\$release_sha"/);
+  assert.match(workflow, /No commit on main declares release-policy\.json version/);
+  assert.match(workflow, /is not reachable from main/);
+  assert.match(workflow, /does not contain the commit that declared/);
+  assert.match(workflow, /head_sha=\$\{RELEASE_SHA\}/);
+  assert.match(workflow, /git tag -a "\$TAG" "\$RELEASE_SHA"/);
+  assert.doesNotMatch(
+    workflow.slice(workflow.indexOf("Resolve the exact revision")),
+    /GITHUB_SHA/,
+    "no gate, receipt, or tag step may describe the dispatch SHA once the release revision is resolved"
+  );
 
   // The tag is bound to an attested exact-source receipt, which is this
   // repository's existing provenance mechanism rather than a new one.
