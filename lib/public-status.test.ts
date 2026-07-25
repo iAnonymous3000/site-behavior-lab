@@ -92,7 +92,11 @@ test("a mismatch past the rollout window, or beside an unhealthy scanner, stays 
     NOW
   );
   assert.equal(stuck.state, "degraded");
-  assert.match(stuck.summary, /past its expected rollout window/);
+  // The measured statement is about the revision the SITE publishes, which is
+  // the only one carrying a date. The health endpoint exposes a bare SHA, so
+  // claiming the rollout as a whole is overdue would assert more than this
+  // evidence supports when the scanner is the surface that moved first.
+  assert.match(stuck.summary, /the revision the site publishes is older than the expected rollout window/);
 
   // Inside the window, but the scanner is not healthy: the rollout excuse must
   // not launder a real fault.
@@ -102,11 +106,17 @@ test("a mismatch past the rollout window, or beside an unhealthy scanner, stays 
     NOW
   );
   assert.equal(faulty.state, "degraded");
+  // This path never reaches the rollout check, so it must not report a verdict
+  // about a window it did not measure.
+  assert.doesNotMatch(faulty.summary, /rollout window/);
+  assert.match(faulty.summary, /degraded posture or unavailable scans/);
 
   // A receipt published before the field existed carries no rollout evidence,
   // so it must not be softened by its absence.
   const legacy = evaluateLiveDeployment(pages(), scanner({ deployment: "b".repeat(40) }), NOW);
   assert.equal(legacy.state, "degraded");
+  assert.doesNotMatch(legacy.summary, /rollout window/);
+  assert.match(legacy.summary, /no usable revision date/);
 
   // A future-dated commit stamp is not evidence either.
   const future = evaluateLiveDeployment(
@@ -115,4 +125,5 @@ test("a mismatch past the rollout window, or beside an unhealthy scanner, stays 
     NOW
   );
   assert.equal(future.state, "degraded");
+  assert.doesNotMatch(future.summary, /rollout window/);
 });

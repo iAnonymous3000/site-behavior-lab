@@ -224,6 +224,13 @@ export type ShieldsRunMeasurement = {
    */
   kind: "filter-matches" | "engine-blocked";
   count: number;
+  /**
+   * Whether the scanner recorded engine verification facts for this run, or
+   * the measurement was derived from a v1 wire that carries none. Readers must
+   * not describe a derived count as verified: on a legacy report the
+   * verification facts are precisely what is missing.
+   */
+  origin: "recorded" | "legacy-derived";
 };
 
 /**
@@ -249,12 +256,16 @@ export function shieldsRunMeasurement(run: {
   if (facts) {
     if (!facts.engineLoaded || facts.requestsEvaluated === 0) return null;
     return facts.applied
-      ? { kind: "engine-blocked", count: facts.requestsActuallyBlocked }
-      : { kind: "filter-matches", count: facts.requestsMatched };
+      ? { kind: "engine-blocked", count: facts.requestsActuallyBlocked, origin: "recorded" }
+      : { kind: "filter-matches", count: facts.requestsMatched, origin: "recorded" };
   }
   const count = run.counts.shieldsBlockedRequests;
   if (typeof count !== "number" || run.conditions.adblockActive !== true) return null;
-  return { kind: run.conditions.shieldsMode === "block-simulation" ? "engine-blocked" : "filter-matches", count };
+  return {
+    kind: run.conditions.shieldsMode === "block-simulation" ? "engine-blocked" : "filter-matches",
+    count,
+    origin: "legacy-derived"
+  };
 }
 
 export type GpcRunMeasurement = {

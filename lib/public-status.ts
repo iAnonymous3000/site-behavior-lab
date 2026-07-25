@@ -117,9 +117,10 @@ export function evaluateLiveDeployment(
   // a rollout only while the site's revision is genuinely recent and the
   // scanner is otherwise healthy; a mismatch that outlives the rollout window,
   // or one alongside an unhealthy scanner, is a real fault.
+  const rolloutAgeMs = revisionAgeMs(pagesRevisionCommittedAt, nowMs);
+  const withinRolloutWindow = rolloutAgeMs !== null && rolloutAgeMs <= PUBLIC_STATUS_MAX_ROLLOUT_MS;
   if (pagesDeployment !== scanner.deployment && !scannerUnhealthy) {
-    const rolloutAgeMs = revisionAgeMs(pagesRevisionCommittedAt, nowMs);
-    if (rolloutAgeMs !== null && rolloutAgeMs <= PUBLIC_STATUS_MAX_ROLLOUT_MS) {
+    if (withinRolloutWindow) {
       return {
         state: "rolling-out",
         summary:
@@ -134,9 +135,21 @@ export function evaluateLiveDeployment(
   if (pagesDeployment !== scanner.deployment || scannerUnhealthy) {
     return {
       state: "degraded",
+      // Only claim the window was exceeded when it was actually measured. A
+      // mismatch beside an unhealthy scanner skips the rollout check entirely,
+      // and a receipt with no usable revisionCommittedAt yields no age at all,
+      // so in both of those states the elapsed time is unknown, not over
+      // budget. The measured case also only ages the revision the SITE serves:
+      // the health endpoint publishes a bare SHA with no commit date, so when
+      // the scanner is the surface that moved first this evidence cannot tell a
+      // stuck publish from a rollout arriving in the other order.
       summary:
         pagesDeployment !== scanner.deployment
-          ? "The public site and scanner are serving different source revisions, and the newer revision is past its expected rollout window."
+          ? scannerUnhealthy
+            ? "The public site and scanner are serving different source revisions, and the scanner also reports a degraded posture or unavailable scans."
+            : rolloutAgeMs === null
+              ? "The public site and scanner are serving different source revisions, and the site receipt carries no usable revision date, so how long they have differed is unknown."
+              : "The public site and scanner are serving different source revisions, and the revision the site publishes is older than the expected rollout window, so this is not an in-progress publish of that revision."
           : "The scanner reports a degraded posture or unavailable scans.",
       pagesDeployment,
       scannerDeployment: scanner.deployment,

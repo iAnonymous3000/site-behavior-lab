@@ -1016,6 +1016,29 @@ test("reports a clean policy check at ok level", () => {
   assert.match(card.title, /no checked statement contradicted/);
 });
 
+test("a policy with no checkable statement never reads as a clean comparison", () => {
+  // "No checked statement contradicted" is vacuously true when the extractor
+  // matched nothing, and rendering it green presents zero checks as a clean
+  // result. 83 committed reports took exactly this branch.
+  const result = makeResult({});
+  result.privacyPolicy = {
+    url: "https://example.com/privacy",
+    claims: [],
+    mentionedEntities: [],
+    unmentionedEntities: [],
+    policyTextLength: 5000
+  };
+
+  const card = byId(buildFindings(viewFromV1Report(result), null), "privacy-policy");
+  assert.equal(card.level, "info");
+  assert.doesNotMatch(card.title, /no checked statement contradicted/);
+  assert.match(card.title, /no statement this scan can check/);
+  assert.match(card.lead, /nothing was compared against this visit's evidence/);
+  assert.match(card.lead, /not a finding about the site either way/);
+  // The honest count stays visible alongside the corrected headline.
+  assert.match(card.evidence, /0 checkable statements matched/);
+});
+
 test("an honored-GPC claim is never contradicted by request counts", () => {
   // Honoring GPC means not selling or sharing data, which request counts
   // cannot observe: a site can honor the signal while loading identical

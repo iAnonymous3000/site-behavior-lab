@@ -68,12 +68,34 @@ test("Shields display facts follow engine readback instead of configured mode", 
       }
     }
   };
-  assert.deepEqual(shieldsRunMeasurement(run), { kind: "filter-matches", count: 3 });
+  assert.deepEqual(shieldsRunMeasurement(run), {
+    kind: "filter-matches",
+    count: 3,
+    origin: "recorded"
+  });
   assert.equal(
     shieldsRunMeasurement({
       ...run,
       verificationFacts: { shields: { ...run.verificationFacts.shields, engineLoaded: false } }
     }),
     null
+  );
+  // A v1 wire carries the count with no engine readback behind it, so the
+  // measurement must say so rather than let a reader call it verified.
+  assert.deepEqual(
+    shieldsRunMeasurement({
+      counts: { shieldsBlockedRequests: 3 },
+      conditions: { adblockActive: true, shieldsMode: "classification" },
+      verificationFacts: null
+    }),
+    { kind: "filter-matches", count: 3, origin: "legacy-derived" }
+  );
+  assert.deepEqual(
+    shieldsRunMeasurement({
+      counts: { shieldsBlockedRequests: 7 },
+      conditions: { adblockActive: true, shieldsMode: "block-simulation" },
+      verificationFacts: null
+    }),
+    { kind: "engine-blocked", count: 7, origin: "legacy-derived" }
   );
 });

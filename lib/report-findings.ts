@@ -376,6 +376,12 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
     // A "nothing contradicted" reassurance is itself an absence claim over
     // the checked evidence, so censored collection hedges it.
     const policyEvidenceCensored = requestsCensored || cookiesCensored || detectorCensored;
+    // The same rule applied to the other side of the comparison: with no
+    // checkable statement extracted, "no checked statement contradicted" is
+    // vacuously true and reads as a clean result from zero checks. 83 of the
+    // committed reports publish exactly that, so this needs its own branch
+    // rather than the reassuring default.
+    const noCheckableClaims = policy.claims.length === 0;
     findings.push({
       id: "privacy-policy",
       icon: "file-text",
@@ -384,7 +390,7 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
           ? "warn"
           : conditionalConflicts.length > 0 || policy.unmentionedEntities.length > 0
             ? "info"
-            : policyEvidenceCensored
+            : policyEvidenceCensored || noCheckableClaims
               ? "info"
               : "ok",
       title:
@@ -394,7 +400,9 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
             ? "A policy statement may conflict with observed advertising events"
             : policy.unmentionedEntities.length > 0
               ? "Tracking companies the privacy policy never names"
-              : "Privacy policy read; no checked statement contradicted",
+              : noCheckableClaims
+                ? "Privacy policy read; it made no statement this scan can check"
+                : "Privacy policy read; no checked statement contradicted",
       lead:
         conflicts.length > 0
           ? `Comparing the site's own privacy policy against this visit: ${humanList(conflicts, 3)}.`
@@ -402,7 +410,9 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
             ? `Comparing the site's own privacy policy against this visit: ${humanList(conditionalConflicts, 2)}.`
             : policy.unmentionedEntities.length > 0
               ? `${humanList(policy.unmentionedEntities)} ${policy.unmentionedEntities.length === 1 ? "was" : "were"} sent requests during this visit but ${policy.unmentionedEntities.length === 1 ? "is" : "are"} never named in the privacy policy text.`
-              : `The policy's checkable statements did not contradict this visit's evidence (${coverage}).`,
+              : noCheckableClaims
+                ? `None of the statements this scan knows how to check appear in the policy text, so nothing was compared against this visit's evidence (${coverage}). That is a limit of the automated check, not a finding about the site either way.`
+                : `The policy's checkable statements did not contradict this visit's evidence (${coverage}).`,
       detail:
         conflicts.length > 0 || conditionalConflicts.length > 0
           ? `Matched policy wording: ${quotes.map((quote) => `"${quote}"`).join(" / ")}. This is an automated sentence match against the policy's own text, quoted so it can be verified in context. Policies can define terms narrowly (such as what counts as selling), so treat this as a documented discrepancy to review, not a legal conclusion.`

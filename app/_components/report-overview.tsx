@@ -323,14 +323,23 @@ export function MetricGrid({ run }: { run: RunView }) {
             ? {
                 label: "Blocked by Brave lists",
                 value: shieldsMeasurement.count,
-                detail: "verified engine blocks in this visit",
-                icon: ShieldCheck
+                // Only a run that recorded engine verification facts may be
+                // called verified. A legacy wire carries the count alone, and
+                // the verification is exactly what it lacks.
+                detail:
+                  shieldsMeasurement.origin === "recorded"
+                    ? "verified engine blocks in this visit"
+                    : "engine blocks reported by this visit; no engine readback recorded",
+                icon: shieldsMeasurement.origin === "recorded" ? ShieldCheck : Shield
               }
             : {
                 label: "Matched Shields lists",
                 value: shieldsMeasurement.count,
-                detail: `verified classification of ${run.counts.totalRequests.toLocaleString("en-US")} requests`,
-                icon: ShieldCheck
+                detail:
+                  shieldsMeasurement.origin === "recorded"
+                    ? `verified classification of ${run.counts.totalRequests.toLocaleString("en-US")} requests`
+                    : `classification reported over ${run.counts.totalRequests.toLocaleString("en-US")} requests; no engine readback recorded`,
+                icon: shieldsMeasurement.origin === "recorded" ? ShieldCheck : Shield
               }
         ]
       : shieldsConfigured || run.verificationFacts?.shields
