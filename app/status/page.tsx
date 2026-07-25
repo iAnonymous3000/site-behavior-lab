@@ -65,7 +65,7 @@ export default async function StatusPage() {
               {overview.siteCount.toLocaleString()} distinct sites currently qualify for corpus aggregates;{" "}
               {overview.coverageSiteCount.toLocaleString()} sites have at least one successful load.
             </p>
-            <p className="status-note">This date and this site count both describe the single measurement cohort the corpus aggregates use. Current means no more than eight days old. It does not mean every site was refreshed in that window.</p>
+            <p className="status-note">This date and this site count both describe the single measurement cohort the corpus aggregates use. Current means no more than eight days old. It does not mean every site was refreshed in that window. A site that loaded but whose evidence was cut short, by a request cap or a censored family, is counted as covered and never as measured, so the two numbers differ by more than failed loads.</p>
           </article>
 
           <article className="status-card">
