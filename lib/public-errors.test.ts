@@ -2,17 +2,21 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { test } from "node:test";
-import { EdgeUrlSafetyError } from "./edge-url-safety";
 import { PublicFacingError, PublicScanError, toPublicError } from "./public-errors";
+import { PublicUrlDnsUnavailableError } from "./url-safety";
 
 test("public-facing errors share one status-carrying base class", () => {
   const scanError = new PublicScanError("Nope.", 429);
-  const edgeError = new EdgeUrlSafetyError("Blocked.", 400);
+  const dnsError = new PublicUrlDnsUnavailableError("EAI_AGAIN");
 
   assert.equal(scanError instanceof PublicFacingError, true);
-  assert.equal(edgeError instanceof PublicFacingError, true);
+  assert.equal(dnsError instanceof PublicFacingError, true);
   assert.deepEqual(toPublicError(scanError), { message: "Nope.", status: 429 });
-  assert.deepEqual(toPublicError(edgeError), { message: "Blocked.", status: 400 });
+  // A verification outage must reach the client as its own 503, not be masked.
+  assert.deepEqual(toPublicError(dnsError), {
+    message: "Public host verification could not complete. Try again shortly.",
+    status: 503
+  });
 });
 
 test("toPublicError scrubs unexpected errors without blaming the target URL and logs them server-side", () => {
