@@ -3,7 +3,7 @@ import { access, mkdtemp, readdir, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, test } from "node:test";
-import { pruneStaticReports, pruneStaticReportsWithCorrections } from "./prune-static-reports";
+import { pruneStaticReportsWithCorrections } from "./prune-static-reports";
 import { buildProvenanceEntry, committedSidecarFilename } from "./redaction-provenance";
 import { redactScanReportV1 } from "./redact-scan-report-v1";
 import { REDACTION_VERSION } from "./redaction-v2";
@@ -13,16 +13,34 @@ import type { PublicScanReportV2 } from "./scan-report-v2";
 import type { ScanReport, ScanResult } from "./types";
 
 const DAY_MS = 24 * 60 * 60 * 1_000;
-const NO_CORRECTION_PINS = new Set<string>();
 
 let reportsDir = "";
+let ledgerDir = "";
+/**
+ * These tests drive the production entry point, so the corrections ledger is
+ * real. It is written outside reportsDir because the report reader treats every
+ * file in that directory as a static-report candidate.
+ */
+let emptyLedgerPath = "";
 
 beforeEach(async () => {
   reportsDir = await mkdtemp(path.join(tmpdir(), "sbl-prune-"));
+  ledgerDir = await mkdtemp(path.join(tmpdir(), "sbl-prune-ledger-"));
+  emptyLedgerPath = path.join(ledgerDir, "corrections.json");
+  await writeFile(
+    emptyLedgerPath,
+    `${JSON.stringify({
+      $schema: "https://sitebehavior.org/corrections.schema.json",
+      schemaVersion: 1,
+      policy: "https://sitebehavior.org/corrections/",
+      entries: []
+    })}\n`
+  );
 });
 
 afterEach(async () => {
   await rm(reportsDir, { recursive: true, force: true });
+  await rm(ledgerDir, { recursive: true, force: true });
 });
 
 function makeResult(domain: string, scannedAt: string): ScanResult {
@@ -98,11 +116,10 @@ test("age pruning removes stale reports but keeps each exact cohort's newest gen
   await writeReport("20260301-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", makeResult("one-fixture.dev", "2026-03-01T00:00:00.000Z"));
   await writeReport("20260501-cccccccccccccccccccccccccccccccc", makeResult("one-fixture.dev", "2026-05-01T00:00:00.000Z"));
 
-  const { removed, warnings } = await pruneStaticReports(reportsDir, {
+  const { removed, warnings } = await pruneStaticReportsWithCorrections(reportsDir, emptyLedgerPath, {
     maxAgeMs: 7 * DAY_MS,
     maxCount: 1_000,
     keepPerSite: 2,
-    pinnedReportIds: NO_CORRECTION_PINS,
     now
   });
 
@@ -168,11 +185,10 @@ for (const mismatch of COHORT_MISMATCHES) {
       makeResult("one-fixture.dev", "2026-05-01T00:00:00.000Z")
     );
 
-    const { removed, warnings } = await pruneStaticReports(reportsDir, {
+    const { removed, warnings } = await pruneStaticReportsWithCorrections(reportsDir, emptyLedgerPath, {
       maxAgeMs: 7 * DAY_MS,
       maxCount: 1_000,
       keepPerSite: 2,
-      pinnedReportIds: NO_CORRECTION_PINS,
       now
     });
 
@@ -203,11 +219,10 @@ test("a forged tracker catalog cannot evict the only compatible predecessor", as
     makeResult("one-fixture.dev", "2026-05-01T00:00:00.000Z")
   );
 
-  const { removed, warnings } = await pruneStaticReports(reportsDir, {
+  const { removed, warnings } = await pruneStaticReportsWithCorrections(reportsDir, emptyLedgerPath, {
     maxAgeMs: 7 * DAY_MS,
     maxCount: 1_000,
     keepPerSite: 2,
-    pinnedReportIds: NO_CORRECTION_PINS,
     now
   });
 
@@ -237,11 +252,10 @@ test("schema mismatch cannot evict the only compatible predecessor", async () =>
     makeResult("example.com", "2026-05-01T00:00:00.000Z")
   );
 
-  const { removed, warnings } = await pruneStaticReports(reportsDir, {
+  const { removed, warnings } = await pruneStaticReportsWithCorrections(reportsDir, emptyLedgerPath, {
     maxAgeMs: 7 * DAY_MS,
     maxCount: 1_000,
     keepPerSite: 2,
-    pinnedReportIds: NO_CORRECTION_PINS,
     now
   });
 
@@ -265,11 +279,10 @@ test("null cohorts never compare, while the newest broad report keeps the site p
     await writeReport(id, report);
   }
 
-  const { removed } = await pruneStaticReports(reportsDir, {
+  const { removed } = await pruneStaticReportsWithCorrections(reportsDir, emptyLedgerPath, {
     maxAgeMs: 7 * DAY_MS,
     maxCount: 1_000,
     keepPerSite: 2,
-    pinnedReportIds: NO_CORRECTION_PINS,
     now
   });
 
@@ -296,11 +309,10 @@ test("generalized v1 subjects never compare, while the newest broad report keeps
     await writeReport(id, report);
   }
 
-  const { removed } = await pruneStaticReports(reportsDir, {
+  const { removed } = await pruneStaticReportsWithCorrections(reportsDir, emptyLedgerPath, {
     maxAgeMs: 7 * DAY_MS,
     maxCount: 1_000,
     keepPerSite: 2,
-    pinnedReportIds: NO_CORRECTION_PINS,
     now
   });
 
@@ -320,11 +332,10 @@ test("a file the reader cannot read is never deleted", async () => {
     `${JSON.stringify({ ...makeResult("two.example.dev", "2025-01-01T00:00:00.000Z"), requests: [null] })}\n`
   );
 
-  const { removed, warnings } = await pruneStaticReports(reportsDir, {
+  const { removed, warnings } = await pruneStaticReportsWithCorrections(reportsDir, emptyLedgerPath, {
     maxAgeMs: 7 * DAY_MS,
     maxCount: 1,
     keepPerSite: 0,
-    pinnedReportIds: NO_CORRECTION_PINS,
     now
   });
 
@@ -341,11 +352,10 @@ test("the count cap trims oldest unprotected reports first", async () => {
   await writeReport("20260709-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", makeResult("b.example.dev", "2026-07-09T00:00:00.000Z"));
   await writeReport("20260710-cccccccccccccccccccccccccccccccc", makeResult("c.example.dev", "2026-07-10T00:00:00.000Z"));
 
-  const { removed } = await pruneStaticReports(reportsDir, {
+  const { removed } = await pruneStaticReportsWithCorrections(reportsDir, emptyLedgerPath, {
     maxAgeMs: 365 * DAY_MS,
     maxCount: 2,
     keepPerSite: 0,
-    pinnedReportIds: NO_CORRECTION_PINS,
     now
   });
 
@@ -454,11 +464,10 @@ test("unknown provenance is retained while verified pruning removes the whole bu
   const danglingId = "20250101-33333333333333333333333333333333";
   await writeFile(path.join(reportsDir, committedSidecarFilename(danglingId)), "{}\n");
 
-  const { removed, warnings } = await pruneStaticReports(reportsDir, {
+  const { removed, warnings } = await pruneStaticReportsWithCorrections(reportsDir, emptyLedgerPath, {
     maxAgeMs: 7 * DAY_MS,
     maxCount: 100,
     keepPerSite: 0,
-    pinnedReportIds: NO_CORRECTION_PINS,
     now
   });
 

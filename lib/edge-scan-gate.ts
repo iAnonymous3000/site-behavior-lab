@@ -481,7 +481,7 @@ export async function constantTimeEqual(candidate: string, expected: string): Pr
   return mismatch === 0;
 }
 
-export async function sha256Hex(value: string): Promise<string> {
+async function sha256Hex(value: string): Promise<string> {
   const bytes = new TextEncoder().encode(value);
   const digest = await crypto.subtle.digest("SHA-256", bytes);
   return Array.from(new Uint8Array(digest))

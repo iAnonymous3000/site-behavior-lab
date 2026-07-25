@@ -38,8 +38,8 @@ const FINGERPRINT_API_HINTS = [
 export const PAGEGRAPH_R2_MAX_ARTIFACT_BYTES = 32 * 1024 * 1024;
 export const PAGEGRAPH_R2_MAX_RECORDS = 250_000;
 export const PAGEGRAPH_R2_MAX_KEYS = 1_024;
-export const PAGEGRAPH_R2_MAX_FIELDS_PER_RECORD = 64;
-export const PAGEGRAPH_R2_MAX_FIELD_CHARS = 16_384;
+const PAGEGRAPH_R2_MAX_FIELDS_PER_RECORD = 64;
+const PAGEGRAPH_R2_MAX_FIELD_CHARS = 16_384;
 export const PAGEGRAPH_R2_SUPPORTED_SCHEMA_VERSION = "0.7.7" as const;
 const PAGEGRAPH_R2_ABOUT_URL = "https://github.com/brave/brave-browser/wiki/PageGraph";
 

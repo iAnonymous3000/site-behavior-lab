@@ -13,7 +13,7 @@ import { canonicalJson } from "./scan-report-v2-fingerprints";
 import { sha256Hex } from "./sha256";
 
 export const DETECTOR_CALIBRATION_ANALYSIS_VERSION = "detector-calibration-analysis-v1" as const;
-export const DETECTOR_CALIBRATION_MAX_CASES = 100_000;
+const DETECTOR_CALIBRATION_MAX_CASES = 100_000;
 
 export type DetectorCalibrationSampling = "simple-random" | "census" | "convenience";
 export type DetectorCalibrationCensorReason =

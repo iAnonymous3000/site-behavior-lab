@@ -118,7 +118,7 @@ export function serializeCorpusNeutralitySnapshot(snapshot: CorpusNeutralitySnap
 }
 
 /** Strictly parse and normalize a local snapshot before it is used as a gate. */
-export function parseCorpusNeutralitySnapshot(
+function parseCorpusNeutralitySnapshot(
   value: unknown,
   label = "Corpus-neutrality snapshot"
 ): CorpusNeutralitySnapshot {

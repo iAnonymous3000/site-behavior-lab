@@ -217,7 +217,7 @@ const SCAN_COLOR_SCHEME = "light" as const;
 const NAVIGATION_TIMEOUT_MS = 30_000;
 const NETWORK_IDLE_TIMEOUT_MS = 8_000;
 const SCANNER_EGRESS_ENV = "SITE_BEHAVIOR_LAB_SCANNER_EGRESS";
-export const MAX_SCAN_DURATION_MS = 45_000;
+const MAX_SCAN_DURATION_MS = 45_000;
 // Active keystroke-exfiltration probe: how many fields to type into, the minimum
 // time budget needed to bother, and how long to watch for the sentinel leaving.
 const MAX_PROBE_FIELDS = 8;

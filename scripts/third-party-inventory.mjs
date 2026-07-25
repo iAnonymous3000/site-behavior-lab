@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 
-import { createHash } from "node:crypto";
 import { mkdir, readFile, rename, unlink, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { sha256Hex } from "./brave-list-digests.mjs";
 
 const SCRIPT_PATH = "scripts/third-party-inventory.mjs";
 const DEFAULT_OUTPUT = "THIRD_PARTY_INVENTORY.json";
@@ -21,10 +21,6 @@ const LEGAL_NOTICE =
   "Declared license identifiers are copied from the checked local inputs and have not been legally " +
   "verified. UNKNOWN means those inputs do not prove a license. Legal review and any required notice " +
   "or source-offer work remain external release gates.";
-
-function sha256Hex(value) {
-  return createHash("sha256").update(value).digest("hex");
-}
 
 function parseJson(source, inputPath) {
   try {

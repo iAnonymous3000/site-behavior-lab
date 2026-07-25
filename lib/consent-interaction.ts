@@ -112,8 +112,8 @@ export const CONSENT_SHADOW_HOSTS = ["#usercentrics-root", "#usercentrics-cmp-ui
  * probes need this narrow browser-init seam to retain roots for known CMP
  * hosts without changing their open/closed mode.
  */
-export const CONSENT_SHADOW_ROOT_REGISTRY_KEY = "site-behavior-lab/consent-shadow-root-registry/v1";
-export const CONSENT_PAGE_RUNTIME_GLOBAL_KEY = "__siteBehaviorLabConsentRuntimeV1";
+const CONSENT_SHADOW_ROOT_REGISTRY_KEY = "site-behavior-lab/consent-shadow-root-registry/v1";
+const CONSENT_PAGE_RUNTIME_GLOBAL_KEY = "__siteBehaviorLabConsentRuntimeV1";
 
 /**
  * Budgets that decide what counts as a recognized consent control. Each is a

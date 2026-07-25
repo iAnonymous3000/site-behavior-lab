@@ -70,7 +70,7 @@ function copyShieldsFacts(facts: ShieldsVerificationFactsR2): ShieldsVerificatio
   };
 }
 
-export function copyScanRunV2R2(run: ScanRunV2R2): ScanRunV2R2 {
+function copyScanRunV2R2(run: ScanRunV2R2): ScanRunV2R2 {
   // The r1 projector copies every retained field and, being named-field,
   // drops the r2 additions; they are re-attached from their own copiers.
   const base = copyScanRunV2(run);

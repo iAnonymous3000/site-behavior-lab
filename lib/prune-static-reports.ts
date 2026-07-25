@@ -93,15 +93,6 @@ type ReportRecord = {
   temporalPairingKey: string | null;
 };
 
-export async function pruneStaticReports(reportsDir: string, options: PruneOptions): Promise<PruneResult> {
-  const lock = await acquireReportCorpusLock(reportsDir, "prune-static-reports");
-  try {
-    return await pruneStaticReportsUnderLock(reportsDir, options);
-  } finally {
-    await lock.release();
-  }
-}
-
 async function pruneStaticReportsUnderLock(reportsDir: string, options: PruneOptions): Promise<PruneResult> {
   const { records, warnings } = await readReportRecords(reportsDir);
   const now = options.now ?? Date.now();
