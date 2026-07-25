@@ -5,6 +5,7 @@ import path from "node:path";
 import { afterEach, beforeEach, test } from "node:test";
 import { createComparisonReport } from "./compare-reports";
 import { buildCorpusStats } from "./corpus-stats-builder";
+import { loadCorpusOverview } from "./corpus-overview";
 import { LEGACY_V1_METHODOLOGY_UNSPECIFIED, NODE_SCANNER_METHODOLOGY_VERSION } from "./legacy-methodology";
 import { buildProvenanceEntry, committedSidecarFilename } from "./redaction-provenance";
 import { redactScanReportV1 } from "./redact-scan-report-v1";
@@ -443,4 +444,31 @@ test("missing or mismatched sidecars fail the corpus build", async () => {
   const sidecar = JSON.parse(await readFile(sidecarPath, "utf8")) as Record<string, unknown>;
   await writeFile(sidecarPath, `${JSON.stringify({ ...sidecar, redactionVersion: 999 })}\n`);
   await assert.rejects(() => buildCorpusStats(reportsDir), /redaction-version-mismatch/);
+});
+
+test("the published artifact and the rendered aggregate name the same cohort", async () => {
+  // The selection rule used to be restated in two files: this builder chose
+  // primaryCohortId while lib/corpus-overview chose the leaderboard's cohort.
+  // Both now call selectPrimaryCorpusCohort, and this proves it over the real
+  // committed corpus rather than a fixture, so a re-added local sort in either
+  // file fails here. It asserts agreement only, never a count, so an ordinary
+  // corpus refresh cannot redden it.
+  const committedReportsDir = path.join(process.cwd(), "public", "reports");
+  const { stats } = await buildCorpusStats(committedReportsDir);
+  const overview = await loadCorpusOverview();
+
+  assert.equal(
+    overview.aggregateCohort?.id ?? null,
+    stats.primaryCohortId ?? null,
+    "the corpus artifact and the directory aggregate must describe one cohort"
+  );
+
+  // The cohort the aggregates speak for must also be one a reader can date;
+  // the status page derives its freshness badge from exactly this cohort.
+  const primary = (stats.cohorts ?? []).find((cohort) => cohort.id === stats.primaryCohortId);
+  assert.ok(primary, "the named primary cohort must be present among the published cohorts");
+  assert.ok(
+    primary.latestRunAt !== null && Number.isFinite(Date.parse(primary.latestRunAt)),
+    "the primary cohort must carry a parseable newest measurement"
+  );
 });

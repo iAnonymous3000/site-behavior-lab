@@ -325,6 +325,7 @@ test("a version-2 corpus benchmarks only the report's exact methodology cohort",
       {
         ...identity,
         sampleSize: 60,
+        latestRunAt: "2026-07-06T09:35:00.000Z",
         metrics: legacyCompatibility.metrics
       }
     ]

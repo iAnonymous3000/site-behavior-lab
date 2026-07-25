@@ -229,9 +229,21 @@ test("aggregate selection names one methodology cohort and mixed direct aggregat
   const r2a = makeEntry({ id: "r2-a", domain: "a.example", corpusCohort: r2Cohort });
   const r2b = makeEntry({ id: "r2-b", domain: "b.example", corpusCohort: r2Cohort });
 
+  // v1 keeps the aggregate while it remains the deployed benchmark source,
+  // even though the r2 cohort here has more sites. This used to differ between
+  // the two selection sites: the stats builder filtered to v1 and the directory
+  // did not, so the artifact and the leaderboard could name different cohorts.
+  // Both now call selectPrimaryCorpusCohort, and promoting r2 stays a
+  // deliberate policy change rather than an emergent one.
   const selected = selectAggregateCorpusCohort([legacy, r2a, r2b]);
-  assert.equal(selected.cohort?.id, r2Cohort.id);
-  assert.deepEqual(selected.entries.map((entry) => entry.id), ["r2-a", "r2-b"]);
+  assert.equal(selected.cohort?.id, "v1:test-methodology:producer-unrecorded");
+  assert.deepEqual(selected.entries.map((entry) => entry.id), ["legacy"]);
+
+  // With no v1 rows at all, the r2 generation is selected on its own terms.
+  const r2Only = selectAggregateCorpusCohort([r2a, r2b]);
+  assert.equal(r2Only.cohort?.id, r2Cohort.id);
+  assert.deepEqual(r2Only.entries.map((entry) => entry.id), ["r2-a", "r2-b"]);
+
   assert.throws(() => selectSiteDataPoints([legacy, r2a]), /mixed methodology cohorts/);
 });
 

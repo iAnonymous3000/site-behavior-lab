@@ -1,7 +1,17 @@
-import { corpusCohortIdentityForView, type CorpusCohortIdentity } from "./corpus-cohort";
+import {
+  corpusCohortIdentityForView,
+  selectPrimaryCorpusCohort,
+  type CorpusCohortIdentity
+} from "./corpus-cohort";
 import { preferCorpusRepresentative } from "./corpus-representative";
 import { corpusSiteDomainKey } from "./corpus-site-domain";
-import type { CorpusMetricKey, CorpusStats, CorpusStatsCohort, MetricDistribution } from "./corpus-stats";
+import {
+  CORPUS_MIN_SAMPLE,
+  type CorpusMetricKey,
+  type CorpusStats,
+  type CorpusStatsCohort,
+  type MetricDistribution
+} from "./corpus-stats";
 import { isReservedReportDomain } from "./reserved-report-domains";
 import { displayRunView, familyCensoredOnRun, runHitRequestRecordingCap, toReportView } from "./scan-report-view";
 import {
@@ -159,17 +169,22 @@ export async function buildCorpusStats(reportsDir: string, now = new Date()): Pr
     .map(({ identity, bySite: sites }) => ({
       ...identity,
       sampleSize: sites.size,
+      latestRunAt:
+        [...sites.values()]
+          .map((site) => site.scannedAt)
+          .sort((left, right) => Date.parse(right) - Date.parse(left))[0] ?? null,
       metrics: metricDistributions([...sites.values()])
     }))
     .sort((left, right) => left.id.localeCompare(right.id));
 
   // Keep the historical top-level fields as a compatibility view for current
-  // findings consumers. It names exactly one cohort (prefer the largest v1
-  // cohort while v1 remains the deployed benchmark source), never a pool.
-  const legacyCohorts = cohorts.filter((cohort) => cohort.schemaVersion === 1);
-  const primary = [...(legacyCohorts.length > 0 ? legacyCohorts : cohorts)].sort(
-    (left, right) => right.sampleSize - left.sampleSize || left.id.localeCompare(right.id)
-  )[0];
+  // findings consumers. It names exactly one cohort, never a pool, chosen by
+  // the shared selector the directory leaderboard also calls so the artifact
+  // and the rendered aggregate can never name different cohorts.
+  const primary = selectPrimaryCorpusCohort(
+    cohorts.map((cohort) => ({ identity: cohort, siteCount: cohort.sampleSize, latestRunAt: cohort.latestRunAt })),
+    CORPUS_MIN_SAMPLE
+  )?.identity;
 
   return {
     stats: {

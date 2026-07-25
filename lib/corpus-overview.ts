@@ -1,8 +1,13 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import type { CompatibilityFingerprint, ComparisonDecision } from "./comparison-decision";
-import { corpusCohortIdentityForView, type CorpusCohortIdentity } from "./corpus-cohort";
+import {
+  corpusCohortIdentityForView,
+  selectPrimaryCorpusCohort,
+  type CorpusCohortIdentity
+} from "./corpus-cohort";
 import { preferCorpusRepresentative } from "./corpus-representative";
+import { CORPUS_MIN_SAMPLE } from "./corpus-stats";
 import { domainsMatch } from "./featured-sites";
 import { buildReportHeadline, type HeadlineTone } from "./report-headline";
 import { trackingServiceRequests } from "./report-insights";
@@ -325,10 +330,12 @@ async function buildCorpusOverview(): Promise<CorpusOverview> {
 }
 
 /**
- * Select one explicit measurement cohort for a corpus-wide aggregate. The
- * largest independently represented site cohort wins; ties are stable by
- * cohort id. This keeps an r2 migration visible without ever blending r2 and
- * legacy-v1 measurements in one denominator.
+ * Select one explicit measurement cohort for a corpus-wide aggregate, using the
+ * SAME rule the stats builder applies to its published cohorts. Both sides call
+ * {@link selectPrimaryCorpusCohort}; neither restates it. This keeps an r2
+ * migration visible without ever blending r2 and legacy-v1 measurements in one
+ * denominator, and keeps the leaderboard's cohort and the artifact's
+ * primaryCohortId from drifting apart.
  */
 export function selectAggregateCorpusCohort(entries: DirectoryEntry[]): {
   cohort: CorpusCohortIdentity | null;
@@ -340,14 +347,28 @@ export function selectAggregateCorpusCohort(entries: DirectoryEntry[]): {
     if (list) list.push(entry);
     else byCohort.set(entry.corpusCohort.id, [entry]);
   }
-  const selected = [...byCohort.values()].sort((left, right) => {
-    const leftSites = new Set(left.map((entry) => entry.domain)).size;
-    const rightSites = new Set(right.map((entry) => entry.domain)).size;
-    return rightSites - leftSites || left[0].corpusCohort.id.localeCompare(right[0].corpusCohort.id);
-  })[0];
+  const selected = selectPrimaryCorpusCohort(
+    [...byCohort.values()].map((cohortEntries) => ({
+      identity: cohortEntries[0].corpusCohort,
+      siteCount: new Set(cohortEntries.map((entry) => entry.domain)).size,
+      latestRunAt: newestScannedAt(cohortEntries)
+    })),
+    CORPUS_MIN_SAMPLE
+  );
+  const selectedEntries = selected ? (byCohort.get(selected.identity.id) ?? []) : [];
   return selected
-    ? { cohort: selected[0].corpusCohort, entries: selected }
+    ? { cohort: selected.identity, entries: selectedEntries }
     : { cohort: null, entries: [] };
+}
+
+/** Newest parseable scan time in a cohort's rows, or null when none parse. */
+function newestScannedAt(entries: readonly DirectoryEntry[]): string | null {
+  let newest: string | null = null;
+  for (const entry of entries) {
+    if (!Number.isFinite(Date.parse(entry.scannedAt))) continue;
+    if (newest === null || Date.parse(entry.scannedAt) > Date.parse(newest)) newest = entry.scannedAt;
+  }
+  return newest;
 }
 
 /**

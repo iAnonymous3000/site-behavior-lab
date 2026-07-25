@@ -30,6 +30,7 @@ test("a cohort without the requested-GPC condition is refused, never read as spl
     producer: null,
     gpc: true,
     sampleSize: 60,
+    latestRunAt: "2026-07-06T09:35:00.000Z",
     metrics: {}
   };
   const stats = { version: 2, generatedAt: "2026-07-25T00:00:00.000Z", sampleSize: 60, metrics: {}, cohorts: [cohort] };
@@ -124,6 +125,7 @@ test("methodology cohorts validate and can be selected without pooling", () => {
       producer: null,
       gpc: true,
       sampleSize: 60,
+      latestRunAt: "2026-07-06T09:35:00.000Z",
       metrics: corpus.metrics
     },
     {
@@ -135,6 +137,7 @@ test("methodology cohorts validate and can be selected without pooling", () => {
       producer: "node-playwright",
       gpc: true,
       sampleSize: 12,
+      latestRunAt: "2026-07-14T00:00:00.000Z",
       metrics: {
         thirdPartyDomains: { count: 12, min: 1, max: 20, p50: 4, p75: 8, p90: 12, p95: 18 }
       }
@@ -146,5 +149,9 @@ test("methodology cohorts validate and can be selected without pooling", () => {
   assert.equal(selected?.sampleSize, 12);
   assert.equal(selected?.metrics.thirdPartyDomains?.p50, 4);
   assert.equal(selectCorpusStatsCohort(corpus, "missing"), null);
-  assert.equal(isCorpusStats({ ...corpus, cohorts: [{ ...corpus.cohorts[0], methodologyOrigin: "guessed" }] }), false);
+  assert.equal(isCorpusStats({ ...corpus, cohorts: [{ ...corpus.cohorts![0], methodologyOrigin: "guessed" }] }), false);
+  // Primary selection ranks on recency, so a cohort that cannot date itself
+  // cannot be read as if it could.
+  const { latestRunAt: _undated, ...undated } = corpus.cohorts![0];
+  assert.equal(isCorpusStats({ ...corpus, cohorts: [undated] }), false);
 });

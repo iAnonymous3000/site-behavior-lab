@@ -35,6 +35,13 @@ export type MetricDistribution = {
 export type CorpusStatsCohort = CorpusCohortIdentity & {
   /** Distinct sites represented once by their newest eligible run in this cohort. */
   sampleSize: number;
+  /**
+   * Newest measurement backing this cohort's distributions, ISO-8601, or null
+   * when no row carried a parseable time. Published so the artifact can justify
+   * which cohort it named primary, and so a reader can date the distributions
+   * without re-reading every committed report.
+   */
+  latestRunAt: string | null;
   metrics: Partial<Record<CorpusMetricKey, MetricDistribution>>;
 };
 
@@ -188,6 +195,9 @@ function isCorpusStatsCohort(value: unknown): value is CorpusStatsCohort {
     // joined the key cannot be trusted to keep the two eras apart, and reading
     // it as if it could would republish a pooled distribution.
     typeof value.gpc !== "boolean" ||
+    // Also required: primary selection ranks on recency, so an artifact that
+    // cannot date its own cohorts cannot justify the cohort it named.
+    !(value.latestRunAt === null || typeof value.latestRunAt === "string") ||
     typeof value.sampleSize !== "number" ||
     !Number.isFinite(value.sampleSize) ||
     !isRecord(value.metrics)
