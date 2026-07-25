@@ -42,6 +42,22 @@ const R2_ENV_NAMES = [
 ] as const;
 const originalFetch = globalThis.fetch;
 
+/**
+ * The clock these fixtures publish under, anchored to the current run.
+ *
+ * It used to be the fixed literal 2026-07-18T12:00:00.000Z. These bundles are
+ * committed through the REAL retention policy, whose default max age is seven
+ * days, so the fixture quietly became a time bomb: at 2026-07-25T12:00Z the
+ * pinned date aged out of the window, every commit-and-read test began
+ * resolving "not-found", and CI went red on the wall clock with no code change.
+ * The same failure mode took the 2026-07-06 Brave-list refresh red at its
+ * "Run unit tests against the new snapshot" step.
+ *
+ * One minute ago is inside every retention window, and staying a single
+ * constant keeps each test deterministic within its own run.
+ */
+const FIXTURE_NOW = new Date(Date.now() - 60_000);
+
 // Every test runs against its own temp directory via the store-dir env var.
 // Never write to (or worse, delete) the repo's real `.site-behavior-lab`
 // default store: a developer running the tests next to a dev server would
@@ -171,7 +187,7 @@ test("prepareScanReportBundle freezes a strict content-free manifest and exact p
   const shareId = `20260718-${"1".repeat(32)}`;
   const prepared = prepareScanReportBundle(
     makeScanResult({ screenshot: "data:image/png;base64,PRIVATE_SCREENSHOT" }),
-    { shareId, now: new Date("2026-07-18T12:34:56.789Z") }
+    { shareId, now: FIXTURE_NOW }
   );
   const roundTripped = JSON.parse(JSON.stringify(prepared.manifest)) as unknown;
 
@@ -209,7 +225,7 @@ test("prepareScanReportBundle freezes a strict content-free manifest and exact p
 test("commit and reconcile preserve the exact prepared report bundle", async () => {
   const prepared = prepareScanReportBundle(makeScanResult(), {
     shareId: `20260718-${"2".repeat(32)}`,
-    now: new Date("2026-07-18T12:00:00.000Z")
+    now: FIXTURE_NOW
   });
 
   const saved = await commitPreparedScanReportBundle(prepared);
@@ -229,7 +245,7 @@ test("commit and reconcile preserve the exact prepared report bundle", async () 
 test("reconciliation completes an exact report-only crash window", async () => {
   const prepared = prepareScanReportBundle(makeScanResult(), {
     shareId: `20260718-${"3".repeat(32)}`,
-    now: new Date("2026-07-18T12:00:00.000Z")
+    now: FIXTURE_NOW
   });
   await writePrimaryOnly(prepared.manifest.reportId, prepared.reportWire, prepared.retention);
 
@@ -247,13 +263,13 @@ test("reconciliation completes an exact report-only crash window", async () => {
 test("reconciliation distinguishes missing storage and fails a stable exact sidecar orphan closed", async () => {
   const missing = prepareScanReportBundle(makeScanResult(), {
     shareId: `20260718-${"4".repeat(32)}`,
-    now: new Date("2026-07-18T12:00:00.000Z")
+    now: FIXTURE_NOW
   });
   assert.deepEqual(await reconcilePreparedScanReportBundle(missing.manifest), { outcome: "missing" });
 
   const orphan = prepareScanReportBundle(makeScanResult(), {
     shareId: `20260718-${"5".repeat(32)}`,
-    now: new Date("2026-07-18T12:00:00.000Z")
+    now: FIXTURE_NOW
   });
   const orphanPath = path.join(reportDir, `${orphan.manifest.reportId}.provenance.json`);
   await writeFile(orphanPath, orphan.sidecarWire);
@@ -268,7 +284,7 @@ test("reconciliation distinguishes missing storage and fails a stable exact side
 test("commit adopts an exact preexisting sidecar only after the primary makes the full bundle valid", async () => {
   const prepared = prepareScanReportBundle(makeScanResult(), {
     shareId: `20260718-${"d".repeat(32)}`,
-    now: new Date("2026-07-18T12:00:00.000Z")
+    now: FIXTURE_NOW
   });
   await writeFile(
     path.join(reportDir, `${prepared.manifest.reportId}.provenance.json`),
@@ -287,7 +303,7 @@ test("commit adopts an exact preexisting sidecar only after the primary makes th
 test("R2 reconciliation never deletes a concurrent exact commit after a missing-primary snapshot", async () => {
   const prepared = prepareScanReportBundle(makeScanResult(), {
     shareId: `20260718-${"e".repeat(32)}`,
-    now: new Date("2026-07-18T12:00:00.000Z")
+    now: FIXTURE_NOW
   });
   let reportPresent = false;
   let sidecarPresent = false;
@@ -330,7 +346,7 @@ test("R2 reconciliation never deletes a concurrent exact commit after a missing-
 test("commit adopts an exact R2 sidecar whose successful PUT response was lost", async () => {
   const prepared = prepareScanReportBundle(makeScanResult(), {
     shareId: `20260718-${"f".repeat(32)}`,
-    now: new Date("2026-07-18T12:00:00.000Z")
+    now: FIXTURE_NOW
   });
   let reportPresent = false;
   let sidecarPresent = false;
@@ -382,11 +398,11 @@ test("commit adopts an exact R2 sidecar whose successful PUT response was lost",
 test("an aborted publication waiting on the mutation lock rejects promptly and never reaches R2", async () => {
   const blocking = prepareScanReportBundle(makeScanResult(), {
     shareId: `20260718-${"a".repeat(32)}`,
-    now: new Date("2026-07-18T12:00:00.000Z")
+    now: FIXTURE_NOW
   });
   const queued = prepareScanReportBundle(makeScanResult(), {
     shareId: `20260718-${"b".repeat(32)}`,
-    now: new Date("2026-07-18T12:00:00.000Z")
+    now: FIXTURE_NOW
   });
   let releaseFirstRead: () => void = () => undefined;
   let announceFirstRead: () => void = () => undefined;
@@ -431,7 +447,7 @@ test("reconciliation never mutates contradictory report, retention, or sidecar s
   await t.test("report digest mismatch", async () => {
     const prepared = prepareScanReportBundle(makeScanResult(), {
       shareId: `20260718-${"6".repeat(32)}`,
-      now: new Date("2026-07-18T12:00:00.000Z")
+      now: FIXTURE_NOW
     });
     const contradictoryWire = prepared.reportWire.replace("example.com", "example.net");
     assert.equal(Buffer.byteLength(contradictoryWire), prepared.manifest.reportBytes);
@@ -454,11 +470,11 @@ test("reconciliation never mutates contradictory report, retention, or sidecar s
   await t.test("retention mismatch", async () => {
     const prepared = prepareScanReportBundle(makeScanResult(), {
       shareId: `20260718-${"7".repeat(32)}`,
-      now: new Date("2026-07-18T12:00:00.000Z")
+      now: FIXTURE_NOW
     });
     const contradictoryRetention = {
-      createdAt: "2026-07-18T12:00:01.000Z",
-      expiresAt: "2026-07-25T12:00:01.000Z"
+      createdAt: new Date(FIXTURE_NOW.getTime() + 1_000).toISOString(),
+      expiresAt: new Date(FIXTURE_NOW.getTime() + 1_000 + 7 * 24 * 60 * 60 * 1_000).toISOString()
     };
     await writePrimaryOnly(prepared.manifest.reportId, prepared.reportWire, contradictoryRetention);
 
@@ -479,7 +495,7 @@ test("reconciliation never mutates contradictory report, retention, or sidecar s
   await t.test("malformed sidecar", async () => {
     const prepared = prepareScanReportBundle(makeScanResult(), {
       shareId: `20260718-${"8".repeat(32)}`,
-      now: new Date("2026-07-18T12:00:00.000Z")
+      now: FIXTURE_NOW
     });
     await writePrimaryOnly(prepared.manifest.reportId, prepared.reportWire, prepared.retention);
     const sidecarPath = path.join(reportDir, `${prepared.manifest.reportId}.provenance.json`);
@@ -500,7 +516,7 @@ test("reconciliation never mutates contradictory report, retention, or sidecar s
 test("reconciliation propagates backend transport faults", async () => {
   const prepared = prepareScanReportBundle(makeScanResult(), {
     shareId: `20260718-${"9".repeat(32)}`,
-    now: new Date("2026-07-18T12:00:00.000Z")
+    now: FIXTURE_NOW
   });
   await mkdir(path.join(reportDir, `${prepared.manifest.reportId}.provenance.json`));
 
