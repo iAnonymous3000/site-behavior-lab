@@ -20,6 +20,24 @@ function makeCorpus(sampleSize: number): CorpusStats {
   };
 }
 
+test("a cohort without the requested-GPC condition is refused, never read as split", () => {
+  const cohort = {
+    id: "v1:legacy:producer-unrecorded:gpc-on",
+    schemaVersion: 1 as const,
+    schemaRevision: null,
+    methodologyVersion: "legacy",
+    methodologyOrigin: "legacy-derived" as const,
+    producer: null,
+    gpc: true,
+    sampleSize: 60,
+    metrics: {}
+  };
+  const stats = { version: 2, generatedAt: "2026-07-25T00:00:00.000Z", sampleSize: 60, metrics: {}, cohorts: [cohort] };
+  assert.ok(isCorpusStats(stats));
+  const { gpc, ...withoutGpc } = cohort;
+  assert.equal(isCorpusStats({ ...stats, cohorts: [withoutGpc] }), false);
+});
+
 test("the honesty gate blocks percentile claims below the minimum sample", () => {
   assert.equal(corpusIsUsable(null), false);
   assert.equal(corpusIsUsable(makeCorpus(CORPUS_MIN_SAMPLE - 1)), false);
@@ -104,6 +122,7 @@ test("methodology cohorts validate and can be selected without pooling", () => {
       methodologyVersion: "method-a",
       methodologyOrigin: "legacy-derived",
       producer: null,
+      gpc: true,
       sampleSize: 60,
       metrics: corpus.metrics
     },
@@ -114,6 +133,7 @@ test("methodology cohorts validate and can be selected without pooling", () => {
       methodologyVersion: "method-b",
       methodologyOrigin: "recorded",
       producer: "node-playwright",
+      gpc: true,
       sampleSize: 12,
       metrics: {
         thirdPartyDomains: { count: 12, min: 1, max: 20, p50: 4, p75: 8, p90: 12, p95: 18 }

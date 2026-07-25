@@ -20,8 +20,10 @@ import {
  * silently disappearing or contributing zero-coerced values.
  *
  * One data point per distinct real site within each schema/methodology/
- * producer cohort (most recent eligible scan wins), so repeated scans do not
- * skew a distribution and incompatible cohorts are never pooled. Reserved/test
+ * producer/requested-GPC cohort (most recent eligible scan wins), so repeated
+ * scans do not skew a distribution and incompatible cohorts are never pooled.
+ * A GPC-requesting lead run is split off rather than excluded: it stays
+ * measured, but is only ever ranked against other GPC-requesting visits. Reserved/test
  * domains (the canonical lib/reserved-report-domains.json list, which the old
  * script only partially copied) and error/block-page loads are excluded so
  * the corpus reflects measured real-site behavior only.

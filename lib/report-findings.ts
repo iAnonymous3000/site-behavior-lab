@@ -144,7 +144,7 @@ const CENSORED_ABSENCE_NOTE = " Evidence collection was cut short, so this cover
 function corpusBenchmarkScope(corpus: CorpusStats): string {
   const coverage = corpus.coverageSiteCount;
   if (corpus.cohorts && corpus.primaryCohortId) {
-    return `report's exact schema, methodology, and producer cohort, with each percentile card naming its metric-specific measured-site denominator${
+    return `report's exact schema, methodology, producer, and Global Privacy Control cohort, with each percentile card naming its metric-specific measured-site denominator${
       typeof coverage === "number" && coverage > corpus.sampleSize
         ? ` (among ${coverage.toLocaleString("en-US")} sites with a successful load across all cohorts; other methodologies, request-capped visits, and post-choice consent visits are excluded from this denominator, while failed or block-page attempts are outside that coverage)`
         : ""
@@ -159,7 +159,8 @@ function corpusBenchmarkScope(corpus: CorpusStats): string {
 
 export function buildFindings(view: ReportView, corpusInput: CorpusStats | null): Finding[] {
   // New artifacts publish one distribution per exact schema/methodology/
-  // producer cohort. Select the report's own cohort or fail closed. The
+  // producer/requested-GPC cohort. Select the report's own cohort or fail
+  // closed. The
   // origin-only fallback exists solely for historical version-1 artifacts,
   // whose only distribution was explicitly legacy-v1.
   const corpus = corpusInput?.cohorts

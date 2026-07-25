@@ -37,6 +37,7 @@ function makeResult(overrides: {
   thirdPartyRequests?: number;
   status?: number;
   scannedAt?: string;
+  gpcEnabled?: boolean;
 } = {}): ScanResult {
   const base = makeScanReportV1();
   if (base.reportType === "comparison") throw new Error("fixture must be a single report");
@@ -70,7 +71,8 @@ function makeResult(overrides: {
       ...base.conditions,
       requestedUrl: subjectUrl,
       finalUrl: subjectUrl,
-      scannedAt: overrides.scannedAt ?? base.conditions.scannedAt
+      scannedAt: overrides.scannedAt ?? base.conditions.scannedAt,
+      gpcEnabled: overrides.gpcEnabled ?? base.conditions.gpcEnabled
     }
   };
 }
@@ -275,6 +277,37 @@ test("r2 reports get a separate methodology cohort and never enter the legacy v1
   assert.equal(r2Cohort?.methodologyOrigin, "recorded");
   assert.equal(r2Cohort?.producer, "node-playwright");
   assert.deepEqual(warnings, []);
+});
+
+test("a GPC-requesting run never shares a distribution with a plain visit", async () => {
+  // The GPC lane and the plain lane did not observe the same population: while
+  // every scan sent the signal, the injector blocked blob: workers and censored
+  // the request family on the heaviest sites, so pooling the two eras pools two
+  // inclusion criteria. Comparison eligibility already refuses to compare arms
+  // that differ here; the corpus must refuse to rank them together.
+  await writeReport(
+    "20260701-1111111111111111111111111111aaaa",
+    makeResult({ firstPartyDomain: "gpc-on-fixture.dev", thirdPartyRequests: 12, gpcEnabled: true })
+  );
+  await writeReport(
+    "20260701-2222222222222222222222222222bbbb",
+    makeResult({ firstPartyDomain: "gpc-off-fixture.dev", thirdPartyRequests: 40, gpcEnabled: false })
+  );
+
+  const { stats, warnings } = await buildCorpusStats(reportsDir);
+  assert.deepEqual(warnings, []);
+  const cohorts = stats.cohorts ?? [];
+  assert.equal(cohorts.length, 2);
+  const on = cohorts.find((cohort) => cohort.gpc);
+  const off = cohorts.find((cohort) => !cohort.gpc);
+  assert.ok(on && off, "the two eras must be separate cohorts");
+  // The ids differ only by the condition that separates them.
+  assert.equal(on.id.replace(":gpc-on", ""), off.id.replace(":gpc-off", ""));
+  assert.equal(on.sampleSize, 1);
+  assert.equal(off.sampleSize, 1);
+  // Neither distribution may carry the other era's value.
+  assert.equal(on.metrics.thirdPartyRequests?.max, 12);
+  assert.equal(off.metrics.thirdPartyRequests?.max, 40);
 });
 
 test("different legacy methodology tokens produce separate distributions", async () => {

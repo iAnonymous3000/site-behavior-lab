@@ -34,7 +34,8 @@ function entry(id: string, overrides: Partial<DirectoryEntry> = {}): DirectoryEn
       schemaRevision: 2,
       methodologyVersion: "test-methodology",
       methodologyOrigin: "recorded",
-      producer: "node-playwright"
+      producer: "node-playwright",
+      gpc: true
     },
     producer: "node-playwright",
     acquisition: "ci-workflow",
@@ -170,7 +171,8 @@ test("category medians select one methodology cohort instead of pooling generati
     schemaRevision: null,
     methodologyVersion: "legacy-method",
     methodologyOrigin: "legacy-derived" as const,
-    producer: null
+    producer: null,
+    gpc: true
   };
   const r2 = [
     entry("r2-a", { domain: "a.com", trackerRequests: 100 }),

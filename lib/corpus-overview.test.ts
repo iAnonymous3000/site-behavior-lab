@@ -151,7 +151,8 @@ function makeEntry(overrides: Partial<DirectoryEntry> & { id: string }): Directo
       schemaRevision: null,
       methodologyVersion: "test-methodology",
       methodologyOrigin: "legacy-derived",
-      producer: null
+      producer: null,
+      gpc: true
     },
     producer: null,
     acquisition: null,
@@ -222,7 +223,8 @@ test("aggregate selection names one methodology cohort and mixed direct aggregat
     schemaRevision: 2 as const,
     methodologyVersion: "method-b",
     methodologyOrigin: "recorded" as const,
-    producer: "node-playwright"
+    producer: "node-playwright",
+    gpc: true
   };
   const r2a = makeEntry({ id: "r2-a", domain: "a.example", corpusCohort: r2Cohort });
   const r2b = makeEntry({ id: "r2-b", domain: "b.example", corpusCohort: r2Cohort });

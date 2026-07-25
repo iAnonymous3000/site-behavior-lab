@@ -59,7 +59,7 @@ export type CorpusExportRow = {
   browserVersion: string | null;
   egressLabel: string;
   egressRegion: string | null;
-  /** Versioned schema/methodology/producer cohort; never a cross-version pool. */
+  /** Versioned schema/methodology/producer/requested-GPC cohort; never a cross-version pool. */
   corpusCohortId: string;
   /** Distinct-site denominator after this cohort's passive-run quality gates. */
   corpusCohortDenominator: number;
@@ -127,7 +127,7 @@ export const CORPUS_EXPORT_NOTE = [
   "The flattened corpus deliberately omits the raw baseline and variant fingerprint digests: they remain available in the linked full reports, while repeating stable digests here would add linkability and noise without a documented corpus consumer.",
   "Rows with a status of 400 or higher reflect an error or block page (the site refusing the automated visit), not the site's normal behavior. request_capped is the exact 1,000-request recording-cap flag; those activity counts are floors cut off mid-collection. request_evidence_complete is the broader request-family completeness flag, so it can be false for other bounded capture loss while request_capped remains false.",
   "Rows with request_evidence_complete false have lower-bound request counts and stay out of this project's percentiles, category medians, leaderboards, and since-last-scan deltas, as do failed loads and post-choice consent lead runs. A request-capped row also has cookie and storage figures that are end-state snapshots of an interrupted visit.",
-  "corpus_cohort_id is a versioned schema, methodology, and recorded-producer identity. corpus_cohort_denominator is the distinct-site passive-run denominator for that exact cohort; no percentile, category median, or leaderboard silently pools v1 and r2 or different methodology tokens.",
+  "corpus_cohort_id is a versioned schema, methodology, recorded-producer, and requested-GPC identity. corpus_cohort_denominator is the distinct-site passive-run denominator for that exact cohort; no percentile, category median, or leaderboard silently pools v1 and r2 or different methodology tokens.",
   "corpus_inclusion and corpus_exclusion_reasons state whether a row is the newest eligible representative for its site in that cohort. Excluded rows remain published and auditable; they never contribute a zero or truncated measurement.",
   "siteCount counts distinct sites with a successful single run or primary comparison arm, including request-capped recordings; two successful primary arms do not count a site twice. measuredSampleSize is the denominator of primaryCohortId, the top-level compatibility cohort in corpus-stats.json; the cohorts collection names every separate methodology denominator.",
   "Delta fields compare a site's newest report against its previous successfully loaded, request-complete report only when kind, requested/final subject, schema revision, methodology, browser environment, device/viewport, intervention state, filter-list engine/source/count, known snapshot dates (which may differ), and tracker-catalog identity are compatible; an unknown setup never matches another unknown. The deltas can still reflect run-to-run variance as well as real site changes.",

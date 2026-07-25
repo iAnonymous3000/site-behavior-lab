@@ -61,7 +61,10 @@ export type CorpusStats = {
   cappedSiteCount?: number;
   /** Cohort backing the legacy top-level sampleSize/metrics compatibility view. */
   primaryCohortId?: string;
-  /** Separate distributions; schema/methodology cohorts are never pooled. */
+  /**
+   * Separate distributions; schema, methodology, producer, and requested-GPC
+   * cohorts are never pooled.
+   */
   cohorts?: CorpusStatsCohort[];
   metrics: Partial<Record<CorpusMetricKey, MetricDistribution>>;
 };
@@ -181,6 +184,10 @@ function isCorpusStatsCohort(value: unknown): value is CorpusStatsCohort {
     typeof value.methodologyVersion !== "string" ||
     (value.methodologyOrigin !== "recorded" && value.methodologyOrigin !== "legacy-derived") ||
     !(value.producer === null || typeof value.producer === "string") ||
+    // Required, not optional: an artifact generated before the GPC condition
+    // joined the key cannot be trusted to keep the two eras apart, and reading
+    // it as if it could would republish a pooled distribution.
+    typeof value.gpc !== "boolean" ||
     typeof value.sampleSize !== "number" ||
     !Number.isFinite(value.sampleSize) ||
     !isRecord(value.metrics)

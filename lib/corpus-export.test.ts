@@ -29,7 +29,8 @@ function makeEntry(overrides: Partial<DirectoryEntry> & { id: string }): Directo
       schemaRevision: null,
       methodologyVersion: "test-methodology",
       methodologyOrigin: "legacy-derived",
-      producer: null
+      producer: null,
+      gpc: true
     },
     producer: null,
     acquisition: null,
@@ -203,7 +204,8 @@ test("r2 rows keep click dispatch separate from both consent-arm verification st
           schemaRevision: 2,
           methodologyVersion: "test-methodology",
           methodologyOrigin: "recorded",
-          producer: "node-playwright"
+          producer: "node-playwright",
+          gpc: true
         },
         producer: "node-playwright",
         acquisition: "public-api",
@@ -249,7 +251,8 @@ test("comparison metadata exports the fingerprint verdict but deliberately omits
           schemaRevision: 2,
           methodologyVersion: "test-methodology",
           methodologyOrigin: "recorded",
-          producer: "node-playwright"
+          producer: "node-playwright",
+          gpc: true
         },
         producer: "node-playwright"
       })
@@ -386,7 +389,8 @@ test("rows export provenance and auditable cohort inclusion without fingerprint 
     schemaRevision: 2 as const,
     methodologyVersion: "method-r2",
     methodologyOrigin: "recorded" as const,
-    producer: "node-playwright"
+    producer: "node-playwright",
+    gpc: true
   };
   const rows = buildCorpusExportRows(
     [

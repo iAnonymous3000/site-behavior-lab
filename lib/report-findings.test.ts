@@ -336,7 +336,7 @@ test("a version-2 corpus benchmarks only the report's exact methodology cohort",
     /each percentile card naming its metric-specific measured-site denominator/,
     "the matching r1 methodology cohort is usable"
   );
-  assert.match(byId(matched, "bottom-line").detail, /exact schema, methodology, and producer cohort/);
+  assert.match(byId(matched, "bottom-line").detail, /exact schema, methodology, producer, and Global Privacy Control cohort/);
   assert.doesNotMatch(byId(matched, "bottom-line").detail, /legacy-v1 distribution/);
 
   const mismatched: CorpusStats = {
