@@ -497,7 +497,16 @@ async function source(relative: string): Promise<string> {
   return readFile(path.join(ROOT, relative), "utf8");
 }
 
-async function makeFixture(t: TestContext, options: { policyVersion?: string } = {}) {
+async function makeFixture(
+  t: TestContext,
+  options: {
+    policyVersion?: string;
+    packageVersion?: string;
+    policy?: Record<string, unknown>;
+    citation?: string;
+    changelog?: string;
+  } = {}
+) {
   const root = await mkdtemp(path.join(os.tmpdir(), "site-behavior-lab-release-evidence-"));
   t.after(() => rm(root, { recursive: true, force: true }));
   await mkdir(path.join(root, "scripts"), { recursive: true });
@@ -508,7 +517,7 @@ async function makeFixture(t: TestContext, options: { policyVersion?: string } =
     path.join(root, "package.json"),
     `${JSON.stringify({
       name: "site-behavior-lab",
-      version: "0.1.0",
+      version: options.packageVersion ?? "0.1.0",
       private: true,
       packageManager: "npm@11.11.0",
       engines: { node: "24.14.1", npm: "11.11.0" },
@@ -519,11 +528,11 @@ async function makeFixture(t: TestContext, options: { policyVersion?: string } =
     path.join(root, "package-lock.json"),
     `${JSON.stringify({
       name: "site-behavior-lab",
-      version: "0.1.0",
+      version: options.packageVersion ?? "0.1.0",
       lockfileVersion: 3,
       packages: {
         "": {
-          version: "0.1.0",
+          version: options.packageVersion ?? "0.1.0",
           packageManager: "npm@11.11.0",
           engines: { node: "24.14.1", npm: "11.11.0" }
         }
@@ -532,18 +541,23 @@ async function makeFixture(t: TestContext, options: { policyVersion?: string } =
   );
   await writeFile(
     path.join(root, "release-policy.json"),
-    `${JSON.stringify({
-      schemaVersion: 2,
-      status: "development",
-      version: options.policyVersion ?? "0.1.0",
-      releaseTag: null,
-      releaseDate: null,
-      stablePublicApi: false,
-      npmPublication: "disabled"
-    })}\n`
+    `${JSON.stringify(
+      options.policy ?? {
+        schemaVersion: 2,
+        status: "development",
+        version: options.policyVersion ?? "0.1.0",
+        releaseTag: null,
+        releaseDate: null,
+        stablePublicApi: false,
+        npmPublication: "disabled"
+      }
+    )}\n`
   );
-  await writeFile(path.join(root, "CITATION.cff"), 'cff-version: 1.2.0\nversion: "0.1.0"\n');
-  await writeFile(path.join(root, "CHANGELOG.md"), "# Changelog\n\n## Unreleased\n");
+  await writeFile(
+    path.join(root, "CITATION.cff"),
+    options.citation ?? 'cff-version: 1.2.0\nversion: "0.1.0"\n'
+  );
+  await writeFile(path.join(root, "CHANGELOG.md"), options.changelog ?? "# Changelog\n\n## Unreleased\n");
   await writeFile(path.join(root, "Dockerfile"), "FROM scratch\n");
   await writeFile(path.join(root, "wrangler.container.jsonc"), "{}\n");
 
@@ -623,4 +637,88 @@ test("the release workflow tags only a promoted, CI-green revision and attests i
   assert.match(workflow, /A release may not claim a stable public API or npm publication/);
   assert.match(workflow, /no stable public API and no npm publication/i);
   assert.match(workflow, /permissions:\n\s+contents: read/);
+});
+
+test("the released state is verified, not merely permitted", { skip: hostToolchainSkip }, async (t) => {
+  const releasedPolicy = (overrides: Record<string, unknown> = {}) => ({
+    schemaVersion: 2,
+    status: "released",
+    version: "0.1.0",
+    releaseTag: "v0.1.0",
+    releaseDate: "2026-07-25",
+    stablePublicApi: false,
+    npmPublication: "disabled",
+    ...overrides
+  });
+  const citation = 'cff-version: 1.2.0\nversion: "0.1.0"\ndate-released: "2026-07-25"\n';
+  const changelog = "# Changelog\n\n## Unreleased\n\n## [0.1.0] - 2026-07-25\n";
+
+  // The honest released shape is accepted, and the receipt reports that the tag
+  // does not exist yet because it is cut only after promotion.
+  const ok = await makeFixture(t, { policy: releasedPolicy(), citation, changelog });
+  const accepted = runEvidence(ok.root, ["--static-dir", "out"]);
+  assert.equal(accepted.status, 0, accepted.stderr);
+  const receipt = JSON.parse(accepted.stdout);
+  assert.equal(receipt.release.status, "released");
+  assert.equal(receipt.release.tag, "v0.1.0");
+  assert.equal(receipt.release.releaseDate, "2026-07-25");
+  assert.equal(receipt.release.tagExists, false);
+  assert.equal(receipt.release.evidencesReleaseCommit, false);
+
+  // Once the tag exists and names this commit, the receipt says so.
+  const taggedOk = await makeFixture(t, { policy: releasedPolicy(), citation, changelog });
+  git(taggedOk.root, ["tag", "-a", "v0.1.0", "-m", "release"]);
+  const taggedAccepted = runEvidence(taggedOk.root, ["--static-dir", "out"]);
+  assert.equal(taggedAccepted.status, 0, taggedAccepted.stderr);
+  const taggedReceipt = JSON.parse(taggedAccepted.stdout);
+  assert.equal(taggedReceipt.release.tagExists, true);
+  assert.equal(taggedReceipt.release.evidencesReleaseCommit, true);
+
+  // A release may never widen the project's claims.
+  for (const [overrides, pattern] of [
+    [{ stablePublicApi: true }, /stable-API and npm-publication claims disabled/],
+    [{ npmPublication: "enabled" }, /stable-API and npm-publication claims disabled/],
+    [{ version: "1.0.0", releaseTag: "v1.0.0" }, /pre-1\.0 semantic version/],
+    [{ releaseTag: "0.1.0" }, /must name the tag v<version>/],
+    [{ releaseDate: "July 25 2026" }, /one YYYY-MM-DD release date/],
+    [{ status: "generally-available" }, /status must be exactly development or released/],
+    [{ schemaVersion: 1 }, /must use schemaVersion 2/]
+  ] as const) {
+    const badVersion = (overrides as Record<string, unknown>).version as string | undefined;
+    const bad = await makeFixture(t, {
+      policy: releasedPolicy(overrides),
+      packageVersion: badVersion,
+      citation: badVersion ? citation.replace('"0.1.0"', `"${badVersion}"`) : citation,
+      changelog: badVersion ? changelog.replace("[0.1.0]", `[${badVersion}]`) : changelog
+    });
+    const refused = runEvidence(bad.root, ["--static-dir", "out"]);
+    assert.notEqual(refused.status, 0, `expected refusal for ${JSON.stringify(overrides)}`);
+    assert.match(refused.stderr, pattern);
+  }
+
+  // The dated evidence must agree with the policy, in both files.
+  const wrongCitation = await makeFixture(t, {
+    policy: releasedPolicy(),
+    citation: 'cff-version: 1.2.0\nversion: "0.1.0"\ndate-released: "2026-01-01"\n',
+    changelog
+  });
+  const citationRefused = runEvidence(wrongCitation.root, ["--static-dir", "out"]);
+  assert.notEqual(citationRefused.status, 0);
+  assert.match(citationRefused.stderr, /released CITATION\.cff must carry exactly the policy's release date/);
+
+  const wrongChangelog = await makeFixture(t, {
+    policy: releasedPolicy(),
+    citation,
+    changelog: "# Changelog\n\n## Unreleased\n"
+  });
+  const changelogRefused = runEvidence(wrongChangelog.root, ["--static-dir", "out"]);
+  assert.notEqual(changelogRefused.status, 0);
+  assert.match(changelogRefused.stderr, /released changelog must carry exactly one dated section/);
+
+  // A tag that names a different version than the policy is refused.
+  const strayTag = await makeFixture(t, { policy: releasedPolicy(), citation, changelog });
+  git(strayTag.root, ["tag", "-a", "0.1.0", "-m", "stray"]);
+  const strayRefused = runEvidence(strayTag.root, ["--static-dir", "out"]);
+  assert.notEqual(strayRefused.status, 0);
+  assert.match(strayRefused.stderr, /Release tag set for 0\.1\.0 must be exactly v0\.1\.0/);
 });
