@@ -68,3 +68,51 @@ test("live status distinguishes degraded, stale, and unknown evidence", () => {
   assert.equal(evaluateLiveDeployment({}, scanner(), NOW).state, "unknown");
   assert.equal(evaluateLiveDeployment(pages(), { ok: true }, NOW).state, "unknown");
 });
+
+test("a fresh revision mid-rollout is not reported as degraded", () => {
+  // Pages publishes in about a minute while the scanner rebuilds its container,
+  // so every promotion produces a revision mismatch for several minutes. Badging
+  // that "degraded" trains readers to ignore the badge.
+  const evaluation = evaluateLiveDeployment(
+    { schemaVersion: 1, deployment: SHA, revisionCommittedAt: new Date(NOW - 6 * 60_000).toISOString() },
+    scanner({ deployment: "b".repeat(40) }),
+    NOW
+  );
+
+  assert.equal(evaluation.state, "rolling-out");
+  assert.match(evaluation.summary, /rolling out/i);
+  assert.doesNotMatch(evaluation.summary, /degraded/i);
+});
+
+test("a mismatch past the rollout window, or beside an unhealthy scanner, stays degraded", () => {
+  // Same mismatch, but the revision is far older than any rollout takes.
+  const stuck = evaluateLiveDeployment(
+    { schemaVersion: 1, deployment: SHA, revisionCommittedAt: new Date(NOW - 3 * 60 * 60_000).toISOString() },
+    scanner({ deployment: "b".repeat(40) }),
+    NOW
+  );
+  assert.equal(stuck.state, "degraded");
+  assert.match(stuck.summary, /past its expected rollout window/);
+
+  // Inside the window, but the scanner is not healthy: the rollout excuse must
+  // not launder a real fault.
+  const faulty = evaluateLiveDeployment(
+    { schemaVersion: 1, deployment: SHA, revisionCommittedAt: new Date(NOW - 6 * 60_000).toISOString() },
+    scanner({ deployment: "b".repeat(40), warnings: ["R2 credentials are missing"] }),
+    NOW
+  );
+  assert.equal(faulty.state, "degraded");
+
+  // A receipt published before the field existed carries no rollout evidence,
+  // so it must not be softened by its absence.
+  const legacy = evaluateLiveDeployment(pages(), scanner({ deployment: "b".repeat(40) }), NOW);
+  assert.equal(legacy.state, "degraded");
+
+  // A future-dated commit stamp is not evidence either.
+  const future = evaluateLiveDeployment(
+    { schemaVersion: 1, deployment: SHA, revisionCommittedAt: new Date(NOW + 10 * 60_000).toISOString() },
+    scanner({ deployment: "b".repeat(40) }),
+    NOW
+  );
+  assert.equal(future.state, "degraded");
+});

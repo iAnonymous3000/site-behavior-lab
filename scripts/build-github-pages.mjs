@@ -15,7 +15,7 @@ import {
 import { existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { resolveExactStaticDeploymentCommit } from "./static-deployment-provenance.mjs";
+import { resolveCommitTimestamp, resolveExactStaticDeploymentCommit } from "./static-deployment-provenance.mjs";
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const workDir = path.join(rootDir, ".next-pages-work");
@@ -228,9 +228,22 @@ async function main() {
   // Static Pages has no runtime health route, so publish the same exact source
   // provenance the container exposes. Production monitoring compares this
   // file and scanner health with the CI-gated `production` branch.
+  // revisionCommittedAt is the COMMIT date, never the build clock: identical
+  // for every rebuild of the same SHA, so the receipt stays byte-stable for
+  // exact-SHA comparison. It lets the public status page distinguish "a new
+  // revision is still rolling out to the slower surface" from "a deploy is
+  // stuck", which a bare SHA mismatch cannot express.
   await writeFile(
     path.join(workDir, "public", "deployment.json"),
-    `${JSON.stringify({ schemaVersion: 1, deployment }, null, 2)}\n`
+    `${JSON.stringify(
+      {
+        schemaVersion: 1,
+        deployment,
+        revisionCommittedAt: resolveCommitTimestamp(deployment, { cwd: rootDir })
+      },
+      null,
+      2
+    )}\n`
   );
 
   if ((await staticReportCount(workDir)) === 0) {

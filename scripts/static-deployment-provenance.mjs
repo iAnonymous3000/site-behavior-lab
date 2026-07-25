@@ -43,6 +43,27 @@ export function resolveExactStaticDeploymentCommit({ cwd = process.cwd(), env = 
   return head;
 }
 
+/**
+ * The committer date of a commit, as a UTC ISO-8601 instant.
+ *
+ * Deterministic for a given SHA, unlike a build clock: the same commit always
+ * produces the same receipt bytes, so this cannot break exact-SHA artifact
+ * comparison or attestation. Consumers use it to tell a rollout in progress
+ * (a recent revision the slower surface has not reached yet) from a genuinely
+ * stuck deploy, without needing Git history at read time.
+ */
+export function resolveCommitTimestamp(commit, { cwd = process.cwd() } = {}) {
+  if (!FULL_COMMIT_PATTERN.test(commit)) {
+    throw new Error("A commit timestamp requires a full lowercase Git commit SHA");
+  }
+  const raw = git(cwd, ["show", "--no-patch", "--format=%cI", commit]).trim();
+  const parsed = Date.parse(raw);
+  if (!Number.isFinite(parsed)) {
+    throw new Error(`Could not read a valid committer date for ${commit}`);
+  }
+  return new Date(parsed).toISOString();
+}
+
 function git(cwd, args) {
   try {
     return execFileSync("git", args, { cwd, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });

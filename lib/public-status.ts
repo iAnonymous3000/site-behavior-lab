@@ -12,11 +12,19 @@ export const PUBLIC_STATUS_MAX_HEALTH_AGE_MS = 5 * 60_000;
 export const PUBLIC_STATUS_MAX_CORPUS_AGE_MS = 8 * 24 * 60 * 60_000;
 export const PUBLIC_STATUS_MAX_FILTER_LIST_AGE_MS = 8 * 24 * 60 * 60_000;
 export const PUBLIC_STATUS_UI_REFRESH_MS = 60_000;
+/**
+ * How long after a revision's commit a Pages/scanner mismatch still counts as
+ * a rollout in progress rather than a fault. Pages publishes in about a minute
+ * while the scanner rebuilds its container image, so EVERY promotion produces
+ * a mismatch for several minutes. Reporting that as "degraded" trains readers
+ * to ignore the badge, which is worse than showing nothing.
+ */
+export const PUBLIC_STATUS_MAX_ROLLOUT_MS = 45 * 60_000;
 
 const FULL_GIT_SHA = /^[0-9a-f]{40}$/;
 
 export type FreshnessState = "current" | "stale" | "unknown";
-export type LiveDeploymentState = "aligned" | "degraded" | "stale" | "unknown";
+export type LiveDeploymentState = "aligned" | "rolling-out" | "degraded" | "stale" | "unknown";
 
 export type LiveDeploymentEvaluation = {
   state: LiveDeploymentState;
@@ -74,6 +82,7 @@ export function evaluateLiveDeployment(
   nowMs: number = Date.now()
 ): LiveDeploymentEvaluation {
   const pagesDeployment = readPagesDeployment(pagesValue);
+  const pagesRevisionCommittedAt = readPagesRevisionCommittedAt(pagesValue);
   const scanner = readScannerHealth(scannerValue);
 
   if (!pagesDeployment || !scanner || !Number.isFinite(nowMs)) {
@@ -100,18 +109,34 @@ export function evaluateLiveDeployment(
     };
   }
 
-  if (
-    pagesDeployment !== scanner.deployment ||
-    !scanner.ok ||
-    scanner.status !== "ok" ||
-    !scanner.scansAvailable ||
-    scanner.warnings.length > 0
-  ) {
+  const scannerUnhealthy =
+    !scanner.ok || scanner.status !== "ok" || !scanner.scansAvailable || scanner.warnings.length > 0;
+
+  // A revision mismatch on its own is the NORMAL state during a promotion: the
+  // static site publishes long before the scanner finishes rebuilding. Call it
+  // a rollout only while the site's revision is genuinely recent and the
+  // scanner is otherwise healthy; a mismatch that outlives the rollout window,
+  // or one alongside an unhealthy scanner, is a real fault.
+  if (pagesDeployment !== scanner.deployment && !scannerUnhealthy) {
+    const rolloutAgeMs = revisionAgeMs(pagesRevisionCommittedAt, nowMs);
+    if (rolloutAgeMs !== null && rolloutAgeMs <= PUBLIC_STATUS_MAX_ROLLOUT_MS) {
+      return {
+        state: "rolling-out",
+        summary:
+          "A new revision is rolling out. The static site publishes before the scanner finishes rebuilding, so the two briefly serve different revisions; the scanner is healthy and serving scans.",
+        pagesDeployment,
+        scannerDeployment: scanner.deployment,
+        checkedAt: scanner.timestamp
+      };
+    }
+  }
+
+  if (pagesDeployment !== scanner.deployment || scannerUnhealthy) {
     return {
       state: "degraded",
       summary:
         pagesDeployment !== scanner.deployment
-          ? "The public site and scanner are serving different source revisions."
+          ? "The public site and scanner are serving different source revisions, and the newer revision is past its expected rollout window."
           : "The scanner reports a degraded posture or unavailable scans.",
       pagesDeployment,
       scannerDeployment: scanner.deployment,
@@ -132,6 +157,26 @@ export function evaluateLiveDeployment(
 function readPagesDeployment(value: unknown): string | null {
   if (!isRecord(value) || value.schemaVersion !== 1 || typeof value.deployment !== "string") return null;
   return FULL_GIT_SHA.test(value.deployment) ? value.deployment : null;
+}
+
+/**
+ * The receipt's revision commit time, when it carries one. Receipts published
+ * before this field existed simply have no rollout evidence, so a mismatch
+ * stays "degraded" for them: absent evidence never buys a softer verdict.
+ */
+function readPagesRevisionCommittedAt(value: unknown): string | null {
+  if (!isRecord(value) || typeof value.revisionCommittedAt !== "string") return null;
+  return value.revisionCommittedAt;
+}
+
+/** Positive age in ms, or null when the stamp is malformed or in the future. */
+function revisionAgeMs(committedAt: string | null, nowMs: number): number | null {
+  if (committedAt === null) return null;
+  const parsed = Date.parse(committedAt);
+  if (!Number.isFinite(parsed)) return null;
+  const ageMs = nowMs - parsed;
+  if (ageMs < -PUBLIC_STATUS_MAX_CLOCK_SKEW_MS) return null;
+  return Math.max(0, ageMs);
 }
 
 function readScannerHealth(value: unknown): PublicScannerHealth | null {

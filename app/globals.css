@@ -2781,6 +2781,9 @@ a {
   color: var(--sig-warn);
 }
 
+/* A rollout is expected activity, not a fault: it reads as neutral progress so
+   the warning colors keep meaning "something needs attention". */
+.status-badge.state-rolling-out,
 .status-badge.state-unknown,
 .status-badge.state-checking {
   background: var(--sig-quiet-soft);

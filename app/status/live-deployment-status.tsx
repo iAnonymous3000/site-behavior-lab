@@ -98,11 +98,13 @@ export function LiveDeploymentStatus() {
     ? "Checking"
     : evaluation.state === "aligned"
       ? "Endpoints aligned"
-      : evaluation.state === "degraded"
-        ? "Degraded"
-        : evaluation.state === "stale"
-          ? "Stale"
-          : "Unknown";
+      : evaluation.state === "rolling-out"
+        ? "Rolling out"
+        : evaluation.state === "degraded"
+          ? "Degraded"
+          : evaluation.state === "stale"
+            ? "Stale"
+            : "Unknown";
 
   return (
     // The live region is the summary sentence alone. Marking the whole section
