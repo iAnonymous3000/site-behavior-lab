@@ -314,7 +314,16 @@ function runOneScan(site, { compareGpc, compareShields, compareConsent, device }
       SCAN_COMPARE_SHIELDS: compareShields ? "true" : "false",
       SCAN_COMPARE_CONSENT: compareConsent ? "true" : "false",
       SCAN_COMPARE_GPC: compareGpc ? "true" : "false",
-      SCAN_GPC_ENABLED: "true",
+      // Send GPC only when GPC is the measured axis. Held ON for every scan,
+      // it made the Shields lane claim a signal it was not testing, and the
+      // GPC worker injector blocks any non-http(s) Worker because it cannot
+      // add the signal to a blob: realm without changing that realm's origin.
+      // Blob workers are ordinary on modern sites, so the block censored the
+      // request family and pushed the site out of the corpus aggregate: 80 of
+      // 451 committed reports carry that capture loss and every one of them is
+      // a Shields comparison. A Shields visit with gpcEnabled false is also the
+      // more representative baseline, since most visitors send no GPC header.
+      SCAN_GPC_ENABLED: compareGpc ? "true" : "false",
       // Avoid each child appending duplicate keys to a shared GITHUB_OUTPUT file.
       GITHUB_OUTPUT: ""
     },

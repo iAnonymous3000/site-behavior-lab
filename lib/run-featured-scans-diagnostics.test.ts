@@ -489,3 +489,18 @@ test("only an unfiltered default-mode full featured refresh is authoritative", a
   assert.equal(isAuthoritativeFeaturedRefresh({ ...fullRefresh, FEATURED_INCLUDE_UNAVAILABLE: "true" }), false);
   assert.equal(isAuthoritativeFeaturedRefresh({ ...fullRefresh, GITHUB_REF_NAME: "experiment" }), false);
 });
+
+test("featured scans send GPC only when GPC is the measured axis", async () => {
+  const harness = readFileSync(path.join(process.cwd(), "scripts", "run-featured-scans.mjs"), "utf8");
+
+  // Held ON for every scan, GPC made the Shields lane claim a signal it was not
+  // testing, and the worker injector blocks any non-http(s) Worker because it
+  // cannot add the signal to a blob: realm without changing that realm's
+  // origin. That block censors the request family, which pushes the site out of
+  // the corpus aggregate entirely.
+  assert.match(harness, /SCAN_GPC_ENABLED: compareGpc \? "true" : "false"/);
+  assert.doesNotMatch(harness, /SCAN_GPC_ENABLED: "true"/);
+  // The comparison axis flags stay mutually exclusive and unchanged.
+  assert.match(harness, /SCAN_COMPARE_SHIELDS: compareShields \? "true" : "false"/);
+  assert.match(harness, /SCAN_COMPARE_GPC: compareGpc \? "true" : "false"/);
+});
