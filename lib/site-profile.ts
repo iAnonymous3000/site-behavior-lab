@@ -5,6 +5,22 @@ import { parse } from "tldts";
 const GENERALIZED_LABEL = "{label}";
 
 export function siteProfileKey(domain: string): string | null {
+  const key = registrableSiteKey(domain);
+  if (key === null || !key.startsWith("www.")) return key;
+
+  // `www.` is only ever stripped by the registrable-domain rule below, which
+  // cannot reach it when the parent is itself a public suffix: the PSL makes
+  // `www` the registrable label of `www.gov.uk`, so that host keyed to
+  // `www.gov.uk` while the bare apex keyed to `gov.uk`. Two keys for one site
+  // meant the report page linked to a history page that was never generated
+  // (`/sites/www.gov.uk/` 404d while `/sites/gov.uk/` listed that very report),
+  // because the corpus side reaches the same identity through friendlyDomain,
+  // which does strip `www.`. Collapse the alias so the key is idempotent and
+  // every surface agrees, but only when the remainder is a valid key itself.
+  return registrableSiteKey(key.slice("www.".length)) ?? key;
+}
+
+function registrableSiteKey(domain: string): string | null {
   const normalized = domain.trim().toLowerCase().replace(/\.+$/, "");
   if (
     !normalized ||
