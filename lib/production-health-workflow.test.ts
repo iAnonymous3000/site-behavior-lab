@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { test } from "node:test";
@@ -10,6 +11,31 @@ import {
 } from "./production-synthetic";
 
 const root = process.cwd();
+
+/**
+ * The body the monitor actually posts, produced by the real admission helper
+ * rather than restated here. `scripts/smoke-production-synthetic.mjs` submits
+ * `prepareScanAdmission(...).body` verbatim, so this is the exact wire the
+ * Worker's synthetic allowlist has to accept.
+ */
+function productionSyntheticAdmissionBody(url: string): Record<string, unknown> {
+  const program = `
+    import { prepareScanAdmission } from "./scripts/scan-admission.mjs";
+    const bytes = Uint8Array.from({ length: 32 }, (_value, index) => index);
+    console.log(JSON.stringify(prepareScanAdmission({
+      url: ${JSON.stringify(url)},
+      device: "desktop",
+      gpcEnabled: true,
+      consentMode: "observe"
+    }, () => bytes).body));
+  `;
+  const result = spawnSync(process.execPath, ["--input-type=module", "-e", program], {
+    cwd: root,
+    encoding: "utf8"
+  });
+  assert.equal(result.status, 0, result.stderr);
+  return JSON.parse(result.stdout) as Record<string, unknown>;
+}
 const workflow = readFileSync(path.join(root, ".github", "workflows", "production-health.yml"), "utf8");
 const containerConfig = readFileSync(path.join(root, "wrangler.container.jsonc"), "utf8");
 const containerWorker = readFileSync(path.join(root, "cloudflare", "container-worker.ts"), "utf8");
@@ -240,24 +266,48 @@ test("the activated production synthetic proves scan execution plus remote repor
   );
   assert.match(centralForwarder, /headers\.delete\(SYNTHETIC_MONITOR_TOKEN_HEADER\)/);
 
-  const exactPayload = {
-    url: PRODUCTION_SYNTHETIC_TARGET,
-    device: "desktop",
-    gpcEnabled: true,
-    consentMode: "observe"
-  };
+  // Build the fixture with the SAME producer the monitor posts with, never by
+  // hand. A hand-written payload is how this gate and its producer drifted
+  // apart once already: prepareScanAdmission always writes the three
+  // comparison flags, so a four-key literal agreed with the allowlist about a
+  // shape nothing submits, and every activated synthetic would have been
+  // refused with a 400 that no test could see.
+  const exactPayload = productionSyntheticAdmissionBody(PRODUCTION_SYNTHETIC_TARGET);
+  assert.deepEqual(Object.keys(exactPayload).sort(), [
+    "compareConsent",
+    "compareGpc",
+    "compareShields",
+    "consentMode",
+    "device",
+    "gpcEnabled",
+    "url"
+  ]);
   assert.equal(isProductionSyntheticScanPayload(exactPayload), true);
   // Every fixed candidate target is authorized, and nothing else: the ordered
   // fallback never widens the credential beyond the allowlisted pages.
   assert.equal(PRODUCTION_SYNTHETIC_TARGETS[0], PRODUCTION_SYNTHETIC_TARGET);
   assert.equal(PRODUCTION_SYNTHETIC_TARGETS.length >= 2, true);
   for (const url of PRODUCTION_SYNTHETIC_TARGETS) {
-    assert.equal(isProductionSyntheticScanPayload({ ...exactPayload, url }), true);
+    // Each candidate goes through the producer too, so a target the monitor
+    // could not actually canonicalize can never look authorized here.
+    assert.equal(isProductionSyntheticScanPayload(productionSyntheticAdmissionBody(url)), true);
   }
   assert.equal(isProductionSyntheticScanPayload({ ...exactPayload, url: "https://example.com/" }), false);
   assert.equal(isProductionSyntheticScanPayload({ ...exactPayload, url: "https://www.w3.org/" }), false);
   assert.equal(isProductionSyntheticScanPayload({ ...exactPayload, compareShields: true }), false);
+  assert.equal(isProductionSyntheticScanPayload({ ...exactPayload, compareGpc: true }), false);
+  assert.equal(isProductionSyntheticScanPayload({ ...exactPayload, compareConsent: true }), false);
   assert.equal(isProductionSyntheticScanPayload({ ...exactPayload, device: "mobile" }), false);
+  assert.equal(isProductionSyntheticScanPayload({ ...exactPayload, gpcEnabled: false }), false);
+  assert.equal(isProductionSyntheticScanPayload({ ...exactPayload, consentMode: "accept-all" }), false);
+  // This credential bypasses Turnstile, so a request carrying a Turnstile token
+  // is not its fixed contract even though admission would accept the field.
+  assert.equal(isProductionSyntheticScanPayload({ ...exactPayload, turnstileToken: "t" }), false);
+  for (const key of Object.keys(exactPayload)) {
+    const missing = { ...exactPayload };
+    delete (missing as Record<string, unknown>)[key];
+    assert.equal(isProductionSyntheticScanPayload(missing), false, `dropping ${key} must not pass`);
+  }
   assert.equal(isProductionSyntheticMonitorToken("x".repeat(31)), false);
   assert.equal(isProductionSyntheticMonitorToken("x".repeat(32)), true);
 });
@@ -305,6 +355,11 @@ test("production health only closes its canonical issue when it re-ran every lan
   assert.match(workflow, /Production health issue kept open/);
   // A failing shallow run must not shrink an open issue's requirement set.
   assert.match(workflow, /required_lanes=\$\(printf/);
+  // `grep -v` exits 1 when every lane filters out, which under `set -euo
+  // pipefail` killed the step before it could file the issue. Absorbing that
+  // status is what keeps a coverage-less failure reportable at all.
+  assert.match(workflow, /\{ grep -v -e '\^\$' -e '\^none\$' \|\| true; \}/);
+  assert.match(workflow, /\$\{required_lanes:-none\}/);
 });
 
 test("production health treats an in-flight rollout as pending, not as a production failure", () => {
@@ -321,6 +376,16 @@ test("production health treats an in-flight rollout as pending, not as a product
   assert.match(workflow, /\[\[ -n "\$scanner" && -n "\$pages" \]\]/);
   assert.match(workflow, /\(\( age_minutes < ROLLOUT_BUDGET_MINUTES \)\)/);
   assert.match(workflow, /ROLLOUT_BUDGET_MINUTES: \$\{\{ vars\.PRODUCTION_ROLLOUT_BUDGET_MINUTES \|\| '45' \}\}/);
+  // The budget is a DEPLOY budget, so it must run from the promotion, not from
+  // the committer date: CI promotes only after every test job passes, so the
+  // commit is already 8-12 minutes old when Cloudflare starts building and a
+  // quarter of the window was being spent before the rollout began.
+  assert.match(workflow, /actions\/workflows\/ci\.yml\/runs\?head_sha=\$\{EXPECTED_PRODUCTION_SHA\}/);
+  assert.match(workflow, /promoted_at=\$\(gh api/);
+  assert.match(workflow, /promoted_at=\$\(git log -1 --format=%ct HEAD\)/);
+  assert.match(workflow, /::notice title=Rollout clock fallback::/);
+  assert.match(workflow, /GH_TOKEN: \$\{\{ github\.token \}\}/);
+  assert.match(workflow, /^\s{2}actions: read$/m);
   assert.match(workflow, /Production rollout in progress/);
   // Past the budget, or on an unknown revision, it is still a hard failure.
   assert.match(workflow, /::error title=Production rollout stale::/);

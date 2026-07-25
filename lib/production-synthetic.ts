@@ -15,12 +15,30 @@ export const PRODUCTION_SYNTHETIC_TARGETS: readonly string[] = Object.freeze([
 
 export const PRODUCTION_SYNTHETIC_TARGET = PRODUCTION_SYNTHETIC_TARGETS[0];
 
-const PRODUCTION_SYNTHETIC_KEYS = new Set(["url", "device", "gpcEnabled", "consentMode"]);
+/**
+ * The exact key set of the canonical scan-admission body, which is what the
+ * monitor actually posts. `scripts/scan-admission.mjs` normalizes every client
+ * request into this shape, always writing the three comparison flags, so a
+ * shorter allowlist here would reject the monitor's own submission. The
+ * comparison flags stay in the allowlist and are pinned false below: the
+ * credential must authorize one single-mode scan, never a two-arm comparison.
+ */
+const PRODUCTION_SYNTHETIC_KEYS = new Set([
+  "url",
+  "device",
+  "gpcEnabled",
+  "compareGpc",
+  "compareShields",
+  "compareConsent",
+  "consentMode"
+]);
 
 /**
  * The monitor credential authorizes exactly one harmless scan shape against
  * one of the fixed candidate targets, never an arbitrary caller-provided
- * target or comparison.
+ * target or comparison. `turnstileToken` is deliberately absent from the
+ * allowlist: this credential bypasses Turnstile, so a request carrying one is
+ * not the monitor's fixed contract.
  */
 export function isProductionSyntheticScanPayload(value: unknown): boolean {
   if (!value || typeof value !== "object" || Array.isArray(value)) return false;
@@ -33,6 +51,9 @@ export function isProductionSyntheticScanPayload(value: unknown): boolean {
     PRODUCTION_SYNTHETIC_TARGETS.includes(record.url) &&
     record.device === "desktop" &&
     record.gpcEnabled === true &&
+    record.compareGpc === false &&
+    record.compareShields === false &&
+    record.compareConsent === false &&
     record.consentMode === "observe"
   );
 }
