@@ -1221,7 +1221,7 @@ export async function scanSiteWithMeasurement(
     }
     throwIfScanAborted(options.signal);
     if (consentInteraction) {
-      warnings.add(consentInteractionWarning(consentInteraction));
+      warnings.add(consentInteractionWarning(consentInteraction, consentProbeState.failure));
     }
     if (verificationEnabled && consentPhaseId !== null && !consentInteractionLeftSubject) {
       const bannerObservationCheckpoint = bannerObservations.length;

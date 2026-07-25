@@ -1008,10 +1008,34 @@ export function consentChoiceLabel(choice: ConsentChoice): string {
   return choice === "accept-all" ? "Accept all" : "Reject all";
 }
 
-/** One plain-language warning line disclosing the interaction (or its absence). */
-export function consentInteractionWarning(summary: ConsentInteractionSummary): string {
+/** Why the consent probe produced no click, when it was not a completed search. */
+export type ConsentProbeFailure = "budget-unavailable" | "scan-failed" | "engine-unavailable";
+
+/**
+ * One plain-language warning line disclosing the interaction (or its absence).
+ *
+ * `clicked: false` alone cannot carry the disclosure: a probe that never ran
+ * because the budget was spent, one that threw, and one that could not read a
+ * frame all produce the same summary as a completed search that found no
+ * control. Reporting all four as "no recognizable control was found" told the
+ * reader the banner was searched when it was not, which is a claim about the
+ * SITE derived from a failure of the instrument.
+ */
+export function consentInteractionWarning(
+  summary: ConsentInteractionSummary,
+  probeFailure: ConsentProbeFailure | null = null
+): string {
   const label = consentChoiceLabel(summary.mode);
   if (!summary.clicked) {
+    if (probeFailure === "budget-unavailable") {
+      return `This visit was asked to choose "${label}" on a cookie/consent banner, but the scan's time budget ran out before the banner search could run. Nothing was searched or clicked, and results reflect the pre-consent state.`;
+    }
+    if (probeFailure === "scan-failed") {
+      return `This visit was asked to choose "${label}" on a cookie/consent banner, but the banner search itself failed before it could complete. Whether a control exists on this page is unknown, and results reflect the pre-consent state.`;
+    }
+    if (probeFailure === "engine-unavailable") {
+      return `This visit was asked to choose "${label}" on a cookie/consent banner, but no frame could be read to search for one. Whether a control exists on this page is unknown, and results reflect the pre-consent state.`;
+    }
     return `This visit was asked to choose "${label}" on a cookie/consent banner, but no recognizable control was found (the banner may not be shown to this scanner's location, the choice may sit behind a settings layer, or the control is not in the catalog). Results reflect the pre-consent state.`;
   }
   const via = summary.cmp

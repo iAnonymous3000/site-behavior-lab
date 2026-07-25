@@ -171,3 +171,44 @@ function study(sampling: DetectorCalibrationStudy["design"]["sampling"]): Detect
     ]
   };
 }
+
+test("the confusion matrix distinguishes every cell, not just their total", () => {
+  // The only matrix assertion used a symmetric 1/1/1/1 fixture whose one
+  // asymmetric sibling was invariant under a present/absent label swap, so any
+  // permutation of truePositive, falsePositive, trueNegative, and falseNegative
+  // would have passed. An asymmetric fixture pins each cell to its own meaning.
+  const asymmetric = study("convenience");
+  asymmetric.plannedCases = 7;
+  asymmetric.cases = [
+    { caseId: "tp-1", outcome: "complete", reference: "present", prediction: "detected" },
+    { caseId: "tp-2", outcome: "complete", reference: "present", prediction: "detected" },
+    { caseId: "tp-3", outcome: "complete", reference: "present", prediction: "detected" },
+    { caseId: "fn-1", outcome: "complete", reference: "present", prediction: "not-detected" },
+    { caseId: "fp-1", outcome: "complete", reference: "absent", prediction: "detected" },
+    { caseId: "fp-2", outcome: "complete", reference: "absent", prediction: "detected" },
+    { caseId: "tn-1", outcome: "complete", reference: "absent", prediction: "not-detected" }
+  ];
+
+  const analysis = analyzeDetectorCalibrationStudy(asymmetric);
+  assert.deepEqual(analysis.confusionMatrix, {
+    truePositive: 3,
+    falsePositive: 2,
+    trueNegative: 1,
+    falseNegative: 1
+  });
+  assert.deepEqual(analysis.denominators, {
+    plannedCases: 7,
+    recordedCases: 7,
+    completeCases: 7,
+    censoredCases: 0,
+    referencePresent: 4,
+    referenceAbsent: 3,
+    predictedDetected: 5,
+    predictedNotDetected: 2
+  });
+  // Sensitivity and specificity read different cells and must not coincide.
+  assert.equal(analysis.rates?.sensitivity.estimate, 0.75);
+  assert.equal(analysis.rates?.specificity.estimate, 1 / 3);
+  assert.equal(analysis.rates?.sensitivity.denominator, 4);
+  assert.equal(analysis.rates?.specificity.denominator, 3);
+});

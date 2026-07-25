@@ -58,6 +58,20 @@ export default async function SiteProfilePage({ params }: { params: Promise<{ do
   const exactRescanUrl = safeNavigableHttpUrl(latest.requestedUrl) ? latest.requestedUrl : null;
   const rescanUrl = exactRescanUrl ?? `https://${profile.domain}/`;
   const rescanHref = scanPrefillHref(rescanUrl) ?? "/#scan";
+  // One trend line must describe one methodology. entryEligibleForCorpusRollups
+  // filters load state, capping, and consent arms but says nothing about the
+  // measurement cohort, so a site scanned across a producer change had its v1
+  // and v2 points joined into a single slope that no single methodology
+  // produced. selectSiteDataPoints refuses a mixed-cohort aggregate for exactly
+  // this reason, and a sparkline is an aggregate too. Plot the newest cohort
+  // only, and say so when older points were left out.
+  const sparklineCandidates = profile.entries.filter(entryEligibleForCorpusRollups);
+  const sparklineCohortId = sparklineCandidates[0]?.corpusCohort.id ?? null;
+  const sparklineEntries =
+    sparklineCohortId === null
+      ? []
+      : sparklineCandidates.filter((entry) => entry.corpusCohort.id === sparklineCohortId);
+  const sparklineOmittedCohortCount = sparklineCandidates.length - sparklineEntries.length;
 
   return (
     <main className="site-profile-page">
@@ -142,7 +156,15 @@ export default async function SiteProfilePage({ params }: { params: Promise<{ do
       <section className="site-profile-section" id="history" aria-labelledby="history-title">
         <p className="eyebrow">Evidence timeline</p>
         <h2 id="history-title">{profile.entries.length} {profile.entries.length === 1 ? "report" : "reports"}</h2>
-        <HistorySparkline entries={profile.entries.filter(entryEligibleForCorpusRollups)} />
+        <HistorySparkline entries={sparklineEntries} />
+        {sparklineOmittedCohortCount > 0 && (
+          <p className="muted">
+            The trend line covers this site&apos;s {sparklineEntries.length} most recent reports from one measurement
+            cohort. {sparklineOmittedCohortCount} older {sparklineOmittedCohortCount === 1 ? "report was" : "reports were"}{" "}
+            produced by a different methodology and {sparklineOmittedCohortCount === 1 ? "is" : "are"} listed below
+            rather than joined to that line.
+          </p>
+        )}
         <ol className="site-history-list">
           {profile.entries.map((entry) => (
             <li key={entry.id}>

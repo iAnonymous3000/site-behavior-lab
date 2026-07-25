@@ -234,6 +234,14 @@ test("manifest requestCapped marks the request-count cap, not generic request-fa
   responseBytesCapped.warnings.push(aggregateByteBudgetWarning("response", 64 * 1024 * 1024));
   const v2Incomplete = makePublicSingleReportV2R2();
   const v2Id = "20260703-99999999999999999999999999999999";
+  // The shared fixture's subject is example.com, which the manifest builder
+  // filters out as a reserved report domain. Left as-is this arm asserted
+  // `undefined` against a report that was never published at all, which any
+  // implementation would satisfy.
+  v2Incomplete.run.subject.requested.origin = "https://shop.v2cappedfixture.org";
+  v2Incomplete.run.subject.requested.registrableDomain = "v2cappedfixture.org";
+  v2Incomplete.run.subject.observed.origin = "https://shop.v2cappedfixture.org";
+  v2Incomplete.run.subject.observed.registrableDomain = "v2cappedfixture.org";
   v2Incomplete.share = buildStaticReportShare(v2Id);
   v2Incomplete.run.privacy.redactionVersion = REDACTION_VERSION;
   v2Incomplete.run.qualityFacts.captureLoss.push({
@@ -253,9 +261,20 @@ test("manifest requestCapped marks the request-count cap, not generic request-fa
 
   const { manifest } = await buildStaticReportManifest(reportsDir);
   const byId = new Map(manifest.reports.map((entry) => [entry.id, entry]));
-  assert.equal(byId.get("20260701-77777777777777777777777777777777")?.requestCapped, true);
-  assert.equal(byId.get("20260702-88888888888888888888888888888888")?.requestCapped, undefined);
-  assert.equal(byId.get(v2Id)?.requestCapped, undefined);
+  // Optional chaining against a Map lookup makes "undefined" indistinguishable
+  // from "this report was never published", so assert presence first or the
+  // negative cases pass vacuously.
+  const requestCappedEntry = byId.get("20260701-77777777777777777777777777777777");
+  const responseCappedEntry = byId.get("20260702-88888888888888888888888888888888");
+  const v2Entry = byId.get(v2Id);
+  assert.ok(requestCappedEntry, "the request-capped report must be published");
+  assert.ok(responseCappedEntry, "the response-byte-capped report must be published");
+  assert.ok(v2Entry, "the incomplete v2 report must be published");
+  assert.equal(requestCappedEntry.requestCapped, true);
+  // requestCapped is the exact 1,000-request recording cap, so a byte-capped
+  // run and an incomplete v2 run must not claim it.
+  assert.equal(responseCappedEntry.requestCapped, undefined);
+  assert.equal(v2Entry.requestCapped, undefined);
 });
 
 test("manifest headlines preserve failed-load evidence instead of inferring calm from counts", async () => {

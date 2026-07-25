@@ -456,3 +456,83 @@ test("rows export provenance and auditable cohort inclusion without fingerprint 
     assert.equal("variantMeasurementEnvironmentFingerprint" in row, false);
   }
 });
+
+test("the CSV header and the row projection stay bound to the same columns", () => {
+  // CSV_HEADER and corpusExportToCsv's positional row are two independent
+  // order-sensitive lists with nothing binding them, so an insertion in one
+  // silently shifts every later column of the other. Parse the output back
+  // through its own header instead of pinning one long literal.
+  const complete = makeEntry({
+    id: "20260714-" + "a".repeat(32),
+    capped: false,
+    requestEvidenceComplete: true
+  });
+  const truncated = makeEntry({
+    id: "20260714-" + "b".repeat(32),
+    capped: true,
+    requestEvidenceComplete: false
+  });
+  const csv = corpusExportToCsv(buildCorpusExportRows([complete, truncated], "https://sitebehavior.org"));
+  const [headerLine, ...dataLines] = csv.trimEnd().split("\r\n");
+  const header = headerLine.split(",");
+
+  for (const line of dataLines) {
+    const cells = splitCsvLine(line);
+    assert.equal(
+      cells.length,
+      header.length,
+      `row has ${cells.length} cells for ${header.length} headers; the two lists have drifted`
+    );
+  }
+
+  const byId = new Map(
+    dataLines.map((line) => {
+      const cells = splitCsvLine(line);
+      return [cells[header.indexOf("id")], cells] as const;
+    })
+  );
+  const cellOf = (id: string, column: string): string => {
+    const cells = byId.get(id);
+    assert.ok(cells, `no exported row for ${id}`);
+    const index = header.indexOf(column);
+    assert.notEqual(index, -1, `no ${column} column`);
+    return cells[index];
+  };
+
+  // The two evidence-completeness columns the export's own note tells
+  // researchers to filter on had no cell-level assertion at all.
+  assert.equal(cellOf(complete.id, "request_capped"), "false");
+  assert.equal(cellOf(complete.id, "request_evidence_complete"), "true");
+  assert.equal(cellOf(truncated.id, "request_capped"), "true");
+  assert.equal(cellOf(truncated.id, "request_evidence_complete"), "false");
+  assert.equal(cellOf(truncated.id, "corpus_inclusion"), "excluded");
+  assert.match(cellOf(truncated.id, "corpus_exclusion_reasons"), /request-evidence-incomplete/);
+});
+
+/** Minimal RFC 4180 field splitter for one already-complete record. */
+function splitCsvLine(line: string): string[] {
+  const cells: string[] = [];
+  let field = "";
+  let quoted = false;
+  for (let index = 0; index < line.length; index += 1) {
+    const character = line[index];
+    if (quoted) {
+      if (character !== '"') {
+        field += character;
+      } else if (line[index + 1] === '"') {
+        field += '"';
+        index += 1;
+      } else {
+        quoted = false;
+      }
+      continue;
+    }
+    if (character === '"') quoted = true;
+    else if (character === ",") {
+      cells.push(field);
+      field = "";
+    } else field += character;
+  }
+  cells.push(field);
+  return cells;
+}

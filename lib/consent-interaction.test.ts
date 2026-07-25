@@ -780,3 +780,32 @@ test("interaction warnings disclose the click or the honest failure", () => {
   assert.match(failed, /no recognizable control was found/);
   assert.match(failed, /pre-consent state/);
 });
+
+test("a consent probe that never searched does not report a completed search", () => {
+  // clicked:false is produced by four different outcomes. Reporting all of them
+  // as "no recognizable control was found" turns a failure of the instrument
+  // into a claim about the site.
+  const summary = { mode: "reject-all" as const, clicked: false };
+  const searched = consentInteractionWarning(summary, null);
+  assert.match(searched, /no recognizable control was found/);
+
+  const budget = consentInteractionWarning(summary, "budget-unavailable");
+  assert.match(budget, /time budget ran out before the banner search could run/);
+  assert.match(budget, /Nothing was searched or clicked/);
+  assert.doesNotMatch(budget, /no recognizable control was found/);
+
+  const failed = consentInteractionWarning(summary, "scan-failed");
+  assert.match(failed, /banner search itself failed/);
+  assert.match(failed, /Whether a control exists on this page is unknown/);
+  assert.doesNotMatch(failed, /no recognizable control was found/);
+
+  const unreadable = consentInteractionWarning(summary, "engine-unavailable");
+  assert.match(unreadable, /no frame could be read/);
+  assert.doesNotMatch(unreadable, /no recognizable control was found/);
+
+  // A real click is unaffected by the probe-failure channel.
+  assert.match(
+    consentInteractionWarning({ mode: "accept-all", clicked: true }, null),
+    /dispatched, not verified as registered/
+  );
+});
