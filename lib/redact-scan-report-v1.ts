@@ -317,9 +317,19 @@ const COMPARISON_WARNING_LABELS = new Set([
 
 export const PUBLIC_STRING_POLICY_VERSION = "public-string-policy-v3";
 /**
- * Machine-derived identity of every non-allowlist public string vocabulary in
- * this sanitizer. A selector, warning, method, resource, pixel, or opaque-id
- * change automatically changes the normalization identity used by v2.
+ * Identity of every non-allowlist public string vocabulary in this sanitizer.
+ * A selector, warning, method, resource, pixel, or opaque-id change changes the
+ * normalization identity used by v2.
+ *
+ * ONE ENTRY IS NOT MACHINE-DERIVED. `dynamicWarningPatterns` is the hand-bumped
+ * label below, not a digest of the roughly ten admission regexes inside
+ * `isScannerWarning`, because those regexes are already baked into the
+ * published normalization identity of every committed report: deriving it now
+ * would change the digest for reports whose bytes are frozen. Editing any of
+ * those regexes therefore REQUIRES bumping that label in the same commit, or
+ * two different warning vocabularies publish the same identity. The docblock
+ * used to claim the whole object was machine-derived, which is exactly the
+ * assumption that makes the manual step easy to skip.
  */
 export const PUBLIC_STRING_POLICY_DIGEST = sha256Hex(
   canonicalJson({

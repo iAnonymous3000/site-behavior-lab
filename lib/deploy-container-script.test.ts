@@ -72,6 +72,24 @@ test("container deploy check accepts the isolated watch-staging config", () => {
   assert.deepEqual(generatedConfigs(), []);
 });
 
+test("the production config closes the same second ingress both staging configs close", () => {
+  // workers_dev and preview_urls are two separate switches and preview_urls
+  // defaults to enabled, so pinning only workers_dev still leaves every
+  // deployed version answering on a preview alias outside the zone, where the
+  // WAF rules and zone analytics the single-hostname comment relies on do not
+  // apply. Both staging configs already pinned both; production, the surface
+  // that actually serves the public, was the one this was never asserted for.
+  const configPath = path.join(ROOT, "wrangler.container.jsonc");
+  const source = readFileSync(configPath, "utf8");
+  const parsed = ts.parseConfigFileTextToJson(configPath, source);
+
+  assert.equal(parsed.error, undefined);
+  const config = parsed.config;
+  assert.equal(config.name, "site-behavior-lab-scanner");
+  assert.equal(config.workers_dev, false);
+  assert.equal(config.preview_urls, false);
+});
+
 test("staging config is isolated, gated, and pinned to its exact coordinator origin", () => {
   const configPath = path.join(ROOT, "wrangler.container.staging.jsonc");
   const source = readFileSync(configPath, "utf8");
