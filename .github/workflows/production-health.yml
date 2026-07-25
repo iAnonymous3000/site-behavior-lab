@@ -17,6 +17,9 @@ on:
 permissions:
   contents: read
   issues: write
+  # The rollout gate reads the promoting CI run's completion time so an
+  # in-flight deploy is measured from when production actually advanced.
+  actions: read
 
 concurrency:
   group: production-health
@@ -121,6 +124,7 @@ jobs:
       - name: Wait for exact scanner and Pages revisions
         id: rollout
         env:
+          GH_TOKEN: ${{ github.token }}
           HEALTH_URL: https://scan.sitebehavior.org/api/health
           PAGES_DEPLOYMENT_URL: https://sitebehavior.org/deployment.json
           # A promoted commit is not deployed instantly: Cloudflare Pages and
@@ -153,7 +157,22 @@ jobs:
               # the promoted head or a proven ANCESTOR of it. An unknown,
               # forked, or hand-rolled-back revision is not an ancestor and
               # still fails immediately.
-              promoted_at=$(git log -1 --format=%ct HEAD)
+              # Measure the rollout from when `production` was actually
+              # advanced, not from when the commit was authored. CI promotes
+              # only after every test job passes, so the committer date is
+              # older than the promotion by the whole CI wall clock (8-12
+              # minutes on recent runs) and silently spent a quarter of the
+              # budget before Cloudflare started building. The promoting CI
+              # run's completion is the closest recorded promotion instant;
+              # fall back to the committer date when the API cannot answer,
+              # which is strictly conservative.
+              promoted_at=$(gh api \
+                "repos/${GITHUB_REPOSITORY}/actions/workflows/ci.yml/runs?head_sha=${EXPECTED_PRODUCTION_SHA}&status=success&per_page=1" \
+                --jq '[.workflow_runs[].updated_at] | map(fromdateiso8601) | max // empty' 2>/dev/null || true)
+              if [[ -z "$promoted_at" || ! "$promoted_at" =~ ^[0-9]+$ ]]; then
+                promoted_at=$(git log -1 --format=%ct HEAD)
+                echo "::notice title=Rollout clock fallback::Could not read the promoting CI run; measuring the rollout from the committer date instead."
+              fi
               age_minutes=$(( ( $(date +%s) - promoted_at ) / 60 ))
               if [[ -n "$scanner" && -n "$pages" ]] &&
                 git merge-base --is-ancestor "$scanner" HEAD 2>/dev/null &&
@@ -645,8 +664,14 @@ jobs:
             # the next shallow pass close an unproven deep lane.
             required_lanes="$HEALTH_COVERAGE"
             if [[ "$issue_state" == "open" && -n "$issue_required_lanes" ]]; then
+              # `grep -v` exits 1 when it emits nothing, which under
+              # `set -euo pipefail` killed this step before it could file or
+              # update the issue: exactly when both lane lists are `none`, a
+              # real production failure went unreported. Filtering everything
+              # out is an expected outcome here, so absorb that status and let
+              # the `${required_lanes:-none}` fallback below name the result.
               required_lanes=$(printf '%s\n%s\n' "${issue_required_lanes//,/$'\n'}" "${HEALTH_COVERAGE//,/$'\n'}" |
-                grep -v '^$' | grep -v '^none$' | sort -u | paste -sd, -)
+                { grep -v -e '^$' -e '^none$' || true; } | sort -u | paste -sd, -)
             fi
             printf '\n%s%s -->\n' "$COVERAGE_MARKER_PREFIX" "${required_lanes:-none}" >> "$HEALTH_REPORT_FILE"
             if [[ -z "$issue_number" ]]; then
