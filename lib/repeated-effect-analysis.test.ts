@@ -206,3 +206,57 @@ function addThirdPartyRequests(run: ScanRunV2R2, count: number, prefix: string):
 function rebuildPrimaryDiff(report: PublicComparisonReportV2R2): void {
   report.diff = buildComparisonDiffV2(report.baseline, report.variant, report.comparability.perMetric);
 }
+
+test("an uncounterbalanced corpus is reported as uncounterbalanced", () => {
+  // Every fixture reaching analyzeRepeatedEffects had exactly one AB and one BA
+  // pair, so `counterbalanced = abPairs > 0 && baPairs > 0` was only ever
+  // evaluated with both sides true. An implementation using OR, or ignoring
+  // order entirely, passed the whole suite.
+  const report = makeSupportingPairInterventionReportV2R2();
+  addThirdPartyRequests(report.variant, 2, "primary-variant");
+  const support = supportingPair(report);
+  addThirdPartyRequests(support.variant, 2, "support-variant");
+
+  // Force both pairs onto the same arm order. The evaluator requires the
+  // declared order to agree with the runs' chronology, so swap the supporting
+  // pair's run start times with it and keep the artifact validator-clean.
+  const primaryOrder = report.experiment.kind === "intervention" ? report.experiment.order : null;
+  assert.ok(primaryOrder, "fixture invariant");
+  if (support.order !== primaryOrder) {
+    const baselineStartedAt = support.baseline.startedAt;
+    support.baseline.startedAt = support.variant.startedAt;
+    support.variant.startedAt = baselineStartedAt;
+    support.order = primaryOrder;
+  }
+  // The embedded evidence block is derived from the pair orders (RFC 15.6), so
+  // it has to follow the fixture rather than keep the counterbalanced claim.
+  if (report.experiment.kind === "intervention") {
+    report.experiment.evidence = {
+      pairs: 1 + (report.experiment.supportingPairs?.length ?? 0),
+      counterbalanced: false,
+      strength: "observed-difference"
+    };
+  }
+
+  rebuildPrimaryDiff(report);
+  assert.equal(readStoredScanReport(report).ok, true, "test artifact remains validator-clean");
+
+  const analysis = analyzeRepeatedEffects(report);
+  assert.equal(analysis.pairDenominator.recordedPairs, 2);
+  assert.equal(
+    analysis.pairDenominator.abPairs === 0 || analysis.pairDenominator.baPairs === 0,
+    true,
+    "the fixture must place both pairs on one order"
+  );
+  assert.equal(analysis.pairDenominator.counterbalanced, false);
+  // The gate is AND, not OR: with every pair on one order, no metric may
+  // publish a repeated directional observation no matter how consistent the
+  // deltas are.
+  for (const metric of analysis.metrics) {
+    assert.notEqual(
+      metric.descriptive?.repeatedDirectionalObservation,
+      true,
+      `${metric.metric} must not claim a repeated directional observation`
+    );
+  }
+});

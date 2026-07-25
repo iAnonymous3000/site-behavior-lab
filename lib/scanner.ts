@@ -2147,7 +2147,7 @@ export async function scanSiteWithMeasurement(
   }
 }
 
-function phaseAwareFingerprintEvents(
+export function phaseAwareFingerprintEvents(
   finalEvents: FingerprintEventSummary[],
   passiveEvents: FingerprintEventSummary[] | null,
   passivePhaseId: number,
@@ -2157,15 +2157,27 @@ function phaseAwareFingerprintEvents(
     return finalEvents.map((event) => ({ ...event, phaseId: finalPhaseId }));
   }
 
-  const passiveCounts = new Map(passiveEvents.map((event) => [event.api, event.count]));
-  return finalEvents.flatMap((event) => {
-    const passiveCount = Math.min(event.count, passiveCounts.get(event.api) ?? 0);
+  const passiveByApi = new Map(passiveEvents.map((event) => [event.api, event]));
+  const attributed = finalEvents.flatMap((event) => {
+    const passiveCount = Math.min(event.count, passiveByApi.get(event.api)?.count ?? 0);
     const laterCount = event.count - passiveCount;
     return [
       ...(passiveCount > 0 ? [{ ...event, count: passiveCount, phaseId: passivePhaseId }] : []),
       ...(laterCount > 0 ? [{ ...event, count: laterCount, phaseId: finalPhaseId }] : [])
     ];
   });
+  // The observer's counters are cumulative, so the final read normally covers
+  // every API the passive read saw. It does not when a frame stops being
+  // readable before the end of the visit (a navigation or a removed iframe):
+  // iterating only finalEvents then silently discarded a call the scanner had
+  // already recorded, turning observed evidence into an absence. Keep the
+  // passive observation on its own phase.
+  const seen = new Set(finalEvents.map((event) => event.api));
+  for (const event of passiveEvents) {
+    if (seen.has(event.api) || event.count <= 0) continue;
+    attributed.push({ ...event, phaseId: passivePhaseId });
+  }
+  return attributed;
 }
 
 export function phaseAwareDetections(

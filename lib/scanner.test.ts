@@ -21,6 +21,7 @@ import {
   createProbeRequestCaptureState,
   decideRoutedRequest,
   fingerprintFrameCoverageStatus,
+  phaseAwareFingerprintEvents,
   freezePassiveShieldsFacts,
   MAX_RECORDED_REQUESTS,
   MAX_CAPTURED_BODY_CHARS,
@@ -2508,4 +2509,32 @@ test("frozen Shields facts stay commensurable when a straggler lands after the b
     blockingEnabled: true
   });
   assert.deepEqual(blocking, { requestsEvaluated: 9, requestsMatched: 4, requestsActuallyBlocked: 4 });
+});
+
+test("a fingerprint API seen only in the passive read is kept, not dropped", () => {
+  // The observer's counters are cumulative, so the final read normally covers
+  // everything the passive read saw. It does not when a frame stops being
+  // readable before the end of the visit, and iterating only finalEvents then
+  // discarded a call the scanner had already recorded, turning observed
+  // evidence into an absence.
+  const passive = [
+    { api: "CanvasRenderingContext2D.fillText", count: 3 },
+    { api: "AudioContext.createOscillator", count: 2 }
+  ];
+  const final = [{ api: "CanvasRenderingContext2D.fillText", count: 5 }];
+
+  const attributed = phaseAwareFingerprintEvents(final, passive, 0, 1);
+  assert.deepEqual(
+    [...attributed].sort((left, right) => left.api.localeCompare(right.api) || left.phaseId - right.phaseId),
+    [
+      { api: "AudioContext.createOscillator", count: 2, phaseId: 0 },
+      { api: "CanvasRenderingContext2D.fillText", count: 3, phaseId: 0 },
+      { api: "CanvasRenderingContext2D.fillText", count: 2, phaseId: 1 }
+    ].sort((left, right) => left.api.localeCompare(right.api) || left.phaseId - right.phaseId)
+  );
+
+  // A passive read that the final read fully covers is unchanged.
+  assert.deepEqual(phaseAwareFingerprintEvents(final, [{ api: final[0].api, count: 5 }], 0, 1), [
+    { api: "CanvasRenderingContext2D.fillText", count: 5, phaseId: 0 }
+  ]);
 });

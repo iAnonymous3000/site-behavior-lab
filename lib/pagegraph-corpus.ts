@@ -880,6 +880,12 @@ WHERE relation = 'script_of';
 /** Flagship query 1: rule impact as a recursive closure over `closure_edge`. */
 export const RULE_IMPACT_SQL = `-- Rule impact: seed with directly_blocked, close over causal edges, report
 -- the removed subgraph per page (proposal section 8.1).
+--
+-- Request counts aggregate REQUEST rows (request_id), not graph nodes. One
+-- node can carry several request rows (a redirect chain reuses the node), and
+-- simulateRuleImpact counts rows, so counting DISTINCT node_id here made the
+-- shipped simulator and this published query answer the same question with
+-- different numbers.
 WITH RECURSIVE removed (page_id, node_id) AS (
   SELECT page_id, node_id FROM directly_blocked
   UNION
@@ -890,8 +896,8 @@ WITH RECURSIVE removed (page_id, node_id) AS (
 SELECT
   p.page_id,
   p.url AS page_url,
-  count(DISTINCT db.node_id) AS directly_blocked,
-  count(DISTINCT CASE WHEN db2.node_id IS NULL THEN req.node_id END) AS downstream_requests,
+  count(DISTINCT dbreq.request_id) AS directly_blocked,
+  count(DISTINCT CASE WHEN db2.node_id IS NULL THEN req.request_id END) AS downstream_requests,
   count(DISTINCT so.op_id) AS removed_storage_ops,
   count(DISTINCT jc.call_id) AS removed_js_calls,
   count(DISTINCT CASE WHEN n.etld1 = p.etld1 AND n.url IS NOT NULL THEN n.node_id END) AS first_party_removed,
@@ -899,6 +905,7 @@ SELECT
 FROM page p
 LEFT JOIN removed r ON r.page_id = p.page_id
 LEFT JOIN directly_blocked db ON db.page_id = p.page_id AND db.node_id = r.node_id
+LEFT JOIN request dbreq ON dbreq.page_id = db.page_id AND dbreq.node_id = db.node_id
 LEFT JOIN request req ON req.page_id = p.page_id AND req.node_id = r.node_id
 LEFT JOIN directly_blocked db2 ON db2.page_id = req.page_id AND db2.node_id = req.node_id
 LEFT JOIN storage_op so ON so.page_id = p.page_id AND so.script_node_id = r.node_id
