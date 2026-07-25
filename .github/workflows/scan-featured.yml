@@ -264,6 +264,19 @@ jobs:
           BASE_URL: http://127.0.0.1:3100
           FEATURED_SUMMARY_PATH: ${{ runner.temp }}/featured-scan-summary.json
 
+      # The scanner writes to its own log, and until now that log was dumped
+      # only when STARTUP failed. A scan step that fails after a healthy start
+      # (every site refused in well under a second, for instance) left no
+      # server-side evidence at all, so the cause was invisible from the run.
+      # Bounded, and workflow logs are already the documented place maintainers
+      # inspect private diagnostics.
+      - name: Show scanner log when the scans failed
+        if: always() && steps.featured_scan.outcome != 'success'
+        run: |
+          echo "::group::scanner log (last 200 lines)"
+          tail -n 200 /tmp/site-behavior-lab-featured.log || echo "no scanner log present"
+          echo "::endgroup::"
+
       - name: Classify reports for partial publication
         id: refresh_policy
         if: always()
