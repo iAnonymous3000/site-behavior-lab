@@ -8,25 +8,24 @@
  * Canonicalization rules (shipped with the published schema): recursively
  * sorted object keys, no insignificant whitespace, strings NFC-normalized,
  * undefined-valued properties omitted. Digests are sha256 hex over the
- * canonical JSON of the inputs listed per fingerprint.
+ * canonical JSON of the inputs listed per fingerprint. The canonicalizer
+ * itself lives in lib/canonical-json.ts and is shared with the provenance
+ * sidecars, so one definition governs every published digest.
  */
+import { canonicalJson } from "./canonical-json";
 import { sha256Hex } from "./sha256";
 import type { ConditionVector, DetectorLedger, Fingerprints, Provenance, Toolchain } from "./scan-report-v2";
 import { DETECTOR_IDS } from "./scan-report-v2";
 
-export function canonicalJson(value: unknown): string {
-  if (value === null || typeof value === "number" || typeof value === "boolean") return JSON.stringify(value);
-  if (typeof value === "string") return JSON.stringify(value.normalize("NFC"));
-  if (Array.isArray(value)) return `[${value.map((entry) => canonicalJson(entry === undefined ? null : entry)).join(",")}]`;
-  if (typeof value === "object") {
-    const entries = Object.entries(value as Record<string, unknown>)
-      .filter(([, entryValue]) => entryValue !== undefined)
-      .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
-      .map(([key, entryValue]) => `${JSON.stringify(key.normalize("NFC"))}:${canonicalJson(entryValue)}`);
-    return `{${entries.join(",")}}`;
-  }
-  throw new TypeError(`canonicalJson: unsupported value of type ${typeof value}`);
-}
+/**
+ * Re-exported so the fingerprint importers keep their existing specifier.
+ * There is exactly ONE canonicalizer, in lib/canonical-json.ts, and it serves
+ * both the RFC 15.8 provenance sidecars and these RFC 3.2 fingerprints. A
+ * second copy here previously coerced non-finite numbers and undefined array
+ * elements to null, which silently digests two different states identically;
+ * the shared implementation rejects both. Never re-add a local copy.
+ */
+export { canonicalJson };
 
 export type FingerprintInputs = {
   conditions: ConditionVector;

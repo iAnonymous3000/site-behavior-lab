@@ -12,7 +12,7 @@ import {
   assertPanel,
   assertPanelCatalogMembership,
   buildReceipt,
-  canonicalJson,
+  stableCompareJson,
   compareReceipts,
   extractCapturedRun,
   requireAccessToken,
@@ -163,7 +163,7 @@ async function loadPanel() {
   const catalogs = {};
   for (const source of new Set(panel.cases.map((entry) => entry.catalog))) catalogs[source] = JSON.parse(await readFile(path.join(root, source), "utf8"));
   assertPanelCatalogMembership(panel, catalogs);
-  return { panel, panelDigest: sha256(canonicalJson(panel)) };
+  return { panel, panelDigest: sha256(stableCompareJson(panel)) };
 }
 
 async function reportValidator() {

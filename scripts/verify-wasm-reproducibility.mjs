@@ -112,14 +112,15 @@ export function verifyWasmContract(root = ROOT) {
   return observed;
 }
 
-function canonicalJson(value) {
+/** Pretty contract JSON for the committed file; no key sorting, not a digest input. */
+function prettyContractJson(value) {
   return `${JSON.stringify(value, null, 2)}\n`;
 }
 
 function main() {
   const [command] = process.argv.slice(2);
   if (command === "--print") {
-    process.stdout.write(canonicalJson(buildObservedWasmContract()));
+    process.stdout.write(prettyContractJson(buildObservedWasmContract()));
     return;
   }
   if (command === "--verify") {

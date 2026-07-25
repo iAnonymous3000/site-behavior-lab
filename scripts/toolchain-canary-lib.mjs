@@ -22,15 +22,26 @@ const TLDTS_VERSION_COMPONENT = /tldts@[0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z.-]+)
 const CATALOGS = new Set(["public/featured-sites.json", "public/corpus-seed-sites.json"]);
 
 const record = (value) => Boolean(value && typeof value === "object" && !Array.isArray(value));
-const same = (left, right) => canonicalJson(left) === canonicalJson(right);
+const same = (left, right) => stableCompareJson(left) === stableCompareJson(right);
 const requireValue = (condition, message) => {
   if (!condition) throw new Error(message);
 };
 
-export function canonicalJson(value) {
-  if (Array.isArray(value)) return `[${value.map(canonicalJson).join(",")}]`;
+/**
+ * Key-sorted JSON for COMPARING two in-memory canary panels. Deliberately not
+ * the published canonicalizer in lib/canonical-json.ts: nothing here is
+ * digested or stored, so it carries no NFC or non-finite rules. It is named
+ * apart so the two can never be mistaken for one contract.
+ */
+export function stableCompareJson(value) {
+  if (value === undefined) throw new TypeError("stableCompareJson: undefined is not comparable.");
+  if (Array.isArray(value)) return `[${value.map(stableCompareJson).join(",")}]`;
   if (record(value)) {
-    return `{${Object.keys(value).sort().map((key) => `${JSON.stringify(key)}:${canonicalJson(value[key])}`).join(",")}}`;
+    return `{${Object.keys(value)
+      .filter((key) => value[key] !== undefined)
+      .sort()
+      .map((key) => `${JSON.stringify(key)}:${stableCompareJson(value[key])}`)
+      .join(",")}}`;
   }
   return JSON.stringify(value);
 }

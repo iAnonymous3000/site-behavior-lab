@@ -7,7 +7,7 @@ import { test } from "node:test";
 
 type Helpers = {
   CANARY_ORIGIN: string;
-  canonicalJson(value: unknown): string;
+  stableCompareJson(value: unknown): string;
   requireCanaryOrigin(value?: string): string;
   requireAccessToken(value: unknown): string;
   requireCommitSha(value: unknown): string;
@@ -96,7 +96,7 @@ async function receipt(
       runs.push(run(entry.id, repetition, ++sequence, build, browser, count, versions));
     }
   }
-  const digest = createHash("sha256").update(h.canonicalJson(panel)).digest("hex");
+  const digest = createHash("sha256").update(h.stableCompareJson(panel)).digest("hex");
   return h.buildReceipt({ createdAt: "2026-07-19T00:00:00.000Z", expectedBuild: build, order, panel, panelDigest: digest, runs });
 }
 
@@ -182,7 +182,7 @@ test("forward baseline capture accepts pre-provenance reports while reverse cand
 
 test("receipt comparison permits only browser, toolchain, and build drift within explicit medians", async () => {
   const h = await helpers;
-  const digest = createHash("sha256").update(h.canonicalJson(panel)).digest("hex");
+  const digest = createHash("sha256").update(h.stableCompareJson(panel)).digest("hex");
   const baselineVersions: Versions = { playwright: null, adblock: "0.13.0", tldts: "7.4.3" };
   const candidateVersions: Versions = { playwright: "1.61.1", adblock: "0.13.2", tldts: "7.4.9" };
   const baseline = await receipt("forward", "a".repeat(40), "149.0", 10, baselineVersions);

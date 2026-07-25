@@ -105,5 +105,8 @@ test("boundary snapshots derive added, changed, and removed cookie/storage recor
 
 test("detector registry identity is stable and non-empty", () => {
   assert.equal(DETECTOR_REGISTRY_VERSION, "node-detectors-v2");
-  assert.match(DETECTOR_REGISTRY_DIGEST, /^[0-9a-f]{64}$/);
+  // Three committed r2 reports carry this exact digest in their provenance, so
+  // it is published identity, not an internal value. A shape-only assertion
+  // would let a registry edit orphan them silently.
+  assert.equal(DETECTOR_REGISTRY_DIGEST, "1961b4197b649b6eb8028f95a9f2f6b28973b7427178b23e661017da7ed0c7c4");
 });
