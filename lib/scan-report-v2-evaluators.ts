@@ -109,6 +109,15 @@ export const BUDGET_FAMILIES: Readonly<Record<string, EvidenceFamily>> = Object.
   "cname-lookups": "detector-output",
   "pixel-decode": "detector-output",
   "policy-visit": "detector-output",
+  // Truncation details the Node scanner records. These are capture-loss
+  // details rather than budget names, but assertQualityVocabulary resolves
+  // both through this one table, so an unregistered detail is a thrown build
+  // and a 500 to the visitor. `policy-link-candidates` did exactly that to
+  // every site whose page carries more policy-link candidates than the cap,
+  // github.com among them, from the moment it was introduced.
+  "policy-link-candidates": "detector-output",
+  "keystroke-probe-capture": "detector-output",
+  "page-title": "detector-output",
   "consent-verification": "consent-verification",
   // Public build-time caps. These are part of the pre-emission registry: a
   // hostile page cannot bloat a wire artifact, and every clipped family is

@@ -1,4 +1,6 @@
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
+import path from "node:path";
 import { test } from "node:test";
 import { adblockListMeta } from "./adblock-engine";
 import { consentInteractionWarning } from "./consent-interaction";
@@ -14,6 +16,7 @@ import {
   DETECTOR_REGISTRY_VERSION,
   DETECTOR_VERSIONS
 } from "./measurement-kernel";
+import { BUDGET_FAMILIES } from "./scan-report-v2-evaluators";
 import { readStoredScanReport } from "./scan-report-reader";
 import {
   R2_NAVIGATION_STATUS_UNREPRESENTABLE,
@@ -1322,4 +1325,46 @@ test("an unexplained missing consent interaction is still refused", () => {
   };
   claimsAnAttempt.consent = { interactionAttempted: true, controlActivated: false, verificationObservations: [] };
   assert.throws(() => buildNodeScanReportV2R2(claimsAnAttempt), /consent-interaction phase/);
+});
+
+test("every capture-loss detail a producer can record is registered in BUDGET_FAMILIES", async () => {
+  // assertQualityVocabulary resolves capture-loss DETAILS through the same
+  // table as budget names and throws on an unknown one, which surfaces to the
+  // visitor as a 500 from the generic error mapper. `policy-link-candidates`
+  // shipped unregistered and broke every scan of a site whose page carries
+  // more privacy-policy link candidates than the cap, github.com among them.
+  // Two more, `keystroke-probe-capture` and `page-title`, were latent behind
+  // rarer conditions. Read the producers instead of restating their vocabulary
+  // here, so a new detail cannot be added without registering it.
+  const producers = ["scanner.ts", "scan-runtime.ts", "public-scan-proxy.ts", "measurement-kernel.ts"];
+  const recorded = new Map<string, Set<string>>();
+  for (const name of producers) {
+    const source = await readFile(path.join(process.cwd(), "lib", name), "utf8");
+    for (const call of source.split("recordCaptureLoss({").slice(1)) {
+      const block = call.slice(0, call.indexOf("})"));
+      const family = block.match(/family:\s*"([a-z-]+)"/)?.[1];
+      const detail = block.match(/detail:\s*"([a-z0-9-]+)"/)?.[1];
+      if (!family || !detail) continue;
+      if (!recorded.has(detail)) recorded.set(detail, new Set());
+      recorded.get(detail)!.add(family);
+    }
+  }
+
+  assert.ok(recorded.size >= 5, `expected to find recorded details, found ${recorded.size}`);
+  assert.ok(recorded.has("policy-link-candidates"), "the regression case must still be covered");
+
+  const unregistered: string[] = [];
+  const misfiled: string[] = [];
+  for (const [detail, families] of recorded) {
+    const registered = BUDGET_FAMILIES[detail];
+    if (registered === undefined) {
+      unregistered.push(detail);
+      continue;
+    }
+    for (const family of families) {
+      if (family !== registered) misfiled.push(`${detail}: recorded as ${family}, registered as ${registered}`);
+    }
+  }
+  assert.deepEqual(unregistered, [], `capture-loss details missing from BUDGET_FAMILIES: ${unregistered.join(", ")}`);
+  assert.deepEqual(misfiled, [], `capture-loss details registered under the wrong family: ${misfiled.join(", ")}`);
 });
