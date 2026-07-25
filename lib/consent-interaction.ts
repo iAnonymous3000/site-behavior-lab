@@ -115,11 +115,31 @@ export const CONSENT_SHADOW_HOSTS = ["#usercentrics-root", "#usercentrics-cmp-ui
 export const CONSENT_SHADOW_ROOT_REGISTRY_KEY = "site-behavior-lab/consent-shadow-root-registry/v1";
 export const CONSENT_PAGE_RUNTIME_GLOBAL_KEY = "__siteBehaviorLabConsentRuntimeV1";
 
+/**
+ * Budgets that decide what counts as a recognized consent control. Each is a
+ * measurement boundary, not an implementation detail: raising the ancestor
+ * depth or the context-text budget admits controls the scanner would otherwise
+ * refuse to click, and lowering the candidate budget silently stops looking.
+ * The page functions are serialized into the browser and cannot close over
+ * module scope, so every budget is carried in through their args objects and
+ * pinned by test rather than left inline where it could drift unnoticed.
+ */
+/** Elements the generic tier's context gate examines: the control plus six ancestors. */
+export const CONSENT_CONTEXT_ANCESTOR_DEPTH = 7;
+/** Longest ancestor text still treated as banner copy rather than page prose. */
+export const CONSENT_CONTEXT_TEXT_MAX_LENGTH = 2_000;
+/** Elements one selector query may return, and the running per-root inspection cap. */
+export const CONSENT_CANDIDATE_BUDGET = 1_500;
+
 export type ConsentShadowRootCaptureArgs = {
   capability: string;
   shadowHosts: string[];
   registryKey: string;
   runtimeGlobalKey: string;
+  /** {@link CONSENT_CONTEXT_ANCESTOR_DEPTH}, carried in rather than closed over. */
+  contextAncestorDepth: number;
+  /** {@link CONSENT_CONTEXT_TEXT_MAX_LENGTH}, carried in rather than closed over. */
+  contextTextMaxLength: number;
 };
 
 /** Serializable arguments for {@link installConsentShadowRootCapture}. */
@@ -129,7 +149,9 @@ export function consentShadowRootCaptureArgs(capability: string): ConsentShadowR
     capability,
     shadowHosts: CONSENT_SHADOW_HOSTS,
     registryKey: CONSENT_SHADOW_ROOT_REGISTRY_KEY,
-    runtimeGlobalKey: CONSENT_PAGE_RUNTIME_GLOBAL_KEY
+    runtimeGlobalKey: CONSENT_PAGE_RUNTIME_GLOBAL_KEY,
+    contextAncestorDepth: CONSENT_CONTEXT_ANCESTOR_DEPTH,
+    contextTextMaxLength: CONSENT_CONTEXT_TEXT_MAX_LENGTH
   };
 }
 
@@ -465,7 +487,7 @@ export function installConsentShadowRootCapture(args: ConsentShadowRootCaptureAr
       ? nativeReflectApply(nativeDocumentElement, trustedDocument, []) as Element | null
       : null;
     let current: Element | null = element;
-    for (let depth = 0; current && depth < 7; depth += 1, current = parentOf(current)) {
+    for (let depth = 0; current && depth < args.contextAncestorDepth; depth += 1, current = parentOf(current)) {
       if (current === documentBody || current === documentElement) return false;
       const marker = `${nativeReflectApply(nativeGetAttribute, current, ["id"]) as string | null ?? ""} ${
         nativeReflectApply(nativeGetAttribute, current, ["class"]) as string | null ?? ""
@@ -477,7 +499,11 @@ export function installConsentShadowRootCapture(args: ConsentShadowRootCaptureAr
       if (matchesPattern(marker, markerSource, "i")) return true;
       if (current !== element && typeof nativeTextContent === "function") {
         const contextText = normalizedLabel(current);
-        if (contextText.length > 0 && contextText.length <= 2_000 && matchesPattern(contextText, textSource, "i")) {
+        if (
+          contextText.length > 0 &&
+          contextText.length <= args.contextTextMaxLength &&
+          matchesPattern(contextText, textSource, "i")
+        ) {
           return true;
         }
       }
@@ -676,6 +702,12 @@ export type ConsentClickArgs = {
   /** Sources of the bounded generic-control context rules. */
   contextMarkerPatternSource: string;
   contextTextPatternSource: string;
+  /** {@link CONSENT_CANDIDATE_BUDGET}, carried in rather than closed over. */
+  candidateBudget: number;
+  /** {@link CONSENT_CONTEXT_ANCESTOR_DEPTH}, carried in rather than closed over. */
+  contextAncestorDepth: number;
+  /** {@link CONSENT_CONTEXT_TEXT_MAX_LENGTH}, carried in rather than closed over. */
+  contextTextMaxLength: number;
 };
 
 export type ConsentClickOutcome =
@@ -693,7 +725,10 @@ export function consentClickArgs(choice: ConsentChoice, shadowRootCapability: st
     runtimeGlobalKey: CONSENT_PAGE_RUNTIME_GLOBAL_KEY,
     textPatternSource: CONSENT_TEXT_PATTERNS[choice].source,
     contextMarkerPatternSource: CONSENT_CONTEXT_MARKER_PATTERN.source,
-    contextTextPatternSource: CONSENT_CONTEXT_TEXT_PATTERN.source
+    contextTextPatternSource: CONSENT_CONTEXT_TEXT_PATTERN.source,
+    candidateBudget: CONSENT_CANDIDATE_BUDGET,
+    contextAncestorDepth: CONSENT_CONTEXT_ANCESTOR_DEPTH,
+    contextTextMaxLength: CONSENT_CONTEXT_TEXT_MAX_LENGTH
   };
 }
 
@@ -799,11 +834,11 @@ export async function findAndClickConsentControl(args: ConsentClickArgs): Promis
   for (let selectorIndex = 0; selectorIndex < args.selectors.length; selectorIndex += 1) {
     const selectorEntry = args.selectors[selectorIndex];
     for (let rootIndex = 0; rootIndex < roots.length; rootIndex += 1) {
-      const elements = runtime.query(roots[rootIndex].root, selectorEntry.selector, 1_500, capability);
+      const elements = runtime.query(roots[rootIndex].root, selectorEntry.selector, args.candidateBudget, capability);
       for (let elementIndex = 0; elementIndex < elements.length; elementIndex += 1) {
         const element = elements[elementIndex];
         knownCandidatesInspected += 1;
-        if (knownCandidatesInspected > 1_500) break;
+        if (knownCandidatesInspected > args.candidateBudget) break;
         const state = stateFor(element);
         if (runtime.isHtmlElement(element, capability) && state.visible && state.actionable) {
           const activation = await activateControl(element);
@@ -819,9 +854,9 @@ export async function findAndClickConsentControl(args: ConsentClickArgs): Promis
           }
         }
       }
-      if (knownCandidatesInspected > 1_500) break;
+      if (knownCandidatesInspected > args.candidateBudget) break;
     }
-    if (knownCandidatesInspected > 1_500) break;
+    if (knownCandidatesInspected > args.candidateBudget) break;
   }
 
   // Generic phrases such as "I agree" and "No thanks" occur in terms
@@ -834,7 +869,7 @@ export async function findAndClickConsentControl(args: ConsentClickArgs): Promis
   const controlSelector = "button, a, [role=button], input[type=button], input[type=submit]";
   for (let rootIndex = 0; rootIndex < roots.length; rootIndex += 1) {
     const rootEntry = roots[rootIndex];
-    const candidates = runtime.query(rootEntry.root, controlSelector, 1_500, capability);
+    const candidates = runtime.query(rootEntry.root, controlSelector, args.candidateBudget, capability);
     for (let candidateIndex = 0; candidateIndex < candidates.length; candidateIndex += 1) {
       const candidate = candidates[candidateIndex];
       if (!runtime.isHtmlElement(candidate, capability)) continue;
@@ -876,6 +911,12 @@ export type ConsentVisibilityArgs = {
   /** Sources of the bounded generic-control context rules. */
   contextMarkerPatternSource: string;
   contextTextPatternSource: string;
+  /** {@link CONSENT_CANDIDATE_BUDGET}, carried in rather than closed over. */
+  candidateBudget: number;
+  /** {@link CONSENT_CONTEXT_ANCESTOR_DEPTH}, carried in rather than closed over. */
+  contextAncestorDepth: number;
+  /** {@link CONSENT_CONTEXT_TEXT_MAX_LENGTH}, carried in rather than closed over. */
+  contextTextMaxLength: number;
 };
 
 /** Serializable arguments for {@link findVisibleConsentControl} in one frame. */
@@ -889,7 +930,10 @@ export function consentVisibilityArgs(shadowRootCapability: string): ConsentVisi
     runtimeGlobalKey: CONSENT_PAGE_RUNTIME_GLOBAL_KEY,
     textPatternSources: [CONSENT_TEXT_PATTERNS["accept-all"].source, CONSENT_TEXT_PATTERNS["reject-all"].source],
     contextMarkerPatternSource: CONSENT_CONTEXT_MARKER_PATTERN.source,
-    contextTextPatternSource: CONSENT_CONTEXT_TEXT_PATTERN.source
+    contextTextPatternSource: CONSENT_CONTEXT_TEXT_PATTERN.source,
+    candidateBudget: CONSENT_CANDIDATE_BUDGET,
+    contextAncestorDepth: CONSENT_CONTEXT_ANCESTOR_DEPTH,
+    contextTextMaxLength: CONSENT_CONTEXT_TEXT_MAX_LENGTH
   };
 }
 
@@ -951,22 +995,22 @@ export function findVisibleConsentControl(args: ConsentVisibilityArgs): boolean 
   for (let selectorIndex = 0; selectorIndex < args.selectors.length; selectorIndex += 1) {
     const selector = args.selectors[selectorIndex].selector;
     for (let rootIndex = 0; rootIndex < roots.length; rootIndex += 1) {
-      const elements = runtime.query(roots[rootIndex].root, selector, 1_500, capability);
+      const elements = runtime.query(roots[rootIndex].root, selector, args.candidateBudget, capability);
       for (let elementIndex = 0; elementIndex < elements.length; elementIndex += 1) {
         const element = elements[elementIndex];
         knownCandidatesInspected += 1;
-        if (knownCandidatesInspected > 1_500) break;
+        if (knownCandidatesInspected > args.candidateBudget) break;
         if (runtime.isHtmlElement(element, capability) && isVisible(element)) return true;
       }
-      if (knownCandidatesInspected > 1_500) break;
+      if (knownCandidatesInspected > args.candidateBudget) break;
     }
-    if (knownCandidatesInspected > 1_500) break;
+    if (knownCandidatesInspected > args.candidateBudget) break;
   }
 
   const controlSelector = "button, a, [role=button], input[type=button], input[type=submit]";
   for (let rootIndex = 0; rootIndex < roots.length; rootIndex += 1) {
     const rootEntry = roots[rootIndex];
-    const candidates = runtime.query(rootEntry.root, controlSelector, 1_500, capability);
+    const candidates = runtime.query(rootEntry.root, controlSelector, args.candidateBudget, capability);
     for (let candidateIndex = 0; candidateIndex < candidates.length; candidateIndex += 1) {
       const candidate = candidates[candidateIndex];
       if (!runtime.isHtmlElement(candidate, capability) || !isVisible(candidate)) continue;

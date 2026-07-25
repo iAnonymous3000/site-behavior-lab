@@ -2,6 +2,9 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { chromium, type Browser, type Page } from "playwright";
 import {
+  CONSENT_CANDIDATE_BUDGET,
+  CONSENT_CONTEXT_ANCESTOR_DEPTH,
+  CONSENT_CONTEXT_TEXT_MAX_LENGTH,
   cmpSelectorsForChoice,
   consentChoiceLabel,
   consentClickArgs,
@@ -85,6 +88,92 @@ test("consentClickArgs serializes the regex source for the page function", () =>
   assert.equal(pattern.test("accept all"), false);
   assert.ok(args.selectors.length > 0);
   assert.ok(args.shadowHosts.includes("#usercentrics-root"));
+});
+
+test("the recognition budgets are the pinned values the page functions carry", () => {
+  // These three numbers decide what the scanner will treat as a consent
+  // control. They are published measurement boundaries, so a change must be
+  // deliberate and reviewed rather than an edit that every test still passes.
+  assert.equal(CONSENT_CONTEXT_ANCESTOR_DEPTH, 7);
+  assert.equal(CONSENT_CONTEXT_TEXT_MAX_LENGTH, 2_000);
+  assert.equal(CONSENT_CANDIDATE_BUDGET, 1_500);
+
+  // The page functions are serialized into the browser and cannot close over
+  // module scope, so a budget only takes effect if it is carried in.
+  const captureArgs = consentShadowRootCaptureArgs(SHADOW_ROOT_CAPABILITY);
+  assert.equal(captureArgs.contextAncestorDepth, CONSENT_CONTEXT_ANCESTOR_DEPTH);
+  assert.equal(captureArgs.contextTextMaxLength, CONSENT_CONTEXT_TEXT_MAX_LENGTH);
+  for (const args of [
+    consentClickArgs("accept-all", SHADOW_ROOT_CAPABILITY),
+    consentVisibilityArgs(SHADOW_ROOT_CAPABILITY)
+  ]) {
+    assert.equal(args.candidateBudget, CONSENT_CANDIDATE_BUDGET);
+    assert.equal(args.contextAncestorDepth, CONSENT_CONTEXT_ANCESTOR_DEPTH);
+    assert.equal(args.contextTextMaxLength, CONSENT_CONTEXT_TEXT_MAX_LENGTH);
+  }
+});
+
+test("the context gate honors its exact depth and text budgets in the browser", { timeout: 30_000 }, async () => {
+  const browser = await chromium.launch({ headless: true });
+  try {
+    const page = await newConsentPage(browser);
+    const nest = (depth: number, inner: string): string =>
+      Array.from({ length: depth }, () => "<div>").join("") + inner + Array.from({ length: depth }, () => "</div>").join("");
+    // The probe only reports a control that reacts, so every fixture button
+    // disables itself exactly as a real banner control would.
+    const reacts = `<script>
+        document.querySelector("#agree").addEventListener("click", (event) => { event.currentTarget.disabled = true; });
+      </script>`;
+    const banner = (wrappers: number): string => `<!doctype html><body>
+      <div id="cookie-banner">${nest(wrappers, '<button id="agree">I agree</button>')}</div>
+      ${reacts}
+    </body>`;
+
+    // The gate examines the control plus CONSENT_CONTEXT_ANCESTOR_DEPTH - 1
+    // ancestors, and the marker lives on the outermost one.
+    const reachableWrappers = CONSENT_CONTEXT_ANCESTOR_DEPTH - 2;
+    await page.setContent(banner(reachableWrappers));
+    assert.deepEqual(
+      await page.evaluate(findAndClickConsentControl, consentClickArgs("accept-all", SHADOW_ROOT_CAPABILITY)),
+      { clicked: true, matchedText: "i agree" },
+      "a marker within the depth budget is banner context"
+    );
+
+    await page.setContent(banner(reachableWrappers + 1));
+    assert.deepEqual(
+      await page.evaluate(findAndClickConsentControl, consentClickArgs("accept-all", SHADOW_ROOT_CAPABILITY)),
+      { clicked: false },
+      "one wrapper past the depth budget is out of reach"
+    );
+
+    // Text context: an ancestor whose copy fits the budget is banner copy; one
+    // character more reads as page prose. The marker is removed so the text
+    // rule alone decides.
+    const consentCopy = "We use cookies to store your consent preferences. ";
+    const withinBudget = consentCopy.padEnd(CONSENT_CONTEXT_TEXT_MAX_LENGTH - 20, "x");
+    await page.setContent(`<!doctype html><body>
+      <div><p>${withinBudget}</p><button id="agree">I agree</button></div>
+      ${reacts}
+    </body>`);
+    assert.deepEqual(
+      await page.evaluate(findAndClickConsentControl, consentClickArgs("accept-all", SHADOW_ROOT_CAPABILITY)),
+      { clicked: true, matchedText: "i agree" },
+      "banner-sized consent copy is context"
+    );
+
+    const overBudget = consentCopy.padEnd(CONSENT_CONTEXT_TEXT_MAX_LENGTH + 200, "x");
+    await page.setContent(`<!doctype html><body>
+      <div><p>${overBudget}</p><button id="agree">I agree</button></div>
+      ${reacts}
+    </body>`);
+    assert.deepEqual(
+      await page.evaluate(findAndClickConsentControl, consentClickArgs("accept-all", SHADOW_ROOT_CAPABILITY)),
+      { clicked: false },
+      "page-length prose is not banner context"
+    );
+  } finally {
+    await browser.close();
+  }
 });
 
 test("generic consent labels require bounded banner context while known CMP selectors remain direct", { timeout: 20_000 }, async () => {
