@@ -6,7 +6,10 @@ import { constants, realpathSync } from "node:fs";
 import { lstat, open, readFile, readdir, unlink } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { resolveExactStaticDeploymentCommit } from "./static-deployment-provenance.mjs";
+import {
+  deploymentReceiptViolation,
+  resolveExactStaticDeploymentCommit
+} from "./static-deployment-provenance.mjs";
 
 const FULL_SHA = /^[0-9a-f]{40}$/;
 const SHA256 = /^[0-9a-f]{64}$/;
@@ -190,12 +193,11 @@ function normalizeRepository(value) {
 async function staticArtifactEvidence(root, value, commit) {
   const { absolute, relative } = safeArtifactDirectory(root, value, "--static-dir");
   const deployment = JSON.parse(await readFile(path.join(absolute, "deployment.json"), "utf8"));
-  if (
-    Object.keys(deployment).sort().join(",") !== "deployment,schemaVersion" ||
-    deployment.schemaVersion !== 1 ||
-    deployment.deployment !== commit
-  ) {
-    throw new Error("Static artifact deployment.json must identify the exact clean source commit with schemaVersion 1");
+  // The receipt shape is owned by static-deployment-provenance.mjs, which also
+  // builds it. Restating it here is what let the producer and this gate drift.
+  const violation = deploymentReceiptViolation(deployment, commit, { cwd: root });
+  if (violation !== null) {
+    throw new Error(`Static artifact ${violation}`);
   }
 
   const manifest = await directoryManifest(absolute);

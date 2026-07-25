@@ -9,6 +9,17 @@ const ROOT = process.cwd();
 const RELEASE_SCRIPT = path.join(ROOT, "scripts", "release-evidence.mjs");
 const PROVENANCE_SCRIPT = path.join(ROOT, "scripts", "static-deployment-provenance.mjs");
 
+type StaticDeploymentProvenance = {
+  buildDeploymentReceipt(
+    commit: string,
+    options?: { cwd?: string }
+  ): { schemaVersion: number; deployment: string; revisionCommittedAt: string };
+};
+
+/** The receipt producer itself, so fixtures never restate the published shape. */
+const staticDeploymentProvenance = (): Promise<StaticDeploymentProvenance> =>
+  import(PROVENANCE_SCRIPT) as Promise<StaticDeploymentProvenance>;
+
 // scripts/release-evidence.mjs is a host-only release tool: it refuses to run
 // under any runtime other than the declared repository toolchain, by design.
 // The runtime container image pins its own newer Node from the Playwright
@@ -147,13 +158,35 @@ test("static evidence is deterministic and changes on artifact tampering", { ski
   assert.equal(changed.status, 0, changed.stderr);
   assert.notEqual(await readFile(changedPath, "utf8"), firstBytes);
 
+  const validReceipt = JSON.parse(
+    await readFile(path.join(fixture.root, "out", "deployment.json"), "utf8")
+  );
   await writeFile(
     path.join(fixture.root, "out", "deployment.json"),
-    `${JSON.stringify({ schemaVersion: 1, deployment: "f".repeat(40) })}\n`
+    `${JSON.stringify({ ...validReceipt, deployment: "f".repeat(40) }, null, 2)}\n`
   );
   const wrongMarker = runEvidence(fixture.root, ["--static-dir", "out"]);
   assert.notEqual(wrongMarker.status, 0);
   assert.match(wrongMarker.stderr, /deployment\.json must identify the exact clean source commit/);
+
+  // An extra field in a published provenance artifact is a leak, not a nicety.
+  await writeFile(
+    path.join(fixture.root, "out", "deployment.json"),
+    `${JSON.stringify({ ...validReceipt, extra: "surprise" }, null, 2)}\n`
+  );
+  const extraKey = runEvidence(fixture.root, ["--static-dir", "out"]);
+  assert.notEqual(extraKey.status, 0);
+  assert.match(extraKey.stderr, /must carry exactly deployment, revisionCommittedAt, and schemaVersion/);
+
+  // The timestamp's value is being derivable from the SHA. A build clock would
+  // make every rebuild of one commit differ and break exact-SHA comparison.
+  await writeFile(
+    path.join(fixture.root, "out", "deployment.json"),
+    `${JSON.stringify({ ...validReceipt, revisionCommittedAt: new Date(0).toISOString() }, null, 2)}\n`
+  );
+  const wrongClock = runEvidence(fixture.root, ["--static-dir", "out"]);
+  assert.notEqual(wrongClock.status, 0);
+  assert.match(wrongClock.stderr, /must be the committer date of that exact commit/);
 });
 
 test("evidence refuses dirty source and inconsistent release metadata", { skip: hostToolchainSkip }, async (t) => {
@@ -331,9 +364,10 @@ test("evidence paths cannot escape through artifact or output symlinks", { skip:
   t.after(() => rm(external, { recursive: true, force: true }));
   await mkdir(path.join(external, "artifact"));
   await writeFile(path.join(external, "artifact", "asset.txt"), "outside\n");
+  const { buildDeploymentReceipt: buildLinkedReceipt } = await staticDeploymentProvenance();
   await writeFile(
     path.join(external, "artifact", "deployment.json"),
-    `${JSON.stringify({ schemaVersion: 1, deployment: fixture.commit })}\n`
+    `${JSON.stringify(buildLinkedReceipt(fixture.commit, { cwd: fixture.root }), null, 2)}\n`
   );
   await symlink(path.join(external, "artifact"), path.join(fixture.root, "linked-out"));
   const escapedArtifact = runEvidence(fixture.root, ["--static-dir", "linked-out"]);
@@ -496,9 +530,13 @@ async function makeFixture(t: TestContext, options: { policyVersion?: string } =
 
   await mkdir(path.join(root, "out"));
   await writeFile(path.join(root, "out", "asset.txt"), "artifact\n");
+  // Built by the real producer, never hand-written. A fixture that restates the
+  // receipt shape cannot notice the producer and the gate drifting apart, which
+  // is exactly how a three-key receipt shipped against a two-key gate.
+  const { buildDeploymentReceipt } = await staticDeploymentProvenance();
   await writeFile(
     path.join(root, "out", "deployment.json"),
-    `${JSON.stringify({ schemaVersion: 1, deployment: commit })}\n`
+    `${JSON.stringify(buildDeploymentReceipt(commit, { cwd: root }), null, 2)}\n`
   );
   return { root, commit };
 }

@@ -15,7 +15,7 @@ import {
 import { existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { resolveCommitTimestamp, resolveExactStaticDeploymentCommit } from "./static-deployment-provenance.mjs";
+import { buildDeploymentReceipt, resolveExactStaticDeploymentCommit } from "./static-deployment-provenance.mjs";
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const workDir = path.join(rootDir, ".next-pages-work");
@@ -235,15 +235,7 @@ async function main() {
   // stuck", which a bare SHA mismatch cannot express.
   await writeFile(
     path.join(workDir, "public", "deployment.json"),
-    `${JSON.stringify(
-      {
-        schemaVersion: 1,
-        deployment,
-        revisionCommittedAt: resolveCommitTimestamp(deployment, { cwd: rootDir })
-      },
-      null,
-      2
-    )}\n`
+    `${JSON.stringify(buildDeploymentReceipt(deployment, { cwd: rootDir }), null, 2)}\n`
   );
 
   if ((await staticReportCount(workDir)) === 0) {
