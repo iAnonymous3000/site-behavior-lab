@@ -13,6 +13,40 @@ export class PublicUrlDnsTimeoutError extends PublicScanError {
   }
 }
 
+/**
+ * The resolver failed, so whether the host is public was never established.
+ *
+ * Distinct from a host that resolved to a private address (a refusal the
+ * scanner proved) and from a host with no address records (a property of the
+ * caller's URL). A resolver that returned a temporary failure, SERVFAIL, or was
+ * itself unreachable proves nothing about the target, so the caller must not be
+ * told its address is unresolvable and the status must not be a 4xx. Refuses
+ * the scan exactly like every other branch here; only the status and the
+ * sentence differ.
+ *
+ * `code` is retained for operator logs and is never part of the public message.
+ */
+export class PublicUrlDnsUnavailableError extends PublicScanError {
+  constructor(readonly code: string | null) {
+    super("Public host verification could not complete. Try again shortly.", 503);
+    this.name = "PublicUrlDnsUnavailableError";
+  }
+}
+
+/**
+ * getaddrinfo codes that prove the HOST has no address: the resolver answered
+ * authoritatively. Every other code (EAI_AGAIN, ESERVFAIL, ETIMEDOUT,
+ * ECONNREFUSED, EAI_SYSTEM, and whatever a future libc or resolver adds) is a
+ * failure OF the resolver, and an unproven answer is not a negative one.
+ */
+const AUTHORITATIVE_DNS_FAILURE_CODES: ReadonlySet<string> = new Set(["ENOTFOUND", "ENODATA"]);
+
+function dnsFailureCode(error: unknown): string | null {
+  if (typeof error !== "object" || error === null || !("code" in error)) return null;
+  const code = (error as { code?: unknown }).code;
+  return typeof code === "string" && code !== "" ? code : null;
+}
+
 export type PublicUrlDnsLookup = (
   hostname: string
 ) => Promise<Array<{ address: string; family: number }>>;
@@ -67,18 +101,30 @@ export async function assertPublicHttpUrl(
     addresses = await Promise.race([pending, abort.promise]);
   } catch (error) {
     if (signal.aborted) throw signal.reason ?? error;
+    // A resolver failure is not a verdict about the host. Only an authoritative
+    // "no such name / no such record" is; anything else means verification did
+    // not run, which is a scanner-side outage the caller may retry.
+    const code = dnsFailureCode(error);
+    if (code === null || !AUTHORITATIVE_DNS_FAILURE_CODES.has(code)) {
+      throw new PublicUrlDnsUnavailableError(code);
+    }
     throw new PublicScanError("The host could not be resolved to a public address.");
   } finally {
     clearTimeout(timer);
     abort.dispose();
   }
 
-  if (
-    !Array.isArray(addresses) ||
-    addresses.length === 0 ||
-    addresses.length > PUBLIC_URL_MAX_RESOLVED_ADDRESSES
-  ) {
+  if (!Array.isArray(addresses) || addresses.length === 0) {
     throw new PublicScanError("The host could not be resolved to a public address.");
+  }
+
+  // A fan-out refusal, not a resolution failure: the host answered, with more
+  // addresses than the scanner will verify. Saying "could not be resolved" here
+  // would blame the lookup for a policy ceiling.
+  if (addresses.length > PUBLIC_URL_MAX_RESOLVED_ADDRESSES) {
+    throw new PublicScanError(
+      `The host resolved to more than ${PUBLIC_URL_MAX_RESOLVED_ADDRESSES} addresses, which this scanner will not verify.`
+    );
   }
 
   const publicOnly = addresses.every(({ address }) => isPublicIpAddress(address));

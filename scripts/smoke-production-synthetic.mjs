@@ -210,13 +210,30 @@ async function sleep(ms) {
   await new Promise((resolve) => setTimeout(resolve, Math.min(ms, remaining)));
 }
 
+/**
+ * The scanner's own refusal sentence, bounded for a single-line CI annotation.
+ * Returns "" when the body carried none, so the caller's message stays a
+ * well-formed sentence either way and never prints "undefined".
+ */
+function describeRefusal(payload) {
+  const reason = typeof payload?.error === "string" ? payload.error.trim() : "";
+  if (!reason) return " The response body carried no error message.";
+  const bounded = reason.length > 300 ? `${reason.slice(0, 300)}...` : reason;
+  return ` Scanner said: ${bounded.replace(/\s+/g, " ")}`;
+}
+
 async function resolveReport(payload, submissionStatus) {
   if (submissionStatus === 200) {
     if (isSupportedDeployedReport(payload)) return { report: payload, queuedReportId: null };
     fail("Synthetic scan returned 200 without a supported direct report.");
   }
   if (submissionStatus !== 202) {
-    fail(`Synthetic scan submission returned unexpected HTTP status ${submissionStatus}.`);
+    // The refusal reason is already a public-facing sentence (it is exactly what
+    // a browser is shown), so quoting it here leaks nothing and is the whole
+    // difference between a diagnosable failure and an unexplained status code.
+    fail(
+      `Synthetic scan submission returned unexpected HTTP status ${submissionStatus}.${describeRefusal(payload)}`
+    );
   }
   if (isSupportedDeployedReport(payload)) {
     fail("Synthetic scan returned a direct report with queued HTTP status 202.");

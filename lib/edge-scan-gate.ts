@@ -1,22 +1,19 @@
 /**
- * Shared abuse-control mechanisms for the edge scanners.
+ * Abuse-control mechanisms for the Containers front Worker
+ * (`cloudflare/container-worker.ts`): a constant-time access-token check,
+ * Cloudflare Turnstile verification, a bounded request-body reader, and the
+ * client-identity hash the quota is keyed on.
  *
- * The Containers front Worker (`cloudflare/container-worker.ts`) needs these
- * primitives to make a public scan endpoint safe: a constant-time access token
- * check, Cloudflare Turnstile verification, and best-effort KV-backed
- * per-client rate limiting. This module was the single definition shared with
- * the Browser Run worker so the two could not drift apart; that worker was
- * deleted on 2026-07-24, and the container path charges its quota atomically in
- * the scanner Durable Object rather than through the KV counters here.
+ * It once also held best-effort KV-backed rate limiting, shared with the Browser
+ * Run worker so the two could not drift apart. That worker was deleted on
+ * 2026-07-24 and the container charges its quota atomically in the scanner
+ * Durable Object, so the KV counters and their `RATE_LIMITS_KV` readiness check
+ * were removed on 2026-07-25 rather than left exported: a read-then-write
+ * counter that concurrent requests can overshoot must not stay importable as if
+ * it were a working limiter.
  *
- * Each Worker still composes its *own policy* (when to require a token, whether
- * open access is allowed, which DNS-rebinding caveats apply) on top of these
- * primitives, the policies genuinely differ between Browser Run (no IP pinning)
- * and the Node container (connect-time DNS pinning).
- *
- * It is typed against Web-standard `Headers`/`fetch` and a minimal structural
- * `RateLimitStore` rather than `KVNamespace`, so it carries no Worker-only types
- * and runs in the Node unit-test runner with a fake store.
+ * It is typed against Web-standard `Headers`/`fetch` rather than Worker types,
+ * so it carries no Worker-only globals and runs in the Node unit-test runner.
  */
 
 import { PublicFacingError } from "./public-errors";
@@ -29,16 +26,9 @@ export class EdgeScanGateError extends PublicFacingError {
   }
 }
 
-/** Minimal structural view of the KV operations rate limiting needs. A real `KVNamespace` satisfies it. */
-export interface RateLimitStore {
-  get(key: string): Promise<string | null>;
-  put(key: string, value: string, options?: { expirationTtl?: number }): Promise<void>;
-}
-
 export const DEFAULT_PUBLIC_SCAN_RATE_LIMIT_PER_MINUTE = 6;
 export const DEFAULT_PUBLIC_SCAN_RATE_LIMIT_PER_DAY = 120;
 
-const RATE_LIMIT_BUCKET_PREFIX = "rate-limits";
 const TURNSTILE_SITEVERIFY_URL = "https://challenges.cloudflare.com/turnstile/v0/siteverify";
 export const TURNSTILE_SITEVERIFY_CONNECT_TIMEOUT_MS = 5_000;
 export const TURNSTILE_SITEVERIFY_OPERATION_TIMEOUT_MS = 10_000;
@@ -137,7 +127,6 @@ export function publicScanRefusalReasons(config: {
   allowUnauthenticated?: string;
   turnstileSecret?: string;
   acceptNoTurnstileRisk?: string;
-  rateLimitStoreBound: boolean;
 }): string[] {
   const gate = publicScanGateStatus(config);
   if (gate.authenticated) return [];
@@ -156,9 +145,6 @@ export function publicScanRefusalReasons(config: {
     reasons.push(
       "Open access is enabled but Turnstile is not configured (and not explicitly waived); every scan request returns 503."
     );
-  }
-  if (!config.rateLimitStoreBound) {
-    reasons.push("Open access is enabled but the RATE_LIMITS_KV binding is missing; every scan request returns 503.");
   }
   return reasons;
 }
@@ -338,40 +324,6 @@ export async function probeTurnstileConfiguration(options: {
   return "unavailable";
 }
 
-/**
- * Charge a scan against per-minute and per-day windows for the calling client.
- * Throws {@link EdgeScanGateError} (429) when either window would be exceeded.
- *
- * Best-effort: KV read-then-write is not atomic, so concurrent requests can
- * slightly overshoot. Pair with Cloudflare WAF/rate-limiting for hard caps.
- */
-export async function enforcePublicScanRateLimit(options: {
-  store: RateLimitStore;
-  clientHash: string;
-  cost: 1 | 2;
-  perMinute: number;
-  perDay: number;
-  now?: number;
-}): Promise<void> {
-  const now = options.now ?? Date.now();
-  await chargeRateLimitWindow({
-    store: options.store,
-    key: rateLimitKey("minute", Math.floor(now / 60_000), options.clientHash),
-    cost: options.cost,
-    limit: options.perMinute,
-    ttlSeconds: 120,
-    retryAfterSeconds: secondsUntilNextWindow(now, 60_000)
-  });
-  await chargeRateLimitWindow({
-    store: options.store,
-    key: rateLimitKey("day", Math.floor(now / 86_400_000), options.clientHash),
-    cost: options.cost,
-    limit: options.perDay,
-    ttlSeconds: 172_800,
-    retryAfterSeconds: secondsUntilNextWindow(now, 86_400_000)
-  });
-}
-
 /** Stable per-client hash from the proxied client IP headers. */
 export async function publicClientHash(headers: Headers): Promise<string> {
   const key =
@@ -535,35 +487,6 @@ export async function sha256Hex(value: string): Promise<string> {
   return Array.from(new Uint8Array(digest))
     .map((byte) => byte.toString(16).padStart(2, "0"))
     .join("");
-}
-
-async function chargeRateLimitWindow(options: {
-  store: RateLimitStore;
-  key: string;
-  cost: 1 | 2;
-  limit: number;
-  ttlSeconds: number;
-  retryAfterSeconds: number;
-}): Promise<void> {
-  const currentValue = await options.store.get(options.key);
-  const current = currentValue ? Number.parseInt(currentValue, 10) : 0;
-  const next = (Number.isFinite(current) ? current : 0) + options.cost;
-  if (next > options.limit) {
-    throw new EdgeScanGateError(
-      `Too many public scans. Try again in about ${formatPublicScanRetryAfter(options.retryAfterSeconds)}.`,
-      429
-    );
-  }
-
-  await options.store.put(options.key, String(next), { expirationTtl: options.ttlSeconds });
-}
-
-function rateLimitKey(windowName: "minute" | "day", windowId: number, clientHash: string): string {
-  return `${RATE_LIMIT_BUCKET_PREFIX}/public-scan/${windowName}/${windowId}/${clientHash}`;
-}
-
-function secondsUntilNextWindow(nowMs: number, windowMs: number): number {
-  return Math.max(1, Math.ceil((windowMs - (nowMs % windowMs)) / 1000));
 }
 
 export function formatPublicScanRetryAfter(seconds: number): string {

@@ -16,6 +16,7 @@ import {
   type ActiveScanJob,
   type RuntimeScanPoller
 } from "./scan-client-orchestration";
+import { PublicUrlDnsTimeoutError, PublicUrlDnsUnavailableError } from "./url-safety";
 import {
   SCAN_ADMISSION_CAPABILITY_HEADER,
   SCAN_ADMISSION_COMMITMENT_HEADER,
@@ -876,4 +877,22 @@ test("friendly scan errors preserve the existing public explanations", () => {
   assert.match(friendlyScanError("Unauthorized", false), /valid access key/);
   assert.match(friendlyScanError("Unauthorized", true), /still rejecting open scans/);
   assert.equal(friendlyScanError("specific upstream failure", false), "specific upstream failure");
+});
+
+test("a scanner-side verification outage is never rewritten as a bad address", () => {
+  // This layer classifies by substring, so a server message and this mapping are
+  // coupled with nothing between them. A resolver that never answered proves
+  // nothing about the target, and both of the rewrites below would blame it:
+  // one tells the visitor the address cannot be scanned, the other tells them
+  // the site is down. The honest sentence must survive to the reader intact.
+  for (const message of [
+    new PublicUrlDnsUnavailableError("EAI_AGAIN").message,
+    new PublicUrlDnsUnavailableError(null).message,
+    new PublicUrlDnsTimeoutError(5_000).message
+  ]) {
+    const friendly = friendlyScanError(message, true);
+    assert.doesNotMatch(friendly, /only visits public web pages/, message);
+    assert.doesNotMatch(friendly, /site may be down/, message);
+    assert.equal(friendly, message, "the scanner's own honest sentence must reach the reader");
+  }
 });

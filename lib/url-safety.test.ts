@@ -4,8 +4,11 @@ import {
   assertPublicHttpUrl,
   assertPublicHttpUrlShape,
   normalizeUrl,
-  PublicUrlDnsTimeoutError
+  PUBLIC_URL_MAX_RESOLVED_ADDRESSES,
+  PublicUrlDnsTimeoutError,
+  PublicUrlDnsUnavailableError
 } from "./url-safety";
+import { PublicScanError } from "./public-errors";
 
 test("normalizeUrl trims input, adds https, and removes fragments", () => {
   assert.equal(normalizeUrl(" example.com/path?x=1#frag ").toString(), "https://example.com/path?x=1");
@@ -134,10 +137,79 @@ test("assertPublicHttpUrl propagates caller cancellation and caps resolver fan-o
   await assert.rejects(
     assertPublicHttpUrl(new URL("https://fanout.example/"), {
       lookup: async () =>
-        Array.from({ length: 65 }, (_, index) => ({ address: `1.1.1.${index % 255}`, family: 4 })),
+        Array.from({ length: PUBLIC_URL_MAX_RESOLVED_ADDRESSES + 1 }, (_, index) => ({
+          address: `1.1.1.${index % 255}`,
+          family: 4
+        })),
       timeoutMs: 1_000
     }),
-    /could not be resolved/
+    // A ceiling the scanner declines to verify, not a lookup that failed: the
+    // copy must not blame resolution for a policy refusal.
+    (error: unknown) =>
+      error instanceof PublicScanError &&
+      error.status === 400 &&
+      /resolved to more than 64 addresses/.test(error.message)
+  );
+});
+
+test("a resolver that fails is a scanner outage, never a verdict about the host", async () => {
+  // The distinction is the whole point: only an authoritative "no such name"
+  // proves the caller's URL has no address. Everything else means verification
+  // never ran, and a 4xx would tell the caller its perfectly good URL is bad
+  // while a resolver flake blames a target the scanner never reached.
+  const rejectingLookup = (code: string | null) => async () => {
+    const error: Error & { code?: string } = new Error("lookup failed");
+    if (code !== null) error.code = code;
+    throw error;
+  };
+
+  for (const code of ["EAI_AGAIN", "ESERVFAIL", "ETIMEDOUT", "ECONNREFUSED", "EAI_SYSTEM"]) {
+    await assert.rejects(
+      assertPublicHttpUrl(new URL("https://flaky.example/"), {
+        lookup: rejectingLookup(code),
+        timeoutMs: 1_000
+      }),
+      (error: unknown) =>
+        error instanceof PublicUrlDnsUnavailableError && error.status === 503 && error.code === code,
+      `${code} must refuse as unavailable, not as an invalid request`
+    );
+  }
+
+  // An unrecognized failure is still an unproven one; a future resolver code
+  // must not silently start reading as "this host does not exist".
+  await assert.rejects(
+    assertPublicHttpUrl(new URL("https://unknown-code.example/"), {
+      lookup: rejectingLookup(null),
+      timeoutMs: 1_000
+    }),
+    (error: unknown) => error instanceof PublicUrlDnsUnavailableError && error.code === null
+  );
+
+  for (const code of ["ENOTFOUND", "ENODATA"]) {
+    await assert.rejects(
+      assertPublicHttpUrl(new URL("https://absent.example/"), {
+        lookup: rejectingLookup(code),
+        timeoutMs: 1_000
+      }),
+      (error: unknown) =>
+        error instanceof PublicScanError &&
+        !(error instanceof PublicUrlDnsUnavailableError) &&
+        error.status === 400 &&
+        /could not be resolved to a public address/.test(error.message),
+      `${code} is authoritative and must stay a client error`
+    );
+  }
+});
+
+test("an unresolvable host still fails closed rather than reaching the network", async () => {
+  // Every branch above refuses. The 503 changes the status and the sentence,
+  // never the outcome, so a resolver outage can never admit an unverified host.
+  await assert.rejects(
+    assertPublicHttpUrl(new URL("https://empty.example/"), {
+      lookup: async () => [],
+      timeoutMs: 1_000
+    }),
+    /could not be resolved to a public address/
   );
 });
 

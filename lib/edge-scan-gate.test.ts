@@ -7,7 +7,6 @@ import {
   RequestBodyReadTimeoutError,
   assertTurnstileToken,
   constantTimeEqual,
-  enforcePublicScanRateLimit,
   openScanBlockedForMissingTurnstile,
   probeTurnstileConfiguration,
   publicClientHash,
@@ -18,21 +17,8 @@ import {
   scanAccessTokenMatches,
   scanTokenCost,
   turnstileAdmissionIdempotencyKey,
-  withPublicScanAccessCheck,
-  type RateLimitStore
+  withPublicScanAccessCheck
 } from "./edge-scan-gate";
-
-function fakeStore(): RateLimitStore {
-  const map = new Map<string, string>();
-  return {
-    async get(key) {
-      return map.get(key) ?? null;
-    },
-    async put(key, value) {
-      map.set(key, value);
-    }
-  };
-}
 
 function okFetch(success: boolean): typeof fetch {
   return (async () => new Response(JSON.stringify({ success }), { headers: { "content-type": "application/json" } })) as typeof fetch;
@@ -265,42 +251,15 @@ test("Turnstile configuration probe bounds stalled and oversized response bodies
   }
 });
 
-test("enforcePublicScanRateLimit charges windows and rejects over the per-minute limit", async () => {
-  const store = fakeStore();
-  const now = 1_000_000_000_000;
-  // Six single-cost scans fit a per-minute limit of 6.
-  for (let i = 0; i < 6; i += 1) {
-    await enforcePublicScanRateLimit({ store, clientHash: "client", cost: 1, perMinute: 6, perDay: 120, now });
+test("the module exposes no KV-backed rate limiter for a caller to mistake for one", async () => {
+  // The counters here were a read-then-write that concurrent requests could
+  // overshoot. They were the Browser Run worker's limiter; the container charges
+  // its quota atomically in the Durable Object. Leaving them exported would let
+  // a future caller reach for a limiter that does not hold under load.
+  const gate: Record<string, unknown> = await import("./edge-scan-gate");
+  for (const removed of ["enforcePublicScanRateLimit", "RateLimitStore"]) {
+    assert.equal(removed in gate, false, `${removed} must not be re-exported`);
   }
-  await assert.rejects(
-    () => enforcePublicScanRateLimit({ store, clientHash: "client", cost: 1, perMinute: 6, perDay: 120, now }),
-    (error: unknown) => error instanceof EdgeScanGateError && error.status === 429
-  );
-});
-
-test("enforcePublicScanRateLimit counts comparison cost and the daily window independently", async () => {
-  const store = fakeStore();
-  const now = 1_000_000_000_000;
-  // Daily limit of 2; a comparison costs 2 and fills it.
-  await enforcePublicScanRateLimit({ store, clientHash: "c", cost: 2, perMinute: 100, perDay: 2, now });
-  await assert.rejects(
-    () => enforcePublicScanRateLimit({ store, clientHash: "c", cost: 1, perMinute: 100, perDay: 2, now }),
-    (error: unknown) => error instanceof EdgeScanGateError && error.status === 429
-  );
-});
-
-test("separate clients and separate minute windows do not share budget", async () => {
-  const store = fakeStore();
-  const base = 1_000_000_000_000;
-  await enforcePublicScanRateLimit({ store, clientHash: "a", cost: 1, perMinute: 1, perDay: 120, now: base });
-  // A different client is unaffected.
-  await assert.doesNotReject(() =>
-    enforcePublicScanRateLimit({ store, clientHash: "b", cost: 1, perMinute: 1, perDay: 120, now: base })
-  );
-  // The same client one minute later gets a fresh minute window.
-  await assert.doesNotReject(() =>
-    enforcePublicScanRateLimit({ store, clientHash: "a", cost: 1, perMinute: 1, perDay: 120, now: base + 60_000 })
-  );
 });
 
 test("publicClientHash is stable per IP and varies across IPs", async () => {
@@ -334,31 +293,29 @@ test("publicScanGateStatus reflects the edge gate's admission rules", () => {
 
 test("publicScanRefusalReasons names every configuration that fails all scans closed", () => {
   // A healthy gated scanner and a healthy open scanner refuse nothing.
-  assert.deepEqual(publicScanRefusalReasons({ accessToken: "t", rateLimitStoreBound: false }), []);
-  assert.deepEqual(
-    publicScanRefusalReasons({ allowUnauthenticated: "1", turnstileSecret: "secret", rateLimitStoreBound: true }),
-    []
-  );
+  assert.deepEqual(publicScanRefusalReasons({ accessToken: "t" }), []);
+  assert.deepEqual(publicScanRefusalReasons({ allowUnauthenticated: "1", turnstileSecret: "secret" }), []);
 
   // No token and not explicitly opened: every scan 503s and health must say so.
-  const closed = publicScanRefusalReasons({ rateLimitStoreBound: true });
+  const closed = publicScanRefusalReasons({});
   assert.equal(closed.length, 1);
   assert.match(closed[0], /unauthenticated scans are not enabled/);
 
   // Open without Turnstile (and without the explicit waiver): every scan 503s.
-  const noTurnstile = publicScanRefusalReasons({ allowUnauthenticated: "1", rateLimitStoreBound: true });
+  const noTurnstile = publicScanRefusalReasons({ allowUnauthenticated: "1" });
   assert.equal(noTurnstile.length, 1);
   assert.match(noTurnstile[0], /Turnstile is not configured/);
   // The explicit waiver clears that refusal.
   assert.deepEqual(
-    publicScanRefusalReasons({ allowUnauthenticated: "1", acceptNoTurnstileRisk: "1", rateLimitStoreBound: true }),
+    publicScanRefusalReasons({ allowUnauthenticated: "1", acceptNoTurnstileRisk: "1" }),
     []
   );
 
-  // Open without the KV rate-limit binding: every scan 503s.
-  const noKv = publicScanRefusalReasons({ allowUnauthenticated: "1", turnstileSecret: "secret", rateLimitStoreBound: false });
-  assert.equal(noKv.length, 1);
-  assert.match(noKv[0], /RATE_LIMITS_KV/);
+  // No refusal may name a KV rate-limit binding: the container has none, and
+  // health asserting a missing binding would report an outage that cannot exist.
+  for (const reasons of [closed, noTurnstile, publicScanRefusalReasons({ allowUnauthenticated: "1" })]) {
+    for (const reason of reasons) assert.doesNotMatch(reason, /RATE_LIMITS_KV/);
+  }
 });
 
 test("withPublicScanAccessCheck overlays the authoritative edge posture and preserves other checks", () => {
@@ -380,7 +337,7 @@ test("withPublicScanAccessCheck overlays the authoritative edge posture and pres
   assert.equal(withPublicScanAccessCheck(upstream, openGate, []).scanAccess, "open");
 
   const refusedGate = publicScanGateStatus({});
-  const refusals = publicScanRefusalReasons({ rateLimitStoreBound: true });
+  const refusals = publicScanRefusalReasons({});
   assert.equal(withPublicScanAccessCheck(upstream, refusedGate, refusals).scanAccess, "refused");
   assert.deepEqual(withPublicScanAccessCheck(null, refusedGate, refusals), { scanAccess: "refused" });
 });

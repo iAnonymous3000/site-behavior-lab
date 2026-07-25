@@ -3936,8 +3936,7 @@ async function publicIngressPreflightResponse(request: Request, env: Env): Promi
     accessToken: env.SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN,
     allowUnauthenticated: env.SITE_BEHAVIOR_LAB_ALLOW_UNAUTHENTICATED_SCANS,
     turnstileSecret: env.TURNSTILE_SECRET_KEY,
-    acceptNoTurnstileRisk: env.SITE_BEHAVIOR_LAB_ACCEPT_NO_TURNSTILE_RISK,
-    rateLimitStoreBound: true
+    acceptNoTurnstileRisk: env.SITE_BEHAVIOR_LAB_ACCEPT_NO_TURNSTILE_RISK
   });
   const turnstileConfiguration = gate.turnstile
     ? await cachedTurnstileConfigurationProbe(env.TURNSTILE_SECRET_KEY?.trim() ?? "")
@@ -4060,14 +4059,13 @@ async function patchHealthResponse(response: Response, env: Env, signal?: AbortS
       health.turnstile = gate.turnstile;
       // A configuration that refuses EVERY scan must never present as a green
       // scanner: surface the exact fail-closed reasons and degrade the status.
+      // The SCANNER binding is required by this Worker and owns an atomic SQLite
+      // quota ledger, so there is no external KV binding left to report on.
       const refusals = publicScanRefusalReasons({
         accessToken: env.SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN,
         allowUnauthenticated: env.SITE_BEHAVIOR_LAB_ALLOW_UNAUTHENTICATED_SCANS,
         turnstileSecret: env.TURNSTILE_SECRET_KEY,
-        acceptNoTurnstileRisk: env.SITE_BEHAVIOR_LAB_ACCEPT_NO_TURNSTILE_RISK,
-        // The SCANNER binding is required by this Worker and owns an atomic
-        // SQLite quota ledger, so an external KV binding is no longer needed.
-        rateLimitStoreBound: true
+        acceptNoTurnstileRisk: env.SITE_BEHAVIOR_LAB_ACCEPT_NO_TURNSTILE_RISK
       });
       health.scansAvailable = scansAvailableAfterEdgeOverlay(health.scansAvailable, refusals);
       health.checks = withPublicScanAccessCheck(health.checks, gate, refusals);

@@ -164,6 +164,46 @@ test("production synthetic rejects an otherwise valid stale direct report, even 
   }
 });
 
+test("production synthetic quotes the scanner's refusal instead of only its status code", async () => {
+  // The hourly monitor spent a day reporting bare "unexpected HTTP status 400"
+  // while the scanner was refusing for a nameable reason in the response body.
+  // A status code alone cannot distinguish a bad target from a scanner outage,
+  // so the operator had nothing to act on.
+  const refusal = "Public host verification could not complete. Try again shortly.";
+  const server = await listen((request, response) => {
+    if (request.url === "/api/scan") return sendJson(response, 503, { ok: false, error: refusal });
+    sendJson(response, 404, { error: "not found" });
+  });
+
+  try {
+    const result = await runSynthetic(server.origin);
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /unexpected HTTP status 503/);
+    assert.match(result.stderr, /Public host verification could not complete/);
+  } finally {
+    await server.close();
+  }
+});
+
+test("production synthetic says so when a refusal body carries no reason at all", async () => {
+  // Absence of a reason must read as absence, not as a missing-property crash
+  // or a message ending in "undefined".
+  const server = await listen((request, response) => {
+    if (request.url === "/api/scan") return sendJson(response, 400, { ok: false });
+    sendJson(response, 404, { error: "not found" });
+  });
+
+  try {
+    const result = await runSynthetic(server.origin);
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /unexpected HTTP status 400/);
+    assert.match(result.stderr, /response body carried no error message/);
+    assert.doesNotMatch(result.stderr, /undefined/);
+  } finally {
+    await server.close();
+  }
+});
+
 test("production synthetic rejects reports outside both sides of the invocation clock-skew bound", async () => {
   for (const startedAt of [
     new Date(Date.now() - 120_000).toISOString(),
