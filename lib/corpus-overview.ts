@@ -422,6 +422,27 @@ type LoadedDirectoryEntry = {
   lastModifiedAt: string;
 };
 
+/**
+ * The observed signed third-party change of an ELIGIBLE Shields pair (blocking
+ * visit minus unblocked baseline; negative = fewer with blocking), or null when
+ * the pair may not publish one.
+ *
+ * Exported because this gate is the only thing standing between an ineligible
+ * pair and the homepage medians, the category rollups, and the researcher
+ * export. The producer-parity matrix used to reimplement it in a test-local
+ * helper, so the assertion could keep agreeing with a rule the loader had
+ * already changed.
+ */
+export function directoryShieldsThirdPartyChange(view: ReportView): number | null {
+  const arms = comparisonArmViews(view);
+  return arms &&
+    view.comparison?.axis === "shields" &&
+    view.claims.pairComparison?.allowed === true &&
+    view.claims.familyDeltas?.["raw-counts"]?.allowed === true
+    ? arms.variant.counts.thirdPartyRequests - arms.baseline.counts.thirdPartyRequests
+    : null;
+}
+
 async function loadDirectoryEntries(catalog: CatalogEntry[]): Promise<LoadedDirectoryEntry[]> {
   // The corpus audit already strict-parsed, sanitizer-checked, and
   // digest-verified every committed bundle, so reuse what it read instead of
@@ -441,7 +462,6 @@ async function loadDirectoryEntries(catalog: CatalogEntry[]): Promise<LoadedDire
     // Lead with the baseline (off / unprotected) run for GPC/Shields so the directory
     // lists and ranks what each site actually did, not the protected residual.
     const run = displayRunView(view);
-    const arms = comparisonArmViews(view);
     const successfulRuns = view.runs.filter(
       (candidate) =>
         candidate.quality.outcome === "complete" &&
@@ -460,13 +480,7 @@ async function loadDirectoryEntries(catalog: CatalogEntry[]): Promise<LoadedDire
     // paired-visit difference, never a "blocked" count, and an increased pair
     // stays signed: clamping it to zero would misreport an observed increase
     // as "no change" in every aggregate built from this field.
-    const shieldsThirdPartyChange =
-      arms &&
-      view.comparison?.axis === "shields" &&
-      view.claims.pairComparison?.allowed === true &&
-      view.claims.familyDeltas?.["raw-counts"]?.allowed === true
-        ? arms.variant.counts.thirdPartyRequests - arms.baseline.counts.thirdPartyRequests
-        : null;
+    const shieldsThirdPartyChange = directoryShieldsThirdPartyChange(view);
 
     const entry: DirectoryEntry = {
       id,

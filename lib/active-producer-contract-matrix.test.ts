@@ -6,6 +6,7 @@ import { committedReportCreatedAt } from "./committed-report-created-at";
 import { buildCorpusExportRows } from "./corpus-export";
 import {
   corpusExportMetadataForView,
+  directoryShieldsThirdPartyChange,
   entryEligibleForCorpusRollups,
   type DirectoryEntry
 } from "./corpus-overview";
@@ -161,7 +162,10 @@ function directoryEntry(artifact: ManagedArtifact): DirectoryEntry {
     thirdPartyRequests: run.counts.thirdPartyRequests,
     trackerRequests: trackingServiceRequests(run.evidence),
     thirdPartyCookies: run.counts.thirdPartyCookies,
-    shieldsThirdPartyChange: null,
+    // Derived through the loader's own gate, never restated here: this is the
+    // rule that decides whether a Shields delta may reach the homepage
+    // medians, the category rollups, and the researcher export.
+    shieldsThirdPartyChange: directoryShieldsThirdPartyChange(view),
     category: "contract-matrix",
     categoryLabel: "Contract matrix",
     scannedAt: view.scannedAt ?? "",
