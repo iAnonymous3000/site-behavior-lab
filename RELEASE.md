@@ -42,6 +42,9 @@ Generate a static receipt outside the worktree after a clean static build:
 
 ```bash
 npm ci
+# build:pages and test:smoke:static both fail closed without the public site
+# URL: the static export refuses to guess an origin for canonical links.
+export NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SITE_URL=https://sitebehavior.org
 npm run build:pages
 npm run test:smoke:static
 npm run release:evidence -- \
