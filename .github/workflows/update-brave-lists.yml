@@ -142,12 +142,34 @@ jobs:
             --json number \
             --jq 'if length > 1 then error("multiple open Brave-list refresh PRs") elif length == 1 then .[0].number else empty end')
           if [[ -z "$pr_number" ]]; then
-            gh pr create \
+            # The proposal branch is already pushed and every gate above passed,
+            # so a refusal to OPEN the pull request must not discard a validated
+            # refresh or report a working one as broken. Exactly one refusal is
+            # tolerated: the repository/organization policy that forbids Actions
+            # from creating pull requests ("Allow GitHub Actions to create and
+            # approve pull requests", off by default). It is surfaced as an
+            # error annotation with the one-click URL, and CI still runs on the
+            # branch. Every other failure is real and still fails the job.
+            pr_error="$RUNNER_TEMP/brave-list-pr-error.txt"
+            if ! gh pr create \
               --repo "$GITHUB_REPOSITORY" \
               --base "$BASE_BRANCH" \
               --head "$PROPOSAL_BRANCH" \
               --title "Refresh the vendored Brave Shields default filter lists" \
-              --body-file "$proposal_body"
+              --body-file "$proposal_body" 2>"$pr_error"; then
+              cat "$pr_error" >&2
+              if ! grep -q "not permitted to create or approve pull requests" "$pr_error"; then
+                exit 1
+              fi
+              compare_url="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/compare/${BASE_BRANCH}...${PROPOSAL_BRANCH}?expand=1"
+              echo "::error title=Brave-list refresh needs its pull request opened by hand::The refreshed snapshot is validated and pushed to ${PROPOSAL_BRANCH}, but this repository does not permit Actions to create pull requests. Open it at ${compare_url}, or enable Settings > Actions > General > Allow GitHub Actions to create and approve pull requests."
+              {
+                echo "- Proposal branch: \`${PROPOSAL_BRANCH}\` (validated, pushed)"
+                echo "- Pull request: **not created**; Actions are not permitted to create pull requests in this repository"
+                echo "- Open it here: ${compare_url}"
+              } >> "$GITHUB_STEP_SUMMARY"
+              echo "pr_blocked=true" >> "$GITHUB_OUTPUT"
+            fi
           else
             gh pr edit "$pr_number" \
               --repo "$GITHUB_REPOSITORY" \

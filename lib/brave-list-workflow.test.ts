@@ -65,6 +65,31 @@ test("Brave-list refresh can publish only a reviewed proposal branch", () => {
   );
 });
 
+test("a policy refusal to open the proposal PR does not discard a validated refresh", () => {
+  // "Allow GitHub Actions to create and approve pull requests" is off by
+  // default, so gh pr create fails with a GraphQL policy refusal AFTER the
+  // branch is pushed and every gate has passed. Failing the job there threw
+  // away a validated refresh, skipped the proposal CI dispatch, and reported a
+  // working refresh as broken.
+  assert.match(refreshJob, /not permitted to create or approve pull requests/);
+  assert.match(refreshJob, /::error title=Brave-list refresh needs its pull request opened by hand::/);
+  assert.match(refreshJob, /compare\/\$\{BASE_BRANCH\}\.\.\.\$\{PROPOSAL_BRANCH\}\?expand=1/);
+  assert.match(refreshJob, /pr_blocked=true/);
+  // Only that one refusal is tolerated; anything else still fails the job.
+  assert.match(refreshJob, /if ! grep -q "not permitted to create or approve pull requests"[\s\S]*?exit 1/);
+  // The proposal must still be marked published so its CI dispatch runs, which
+  // is what actually validates the branch a human is about to merge.
+  const publishStep = refreshJob.slice(
+    refreshJob.indexOf("- name: Publish reviewed refresh proposal"),
+    refreshJob.indexOf("- name: Trigger non-promoting CI on the proposal branch")
+  );
+  assert.ok(
+    publishStep.indexOf("pr_blocked=true") < publishStep.lastIndexOf('echo "proposed=true"'),
+    "a blocked PR must still reach proposed=true so CI runs on the branch"
+  );
+  assert.match(refreshJob, /if: steps\.commit\.outputs\.proposed == 'true'/);
+});
+
 test("manual runs and the separate drift job cannot reconcile Brave-list refresh health", () => {
   const reconcileStart = refreshJob.indexOf("- name: Reconcile the scheduled Brave-list refresh issue");
   const preserveStart = refreshJob.indexOf("- name: Preserve scheduled Brave-list refresh failure", reconcileStart);
