@@ -135,7 +135,6 @@ import {
   type GpcWorkerInjectionCheckpoint
 } from "./gpc-injection";
 
-export { redactUrlForReport } from "./report-url";
 export { scannerEgressRegion } from "./scanner-egress";
 export { MAX_RECORDED_REQUESTS, NON_HTTP_WARNING_EXAMPLE_LIMIT, ScanRequestBudget, ScanWarningCollector } from "./scan-runtime";
 

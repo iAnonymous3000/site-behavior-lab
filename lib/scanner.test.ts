@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { createServer } from "node:http";
 import { connect, createServer as createNetServer } from "node:net";
 import { test } from "node:test";
+import { redactUrlForReport } from "./report-url";
 import { PublicScanError } from "./public-errors";
 import { TCF_API_METHOD } from "./consent-verification";
 import { GPC_WORKER_CAPTURE_LOSS_WARNING } from "./gpc-injection";
@@ -27,7 +28,6 @@ import {
   MAX_PROBE_FIELD_CANDIDATES,
   NON_HTTP_WARNING_EXAMPLE_LIMIT,
   phaseAwareDetections,
-  redactUrlForReport,
   retainedScanEvidenceDiagnostics,
   SCAN_CHROMIUM_LAUNCH_ARGS,
   ScanRequestBudget,

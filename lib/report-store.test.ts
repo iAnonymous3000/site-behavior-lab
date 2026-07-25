@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { R2_LIST_MAX_HEAD_CANDIDATES } from "./report-store-r2";
 import { access, mkdir, mkdtemp, readFile, readdir, rm, unlink, utimes, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -1175,3 +1176,24 @@ function makeScanResult(options: { gpcEnabled?: boolean; screenshot?: string | n
     warnings: []
   };
 }
+
+test("an operator report count above the backend listing ceiling is clamped, not accepted", async () => {
+  // Prune walks HEAD candidates and refuses past R2_LIST_MAX_HEAD_CANDIDATES,
+  // so a configured count above that ceiling produces a store that can never be
+  // pruned back under its own limit: every maintenance pass refuses, retention
+  // debt only grows, and the health check reports an unhealthy store with no
+  // operator action that fixes it.
+  const REPORT_MAX_COUNT_ENV = "SITE_BEHAVIOR_LAB_REPORT_MAX_COUNT";
+  const previous = process.env[REPORT_MAX_COUNT_ENV];
+  try {
+    process.env[REPORT_MAX_COUNT_ENV] = String(R2_LIST_MAX_HEAD_CANDIDATES + 5_000);
+    assert.equal(reportStoreStatus().maxCount, R2_LIST_MAX_HEAD_CANDIDATES);
+    process.env[REPORT_MAX_COUNT_ENV] = "25";
+    assert.equal(reportStoreStatus().maxCount, 25);
+    process.env[REPORT_MAX_COUNT_ENV] = "0";
+    assert.equal(reportStoreStatus().maxCount >= 1, true);
+  } finally {
+    if (previous === undefined) delete process.env[REPORT_MAX_COUNT_ENV];
+    else process.env[REPORT_MAX_COUNT_ENV] = previous;
+  }
+});

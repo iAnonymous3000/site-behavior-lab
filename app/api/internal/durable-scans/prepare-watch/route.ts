@@ -38,6 +38,14 @@ export async function POST(request: Request): Promise<Response> {
       }
     });
   } catch (error) {
+    // DELIBERATELY not the instanceof DurableScanJobCoordinatorError branch the
+    // [id] routes use, and here the difference is load-bearing: the Worker
+    // echoes a 4xx body from this route verbatim to the public watch creator
+    // and maps 5xx to encryptedWatchUnavailableResponse. Mirroring the branch
+    // would publish "Unauthorized durable scan-job control request." to a
+    // visitor and turn a correct retry-later into a bogus 401. toPublicError
+    // keeps the public answer honest and still console.errors the original
+    // error with its message for the operator.
     const publicError = toPublicError(error);
     return NextResponse.json(
       { ok: false, error: publicError.message },

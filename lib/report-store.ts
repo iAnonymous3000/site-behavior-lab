@@ -20,6 +20,7 @@ import {
   type ReportStoreBackendStatus,
   type StoredReportEntry
 } from "./report-store-backend";
+import { R2_LIST_MAX_HEAD_CANDIDATES } from "./report-store-r2";
 import { REPORT_ID_PATTERN } from "./report-validation";
 import type { ReadStoredScanReportError, StoredScanReport } from "./scan-report-reader";
 import { sha256Hex } from "./sha256";
@@ -851,8 +852,18 @@ function reportMaxAgeDays(): number {
   return positiveNumberFromEnv(REPORT_MAX_AGE_DAYS_ENV, DEFAULT_REPORT_MAX_AGE_DAYS);
 }
 
+/**
+ * Clamped to the R2 backend's own retention listing ceiling. Prune walks HEAD
+ * candidates and refuses past R2_LIST_MAX_HEAD_CANDIDATES, so an operator
+ * count above that ceiling produces a store that can never be pruned back
+ * under its own limit: every maintenance pass refuses, retention debt only
+ * grows, and the health check reports an unhealthy store with no operator
+ * action that fixes it. Refusing the impossible value up front is the honest
+ * failure mode.
+ */
 function reportMaxCount(): number {
-  return Math.max(1, Math.floor(positiveNumberFromEnv(REPORT_MAX_COUNT_ENV, DEFAULT_REPORT_MAX_COUNT)));
+  const requested = Math.max(1, Math.floor(positiveNumberFromEnv(REPORT_MAX_COUNT_ENV, DEFAULT_REPORT_MAX_COUNT)));
+  return Math.min(requested, R2_LIST_MAX_HEAD_CANDIDATES);
 }
 
 function reportMinimumSurvivalMs(): number {

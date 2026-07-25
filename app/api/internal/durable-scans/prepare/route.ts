@@ -27,6 +27,16 @@ export async function POST(request: Request): Promise<Response> {
       }
     });
   } catch (error) {
+    // DELIBERATELY not the instanceof DurableScanJobCoordinatorError branch the
+    // [id] routes use. The Worker echoes any non-202/non-404 status and body
+    // from this route straight to the public caller, so surfacing the internal
+    // 401 would hand a visitor an unactionable authorization error for what is,
+    // from their side, an operator token misconfiguration. toPublicError maps
+    // it to an honest "unavailable, try later" and still console.errors the
+    // original DurableScanJobCoordinatorError with its message, which is the
+    // signal the operator actually needs. The edge blocks this whole prefix
+    // (cloudflare/container-worker.ts privateRouteNotFound), so the only
+    // requests that reach here are the Worker's own.
     const publicError = toPublicError(error);
     return NextResponse.json(
       { ok: false, error: publicError.message },
