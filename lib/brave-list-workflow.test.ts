@@ -52,6 +52,17 @@ test("Brave-list refresh can publish only a reviewed proposal branch", () => {
   assert.doesNotMatch(refreshJob, /gh workflow run ci\.yml --ref main/);
   assert.doesNotMatch(refreshJob, /git pull --rebase/);
   assert.doesNotMatch(refreshJob, /git push origin "\$\{?GITHUB_REF_NAME/);
+  // New list bytes invalidate the pinned inventory digests by construction, so
+  // a proposal that does not regenerate and stage THIRD_PARTY_INVENTORY.json
+  // can never pass CI's required supply-chain gate and no refresh could merge.
+  assert.match(refreshJob, /node scripts\/third-party-inventory\.mjs\n/);
+  assert.match(refreshJob, /npm run supply-chain:third-party:check/);
+  assert.match(refreshJob, /git add [^\n]*THIRD_PARTY_INVENTORY\.json/);
+  assert.ok(
+    refreshJob.indexOf("node scripts/third-party-inventory.mjs\n") <
+      refreshJob.indexOf("npm run supply-chain:third-party:check"),
+    "the inventory must be regenerated before it is verified"
+  );
 });
 
 test("manual runs and the separate drift job cannot reconcile Brave-list refresh health", () => {

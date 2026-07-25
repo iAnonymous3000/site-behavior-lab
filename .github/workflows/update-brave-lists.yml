@@ -70,6 +70,17 @@ jobs:
       - name: Validate the refreshed engine snapshot
         run: npm run lists:verify
 
+      # THIRD_PARTY_INVENTORY.json pins bundle.sourceManifestSha256 and every
+      # per-list digest, so new list bytes invalidate it by construction. Left
+      # stale, the proposal fails CI's required supply-chain gate and no
+      # refresh can ever merge. Regenerate it here, then re-verify so the
+      # committed inventory is proven to describe these exact bytes.
+      - name: Regenerate the third-party inventory for the new list bytes
+        run: node scripts/third-party-inventory.mjs
+
+      - name: Verify the regenerated inventory
+        run: npm run supply-chain:third-party:check
+
       - name: Run unit tests against the new snapshot
         run: npm run test:unit
 
@@ -89,7 +100,7 @@ jobs:
           echo "proposed=false" >> "$GITHUB_OUTPUT"
           git config user.name "iAnonymous3000"
           git config user.email "32236127+iAnonymous3000@users.noreply.github.com"
-          git add lib/adblock-wasm/brave-default-filters.txt.gz lib/adblock-wasm/brave-default-filters.meta.json
+          git add lib/adblock-wasm/brave-default-filters.txt.gz lib/adblock-wasm/brave-default-filters.meta.json THIRD_PARTY_INVENTORY.json
           if git diff --cached --quiet; then
             echo "No filter list changes to commit."
             exit 0
