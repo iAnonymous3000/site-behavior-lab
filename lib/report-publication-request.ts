@@ -75,13 +75,16 @@ export async function featuredReportPublicationRequest(
   sites = sites.filter((site) => site.scanAvailability === undefined);
   if (sites.length === 0) throw new Error("Trusted featured publication selected no catalog targets.");
 
+  const axis = comparisonAxis(environment, "FEATURED");
   return {
     targets: sites.map((site) => site.url),
     device: scanDevice(environment.FEATURED_DEVICE),
-    comparisonAxis: comparisonAxis(environment, "FEATURED"),
-    // run-featured-scans pins SCAN_GPC_ENABLED=true for every site; for a GPC
-    // comparison the canonical arms below must instead be false/true.
-    gpcEnabled: true
+    comparisonAxis: axis,
+    // run-featured-scans sends GPC only on the lane that measures it
+    // (SCAN_GPC_ENABLED tracks compareGpc); every other axis scans as the
+    // default no-GPC visitor. For the GPC axis this field is unused: the
+    // canonical off/on arm pair is asserted directly instead.
+    gpcEnabled: axis === "gpc"
   };
 }
 
