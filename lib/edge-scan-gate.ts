@@ -490,7 +490,11 @@ export async function sha256Hex(value: string): Promise<string> {
 }
 
 export function formatPublicScanRetryAfter(seconds: number): string {
-  if (seconds < 90) return `${seconds} seconds`;
+  // Only the seconds branch can carry a singular value: the minutes branch
+  // starts at 90 seconds and the hours branch at 90 minutes, so both round to
+  // at least two. A visitor refused in the last second of a window was still
+  // told to "Try again in about 1 seconds."
+  if (seconds < 90) return `${seconds} ${seconds === 1 ? "second" : "seconds"}`;
   const minutes = Math.ceil(seconds / 60);
   if (minutes < 90) return `${minutes} minutes`;
   return `${Math.ceil(minutes / 60)} hours`;

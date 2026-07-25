@@ -22,7 +22,7 @@ changed.
 - Accountless create, metadata read, and delete. Targets and options are
   immutable; replace a watch to change them.
 - One single-mode r2 scan runs immediately, then at a fixed seven-day cadence.
-- A watch expires after 30 days or five scheduled attempts, whichever comes
+- A watch expires after 30 days or five total runs, whichever comes
   first. An attempt that fails before durable-job admission still consumes one
   slot, so an unreachable target cannot retry indefinitely.
 - At most 32 active watches exist in the coordinator, with a global budget of

@@ -160,7 +160,8 @@ export default function PrivacyPage() {
           <li>
             <strong>Optional encrypted scheduled rescans are separate from live share reports.</strong> When the
             post-durability feature is explicitly enabled, one single-mode scan runs immediately and then at a fixed
-            seven-day cadence, for at most five scheduled attempts or 30 days. Failed pre-admission attempts still
+            seven-day cadence, for at most five total runs (the immediate scan is the first, so at most four scheduled
+            rescans follow) or 30 days. Failed pre-admission attempts still
             consume that bound. The exact query-free address and its device/GPC options are application-encrypted with
             a separate Worker-only key. The service stores an opaque watch
             ID, only a cryptographic digest of the 256-bit control capability, and bounded scheduling/run metadata;

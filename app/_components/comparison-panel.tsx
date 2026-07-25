@@ -213,21 +213,25 @@ function ComparisonPanel({ view }: { view: ReportView }) {
                   title={`${cookieNamesPrivacyFiltered ? "Visible cookie names" : "Cookies"} only with ${labels.variant}`}
                   changes={addedCookies}
                   privacyFiltered={cookieNamesPrivacyFiltered}
+                  producerCapped={(diff.addedCookies ?? []).length >= MAX_DIFF_LIST}
                 />
                 <CookieChangeList
                   title={`${cookieNamesPrivacyFiltered ? "Visible cookie names" : "Cookies"} only with ${labels.baseline}`}
                   changes={removedCookies}
                   privacyFiltered={cookieNamesPrivacyFiltered}
+                  producerCapped={(diff.removedCookies ?? []).length >= MAX_DIFF_LIST}
                 />
                 <StorageChangeList
                   title={`${storageNamesPrivacyFiltered ? "Visible storage keys" : "Storage keys"} only with ${labels.variant}`}
                   changes={addedStorageKeys}
                   privacyFiltered={storageNamesPrivacyFiltered}
+                  producerCapped={(diff.addedStorageKeys ?? []).length >= MAX_DIFF_LIST}
                 />
                 <StorageChangeList
                   title={`${storageNamesPrivacyFiltered ? "Visible storage keys" : "Storage keys"} only with ${labels.baseline}`}
                   changes={removedStorageKeys}
                   privacyFiltered={storageNamesPrivacyFiltered}
+                  producerCapped={(diff.removedStorageKeys ?? []).length >= MAX_DIFF_LIST}
                 />
               </>
             )}
@@ -308,21 +312,30 @@ function DiffList<T>({
   emptyText,
   items,
   renderItem,
-  className
+  className,
+  producerCapped
 }: {
   title: string;
   emptyText: string;
   items: T[];
   renderItem: (item: T, index: number) => ReactNode;
   className?: string;
+  /**
+   * Whether the PRODUCER truncated this list at its hard cap, judged from the
+   * wire array rather than from what is rendered. Inferring it from
+   * `items.length` was wrong in both directions: a locally derived list that is
+   * never sliced claimed a truncation that did not happen, and a wire list that
+   * was clipped and then privacy-filtered below the cap lost the disclosure
+   * when it was real.
+   */
+  producerCapped: boolean;
 }) {
   const [expanded, setExpanded] = useState(false);
   const visible = expanded ? items : items.slice(0, DIFF_COLLAPSED_COUNT);
-  // A diff list is built with a hard cap and carries no record of how many
-  // entries it dropped, so a full list is indistinguishable from a clipped
-  // one. Saying "show all N" over a capped list would assert a completeness
-  // the report cannot support.
-  const capped = items.length >= MAX_DIFF_LIST;
+  // A capped diff list carries no record of how many entries it dropped, so
+  // saying "show all N" over one would assert a completeness the report cannot
+  // support.
+  const capped = producerCapped;
 
   return (
     <div className={`change-list${className ? ` ${className}` : ""}`}>
@@ -344,8 +357,8 @@ function DiffList<T>({
           )}
           {capped && (
             <p className="muted change-list-cap-note">
-              This list is capped at {MAX_DIFF_LIST.toLocaleString("en-US")} entries, kept largest first by request
-              volume. Any further changes were not retained and are not recoverable from this report.
+              This list was capped at {MAX_DIFF_LIST.toLocaleString("en-US")} entries when the report was written. Any
+              further changes were not retained and are not recoverable from this report.
             </p>
           )}
         </>
@@ -366,6 +379,9 @@ function DomainRequestDeltaList({
       title="Largest per-domain request-count changes"
       emptyText="No per-domain request counts changed between these visits."
       items={changes}
+      // Derived here from both arms' domain evidence, not read from the wire
+      // diff, so it is never truncated and must not claim it was.
+      producerCapped={false}
       className="domain-request-deltas"
       renderItem={(change) => {
         const formattedDelta = signedCount(change.delta);
@@ -413,6 +429,7 @@ function ChangeList({
       title={title}
       emptyText="No domain changes observed."
       items={changes}
+      producerCapped={changes.length >= MAX_DIFF_LIST}
       renderItem={(change) => (
         <div className="change-row" key={change.domain}>
           <span>
@@ -445,6 +462,7 @@ function EntityChangeList({ title, changes }: { title: string; changes: EntityCh
       title={title}
       emptyText="No entity changes observed."
       items={changes}
+      producerCapped={changes.length >= MAX_DIFF_LIST}
       renderItem={(change) => (
         <div className="change-row" key={change.entity}>
           <span>
@@ -461,11 +479,13 @@ function EntityChangeList({ title, changes }: { title: string; changes: EntityCh
 function CookieChangeList({
   title,
   changes,
-  privacyFiltered = false
+  privacyFiltered = false,
+  producerCapped
 }: {
   title: string;
   changes: CookieChange[];
   privacyFiltered?: boolean;
+  producerCapped: boolean;
 }) {
   return (
     <DiffList
@@ -476,6 +496,7 @@ function CookieChangeList({
           : "No cookie changes observed."
       }
       items={changes}
+      producerCapped={producerCapped}
       renderItem={(change, index) => (
         <div className="change-row" key={`${change.name}:${change.domain}:${index}`}>
           <span>
@@ -492,11 +513,13 @@ function CookieChangeList({
 function StorageChangeList({
   title,
   changes,
-  privacyFiltered = false
+  privacyFiltered = false,
+  producerCapped
 }: {
   title: string;
   changes: StorageKeyChange[];
   privacyFiltered?: boolean;
+  producerCapped: boolean;
 }) {
   return (
     <DiffList
@@ -507,6 +530,7 @@ function StorageChangeList({
           : "No storage key changes observed."
       }
       items={changes}
+      producerCapped={producerCapped}
       renderItem={(change, index) => (
         <div className="change-row" key={`${change.area}:${change.key}:${index}`}>
           <span>
@@ -525,6 +549,7 @@ function FingerprintingChangeList({ title, changes }: { title: string; changes: 
       title={title}
       emptyText="No fingerprinting changes observed."
       items={changes}
+      producerCapped={changes.length >= MAX_DIFF_LIST}
       renderItem={(change) => (
         <div className="change-row" key={change.kind}>
           <span>
@@ -567,6 +592,7 @@ function PixelEventChangeList({ title, changes }: { title: string; changes: Pixe
       title={title}
       emptyText="No advertising-pixel changes observed."
       items={changes}
+      producerCapped={changes.length >= MAX_DIFF_LIST}
       renderItem={(change) => {
         const events = change.events.length > 0 ? change.events.join(", ") : "no named event";
         const identifiers =
@@ -594,6 +620,7 @@ function ProvenanceChangeList({ title, changes }: { title: string; changes: Prov
       emptyText="No causal path changes observed."
       className="provenance-change-list"
       items={changes}
+      producerCapped={changes.length >= MAX_DIFF_LIST}
       renderItem={(change, index) => (
         <div
           className="change-row"

@@ -88,7 +88,13 @@ test("creation is disabled while scan work or an accepted job is active", () => 
 test("product copy pins cadence, expiry, run cap, and the non-alert boundary", () => {
   assert.match(SCHEDULED_RESCAN_POLICY_COPY, /every 7 days/);
   assert.match(SCHEDULED_RESCAN_POLICY_COPY, /30 days/);
-  assert.match(SCHEDULED_RESCAN_POLICY_COPY, /maximum of 5 scheduled attempts/);
+  // The bound is a TOTAL-run bound: the immediate scan is run 1, so only four
+  // scheduled rescans follow. The copy is built from the contract constants so
+  // it cannot drift from the store again.
+  assert.match(SCHEDULED_RESCAN_POLICY_COPY, /the first of 5 total runs/);
+  assert.match(SCHEDULED_RESCAN_POLICY_COPY, /at most 4 scheduled rescans follow it/);
+  assert.match(SCHEDULED_RESCAN_POLICY_COPY, /30 days or 5 total runs/);
+  assert.doesNotMatch(SCHEDULED_RESCAN_POLICY_COPY, /scheduled attempts/);
   assert.equal(SCHEDULED_RESCAN_BOUNDARY_COPY, "Scheduled rescans, not change alerts.");
   assert.match(SCHEDULED_RESCAN_CAPABILITY_COPY, /not kept in local or session storage/);
   assert.match(SCHEDULED_RESCAN_CAPABILITY_COPY, /not sent in HTTP requests/);

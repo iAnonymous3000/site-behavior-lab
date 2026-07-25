@@ -428,7 +428,11 @@ export function ScheduledRescans({
             <>
               <p>
                 <strong>{status.state === "completed" ? "Schedule completed." : "Schedule active."}</strong>{" "}
-                {status.attemptCount} of {status.maxAttempts} scheduled {status.attemptCount === 1 ? "attempt" : "attempts"} used.
+                {/* The immediate scan is recorded as run 1, so this counter
+                    reads 1 the moment a watch exists. Calling that a spent
+                    "scheduled attempt" claimed a rescan that had not run. */}
+                {status.attemptCount} of {status.maxAttempts} total {status.attemptCount === 1 ? "run" : "runs"} used,
+                including the immediate scan.
               </p>
               <dl>
                 <div>

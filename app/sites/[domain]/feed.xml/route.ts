@@ -67,9 +67,17 @@ ${feedEntries}
 }
 
 function entrySummary(entry: DirectoryEntry): string {
+  // Cookie completeness is its own family: a visit can finish collecting
+  // requests while cookie capture is cut short. Every other DirectoryEntry
+  // consumer (the site profile, the directory index, and the category page)
+  // renders "Not measured" in that case, and this feed was the one surface
+  // stating the count as fact.
+  const cookies = entry.cookieEvidenceComplete
+    ? `${entry.thirdPartyCookies.toLocaleString("en-US")} third-party cookies`
+    : "third-party cookies not measured";
   const metrics = `${entry.thirdPartyRequests.toLocaleString("en-US")} third-party requests, ${entry.trackerRequests.toLocaleString(
     "en-US"
-  )} catalogued tracking requests, ${entry.thirdPartyCookies.toLocaleString("en-US")} third-party cookies.`;
+  )} catalogued tracking requests, ${cookies}.`;
   if (entry.requestEvidenceComplete) return metrics;
   return `${metrics} Request evidence incomplete${entry.capped ? " (recording capped)" : ""}; counts are lower bounds.`;
 }

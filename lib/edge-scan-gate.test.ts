@@ -7,6 +7,7 @@ import {
   RequestBodyReadTimeoutError,
   assertTurnstileToken,
   constantTimeEqual,
+  formatPublicScanRetryAfter,
   openScanBlockedForMissingTurnstile,
   probeTurnstileConfiguration,
   publicClientHash,
@@ -522,3 +523,15 @@ function settleWithin<T>(operation: Promise<T>, timeoutMs = 250): Promise<T> {
     );
   });
 }
+
+test("a retry-after window of one second reads as one second", () => {
+  // Only the seconds branch can carry a singular value: the minutes branch
+  // starts at 90 seconds and the hours branch at 90 minutes, so both always
+  // round to at least two. A visitor refused in the final second of a window
+  // was told to "Try again in about 1 seconds."
+  assert.equal(formatPublicScanRetryAfter(1), "1 second");
+  assert.equal(formatPublicScanRetryAfter(2), "2 seconds");
+  assert.equal(formatPublicScanRetryAfter(89), "89 seconds");
+  assert.equal(formatPublicScanRetryAfter(90), "2 minutes");
+  assert.equal(formatPublicScanRetryAfter(5400), "2 hours");
+});

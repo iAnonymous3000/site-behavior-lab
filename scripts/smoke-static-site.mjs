@@ -398,7 +398,7 @@ async function main() {
       await expectText(page.locator("#scheduled-rescan-title"), "Schedule weekly rescans");
       await expectText(page.locator(".scheduled-rescan-panel"), "every 7 days");
       await expectText(page.locator(".scheduled-rescan-panel"), "30 days");
-      await expectText(page.locator(".scheduled-rescan-panel"), "maximum of 5 scheduled attempts");
+      await expectText(page.locator(".scheduled-rescan-panel"), "at most 4 scheduled rescans follow it");
       await expectText(page.locator(".scheduled-rescan-panel"), "Scheduled rescans, not change alerts.");
       if ((await page.getByRole("button", { name: "Schedule weekly rescans", exact: true }).count()) !== 1) {
         fail("scheduled-rescan panel is missing its deliberate create action");

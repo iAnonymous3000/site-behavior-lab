@@ -1,11 +1,24 @@
 import type { EncryptedWatchCredentials, EncryptedWatchRun } from "./encrypted-watch-client";
 import {
+  ENCRYPTED_WATCH_CADENCE_MS,
+  ENCRYPTED_WATCH_MAX_RUNS,
+  ENCRYPTED_WATCH_TTL_MS,
   deriveEncryptedWatchIdFromCapabilityToken,
   type EncryptedWatchPayload
 } from "./encrypted-watch-contract";
 
+const DAY_MS = 24 * 60 * 60 * 1_000;
+
+/**
+ * Derived from the contract constants, never restated. ENCRYPTED_WATCH_MAX_RUNS
+ * counts the immediate scan as run 1, so the ceiling is a TOTAL-run ceiling and
+ * only MAX_RUNS - 1 scheduled rescans follow it. Calling it "5 scheduled
+ * attempts" promised one visit more than a watch ever performs.
+ */
 export const SCHEDULED_RESCAN_POLICY_COPY =
-  "Runs once now, then every 7 days. It expires after 30 days or a maximum of 5 scheduled attempts, whichever comes first.";
+  `Runs once now, then every ${ENCRYPTED_WATCH_CADENCE_MS / DAY_MS} days. The immediate run is the first of ` +
+  `${ENCRYPTED_WATCH_MAX_RUNS} total runs, so at most ${ENCRYPTED_WATCH_MAX_RUNS - 1} scheduled rescans follow it. ` +
+  `It expires after ${ENCRYPTED_WATCH_TTL_MS / DAY_MS} days or ${ENCRYPTED_WATCH_MAX_RUNS} total runs, whichever comes first.`;
 
 export const SCHEDULED_RESCAN_BOUNDARY_COPY = "Scheduled rescans, not change alerts.";
 
