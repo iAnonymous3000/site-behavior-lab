@@ -179,6 +179,25 @@ jobs:
             if (actual !== expected) throw new Error(`Report acquisition is ${actual}, expected ${expected}.`);
           '
 
+      # GitHub-hosted Ubuntu 24.04 restricts unprivileged user namespaces with
+      # AppArmor, so Chromium's namespace sandbox cannot initialize and EVERY
+      # scan dies at browser launch ("No usable sandbox!"), which reaches the
+      # client as the generic 500 and reads like a scanner outage.
+      #
+      # Committed-report acquisition is forbidden from launching Chromium
+      # without that sandbox, and preflight and runtime health both assert it,
+      # so the fix is to make the environment support sandboxing rather than to
+      # launch without it. That is also Chromium's own preferred remedy; its
+      # sandbox-disabling alternative is exactly what this repository refuses.
+      - name: Allow the Chromium sandbox to initialize on the hosted runner
+        run: |
+          set -euo pipefail
+          current="$(sysctl -n kernel.apparmor_restrict_unprivileged_userns 2>/dev/null || echo 0)"
+          if [[ "$current" != "0" ]]; then
+            sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+          fi
+          echo "kernel.apparmor_restrict_unprivileged_userns=$(sysctl -n kernel.apparmor_restrict_unprivileged_userns 2>/dev/null || echo unavailable)"
+
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
 

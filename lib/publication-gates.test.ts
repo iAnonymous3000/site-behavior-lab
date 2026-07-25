@@ -117,3 +117,27 @@ test("featured refresh failures publish only validated successes, stay loud, and
   assert.match(workflow, /::error title=Featured corpus refresh failed::/);
   assert.match(workflow, /- name: Preserve featured-refresh failure[\s\S]*?exit 1/);
 });
+
+test("the featured scan keeps the Chromium sandbox on and makes the runner support it", () => {
+  const workflow = readFileSync(
+    path.join(process.cwd(), ".github", "workflows", "scan-featured.yml"),
+    "utf8"
+  );
+  // Committed-report acquisition is forbidden from launching Chromium without
+  // its sandbox, so the sandbox switch must stay on.
+  assert.match(workflow, /SITE_BEHAVIOR_LAB_CHROMIUM_SANDBOX: "1"/);
+  // GitHub-hosted Ubuntu 24.04 restricts unprivileged user namespaces with
+  // AppArmor, which made every scan die at browser launch with "No usable
+  // sandbox!". The remedy must be to let the sandbox initialize, never to
+  // launch without one.
+  assert.match(workflow, /kernel\.apparmor_restrict_unprivileged_userns=0/);
+  assert.ok(
+    workflow.indexOf("kernel.apparmor_restrict_unprivileged_userns=0") <
+      workflow.indexOf("npx playwright install --with-deps chromium"),
+    "the sandbox must be made usable before Chromium is installed and launched"
+  );
+  assert.doesNotMatch(workflow, /--no-sandbox/);
+  assert.doesNotMatch(workflow, /SITE_BEHAVIOR_LAB_CHROMIUM_SANDBOX: "0"/);
+  // The scanner log stays diagnosable when scans fail for any other reason.
+  assert.match(workflow, /Show scanner log when the scans failed/);
+});
