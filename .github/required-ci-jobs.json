@@ -1,0 +1,11 @@
+{
+  "$comment": "The exact CI job names that must each conclude success before a revision may be promoted to production or carry a release tag. ONE source of truth: .github/workflows/promote-production.yml and .github/workflows/release.yml both verify against this file through scripts/verify-required-ci-jobs.mjs, and lib/required-ci-jobs.test.ts pins these names to the jobs .github/workflows/ci.yml actually declares, so renaming a job without updating this list fails the suite instead of silently dropping a gate.",
+  "schemaVersion": 1,
+  "jobs": [
+    "Supply-chain Security",
+    "Typecheck, Unit Tests, Build",
+    "Chromium Smoke Test",
+    "Docker Runtime and Public R2 Smoke",
+    "Attest exact-SHA evidence manifests"
+  ]
+}

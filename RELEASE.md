@@ -51,11 +51,20 @@ created only after the revision it names is already promoted:
    npm run supply-chain:third-party:check
    ```
 2. Let CI go green and let the promotion job advance `production`.
-3. Run the **Cut Release Tag** workflow with that version. It re-verifies the
-   policy, refuses to move an existing tag, requires the revision to be an
-   ancestor of `production`, requires a recorded successful CI run for the exact
-   SHA, rebuilds the static artifact, generates and attests the receipt, and
-   only then creates and pushes the annotated tag.
+3. Run the **Cut Release Tag** workflow with that version **and the exact
+   40-character SHA to tag**. Both inputs are required: a dispatch runs at
+   whatever the branch tip happens to be, and inferring the revision from the
+   tip or from the version declaration would both guess at something you know.
+   The workflow then checks out that exact revision and, against it, re-verifies
+   the policy, refuses to move an existing tag, requires the revision to contain
+   the commit that declared the version (disclosing how many later commits the
+   tag sweeps in), requires it to be an ancestor of `production`, requires a
+   completed successful CI run of this repository's `main` branch for that SHA
+   with every job in `.github/required-ci-jobs.json` concluding success,
+   rebuilds the static artifact, generates and attests the receipt, records the
+   receipt's sha256 in the tag message so it stays identifiable after the
+   uploaded artifact expires, and only then creates and pushes the annotated
+   tag.
 
 Between steps 1 and 3 the policy truthfully says `released` while no tag exists
 yet. That window is expected, and the receipt records it: `release.tagExists`

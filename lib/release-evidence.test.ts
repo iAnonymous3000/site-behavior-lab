@@ -620,7 +620,12 @@ test("the release workflow tags only a promoted, CI-green revision and attests i
   assert.match(workflow, /release-policy\.json status must be released before a tag is cut/);
   assert.match(workflow, /already exists; releases are immutable/);
   assert.match(workflow, /git merge-base --is-ancestor "\$RELEASE_SHA" origin\/production/);
-  assert.match(workflow, /No successful CI run recorded for/);
+  // Run-level success for a SHA is not proof; the gate requires a completed
+  // main-branch push run of THIS repository and then verifies each required
+  // job through scripts/verify-required-ci-jobs.mjs (lib/required-ci-jobs.test.ts
+  // owns that contract).
+  assert.match(workflow, /No successful main-branch CI run recorded for/);
+  assert.match(workflow, /node scripts\/verify-required-ci-jobs\.mjs/);
 
   // A dispatch runs at the branch tip, which drifts away from the revision the
   // release actually names. Every gate, the receipt, and the tag must describe

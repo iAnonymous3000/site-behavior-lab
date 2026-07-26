@@ -53,6 +53,12 @@ jobs:
       vars.SITE_BEHAVIOR_LAB_PROMOTION_PAUSED != '1'
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout main history
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+        with:
+          ref: main
+          fetch-depth: 0
+
       - name: Confirm every CI test gate passed
         env:
           GH_TOKEN: ${{ github.token }}
@@ -66,38 +72,9 @@ jobs:
             -H "X-GitHub-Api-Version: 2022-11-28" \
             "repos/${GITHUB_REPOSITORY}/actions/runs/${CI_RUN_ID}/jobs?per_page=100" \
             > "$RUNNER_TEMP/ci-jobs.json"
-          node <<'NODE'
-          const fs = require("node:fs");
-          const pages = JSON.parse(fs.readFileSync(`${process.env.RUNNER_TEMP}/ci-jobs.json`, "utf8"));
-          const jobs = pages.flatMap((page) => Array.isArray(page?.jobs) ? page.jobs : []);
-          const required = [
-            "Supply-chain Security",
-            "Typecheck, Unit Tests, Build",
-            "Chromium Smoke Test",
-            "Docker Runtime and Public R2 Smoke",
-            "Attest exact-SHA evidence manifests"
-          ];
-          const failures = [];
-          for (const name of required) {
-            const matches = jobs.filter((job) => job?.name === name);
-            if (matches.length !== 1) {
-              failures.push(`${name}: expected exactly one job, found ${matches.length}`);
-            } else if (matches[0].conclusion !== "success") {
-              failures.push(`${name}: ${matches[0].conclusion ?? "no conclusion"}`);
-            }
-          }
-          if (failures.length > 0) {
-            for (const failure of failures) console.error(`::error title=CI gate not passed::${failure}`);
-            process.exit(1);
-          }
-          console.log("Every required CI test gate passed; the promotion fallback may proceed.");
-          NODE
-
-      - name: Checkout main history
-        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
-        with:
-          ref: main
-          fetch-depth: 0
+          # The required-job list lives in .github/required-ci-jobs.json so the
+          # promotion gate and the release-tag gate verify the same set.
+          node scripts/verify-required-ci-jobs.mjs "$RUNNER_TEMP/ci-jobs.json" "CI gate not passed"
 
       - name: Fast-forward production to the tested SHA
         env:

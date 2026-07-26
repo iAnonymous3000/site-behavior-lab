@@ -21,16 +21,12 @@ test("promotion fallback can repair a failed direct promotion but rechecks every
   assert.match(workflow, /workflow_run\.conclusion == 'success' \|\| github\.event\.workflow_run\.conclusion == 'failure'/);
   assert.match(workflow, /actions: read/);
   assert.match(workflow, /actions\/runs\/\$\{CI_RUN_ID\}\/jobs\?per_page=100/);
-  for (const job of [
-    "Supply-chain Security",
-    "Typecheck, Unit Tests, Build",
-    "Chromium Smoke Test",
-    "Docker Runtime and Public R2 Smoke",
-    "Attest exact-SHA evidence manifests"
-  ]) {
-    assert.match(workflow, new RegExp(job.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
-  }
-  assert.match(workflow, /matches\[0\]\.conclusion !== "success"/);
+  // The required-job names used to be restated here and in each workflow. They
+  // now live in .github/required-ci-jobs.json, and lib/required-ci-jobs.test.ts
+  // owns the stronger contract: the list matches the jobs ci.yml declares, no
+  // workflow restates a name, and a skipped or failed job is refused. Here we
+  // only prove the promotion fallback delegates to that one checker.
+  assert.match(workflow, /node scripts\/verify-required-ci-jobs\.mjs "\$RUNNER_TEMP\/ci-jobs\.json"/);
 });
 
 test("Docker smoke preserves v1 and explicitly proves public v2/r2 bundles", () => {
