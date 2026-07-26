@@ -100,6 +100,7 @@ import {
   scanTimeoutMs,
   ScanWarningCollector,
   verifyRoutedHttpRequest,
+  withDeadlineDisposing,
   withScanDeadline
 } from "./scan-runtime";
 import {
@@ -601,10 +602,15 @@ export async function scanSiteWithMeasurement(
   ]);
 
   options.onProgress?.("launching");
-  const browser = await getSharedBrowser();
+  // Setup is inside the advertised duration, not before it. Launching, adblock
+  // readiness, proxy startup, and context/page creation used to run unbounded,
+  // so a wedged Playwright or DNS call held one of only two scan slots with no
+  // deadline to end it. The browser and engine are process-wide singletons that
+  // other scans reuse, so they are bounded but never disposed here.
+  const browser = await withScanTimeout(getSharedBrowser(), started);
   throwIfScanAborted(options.signal);
   const chromiumVersion = browser.version();
-  const adblockEngine = await getAdblockEngine();
+  const adblockEngine = await withScanTimeout(getAdblockEngine(), started);
   throwIfScanAborted(options.signal);
   if (!adblockEngine) {
     warnings.add("Brave Shields classification was unavailable for this scan; tracker labels use the curated catalog only.");
@@ -620,11 +626,15 @@ export async function scanSiteWithMeasurement(
   const boundedPageCollectorKey = createBoundedPageCollectorKey();
   const gpcWorkerInjection = payload.gpcEnabled ? createGpcWorkerInjectionSession() : null;
   let context: BrowserContext | null = null;
-  const scanProxy = await startPublicScanProxy({
-    resolveHost: options.resolvePublicHost,
-    connectUpstreamForTests: options.connectProxyUpstreamForTests,
-    transactionLimit: options.proxyTransactionLimitForTests
-  });
+  const scanProxy = await withScanTimeoutDisposing(
+    startPublicScanProxy({
+      resolveHost: options.resolvePublicHost,
+      connectUpstreamForTests: options.connectProxyUpstreamForTests,
+      transactionLimit: options.proxyTransactionLimitForTests
+    }),
+    started,
+    (proxy) => proxy.close()
+  );
   const closeOnAbort = () => {
     // Abort handlers cannot await, but closing both resources immediately
     // rejects in-flight Playwright work and tears down pending proxy connects.
@@ -635,23 +645,33 @@ export async function scanSiteWithMeasurement(
 
   try {
     throwIfScanAborted(options.signal);
-    context = await browser.newContext(createContextOptions(payload, scanProxy.server));
+    context = await withScanTimeoutDisposing(
+      browser.newContext(createContextOptions(payload, scanProxy.server)),
+      started,
+      (created) => created.close()
+    );
     throwIfScanAborted(options.signal);
-    await context.addInitScript(installBoundedPageCollector, boundedPageCollectorKey);
+    await withScanTimeout(context.addInitScript(installBoundedPageCollector, boundedPageCollectorKey), started);
     if (payload.consentMode !== "observe" || verificationFlagOn) {
-      await context.addInitScript(
-        installConsentShadowRootCapture,
-        consentShadowRootCaptureArgs(consentShadowRootCapability)
+      await withScanTimeout(
+        context.addInitScript(
+          installConsentShadowRootCapture,
+          consentShadowRootCaptureArgs(consentShadowRootCapability)
+        ),
+        started
       );
     }
     if (gpcWorkerInjection) {
-      await context.exposeBinding(gpcWorkerInjection.bindingName, (source, value) => {
-        gpcWorkerInjection.register(source, value);
-      });
-      await context.setExtraHTTPHeaders({ "Sec-GPC": "1" });
+      await withScanTimeout(
+        context.exposeBinding(gpcWorkerInjection.bindingName, (source, value) => {
+          gpcWorkerInjection.register(source, value);
+        }),
+        started
+      );
+      await withScanTimeout(context.setExtraHTTPHeaders({ "Sec-GPC": "1" }), started);
     }
 
-    const page = await context.newPage();
+    const page = await withScanTimeout(context.newPage(), started);
     if (gpcWorkerInjection) {
       // Scope the registration wrapper to the measured page and its child
       // frames. Popups and the later out-of-evidence policy page do not share
@@ -3187,6 +3207,15 @@ export function scanTimeout(started: number, preferredMs: number, now = Date.now
 
 async function withScanTimeout<T>(operation: Promise<T>, started: number): Promise<T> {
   return withScanDeadline(operation, started, MAX_SCAN_DURATION_MS, scanTimeoutError);
+}
+
+/** {@link withDeadlineDisposing} bound to this scanner's absolute scan deadline. */
+async function withScanTimeoutDisposing<T>(
+  operation: Promise<T>,
+  started: number,
+  dispose: (value: T) => Promise<unknown> | unknown
+): Promise<T> {
+  return withDeadlineDisposing(operation, started, MAX_SCAN_DURATION_MS, dispose, scanTimeoutError);
 }
 
 function scanTimeoutError(): PublicScanError {

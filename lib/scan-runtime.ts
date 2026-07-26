@@ -223,6 +223,35 @@ export async function withScanDeadline<T>(
   }
 }
 
+/**
+ * Bound a setup step that CREATES a resource, and dispose the resource if it
+ * arrives after the deadline already failed the scan.
+ *
+ * Racing a promise abandons the loser, it does not cancel it. A proxy server or
+ * browser context that materializes a moment after the timeout would otherwise
+ * stay open for the lifetime of the process, holding a port or a Chromium
+ * context that nothing will ever close: the scan slot is released while the
+ * resource is not. Ordinary cleanup cannot help, because it runs before the
+ * value exists.
+ */
+export async function withDeadlineDisposing<T>(
+  operation: Promise<T>,
+  started: number,
+  maxDurationMs: number,
+  dispose: (value: T) => Promise<unknown> | unknown,
+  createTimeoutError: ScanTimeoutErrorFactory = defaultScanTimeoutError
+): Promise<T> {
+  try {
+    return await withScanDeadline(operation, started, maxDurationMs, createTimeoutError);
+  } catch (error) {
+    void operation.then(
+      (value) => Promise.resolve(dispose(value)).catch(() => undefined),
+      () => undefined
+    );
+    throw error;
+  }
+}
+
 function isHttpUrl(url: URL): boolean {
   return url.protocol === "http:" || url.protocol === "https:";
 }
