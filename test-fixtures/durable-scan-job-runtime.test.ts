@@ -7,6 +7,10 @@ import {
   type ScanAdmissionStoreKey
 } from "../lib/scan-admission-store";
 import {
+  releaseDurablePreparation,
+  reserveDurablePreparation
+} from "../lib/durable-preparation-reservation";
+import {
   DurableScanJobStateError,
   DurableScanJobValidationError,
   admitDurableScanJob,
@@ -197,6 +201,27 @@ export class DurableScanJobRuntimeHarness extends DurableObject<RuntimeEnv> {
       );
     }
 
+    if (request.method === "POST" && url.pathname === "/preparations") {
+      const command = await exactJson<PreparationCommand>(request, ["capabilityHash", "now", "expiresAt"]);
+      const reservation = this.state.storage.transactionSync(() =>
+        reserveDurablePreparation(
+          this.state.storage.sql,
+          decodeCapabilityHash(command.capabilityHash),
+          command.now,
+          command.expiresAt
+        )
+      );
+      return json(reservation, reservation.status === "reserved" ? 200 : 429);
+    }
+
+    if (request.method === "POST" && url.pathname === "/preparations/release") {
+      const command = await exactJson<PreparationReleaseCommand>(request, ["capabilityHash"]);
+      this.state.storage.transactionSync(() => {
+        releaseDurablePreparation(this.state.storage.sql, decodeCapabilityHash(command.capabilityHash));
+      });
+      return json({ status: "released" });
+    }
+
     if (request.method === "POST" && url.pathname === "/admissions/recover") {
       const command = await exactJson<AdmissionRecoveryCommand>(request, [
         "capabilityHash",
@@ -373,6 +398,27 @@ function publicationManifest(reportId: string): string {
     retention: { createdAt, expiresAt },
     sidecarWire: `${JSON.stringify(sidecar, null, 2)}\n`
   });
+}
+
+type PreparationCommand = {
+  capabilityHash: string;
+  now: number;
+  expiresAt: number;
+};
+
+type PreparationReleaseCommand = {
+  capabilityHash: string;
+};
+
+function decodeCapabilityHash(value: string): ArrayBuffer {
+  if (!/^[a-f0-9]{64}$/.test(value)) {
+    throw new DurableScanJobValidationError("The admission capability hash is invalid.");
+  }
+  const bytes = new Uint8Array(32);
+  for (let index = 0; index < bytes.length; index += 1) {
+    bytes[index] = Number.parseInt(value.slice(index * 2, index * 2 + 2), 16);
+  }
+  return bytes.buffer;
 }
 
 function admissionKey(

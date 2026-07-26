@@ -38,6 +38,11 @@ import {
   type ScanAdmissionStoreKey
 } from "../lib/scan-admission-store";
 import {
+  releaseDurablePreparation as releaseDurablePreparationInStore,
+  reserveDurablePreparation as reserveDurablePreparationInStore,
+  type DurablePreparationReservation
+} from "../lib/durable-preparation-reservation";
+import {
   handleAggregateMetricsRequest,
   type AggregateMetricsDataset
 } from "../lib/privacy-safe-observability-edge";
@@ -384,6 +389,35 @@ class DurableScanJobRateLimitError extends EdgeScanGateError {
   }
 }
 
+/**
+ * One admission capability already has an uncommitted preparation in flight.
+ *
+ * This is a concurrency refusal, not a quota charge: nothing was spent, and the
+ * caller may retry as soon as the holder finishes. An honest sequential retry
+ * never reaches here, because a committed admission is recovered before the
+ * reservation is taken. See lib/durable-preparation-reservation.ts.
+ */
+class DurablePreparationInFlightError extends EdgeScanGateError {
+  constructor(retryAfterSeconds: number) {
+    super(
+      `This scan request is already being prepared. Try again in about ${formatPublicScanRetryAfter(retryAfterSeconds)}.`,
+      429
+    );
+    this.name = "DurablePreparationInFlightError";
+  }
+}
+
+/** More distinct capabilities are preparing concurrently than the DO will hold. */
+class DurablePreparationCapacityError extends EdgeScanGateError {
+  constructor(retryAfterSeconds: number) {
+    super(
+      `The scanner is preparing too many scans right now. Try again in about ${formatPublicScanRetryAfter(retryAfterSeconds)}.`,
+      503
+    );
+    this.name = "DurablePreparationCapacityError";
+  }
+}
+
 class DurableScanJobRefusedError extends Error {
   constructor() {
     super("The authoritative durable scan-job admission was refused.");
@@ -492,6 +526,29 @@ export class ScannerContainer extends Container<Env> {
     return this.ctx.storage.transactionSync(() =>
       peekPublicScanRateLimitInStore(this.ctx.storage.sql, input, now)
     );
+  }
+
+  /**
+   * Take the single uncommitted-preparation slot for one admission capability.
+   * transactionSync makes the check and the insert atomic, which is the whole
+   * point: a read-then-write would reintroduce the concurrent-replay race this
+   * closes. See lib/durable-preparation-reservation.ts.
+   */
+  reserveDurablePreparationSlot(input: {
+    capabilityHash: ArrayBuffer;
+    expiresAt: number;
+  }): DurablePreparationReservation {
+    const now = Date.now();
+    return this.ctx.storage.transactionSync(() =>
+      reserveDurablePreparationInStore(this.ctx.storage.sql, input.capabilityHash, now, input.expiresAt)
+    );
+  }
+
+  /** Free the slot. Safe to call when this capability holds none. */
+  releaseDurablePreparationSlot(input: { capabilityHash: ArrayBuffer }): void {
+    this.ctx.storage.transactionSync(() => {
+      releaseDurablePreparationInStore(this.ctx.storage.sql, input.capabilityHash);
+    });
   }
 
   chargeDurableJobReadRateLimit(input: { clientHash: string }): PublicScanRateLimitResult {
@@ -2527,33 +2584,67 @@ export default {
             return scanAdmissionResponse(existing.admission, request, env, 202);
           }
 
-          const deferredRateLimit = await gateScanRequest(
-            request,
-            body,
-            env,
-            "defer",
-            scanAdmissionKey.capabilityHash,
-            signal
-          );
-          throwIfDurableScanJobAdmissionAborted(signal);
-          if (!deferredRateLimit) throw new Error("Durable scan admission did not produce a quota charge.");
-
-          const forwardedHeaders = scanForwardHeaders(request.headers);
-          const forwarded = new Request(request.url, {
-            method: "POST",
-            headers: forwardedHeaders,
-            body,
-            signal
+          // Bound uncommitted preparation to one per capability BEFORE buying
+          // any of it. Turnstile redemption is idempotent per capability, so
+          // without this a single solved token replayed concurrently performs
+          // preparation (including a fresh DNS resolution of the caller's
+          // target) once per replay and only then loses the commit race. The
+          // committed-admission recovery above already returned, so an honest
+          // retry never reaches this line. Closes the activation gate in
+          // docs/scan-job-model.md.
+          const reservation = await getContainer(env.SCANNER).reserveDurablePreparationSlot({
+            capabilityHash: scanAdmissionKey.capabilityHash,
+            expiresAt: commitNotAfter
           });
-          return submitDurableScanJob(
-            forwarded,
-            env,
-            replayFaultMode,
-            deferredRateLimit,
-            scanAdmissionKey,
-            signal,
-            commitNotAfter
-          );
+          throwIfDurableScanJobAdmissionAborted(signal);
+          if (reservation.status === "in-flight") {
+            throw new DurablePreparationInFlightError(reservation.retryAfterSeconds);
+          }
+          if (reservation.status === "at-capacity") {
+            throw new DurablePreparationCapacityError(reservation.retryAfterSeconds);
+          }
+          try {
+            const deferredRateLimit = await gateScanRequest(
+              request,
+              body,
+              env,
+              "defer",
+              scanAdmissionKey.capabilityHash,
+              signal
+            );
+            throwIfDurableScanJobAdmissionAborted(signal);
+            if (!deferredRateLimit) throw new Error("Durable scan admission did not produce a quota charge.");
+
+            const forwardedHeaders = scanForwardHeaders(request.headers);
+            const forwarded = new Request(request.url, {
+              method: "POST",
+              headers: forwardedHeaders,
+              body,
+              signal
+            });
+            return await submitDurableScanJob(
+              forwarded,
+              env,
+              replayFaultMode,
+              deferredRateLimit,
+              scanAdmissionKey,
+              signal,
+              commitNotAfter
+            );
+          } finally {
+            // Free the slot on every exit, including the aborted-deadline path.
+            // A crashed isolate never runs this, which is why the reservation
+            // also expires with the admission window it was taken under.
+            try {
+              await getContainer(env.SCANNER).releaseDurablePreparationSlot({
+                capabilityHash: scanAdmissionKey.capabilityHash
+              });
+            } catch (error) {
+              // The row expires on its own; never convert a cleanup failure
+              // into the caller's error.
+              console.error("Could not release a durable preparation reservation.", error);
+            }
+          }
         }, { signal: request.signal });
       } catch (error) {
         if (request.signal.aborted) {
@@ -4556,19 +4647,23 @@ async function gateScanRequest(
  *
  * The authoritative charge happens inside `admitDurablePreparation`, after the
  * request has crossed to Node `/prepare`. Quota integrity therefore holds: the
- * Durable Object serializes the commits and rejects the surplus. What is NOT
- * bounded is the work in between. N concurrent requests can all clear this peek,
- * all perform preparation (including a fresh DNS resolution of the caller's
- * target), and only then lose the race, so the preparation cost amplifies by the
- * concurrency the caller chooses. Turnstile redemption is deliberately
- * idempotent per capability, so one solved token replayed concurrently reaches
- * here N times and `findCommittedScanAdmission` answers "not found" for all of
- * them because none has committed yet.
+ * Durable Object serializes the commits and rejects the surplus.
  *
- * This is acceptable only while `SITE_BEHAVIOR_LAB_DURABLE_JOBS=0`. Bounding
- * in-flight uncommitted preparations per capability is an ACTIVATION GATE for
- * that flag; see docs/scan-job-model.md. The live path does not use this
- * function: it charges atomically up front with chargeMode "charge".
+ * The work in between is bounded separately, and must stay that way. N
+ * concurrent requests could otherwise all clear this peek, all perform
+ * preparation (including a fresh DNS resolution of the caller's target), and
+ * only then lose the race, so the preparation cost amplified by whatever
+ * concurrency the caller chose. Turnstile redemption is deliberately idempotent
+ * per capability, so one solved token replayed concurrently reaches here N times
+ * and `findCommittedScanAdmission` answers "not found" for all of them because
+ * none has committed yet. The caller therefore holds a per-capability
+ * reservation across this peek and the crossing to Node
+ * (`reserveDurablePreparationSlot`, lib/durable-preparation-reservation.ts):
+ * this peek stays advisory, but only one uncommitted preparation per capability
+ * can be in flight to act on it.
+ *
+ * The live synchronous path does not use this function: it charges atomically
+ * up front with chargeMode "charge".
  */
 async function assertDeferredScanRateLimitAvailable(
   rateLimit: PublicScanRateLimitCharge,

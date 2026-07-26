@@ -372,7 +372,7 @@ does not reuse `PreparedScanRequest` verbatim.
   and is hard-bounded to 75 minutes. Cloudflare platform recovery snapshots may
   retain application-encrypted copies until their own retention window expires.
 
-#### Activation gate: bound in-flight uncommitted preparations
+#### Closed activation gate: bound in-flight uncommitted preparations
 
 The durable admission path preflights quota with a *peek*
 (`assertDeferredScanRateLimitAvailable`) and charges it atomically only inside
@@ -385,10 +385,24 @@ then lose the race. Turnstile redemption is idempotent per capability by
 design, so a single solved token replayed concurrently reaches the peek N times
 and no committed admission exists yet to deduplicate them.
 
-Before `SITE_BEHAVIOR_LAB_DURABLE_JOBS=1`, either reserve the quota slot at
-admission time and release it on failure, or cap concurrent uncommitted
-preparations per capability hash. The live synchronous path is unaffected: it
-charges atomically up front (`chargeMode: "charge"`).
+This is now bounded, and the bound is a precondition of
+`SITE_BEHAVIOR_LAB_DURABLE_JOBS=1` rather than an open gate in front of it. The
+edge holds a per-capability reservation in the same authoritative Durable Object
+that commits (`lib/durable-preparation-reservation.ts`), taken after the
+committed-admission recovery lookup and before the crossing to Node, and
+released in a `finally`. So:
+
+- a concurrent replay of one solved Turnstile token is refused (HTTP 429) before
+  it can buy any preparation, because the capability's single slot is held;
+- an honest retry of a lost response never reaches the reservation at all: its
+  committed admission is recovered first;
+- a crashed isolate strands nothing, because the reservation expires with the
+  admission window it was taken under;
+- the total number of distinct capabilities preparing at once is capped, which
+  keeps the singleton Durable Object's storage bounded (HTTP 503 past that).
+
+The live synchronous path is unaffected: it charges atomically up front
+(`chargeMode: "charge"`).
 
 #### Scheduled liveness and fenced leases
 

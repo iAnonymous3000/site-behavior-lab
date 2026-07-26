@@ -270,6 +270,60 @@ test(
       );
       assert.ok(cancelledRow.payload_ciphertext.byteLength > 16, "workerd SQLite stores only authenticated ciphertext");
 
+      // The activation gate that stood in front of SITE_BEHAVIOR_LAB_DURABLE_JOBS=1:
+      // one solved Turnstile token replayed concurrently must buy exactly one
+      // uncommitted preparation, not one per replay. Proven here against real
+      // workerd SQLite rather than a source regex, because it is the DO's
+      // transaction that makes the check-and-insert atomic.
+      const replayCapability = "d".repeat(64);
+      const replayWindow = { now: createdAt, expiresAt: createdAt + 30_000 };
+      const concurrentReplays = await Promise.all(
+        Array.from({ length: 8 }, () =>
+          requestJson<{ status: string }>(miniflare as Miniflare, "/preparations", {
+            method: "POST",
+            body: jsonBody({ capabilityHash: replayCapability, ...replayWindow })
+          })
+        )
+      );
+      assert.equal(
+        concurrentReplays.filter((replay) => replay.body.status === "reserved").length,
+        1,
+        "exactly one concurrent replay may hold the capability's preparation slot"
+      );
+      assert.equal(
+        concurrentReplays.filter((replay) => replay.body.status === "in-flight").length,
+        7,
+        "every other concurrent replay is refused before it can buy preparation"
+      );
+
+      // A distinct capability is never blocked by another's reservation.
+      assert.equal(
+        (
+          await requestJson<{ status: string }>(miniflare, "/preparations", {
+            method: "POST",
+            body: jsonBody({ capabilityHash: "e".repeat(64), ...replayWindow })
+          })
+        ).body.status,
+        "reserved"
+      );
+
+      // Releasing frees the slot immediately, so the honest sequential retry
+      // that follows a failed attempt is never locked out.
+      await requestJson(miniflare, "/preparations/release", {
+        method: "POST",
+        body: jsonBody({ capabilityHash: replayCapability })
+      });
+      assert.equal(
+        (
+          await requestJson<{ status: string }>(miniflare, "/preparations", {
+            method: "POST",
+            body: jsonBody({ capabilityHash: replayCapability, ...replayWindow })
+          })
+        ).body.status,
+        "reserved",
+        "a released capability may prepare again at once"
+      );
+
       await miniflare.unsafeEvictDurableObject(WORKER_NAME, CLASS_NAME, { name: OBJECT_NAME });
       assert.equal((await getSnapshot(miniflare, cancelledJob)).state, "queued", "SQLite survives DO eviction");
 
