@@ -58,6 +58,8 @@ jobs:
       release_tag: ${{ steps.release.outputs.release_tag }}
       receipt_artifact_id: ${{ steps.receipt_artifact.outputs.artifact-id }}
       receipt_artifact_digest: ${{ steps.receipt_artifact.outputs.artifact-digest }}
+      static_artifact_id: ${{ steps.static_artifact.outputs.artifact-id }}
+      static_artifact_digest: ${{ steps.static_artifact.outputs.artifact-digest }}
     steps:
       - name: Checkout full history without persisted credentials
         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
@@ -271,6 +273,21 @@ jobs:
           if-no-files-found: error
           retention-days: 1
 
+      # A receipt that is only self-consistent proves nothing about what was
+      # built: this job generated it, so a compromised dependency could describe
+      # files it never produced and the attestation would faithfully sign that
+      # description. Hand over the real bytes too, so the privileged job can
+      # recompute every digest itself instead of trusting the manifest.
+      - name: Hand the built static bytes to the isolated attestation job
+        id: static_artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: site-behavior-lab-static-${{ github.run_id }}-${{ github.run_attempt }}
+          path: out
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 1
+
   # This fresh runner receives hostile data, never candidate code. It has
   # attestation authority but cannot write repository contents or tags.
   attest:
@@ -294,16 +311,25 @@ jobs:
           path: ${{ runner.temp }}/release-receipt
           digest-mismatch: error
 
+      - name: Download the built static bytes the receipt claims to describe
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          artifact-ids: ${{ needs.prepare.outputs.static_artifact_id }}
+          path: ${{ runner.temp }}/release-static
+          digest-mismatch: error
+
       - name: Read back the artifact, source, promotion, and CI facts
         env:
           GH_TOKEN: ${{ github.token }}
           ARTIFACT_ID: ${{ needs.prepare.outputs.receipt_artifact_id }}
+          STATIC_ARTIFACT_ID: ${{ needs.prepare.outputs.static_artifact_id }}
           RELEASE_SHA: ${{ needs.prepare.outputs.release_sha }}
         run: |
           set -euo pipefail
           context="$RUNNER_TEMP/release-context"
           install -d -m 700 "$context"
           gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/${ARTIFACT_ID}" > "$context/artifact.json"
+          gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/${STATIC_ARTIFACT_ID}" > "$context/static-artifact.json"
           gh api "repos/${GITHUB_REPOSITORY}/git/commits/${RELEASE_SHA}" > "$context/commit.json"
           gh api "repos/${GITHUB_REPOSITORY}/compare/${RELEASE_SHA}...main" > "$context/main.json"
           gh api "repos/${GITHUB_REPOSITORY}/compare/${RELEASE_SHA}...production" > "$context/production.json"
@@ -370,6 +396,7 @@ jobs:
         env:
           ARTIFACT_ID: ${{ needs.prepare.outputs.receipt_artifact_id }}
           ARTIFACT_DIGEST: ${{ needs.prepare.outputs.receipt_artifact_digest }}
+          STATIC_ARTIFACT_ID: ${{ needs.prepare.outputs.static_artifact_id }}
           RELEASE_SHA: ${{ needs.prepare.outputs.release_sha }}
           REQUESTED_SHA: ${{ github.event.inputs.commit }}
           RELEASE_VERSION: ${{ needs.prepare.outputs.release_version }}
@@ -459,6 +486,24 @@ jobs:
             artifact?.workflow_run?.head_sha !== process.env.GITHUB_SHA
           ) {
             fail("The immutable artifact metadata does not identify this workflow handoff.");
+          }
+
+          // The static bytes are a second handoff and get the same treatment:
+          // an attacker who could substitute them could otherwise satisfy the
+          // recomputation below with a build this run never produced.
+          const staticArtifactRecord = json("static-artifact.json");
+          if (
+            String(staticArtifactRecord?.id) !== process.env.STATIC_ARTIFACT_ID ||
+            staticArtifactRecord?.name !==
+              `site-behavior-lab-static-${process.env.GITHUB_RUN_ID}-${process.env.GITHUB_RUN_ATTEMPT}` ||
+            staticArtifactRecord?.expired !== false ||
+            !Number.isSafeInteger(staticArtifactRecord?.size_in_bytes) ||
+            staticArtifactRecord.size_in_bytes <= 0 ||
+            staticArtifactRecord.size_in_bytes > 1024 * 1024 * 1024 ||
+            String(staticArtifactRecord?.workflow_run?.id) !== process.env.GITHUB_RUN_ID ||
+            staticArtifactRecord?.workflow_run?.head_sha !== process.env.GITHUB_SHA
+          ) {
+            fail("The immutable static-artifact metadata does not identify this workflow handoff.");
           }
 
           exactKeys(receipt, ["schemaVersion", "evidenceKind", "release", "source", "inputs", "artifacts"], "receipt");
@@ -641,9 +686,57 @@ jobs:
             fail("The static artifact manifest totals or digest are inconsistent.");
           }
 
+          // Everything above proves the receipt is internally consistent. That
+          // is not the same as true: this job did not build it. Recompute every
+          // digest from the downloaded bytes and require an exact set match, so
+          // a manifest describing files that were never produced, or a build
+          // carrying files the manifest omits, both fail here.
+          const staticRoot = path.resolve(`${process.env.RUNNER_TEMP}/release-static`);
+          const walked = [];
+          let walkedBytes = 0;
+          const walk = (dir) => {
+            for (const entry of fs.readdirSync(dir, { withFileTypes: true }).sort((a, b) => (a.name < b.name ? -1 : 1))) {
+              const absolute = path.join(dir, entry.name);
+              if (entry.isSymbolicLink()) fail(`The built static bytes contain a symlink at ${absolute}.`);
+              if (entry.isDirectory()) {
+                walk(absolute);
+                continue;
+              }
+              if (!entry.isFile()) fail(`The built static bytes contain a non-regular entry at ${absolute}.`);
+              const relative = path.relative(staticRoot, absolute).split(path.sep).join("/");
+              const fileBytes = fs.readFileSync(absolute);
+              walkedBytes += fileBytes.byteLength;
+              if (walkedBytes > 1024 * 1024 * 1024) fail("The built static bytes exceed the accepted release size.");
+              walked.push({ path: relative, bytes: fileBytes.byteLength, sha256: sha256(fileBytes) });
+            }
+          };
+          if (!fs.existsSync(staticRoot) || !fs.statSync(staticRoot).isDirectory()) {
+            fail("The built static bytes were not handed to the attestation job.");
+          }
+          walk(staticRoot);
+          walked.sort((left, right) => (left.path < right.path ? -1 : left.path > right.path ? 1 : 0));
+          if (walked.length !== staticArtifact.files.length) {
+            fail(
+              `The receipt describes ${staticArtifact.files.length} static file(s) but the build produced ${walked.length}.`
+            );
+          }
+          for (let index = 0; index < walked.length; index += 1) {
+            const built = walked[index];
+            const claimed = staticArtifact.files[index];
+            if (built.path !== claimed.path || built.bytes !== claimed.bytes || built.sha256 !== claimed.sha256) {
+              fail(`The receipt does not describe the built bytes at ${claimed.path}.`);
+            }
+          }
+          if (sha256(JSON.stringify(walked)) !== staticArtifact.manifestSha256) {
+            fail("The recomputed static manifest digest does not match the receipt.");
+          }
+
           const receiptSha256 = sha256(bytes);
           fs.appendFileSync(process.env.GITHUB_OUTPUT, `receipt_sha256=${receiptSha256}\n`);
-          console.log(`Validated isolated release receipt sha256:${receiptSha256}.`);
+          console.log(
+            `Validated isolated release receipt sha256:${receiptSha256} against ` +
+              `${walked.length} independently hashed static file(s).`
+          );
           NODE
 
       - name: Attest the validated release receipt
@@ -679,9 +772,37 @@ jobs:
       - prepare
       - attest
     runs-on: ubuntu-latest
+    # The repository half of release authorization. `environment` is what lets
+    # the external protection rule (reviewers, wait timer, branch restriction)
+    # apply to the one job that can write a tag; naming it here is a
+    # precondition for that rule existing at all, and it costs nothing while
+    # the environment is unprotected.
+    environment: release-tag
     permissions:
       contents: write
     steps:
+      # Dispatch permission and release authority are different things. Both
+      # identities are checked: `actor` is who the run is attributed to and
+      # `triggering_actor` is who actually pressed dispatch, and a re-run can
+      # differ from the original dispatcher.
+      - name: Require an approved release author
+        env:
+          ACTOR: ${{ github.actor }}
+          TRIGGERING_ACTOR: ${{ github.triggering_actor }}
+          APPROVED_RELEASE_ACTORS: iAnonymous3000
+        run: |
+          set -euo pipefail
+          approved=0
+          while IFS= read -r candidate; do
+            [[ -z "$candidate" ]] && continue
+            if [[ "$candidate" == "$ACTOR" && "$candidate" == "$TRIGGERING_ACTOR" ]]; then approved=1; fi
+          done <<< "$(printf '%s' "$APPROVED_RELEASE_ACTORS" | tr ',' '\n' | tr -d '[:space:]')"
+          if [[ "$approved" -ne 1 ]]; then
+            echo "::error title=Release refused::${ACTOR}/${TRIGGERING_ACTOR} is not an approved release author."
+            exit 1
+          fi
+          echo "Release authored and triggered by ${ACTOR}."
+
       - name: Recheck branch reachability immediately before publication
         env:
           GH_TOKEN: ${{ github.token }}

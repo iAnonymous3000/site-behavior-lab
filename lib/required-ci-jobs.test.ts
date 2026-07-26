@@ -116,3 +116,44 @@ test("the release gate binds the CI run to this repository's main branch", async
   // stays identifiable after that.
   assert.match(release, /Release receipt sha256:/);
 });
+
+test("the corrections baseline is an explicit trusted revision, never a relative fallback", async () => {
+  // The baseline decides what append-only is measured against. A `HEAD^`
+  // fallback compared exactly one commit back, so a manual run could rewrite
+  // the ledger across two commits and still pass; a first push to a new ref
+  // reports the all-zero SHA, which is not a baseline either.
+  const ci = await source(".github/workflows/ci.yml");
+  const step = ci.slice(ci.indexOf("Resolve the trusted corrections baseline"));
+
+  // Comments may name the old fallback to explain why it went; executable
+  // lines may not reintroduce it.
+  const executable = ci
+    .split("\n")
+    .filter((line) => !/^\s*#/.test(line))
+    .join("\n");
+  assert.doesNotMatch(executable, /HEAD\^/, "no relative fallback may decide the corrections baseline");
+  assert.match(step, /case "\$EVENT_NAME" in/);
+  assert.match(step, /pull_request\) candidate="\$PULL_REQUEST_BASE"/);
+  assert.match(step, /push\) candidate="\$PUSH_BEFORE"/);
+  // A dispatch carries neither, so it falls back to the last promoted state.
+  assert.match(step, /git fetch --no-tags --quiet origin production/);
+  assert.match(step, /zero="0{40}"/);
+
+  // Fail closed: malformed, absent, or unrelated baselines must all refuse.
+  assert.match(step, /\^\[0-9a-f\]\{40\}\$/);
+  assert.match(step, /git cat-file -e "\$\{candidate\}\^\{commit\}"/);
+  assert.match(step, /git merge-base --is-ancestor "\$candidate" HEAD/);
+  for (const refusal of [
+    /Refusing to verify against a malformed baseline/,
+    /is not a commit in this checkout/,
+    /is not an ancestor of HEAD/
+  ]) {
+    assert.match(step, refusal);
+  }
+
+  // The verifier must consume the resolved value, not re-derive its own.
+  assert.match(
+    ci,
+    /npm run corrections:verify-history -- "\$\{\{ steps\.corrections_baseline\.outputs\.baseline \}\}"/
+  );
+});

@@ -225,10 +225,51 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Verify append-only corrections history
+      # The baseline decides what "append-only" is measured against, so it must
+      # be a revision this repository already stood behind, never a relative
+      # ref. A HEAD^ fallback compared exactly one commit back, so a manual run
+      # could rewrite the whole ledger across two commits and still pass.
+      - name: Resolve the trusted corrections baseline
+        id: corrections_baseline
         env:
-          CORRECTIONS_BASE_REVISION: ${{ github.event.pull_request.base.sha || github.event.before }}
-        run: npm run corrections:verify-history -- "${CORRECTIONS_BASE_REVISION:-HEAD^}"
+          PUSH_BEFORE: ${{ github.event.before }}
+          PULL_REQUEST_BASE: ${{ github.event.pull_request.base.sha }}
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          set -euo pipefail
+          zero="0000000000000000000000000000000000000000"
+          case "$EVENT_NAME" in
+            pull_request) candidate="$PULL_REQUEST_BASE" ;;
+            push) candidate="$PUSH_BEFORE" ;;
+            *) candidate="" ;;
+          esac
+          # A first push to a new ref reports the all-zero SHA, and a manual
+          # dispatch reports nothing at all. Both fall back to the last state
+          # this repository actually promoted, which is the strongest baseline
+          # available without trusting the run's own history.
+          if [[ -z "$candidate" || "$candidate" == "$zero" ]]; then
+            git fetch --no-tags --quiet origin production
+            candidate="$(git rev-parse FETCH_HEAD)"
+          fi
+          if [[ ! "$candidate" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "::error title=Corrections baseline unresolved::Refusing to verify against a malformed baseline."
+            exit 1
+          fi
+          if ! git cat-file -e "${candidate}^{commit}" 2>/dev/null; then
+            echo "::error title=Corrections baseline unresolved::Baseline ${candidate} is not a commit in this checkout."
+            exit 1
+          fi
+          # An unrelated baseline would compare the ledger against history this
+          # revision never descended from, which proves nothing about appends.
+          if ! git merge-base --is-ancestor "$candidate" HEAD; then
+            echo "::error title=Corrections baseline unresolved::Baseline ${candidate} is not an ancestor of HEAD."
+            exit 1
+          fi
+          echo "baseline=${candidate}" >> "$GITHUB_OUTPUT"
+          echo "Corrections baseline ${candidate} resolved for ${EVENT_NAME}."
+
+      - name: Verify append-only corrections history
+        run: npm run corrections:verify-history -- "${{ steps.corrections_baseline.outputs.baseline }}"
 
       - name: Install Chromium
         run: npx playwright install --with-deps chromium

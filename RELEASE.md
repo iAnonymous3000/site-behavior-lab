@@ -63,15 +63,29 @@ created only after the revision it names is already promoted:
    with every job in `.github/required-ci-jobs.json` concluding success,
    rebuilds the static artifact, and generates the receipt. Candidate and
    dependency code runs only in that read-only preparation job, whose checkout
-   does not persist credentials. A fresh job downloads the one immutable
-   receipt artifact by ID, independently rechecks its GitHub artifact metadata,
-   exact source inputs, CI jobs, production ancestry, canonical JSON, and
-   manifest totals, and then attests it without repository-write permission. A
-   third fresh job has repository-write permission only: it rechecks branch
-   reachability and atomically creates the annotated tag through GitHub's Git
-   database API, with no checkout, dependency execution, OIDC, or attestation
-   authority. The tag message records the receipt's sha256 so it stays
-   identifiable after the uploaded artifact expires.
+   does not persist credentials. That job hands two immutable artifacts to the
+   next one: the receipt, and the built `out/` bytes the receipt describes.
+
+   A fresh job downloads both by ID, independently rechecks each one's GitHub
+   artifact metadata, then validates the receipt as hostile data against exact
+   source inputs, CI jobs, production ancestry, canonical JSON, and manifest
+   totals. Because that receipt was written by the job that built it, internal
+   consistency is not evidence: the same job then walks the downloaded bytes,
+   recomputes every file's sha256, and requires an exact set match against the
+   manifest. A manifest describing a file the build never produced, a build
+   carrying a file the manifest omits, any differing byte count or digest, a
+   symlink, or a missing static handoff all refuse before anything is signed.
+   Only then does it attest, and it never holds repository-write permission.
+
+   A third fresh job has repository-write permission only: it requires an
+   approved `github.actor` *and* `github.triggering_actor`, so re-running a
+   dispatch as someone else cannot publish, and it names the `release-tag`
+   environment so an external protection rule can gate the one job that can
+   write a ref. It then rechecks branch reachability and atomically creates the
+   annotated tag through GitHub's Git database API, with no checkout,
+   dependency execution, OIDC, or attestation authority. The tag message
+   records the receipt's sha256 so it stays identifiable after the uploaded
+   artifact expires.
 
 Between steps 1 and 3 the policy truthfully says `released` while no tag exists
 yet. That window is expected, and the receipt records it: `release.tagExists`

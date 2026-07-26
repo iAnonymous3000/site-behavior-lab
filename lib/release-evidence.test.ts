@@ -698,6 +698,36 @@ test("the release workflow tags only a promoted, CI-green revision and attests i
   assert.match(attest, /artifact\?\.workflow_run\?\.head_sha !== process\.env\.GITHUB_SHA/);
   assert.match(attest, /receipt\.source\?\.commit !== process\.env\.RELEASE_SHA/);
   assert.match(attest, /receipt\.release\?\.status !== "released"/);
+
+  // A receipt that only agrees with itself proves nothing about what was built,
+  // because the job that built it also wrote it. The privileged job must take
+  // the real bytes as a second immutable handoff and recompute every digest,
+  // so a manifest describing files that were never produced fails here.
+  assert.match(prepare, /path: out\n/);
+  assert.match(prepare, /static_artifact_id: \$\{\{ steps\.static_artifact\.outputs\.artifact-id \}\}/);
+  assert.match(attest, /artifact-ids: \$\{\{ needs\.prepare\.outputs\.static_artifact_id \}\}/);
+  assert.match(attest, /The immutable static-artifact metadata does not identify this workflow handoff/);
+  assert.match(attest, /entry\.isSymbolicLink\(\)/);
+  assert.match(attest, /walked\.push\(\{ path: relative, bytes: fileBytes\.byteLength, sha256: sha256\(fileBytes\) \}\)/);
+  assert.match(attest, /The receipt does not describe the built bytes at/);
+  assert.match(attest, /The recomputed static manifest digest does not match the receipt/);
+  assert.match(attest, /The built static bytes were not handed to the attestation job/);
+  assert.ok(
+    attest.indexOf("release-static") < attest.indexOf("Attest the validated release receipt"),
+    "the built bytes must be verified before anything is signed"
+  );
+
+  // Release authority is not the same as dispatch permission. Both identities
+  // are checked, and the tag job names an environment so an external
+  // protection rule can apply to the only job that can write a ref.
+  assert.match(tag, /environment: release-tag/);
+  assert.match(tag, /ACTOR: \$\{\{ github\.actor \}\}/);
+  assert.match(tag, /TRIGGERING_ACTOR: \$\{\{ github\.triggering_actor \}\}/);
+  assert.match(tag, /is not an approved release author/);
+  assert.ok(
+    tag.indexOf("Require an approved release author") < tag.indexOf("git/refs"),
+    "authorization must be checked before any ref is created"
+  );
   assert.match(attest, /receipt\.release\?\.evidencesReleaseCommit !== false/);
   assert.match(attest, /staticArtifact\.deployment\?\.deployment !== process\.env\.RELEASE_SHA/);
   assert.match(attest, /uses: actions\/attest@[a-f0-9]{40} # v4\.2\.0/);
