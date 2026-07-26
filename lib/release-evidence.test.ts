@@ -1,5 +1,7 @@
 import assert from "node:assert/strict";
 import { execFileSync, spawnSync } from "node:child_process";
+import { createHash } from "node:crypto";
+import { cpSync } from "node:fs";
 import { chmod, copyFile, mkdir, mkdtemp, readFile, rm, symlink, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
@@ -757,10 +759,9 @@ test("the release workflow tags only a promoted, CI-green revision and attests i
       attest.indexOf("uses: actions/attest@"),
     "the receipt must be validated before it is attested"
   );
-  const inlineControllers = [...workflow.matchAll(/node <<'NODE'\n([\s\S]*?)\n\s+NODE/g)].map(
-    (match) => match[1]
-  );
-  assert.ok(inlineControllers.length >= 7, "every privileged controller must remain visible to syntax checks");
+  // Same extractor the execution tests use, so the text checked here and the
+  // text executed there can never be two different things.
+  const inlineControllers = releaseControllers(workflow);
   for (const [index, controller] of inlineControllers.entries()) {
     const checked = spawnSync(process.execPath, ["--check"], { input: controller, encoding: "utf8" });
     assert.equal(checked.status, 0, `inline release controller ${index + 1} must parse: ${checked.stderr}`);
@@ -868,4 +869,365 @@ test("the release runbook regenerates the supply-chain input its own version bum
   const regenerate = releaseGuide.indexOf("node scripts/third-party-inventory.mjs");
   assert.notEqual(bumpStep, -1);
   assert.ok(regenerate > bumpStep, "the regeneration must be documented with the bump that requires it");
+});
+
+/**
+ * Extract the privileged controllers from the workflow. Every consumer, the
+ * syntax check and the execution tests alike, goes through this one function so
+ * the text under test is always the text the workflow runs. A copied validator
+ * would drift from the gate exactly the way a copied contract always has here.
+ */
+function extractControllers(text: string): string[] {
+  return [...text.matchAll(/node <<'NODE'\n([\s\S]*?)\n\s+NODE/g)].map((match) => match[1]);
+}
+
+function releaseControllers(workflow: string): string[] {
+  const found = extractControllers(workflow);
+  assert.ok(found.length >= 7, "every privileged controller must remain visible to the harness");
+  return found;
+}
+
+/** The receipt validator, addressed by its step so a reordering cannot silently test another script. */
+function releaseValidatorController(workflow: string): string {
+  const step = "- name: Validate downloaded release receipt as hostile data";
+  const occurrences = workflow.split(step).length - 1;
+  assert.equal(occurrences, 1, "exactly one validator step must exist");
+  const after = workflow.slice(workflow.indexOf(step));
+  const end = after.indexOf("- name: Attest the validated release receipt");
+  assert.notEqual(end, -1, "the validator must precede attestation");
+  const controllers = extractControllers(after.slice(0, end));
+  assert.equal(controllers.length, 1, "the validator step must hold exactly one controller");
+  return controllers[0];
+}
+
+const RELEASED_POLICY = {
+  schemaVersion: 2,
+  status: "released",
+  version: "0.1.0",
+  releaseTag: "v0.1.0",
+  releaseDate: "2026-07-25",
+  stablePublicApi: false,
+  npmPublication: "disabled"
+};
+const RELEASED_CITATION = 'cff-version: 1.2.0\nversion: "0.1.0"\ndate-released: "2026-07-25"\n';
+const RELEASED_CHANGELOG = "# Changelog\n\n## Unreleased\n\n## [0.1.0] - 2026-07-25\n";
+
+type AttestContext = {
+  runnerTemp: string;
+  env: NodeJS.ProcessEnv;
+  receiptPath: string;
+  staticDir: string;
+  contextDir: string;
+  writeContext: (name: string, value: unknown) => Promise<void>;
+};
+
+/**
+ * Build the exact runner state the attestation step reads: the produced receipt,
+ * the built tree it describes, and the API readbacks. Everything is derived from
+ * a real fixture and a real producer run, never hand-written, so a producer or
+ * gate change shows up here instead of being restated.
+ */
+async function attestContext(t: TestContext): Promise<AttestContext> {
+  const fixture = await makeFixture(t, {
+    policy: RELEASED_POLICY,
+    citation: RELEASED_CITATION,
+    changelog: RELEASED_CHANGELOG
+  });
+  const produced = runEvidence(fixture.root, ["--static-dir", "out"]);
+  assert.equal(produced.status, 0, produced.stderr);
+  const receipt = JSON.parse(produced.stdout);
+
+  const runnerTemp = await mkdtemp(path.join(os.tmpdir(), "site-behavior-lab-attest-"));
+  t.after(() => rm(runnerTemp, { recursive: true, force: true }));
+  const runId = "9001";
+  const runAttempt = "1";
+  const receiptDir = path.join(runnerTemp, "release-receipt");
+  const staticDir = path.join(runnerTemp, "release-static");
+  const contextDir = path.join(runnerTemp, "release-context");
+  await mkdir(receiptDir, { recursive: true });
+  await mkdir(contextDir, { recursive: true });
+  const receiptPath = path.join(receiptDir, `site-behavior-lab-release-${runId}-${runAttempt}.json`);
+  const receiptBytes = `${JSON.stringify(receipt, null, 2)}\n`;
+  await writeFile(receiptPath, receiptBytes);
+  cpSync(path.join(fixture.root, "out"), staticDir, { recursive: true });
+
+  const writeContext = async (name: string, value: unknown) =>
+    writeFile(path.join(contextDir, name), `${JSON.stringify(value)}\n`);
+  // Repository files the gate reads back through the API. The required-job list
+  // comes from the real repository so the job names stay in the one file
+  // lib/required-ci-jobs.test.ts already pins; the rest describe the fixture.
+  const writeFileContent = async (repositoryPath: string, from: string) => {
+    const safe = repositoryPath.replace(/[/.]/g, "_");
+    await writeContext(`content-${safe}.json`, {
+      type: "file",
+      encoding: "base64",
+      content: (await readFile(path.join(from, repositoryPath))).toString("base64")
+    });
+  };
+  await writeFileContent(".github/required-ci-jobs.json", ROOT);
+  // Derive the rest from the receipt's own declared inputs plus the metadata
+  // files the gate names directly, so a producer that starts describing another
+  // input cannot leave this fixture silently short of it.
+  const declaredInputs = Object.values(receipt.inputs ?? {}).map(
+    (input) => (input as { path: string }).path
+  );
+  for (const repositoryPath of new Set([
+    ...declaredInputs,
+    "CHANGELOG.md",
+    "CITATION.cff",
+    "package-lock.json",
+    "package.json",
+    "release-policy.json"
+  ])) {
+    await writeFileContent(repositoryPath, fixture.root);
+  }
+
+  const digest = createHash("sha256").update(receiptBytes).digest("hex");
+  const commitDate = new Date(
+    Date.parse(git(fixture.root, ["show", "--no-patch", "--format=%cI", fixture.commit]).trim())
+  );
+  await writeContext("artifact.json", {
+    id: 11,
+    name: `site-behavior-lab-release-${runId}-${runAttempt}.json`,
+    expired: false,
+    size_in_bytes: Buffer.byteLength(receiptBytes),
+    digest: `sha256:${digest}`,
+    workflow_run: { id: Number(runId), head_sha: "b".repeat(40) }
+  });
+  await writeContext("static-artifact.json", {
+    id: 12,
+    name: `site-behavior-lab-static-${runId}-${runAttempt}`,
+    expired: false,
+    size_in_bytes: 4096,
+    workflow_run: { id: Number(runId), head_sha: "b".repeat(40) }
+  });
+  await writeContext("commit.json", {
+    sha: fixture.commit,
+    tree: { sha: git(fixture.root, ["rev-parse", "HEAD^{tree}"]).trim() },
+    // The API renders the instant without milliseconds; the receipt normalizes
+    // it with them. Both spellings must be accepted.
+    committer: { date: commitDate.toISOString().replace(".000Z", "Z") }
+  });
+  for (const branch of ["main", "production"]) {
+    await writeContext(`${branch}.json`, { base_commit: { sha: fixture.commit }, status: "identical" });
+  }
+  const requiredJobs = JSON.parse(
+    await readFile(path.join(ROOT, ".github", "required-ci-jobs.json"), "utf8")
+  ) as { jobs: string[] };
+  await writeContext("ci-jobs.json", [
+    { jobs: requiredJobs.jobs.map((name) => ({ name, conclusion: "success" })) }
+  ]);
+
+  return {
+    runnerTemp,
+    receiptPath,
+    staticDir,
+    contextDir,
+    writeContext,
+    env: {
+      PATH: process.env.PATH,
+      RUNNER_TEMP: runnerTemp,
+      GITHUB_RUN_ID: runId,
+      GITHUB_RUN_ATTEMPT: runAttempt,
+      GITHUB_SHA: "b".repeat(40),
+      GITHUB_REPOSITORY: "iAnonymous3000/site-behavior-lab",
+      GITHUB_OUTPUT: path.join(runnerTemp, "github-output"),
+      ARTIFACT_ID: "11",
+      ARTIFACT_DIGEST: `sha256:${digest}`,
+      STATIC_ARTIFACT_ID: "12",
+      RELEASE_SHA: fixture.commit,
+      REQUESTED_SHA: fixture.commit,
+      RELEASE_VERSION: "0.1.0",
+      RELEASE_TAG: "v0.1.0"
+    }
+  };
+}
+
+function runValidator(controller: string, context: AttestContext, overrides: NodeJS.ProcessEnv = {}) {
+  return spawnSync(process.execPath, ["--input-type=commonjs", "-e", controller], {
+    cwd: context.runnerTemp,
+    env: { ...context.env, ...overrides },
+    encoding: "utf8"
+  });
+}
+
+test("the isolated release validator accepts one honest receipt", { skip: hostToolchainSkip }, async (t) => {
+  // Executes the SAME controller text the workflow runs, against a receipt the
+  // real producer built. String assertions cannot tell a gate that always
+  // passes from one that never can: this repository shipped a validator that
+  // could never accept anything, and no test noticed.
+  const controller = releaseValidatorController(await source(".github/workflows/release.yml"));
+  const context = await attestContext(t);
+
+  const accepted = runValidator(controller, context);
+  assert.equal(accepted.status, 0, `${accepted.stderr}${accepted.stdout}`);
+  assert.match(accepted.stdout, /Validated isolated release receipt sha256:[0-9a-f]{64} against \d+ independently hashed static file/);
+  const output = await readFile(context.env.GITHUB_OUTPUT as string, "utf8");
+  assert.match(output, /^receipt_sha256=[0-9a-f]{64}$/m);
+});
+
+test("the validator compares commit instants, not their spelling", { skip: hostToolchainSkip }, async (t) => {
+  // The regression that made every release impossible: the receipt normalizes
+  // the committer date with milliseconds and the API renders it without, so a
+  // string equality could never hold.
+  const controller = releaseValidatorController(await source(".github/workflows/release.yml"));
+  const context = await attestContext(t);
+  const commit = JSON.parse(await readFile(path.join(context.contextDir, "commit.json"), "utf8"));
+  const instant = Date.parse(commit.committer.date);
+
+  for (const spelling of [
+    new Date(instant).toISOString(),
+    new Date(instant).toISOString().replace(".000Z", "Z"),
+    new Date(instant).toISOString().replace("Z", "+00:00")
+  ]) {
+    await context.writeContext("commit.json", { ...commit, committer: { date: spelling } });
+    const run = runValidator(controller, context);
+    assert.equal(run.status, 0, `${spelling} must be accepted: ${run.stderr}`);
+  }
+
+  for (const wrong of [new Date(instant + 1000).toISOString(), "not-a-date", ""]) {
+    await context.writeContext("commit.json", { ...commit, committer: { date: wrong } });
+    const run = runValidator(controller, context);
+    assert.equal(run.status, 1, `${wrong} must be refused`);
+    assert.match(run.stderr, /does not match the GitHub commit object/);
+  }
+});
+
+test("the validator refuses every tampered static tree", { skip: hostToolchainSkip }, async (t) => {
+  const controller = releaseValidatorController(await source(".github/workflows/release.yml"));
+
+  const tamper = async (mutate: (staticDir: string) => Promise<void>, expected: RegExp) => {
+    const context = await attestContext(t);
+    await mutate(context.staticDir);
+    const run = runValidator(controller, context);
+    assert.equal(run.status, 1, `expected refusal, got: ${run.stdout}`);
+    assert.match(run.stderr, expected);
+  };
+
+  // A byte the receipt does not describe.
+  await tamper(
+    async (dir) => writeFile(path.join(dir, "asset.txt"), "tampered\n"),
+    /does not describe the built bytes/
+  );
+  // A file the build never produced.
+  await tamper(
+    async (dir) => writeFile(path.join(dir, "extra.txt"), "surprise\n"),
+    /static file\(s\) but the build produced|does not describe the built bytes/
+  );
+  // A file the manifest claims but the build lacks.
+  await tamper(async (dir) => rm(path.join(dir, "asset.txt")), /static file\(s\) but the build produced/);
+  // A symlink, which the walk must refuse outright rather than follow.
+  await tamper(async (dir) => {
+    await rm(path.join(dir, "asset.txt"));
+    await symlink("/etc/hostname", path.join(dir, "asset.txt"));
+  }, /contain a symlink/);
+  // No handoff at all.
+  await tamper(async (dir) => rm(dir, { recursive: true, force: true }), /were not handed to the attestation job/);
+});
+
+test("the validator refuses wrong handoff, CI, source, and policy facts", { skip: hostToolchainSkip }, async (t) => {
+  const controller = releaseValidatorController(await source(".github/workflows/release.yml"));
+
+  const refuse = async (
+    name: string,
+    mutate: (context: AttestContext) => Promise<void>,
+    expected: RegExp
+  ) => {
+    const context = await attestContext(t);
+    await mutate(context);
+    const run = runValidator(controller, context);
+    assert.equal(run.status, 1, `${name} must be refused, got: ${run.stdout}`);
+    assert.match(run.stderr, expected, name);
+  };
+
+  const artifactOf = async (context: AttestContext, file: string) =>
+    JSON.parse(await readFile(path.join(context.contextDir, file), "utf8"));
+
+  // Artifact metadata must identify this exact run, attempt, name, and SHA.
+  await refuse("wrong receipt run id", async (c) => {
+    const artifact = await artifactOf(c, "artifact.json");
+    await c.writeContext("artifact.json", { ...artifact, workflow_run: { id: 4242, head_sha: "b".repeat(40) } });
+  }, /immutable artifact metadata/);
+  await refuse("wrong receipt head sha", async (c) => {
+    const artifact = await artifactOf(c, "artifact.json");
+    await c.writeContext("artifact.json", { ...artifact, workflow_run: { id: 9001, head_sha: "c".repeat(40) } });
+  }, /immutable artifact metadata/);
+  await refuse("wrong receipt artifact name", async (c) => {
+    const artifact = await artifactOf(c, "artifact.json");
+    await c.writeContext("artifact.json", { ...artifact, name: "site-behavior-lab-release-other.json" });
+  }, /immutable artifact metadata/);
+  await refuse("expired receipt artifact", async (c) => {
+    const artifact = await artifactOf(c, "artifact.json");
+    await c.writeContext("artifact.json", { ...artifact, expired: true });
+  }, /immutable artifact metadata/);
+  await refuse("wrong static artifact metadata", async (c) => {
+    const artifact = await artifactOf(c, "static-artifact.json");
+    await c.writeContext("static-artifact.json", { ...artifact, name: "site-behavior-lab-static-wrong" });
+  }, /immutable static-artifact metadata/);
+
+  // CI must be the trusted run with every required job green.
+  await refuse("a required job missing", async (c) => {
+    const jobs = await artifactOf(c, "ci-jobs.json");
+    await c.writeContext("ci-jobs.json", [{ jobs: jobs[0].jobs.slice(1) }]);
+  }, /did not run exactly once and conclude success/);
+  await refuse("a required job failed", async (c) => {
+    const jobs = await artifactOf(c, "ci-jobs.json");
+    const mutated = jobs[0].jobs.map((job: { name: string }, index: number) =>
+      index === 0 ? { ...job, conclusion: "failure" } : job
+    );
+    await c.writeContext("ci-jobs.json", [{ jobs: mutated }]);
+  }, /did not run exactly once and conclude success/);
+
+  // Source identity and branch reachability.
+  await refuse("a source commit that is not the release SHA", async (c) => {
+    const commit = await artifactOf(c, "commit.json");
+    await c.writeContext("commit.json", { ...commit, sha: "d".repeat(40) });
+  }, /does not match the GitHub commit object/);
+  await refuse("a release SHA no longer on production", async (c) => {
+    await c.writeContext("production.json", { base_commit: { sha: "e".repeat(40) }, status: "identical" });
+  }, /no longer reachable from production/);
+  await refuse("a release SHA behind main", async (c) => {
+    const main = await artifactOf(c, "main.json");
+    await c.writeContext("main.json", { ...main, status: "behind" });
+  }, /no longer reachable from main/);
+
+  // The receipt bytes themselves must be canonical and honest.
+  await refuse("a non-canonical receipt", async (c) => {
+    const receipt = JSON.parse(await readFile(c.receiptPath, "utf8"));
+    await writeFile(c.receiptPath, `${JSON.stringify(receipt)}\n`);
+  }, /canonical|does not match|artifact metadata/);
+  await refuse("a policy that is not released", async (c) => {
+    const encoded = await artifactOf(c, "content-release-policy_json.json");
+    const policy = JSON.parse(Buffer.from(encoded.content, "base64").toString("utf8"));
+    await c.writeContext("content-release-policy_json.json", {
+      ...encoded,
+      content: Buffer.from(`${JSON.stringify({ ...policy, status: "development" }, null, 2)}\n`).toString("base64")
+    });
+  }, /exact source|released|policy/i);
+});
+
+test("the approved-release-actor step executes as a real shell gate", { skip: hostToolchainSkip }, async () => {
+  // The allowlist is shell, not JavaScript, so exercise the shell.
+  const workflow = await source(".github/workflows/release.yml");
+  const step = workflow.slice(workflow.indexOf("- name: Require an approved release author"));
+  const body = step.slice(step.indexOf("run: |") + "run: |".length, step.indexOf("- name: Recheck branch"));
+  const script = body
+    .split("\n")
+    .map((line) => (line.startsWith(" ".repeat(10)) ? line.slice(10) : line))
+    .join("\n");
+
+  const run = (list: string, actor: string, triggering: string) =>
+    spawnSync("bash", ["-c", script], {
+      encoding: "utf8",
+      env: { PATH: process.env.PATH, APPROVED_RELEASE_ACTORS: list, ACTOR: actor, TRIGGERING_ACTOR: triggering }
+    });
+
+  assert.equal(run("iAnonymous3000", "iAnonymous3000", "iAnonymous3000").status, 0);
+  // Multi-entry lists and whitespace must survive splitting.
+  assert.equal(run("alice,bob", "bob", "bob").status, 0);
+  assert.equal(run(" alice , bob ", "alice", "alice").status, 0);
+  // Divergent identities, unknown actors, and an empty list all refuse.
+  assert.equal(run("alice,bob", "alice", "bob").status, 1);
+  assert.equal(run("alice", "mallory", "mallory").status, 1);
+  assert.equal(run("", "alice", "alice").status, 1);
 });
