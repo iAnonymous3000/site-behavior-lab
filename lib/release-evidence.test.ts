@@ -646,6 +646,11 @@ test("the release workflow tags only a promoted, CI-green revision and attests i
   // repository's existing provenance mechanism rather than a new one.
   assert.match(workflow, /npm run release:evidence --/);
   assert.match(workflow, /uses: actions\/attest@[a-f0-9]{40} # v4\.2\.0/);
+  assert.match(
+    workflow,
+    /permissions:\n\s+contents: write\n\s+actions: read\n\s+id-token: write\n\s+attestations: write\n\s+artifact-metadata: write/,
+    "the release job must be able to persist the attestation's artifact metadata"
+  );
   assert.ok(
     workflow.indexOf("uses: actions/attest@") < workflow.indexOf("git tag -a"),
     "the receipt must be attested before the tag is created"
