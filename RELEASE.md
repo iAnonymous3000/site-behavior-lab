@@ -254,6 +254,27 @@ evidence for that exact snapshot. The governance, toolchain, and public-preview
 observations are release-policy blockers, and none of these receipts replaces
 fresh verification for the final clean commit.
 
+### Governance re-check (2026-07-25, read-only)
+
+Re-read from the public rulesets API rather than assumed, because the snapshot
+above is dated and governance is the gate a release leans on hardest:
+
+- exactly one ruleset exists, `Protect main history`, active on `refs/heads/main`
+  with rules `deletion` and `non_fast_forward` only. It still requires **no**
+  status checks and **no** pull request or review;
+- no ruleset targets `production`, so whatever protects it is classic
+  protection, which the same snapshot recorded as linear history only;
+- no tag ruleset exists, so `v*` tags are unprotected and a pushed tag can be
+  deleted or moved by anyone who can push;
+- no tag exists yet: `v0.2.0` has not been cut.
+
+The repository side of the gate is now as strong as it can be without those
+controls: both the promotion path and the release path verify every job in
+`.github/required-ci-jobs.json` against a completed successful `main` push run
+of this repository. That is enforcement by workflow, and a workflow cannot
+constrain a direct push the way a ruleset can, so the four items above remain
+operator work and remain release-policy blockers.
+
 ## Widening what a release may claim
 
 The evidence schema accepts `development` and `released`, and it verifies the
