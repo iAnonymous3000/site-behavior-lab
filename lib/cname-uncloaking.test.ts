@@ -104,3 +104,40 @@ function makeRequest(domain: string, thirdParty: boolean): NetworkRequestRecord 
     startedAtMs: 1
   };
 }
+
+test("a scan deadline bounds the whole probe, not just each lookup", async () => {
+  // Hop and per-lookup bounds are per host: ten hosts of three hops at 1.5s
+  // each is 45s of DNS that could begin with three seconds of scan budget
+  // left, so the advertised scan duration bounded nothing. The deadline must
+  // bind every lookup, and exhausting it must be disclosed as a failure to
+  // observe rather than reported as a finished chain.
+  const requests = Array.from({ length: 10 }, (_, index) => ({
+    url: `https://h${index}.example.com/x`,
+    domain: `h${index}.example.com`,
+    thirdParty: false,
+    method: "GET"
+  })) as unknown as NetworkRequestRecord[];
+
+  const deadline = Date.now() + 300;
+  const failures: string[] = [];
+  const started = Date.now();
+  const cloaks = await resolveCnameCloaks(requests, "example.com", {
+    registrableDomain,
+    matchTracker: () => null,
+    maxHosts: 10,
+    onResolutionFailure: (host) => failures.push(host),
+    resolveCnameChain: async (host) => {
+      if (Date.now() >= deadline) throw new Error("cname-deadline-exceeded");
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      return [`${host}.cdn.example.net`];
+    }
+  });
+  const elapsed = Date.now() - started;
+
+  assert.deepEqual(cloaks, [], "an unrelated CDN chain is not a cloak");
+  assert.ok(elapsed < 1_000, `the probe must stop at its deadline, took ${elapsed}ms`);
+  assert.ok(
+    failures.length > 0,
+    "hosts abandoned at the deadline must be disclosed, never silently dropped"
+  );
+});

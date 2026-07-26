@@ -3205,23 +3205,38 @@ async function resolveCnameCloaksForScan(
   onResolutionFailure?: (host: string) => void
 ): Promise<CnameCloak[]> {
   if (MAX_SCAN_DURATION_MS - (Date.now() - started) < CNAME_PROBE_MIN_BUDGET_MS) return [];
+  // The entry check only proved there was budget to BEGIN. Bind every lookup to
+  // the same deadline so the probe cannot outlive the scan it belongs to.
+  const deadline = started + MAX_SCAN_DURATION_MS;
   return resolveCnameCloaks(requests, firstPartyHostname, {
     registrableDomain: partyKey,
     matchTracker,
-    resolveCnameChain: options.resolveCnameChain ?? resolveCnameChainViaDns,
+    resolveCnameChain: options.resolveCnameChain ?? ((host: string) => resolveCnameChainViaDns(host, deadline)),
     onResolutionFailure,
     maxHosts: MAX_CNAME_LOOKUPS
   });
 }
 
-/** Follow a hostname's CNAME chain via DNS, bounded by hops and a per-lookup timeout. */
-async function resolveCnameChainViaDns(host: string): Promise<string[]> {
+/**
+ * Follow a hostname's CNAME chain via DNS, bounded by hops, a per-lookup
+ * timeout, AND the scan's own deadline.
+ *
+ * The hop and lookup bounds alone are per-host: ten hosts of three hops at
+ * 1.5 s each is 45 s of DNS that could begin with three seconds of scan budget
+ * left, so the advertised scan duration bounded nothing here. The deadline is
+ * therefore checked before every lookup and also caps each one, and exhausting
+ * it throws so the caller discloses the loss instead of reporting a short chain
+ * as if the probe had finished.
+ */
+async function resolveCnameChainViaDns(host: string, deadline: number): Promise<string[]> {
   const chain: string[] = [];
   let current = host;
   for (let hop = 0; hop < CNAME_MAX_HOPS; hop += 1) {
+    const remaining = deadline - Date.now();
+    if (remaining <= 0) throw new Error("cname-deadline-exceeded");
     let records: string[];
     try {
-      records = await withDnsTimeout(dnsPromises.resolveCname(current));
+      records = await withDnsTimeout(dnsPromises.resolveCname(current), Math.min(CNAME_LOOKUP_TIMEOUT_MS, remaining));
     } catch (error) {
       // ENODATA is the authoritative answer "this name exists and has no
       // CNAME", which ends the chain cleanly. Everything else, NXDOMAIN,
@@ -3240,10 +3255,10 @@ async function resolveCnameChainViaDns(host: string): Promise<string[]> {
   return chain;
 }
 
-function withDnsTimeout(operation: Promise<string[]>): Promise<string[]> {
+function withDnsTimeout(operation: Promise<string[]>, timeoutMs = CNAME_LOOKUP_TIMEOUT_MS): Promise<string[]> {
   let timer: ReturnType<typeof setTimeout>;
   const timeout = new Promise<string[]>((_, reject) => {
-    timer = setTimeout(() => reject(new Error("dns-lookup-timeout")), CNAME_LOOKUP_TIMEOUT_MS);
+    timer = setTimeout(() => reject(new Error("dns-lookup-timeout")), Math.max(1, timeoutMs));
   });
   return Promise.race([operation, timeout]).finally(() => clearTimeout(timer));
 }
