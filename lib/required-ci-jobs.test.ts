@@ -99,12 +99,14 @@ test("a skipped or failed required job is refused, and a run-level success is no
 test("the release gate binds the CI run to this repository's main branch", async () => {
   const release = await source(".github/workflows/release.yml");
 
-  // A head_sha-only query would accept a pull_request run, a fork run, or a
-  // dispatch, none of which prove main was green at that revision.
-  assert.match(release, /branch=main&event=push/);
+  // A head_sha-only query would accept a pull_request run or a fork run. Push
+  // and explicit workflow_dispatch runs are both trusted only when they ran
+  // this repository's CI on main; data workflows need the dispatch path.
+  assert.match(release, /branch=main&per_page=100/);
   assert.match(release, /run\?\.head_branch === "main"/);
+  assert.match(release, /run\?\.event === "push" \|\| run\?\.event === "workflow_dispatch"/);
   assert.match(release, /run\?\.head_repository\?\.full_name === process\.env\.GITHUB_REPOSITORY/);
-  assert.match(release, /No successful main-branch CI run recorded for/);
+  assert.match(release, /No successful trusted main-branch CI run recorded for/);
 
   // The tagged revision is named by the operator, never inferred.
   assert.match(release, /commit must be a full 40-character lowercase SHA/);
@@ -112,5 +114,5 @@ test("the release gate binds the CI run to this repository's main branch", async
 
   // The uploaded receipt expires; the tag records its digest so the receipt
   // stays identifiable after that.
-  assert.match(release, /Release receipt sha256: \$\{RECEIPT_SHA256\}/);
+  assert.match(release, /Release receipt sha256:/);
 });

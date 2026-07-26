@@ -61,10 +61,17 @@ created only after the revision it names is already promoted:
    tag sweeps in), requires it to be an ancestor of `production`, requires a
    completed successful CI run of this repository's `main` branch for that SHA
    with every job in `.github/required-ci-jobs.json` concluding success,
-   rebuilds the static artifact, generates and attests the receipt, records the
-   receipt's sha256 in the tag message so it stays identifiable after the
-   uploaded artifact expires, and only then creates and pushes the annotated
-   tag.
+   rebuilds the static artifact, and generates the receipt. Candidate and
+   dependency code runs only in that read-only preparation job, whose checkout
+   does not persist credentials. A fresh job downloads the one immutable
+   receipt artifact by ID, independently rechecks its GitHub artifact metadata,
+   exact source inputs, CI jobs, production ancestry, canonical JSON, and
+   manifest totals, and then attests it without repository-write permission. A
+   third fresh job has repository-write permission only: it rechecks branch
+   reachability and atomically creates the annotated tag through GitHub's Git
+   database API, with no checkout, dependency execution, OIDC, or attestation
+   authority. The tag message records the receipt's sha256 so it stays
+   identifiable after the uploaded artifact expires.
 
 Between steps 1 and 3 the policy truthfully says `released` while no tag exists
 yet. That window is expected, and the receipt records it: `release.tagExists`

@@ -497,6 +497,15 @@ async function source(relative: string): Promise<string> {
   return readFile(path.join(ROOT, relative), "utf8");
 }
 
+function workflowJob(workflow: string, id: string): string {
+  const marker = `\n  ${id}:\n`;
+  const start = workflow.indexOf(marker);
+  assert.notEqual(start, -1, `workflow must declare the ${id} job`);
+  const bodyStart = start + marker.length;
+  const next = workflow.slice(bodyStart).search(/\n  [a-zA-Z0-9_-]+:\n/);
+  return workflow.slice(start, next === -1 ? workflow.length : bodyStart + next);
+}
+
 async function makeFixture(
   t: TestContext,
   options: {
@@ -607,6 +616,9 @@ function git(cwd: string, args: string[]): string {
 
 test("the release workflow tags only a promoted, CI-green revision and attests its receipt", async () => {
   const workflow = await source(".github/workflows/release.yml");
+  const prepare = workflowJob(workflow, "prepare");
+  const attest = workflowJob(workflow, "attest");
+  const tag = workflowJob(workflow, "tag");
 
   // A release is curated: a human dispatches it, and only from the default
   // branch.
@@ -619,44 +631,104 @@ test("the release workflow tags only a promoted, CI-green revision and attests i
   // The four refusals that make the tag mean something.
   assert.match(workflow, /release-policy\.json status must be released before a tag is cut/);
   assert.match(workflow, /already exists; releases are immutable/);
-  assert.match(workflow, /git merge-base --is-ancestor "\$RELEASE_SHA" origin\/production/);
+  assert.match(prepare, /git merge-base --is-ancestor "\$RELEASE_SHA" origin\/production/);
   // Run-level success for a SHA is not proof; the gate requires a completed
-  // main-branch push run of THIS repository and then verifies each required
-  // job through scripts/verify-required-ci-jobs.mjs (lib/required-ci-jobs.test.ts
-  // owns that contract).
-  assert.match(workflow, /No successful main-branch CI run recorded for/);
-  assert.match(workflow, /node scripts\/verify-required-ci-jobs\.mjs/);
+  // trusted main-branch run of THIS repository and verifies each required job.
+  assert.match(workflow, /No successful trusted main-branch CI run recorded for/);
+  assert.match(prepare, /node scripts\/verify-required-ci-jobs\.mjs/);
 
   // A dispatch runs at the branch tip, which drifts away from the revision the
   // release actually names. Every gate, the receipt, and the tag must describe
   // the resolved revision, so no step may fall back to the dispatch SHA.
-  assert.match(workflow, /git checkout --quiet --detach "\$release_sha"/);
-  assert.match(workflow, /No commit on main declares release-policy\.json version/);
-  assert.match(workflow, /is not reachable from main/);
-  assert.match(workflow, /does not contain the commit that declared/);
-  assert.match(workflow, /head_sha=\$\{RELEASE_SHA\}/);
-  assert.match(workflow, /git tag -a "\$TAG" "\$RELEASE_SHA"/);
+  assert.match(prepare, /git checkout --quiet --detach "\$release_sha"/);
+  assert.match(prepare, /No commit on main declares release-policy\.json version/);
+  assert.match(prepare, /is not reachable from main/);
+  assert.match(prepare, /does not contain the commit that declared/);
+  assert.match(prepare, /head_sha=\$\{RELEASE_SHA\}/);
+  assert.match(attest, /source\?\.commit !== process\.env\.RELEASE_SHA/);
+  assert.match(tag, /object: process\.env\.RELEASE_SHA/);
+
+  // Candidate and dependency code is confined to a read-only fresh runner.
+  assert.match(
+    prepare,
+    /permissions:\n\s+contents: read\n\s+actions: read/
+  );
+  assert.doesNotMatch(prepare, /(?:contents|actions|id-token|attestations|artifact-metadata): write/);
+  assert.match(prepare, /persist-credentials: false/);
+  assert.doesNotMatch(prepare, /secrets\.|actions\/attest@|git tag|git push|uses: \.\//);
+  assert.match(prepare, /npm ci/);
+  assert.match(prepare, /npm run build:pages/);
+  assert.match(prepare, /npm run test:smoke:static/);
+  assert.match(prepare, /npm run release:evidence --/);
+  assert.match(prepare, /archive: false/);
+  assert.match(prepare, /receipt_artifact_id: \$\{\{ steps\.receipt_artifact\.outputs\.artifact-id \}\}/);
+  // The attestation job refuses a handoff whose artifact metadata does not
+  // carry exactly the receipt's file name, so the upload must state that name
+  // rather than inherit whatever the action happens to default to.
+  const receiptFileName =
+    "site-behavior-lab-release-\\$\\{\\{ github\\.run_id \\}\\}-\\$\\{\\{ github\\.run_attempt \\}\\}\\.json";
+  assert.match(prepare, new RegExp(`name: ${receiptFileName}`));
+  assert.match(prepare, new RegExp(`path: \\$\\{\\{ runner\\.temp \\}\\}/${receiptFileName}`));
+  const candidateExecution = prepare.slice(prepare.indexOf("Verify every required CI job without an API token"));
   assert.doesNotMatch(
-    workflow.slice(workflow.indexOf("Resolve the exact revision")),
-    /GITHUB_SHA/,
-    "no gate, receipt, or tag step may describe the dispatch SHA once the release revision is resolved"
+    candidateExecution,
+    /GH_TOKEN|github\.token/,
+    "candidate verifier, dependencies, builds, and receipt code must not receive the GitHub API token"
   );
 
-  // The tag is bound to an attested exact-source receipt, which is this
-  // repository's existing provenance mechanism rather than a new one.
-  assert.match(workflow, /npm run release:evidence --/);
-  assert.match(workflow, /uses: actions\/attest@[a-f0-9]{40} # v4\.2\.0/);
+  // Attestation authority receives one immutable artifact ID on a fresh
+  // runner, validates it as hostile data, and cannot write repository refs.
+  assert.match(attest, /needs: prepare/);
   assert.match(
-    workflow,
-    /permissions:\n\s+contents: write\n\s+actions: read\n\s+id-token: write\n\s+attestations: write\n\s+artifact-metadata: write/,
-    "the release job must be able to persist the attestation's artifact metadata"
+    attest,
+    /permissions:\n\s+contents: read\n\s+actions: read\n\s+id-token: write\n\s+attestations: write\n\s+artifact-metadata: write/
   );
+  assert.doesNotMatch(
+    attest,
+    /contents: write|actions\/checkout|actions\/setup-node|npm (?:ci|run)|node_modules|uses: \.\//
+  );
+  assert.doesNotMatch(attest, /git fetch|git checkout|git tag|git push/);
+  assert.match(
+    attest,
+    /artifact-ids: \$\{\{ needs\.prepare\.outputs\.receipt_artifact_id \}\}/
+  );
+  assert.match(attest, /digest-mismatch: error/);
+  assert.match(attest, /TextDecoder\("utf-8", \{ fatal: true \}\)/);
+  assert.match(attest, /JSON\.stringify\(receipt, null, 2\)/);
+  assert.match(attest, /artifact\?\.workflow_run\?\.head_sha !== process\.env\.GITHUB_SHA/);
+  assert.match(attest, /receipt\.source\?\.commit !== process\.env\.RELEASE_SHA/);
+  assert.match(attest, /receipt\.release\?\.status !== "released"/);
+  assert.match(attest, /receipt\.release\?\.evidencesReleaseCommit !== false/);
+  assert.match(attest, /staticArtifact\.deployment\?\.deployment !== process\.env\.RELEASE_SHA/);
+  assert.match(attest, /uses: actions\/attest@[a-f0-9]{40} # v4\.2\.0/);
+
+  // Tag authority is smaller still: contents write only, no checkout, code,
+  // dependency, OIDC, or attestation authority. It creates, never updates, the
+  // annotated tag through GitHub's Git database API.
+  assert.match(tag, /needs:\n\s+- prepare\n\s+- attest/);
+  assert.match(tag, /permissions:\n\s+contents: write/);
+  assert.doesNotMatch(tag, /actions:|id-token:|attestations:|artifact-metadata:/);
+  assert.doesNotMatch(tag, /actions\/checkout|actions\/setup-node|npm (?:ci|run)|node_modules|uses: \.\//);
+  assert.doesNotMatch(tag, /git fetch|git checkout|git tag|git push|--method PATCH|force\s*[:=]\s*true/);
+  assert.match(tag, /repos\/\$\{GITHUB_REPOSITORY\}\/git\/tags/);
+  assert.match(tag, /repos\/\$\{GITHUB_REPOSITORY\}\/git\/refs/);
+  assert.match(tag, /ref: `refs\/tags\/\$\{process\.env\.RELEASE_TAG\}`/);
+
+  // The receipt must be validated before attestation, and attestation must
+  // finish before the tag job can run.
   assert.ok(
-    workflow.indexOf("uses: actions/attest@") < workflow.indexOf("git tag -a"),
-    "the receipt must be attested before the tag is created"
+    attest.indexOf("Validate downloaded release receipt as hostile data") <
+      attest.indexOf("uses: actions/attest@"),
+    "the receipt must be validated before it is attested"
   );
-  assert.match(workflow, /git tag -a "\$TAG"/);
-  assert.match(workflow, /git push origin "refs\/tags\/\$\{TAG\}"/);
+  const inlineControllers = [...workflow.matchAll(/node <<'NODE'\n([\s\S]*?)\n\s+NODE/g)].map(
+    (match) => match[1]
+  );
+  assert.ok(inlineControllers.length >= 7, "every privileged controller must remain visible to syntax checks");
+  for (const [index, controller] of inlineControllers.entries()) {
+    const checked = spawnSync(process.execPath, ["--check"], { input: controller, encoding: "utf8" });
+    assert.equal(checked.status, 0, `inline release controller ${index + 1} must parse: ${checked.stderr}`);
+  }
 
   // A tag must never quietly widen what the project claims.
   assert.match(workflow, /A release may not claim a stable public API or npm publication/);

@@ -40,22 +40,30 @@ env:
   NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SITE_URL: "https://sitebehavior.org"
 
 jobs:
-  cut:
-    name: Verify and tag a promoted release revision
-    # A release may only ever be cut from the default branch.
+  # Candidate and dependency code runs only here. This job has no repository
+  # write, OIDC, attestation, or artifact-metadata authority, and checkout does
+  # not persist even its read-only token into the candidate worktree.
+  prepare:
+    name: Build and verify the release receipt without release authority
     if: github.ref_type == 'branch' && github.ref_name == github.event.repository.default_branch
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: read
       actions: read
-      id-token: write
-      attestations: write
-      artifact-metadata: write
+    outputs:
+      release_sha: ${{ steps.release.outputs.release_sha }}
+      release_declaring_sha: ${{ steps.release.outputs.release_declaring_sha }}
+      release_commits_after_declaration: ${{ steps.release.outputs.release_commits_after_declaration }}
+      release_version: ${{ steps.release.outputs.release_version }}
+      release_tag: ${{ steps.release.outputs.release_tag }}
+      receipt_artifact_id: ${{ steps.receipt_artifact.outputs.artifact-id }}
+      receipt_artifact_digest: ${{ steps.receipt_artifact.outputs.artifact-digest }}
     steps:
-      - name: Checkout full history
+      - name: Checkout full history without persisted credentials
         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
         with:
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Set up Node
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
@@ -70,10 +78,10 @@ jobs:
           test "$(npm --version)" = "11.11.0"
 
       # A dispatch runs at whatever the default branch tip happens to be, which
-      # is not what a release names: the tip drifts as ordinary work lands after
-      # the declaration. Resolve the exact revision first and make every gate,
-      # the receipt, and the tag itself describe that revision instead.
+      # is not what a release names. Resolve the operator's exact revision and
+      # pass only bounded, validated values to the fresh authority jobs.
       - name: Resolve the exact revision this release names
+        id: release
         env:
           REQUESTED_VERSION: ${{ github.event.inputs.version }}
           REQUESTED_COMMIT: ${{ github.event.inputs.commit }}
@@ -82,11 +90,6 @@ jobs:
           git fetch origin main --quiet
           requested_version="$(printf '%s' "$REQUESTED_VERSION" | tr -d '[:space:]')"
           declaring=""
-          # The declaring commit is the newest change to release-policy.json
-          # that first put this version in place. The operator names the exact
-          # revision to tag; this is only used to prove that revision actually
-          # contains the declaration, and to disclose how far past it the tag
-          # reaches so extra commits are never swept in silently.
           while read -r candidate; do
             version="$(git show "${candidate}:release-policy.json" 2>/dev/null | node -e '
               let raw = "";
@@ -126,28 +129,34 @@ jobs:
           git checkout --quiet --detach "$release_sha"
           {
             echo "RELEASE_SHA=${release_sha}"
-            echo "RELEASE_DECLARING_SHA=${declaring}"
-            echo "RELEASE_COMMITS_AFTER_DECLARATION=${ahead}"
+            echo "RELEASE_VERSION=${requested_version}"
+            echo "RELEASE_TAG=v${requested_version}"
           } >> "$GITHUB_ENV"
+          {
+            echo "release_sha=${release_sha}"
+            echo "release_declaring_sha=${declaring}"
+            echo "release_commits_after_declaration=${ahead}"
+            echo "release_version=${requested_version}"
+            echo "release_tag=v${requested_version}"
+          } >> "$GITHUB_OUTPUT"
           echo "Release revision ${release_sha} (declared at ${declaring}, ${ahead} commit(s) later)."
 
       - name: Verify the release policy names exactly this version
-        env:
-          REQUESTED_VERSION: ${{ github.event.inputs.version }}
         run: |
           set -euo pipefail
           node <<'NODE'
           const fs = require("node:fs");
           const policy = JSON.parse(fs.readFileSync("release-policy.json", "utf8"));
-          const requested = process.env.REQUESTED_VERSION.trim();
           const fail = (message) => {
             console.error(`::error title=Release refused::${message}`);
             process.exit(1);
           };
           if (policy.schemaVersion !== 2) fail("release-policy.json must use schemaVersion 2.");
           if (policy.status !== "released") fail("release-policy.json status must be released before a tag is cut.");
-          if (policy.version !== requested) fail(`Requested ${requested} but the policy declares ${policy.version}.`);
-          if (policy.releaseTag !== `v${policy.version}`) fail("The policy tag must be v<version>.");
+          if (policy.version !== process.env.RELEASE_VERSION) {
+            fail(`Requested ${process.env.RELEASE_VERSION} but the policy declares ${policy.version}.`);
+          }
+          if (policy.releaseTag !== process.env.RELEASE_TAG) fail("The policy tag must be v<version>.");
           if (policy.stablePublicApi !== false || policy.npmPublication !== "disabled") {
             fail("A release may not claim a stable public API or npm publication.");
           }
@@ -155,13 +164,11 @@ jobs:
           NODE
 
       - name: Refuse to move an existing tag
-        env:
-          TAG: v${{ github.event.inputs.version }}
         run: |
           set -euo pipefail
           git fetch origin --tags --quiet
-          if git rev-parse -q --verify "refs/tags/${TAG}" >/dev/null; then
-            echo "::error title=Release refused::${TAG} already exists; releases are immutable."
+          if git rev-parse -q --verify "refs/tags/${RELEASE_TAG}" >/dev/null; then
+            echo "::error title=Release refused::${RELEASE_TAG} already exists; releases are immutable."
             exit 1
           fi
 
@@ -174,22 +181,18 @@ jobs:
             exit 1
           fi
 
-      - name: Require a green CI run for this exact revision
+      - name: Select a trusted successful CI run for this exact revision
+        id: ci_run
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          # Run-level success is not proof: a run concludes success when jobs
-          # are skipped, and a pull_request or fork run for the same SHA would
-          # satisfy a head_sha-only query. Require a run of THIS repository's
-          # main branch, then verify every required job individually through
-          # the same checker the promotion gate uses.
           gh api \
             --paginate \
             --slurp \
             -H "Accept: application/vnd.github+json" \
             -H "X-GitHub-Api-Version: 2022-11-28" \
-            "repos/${GITHUB_REPOSITORY}/actions/workflows/ci.yml/runs?head_sha=${RELEASE_SHA}&branch=main&event=push&per_page=100" \
+            "repos/${GITHUB_REPOSITORY}/actions/workflows/ci.yml/runs?head_sha=${RELEASE_SHA}&branch=main&per_page=100" \
             > "$RUNNER_TEMP/ci-runs.json"
           run_id="$(node <<'NODE'
           const fs = require("node:fs");
@@ -201,30 +204,42 @@ jobs:
             (run) =>
               run?.head_sha === process.env.RELEASE_SHA &&
               run?.head_branch === "main" &&
+              (run?.event === "push" || run?.event === "workflow_dispatch") &&
               run?.status === "completed" &&
               run?.conclusion === "success" &&
               run?.head_repository?.full_name === process.env.GITHUB_REPOSITORY
           );
-          // Newest first: a re-run after a fix is the run that stands.
           eligible.sort((left, right) => Date.parse(right.updated_at) - Date.parse(left.updated_at));
           if (eligible.length === 0) {
             console.error(
-              `::error title=Release refused::No successful main-branch CI run recorded for ${process.env.RELEASE_SHA}.`
+              `::error title=Release refused::No successful trusted main-branch CI run recorded for ${process.env.RELEASE_SHA}.`
             );
             process.exit(1);
           }
           process.stdout.write(String(eligible[0].id));
           NODE
           )"
+          echo "run_id=${run_id}" >> "$GITHUB_OUTPUT"
+
+      # Keep the API token out of the candidate-controlled checker process.
+      - name: Fetch the selected CI run's jobs
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CI_RUN_ID: ${{ steps.ci_run.outputs.run_id }}
+        run: |
+          set -euo pipefail
           gh api \
             --paginate \
             --slurp \
             -H "Accept: application/vnd.github+json" \
             -H "X-GitHub-Api-Version: 2022-11-28" \
-            "repos/${GITHUB_REPOSITORY}/actions/runs/${run_id}/jobs?per_page=100" \
+            "repos/${GITHUB_REPOSITORY}/actions/runs/${CI_RUN_ID}/jobs?per_page=100" \
             > "$RUNNER_TEMP/ci-jobs.json"
+
+      - name: Verify every required CI job without an API token
+        run: |
+          set -euo pipefail
           node scripts/verify-required-ci-jobs.mjs "$RUNNER_TEMP/ci-jobs.json" "Release refused"
-          echo "Release revision verified against CI run ${run_id}."
 
       - name: Install locked dependencies
         run: npm ci
@@ -239,63 +254,548 @@ jobs:
         run: >-
           npm run release:evidence --
           --static-dir out
-          --output "$RUNNER_TEMP/site-behavior-lab-${{ github.event.inputs.version }}-release-evidence.json"
+          --output "$RUNNER_TEMP/site-behavior-lab-release-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}.json"
 
-      # The uploaded artifact expires; the tag does not. Record the receipt's
-      # digest so anyone holding a copy can still prove it is THE receipt this
-      # release attested, long after the artifact is gone. The Sigstore bundle
-      # itself stays permanently verifiable in the public transparency log.
-      - name: Record the receipt digest
-        id: receipt
+      # The immutable artifact ID, not a mutable name, is the authority handoff.
+      # Direct-file transfer also avoids extracting candidate-controlled ZIPs.
+      - name: Hand the one receipt to the isolated attestation job
+        id: receipt_artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          # Name it exactly as the file. The attestation job refuses any handoff
+          # whose immutable artifact metadata does not carry this name, so the
+          # value must be stated here rather than left to the action's default.
+          name: site-behavior-lab-release-${{ github.run_id }}-${{ github.run_attempt }}.json
+          path: ${{ runner.temp }}/site-behavior-lab-release-${{ github.run_id }}-${{ github.run_attempt }}.json
+          archive: false
+          if-no-files-found: error
+          retention-days: 1
+
+  # This fresh runner receives hostile data, never candidate code. It has
+  # attestation authority but cannot write repository contents or tags.
+  attest:
+    name: Validate and attest the isolated release receipt
+    needs: prepare
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
+      id-token: write
+      attestations: write
+      artifact-metadata: write
+    outputs:
+      receipt_sha256: ${{ steps.validate.outputs.receipt_sha256 }}
+      attestation_url: ${{ steps.attest_release.outputs.attestation-url }}
+    steps:
+      - name: Download only the immutable receipt artifact
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          artifact-ids: ${{ needs.prepare.outputs.receipt_artifact_id }}
+          path: ${{ runner.temp }}/release-receipt
+          digest-mismatch: error
+
+      - name: Read back the artifact, source, promotion, and CI facts
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ARTIFACT_ID: ${{ needs.prepare.outputs.receipt_artifact_id }}
+          RELEASE_SHA: ${{ needs.prepare.outputs.release_sha }}
         run: |
           set -euo pipefail
-          receipt="$RUNNER_TEMP/site-behavior-lab-${{ github.event.inputs.version }}-release-evidence.json"
-          digest="$(node -e 'const {createHash}=require("node:crypto");const fs=require("node:fs");process.stdout.write(createHash("sha256").update(fs.readFileSync(process.argv[1])).digest("hex"))' "$receipt")"
-          echo "sha256=${digest}" >> "$GITHUB_OUTPUT"
-          echo "Release receipt sha256:${digest}"
+          context="$RUNNER_TEMP/release-context"
+          install -d -m 700 "$context"
+          gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/${ARTIFACT_ID}" > "$context/artifact.json"
+          gh api "repos/${GITHUB_REPOSITORY}/git/commits/${RELEASE_SHA}" > "$context/commit.json"
+          gh api "repos/${GITHUB_REPOSITORY}/compare/${RELEASE_SHA}...main" > "$context/main.json"
+          gh api "repos/${GITHUB_REPOSITORY}/compare/${RELEASE_SHA}...production" > "$context/production.json"
+          for path in \
+            .github/required-ci-jobs.json \
+            package.json \
+            package-lock.json \
+            CITATION.cff \
+            CHANGELOG.md \
+            Dockerfile \
+            wrangler.container.jsonc \
+            release-policy.json
+          do
+            safe="$(printf '%s' "$path" | tr '/.' '__')"
+            gh api "repos/${GITHUB_REPOSITORY}/contents/${path}?ref=${RELEASE_SHA}" > "$context/content-${safe}.json"
+          done
+          gh api \
+            --paginate \
+            --slurp \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "repos/${GITHUB_REPOSITORY}/actions/workflows/ci.yml/runs?head_sha=${RELEASE_SHA}&branch=main&per_page=100" \
+            > "$context/ci-runs.json"
 
-      - name: Attest the release receipt
+      - name: Select and fetch the trusted CI jobs independently
+        id: ci_run
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_SHA: ${{ needs.prepare.outputs.release_sha }}
+        run: |
+          set -euo pipefail
+          context="$RUNNER_TEMP/release-context"
+          run_id="$(node <<'NODE'
+          const fs = require("node:fs");
+          const pages = JSON.parse(fs.readFileSync(`${process.env.RUNNER_TEMP}/release-context/ci-runs.json`, "utf8"));
+          const runs = (Array.isArray(pages) ? pages : [pages]).flatMap((page) =>
+            Array.isArray(page?.workflow_runs) ? page.workflow_runs : []
+          );
+          const eligible = runs.filter(
+            (run) =>
+              run?.head_sha === process.env.RELEASE_SHA &&
+              run?.head_branch === "main" &&
+              (run?.event === "push" || run?.event === "workflow_dispatch") &&
+              run?.status === "completed" &&
+              run?.conclusion === "success" &&
+              run?.head_repository?.full_name === process.env.GITHUB_REPOSITORY
+          );
+          eligible.sort((left, right) => Date.parse(right.updated_at) - Date.parse(left.updated_at));
+          if (eligible.length === 0) throw new Error(`No trusted successful CI run for ${process.env.RELEASE_SHA}`);
+          process.stdout.write(String(eligible[0].id));
+          NODE
+          )"
+          gh api \
+            --paginate \
+            --slurp \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "repos/${GITHUB_REPOSITORY}/actions/runs/${run_id}/jobs?per_page=100" \
+            > "$context/ci-jobs.json"
+          echo "run_id=${run_id}" >> "$GITHUB_OUTPUT"
+
+      - name: Validate downloaded release receipt as hostile data
+        id: validate
+        env:
+          ARTIFACT_ID: ${{ needs.prepare.outputs.receipt_artifact_id }}
+          ARTIFACT_DIGEST: ${{ needs.prepare.outputs.receipt_artifact_digest }}
+          RELEASE_SHA: ${{ needs.prepare.outputs.release_sha }}
+          REQUESTED_SHA: ${{ github.event.inputs.commit }}
+          RELEASE_VERSION: ${{ needs.prepare.outputs.release_version }}
+          RELEASE_TAG: ${{ needs.prepare.outputs.release_tag }}
+        run: |
+          set -euo pipefail
+          node <<'NODE'
+          const fs = require("node:fs");
+          const path = require("node:path");
+          const { createHash } = require("node:crypto");
+
+          const fail = (message) => {
+            console.error(`::error title=Release refused::${message}`);
+            process.exit(1);
+          };
+          const sha256 = (value) => createHash("sha256").update(value).digest("hex");
+          const json = (name) =>
+            JSON.parse(fs.readFileSync(path.join(process.env.RUNNER_TEMP, "release-context", name), "utf8"));
+          const content = (repositoryPath) => {
+            const safe = repositoryPath.replace(/[/.]/g, "_");
+            const response = json(`content-${safe}.json`);
+            if (response?.type !== "file" || response?.encoding !== "base64" || typeof response?.content !== "string") {
+              fail(`Could not read ${repositoryPath} at the release SHA.`);
+            }
+            return Buffer.from(response.content.replace(/\s/g, ""), "base64");
+          };
+          const exactKeys = (value, expected, label) => {
+            if (!value || typeof value !== "object" || Array.isArray(value)) fail(`${label} must be an object.`);
+            const actual = Object.keys(value).sort();
+            const wanted = [...expected].sort();
+            if (JSON.stringify(actual) !== JSON.stringify(wanted)) fail(`${label} has an unexpected key set.`);
+          };
+
+          // Compare against the operator's own input so this job confirms the
+          // resolution independently rather than trusting the previous job.
+          // Surrounding whitespace is stripped exactly as the resolver strips
+          // it; anything else must match character for character.
+          const requestedSha = String(process.env.REQUESTED_SHA ?? "").replace(/\s/g, "");
+          if (!/^[0-9a-f]{40}$/.test(process.env.RELEASE_SHA) || requestedSha !== process.env.RELEASE_SHA) {
+            fail("The resolved release SHA does not exactly match the dispatch input.");
+          }
+          if (!/^0\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/.test(process.env.RELEASE_VERSION)) {
+            fail("The release version is not one bounded pre-1.0 semantic version.");
+          }
+          if (process.env.RELEASE_TAG !== `v${process.env.RELEASE_VERSION}`) fail("The release tag is inconsistent.");
+          if (!/^\d+$/.test(process.env.ARTIFACT_ID)) fail("The receipt artifact ID is malformed.");
+
+          const receiptDir = path.join(process.env.RUNNER_TEMP, "release-receipt");
+          const entries = fs.readdirSync(receiptDir, { withFileTypes: true });
+          const expectedName = `site-behavior-lab-release-${process.env.GITHUB_RUN_ID}-${process.env.GITHUB_RUN_ATTEMPT}.json`;
+          if (entries.length !== 1 || entries[0].name !== expectedName || !entries[0].isFile()) {
+            fail("The handoff must contain exactly the expected regular receipt file.");
+          }
+          const receiptPath = path.join(receiptDir, expectedName);
+          const info = fs.lstatSync(receiptPath);
+          if (!info.isFile() || info.isSymbolicLink() || info.size <= 0 || info.size > 8 * 1024 * 1024) {
+            fail("The receipt must be one non-empty regular JSON file no larger than 8 MiB.");
+          }
+          const bytes = fs.readFileSync(receiptPath);
+          let text;
+          try {
+            text = new TextDecoder("utf-8", { fatal: true }).decode(bytes);
+          } catch {
+            fail("The receipt is not valid UTF-8.");
+          }
+          let receipt;
+          try {
+            receipt = JSON.parse(text);
+          } catch {
+            fail("The receipt is not valid JSON.");
+          }
+          if (`${JSON.stringify(receipt, null, 2)}\n` !== text) fail("The receipt is not canonical JSON.");
+
+          const artifact = json("artifact.json");
+          const artifactDigest = String(process.env.ARTIFACT_DIGEST).replace(/^sha256:/, "");
+          const apiDigest = String(artifact?.digest ?? "").replace(/^sha256:/, "");
+          if (
+            String(artifact?.id) !== process.env.ARTIFACT_ID ||
+            artifact?.name !== expectedName ||
+            artifact?.expired !== false ||
+            !Number.isSafeInteger(artifact?.size_in_bytes) ||
+            artifact.size_in_bytes <= 0 ||
+            artifact.size_in_bytes > 8 * 1024 * 1024 ||
+            artifactDigest !== apiDigest ||
+            !/^[0-9a-f]{64}$/.test(apiDigest) ||
+            String(artifact?.workflow_run?.id) !== process.env.GITHUB_RUN_ID ||
+            artifact?.workflow_run?.head_sha !== process.env.GITHUB_SHA
+          ) {
+            fail("The immutable artifact metadata does not identify this workflow handoff.");
+          }
+
+          exactKeys(receipt, ["schemaVersion", "evidenceKind", "release", "source", "inputs", "artifacts"], "receipt");
+          if (
+            receipt.schemaVersion !== 1 ||
+            receipt.evidenceKind !== "exact-source-and-tested-artifact-manifest"
+          ) {
+            fail("The receipt schema or evidence kind is unsupported.");
+          }
+          const expectedRepository = `https://github.com/${process.env.GITHUB_REPOSITORY}`;
+          if (
+            receipt.source?.repository !== expectedRepository ||
+            receipt.source?.commit !== process.env.RELEASE_SHA ||
+            receipt.release?.repository !== expectedRepository ||
+            receipt.release?.status !== "released" ||
+            receipt.release?.version !== process.env.RELEASE_VERSION ||
+            receipt.release?.tag !== process.env.RELEASE_TAG ||
+            receipt.release?.stablePublicApi !== false ||
+            receipt.release?.npmPublication !== "disabled" ||
+            receipt.release?.tagExists !== false ||
+            receipt.release?.evidencesReleaseCommit !== false
+          ) {
+            fail("The receipt release or source identity is inconsistent.");
+          }
+
+          const commit = json("commit.json");
+          if (
+            commit?.sha !== process.env.RELEASE_SHA ||
+            !/^[0-9a-f]{40}$/.test(commit?.tree?.sha ?? "") ||
+            receipt.source?.tree !== commit.tree.sha ||
+            receipt.artifacts?.[0]?.deployment?.revisionCommittedAt !== commit?.committer?.date
+          ) {
+            fail("The receipt does not match the GitHub commit object.");
+          }
+          for (const branch of ["main", "production"]) {
+            const comparison = json(`${branch}.json`);
+            if (
+              comparison?.base_commit?.sha !== process.env.RELEASE_SHA ||
+              !["ahead", "identical"].includes(comparison?.status)
+            ) {
+              fail(`The release SHA is no longer reachable from ${branch}.`);
+            }
+          }
+
+          const policyBytes = content("release-policy.json");
+          const policy = JSON.parse(policyBytes.toString("utf8"));
+          if (
+            policy?.schemaVersion !== 2 ||
+            policy?.status !== "released" ||
+            policy?.version !== process.env.RELEASE_VERSION ||
+            policy?.releaseTag !== process.env.RELEASE_TAG ||
+            !/^\d{4}-\d{2}-\d{2}$/.test(policy?.releaseDate ?? "") ||
+            policy?.stablePublicApi !== false ||
+            policy?.npmPublication !== "disabled"
+          ) {
+            fail("The exact release policy does not permit this tag.");
+          }
+          const packageManifest = JSON.parse(content("package.json").toString("utf8"));
+          const packageLock = JSON.parse(content("package-lock.json").toString("utf8"));
+          if (
+            packageManifest?.private !== true ||
+            packageManifest?.version !== process.env.RELEASE_VERSION ||
+            packageLock?.version !== process.env.RELEASE_VERSION ||
+            packageLock?.packages?.[""]?.version !== process.env.RELEASE_VERSION ||
+            receipt.source?.requiredNode !== packageManifest?.engines?.node ||
+            receipt.source?.requiredNpm !== packageManifest?.engines?.npm ||
+            receipt.release?.requiredNode !== packageManifest?.engines?.node ||
+            receipt.release?.requiredNpm !== packageManifest?.engines?.npm
+          ) {
+            fail("Package, lockfile, toolchain, and receipt metadata are not synchronized.");
+          }
+          const escapeRegex = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+          const versionPattern = escapeRegex(process.env.RELEASE_VERSION);
+          const datePattern = escapeRegex(policy.releaseDate);
+          const citation = content("CITATION.cff").toString("utf8");
+          const changelog = content("CHANGELOG.md").toString("utf8");
+          const citationVersions = citation.match(new RegExp(`^version:\\s*["']?${versionPattern}["']?\\s*$`, "gm")) ?? [];
+          const citationDates = citation.match(new RegExp(`^date-released:\\s*["']?${datePattern}["']?\\s*$`, "gm")) ?? [];
+          const releaseSections =
+            changelog.match(new RegExp(`^## \\[${versionPattern}\\] - ${datePattern}\\s*$`, "gm")) ?? [];
+          if (
+            citationVersions.length !== 1 ||
+            citationDates.length !== 1 ||
+            releaseSections.length !== 1 ||
+            !/^## Unreleased\s*$/m.test(changelog)
+          ) {
+            fail("Citation and changelog metadata do not identify exactly this release.");
+          }
+
+          const required = JSON.parse(content(".github/required-ci-jobs.json").toString("utf8"));
+          if (
+            required?.schemaVersion !== 1 ||
+            !Array.isArray(required?.jobs) ||
+            required.jobs.length === 0 ||
+            required.jobs.some((name) => typeof name !== "string" || name.trim() === "") ||
+            new Set(required.jobs).size !== required.jobs.length
+          ) {
+            fail("The exact required-CI-job contract is malformed.");
+          }
+          const jobPages = json("ci-jobs.json");
+          const jobs = (Array.isArray(jobPages) ? jobPages : [jobPages]).flatMap((page) =>
+            Array.isArray(page?.jobs) ? page.jobs : []
+          );
+          for (const name of required.jobs) {
+            const matches = jobs.filter((job) => job?.name === name);
+            if (matches.length !== 1 || matches[0]?.conclusion !== "success") {
+              fail(`${name} did not run exactly once and conclude success.`);
+            }
+          }
+
+          const expectedInputs = {
+            packageLock: "package-lock.json",
+            dockerfile: "Dockerfile",
+            productionContainerConfig: "wrangler.container.jsonc",
+            releasePolicy: "release-policy.json"
+          };
+          exactKeys(receipt.inputs, Object.keys(expectedInputs), "receipt inputs");
+          for (const [key, repositoryPath] of Object.entries(expectedInputs)) {
+            const input = receipt.inputs[key];
+            const sourceBytes = content(repositoryPath);
+            if (
+              input?.path !== repositoryPath ||
+              input?.bytes !== sourceBytes.length ||
+              input?.sha256 !== sha256(sourceBytes)
+            ) {
+              fail(`The receipt input ${repositoryPath} does not match the exact source.`);
+            }
+          }
+
+          if (!Array.isArray(receipt.artifacts) || receipt.artifacts.length !== 1) {
+            fail("The release receipt must describe exactly one static artifact.");
+          }
+          const staticArtifact = receipt.artifacts[0];
+          exactKeys(
+            staticArtifact,
+            ["name", "kind", "path", "deployment", "digestAlgorithm", "manifestSha256", "fileCount", "bytes", "files"],
+            "static artifact"
+          );
+          if (
+            staticArtifact.name !== "static-pages" ||
+            staticArtifact.kind !== "directory-manifest" ||
+            staticArtifact.path !== "out" ||
+            staticArtifact.digestAlgorithm !== "sha256" ||
+            staticArtifact.deployment?.schemaVersion !== 1 ||
+            staticArtifact.deployment?.deployment !== process.env.RELEASE_SHA ||
+            !Array.isArray(staticArtifact.files) ||
+            staticArtifact.files.length === 0
+          ) {
+            fail("The static artifact contract is malformed.");
+          }
+          let totalBytes = 0;
+          let prior = "";
+          const paths = new Set();
+          for (const file of staticArtifact.files) {
+            exactKeys(file, ["path", "bytes", "sha256"], "static artifact file");
+            if (
+              typeof file.path !== "string" ||
+              file.path === "" ||
+              file.path.startsWith("/") ||
+              file.path.includes("\\") ||
+              file.path.split("/").some((part) => part === "" || part === "." || part === "..") ||
+              (prior && prior >= file.path) ||
+              paths.has(file.path) ||
+              !Number.isSafeInteger(file.bytes) ||
+              file.bytes < 0 ||
+              !/^[0-9a-f]{64}$/.test(file.sha256)
+            ) {
+              fail("The static artifact file manifest is not sorted, unique, bounded, and canonical.");
+            }
+            prior = file.path;
+            paths.add(file.path);
+            totalBytes += file.bytes;
+            if (!Number.isSafeInteger(totalBytes)) fail("The static artifact byte count overflowed.");
+          }
+          if (
+            staticArtifact.fileCount !== staticArtifact.files.length ||
+            staticArtifact.bytes !== totalBytes ||
+            staticArtifact.manifestSha256 !== sha256(JSON.stringify(staticArtifact.files))
+          ) {
+            fail("The static artifact manifest totals or digest are inconsistent.");
+          }
+
+          const receiptSha256 = sha256(bytes);
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `receipt_sha256=${receiptSha256}\n`);
+          console.log(`Validated isolated release receipt sha256:${receiptSha256}.`);
+          NODE
+
+      - name: Attest the validated release receipt
         id: attest_release
         uses: actions/attest@f7c74d28b9d84cb8768d0b8ca14a4bac6ef463e6 # v4.2.0
         with:
-          subject-path: ${{ runner.temp }}/site-behavior-lab-${{ github.event.inputs.version }}-release-evidence.json
+          subject-path: ${{ runner.temp }}/release-receipt/site-behavior-lab-release-${{ github.run_id }}-${{ github.run_attempt }}.json
 
-      - name: Preserve the release receipt
+      - name: Require the attestation result
+        env:
+          ATTESTATION_ID: ${{ steps.attest_release.outputs.attestation-id }}
+          ATTESTATION_URL: ${{ steps.attest_release.outputs.attestation-url }}
+          BUNDLE_PATH: ${{ steps.attest_release.outputs.bundle-path }}
+        run: |
+          set -euo pipefail
+          test -n "$ATTESTATION_ID"
+          test -n "$ATTESTATION_URL"
+          test -s "$BUNDLE_PATH"
+
+      - name: Preserve the validated release receipt
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: site-behavior-lab-release-${{ github.event.inputs.version }}
-          path: ${{ runner.temp }}/site-behavior-lab-${{ github.event.inputs.version }}-release-evidence.json
+          name: site-behavior-lab-release-${{ needs.prepare.outputs.release_version }}
+          path: ${{ runner.temp }}/release-receipt/site-behavior-lab-release-${{ github.run_id }}-${{ github.run_attempt }}.json
           if-no-files-found: error
           retention-days: 90
 
-      - name: Create the annotated release tag
+  # This final fresh runner has repository-write authority only. It receives no
+  # candidate checkout, dependency, OIDC token, or attestation permission.
+  tag:
+    name: Atomically publish the attested release tag
+    needs:
+      - prepare
+      - attest
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Recheck branch reachability immediately before publication
         env:
-          TAG: v${{ github.event.inputs.version }}
-          BUNDLE: ${{ steps.attest_release.outputs.attestation-url }}
-          RECEIPT_SHA256: ${{ steps.receipt.outputs.sha256 }}
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_SHA: ${{ needs.prepare.outputs.release_sha }}
         run: |
           set -euo pipefail
-          git config user.name "iAnonymous3000"
-          git config user.email "32236127+iAnonymous3000@users.noreply.github.com"
-          git tag -a "$TAG" "$RELEASE_SHA" -m "$(printf '%s\n\n%s\n%s\n%s\n' \
-            "Site Behavior Lab ${TAG}" \
-            "Pre-1.0 milestone. No stable public API and no npm publication." \
-            "Attested exact-source release receipt: ${BUNDLE}" \
-            "Release receipt sha256: ${RECEIPT_SHA256}")"
-          git push origin "refs/tags/${TAG}"
-          echo "Tagged ${TAG} at ${RELEASE_SHA}."
+          context="$RUNNER_TEMP/tag-context"
+          install -d -m 700 "$context"
+          gh api "repos/${GITHUB_REPOSITORY}/compare/${RELEASE_SHA}...main" > "$context/main.json"
+          gh api "repos/${GITHUB_REPOSITORY}/compare/${RELEASE_SHA}...production" > "$context/production.json"
+          node <<'NODE'
+          const fs = require("node:fs");
+          for (const branch of ["main", "production"]) {
+            const comparison = JSON.parse(
+              fs.readFileSync(`${process.env.RUNNER_TEMP}/tag-context/${branch}.json`, "utf8")
+            );
+            if (
+              comparison?.base_commit?.sha !== process.env.RELEASE_SHA ||
+              !["ahead", "identical"].includes(comparison?.status)
+            ) {
+              throw new Error(`Release SHA ${process.env.RELEASE_SHA} is no longer reachable from ${branch}.`);
+            }
+          }
+          NODE
+
+      - name: Create the annotated release tag atomically through the Git database API
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_SHA: ${{ needs.prepare.outputs.release_sha }}
+          RELEASE_TAG: ${{ needs.prepare.outputs.release_tag }}
+          ATTESTATION_URL: ${{ needs.attest.outputs.attestation_url }}
+          RECEIPT_SHA256: ${{ needs.attest.outputs.receipt_sha256 }}
+        run: |
+          set -euo pipefail
+          node <<'NODE'
+          const fs = require("node:fs");
+          const path = require("node:path");
+          const fail = (message) => {
+            console.error(`::error title=Release refused::${message}`);
+            process.exit(1);
+          };
+          if (!/^[0-9a-f]{40}$/.test(process.env.RELEASE_SHA)) fail("Release SHA is malformed.");
+          if (!/^v0\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/.test(process.env.RELEASE_TAG)) {
+            fail("Release tag is malformed.");
+          }
+          if (!/^[0-9a-f]{64}$/.test(process.env.RECEIPT_SHA256)) fail("Receipt digest is malformed.");
+          const expectedPrefix = `https://github.com/${process.env.GITHUB_REPOSITORY}/attestations/`;
+          if (
+            !process.env.ATTESTATION_URL.startsWith(expectedPrefix) ||
+            !/^\d+$/.test(process.env.ATTESTATION_URL.slice(expectedPrefix.length))
+          ) {
+            fail("Attestation URL is not repository-bound.");
+          }
+          const message = [
+            `Site Behavior Lab ${process.env.RELEASE_TAG}`,
+            "",
+            "Pre-1.0 milestone. No stable public API and no npm publication.",
+            `Attested exact-source release receipt: ${process.env.ATTESTATION_URL}`,
+            `Release receipt sha256: ${process.env.RECEIPT_SHA256}`
+          ].join("\n");
+          fs.writeFileSync(
+            path.join(process.env.RUNNER_TEMP, "tag-object.json"),
+            JSON.stringify({
+              tag: process.env.RELEASE_TAG,
+              message,
+              object: process.env.RELEASE_SHA,
+              type: "commit"
+            })
+          );
+          NODE
+          tag_object_sha="$(
+            gh api \
+              --method POST \
+              "repos/${GITHUB_REPOSITORY}/git/tags" \
+              --input "$RUNNER_TEMP/tag-object.json" \
+              --jq '.sha'
+          )"
+          TAG_OBJECT_SHA="$tag_object_sha" node <<'NODE'
+          const fs = require("node:fs");
+          const path = require("node:path");
+          if (!/^[0-9a-f]{40}$/.test(process.env.TAG_OBJECT_SHA)) {
+            throw new Error("GitHub did not return an annotated tag-object SHA.");
+          }
+          fs.writeFileSync(
+            path.join(process.env.RUNNER_TEMP, "tag-ref.json"),
+            JSON.stringify({
+              ref: `refs/tags/${process.env.RELEASE_TAG}`,
+              sha: process.env.TAG_OBJECT_SHA
+            })
+          );
+          NODE
+          # POST is atomic and fails if the ref already exists. Never PATCH,
+          # force-update, delete, or move a release tag.
+          gh api \
+            --method POST \
+            "repos/${GITHUB_REPOSITORY}/git/refs" \
+            --input "$RUNNER_TEMP/tag-ref.json" \
+            > "$RUNNER_TEMP/created-tag-ref.json"
+          echo "Tagged ${RELEASE_TAG} at ${RELEASE_SHA}."
 
       - name: Record the release in the run summary
         env:
-          TAG: v${{ github.event.inputs.version }}
-          BUNDLE: ${{ steps.attest_release.outputs.attestation-url }}
-          RECEIPT_SHA256: ${{ steps.receipt.outputs.sha256 }}
+          RELEASE_SHA: ${{ needs.prepare.outputs.release_sha }}
+          RELEASE_TAG: ${{ needs.prepare.outputs.release_tag }}
+          RELEASE_DECLARING_SHA: ${{ needs.prepare.outputs.release_declaring_sha }}
+          RELEASE_COMMITS_AFTER_DECLARATION: ${{ needs.prepare.outputs.release_commits_after_declaration }}
+          ATTESTATION_URL: ${{ needs.attest.outputs.attestation_url }}
+          RECEIPT_SHA256: ${{ needs.attest.outputs.receipt_sha256 }}
         run: |
           {
-            echo "- Tag: \`${TAG}\` at \`${RELEASE_SHA}\`"
+            echo "- Tag: \`${RELEASE_TAG}\` at \`${RELEASE_SHA}\`"
             echo "- Version declared at \`${RELEASE_DECLARING_SHA}\` (${RELEASE_COMMITS_AFTER_DECLARATION} later commit(s) included)"
             echo "- Promoted to production and CI-green before tagging"
-            echo "- Attested release receipt: ${BUNDLE}"
+            echo "- Attested release receipt: ${ATTESTATION_URL}"
             echo "- Release receipt sha256: \`${RECEIPT_SHA256}\`"
             echo "- Claims: pre-1.0 milestone only; no stable public API, no npm publication"
           } >> "$GITHUB_STEP_SUMMARY"
