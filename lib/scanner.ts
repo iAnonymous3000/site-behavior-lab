@@ -1834,10 +1834,27 @@ export async function scanSiteWithMeasurement(
       : [];
     if (!cnameBudgetAvailable) {
       measurementKernel.setDetector("cname-uncloaking", "skipped", { reason: "budget-unavailable" });
+      // Quality is derived from capture loss, not from detector status, so a
+      // detector that did not run must censor its evidence family too or the
+      // run publishes "complete" over evidence nobody collected.
+      measurementKernel.recordCaptureLoss({
+        family: "detector-output",
+        phaseId: stateSnapshotPhaseId,
+        kind: "cap",
+        count: 1,
+        detail: "cname-lookups"
+      });
     } else if (cnameProbeFailed) {
       measurementKernel.setDetector("cname-uncloaking", "failed", {
         reason: "scan-failed",
         phaseId: stateSnapshotPhaseId
+      });
+      measurementKernel.recordCaptureLoss({
+        family: "detector-output",
+        phaseId: stateSnapshotPhaseId,
+        kind: "dropped",
+        count: 1,
+        detail: "cname-lookups"
       });
     } else {
       measurementKernel.setDetector("cname-uncloaking", "complete", { phaseId: stateSnapshotPhaseId });
@@ -3205,8 +3222,15 @@ async function resolveCnameChainViaDns(host: string): Promise<string[]> {
     let records: string[];
     try {
       records = await withDnsTimeout(dnsPromises.resolveCname(current));
-    } catch {
-      break; // No CNAME (reached the A record), NXDOMAIN, or timeout.
+    } catch (error) {
+      // ENODATA is the authoritative answer "this name exists and has no
+      // CNAME", which ends the chain cleanly. Everything else, NXDOMAIN,
+      // SERVFAIL, REFUSED, and this module's own lookup timeout, means the
+      // detector could not observe. Collapsing those into an empty chain let a
+      // detector that never resolved anything publish as complete evidence,
+      // so they propagate and the caller records the loss.
+      if ((error as NodeJS.ErrnoException | undefined)?.code === "ENODATA") break;
+      throw error;
     }
     const next = records[0];
     if (!next) break;

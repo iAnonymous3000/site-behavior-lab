@@ -530,11 +530,22 @@ jobs:
           }
 
           const commit = json("commit.json");
+          // Compare the instant, not its spelling. The receipt normalizes the
+          // committer date through Date#toISOString (always milliseconds and a
+          // Z offset) while the API renders the same instant without
+          // milliseconds, so a string equality here never held and no release
+          // could ever be cut. It failed closed, which is why it went unnoticed.
+          const commitCommittedAt = Date.parse(commit?.committer?.date ?? "");
+          const receiptCommittedAt = Date.parse(
+            receipt.artifacts?.[0]?.deployment?.revisionCommittedAt ?? ""
+          );
           if (
             commit?.sha !== process.env.RELEASE_SHA ||
             !/^[0-9a-f]{40}$/.test(commit?.tree?.sha ?? "") ||
             receipt.source?.tree !== commit.tree.sha ||
-            receipt.artifacts?.[0]?.deployment?.revisionCommittedAt !== commit?.committer?.date
+            !Number.isFinite(commitCommittedAt) ||
+            !Number.isFinite(receiptCommittedAt) ||
+            commitCommittedAt !== receiptCommittedAt
           ) {
             fail("The receipt does not match the GitHub commit object.");
           }

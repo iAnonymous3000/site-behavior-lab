@@ -1396,6 +1396,17 @@ test("scanSite stages live phase-aware readbacks while returning only v1", { tim
       reason: "scan-failed",
       phaseId: 0
     });
+    // A failed detector must also censor its evidence family. Run quality is
+    // derived from capture loss, not from detector status, so recording only
+    // the status let a detector that never resolved anything be published, and
+    // rendered, as complete evidence with no hedge anywhere in the report.
+    assert.ok(
+      staged!.measurement.qualityFacts.captureLoss.some(
+        (loss) =>
+          loss.family === "detector-output" && loss.kind === "dropped" && loss.detail === "cname-lookups"
+      ),
+      "a failed CNAME probe must censor detector-output evidence"
+    );
     assert.ok(staged!.evidence.requests.length > 0);
     assert.equal(staged!.evidence.requests.every((request) => Number.isInteger(request.phaseId)), true);
     assert.equal(staged!.evidence.requests[0].phaseId, 0);

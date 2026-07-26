@@ -9,6 +9,15 @@ export const GPC_WORKER_ROUTE_FETCH_TIMEOUT_MS = 30_000;
 // subsequent userland transfer-to-string and static-parser work; the scanner's
 // enclosing process/container memory limit remains the transport-memory guard.
 export const GPC_WORKER_SCRIPT_MAX_BYTES = 8 * 1024 * 1024;
+// The byte cap bounds transfer, not the object graph the tokenizer builds from
+// it: bytes-per-token is page-controlled. Punctuation-dense source reaches 1.0
+// bytes per token, while the densest real bundles measured sit at 3.3 and above,
+// so at the byte cap a hostile script buys roughly an order of magnitude more
+// token objects than any genuine one, and it buys them synchronously inside a
+// Playwright route callback that no scan deadline can preempt. Bound the tokens
+// directly. Two million admits every real bundle measured, including a 5.9 MiB
+// minified compiler at 864k tokens.
+export const MAX_MODULE_TOKENS = 2_000_000;
 
 type WorkerConstructor = new (...args: unknown[]) => object;
 
@@ -867,6 +876,11 @@ function moduleTokens(source: string): ModuleToken[] | null {
   let canStartRegex = true;
 
   while (index < source.length) {
+    // Refusing here routes into the same fail-open path an unparsed module
+    // already takes: the site's own bytes are served unchanged, the transform
+    // failure is counted, and the run discloses the capture loss rather than
+    // silently claiming the worker carried the signal.
+    if (tokens.length >= MAX_MODULE_TOKENS) return null;
     const character = source[index];
     if (/\s/.test(character)) {
       index += 1;

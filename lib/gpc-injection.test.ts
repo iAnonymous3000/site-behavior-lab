@@ -8,6 +8,7 @@ import { gzipSync } from "node:zlib";
 import { chromium } from "playwright";
 import {
   createGpcWorkerInjectionSession,
+  MAX_MODULE_TOKENS,
   GPC_WORKER_CAPTURE_LOSS_WARNING,
   GPC_WORKER_ROUTE_FETCH_TIMEOUT_MS,
   GPC_WORKER_SCRIPT_MAX_BYTES,
@@ -883,3 +884,46 @@ function response(status: number, body: string, headers: Record<string, string>)
     status: () => status
   };
 }
+
+test("a token-dense module worker fails open instead of buying unbounded parse work", async () => {
+  // Page-controlled Worker source is tokenized synchronously inside the route
+  // callback, and no scan deadline can preempt synchronous work. The byte cap
+  // does not bound the object graph the tokenizer builds: punctuation-dense
+  // source reaches roughly one token per byte, an order of magnitude denser
+  // than any real bundle, so the token budget is what actually bounds it.
+  // Exceeding it must take the same fail-open path an unparsed module takes.
+  const session = createGpcWorkerInjectionSession({ registrationWaitMs: 0, randomBytes: FIXED_RANDOM_BYTES });
+  const frame = {};
+  const url = "https://example.test/worker.js";
+  session.register({ frame }, networkRegistration(session, url, "module"));
+
+  const hostile = ";".repeat(MAX_MODULE_TOKENS + 1);
+  const started = Date.now();
+  const fulfillment = await session.buildRouteFulfillment({
+    request: () => workerRequest(frame, url),
+    fetch: async () => response(200, hostile, {})
+  });
+  const elapsed = Date.now() - started;
+
+  // Fail open: the site's own response, unchanged, with the loss counted.
+  assert.ok(fulfillment, "an over-budget module must still be fulfilled, not dropped");
+  assert.equal(fulfillment?.body, undefined);
+  assert.equal(session.diagnostics().transformFailureCount, 1);
+  assert.ok(elapsed < 5_000, `refusing an over-budget module must be cheap, took ${elapsed}ms`);
+});
+
+test("a real module under the token budget still has its specifiers rewritten", async () => {
+  // The budget must not refuse genuine work.
+  const session = createGpcWorkerInjectionSession({ registrationWaitMs: 0, randomBytes: FIXED_RANDOM_BYTES });
+  const frame = {};
+  const url = "https://example.test/real.js";
+  session.register({ frame }, networkRegistration(session, url, "module"));
+
+  const fulfillment = await session.buildRouteFulfillment({
+    request: () => workerRequest(frame, url),
+    fetch: async () => response(200, 'import helper from "./helper.js";\nexport const ready = helper;\n', {})
+  });
+
+  assert.ok(fulfillment?.body?.includes("installGlobalPrivacyControl"));
+  assert.equal(session.diagnostics().transformFailureCount, 0);
+});
