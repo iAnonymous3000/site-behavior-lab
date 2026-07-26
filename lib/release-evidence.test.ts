@@ -724,6 +724,12 @@ test("the release workflow tags only a promoted, CI-green revision and attests i
   assert.match(tag, /ACTOR: \$\{\{ github\.actor \}\}/);
   assert.match(tag, /TRIGGERING_ACTOR: \$\{\{ github\.triggering_actor \}\}/);
   assert.match(tag, /is not an approved release author/);
+  // Trim per entry, never across the whole list: deleting all whitespace after
+  // splitting on commas also deletes the separators, collapsing a two-name
+  // allowlist into one name that matches nobody. It fails closed, so it would
+  // refuse every release the moment a second approver is added.
+  assert.doesNotMatch(tag, /tr ',' '\\n' \| tr -d/);
+  assert.match(tag, /tr ',' '\\n'\)"/);
   assert.ok(
     tag.indexOf("Require an approved release author") < tag.indexOf("git/refs"),
     "authorization must be checked before any ref is created"

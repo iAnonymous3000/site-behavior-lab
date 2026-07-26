@@ -793,10 +793,17 @@ jobs:
         run: |
           set -euo pipefail
           approved=0
+          # Split on commas only. Trimming has to happen per entry: deleting all
+          # whitespace from the whole list would also delete the separators the
+          # split just produced, collapsing "alice,bob" into one "alicebob" that
+          # matches nobody. That fails closed, but it would silently refuse
+          # every release the moment a second approver is added.
           while IFS= read -r candidate; do
+            candidate="${candidate#"${candidate%%[![:space:]]*}"}"
+            candidate="${candidate%"${candidate##*[![:space:]]}"}"
             [[ -z "$candidate" ]] && continue
             if [[ "$candidate" == "$ACTOR" && "$candidate" == "$TRIGGERING_ACTOR" ]]; then approved=1; fi
-          done <<< "$(printf '%s' "$APPROVED_RELEASE_ACTORS" | tr ',' '\n' | tr -d '[:space:]')"
+          done <<< "$(printf '%s' "$APPROVED_RELEASE_ACTORS" | tr ',' '\n')"
           if [[ "$approved" -ne 1 ]]; then
             echo "::error title=Release refused::${ACTOR}/${TRIGGERING_ACTOR} is not an approved release author."
             exit 1

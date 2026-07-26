@@ -231,6 +231,43 @@ acceptance, rollback, credential ownership/rotation, and every feature-specific
 staging canary. Feature flags must stay disabled until their own runbooks say
 otherwise.
 
+## Security review of the release path (2026-07-26)
+
+An adversarial review of the release-path changes at `0e502f8`, run under the
+strongest realistic threat model: an attacker who has fully compromised the
+`prepare` job through a malicious dependency or malicious candidate code, and
+who therefore controls the receipt bytes, every byte and file name of the built
+`out/` tree, and both artifact uploads. The goal set for the attacker was to
+obtain an attestation over a receipt that does not describe the real build, or a
+tag over an unverified revision.
+
+Three lenses were exercised: hostile-byte handling in the privileged verifier,
+shell and expression injection across both changed workflows, and authorization
+and privilege isolation. Six candidate findings were raised and all six were
+refuted against the code. No trust-boundary regression was found.
+
+Attacks specifically tried and closed, each by a named guard: path traversal and
+`..` components out of the walk root; symlinks, FIFOs, sockets and other
+non-regular entries; extra, missing, duplicated and lossily-decoded file names;
+producer/verifier serialization divergence (executed over the real 3153-file
+tree, including hidden entries); receipt key-order, duplicate-key and
+numeric-format games; artifact substitution across runs or attempts; command
+substitution and option smuggling through the corrections baseline; and
+attacker-supplied baselines on `workflow_dispatch`.
+
+Two limits are deliberate and documented rather than fixed. Resource exhaustion
+through a single very large file fails the release rather than being rejected
+early, which is a denial of service a compromised `prepare` already has by
+exiting non-zero, and is not a signing bypass. And the receipt binds to the tree
+the release job rebuilt, not to the bytes Cloudflare serves; the deployed SHA is
+proven separately by the production-health monitor.
+
+One real defect surfaced during the review and was fixed: the approved-actor
+allowlist trimmed whitespace across the whole list after splitting on commas,
+which also deleted the separators and collapsed a multi-name list into a single
+name matching nobody. It failed closed, so it was never exploitable, but it
+would have refused every release as soon as a second approver was added.
+
 ## External control snapshot (2026-07-21)
 
 This dated operator snapshot records what was verified; it is not evidence for
