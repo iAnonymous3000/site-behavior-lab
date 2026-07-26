@@ -45,7 +45,7 @@ import {
   CONSENT_RELOAD_DISCLOSURE,
   consentVerificationEnabled,
   onetrustObservedState,
-  ONETRUST_CONSENT_COOKIE,
+  applicableOneTrustConsentCookie,
   ONETRUST_COOKIE_METHOD,
   readTcfApiState,
   TCF_API_METHOD,
@@ -971,15 +971,16 @@ export async function scanSiteWithMeasurement(
 
       let onetrustCookie: string | null | undefined;
       try {
-        const currentHostname = safeParseUrl(page.url())?.hostname ?? targetUrl.hostname;
-        const contextCookies = await withScanTimeout(context!.cookies(), started);
-        // Only the scanned site's own cookie may speak for its registration:
-        // an embedded vendor's OptanonConsent reflects the vendor, not the site.
-        const match = contextCookies.find(
-          (cookie) =>
-            cookie.name === ONETRUST_CONSENT_COOKIE && !isThirdParty(currentHostname, cookie.domain.replace(/^\./, ""))
-        );
-        onetrustCookie = match?.value ?? null;
+        const currentUrl = page.url();
+        const currentHostname = safeParseUrl(currentUrl)?.hostname ?? targetUrl.hostname;
+        // Ask for the cookies that APPLY to this exact page rather than every
+        // cookie in the context: host, path, secure, and host-only scoping all
+        // decide whether the site can actually see a value, and re-deriving
+        // that here would be a second, worse implementation of cookie matching.
+        // A cookie set for another host or another path of the same
+        // registrable domain does not speak for this page's registration.
+        const contextCookies = await withScanTimeout(context!.cookies(currentUrl), started);
+        onetrustCookie = applicableOneTrustConsentCookie(contextCookies, currentHostname, isThirdParty);
       } catch (error) {
         throwIfScanAborted(options.signal);
         onetrustCookie = undefined;

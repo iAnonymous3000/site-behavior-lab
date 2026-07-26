@@ -6,7 +6,9 @@ import {
   installConsentShadowRootCapture
 } from "./consent-interaction";
 import {
+  ONETRUST_CONSENT_COOKIE,
   TCF_API_METHOD,
+  applicableOneTrustConsentCookie,
   consentVerificationEnabled,
   onetrustObservedState,
   readTcfApiState,
@@ -440,4 +442,46 @@ test("onetrustObservedState refuses unparseable state instead of guessing", () =
   assert.deepEqual(onetrustObservedState("groups=C0001:1,C0001:1"), { parsed: false });
   assert.deepEqual(onetrustObservedState("groups=C0001:1,C0001:0"), { parsed: false });
   assert.deepEqual(onetrustObservedState("%E0%A4%A"), { parsed: false });
+});
+
+test("a OneTrust cookie speaks for the page only when exactly one applies to it", () => {
+  // The caller passes cookies the browser already scoped to the current URL,
+  // so these cases are about ownership and ambiguity, not path matching.
+  const thirdParty = (hostname: string, candidate: string) =>
+    hostname.split(".").slice(-2).join(".") !== candidate.split(".").slice(-2).join(".");
+  const cookie = (value: string, domain: string) => ({ name: ONETRUST_CONSENT_COOKIE, value, domain });
+
+  assert.equal(
+    applicableOneTrustConsentCookie([cookie("groups=C0001:1", "shop.example.com")], "shop.example.com", thirdParty),
+    "groups=C0001:1"
+  );
+  // A leading dot is the domain-cookie spelling of the same site.
+  assert.equal(
+    applicableOneTrustConsentCookie([cookie("groups=C0001:1", ".example.com")], "shop.example.com", thirdParty),
+    "groups=C0001:1"
+  );
+
+  // An embedded vendor's own registration is not the site's.
+  assert.equal(
+    applicableOneTrustConsentCookie([cookie("groups=C0004:1", "cmp.vendor-cmp.test")], "shop.example.com", thirdParty),
+    null
+  );
+  // Nothing to read is not a registration either.
+  assert.equal(applicableOneTrustConsentCookie([], "shop.example.com", thirdParty), null);
+  assert.equal(
+    applicableOneTrustConsentCookie([{ name: "other", value: "x", domain: "shop.example.com" }], "shop.example.com", thirdParty),
+    null
+  );
+
+  // Both of these are sent on the same request and their order is not a
+  // contract: answering with either would state a registration the site may
+  // not hold, so ambiguity must read as no answer.
+  assert.equal(
+    applicableOneTrustConsentCookie(
+      [cookie("groups=C0004:0", "shop.example.com"), cookie("groups=C0004:1", ".example.com")],
+      "shop.example.com",
+      thirdParty
+    ),
+    null
+  );
 });

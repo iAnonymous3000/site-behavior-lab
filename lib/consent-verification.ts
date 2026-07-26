@@ -25,6 +25,34 @@ export const ONETRUST_COOKIE_METHOD = "onetrust-cookie@1";
 export const ONETRUST_CONSENT_COOKIE = "OptanonConsent";
 
 /**
+ * Choose the one OneTrust cookie that speaks for the measured page, or null.
+ *
+ * Callers must pass only cookies the browser says APPLY to the current URL
+ * (Playwright's `context.cookies(url)`), so host, path, secure and host-only
+ * scoping are already decided by the engine rather than re-derived here. This
+ * adds the two rules that remain:
+ *
+ * The cookie must belong to the scanned site. An embedded vendor's
+ * OptanonConsent reflects the vendor's own registration, not the site's.
+ *
+ * Exactly one must apply. A host-only cookie and a domain cookie can both
+ * apply to the same request, and the order they are returned in is not a
+ * contract, so choosing between them would state a registration the site may
+ * not hold. Ambiguity reads as no answer, never as a guess.
+ */
+export function applicableOneTrustConsentCookie(
+  cookies: readonly { name: string; value: string; domain: string }[],
+  pageHostname: string,
+  isThirdParty: (hostname: string, candidate: string) => boolean
+): string | null {
+  const applicable = cookies.filter(
+    (cookie) =>
+      cookie.name === ONETRUST_CONSENT_COOKIE && !isThirdParty(pageHostname, cookie.domain.replace(/^\./, ""))
+  );
+  return applicable.length === 1 ? applicable[0].value : null;
+}
+
+/**
  * v1 disclosure for the flag-gated post-choice reload. Shared with the public
  * warning boundary (lib/redact-scan-report-v1.ts) so the emitted sentence and
  * the admitted vocabulary cannot drift apart.
