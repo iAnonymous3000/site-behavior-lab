@@ -56,7 +56,11 @@ COPY package.json package-lock.json ./
 RUN npm ci && npx playwright install chromium
 
 COPY . .
-RUN npm run check && npm prune --omit=dev
+# .next/cache is the build's SWC and webpack cache, not runtime state: Next
+# recreates what it needs. Left in place it crosses the stage boundary with the
+# wholesale .next copy below and ships in the runtime image, where it is by far
+# the largest thing present and is never read.
+RUN npm run check && rm -rf .next/cache && npm prune --omit=dev
 
 FROM playwright-base AS runner
 
