@@ -627,13 +627,15 @@ export async function scanSiteWithMeasurement(
   const gpcWorkerInjection = payload.gpcEnabled ? createGpcWorkerInjectionSession() : null;
   let context: BrowserContext | null = null;
   const scanProxy = await withScanTimeoutDisposing(
-    startPublicScanProxy({
-      resolveHost: options.resolvePublicHost,
-      connectUpstreamForTests: options.connectProxyUpstreamForTests,
-      transactionLimit: options.proxyTransactionLimitForTests
-    }),
+    () =>
+      startPublicScanProxy({
+        resolveHost: options.resolvePublicHost,
+        connectUpstreamForTests: options.connectProxyUpstreamForTests,
+        transactionLimit: options.proxyTransactionLimitForTests
+      }),
     started,
-    (proxy) => proxy.close()
+    (proxy) => proxy.close(),
+    options.signal
   );
   const closeOnAbort = () => {
     // Abort handlers cannot await, but closing both resources immediately
@@ -646,9 +648,10 @@ export async function scanSiteWithMeasurement(
   try {
     throwIfScanAborted(options.signal);
     context = await withScanTimeoutDisposing(
-      browser.newContext(createContextOptions(payload, scanProxy.server)),
+      () => browser.newContext(createContextOptions(payload, scanProxy.server)),
       started,
-      (created) => created.close()
+      (created) => created.close(),
+      options.signal
     );
     throwIfScanAborted(options.signal);
     await withScanTimeout(context.addInitScript(installBoundedPageCollector, boundedPageCollectorKey), started);
@@ -677,16 +680,19 @@ export async function scanSiteWithMeasurement(
       // frames. Popups and the later out-of-evidence policy page do not share
       // this page-local route transformer, so they must not create tickets in
       // the measured session.
-      await page.addInitScript(
-        installGlobalPrivacyControlWithWorkerRegistration,
-        gpcWorkerInjection.initScriptArgs
+      await withScanTimeout(
+        page.addInitScript(
+          installGlobalPrivacyControlWithWorkerRegistration,
+          gpcWorkerInjection.initScriptArgs
+        ),
+        started
       );
     }
     // Read environment metadata from the pristine about:blank page before any
     // target script can shadow Navigator getters. The configured locale is
     // producer-owned and must never be replaced with page testimony.
-    const configuredUserAgent = await page.evaluate(() => navigator.userAgent);
-    await installFingerprintObserver(page, targetUrl.hostname);
+    const configuredUserAgent = await withScanTimeout(page.evaluate(() => navigator.userAgent), started);
+    await withScanTimeout(installFingerprintObserver(page, targetUrl.hostname), started);
 
     const requestsBlockedByShields = new WeakSet<Request>();
     const requestsBlockedByGuard = new WeakSet<Request>();
@@ -3211,11 +3217,12 @@ async function withScanTimeout<T>(operation: Promise<T>, started: number): Promi
 
 /** {@link withDeadlineDisposing} bound to this scanner's absolute scan deadline. */
 async function withScanTimeoutDisposing<T>(
-  operation: Promise<T>,
+  start: () => Promise<T>,
   started: number,
-  dispose: (value: T) => Promise<unknown> | unknown
+  dispose: (value: T) => Promise<unknown> | unknown,
+  signal?: AbortSignal
 ): Promise<T> {
-  return withDeadlineDisposing(operation, started, MAX_SCAN_DURATION_MS, dispose, scanTimeoutError);
+  return withDeadlineDisposing(start, started, MAX_SCAN_DURATION_MS, dispose, scanTimeoutError, signal);
 }
 
 function scanTimeoutError(): PublicScanError {

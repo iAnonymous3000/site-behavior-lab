@@ -225,30 +225,56 @@ export async function withScanDeadline<T>(
 
 /**
  * Bound a setup step that CREATES a resource, and dispose the resource if it
- * arrives after the deadline already failed the scan.
+ * arrives after the deadline or the caller's cancellation already ended the
+ * work it belonged to.
  *
  * Racing a promise abandons the loser, it does not cancel it. A proxy server or
- * browser context that materializes a moment after the timeout would otherwise
- * stay open for the lifetime of the process, holding a port or a Chromium
- * context that nothing will ever close: the scan slot is released while the
- * resource is not. Ordinary cleanup cannot help, because it runs before the
- * value exists.
+ * browser context that materializes a moment late would otherwise stay open for
+ * the lifetime of the process, holding a port or a Chromium context that
+ * nothing will ever close, while the slot it belonged to has been released.
+ * Ordinary cleanup cannot help, because it runs before the value exists.
+ *
+ * The step is a FACTORY, not a promise: an already-expired deadline must not
+ * start creating a resource at all, and a caller that passes an eagerly
+ * constructed promise has already started it. Cancellation composes with the
+ * deadline, so aborting stops the wait and still disposes a late arrival.
  */
 export async function withDeadlineDisposing<T>(
-  operation: Promise<T>,
+  start: () => Promise<T>,
   started: number,
   maxDurationMs: number,
   dispose: (value: T) => Promise<unknown> | unknown,
-  createTimeoutError: ScanTimeoutErrorFactory = defaultScanTimeoutError
+  createTimeoutError: ScanTimeoutErrorFactory = defaultScanTimeoutError,
+  signal?: AbortSignal
 ): Promise<T> {
-  try {
-    return await withScanDeadline(operation, started, maxDurationMs, createTimeoutError);
-  } catch (error) {
+  // Throws before `start()` runs when nothing remains, so an expired deadline
+  // creates nothing to dispose.
+  scanTimeoutMs(started, maxDurationMs, maxDurationMs, Date.now(), createTimeoutError);
+  if (signal?.aborted) throw signal.reason instanceof Error ? signal.reason : createTimeoutError();
+
+  const operation = start();
+  const disposeLate = (): void => {
     void operation.then(
       (value) => Promise.resolve(dispose(value)).catch(() => undefined),
       () => undefined
     );
+  };
+
+  let onAbort: (() => void) | null = null;
+  try {
+    return await Promise.race([
+      withScanDeadline(operation, started, maxDurationMs, createTimeoutError),
+      new Promise<never>((_, reject) => {
+        if (!signal) return;
+        onAbort = () => reject(signal.reason instanceof Error ? signal.reason : createTimeoutError());
+        signal.addEventListener("abort", onAbort, { once: true });
+      })
+    ]);
+  } catch (error) {
+    disposeLate();
     throw error;
+  } finally {
+    if (onAbort && signal) signal.removeEventListener("abort", onAbort);
   }
 }
 
