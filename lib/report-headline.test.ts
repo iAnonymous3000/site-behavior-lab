@@ -774,6 +774,41 @@ test("a request-capped quiet visit is framed as cut short, never as relatively p
   assert.doesNotMatch(headline.headline, /relatively private/);
 });
 
+test("a detector loss hedges the detectors, not the request and cookie counts", () => {
+  // The real codeberg.org report: a non-profit that runs no third-party
+  // requests and sets no third-party cookies, scanned cleanly, with only the
+  // detector ledger cut short (detector-output, capture-loss:truncated).
+  //
+  // Reading ANY censored family as "the scan was cut short" told that visitor
+  // their activity counts were floors and their cookie and storage figures
+  // were "snapshots of an interrupted visit". All three were observed to
+  // completion. It also made a genuinely quiet site impossible to report as
+  // quiet, which is the outcome this scanner exists to be able to state.
+  const report = makePublicSingleReportV2R2();
+  const run = report.run;
+  run.quality.byFamily["detector-output"] = { outcome: "censored", reasons: ["capture-loss:truncated"] };
+
+  const headline = buildReportHeadline(viewFromV2(report, 2));
+
+  // The detector loss is disclosed, and absence claims over it are hedged.
+  assert.equal(headline.tone, "info");
+  assert.match(headline.subhead, /detector-output evidence was censored/);
+  assert.match(headline.subhead, /unproven here rather than shown to be absent/);
+
+  // But nothing may call the completed families interrupted.
+  assert.doesNotMatch(headline.headline, /low counts are not the full story/);
+  assert.doesNotMatch(headline.subhead, /floors for this visit/);
+  assert.doesNotMatch(headline.subhead, /snapshots of an interrupted visit/);
+  assert.match(headline.subhead, /request, cookie, and storage evidence is complete/);
+
+  // A loss in a family that DOES back the counts still hedges them.
+  const capped = makePublicSingleReportV2R2();
+  capped.run.quality.byFamily.requests = { outcome: "censored", reasons: ["capture-loss:truncated"] };
+  const cappedHeadline = buildReportHeadline(viewFromV2(capped, 2));
+  assert.match(cappedHeadline.headline, /scan was cut short, so low counts are not the full story/);
+  assert.match(cappedHeadline.subhead, /floors for this visit/);
+});
+
 test("caveat counts one visit on single reports and two on comparisons", () => {
   const single = buildReportHeadline(viewFromV1Report(makeResult({ firstPartyDomain: "solo.example" })));
   assert.match(single.caveat, /one automated visit/);

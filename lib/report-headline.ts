@@ -1,6 +1,7 @@
 import {
   comparisonArmViews,
   displayRunView,
+  familyCensoredOnRun,
   runCensorshipNotes,
   unsupportedEvidenceFamilies,
   type ReportView,
@@ -465,13 +466,46 @@ export function buildReportHeadline(view: ReportView): ReportHeadline {
   // collection stopped, not because the site was quiet.
   const censorshipNotes = runCensorshipNotes(run);
   const unsupportedFamilies = unsupportedEvidenceFamilies(run);
-  if (censorshipNotes.length > 0) {
+  // The absence sentence the counts support on their own. Shared with the calm
+  // branch below so the two cannot drift into describing the same run
+  // differently.
+  const observedAbsence =
+    run.counts.thirdPartyDomains > 0
+      ? `${plural(
+          run.counts.thirdPartyDomains,
+          "third-party domain"
+        )} appeared in the request log, but no catalogued tracking company or third-party cookie showed up in this visit`
+      : "No third-party domains, tracking companies, or third-party cookies showed up in this visit";
+  // WHICH family stopped early decides what may be hedged. A loss in the
+  // detector ledger says nothing about the request log, the cookie jar, or
+  // storage: those ran to completion, so calling their figures "floors" and
+  // "snapshots of an interrupted visit" is false about them, and it makes a
+  // genuinely quiet site unreportable as quiet. Only a loss in a family that
+  // BACKS the counts can undermine the counts.
+  const countEvidenceCensored = ["requests", "cookies", "storage"].some((family) =>
+    familyCensoredOnRun(run, family)
+  );
+  if (censorshipNotes.length > 0 && countEvidenceCensored) {
     return finish(
       "info",
       `${domain}'s scan was cut short, so low counts are not the full story.`,
       unsupportedFamilies.length > 0
         ? `Supported evidence collection did not finish: ${joinNames(censorshipNotes, 2)}. Those activity counts are floors. ${joinNames(unsupportedFamilies)} evidence was not captured by this PageGraph producer at all, so its zeroes are unavailable measurements rather than interrupted snapshots.`
         : `Evidence collection did not finish: ${joinNames(censorshipNotes, 2)}. Activity counts in this report are floors for this visit, and its cookie and storage figures are snapshots of an interrupted visit, not the site's full behavior.`,
+      stats.length > 0 ? stats : [{ label: "third-party requests", value: n(run.counts.thirdPartyRequests), emphasis: true }]
+    );
+  }
+
+  if (censorshipNotes.length > 0) {
+    // Counts complete, an instrument short. Report both, and hedge only the
+    // absence claims that actually depend on the instrument that stopped.
+    return finish(
+      "info",
+      `${domain} looked quiet, but this scan did not finish every check.`,
+      `${observedAbsence}, and that request, cookie, and storage evidence is complete for this visit. But ${joinNames(
+        censorshipNotes,
+        2
+      )}, so whatever those checks look for is unproven here rather than shown to be absent.`,
       stats.length > 0 ? stats : [{ label: "third-party requests", value: n(run.counts.thirdPartyRequests), emphasis: true }]
     );
   }
@@ -499,12 +533,7 @@ export function buildReportHeadline(view: ReportView): ReportHeadline {
   return finish(
     "calm",
     `${domain} kept this visit relatively private.`,
-    run.counts.thirdPartyDomains > 0
-      ? `${plural(
-          run.counts.thirdPartyDomains,
-          "third-party domain"
-        )} appeared in the request log, but no catalogued tracking company or third-party cookie showed up in this visit.${rawFingerprintNote || " No fingerprint-observer events showed up either."}`
-      : `No third-party domains, tracking companies, or third-party cookies showed up in this visit.${rawFingerprintNote || " No fingerprint-observer events showed up either."}`,
+    `${observedAbsence}.${rawFingerprintNote || " No fingerprint-observer events showed up either."}`,
     calmStats
   );
 }
