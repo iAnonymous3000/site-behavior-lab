@@ -51,6 +51,31 @@ export type ScheduledRescanRunPresentation = Readonly<{
   reportId: string | null;
 }>;
 
+/** Two credential holders naming the same watch, capability and all. */
+export function sameScheduledRescanWatch(
+  left: EncryptedWatchCredentials | null,
+  right: EncryptedWatchCredentials | null
+): boolean {
+  if (!left || !right) return false;
+  return left.watchId === right.watchId && left.capabilityToken === right.capabilityToken;
+}
+
+/**
+ * Is the delete confirmation armed FOR THE WATCH ON SCREEN?
+ *
+ * A bare boolean is target-free, and the management fragment can be recovered
+ * into a different watch without any click: arming delete on watch A and then
+ * following a link to watch B left the button reading "Confirm delete" over B,
+ * one click from destroying a schedule the reader never armed. Confirmation
+ * must name what it confirms.
+ */
+export function scheduledRescanDeleteArmed(
+  armedFor: EncryptedWatchCredentials | null,
+  current: EncryptedWatchCredentials | null
+): boolean {
+  return sameScheduledRescanWatch(armedFor, current);
+}
+
 /** Build the strict no-credentials/query/fragment target accepted by watches. */
 export function normalizeScheduledRescanTarget(value: string): ScheduledRescanTarget | null {
   const trimmed = value.trim();

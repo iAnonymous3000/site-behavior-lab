@@ -22,9 +22,11 @@ import {
   SCHEDULED_RESCAN_RETRY_COPY,
   normalizeScheduledRescanTarget,
   retainScheduledRescanCreationBeforePost,
+  sameScheduledRescanWatch,
   scheduledRescanActionState,
   scheduledRescanCanRetryCreation,
   scheduledRescanCredentialsMatchDerivedId,
+  scheduledRescanDeleteArmed,
   scheduledRescanPanelVisible,
   scheduledRescanRunPresentation
 } from "@/lib/scheduled-rescan-ui";
@@ -65,7 +67,10 @@ export function ScheduledRescans({
   const [status, setStatus] = useState<EncryptedWatchStatus | null>(null);
   const [activity, setActivity] = useState<WatchActivity>(null);
   const [error, setError] = useState<string | null>(null);
-  const [deleteConfirmation, setDeleteConfirmation] = useState(false);
+  const [deleteArmedFor, setDeleteArmedFor] = useState<EncryptedWatchCredentials | null>(null);
+  // Derived, never stored: recovering a management fragment swaps `credentials`
+  // without any click, and a boolean would have carried the arming across.
+  const deleteConfirmation = scheduledRescanDeleteArmed(deleteArmedFor, credentials);
   const [fragmentChecked, setFragmentChecked] = useState(false);
   const [invalidManagementFragment, setInvalidManagementFragment] = useState(false);
   const requestOperationRef = useRef(new LatestClientOperation());
@@ -173,7 +178,7 @@ export function ScheduledRescans({
         {
           onStart: () => {
             settleActiveCreate();
-            if (!sameWatchCredentials(pendingCreationRef.current?.credentials ?? null, recovered)) {
+            if (!sameScheduledRescanWatch(pendingCreationRef.current?.credentials ?? null, recovered)) {
               pendingCreationRef.current = null;
             }
             retainedCredentialsRef.current = recovered;
@@ -292,7 +297,7 @@ export function ScheduledRescans({
           turnstileToken: createTurnstileToken,
           credentials: creation.credentials,
           onCredentialsReady: (readyCredentials) => {
-            if (!sameWatchCredentials(retainedCredentialsRef.current, readyCredentials)) {
+            if (!sameScheduledRescanWatch(retainedCredentialsRef.current, readyCredentials)) {
               throw new Error("The scheduled rescan capability changed before creation.");
             }
           },
@@ -367,7 +372,7 @@ export function ScheduledRescans({
         onStart: () => {
           settleActiveCreate();
           setActivity("deleting");
-          setDeleteConfirmation(false);
+          setDeleteArmedFor(null);
           setError(null);
         },
         onSuccess: () => {
@@ -510,14 +515,14 @@ export function ScheduledRescans({
             <button
               className="ghost-button"
               type="button"
-              onClick={() => deleteConfirmation ? void deleteSchedule() : setDeleteConfirmation(true)}
+              onClick={() => (deleteConfirmation ? void deleteSchedule() : setDeleteArmedFor(credentials))}
               disabled={activity !== null}
             >
               {activity === "deleting" ? <Loader2 className="spin" size={16} aria-hidden="true" /> : <Trash2 size={16} aria-hidden="true" />}
               {activity === "deleting" ? "Deleting…" : deleteConfirmation ? "Confirm delete" : "Delete schedule"}
             </button>
             {deleteConfirmation && activity === null && (
-              <button className="secondary-button" type="button" onClick={() => setDeleteConfirmation(false)}>
+              <button className="secondary-button" type="button" onClick={() => setDeleteArmedFor(null)}>
                 Keep schedule
               </button>
             )}
@@ -542,13 +547,6 @@ export function ScheduledRescans({
       {error && <p className="scanner-status-note scanner-status-note-error" role="alert">{error}</p>}
     </section>
   );
-}
-
-function sameWatchCredentials(
-  left: EncryptedWatchCredentials | null,
-  right: EncryptedWatchCredentials
-): boolean {
-  return left?.watchId === right.watchId && left.capabilityToken === right.capabilityToken;
 }
 
 function formatWatchTime(timestamp: number): string {

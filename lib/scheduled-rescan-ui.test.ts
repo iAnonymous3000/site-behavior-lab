@@ -10,7 +10,9 @@ import {
   retainScheduledRescanCreationBeforePost,
   scheduledRescanActionState,
   scheduledRescanCanRetryCreation,
+  sameScheduledRescanWatch,
   scheduledRescanCredentialsMatchDerivedId,
+  scheduledRescanDeleteArmed,
   scheduledRescanPanelVisible,
   scheduledRescanRunPresentation
 } from "./scheduled-rescan-ui";
@@ -244,4 +246,26 @@ test("scheduled targets strip query and fragment and reject non-web or credentia
   assert.equal(normalizeScheduledRescanTarget("file:///etc/passwd"), null);
   assert.equal(normalizeScheduledRescanTarget("https://user:pass@example.com/"), null);
   assert.equal(normalizeScheduledRescanTarget("https://exa mple.com/"), null);
+});
+
+test("a delete confirmation is armed for ONE watch and never follows a fragment", () => {
+  // The management link can swap the watch on screen with no click at all, so
+  // a target-free boolean left "Confirm delete" armed over a schedule the
+  // reader never armed, one click from destroying it.
+  const watchA = { watchId: "a".repeat(43), capabilityToken: "A".repeat(43) };
+  const watchB = { watchId: "b".repeat(43), capabilityToken: "B".repeat(43) };
+  const sameIdDifferentToken = { watchId: watchA.watchId, capabilityToken: "C".repeat(43) };
+
+  assert.equal(scheduledRescanDeleteArmed(watchA, watchA), true);
+  assert.equal(scheduledRescanDeleteArmed(watchA, { ...watchA }), true);
+  assert.equal(scheduledRescanDeleteArmed(watchA, watchB), false, "arming watch A must not arm watch B");
+  assert.equal(scheduledRescanDeleteArmed(watchA, sameIdDifferentToken), false);
+  assert.equal(scheduledRescanDeleteArmed(null, watchA), false);
+  assert.equal(scheduledRescanDeleteArmed(watchA, null), false);
+  assert.equal(scheduledRescanDeleteArmed(null, null), false);
+
+  // One comparator, shared with the component's recovery paths.
+  assert.equal(sameScheduledRescanWatch(watchA, { ...watchA }), true);
+  assert.equal(sameScheduledRescanWatch(watchA, watchB), false);
+  assert.equal(sameScheduledRescanWatch(null, watchA), false);
 });
