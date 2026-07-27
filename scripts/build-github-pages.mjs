@@ -242,7 +242,15 @@ async function main() {
     await rm(path.join(workDir, "app", "reports"), { recursive: true, force: true });
   }
 
-  await runCommand(nextBin, ["build"], {
+  // --webpack, deliberately. Next 16 makes Turbopack the default bundler, and
+  // Turbopack refuses this build outright: the isolated worktree links
+  // node_modules back to the repo root, which resolves outside the work dir it
+  // treats as the filesystem root ("Symlink [project]/node_modules is
+  // invalid"). The root build opts out too, so ONE bundler produces both the
+  // container artifact and the published static export; migrating to Turbopack
+  // is a separate change with its own proof, not a side effect of a framework
+  // upgrade.
+  await runCommand(nextBin, ["build", "--webpack"], {
     cwd: workDir,
     env: {
       ...process.env,

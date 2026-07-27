@@ -144,7 +144,7 @@ test("compile-time public build provenance rejects invalid and conflicting sourc
   assert.match(configSource, /NEXT_PUBLIC_SITE_BEHAVIOR_LAB_BUILD_COMMIT: publicBuildCommit/);
   assert.match(
     pagesBuildSource,
-    /runCommand\(nextBin, \["build"\],[\s\S]*SITE_BEHAVIOR_LAB_BUILD_COMMIT: deployment/
+    /runCommand\(nextBin, \["build", "--webpack"\],[\s\S]*SITE_BEHAVIOR_LAB_BUILD_COMMIT: deployment/
   );
   assert.doesNotMatch(uploadButtonSource, /export function PageGraphUploadButton/);
   assert.match(uploadButtonSource, /export function PageGraphR2UploadButton/);

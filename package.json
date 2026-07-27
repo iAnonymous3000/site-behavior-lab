@@ -27,7 +27,7 @@
   },
   "scripts": {
     "dev": "next dev --hostname 127.0.0.1 --port 3000",
-    "build": "next build",
+    "build": "next build --webpack",
     "build:pages": "node scripts/build-github-pages.mjs",
     "build:schema": "node scripts/build-schema.mjs",
     "cf:bucket:create": "wrangler r2 bucket create site-behavior-lab-reports",
@@ -75,7 +75,7 @@
   "dependencies": {
     "aws4fetch": "^1.0.20",
     "lucide-react": "^1.27.0",
-    "next": "^15.0.4",
+    "next": "^16.2.12",
     "playwright": "1.62.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
