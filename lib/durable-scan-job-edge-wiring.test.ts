@@ -438,11 +438,25 @@ test("Worker wiring preserves Phase 1 while closing durable private boundaries",
     "the invoking row must remain covered by a successor before key import yields"
   );
   assert.doesNotMatch(source, /\n\s*(?:async\s+)?alarm\s*\(/);
+  // A poll runs every few seconds for the life of a job, so the charge and the
+  // read share ONE RPC. The ordering they were split for is unchanged: nothing
+  // reaches the Durable Object unauthenticated, the budget is committed before
+  // the lookup, and a refused caller is never told whether the id exists.
   assert.ok(
-    source.indexOf("gateDurableScanJobControlRequest(request, env)") <
-      source.indexOf("findDurableJob(jobId)"),
-    "authorization and read-rate charging must precede the DO lookup"
+    source.indexOf("refuseUnauthorizedDurableScanJobControl(request, env)") <
+      source.indexOf("chargeAndFindDurableJob({"),
+    "authorization must precede any Durable Object RPC"
   );
+  const polledJob = source.slice(
+    source.indexOf("chargeAndFindDurableJob(input: {"),
+    source.indexOf("findStagingDurableReplayFault(jobId: string)")
+  );
+  assert.ok(polledJob.length > 0, "the combined poll RPC could not be located");
+  assert.ok(
+    polledJob.indexOf("chargeDurableJobReadRateLimit") < polledJob.indexOf("findDurableJob(input.jobId)"),
+    "the read budget must be charged before the lookup"
+  );
+  assert.match(polledJob, /if \(!charge\.allowed\) return \{ charge, snapshot: null \}/);
   const jobRouting = source.slice(
     source.indexOf("if (scanJobId)"),
     source.indexOf("// Report reads and CORS preflight")

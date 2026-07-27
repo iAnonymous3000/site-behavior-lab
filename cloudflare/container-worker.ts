@@ -969,6 +969,24 @@ export class ScannerContainer extends Container<Env> {
     });
   }
 
+  /**
+   * Charge the poll's read budget and answer it in ONE round trip.
+   *
+   * A client polls a running job every few seconds for minutes, and the edge
+   * used to spend two RPCs on each one. The ordering is the reason they were
+   * separate and it is preserved exactly: the charge is committed first and a
+   * refused caller is never told whether the id exists, so a guessed id still
+   * costs budget and reveals nothing.
+   */
+  chargeAndFindDurableJob(input: { clientHash: string; jobId: string }): {
+    charge: PublicScanRateLimitResult;
+    snapshot: DurableScanJobSnapshot | null;
+  } {
+    const charge = this.chargeDurableJobReadRateLimit({ clientHash: input.clientHash });
+    if (!charge.allowed) return { charge, snapshot: null };
+    return { charge, snapshot: this.findDurableJob(input.jobId) };
+  }
+
   findStagingDurableReplayFault(jobId: string): DurableReplayFault | null {
     if (durableReplayFaultConfig(this.env).status !== "ready") return null;
     const now = Date.now();
@@ -3519,12 +3537,28 @@ async function handleDurableScanJobRequest(
   const statusRequestStartedAt = Date.now();
   // Authenticate and bound capability probes before even a read-only DO RPC;
   // otherwise guessed IDs become an existence oracle and unbounded work source.
-  const accessFailure = await gateDurableScanJobControlRequest(request, env);
-  if (accessFailure) return accessFailure;
+  const tokenFailure = await refuseUnauthorizedDurableScanJobControl(request, env);
+  if (tokenFailure) return tokenFailure;
   const scanner = getContainer(env.SCANNER);
   let snapshot: DurableScanJobSnapshot | null;
   try {
-    snapshot = await scanner.findDurableJob(jobId);
+    // One RPC for the charge and the read. A poll runs every few seconds for
+    // the life of a job, so the pair was the single hottest DO cost here.
+    const polled = await scanner.chargeAndFindDurableJob({
+      clientHash: await publicClientHash(request.headers),
+      jobId
+    });
+    if (!polled.charge.allowed) {
+      return gateErrorResponse(
+        new EdgeScanGateError(
+          `Too many report requests. Try again in about ${formatPublicScanRetryAfter(polled.charge.retryAfterSeconds)}.`,
+          429
+        ),
+        request,
+        env
+      );
+    }
+    snapshot = polled.snapshot;
   } catch (error) {
     console.error("Could not read authoritative durable scan-job status.", error);
     return durableUnavailableResponse(request, env);
@@ -3590,30 +3624,17 @@ async function handleDurableScanJobRequest(
   });
 }
 
-async function gateDurableScanJobControlRequest(request: Request, env: Env): Promise<Response | null> {
+/**
+ * Refuse an unauthenticated control request before ANY Durable Object RPC, so
+ * a guessed job id cannot wake the singleton or become an existence oracle.
+ * The read budget is charged by the same RPC that answers the poll.
+ */
+async function refuseUnauthorizedDurableScanJobControl(request: Request, env: Env): Promise<Response | null> {
   const expectedToken = env.SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN?.trim();
   if (expectedToken && !(await scanAccessTokenMatches(request.headers, expectedToken))) {
     return gateErrorResponse(new EdgeScanGateError("Unauthorized scan request.", 401), request, env);
   }
-  try {
-    const charge = await getContainer(env.SCANNER).chargeDurableJobReadRateLimit({
-      clientHash: await publicClientHash(request.headers)
-    });
-    if (!charge.allowed) {
-      return gateErrorResponse(
-        new EdgeScanGateError(
-          `Too many report requests. Try again in about ${formatPublicScanRetryAfter(charge.retryAfterSeconds)}.`,
-          429
-        ),
-        request,
-        env
-      );
-    }
-    return null;
-  } catch (error) {
-    console.error("Could not charge the durable scan-job status read limit.", error);
-    return durableUnavailableResponse(request, env);
-  }
+  return null;
 }
 
 async function handleDurableScanJobCoordinatorRequest(
