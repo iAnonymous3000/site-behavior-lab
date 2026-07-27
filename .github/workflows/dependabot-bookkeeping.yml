@@ -1,0 +1,145 @@
+name: Dependabot Bookkeeping
+
+# Dependabot cannot make an npm bump here go green, and not because the bump is
+# wrong. Two committed files are derived from package-lock.json: the
+# third-party inventory the supply-chain gate verifies, and the lock-root
+# `packageManager` that `npm install` silently drops and toolchain-provenance
+# pins. Dependabot regenerates neither, so every one of its npm PRs failed on
+# bookkeeping before a human could even look at the dependency.
+#
+# This regenerates exactly that bookkeeping on its branches. It does NOT relax
+# the gate: the supply-chain job still verifies the inventory against the
+# lockfile on the resulting commit, and a human still reviews the diff.
+#
+# SAFETY. The bump under repair is untrusted input, so nothing here installs or
+# executes it. `npm ci`/`npm install` and lifecycle scripts are deliberately
+# absent; scripts/third-party-inventory.mjs only READS package-lock.json,
+# Cargo.lock, Cargo.toml and a filter-metadata file, and hashes them. The
+# triggers are `schedule` and `workflow_dispatch`, which GitHub always runs
+# from the DEFAULT branch's copy of this file, so a pushed branch cannot
+# rewrite the job that holds `contents: write`.
+
+on:
+  schedule:
+    # After Dependabot's Monday window, before anyone triages the PRs.
+    - cron: "40 7 * * 1"
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: "Single dependabot/* branch to repair (default: every open one)"
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dependabot-bookkeeping
+  cancel-in-progress: false
+
+jobs:
+  repair:
+    name: Regenerate derived manifests on Dependabot branches
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout default branch
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Use the repository's exact Node toolchain
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: 24.14.1
+
+      - name: Verify the exact Node runtime before running any script
+        run: |
+          set -euo pipefail
+          test "$(node --version)" = "v24.14.1"
+          test "$(npm --version)" = "11.11.0"
+
+      - name: Repair derived manifests
+        env:
+          REQUESTED_BRANCH: ${{ inputs.branch }}
+        run: |
+          set -euo pipefail
+
+          # Only ever act on Dependabot's own branch namespace.
+          if [ -n "${REQUESTED_BRANCH:-}" ]; then
+            case "$REQUESTED_BRANCH" in
+              dependabot/*) branches="$REQUESTED_BRANCH" ;;
+              *)
+                echo "::error title=Refused::${REQUESTED_BRANCH} is not a dependabot/* branch"
+                exit 1
+                ;;
+            esac
+          else
+            branches="$(git ls-remote --heads origin 'refs/heads/dependabot/*' \
+              | sed 's#.*refs/heads/##' || true)"
+          fi
+
+          if [ -z "$branches" ]; then
+            echo "No dependabot branches to repair."
+            exit 0
+          fi
+
+          git config user.name "iAnonymous3000"
+          git config user.email "32236127+iAnonymous3000@users.noreply.github.com"
+
+          repaired=0
+          for branch in $branches; do
+            echo "::group::$branch"
+            git checkout --force -B "repair/$branch" "origin/$branch"
+
+            # The lock root loses `packageManager` on every `npm install`, and
+            # toolchain-provenance pins it. Restore it from package.json rather
+            # than a literal so the two cannot drift.
+            node --input-type=module -e '
+              import { readFile, writeFile } from "node:fs/promises";
+              const manifest = JSON.parse(await readFile("package.json", "utf8"));
+              const declared = manifest.packageManager;
+              if (typeof declared !== "string" || declared.length === 0) {
+                throw new Error("package.json declares no packageManager");
+              }
+              const raw = await readFile("package-lock.json", "utf8");
+              const lock = JSON.parse(raw);
+              const root = lock.packages?.[""];
+              if (!root) throw new Error("package-lock.json has no root package entry");
+              if (root.packageManager === declared) process.exit(0);
+              const rebuilt = {};
+              for (const [key, value] of Object.entries(root)) {
+                rebuilt[key] = value;
+                if (key === "version") rebuilt.packageManager = declared;
+              }
+              if (!("packageManager" in rebuilt)) rebuilt.packageManager = declared;
+              lock.packages[""] = rebuilt;
+              await writeFile("package-lock.json", `${JSON.stringify(lock, null, 2)}\n`);
+            '
+
+            # Pure read-and-hash over declarative files. Never installs.
+            node scripts/third-party-inventory.mjs
+
+            if git diff --quiet -- package-lock.json THIRD_PARTY_INVENTORY.json; then
+              echo "already consistent"
+              echo "::endgroup::"
+              continue
+            fi
+
+            git add package-lock.json THIRD_PARTY_INVENTORY.json
+            # Separate -m paragraphs, not an embedded newline: a message body at
+            # column 0 would be less indented than this YAML block scalar and
+            # would end it mid-script.
+            git commit \
+              -m "Regenerate derived manifests for ${branch#dependabot/}" \
+              -m "The third-party inventory is derived from package-lock.json, and the lock root loses packageManager on every npm install, so a dependency bump leaves both stale and the supply-chain gate refuses the branch for bookkeeping rather than for anything about the dependency. Regenerated here so the gate can report on the dependency itself." \
+              -m "No dependency code was installed or executed to produce this commit."
+            git push origin "HEAD:$branch"
+            repaired=$((repaired + 1))
+            echo "::endgroup::"
+          done
+
+          echo "Repaired $repaired branch(es)."

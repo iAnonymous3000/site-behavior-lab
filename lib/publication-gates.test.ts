@@ -71,6 +71,52 @@ test("the workflow_run promotion never checks out code the triggering event chos
   assert.doesNotMatch(checkoutStep, /repository:/, "the promotion must never check out another repository");
 });
 
+test("the Dependabot bookkeeping repair cannot run or be rewritten by the branch it repairs", () => {
+  // This job holds contents:write and operates on branches whose contents are
+  // an untrusted dependency bump, so three properties carry the whole design.
+  const workflow = source(".github/workflows/dependabot-bookkeeping.yml");
+
+  // 1. It never installs or executes the bump. The inventory generator only
+  //    reads and hashes declarative files; an install here would run the new
+  //    dependency's lifecycle scripts with write access to the repository.
+  // Command position only: the phrase "npm install" also appears inside a
+  // commit-message argument explaining why the bookkeeping went stale, and a
+  // substring match there would be a false positive.
+  const commandLines = workflow
+    .split("\n")
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0 && !line.startsWith("#"));
+  for (const line of commandLines) {
+    assert.doesNotMatch(line, /^(npm (ci|install|exec|run)|npx)\b/, line);
+    assert.doesNotMatch(line, /(&&|\|\||;)\s*(npm (ci|install|exec|run)|npx)\b/, line);
+  }
+
+  // 2. Only `schedule` and `workflow_dispatch`, which GitHub always runs from
+  //    the DEFAULT branch's copy of the file. A `push` or `pull_request`
+  //    trigger would let a pushed branch rewrite the privileged job itself.
+  assert.match(workflow, /^on:$/m);
+  assert.match(workflow, /^ {2}schedule:$/m);
+  assert.match(workflow, /^ {2}workflow_dispatch:$/m);
+  for (const forbidden of ["push", "pull_request", "pull_request_target", "workflow_run"]) {
+    assert.doesNotMatch(workflow, new RegExp(`^ {2}${forbidden}:`, "m"), forbidden);
+  }
+
+  // 3. It writes only inside Dependabot's own branch namespace, and refuses
+  //    any other branch it is handed.
+  assert.match(workflow, /dependabot\/\*\) branches="\$REQUESTED_BRANCH" ;;/);
+  assert.match(workflow, /is not a dependabot\/\* branch/);
+  assert.match(workflow, /git push origin "HEAD:\$branch"/);
+  // A force-push would let this job discard whatever it did not expect to find
+  // on the branch. Local `git checkout --force` is unrelated and allowed.
+  for (const line of commandLines) {
+    if (!/\bgit push\b/.test(line)) continue;
+    assert.doesNotMatch(line, /(--force\b|--force-with-lease\b|\s-f\b|\s\+refs)/, line);
+  }
+
+  // Least privilege: read by default, write only on the one job.
+  assert.match(workflow, /^permissions:\n {2}contents: read$/m);
+});
+
 test("Dependabot covers every tracked dependency ecosystem at its manifest path", () => {
   const config = source(".github/dependabot.yml");
   const configuredPaths = [...config.matchAll(/- package-ecosystem: "([^"]+)"\n\s+directory: "([^"]+)"/g)].map(
