@@ -92,6 +92,31 @@ test("caller cancellation ends the wait and still disposes a late resource", asy
   assert.equal(state.disposed, 1, "a resource that arrives after cancellation must not leak");
 });
 
+test("a cancellation reports itself as a cancellation, never as a deadline", async () => {
+  // A non-Error abort reason used to become the caller's TIMEOUT error here
+  // while the scanner's own abort check turned it into an AbortError, so the
+  // same cancellation surfaced as a 504 or as a cancellation depending on
+  // which line noticed it first.
+  const before = new AbortController();
+  before.abort("cancelled");
+  await assert.rejects(
+    withDeadlineDisposing(() => Promise.resolve(1), Date.now(), 5_000, () => undefined, timeoutError, before.signal),
+    (error: unknown) => error instanceof Error && error.name === "AbortError"
+  );
+
+  const during = new AbortController();
+  const pending = withDeadlineDisposing(
+    () => lateResource(120).operation,
+    Date.now(),
+    5_000,
+    () => undefined,
+    timeoutError,
+    during.signal
+  );
+  during.abort("cancelled");
+  await assert.rejects(pending, (error: unknown) => error instanceof Error && error.name === "AbortError");
+});
+
 test("a signal already aborted creates nothing", async () => {
   let started = 0;
   const controller = new AbortController();

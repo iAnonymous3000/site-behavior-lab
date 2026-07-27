@@ -1,5 +1,6 @@
 import { PublicScanError } from "./public-errors";
 import { AUTHENTICATED_SCAN_RATE_LIMIT_PER_MINUTE } from "./public-scan-rate-limit-store";
+import { scanAbortError } from "./scan-runtime";
 
 export const MAX_BODY_BYTES = 4096;
 export const MAX_CONCURRENT_SCANS = 2;
@@ -257,7 +258,7 @@ function throwIfAborted(signal?: AbortSignal): void {
 }
 
 function abortReason(signal?: AbortSignal): Error {
-  return signal?.reason instanceof Error ? signal.reason : new DOMException("The scan was cancelled.", "AbortError");
+  return signal ? scanAbortError(signal) : new DOMException("The scan was cancelled.", "AbortError");
 }
 
 export function scanLimitStateForTests(): {

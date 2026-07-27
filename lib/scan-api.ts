@@ -38,6 +38,7 @@ import type {
   ScanRequestPayload
 } from "./types";
 import { prepareScanRequest, type PreparedScanRequest } from "./scan-gate";
+import { scanAbortError } from "./scan-runtime";
 
 export { prepareScanRequest, ScanGate, scanRateLimitCost, type PreparedScanRequest } from "./scan-gate";
 
@@ -391,7 +392,7 @@ async function saveRuntimeR2Report<T extends RuntimeScanReport>(
 
 function throwIfCancelled(signal?: AbortSignal): void {
   if (!signal?.aborted) return;
-  throw signal.reason instanceof Error ? signal.reason : new DOMException("The scan was cancelled.", "AbortError");
+  throw scanAbortError(signal);
 }
 
 function appendWarning<T extends ScanReport>(report: T, warning: string): T {

@@ -187,6 +187,18 @@ export function aggregateByteBudgetWarning(kind: "response" | "upload", limitByt
 
 export type ScanTimeoutErrorFactory = () => Error;
 
+/**
+ * The error an aborted scan raises, from one place.
+ *
+ * A caller's own reason is preserved; anything else becomes an AbortError.
+ * Written out by hand this drifted: the deadline helpers turned a non-Error
+ * reason into a scan-TIMEOUT, so the same cancellation surfaced as a 504 or as
+ * an AbortError depending on which line noticed it first.
+ */
+export function scanAbortError(signal: AbortSignal, message = "The scan was cancelled."): Error {
+  return signal.reason instanceof Error ? signal.reason : new DOMException(message, "AbortError");
+}
+
 export function scanTimeoutMs(
   started: number,
   maxDurationMs: number,
@@ -250,7 +262,7 @@ export async function withDeadlineDisposing<T>(
   // Throws before `start()` runs when nothing remains, so an expired deadline
   // creates nothing to dispose.
   scanTimeoutMs(started, maxDurationMs, maxDurationMs, Date.now(), createTimeoutError);
-  if (signal?.aborted) throw signal.reason instanceof Error ? signal.reason : createTimeoutError();
+  if (signal?.aborted) throw scanAbortError(signal);
 
   const operation = start();
   const disposeLate = (): void => {
@@ -266,7 +278,7 @@ export async function withDeadlineDisposing<T>(
       withScanDeadline(operation, started, maxDurationMs, createTimeoutError),
       new Promise<never>((_, reject) => {
         if (!signal) return;
-        onAbort = () => reject(signal.reason instanceof Error ? signal.reason : createTimeoutError());
+        onAbort = () => reject(scanAbortError(signal));
         signal.addEventListener("abort", onAbort, { once: true });
       })
     ]);

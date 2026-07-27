@@ -98,6 +98,7 @@ import {
   ScanNetworkRecorder,
   ScanRequestBudget,
   type ScanRequestBudgetDiagnostics,
+  scanAbortError,
   scanTimeoutMs,
   ScanWarningCollector,
   verifyRoutedHttpRequest,
@@ -2379,7 +2380,7 @@ export function sameScanSubjectUrl(url: string, recordedUrl: string): boolean {
 
 function throwIfScanAborted(signal?: AbortSignal): void {
   if (!signal?.aborted) return;
-  throw signal.reason instanceof Error ? signal.reason : new DOMException("The scan was cancelled.", "AbortError");
+  throw scanAbortError(signal);
 }
 
 async function settleRoutedRequests(

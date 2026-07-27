@@ -50,6 +50,7 @@ import {
   isEncryptedWatchPayload
 } from "./encrypted-watch-contract";
 import { assertPublicHttpUrl } from "./url-safety";
+import { scanAbortError } from "./scan-runtime";
 
 const ASYNC_SCANS_ENV = "SITE_BEHAVIOR_LAB_ASYNC_SCANS";
 const JOB_ID_PATTERN = /^[0-9]{8}-[0-9a-f]{32}$/;
@@ -1183,9 +1184,7 @@ function markCancelled(record: InternalScanJobRecord): void {
 
 function markPublicationStarted(record: InternalScanJobRecord): void {
   if (record.status !== "running" || record.abortController.signal.aborted) {
-    throw record.abortController.signal.reason instanceof Error
-      ? record.abortController.signal.reason
-      : new DOMException(JOB_CANCELLED_MESSAGE, "AbortError");
+    throw scanAbortError(record.abortController.signal, JOB_CANCELLED_MESSAGE);
   }
   record.publicationStarted = true;
   record.progress = createProgress("saving", record.prepared, totalRunsForPreparedRequest(record.prepared));
