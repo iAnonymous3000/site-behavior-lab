@@ -2427,6 +2427,78 @@ test("a consent control that never responds is disclosed as a click, not an empt
   }
 });
 
+test("a churning third-party iframe is disclosed as lost coverage, not a page that moved", { timeout: 30_000 }, async () => {
+  // An unreadable frame has two causes that look identical from outside: a
+  // consent control that reloads the page on click (the page really did move
+  // out from under the search) and an unrelated iframe detaching mid-probe (it
+  // did not). Attributing the second to the first published a false statement
+  // about the site, made from a failure of the instrument, for any ad-funded
+  // page with churning frames.
+  //
+  // This fixture continuously attaches and detaches ad frames from the TOP
+  // document, which never navigates, so the probe's frame.evaluate races a
+  // frame that is being removed and loses the read.
+  const upstream = createServer((request, response) => {
+    if (request.url?.startsWith("/ad")) {
+      response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+      response.end("<!doctype html><title>Ad</title><p>ad</p>");
+      return;
+    }
+    response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+    response.end(`<!doctype html>
+      <title>Churning iframe fixture</title>
+      <p>No consent control on this page.</p>
+      <script>
+        // Keep a rotating population of subframes alive for the whole visit.
+        let n = 0;
+        setInterval(() => {
+          for (const old of document.querySelectorAll("iframe")) old.remove();
+          for (let i = 0; i < 6; i += 1) {
+            const frame = document.createElement("iframe");
+            frame.src = "/ad?n=" + (n += 1);
+            document.body.appendChild(frame);
+          }
+        }, 15);
+      </script>`);
+  });
+  await new Promise<void>((resolve, reject) => {
+    upstream.once("error", reject);
+    upstream.listen(0, "127.0.0.1", resolve);
+  });
+  const address = upstream.address();
+  assert.ok(address && typeof address === "object");
+
+  try {
+    const { result } = await scanSiteWithMeasurement(
+      {
+        url: "http://churning-iframe.test/",
+        device: "desktop",
+        gpcEnabled: false,
+        consentMode: "accept-all"
+      },
+      {
+        publicUrlAlreadyVerified: true,
+        verifyPublicUrl: async () => undefined,
+        resolvePublicHost: async () => [{ address: "93.184.216.34", family: 4 }],
+        connectProxyUpstreamForTests: () => connect(address.port, "127.0.0.1"),
+        resolveCnameChain: async () => []
+      }
+    );
+
+    assert.equal(result.consentInteraction?.clicked, false);
+    const consentWarnings = result.warnings.filter((warning) => warning.startsWith("This visit was asked to choose"));
+    assert.deepEqual(consentWarnings, redactScannerWarnings(consentWarnings, new RedactionPass()));
+    assert.equal(consentWarnings.length, 1, consentWarnings.join(" | "));
+    // The probe lost at least one frame, so it must disclose incomplete
+    // coverage; the top document never navigated, so it may not say otherwise.
+    assert.match(consentWarnings[0], /one or more frames could not be read/);
+    assert.doesNotMatch(consentWarnings[0], /moved out from under the search/);
+  } finally {
+    await closeSharedBrowserForTests();
+    await new Promise<void>((resolve) => upstream.close(() => resolve()));
+  }
+});
+
 test("post-consent cross-site reload evidence is rejected and the active input probe is skipped", { timeout: 30_000 }, async () => {
   const upstream = createServer((request, response) => {
     if (request.headers.host?.startsWith("other-subject.test")) {

@@ -1074,6 +1074,7 @@ export const CONSENT_PROBE_OUTCOMES = [
   "scan-failed",
   "engine-unavailable",
   "search-interrupted",
+  "frames-unreadable",
   "dispatch-unconfirmed",
   null
 ] as const;
@@ -1108,6 +1109,9 @@ export function consentInteractionWarning(
     }
     if (probeFailure === "dispatch-unconfirmed") {
       return `This visit was asked to choose "${label}" on a cookie/consent banner, and clicked a control that never visibly responded. A page shows an unresponsive control both when it is a decoy in front of the real one and when the real one acts more slowly than the scanner waits, so whether a choice registered is unknown, and this visit's requests, cookies, and storage may include traffic from after that click.`;
+    }
+    if (probeFailure === "frames-unreadable") {
+      return `This visit was asked to choose "${label}" on a cookie/consent banner, but one or more frames could not be read, so the search did not cover the whole page. A recognizable control may exist in a frame this visit could not search, and no control was clicked.`;
     }
     if (probeFailure === "search-interrupted") {
       return `This visit was asked to choose "${label}" on a cookie/consent banner, but the page moved out from under the search before it finished: a frame stopped being readable, which is also what a control that reloads the page on click does. Whether a control was found or clicked is unknown, and this visit's requests, cookies, and storage may include traffic from both sides of that choice.`;

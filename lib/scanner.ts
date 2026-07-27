@@ -4,6 +4,7 @@ import {
   devices,
   type BrowserContext,
   type BrowserContextOptions,
+  type Frame,
   type Page,
   type Request,
   type Response
@@ -581,6 +582,18 @@ type ConsentChoiceProbeOutcome = {
    * though no control could be attributed.
    */
   dispatchedControls?: number;
+  /**
+   * Top-document navigations observed during the probe.
+   *
+   * An unreadable frame has two very different causes that look identical from
+   * outside: a consent control that reloads the page on click (the page really
+   * did move out from under the search) and an unrelated third-party iframe
+   * detaching mid-probe (it did not). Guessing the first from the frame count
+   * alone published "the page moved out from under the search" for any
+   * ad-funded page with churning iframes. This counts the navigation instead of
+   * inferring it.
+   */
+  mainFrameNavigations?: number;
 };
 
 const publicHostCheckFailures = new WeakMap<Map<string, Promise<void>>, Map<string, number>>();
@@ -1254,7 +1267,14 @@ export async function scanSiteWithMeasurement(
       // recognizable control was found" is the exact inversion of what the
       // evidence supports for the most common cause, a control that reloads the
       // page on click: the search was cut short BY the thing it was looking for.
-      consentProbeState.failure = "search-interrupted";
+      //
+      // But that cause has to be OBSERVED, not assumed. An ad-funded page whose
+      // third-party iframes detach mid-probe produces the same unreadable-frame
+      // count while the top document never moves, and claiming it did is a
+      // false statement about the site made from a failure of the instrument.
+      // The top-document navigation counter separates the two.
+      consentProbeState.failure =
+        (consentProbe?.mainFrameNavigations ?? 0) > 0 ? "search-interrupted" : "frames-unreadable";
     }
     if (consentPhaseId !== null) {
       if (consentInteractionLeftSubject) {
@@ -1273,6 +1293,14 @@ export async function scanSiteWithMeasurement(
         // the reason that actually applies.
         measurementKernel.setDetector("consent-banner", "partial", {
           reason: "load-failed",
+          phaseId: consentPhaseId
+        });
+      } else if (consentProbeState.failure === "frames-unreadable") {
+        // Also partial, and for a different reason: nothing failed to LOAD.
+        // The probe's own evaluation threw inside one or more frames, so the
+        // search did not cover the page it claims to have searched.
+        measurementKernel.setDetector("consent-banner", "partial", {
+          reason: "scan-failed",
           phaseId: consentPhaseId
         });
       } else if (consentProbeState.failure === "scan-failed") {
@@ -2854,9 +2882,16 @@ async function applyConsentChoice(
   let readableFrames = 0;
   let unreadableFrames = 0;
   let dispatchedControls = 0;
+  let mainFrameNavigations = 0;
   if (MAX_SCAN_DURATION_MS - (Date.now() - started) < CONSENT_CLICK_MIN_BUDGET_MS) {
-    return { summary, readableFrames, unreadableFrames, dispatchedControls, budgetExhausted: true };
+    return { summary, readableFrames, unreadableFrames, dispatchedControls, mainFrameNavigations, budgetExhausted: true };
   }
+
+  const onFrameNavigated = (frame: Frame) => {
+    if (frame === page.mainFrame()) mainFrameNavigations += 1;
+  };
+  page.on("framenavigated", onFrameNavigated);
+  try {
 
   const args = consentClickArgs(choice, shadowRootCapability);
   for (let attempt = 0; attempt < CONSENT_BANNER_RETRIES && !summary.clicked; attempt += 1) {
@@ -2905,7 +2940,10 @@ async function applyConsentChoice(
     }
   }
 
-  return { summary, readableFrames, unreadableFrames, dispatchedControls };
+  return { summary, readableFrames, unreadableFrames, dispatchedControls, mainFrameNavigations };
+  } finally {
+    page.off("framenavigated", onFrameNavigated);
+  }
 }
 
 /**

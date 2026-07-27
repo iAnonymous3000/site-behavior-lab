@@ -349,7 +349,7 @@ export const PUBLIC_STRING_POLICY_DIGEST = sha256Hex(
     chromiumUserAgentPattern: CHROMIUM_USER_AGENT.source,
     fixedWarnings: [...FIXED_SCANNER_WARNINGS].sort(),
     warningLabels: [...COMPARISON_WARNING_LABELS].sort(),
-    dynamicWarningPatterns: "scanner-warning-patterns-v6",
+    dynamicWarningPatterns: "scanner-warning-patterns-v7",
     cmpSelectors: CONSENT_CMP_SELECTORS,
     consentShadowHosts: CONSENT_SHADOW_HOSTS,
     consentTextPatterns: Object.fromEntries(

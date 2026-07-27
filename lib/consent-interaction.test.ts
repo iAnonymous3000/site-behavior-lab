@@ -910,6 +910,18 @@ test("a consent probe that never searched does not report a completed search", (
   assert.doesNotMatch(interrupted, /no recognizable control was found/);
   assert.doesNotMatch(interrupted, /pre-consent state/);
 
+  // An unreadable frame has two causes that look identical from outside, and
+  // only one of them is the page moving. A third-party iframe detaching
+  // mid-probe leaves the top document exactly where it was, so this sentence
+  // must claim incomplete COVERAGE and never a navigation the visit did not
+  // observe.
+  const framesUnreadable = consentInteractionWarning(summary, "frames-unreadable");
+  assert.match(framesUnreadable, /one or more frames could not be read/);
+  assert.match(framesUnreadable, /did not cover the whole page/);
+  assert.doesNotMatch(framesUnreadable, /moved out from under the search/);
+  assert.doesNotMatch(framesUnreadable, /no recognizable control was found/);
+  assert.doesNotMatch(framesUnreadable, /pre-consent state/);
+
   // A click that landed on a control which never visibly responded is neither
   // a click nor an empty search: the page WAS clicked, so "results reflect the
   // pre-consent state" would be false about it.
