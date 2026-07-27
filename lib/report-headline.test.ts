@@ -787,6 +787,13 @@ test("a detector loss hedges the detectors, not the request and cookie counts", 
   const report = makePublicSingleReportV2R2();
   const run = report.run;
   run.quality.byFamily["detector-output"] = { outcome: "censored", reasons: ["capture-loss:truncated"] };
+  run.qualityFacts.captureLoss.push({
+    family: "detector-output",
+    phaseId: null,
+    kind: "truncated",
+    count: 1,
+    detail: "policy-visit"
+  });
 
   const headline = buildReportHeadline(viewFromV2(report, 2));
 
@@ -800,6 +807,9 @@ test("a detector loss hedges the detectors, not the request and cookie counts", 
   assert.doesNotMatch(headline.subhead, /floors for this visit/);
   assert.doesNotMatch(headline.subhead, /snapshots of an interrupted visit/);
   assert.match(headline.subhead, /request, cookie, and storage evidence is complete/);
+  // "capture-loss:truncated" names a mechanism, not an instrument. The reader
+  // must be able to tell WHICH check stopped.
+  assert.match(headline.subhead, /the privacy-policy visit did not finish/);
 
   // A loss in a family that DOES back the counts still hedges them.
   const capped = makePublicSingleReportV2R2();

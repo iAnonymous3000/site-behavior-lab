@@ -1087,6 +1087,45 @@ function qualityReasonNote(run: RunView, reason: string): string {
  * must consult this before any "quiet page" framing: censored evidence makes
  * low counts a floor, never a calm result.
  */
+/**
+ * Human names for the recorded capture-loss `detail` values.
+ *
+ * The quality reason on the wire is `capture-loss:<kind>`, a closed vocabulary
+ * that says HOW collection stopped and never WHICH instrument stopped, so a
+ * report could only tell a reader "detector-output evidence was censored
+ * (capture-loss:truncated)". That names a family and a mechanism and leaves
+ * the reader unable to tell whether the scan missed a privacy policy or a
+ * keystroke probe. The detail is already recorded alongside each loss; this
+ * only renders it.
+ */
+const CAPTURE_LOSS_DETAIL_LABELS: Record<string, string> = {
+  "cname-lookups": "the tracker-CNAME lookups",
+  "cookie-snapshot": "the end-of-visit cookie snapshot",
+  "fingerprint-observer": "the in-page fingerprint observer",
+  "keystroke-probe": "the synthetic keystroke probe",
+  "keystroke-probe-capture": "the synthetic keystroke probe's readback",
+  "page-title": "the page-title capture",
+  "policy-link-candidates": "the privacy-policy link search",
+  "policy-visit": "the privacy-policy visit",
+  "storage-snapshot": "the end-of-visit storage snapshot"
+};
+
+function censoredFamilyDetailNote(run: RunView, family: string): string {
+  const details = Array.from(
+    new Set(
+      (run.quality.facts?.captureLoss ?? [])
+        .filter((loss) => loss.family === family && typeof loss.detail === "string" && loss.detail.length > 0)
+        .map((loss) => CAPTURE_LOSS_DETAIL_LABELS[loss.detail as string] ?? (loss.detail as string))
+    )
+  );
+  if (details.length === 0) return "";
+  const rendered =
+    details.length === 1
+      ? details[0]
+      : `${details.slice(0, -1).join(", ")} and ${details[details.length - 1]}`;
+  return ` — ${rendered} did not finish`;
+}
+
 export function runCensorshipNotes(run: RunView): string[] {
   const notes: string[] = [];
   for (const reason of run.quality.reasons) {
@@ -1101,7 +1140,9 @@ export function runCensorshipNotes(run: RunView): string[] {
         continue;
       }
       notes.push(
-        `${family} evidence was censored before completion${entry.reasons.length > 0 ? ` (${entry.reasons.join(", ")})` : ""}`
+        `${family} evidence was censored before completion${
+          entry.reasons.length > 0 ? ` (${entry.reasons.join(", ")})` : ""
+        }${censoredFamilyDetailNote(run, family)}`
       );
     }
   }
