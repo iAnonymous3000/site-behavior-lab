@@ -74,20 +74,44 @@ test("a stranded reservation expires with the admission window that held it", ()
   });
 });
 
-test("a reservation may not outlive one admission window, and must expire after it starts", () => {
+test("a clock disagreement is bounded or retried, never answered with a server error", () => {
+  withDatabase((sql) => {
+    // The deadline is stamped on the edge clock and read on this one. A DO
+    // running behind saw a healthy window as an over-long one; refusing turned
+    // a correct admission into an opaque 500 with the Turnstile token already
+    // spent. The ceiling's purpose is to bound how long a crashed isolate can
+    // strand a capability, and clamping enforces exactly that.
+    const skewed = reserveDurablePreparation(
+      sql,
+      capability(1),
+      NOW,
+      NOW + DURABLE_PREPARATION_RESERVATION_MAX_MS + 5_000
+    );
+    assert.deepEqual(skewed, {
+      status: "reserved",
+      expiresAt: NOW + DURABLE_PREPARATION_RESERVATION_MAX_MS
+    });
+    assert.equal(countDurablePreparations(sql), 1);
+
+    // The mirror case: a DO running ahead sees a window that has already
+    // closed. Retryable, and typed, so the caller can say so.
+    releaseDurablePreparation(sql, capability(1));
+    assert.deepEqual(reserveDurablePreparation(sql, capability(1), NOW, NOW), {
+      status: "window-elapsed",
+      retryAfterSeconds: 1
+    });
+    assert.equal(countDurablePreparations(sql), 0);
+  });
+});
+
+test("a malformed reservation is still a loud programmer error", () => {
   withDatabase((sql) => {
     assert.throws(
-      () =>
-        reserveDurablePreparation(
-          sql,
-          capability(1),
-          NOW,
-          NOW + DURABLE_PREPARATION_RESERVATION_MAX_MS + 1
-        ),
+      () => reserveDurablePreparation(sql, capability(1), NOW, Number.NaN),
       DurablePreparationReservationValidationError
     );
     assert.throws(
-      () => reserveDurablePreparation(sql, capability(1), NOW, NOW),
+      () => reserveDurablePreparation(sql, capability(1), NOW, -1),
       DurablePreparationReservationValidationError
     );
     assert.equal(countDurablePreparations(sql), 0);

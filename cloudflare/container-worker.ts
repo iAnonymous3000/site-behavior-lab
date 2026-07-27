@@ -407,6 +407,21 @@ class DurablePreparationInFlightError extends EdgeScanGateError {
   }
 }
 
+/**
+ * The admission window was already over when the authoritative clock read it.
+ * Retryable: the two machines disagree about the time, or the round trip was
+ * genuinely slow. Never a client error, and never an opaque server error.
+ */
+class DurablePreparationWindowError extends EdgeScanGateError {
+  constructor(retryAfterSeconds: number) {
+    super(
+      `The scanner could not start this scan in time. Try again in about ${formatPublicScanRetryAfter(retryAfterSeconds)}.`,
+      503
+    );
+    this.name = "DurablePreparationWindowError";
+  }
+}
+
 /** More distinct capabilities are preparing concurrently than the DO will hold. */
 class DurablePreparationCapacityError extends EdgeScanGateError {
   constructor(retryAfterSeconds: number) {
@@ -2627,6 +2642,9 @@ export default {
           }
           if (reservation.status === "at-capacity") {
             throw new DurablePreparationCapacityError(reservation.retryAfterSeconds);
+          }
+          if (reservation.status === "window-elapsed") {
+            throw new DurablePreparationWindowError(reservation.retryAfterSeconds);
           }
           try {
             const deferredRateLimit = await gateScanRequest(

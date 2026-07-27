@@ -50,7 +50,16 @@ export type DurablePreparationReservation =
   /** Another preparation holds this exact capability right now. */
   | { status: "in-flight"; retryAfterSeconds: number }
   /** Too many distinct capabilities are preparing concurrently. */
-  | { status: "at-capacity"; retryAfterSeconds: number };
+  | { status: "at-capacity"; retryAfterSeconds: number }
+  /**
+   * The caller's admission window had already elapsed on THIS clock.
+   *
+   * The deadline is stamped at the edge and evaluated here, so the only way to
+   * reach this without a genuinely slow round trip is the two machines
+   * disagreeing about the time. That is a transient condition the caller can
+   * retry, not a malformed request, and it must not surface as a server error.
+   */
+  | { status: "window-elapsed"; retryAfterSeconds: number };
 
 export class DurablePreparationReservationValidationError extends Error {
   constructor(message: string) {
@@ -89,13 +98,15 @@ export function reserveDurablePreparation(
   assertTimestamp(now, "reservation timestamp");
   assertTimestamp(expiresAt, "reservation expiry");
   if (expiresAt <= now) {
-    throw new DurablePreparationReservationValidationError("A reservation must expire after it is taken.");
+    return { status: "window-elapsed", retryAfterSeconds: 1 };
   }
-  if (expiresAt - now > DURABLE_PREPARATION_RESERVATION_MAX_MS) {
-    throw new DurablePreparationReservationValidationError(
-      `A reservation may not outlive ${DURABLE_PREPARATION_RESERVATION_MAX_MS}ms.`
-    );
-  }
+  // The ceiling exists to bound how long a crashed isolate can strand a
+  // capability. Clamping enforces that bound exactly, where refusing enforced
+  // it only by failing the request: the caller stamps its deadline on the edge
+  // clock and this reads its own, so a DO running behind saw a healthy
+  // 30-second window as an over-long one and answered a correct admission with
+  // an opaque 500, after the Turnstile token had already been redeemed.
+  const boundedExpiresAt = Math.min(expiresAt, now + DURABLE_PREPARATION_RESERVATION_MAX_MS);
 
   purgeExpiredDurablePreparations(sql, now);
 
@@ -129,9 +140,9 @@ export function reserveDurablePreparation(
     "INSERT INTO durable_preparations (capability_hash, reserved_at, expires_at) VALUES (?, ?, ?)",
     capabilityHash,
     now,
-    expiresAt
+    boundedExpiresAt
   );
-  return { status: "reserved", expiresAt };
+  return { status: "reserved", expiresAt: boundedExpiresAt };
 }
 
 /**
