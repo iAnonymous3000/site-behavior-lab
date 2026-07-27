@@ -264,6 +264,46 @@ test("redirects fail closed without an out-of-band follow or Location rewrite", 
   });
 });
 
+test("a worker fetch never outlives the deadline that has to wait for it", async () => {
+  // Route.fetch has no AbortSignal, so a fixed 30s timeout on a fetch starting
+  // at t=40s of a 45s scan leaves a route handler in flight AT the deadline.
+  // The evidence boundary waits for those handlers, so one stalled worker
+  // script discarded a measurement that had already finished.
+  const frame = {};
+  const remaining = [30_000, 4_000, 400];
+  const fetchOptions: Array<{ maxRedirects: number; timeout: number }> = [];
+  const session = createGpcWorkerInjectionSession({
+    registrationWaitMs: 0,
+    randomBytes: FIXED_RANDOM_BYTES,
+    routeFetchTimeoutMs: () => remaining.shift() ?? 0
+  });
+  const fetchWorker = async (url: string) => {
+    session.register({ frame }, networkRegistration(session, url, "classic"));
+    return session.buildRouteFulfillment({
+      request: () => workerRequest(frame, url),
+      fetch: async (options) => {
+        fetchOptions.push(options);
+        return response(200, "postMessage(1)", {});
+      }
+    });
+  };
+
+  await fetchWorker("https://example.test/plenty.js");
+  await fetchWorker("https://example.test/tight.js");
+  // Under the floor the fetch is declined outright rather than started and
+  // abandoned, and it is counted as the transform failure it is.
+  await assert.rejects(
+    fetchWorker("https://example.test/too-late.js"),
+    (error: unknown) => error instanceof GpcWorkerInjectionError && error.reason === "worker-transform-failed"
+  );
+
+  assert.deepEqual(fetchOptions, [
+    { maxRedirects: 0, timeout: GPC_WORKER_ROUTE_FETCH_TIMEOUT_MS },
+    { maxRedirects: 0, timeout: 4_000 }
+  ]);
+  assert.equal(session.diagnostics().transformFailureCount, 1);
+});
+
 test("authenticated tickets fail closed when Chromium request metadata drifts", async () => {
   const frame = {};
   const resourceTypeDrift = createGpcWorkerInjectionSession({ registrationWaitMs: 0, randomBytes: FIXED_RANDOM_BYTES });

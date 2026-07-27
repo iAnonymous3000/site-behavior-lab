@@ -4,6 +4,12 @@ export const GPC_WORKER_CAPTURE_LOSS_WARNING =
 const DEFAULT_REGISTRATION_WAIT_MS = 100;
 const MAX_REGISTERED_WORKER_URL_LENGTH = 16_384;
 export const GPC_WORKER_ROUTE_FETCH_TIMEOUT_MS = 30_000;
+/**
+ * Below this, a worker fetch cannot plausibly complete AND leave the caller
+ * time to fulfill the route, so declining is the honest outcome: it is counted
+ * as a transform failure and disclosed, rather than started and abandoned.
+ */
+export const GPC_WORKER_ROUTE_FETCH_MIN_TIMEOUT_MS = 500;
 // Playwright buffers Route.fetch responses before APIResponse.body() exposes
 // them and offers no streaming or AbortSignal API here. This limit bounds the
 // subsequent userland transfer-to-string and static-parser work; the scanner's
@@ -249,13 +255,21 @@ export class GpcWorkerInjectionSession {
   private readonly frameStates = new WeakMap<object, FrameRegistrationState>();
   private readonly pendingWorkerRegistrationIds = new Set<number>();
   private readonly registrationWaitMs: number;
+  private readonly routeFetchTimeoutMs: () => number;
   private nextWorkerRegistrationId = 1;
   private ambiguousWorkerRequestCount = 0;
   private pendingWorkerRegistrationCount = 0;
   private transformFailureCount = 0;
   private unsupportedWorkerCount = 0;
 
-  constructor(options: { registrationWaitMs?: number; randomBytes?: Uint8Array } = {}) {
+  constructor(
+    options: {
+      registrationWaitMs?: number;
+      randomBytes?: Uint8Array;
+      routeFetchTimeoutMs?: () => number;
+    } = {}
+  ) {
+    this.routeFetchTimeoutMs = options.routeFetchTimeoutMs ?? (() => GPC_WORKER_ROUTE_FETCH_TIMEOUT_MS);
     const randomBytes = options.randomBytes ?? crypto.getRandomValues(new Uint8Array(24));
     if (randomBytes.length < 16) throw new Error("GPC worker injection requires at least 128 bits of capability entropy.");
     const capability = bytesToHex(randomBytes);
@@ -360,15 +374,23 @@ export class GpcWorkerInjectionSession {
       return null;
     }
 
+    // Route.fetch has no AbortSignal option, so its timeout is the only way to
+    // end this fetch. A fixed 30 seconds outlives the caller's own deadline
+    // whenever the fetch starts late, and the caller waits for every routed
+    // handler to settle before it may build evidence: one stalled worker script
+    // could therefore park the scan past its budget and turn a finished
+    // measurement into a timeout, or eat the remaining time the consent,
+    // keystroke, and CNAME probes were about to use. Take the smaller of the
+    // two, and below a usable floor decline instead of starting a fetch that
+    // cannot finish in time.
+    const timeout = Math.min(GPC_WORKER_ROUTE_FETCH_TIMEOUT_MS, Math.floor(this.routeFetchTimeoutMs()));
+    if (!Number.isFinite(timeout) || timeout < GPC_WORKER_ROUTE_FETCH_MIN_TIMEOUT_MS) {
+      this.transformFailureCount += 1;
+      throw new GpcWorkerInjectionError("worker-transform-failed");
+    }
     let response: ResponseT;
     try {
-      // Route.fetch has no AbortSignal option. Its finite timeout is therefore
-      // the operation-level backstop inside each producer's enclosing 45-second
-      // scan deadline (90 seconds for a two-phase comparison).
-      response = await route.fetch({
-        maxRedirects: 0,
-        timeout: GPC_WORKER_ROUTE_FETCH_TIMEOUT_MS
-      });
+      response = await route.fetch({ maxRedirects: 0, timeout });
     } catch {
       this.transformFailureCount += 1;
       throw new GpcWorkerInjectionError("worker-transform-failed");
@@ -557,7 +579,12 @@ function declaredWorkerScriptLength(headers: Record<string, string>): number | n
 }
 
 export function createGpcWorkerInjectionSession(
-  options: { registrationWaitMs?: number; randomBytes?: Uint8Array } = {}
+  options: {
+    registrationWaitMs?: number;
+    randomBytes?: Uint8Array;
+    /** Time this fetch may still take, from the caller's own scan deadline. */
+    routeFetchTimeoutMs?: () => number;
+  } = {}
 ): GpcWorkerInjectionSession {
   return new GpcWorkerInjectionSession(options);
 }

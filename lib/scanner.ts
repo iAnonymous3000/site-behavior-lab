@@ -220,6 +220,13 @@ const NAVIGATION_TIMEOUT_MS = 30_000;
 const NETWORK_IDLE_TIMEOUT_MS = 8_000;
 const SCANNER_EGRESS_ENV = "SITE_BEHAVIOR_LAB_SCANNER_EGRESS";
 const MAX_SCAN_DURATION_MS = 45_000;
+/**
+ * Held back from every GPC worker-script fetch so its route handler can finish
+ * and leave the in-flight set before the scan deadline. The evidence boundary
+ * waits for those handlers, and a handler still running when the deadline
+ * lands rejects the whole visit instead of publishing what it measured.
+ */
+const GPC_WORKER_ROUTE_SETTLE_MARGIN_MS = 1_000;
 // Active keystroke-exfiltration probe: how many fields to type into, the minimum
 // time budget needed to bother, and how long to watch for the sentinel leaving.
 const MAX_PROBE_FIELDS = 8;
@@ -635,7 +642,15 @@ export async function scanSiteWithMeasurement(
   const verificationFlagOn = consentVerificationEnabled();
   const consentShadowRootCapability = randomBytes(32).toString("hex");
   const boundedPageCollectorKey = createBoundedPageCollectorKey();
-  const gpcWorkerInjection = payload.gpcEnabled ? createGpcWorkerInjectionSession() : null;
+  const gpcWorkerInjection = payload.gpcEnabled
+    ? createGpcWorkerInjectionSession({
+        // Leave the caller room to fulfill the route and settle it before the
+        // scan deadline: an in-flight handler AT the deadline discards a
+        // measurement that had otherwise finished.
+        routeFetchTimeoutMs: () =>
+          MAX_SCAN_DURATION_MS - (Date.now() - started) - GPC_WORKER_ROUTE_SETTLE_MARGIN_MS
+      })
+    : null;
   let context: BrowserContext | null = null;
   const scanProxy = await withScanTimeoutDisposing(
     () =>
