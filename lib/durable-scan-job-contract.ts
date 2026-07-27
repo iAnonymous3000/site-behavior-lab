@@ -1,3 +1,4 @@
+import { comparisonModeCount } from "./edge-scan-gate";
 import type { ScanDevice } from "./types";
 import { parseStrictJson } from "./strict-json";
 
@@ -200,7 +201,7 @@ export function isDurableScanJobPayload(value: unknown): value is DurableScanJob
   ) {
     return false;
   }
-  const comparisonCount = Number(value.compareGpc) + Number(value.compareShields) + Number(value.compareConsent);
+  const comparisonCount = comparisonModeCount(value);
   return comparisonCount <= 1 && value.rateLimitCost === (comparisonCount === 1 ? 2 : 1);
 }
 

@@ -4,7 +4,11 @@ import {
   MAX_BODY_BYTES,
   peekRateLimit
 } from "./scan-limits";
-import { readRequestBodyWithinLimit } from "./edge-scan-gate";
+import {
+  comparisonModeCount,
+  MULTIPLE_COMPARISON_MODES_MESSAGE,
+  readRequestBodyWithinLimit
+} from "./edge-scan-gate";
 import type { ScanDevice, ScanRequestPayload } from "./types";
 import { PublicScanError } from "./public-errors";
 import { assertPublicHttpUrl, assertPublicHttpUrlShape, normalizeUrl } from "./url-safety";
@@ -56,9 +60,8 @@ export class ScanGate {
     const payload = await readScanPayload(request);
     const targetUrl = normalizeUrl(payload.url);
     assertPublicHttpUrlShape(targetUrl);
-    const comparisonModes = [payload.compareGpc === true, payload.compareShields === true, payload.compareConsent === true];
-    if (comparisonModes.filter(Boolean).length > 1) {
-      throw new PublicScanError("Choose one comparison mode.");
+    if (comparisonModeCount(payload) > 1) {
+      throw new PublicScanError(MULTIPLE_COMPARISON_MODES_MESSAGE);
     }
     const clientKey = requestClientKey(request);
     const cost = scanRateLimitCost(payload);

@@ -1,3 +1,4 @@
+import { comparisonModeCount } from "./edge-scan-gate";
 import type { ScanDevice } from "./types";
 
 export const SCAN_ADMISSION_CAPABILITY_HEADER = "x-site-behavior-lab-scan-admission";
@@ -63,7 +64,7 @@ export function scanAdmissionSemanticsFromBody(body: unknown): ScanAdmissionSema
   ) {
     return null;
   }
-  if (Number(body.compareGpc) + Number(body.compareShields) + Number(body.compareConsent) > 1) {
+  if (comparisonModeCount(body) > 1) {
     return null;
   }
 
@@ -210,7 +211,7 @@ function assertScanAdmissionSemantics(value: ScanAdmissionSemantics): void {
     typeof value.compareGpc !== "boolean" ||
     typeof value.compareShields !== "boolean" ||
     typeof value.compareConsent !== "boolean" ||
-    Number(value.compareGpc) + Number(value.compareShields) + Number(value.compareConsent) > 1 ||
+    comparisonModeCount(value) > 1 ||
     value.consentMode !== "observe"
   ) {
     throw new Error("Invalid scan-admission semantics.");

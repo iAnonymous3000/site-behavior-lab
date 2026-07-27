@@ -68,10 +68,28 @@ export class RequestBodyInvalidUtf8Error extends EdgeScanGateError {
   }
 }
 
-/** Comparison runs (GPC, Shields, or consent accept/reject) make two browser visits and cost two tokens. */
-export function scanTokenCost(payload: { compareGpc?: boolean; compareShields?: boolean; compareConsent?: boolean }): 1 | 2 {
-  return payload.compareGpc || payload.compareShields || payload.compareConsent ? 2 : 1;
+export type ComparisonModeFlags = {
+  compareGpc?: unknown;
+  compareShields?: unknown;
+  compareConsent?: unknown;
+};
+
+/**
+ * How many comparison axes a request asks for. One is the contract; more than
+ * one is refused everywhere, and every gate that prices, admits, or validates a
+ * scan derives its answer from this count rather than restating the rule.
+ */
+export function comparisonModeCount(payload: ComparisonModeFlags): number {
+  return Number(payload.compareGpc === true) + Number(payload.compareShields === true) + Number(payload.compareConsent === true);
 }
+
+/** Comparison runs (GPC, Shields, or consent accept/reject) make two browser visits and cost two tokens. */
+export function scanTokenCost(payload: ComparisonModeFlags): 1 | 2 {
+  return comparisonModeCount(payload) > 0 ? 2 : 1;
+}
+
+/** The one public sentence for a body naming more than one comparison axis. */
+export const MULTIPLE_COMPARISON_MODES_MESSAGE = "Choose one comparison mode.";
 
 export type PublicScanGateStatus = {
   authenticated: boolean;

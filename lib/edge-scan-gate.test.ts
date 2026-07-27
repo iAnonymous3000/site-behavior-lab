@@ -1,6 +1,9 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import path from "node:path";
 import { test } from "node:test";
 import {
+  comparisonModeCount,
   EdgeScanGateError,
   RequestBodyInvalidUtf8Error,
   RequestBodyReadAbortedError,
@@ -29,6 +32,31 @@ test("scanTokenCost charges two for comparison runs and one otherwise", () => {
   assert.equal(scanTokenCost({}), 1);
   assert.equal(scanTokenCost({ compareGpc: true }), 2);
   assert.equal(scanTokenCost({ compareShields: true }), 2);
+});
+
+test("one comparison rule prices, admits, and validates a scan", () => {
+  // The rule used to be restated in four places; a body naming two axes was
+  // priced as a valid comparison and charged before Node refused it.
+  assert.equal(comparisonModeCount({}), 0);
+  assert.equal(comparisonModeCount({ compareConsent: true }), 1);
+  assert.equal(comparisonModeCount({ compareGpc: true, compareShields: true }), 2);
+  assert.equal(comparisonModeCount({ compareGpc: true, compareShields: true, compareConsent: true }), 3);
+  // Only a literal true counts: a truthy string must never buy a comparison.
+  assert.equal(comparisonModeCount({ compareGpc: "yes", compareShields: 1 }), 0);
+
+  const sources = [
+    "lib/scan-gate.ts",
+    "lib/scan-admission-capability.ts",
+    "cloudflare/container-worker.ts",
+    "lib/durable-scan-job-contract.ts"
+  ].map((file) => readFileSync(path.join(process.cwd(), file), "utf8"));
+  for (const source of sources) {
+    assert.doesNotMatch(
+      source,
+      /Number\(\s*\w*\.?compareGpc\s*\)/,
+      "count comparison modes with comparisonModeCount, not a hand-rolled sum"
+    );
+  }
 });
 
 test("scanAccessTokenMatches accepts the configured token and rejects mismatches", async () => {

@@ -123,8 +123,10 @@ import {
   EdgeScanGateError,
   REQUEST_BODY_OPERATION_TIMEOUT_MS,
   assertTurnstileToken,
+  comparisonModeCount,
   constantTimeEqual,
   formatPublicScanRetryAfter,
+  MULTIPLE_COMPARISON_MODES_MESSAGE,
   openScanBlockedForMissingTurnstile,
   probeTurnstileConfiguration,
   publicClientHash,
@@ -4576,12 +4578,15 @@ async function gateScanRequest(
   signal?: AbortSignal
 ): Promise<PublicScanRateLimitCharge | null> {
   const payload = parseScanGatePayload(body);
+  // Node refuses a body naming more than one comparison axis, but only after
+  // this gate has already redeemed the Turnstile token and committed the
+  // charge, so a request that could never run still spent the caller's quota.
+  // Refuse it here, before anything is charged, in every mode.
+  if (comparisonModeCount(payload) > 1) {
+    throw new EdgeScanGateError(MULTIPLE_COMPARISON_MODES_MESSAGE, 400);
+  }
   const clientHash = await publicClientHash(request.headers);
-  const cost = scanTokenCost({
-    compareGpc: payload.compareGpc === true,
-    compareShields: payload.compareShields === true,
-    compareConsent: payload.compareConsent === true
-  });
+  const cost = scanTokenCost(payload);
   const expectedMonitorToken = env.SITE_BEHAVIOR_LAB_SYNTHETIC_MONITOR_TOKEN?.trim();
   const suppliedMonitorToken = request.headers.get(SYNTHETIC_MONITOR_TOKEN_HEADER)?.trim();
   if (
