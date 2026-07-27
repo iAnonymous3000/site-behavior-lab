@@ -7,6 +7,7 @@ import {
   type CorpusCohortIdentity
 } from "./corpus-cohort";
 import { preferCorpusRepresentative } from "./corpus-representative";
+import { corpusSiteDomainKey } from "./corpus-site-domain";
 import { CORPUS_MIN_SAMPLE } from "./corpus-stats";
 import { domainsMatch } from "./featured-sites";
 import { buildReportHeadline, type HeadlineTone } from "./report-headline";
@@ -243,12 +244,25 @@ function entryLoadFailed(entry: DirectoryEntry): boolean {
  * failed and successful reports or arms counts as covered, not failed; capped
  * coverage is a named subset of successful loads rather than a third total.
  */
+/**
+ * One site identity, shared with the directory, the export, and the stats
+ * builder.
+ *
+ * `entry.domain` is the HEADLINE's display string: a label marker and one
+ * leading `www.` stripped, nothing else. Counting on it meant a rescan that
+ * recorded `example.com` where an older row said `news.example.com` added a
+ * site to the homepage, /status, and /corpus.json's own `siteCount` while
+ * /directory/, corpus-stats, and that same file's per-cohort denominators kept
+ * the old total. Display stays on `entry.domain`; only identity moves.
+ */
+function corpusSiteKey(entry: DirectoryEntry): string {
+  return corpusSiteDomainKey(entry.domain) || entry.domain.toLowerCase();
+}
+
 export function summarizeCorpusSiteCounts(entries: DirectoryEntry[]): CorpusSiteCounts {
-  const attemptedDomains = new Set(entries.map((entry) => entry.domain));
-  const coverageDomains = new Set(entries.filter((entry) => entry.reportHasSuccessfulLoad).map((entry) => entry.domain));
-  const cappedDomains = new Set(
-    entries.filter((entry) => entry.reportHasRequestCappedLoad).map((entry) => entry.domain)
-  );
+  const attemptedDomains = new Set(entries.map(corpusSiteKey));
+  const coverageDomains = new Set(entries.filter((entry) => entry.reportHasSuccessfulLoad).map(corpusSiteKey));
+  const cappedDomains = new Set(entries.filter((entry) => entry.reportHasRequestCappedLoad).map(corpusSiteKey));
   const failedSiteCount = [...attemptedDomains].filter((domain) => !coverageDomains.has(domain)).length;
 
   return {
@@ -350,7 +364,7 @@ export function selectAggregateCorpusCohort(entries: DirectoryEntry[]): {
   const selected = selectPrimaryCorpusCohort(
     [...byCohort.values()].map((cohortEntries) => ({
       identity: cohortEntries[0].corpusCohort,
-      siteCount: new Set(cohortEntries.map((entry) => entry.domain)).size,
+      siteCount: new Set(cohortEntries.map(corpusSiteKey)).size,
       latestRunAt: newestScannedAt(cohortEntries)
     })),
     CORPUS_MIN_SAMPLE
@@ -394,18 +408,19 @@ export function selectSiteDataPoints(entries: DirectoryEntry[]): DirectoryEntry[
   const shieldsByDomain = new Map<string, DirectoryEntry>();
 
   for (const entry of entries) {
-    const current = currentByDomain.get(entry.domain);
-    if (!current || preferAsSiteDataPoint(entry, current)) currentByDomain.set(entry.domain, entry);
+    const key = corpusSiteKey(entry);
+    const current = currentByDomain.get(key);
+    if (!current || preferAsSiteDataPoint(entry, current)) currentByDomain.set(key, entry);
 
     if (entry.comparisonType === "shields" && entry.shieldsThirdPartyChange !== null) {
-      const shields = shieldsByDomain.get(entry.domain);
-      if (!shields || preferAsSiteDataPoint(entry, shields)) shieldsByDomain.set(entry.domain, entry);
+      const shields = shieldsByDomain.get(key);
+      if (!shields || preferAsSiteDataPoint(entry, shields)) shieldsByDomain.set(key, entry);
     }
   }
 
   return [...currentByDomain.values()].map((entry) => ({
     ...entry,
-    shieldsThirdPartyChange: shieldsByDomain.get(entry.domain)?.shieldsThirdPartyChange ?? null
+    shieldsThirdPartyChange: shieldsByDomain.get(corpusSiteKey(entry))?.shieldsThirdPartyChange ?? null
   }));
 }
 

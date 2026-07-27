@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { createConsentComparisonReport } from "./compare-reports";
+import { corpusSiteDomainKey } from "./corpus-site-domain";
 import {
   consentClicksForView,
   corpusExportMetadataForView,
@@ -313,6 +314,27 @@ test("corpus site counts separate attempts, successful coverage, failures, and c
     failedSiteCount: 1,
     cappedSiteCount: 1
   });
+});
+
+test("the corpus counts one site however the headline chose to spell it", () => {
+  // The directory, the export, and the stats builder all collapse a site with
+  // siteProfileKey. Counting on the headline's display string instead meant a
+  // rescan recorded under the apex added a site the other three never saw, and
+  // /corpus.json disagreed with itself in one payload.
+  const entries = [
+    makeEntry({ id: "sub", domain: "news.ycombinator.com" }),
+    makeEntry({ id: "apex", domain: "ycombinator.com" }),
+    makeEntry({ id: "www", domain: "www.ycombinator.com" }),
+    makeEntry({ id: "other", domain: "other-site.com" })
+  ];
+
+  assert.equal(summarizeCorpusSiteCounts(entries).attemptedSiteCount, 2);
+  assert.equal(summarizeCorpusSiteCounts(entries).coverageSiteCount, 2);
+  assert.equal(
+    new Set(selectSiteDataPoints(entries).map((entry) => corpusSiteDomainKey(entry.domain))).size,
+    selectSiteDataPoints(entries).length
+  );
+  assert.equal(selectSiteDataPoints(entries).length, 2);
 });
 
 test("comparison coverage and cap counts consider every arm without double counting the site", () => {
