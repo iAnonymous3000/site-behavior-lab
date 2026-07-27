@@ -25,8 +25,8 @@ const ROOT = process.cwd();
 const EXACT_VERSION = /^\d+\.\d+\.\d+$/;
 const REQUIRED_NODE = "24.14.1";
 const REQUIRED_NPM = "11.11.0";
-const REQUIRED_CONTAINER_NODE = "24.17.0";
-const REQUIRED_CONTAINER_NPM = "11.13.0";
+const REQUIRED_CONTAINER_NODE = "24.18.0";
+const REQUIRED_CONTAINER_NPM = "11.16.0";
 
 function source(relativePath: string): string {
   return readFileSync(path.join(ROOT, relativePath), "utf8");

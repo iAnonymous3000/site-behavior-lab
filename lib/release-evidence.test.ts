@@ -103,7 +103,7 @@ test("repository metadata truthfully describes one private development line", as
   assert.match(releaseGuide, /Pages still declared `NODE_VERSION=22`[\s\S]*Node `24\.14\.1` with npm `11\.11\.0`/);
   assert.match(
     releaseGuide,
-    /Playwright base[\s\S]*Node 24\.17\.0 with npm 11\.13\.0[\s\S]*intentionally distinct/
+    /Playwright base[\s\S]*Node 24\.18\.0 with npm 11\.16\.0[\s\S]*intentionally distinct/
   );
   assert.match(releaseGuide, /Preview deployments[\s\S]*remained public by default/);
   assert.match(
@@ -129,7 +129,7 @@ test("container and CI source contracts preserve exact-SHA evidence after the re
   assert.match(dockerfile, /org\.opencontainers\.image\.licenses="AGPL-3\.0-or-later"/);
   assert.match(
     dockerfile,
-    /RUN test "\$\(node --version\)" = "v24\.17\.0" \\\n\s+&& test "\$\(npm --version\)" = "11\.13\.0"/
+    /RUN test "\$\(node --version\)" = "v24\.18\.0" \\\n\s+&& test "\$\(npm --version\)" = "11\.16\.0"/
   );
 
   const app = workflow.slice(workflow.indexOf("\n  app:"), workflow.indexOf("\n  smoke:"));
@@ -254,7 +254,7 @@ if (process.env.FIXTURE_DOCKER_LOG) fs.appendFileSync(process.env.FIXTURE_DOCKER
 if (args[0] === "run") {
   const entrypoint = args.find((value) => value.startsWith("--entrypoint="));
   if (entrypoint === "--entrypoint=node") {
-    process.stdout.write((process.env.FIXTURE_CONTAINER_NODE || "v24.17.0") + "\\n");
+    process.stdout.write((process.env.FIXTURE_CONTAINER_NODE || "v24.18.0") + "\\n");
     process.exit(0);
   }
   if (entrypoint === "--entrypoint=npm") {
@@ -309,7 +309,7 @@ process.stdout.write(JSON.stringify([{
     rootfsLayers: [layer],
     sourceCommit: fixture.commit,
     runtime: {
-      node: "24.17.0",
+      node: "24.18.0",
       npm: "absent",
       probeIsolation: {
         pull: "never",
@@ -359,16 +359,16 @@ process.stdout.write(JSON.stringify([{
     {
       DOCKER_BIN: docker,
       FIXTURE_COMMIT: fixture.commit,
-      FIXTURE_CONTAINER_NODE: "v24.18.0"
+      FIXTURE_CONTAINER_NODE: "v24.19.0"
     }
   );
   assert.notEqual(wrongRuntime.status, 0);
-  assert.match(wrongRuntime.stderr, /requires node 24\.17\.0, not v24\.18\.0/);
+  assert.match(wrongRuntime.stderr, /requires node 24\.18\.0, not v24\.19\.0/);
 
   // A runtime image that ships ANY answering package manager is rejected,
   // including one at the base's own pinned version: the contract is absence,
   // not a version.
-  for (const presentNpm of ["11.13.0", "11.14.0"]) {
+  for (const presentNpm of ["11.16.0", "11.17.0"]) {
     const npmPresent = runEvidence(
       fixture.root,
       ["--container-image", "site-behavior-lab:smoke"],
@@ -451,7 +451,7 @@ const commit = process.env.FIXTURE_COMMIT;
 const args = process.argv.slice(2);
 if (args[0] === "run") {
   const entrypoint = args.find((value) => value.startsWith("--entrypoint="));
-  if (entrypoint === "--entrypoint=node") process.stdout.write("v24.17.0\\n");
+  if (entrypoint === "--entrypoint=node") process.stdout.write("v24.18.0\\n");
   else if (entrypoint === "--entrypoint=npm") process.exit(127);
   else process.exit(2);
   process.exit(0);

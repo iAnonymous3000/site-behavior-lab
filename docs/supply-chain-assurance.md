@@ -25,7 +25,7 @@ mandatory. The first real GitHub run still has to prove outbound advisory/DB
 access and the current absence of findings; static workflow tests cannot supply
 that receipt.
 
-The digest-pinned Playwright base is verified at Node 24.17.0/npm 11.13.0 and
+The digest-pinned Playwright base is verified at Node 24.18.0/npm 11.16.0 and
 Dockerfile assertions fail the build if those base versions drift. The runtime
 stage then removes the base's global npm/yarn/corepack (whose bundled tar,
 undici, and sigstore copies would otherwise ship as unexecuted vulnerable
