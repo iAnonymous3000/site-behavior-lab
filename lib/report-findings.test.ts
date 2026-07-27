@@ -841,6 +841,50 @@ test("an ineligible comparison replaces the story card with the disqualifying fa
   assert.match(gpcCard.lead, /different sites/);
 });
 
+test("an eligible GPC pair gets a card, signed and never attributed to the signal", () => {
+  const baseline = makeResult({
+    firstPartyDomain: "shop.example",
+    domains: [
+      makeTrackerDomain("ads.example", 30, "AdCo", "advertising"),
+      makeTrackerDomain("pixels.example", 10, "PixelCo", "advertising")
+    ],
+    totalRequests: 100,
+    thirdPartyRequests: 40,
+    thirdPartyDomains: 8
+  });
+  const variant = makeResult({
+    firstPartyDomain: "shop.example",
+    domains: [makeTrackerDomain("ads.example", 8, "AdCo", "advertising")],
+    totalRequests: 40,
+    thirdPartyRequests: 10,
+    thirdPartyDomains: 3
+  });
+
+  // The headline already speaks for this pair; without a card the findings
+  // board narrated only the baseline arm.
+  const card = byId(buildFindings(viewFromV1Report(gpcPair(baseline, variant)), null), "gpc-comparison");
+  assert.equal(card.level, "ok");
+  assert.match(card.title, /Fewer off-site requests observed in the visit with a privacy signal/);
+  assert.match(card.lead, /30 fewer third-party requests/);
+  assert.match(card.detail, /not proof the site received or honored the signal/);
+  assert.doesNotMatch(`${card.title} ${card.lead} ${card.detail}`, /honors|respects|complied|obeyed/i);
+  assert.doesNotMatch(card.title, /not conclusive/);
+
+  // Mixed directions must never collapse into a reduction story.
+  const mixed = makeResult({
+    firstPartyDomain: "shop.example",
+    domains: [makeTrackerDomain("ads.example", 30, "AdCo", "advertising")],
+    totalRequests: 120,
+    thirdPartyRequests: 48,
+    thirdPartyDomains: 9
+  });
+  const mixedCard = byId(buildFindings(viewFromV1Report(gpcPair(baseline, mixed)), null), "gpc-comparison");
+  assert.equal(mixedCard.level, "info");
+  assert.match(mixedCard.title, /Mixed changes observed/);
+  assert.match(mixedCard.lead, /8 more third-party requests/);
+  assert.match(mixedCard.lead, /10 fewer known-service requests/);
+});
+
 test("request capture loss replaces the GPC finding with a non-comparative methodology card", () => {
   const captureLossCases = [
     { warning: GPC_WORKER_CAPTURE_LOSS_WARNING, reason: /GPC Worker capture loss/ },

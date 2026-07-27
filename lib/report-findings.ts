@@ -832,8 +832,89 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
     );
   }
 
-  if (arms && axis === "gpc" && pairGate && !pairGate.allowed) {
-    findings.unshift(ineligibleComparisonFinding("gpc-comparison", "This GPC comparison is not conclusive", pairGate));
+  if (arms && axis === "gpc") {
+    if (pairGate && !pairGate.allowed) {
+      findings.unshift(ineligibleComparisonFinding("gpc-comparison", "This GPC comparison is not conclusive", pairGate));
+    } else {
+      // Same signed, per-family, never-summed composition as the Shields card.
+      // An ELIGIBLE GPC pair used to produce no card at all, so the headline
+      // could describe the pair while the findings board narrated only the
+      // baseline arm.
+      const signedDeltas: { label: string; singular: string; value: number }[] = [];
+      if (rawCountsAllowed) {
+        signedDeltas.push(
+          {
+            label: "third-party requests",
+            singular: "third-party request",
+            value: arms.variant.counts.thirdPartyRequests - arms.baseline.counts.thirdPartyRequests
+          },
+          {
+            label: "third-party cookies",
+            singular: "third-party cookie",
+            value: arms.variant.counts.thirdPartyCookies - arms.baseline.counts.thirdPartyCookies
+          }
+        );
+      }
+      if (classificationAllowed) {
+        signedDeltas.push({
+          label: "known-service requests",
+          singular: "known-service request",
+          value: arms.variant.counts.knownTrackerRequests - arms.baseline.counts.knownTrackerRequests
+        });
+      }
+      if (detectorAllowed) {
+        signedDeltas.push({
+          label: "fingerprint-like calls",
+          singular: "fingerprint-like call",
+          value: arms.variant.counts.fingerprintEvents - arms.baseline.counts.fingerprintEvents
+        });
+      }
+      const decreased = signedDeltas.some((delta) => delta.value < 0);
+      const increased = signedDeltas.some((delta) => delta.value > 0);
+      const direction = decreased && increased ? "mixed" : decreased ? "decreased" : increased ? "increased" : "flat";
+      const changedParts = signedDeltas
+        .filter((delta) => delta.value !== 0)
+        .map((delta) => `${Math.abs(delta.value).toLocaleString("en-US")} ${delta.value < 0 ? "fewer" : "more"} ${Math.abs(delta.value) === 1 ? delta.singular : delta.label}`);
+      const removedEntityNames = classificationAllowed ? entitiesOnlyIn(arms.baseline, arms.variant) : [];
+
+      if (signedDeltas.length === 0) {
+        findings.unshift(
+          ineligibleComparisonFinding(
+            "gpc-comparison",
+            "This GPC comparison supports no comparable delta",
+            familyGates?.["raw-counts"] ?? { allowed: false, reasons: ["No metric family is comparable across these two visits."] }
+          )
+        );
+      } else {
+        // Honoring GPC means not selling or sharing data. Request counts cannot
+        // observe that, and cannot even show the signal was received, so every
+        // line here describes the two visits and stops.
+        findings.unshift({
+          id: "gpc-comparison",
+          icon: "shield-check",
+          level: direction === "decreased" ? "ok" : direction === "flat" ? "quiet" : "info",
+          title:
+            direction === "decreased"
+              ? "Fewer off-site requests observed in the visit with a privacy signal"
+              : direction === "increased"
+                ? "More off-site activity observed in the visit with a privacy signal"
+                : direction === "mixed"
+                  ? "Mixed changes observed in the visit with a privacy signal"
+                  : "No change observed in the visit with a privacy signal",
+          lead:
+            direction === "flat"
+              ? `The visit configured with a "do not sell or share" (GPC) signal showed no change in the comparable metrics (${humanList(
+                  signedDeltas.map((delta) => delta.label),
+                  4
+                )}).`
+              : `The visit configured with a "do not sell or share" (GPC) signal showed ${humanList(changedParts, 4)}.`,
+          detail: `${
+            removedEntityNames.length > 0 ? `Services only seen in the visit without the signal: ${humanList(removedEntityNames)}. ` : ""
+          }An observed difference for this pair of visits, not proof the site received or honored the signal. A single paired comparison can also reflect run-to-run variance (ad rotation, caching, experiments).`,
+          evidence: `Signed per-metric differences between the two visits; nothing is summed across metrics.`
+        });
+      }
+    }
   }
 
   // Keyed on the explicit design marker: a legacy "custom" comparison is also
