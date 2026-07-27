@@ -1760,11 +1760,12 @@ test("run views carry the consent outcome and comparison views carry display lab
   if (v1Read.ok) {
     // choiceState stays null on v1: a dispatched click was never verified,
     // and the verification surface is null ("never ran"), never an empty
-    // recorded ledger. interactionAttempted is true by construction: the v1
-    // producer only wrote the block in the click modes.
+    // recorded ledger. interactionAttempted is null for the same reason the
+    // wire cannot answer it: a run whose budget ran out before the banner
+    // search began writes this same block.
     assert.deepEqual(toReportView(v1Read.stored).runs[0].consent, {
       mode: "reject-all",
-      interactionAttempted: true,
+      interactionAttempted: null,
       controlActivated: true,
       cmp: null,
       choiceState: null,

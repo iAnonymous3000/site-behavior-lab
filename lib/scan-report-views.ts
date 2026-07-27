@@ -174,11 +174,15 @@ export type RunQualityView = {
 export type RunConsentView = {
   mode: "accept-all" | "reject-all";
   /**
-   * The scanner attempted a banner interaction on this run. v2 records it;
-   * on v1 it is true by construction (the producer only wrote the interaction
-   * block in the click modes).
+   * The scanner attempted a banner interaction on this run.
+   *
+   * null on v1, which cannot answer it: the producer writes this block for
+   * every choice run, including one whose budget ran out before the banner
+   * search could begin, and the v1 wire carries no field separating "searched
+   * and found nothing" from "never looked". Reading it as true was a claim the
+   * evidence does not support.
    */
-  interactionAttempted: boolean;
+  interactionAttempted: boolean | null;
   controlActivated: boolean;
   /** Consent platform name when a known CMP control matched (e.g. "OneTrust"). */
   cmp: string | null;
@@ -649,9 +653,9 @@ function runViewFromV1(result: ScanResult, label: RunView["label"], scannedAt: s
     consent: result.consentInteraction
       ? {
           mode: result.consentInteraction.mode,
-          // The v1 producer only wrote this block in the click modes, so an
-          // interaction was attempted by construction.
-          interactionAttempted: true,
+          // Unknowable from v1. The block's presence proves a choice was
+          // REQUESTED, not that the interaction ran.
+          interactionAttempted: null,
           controlActivated: result.consentInteraction.clicked,
           cmp: result.consentInteraction.cmp ?? null,
           // v1 recorded click dispatch only; no interpreter ever verified the
