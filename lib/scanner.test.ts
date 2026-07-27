@@ -2296,6 +2296,18 @@ test("a consent click cannot promote a sibling origin into evidence or active-in
       status: "skipped",
       reason: "load-failed"
     });
+    // A detector that never ran must censor its evidence family, exactly as a
+    // failed CNAME probe does. Recording only the detector status left run
+    // quality "complete" over the two loudest absence claims in the product:
+    // no synthetic input left this page, and no policy contradiction found.
+    for (const detail of ["keystroke-probe", "policy-visit"] as const) {
+      assert.ok(
+        staged!.measurement.qualityFacts.captureLoss.some(
+          (loss) => loss.family === "detector-output" && loss.kind === "dropped" && loss.detail === detail
+        ),
+        `${detail} did not censor detector-output evidence`
+      );
+    }
     for (const family of ["requests", "cookies", "storage", "fingerprinting", "consent-verification"] as const) {
       assert.equal(
         staged!.measurement.qualityFacts.captureLoss.some(

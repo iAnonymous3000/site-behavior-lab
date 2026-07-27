@@ -1735,25 +1735,46 @@ export async function scanSiteWithMeasurement(
         detail: "keystroke-probe-capture"
       });
     }
+    // Quality is derived from capture loss, not from detector status (the same
+    // rule the CNAME probe follows below), so a keystroke probe that did not
+    // run or did not finish must censor its family too. Without this the run
+    // publishes detector-output "complete" and the board's loudest absence
+    // card, "no synthetic input left this page", over a probe that never typed.
+    const recordKeystrokeCaptureLoss = (kind: "cap" | "dropped"): void => {
+      measurementKernel.recordCaptureLoss({
+        family: "detector-output",
+        phaseId: keystrokePhaseId,
+        kind,
+        count: 1,
+        detail: "keystroke-probe"
+      });
+    };
     if (keystrokePhaseId === null) {
       measurementKernel.setDetector("keystroke-exfiltration", "skipped", {
         reason: activeProbeSubjectAvailable ? "budget-unavailable" : "load-failed"
       });
+      recordKeystrokeCaptureLoss(activeProbeSubjectAvailable ? "cap" : "dropped");
     } else if (keystrokeProbe?.status === "skipped") {
       measurementKernel.setDetector("keystroke-exfiltration", "skipped", {
         reason: keystrokeProbe.reason,
         phaseId: keystrokePhaseId
       });
+      // Every skip the probe itself reports is a lost subject, not a budget.
+      recordKeystrokeCaptureLoss("dropped");
     } else if (keystrokeProbe?.status === "partial") {
       measurementKernel.setDetector("keystroke-exfiltration", "partial", {
         reason: keystrokeProbe.reason,
         phaseId: keystrokePhaseId
       });
+      // The probe's own truncation counter is recorded above; a partial
+      // synthesized by the deadline or a thrown probe carries no count.
+      if (keystrokeCaptureLossCount === 0) recordKeystrokeCaptureLoss("dropped");
     } else if (keystrokeProbe?.status === "failed") {
       measurementKernel.setDetector("keystroke-exfiltration", "failed", {
         reason: keystrokeProbe.reason,
         phaseId: keystrokePhaseId
       });
+      recordKeystrokeCaptureLoss("dropped");
     } else {
       measurementKernel.setDetector("keystroke-exfiltration", "complete", { phaseId: keystrokePhaseId });
     }
@@ -1952,6 +1973,22 @@ export async function scanSiteWithMeasurement(
         detail: "policy-link-candidates"
       });
     }
+    // Same rule as the keystroke and CNAME probes: a policy visit the scanner
+    // could not make or could not finish censors its family instead of leaving
+    // the run's detector-output quality "complete". The two paths that are NOT
+    // capture loss stay silent: "unsupported" (the page offers no policy link,
+    // an observed property of the subject) and a failed load, where the probe
+    // is withheld deliberately because an interstitial's policy is not the
+    // site's.
+    const recordPolicyCaptureLoss = (kind: "cap" | "dropped", phaseId: number | null): void => {
+      measurementKernel.recordCaptureLoss({
+        family: "detector-output",
+        phaseId,
+        kind,
+        count: 1,
+        detail: "policy-visit"
+      });
+    };
     let privacyPolicy: PrivacyPolicySummary | null = null;
     if (policyPhaseId !== null) {
       try {
@@ -1974,11 +2011,14 @@ export async function scanSiteWithMeasurement(
         );
       } catch {
         measurementKernel.setDetector("privacy-policy", "failed", { reason: "load-failed", phaseId: policyPhaseId });
+        recordPolicyCaptureLoss("dropped", policyPhaseId);
       }
     } else if ((policyCandidate && !policyBudgetAvailable) || policyLinksTruncated) {
       measurementKernel.setDetector("privacy-policy", "skipped", { reason: "budget-unavailable" });
+      recordPolicyCaptureLoss("cap", policyPhaseId);
     } else if (!subjectStateTrusted || consentInteractionLeftSubject) {
       measurementKernel.setDetector("privacy-policy", "skipped", { reason: "load-failed" });
+      recordPolicyCaptureLoss("dropped", policyPhaseId);
     } else if (pageLoadFailed) {
       // A challenge/error page's policy link is the interstitial vendor's, not
       // the site's; the probe is deliberately withheld on failed loads.
