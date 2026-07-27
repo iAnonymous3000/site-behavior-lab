@@ -1218,8 +1218,33 @@ export class ScannerContainer extends Container<Env> {
     return this.ctx.storage.transactionSync(() => {
       ensureDurableScanJobStore(this.ctx.storage.sql);
       this.purgeDurableScanJobState(now);
-      return listExpiredDurableScanJobLeases(this.ctx.storage.sql, now);
+      return listExpiredDurableScanJobLeases(this.ctx.storage.sql, now).filter((snapshot) =>
+        this.expiredDurablePumpItemIsActionable(snapshot, now)
+      );
     });
+  }
+
+  /**
+   * Offer this phase only the rows it can actually settle.
+   *
+   * The expired-lease query is deliberately deadline-agnostic, so it also
+   * returns publications the DEADLINE phase owns and publications still inside
+   * their reconciliation backoff. Both are no-ops here, and a no-op still spends
+   * one of the turn's shared `maxCoreItems` slots; a full batch of them reports
+   * a core backlog, which skips the deadline phase for the whole turn.
+   *
+   * That cannot happen today: claiming caps leased-plus-publishing rows at
+   * DURABLE_SCAN_JOB_EXECUTION_CAPACITY, far below the batch bound. But that
+   * makes the pump's liveness depend on a capacity constant two modules away
+   * rather than on anything the phase states, so spend the budget only on work.
+   * The handler keeps its own guards: a snapshot can go stale between this
+   * listing and its turn.
+   */
+  private expiredDurablePumpItemIsActionable(snapshot: DurableScanJobSnapshot, now: number): boolean {
+    if (snapshot.state === "leased") return true;
+    if (snapshot.state !== "publishing") return false;
+    if (snapshot.deadlineAt <= now) return false;
+    return this.reconciliationIsDue(snapshot, now);
   }
 
   private async processExpiredDurablePumpItem(
