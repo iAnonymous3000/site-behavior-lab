@@ -288,6 +288,35 @@ export function installBoundedPageCollector(key: string): void {
     }
   });
 
+  // Substrings that mark a link as a privacy-policy candidate.
+  //
+  // This was the single literal "privacy", which is a statement about English
+  // pages, not about the web. A Spanish site labels the link "Privacidad" and a
+  // German one "Datenschutz", neither of which contains "privacy", so the probe
+  // found nothing and the report concluded the SITE offers no discoverable
+  // policy link — a claim about the site derived from a limit of the
+  // instrument, which is the error this scanner exists to avoid.
+  //
+  // Stems, not whole words, so declensions and compounds match
+  // (datenschutzerklaerung, politica-de-privacidade, confidentialite).
+  const POLICY_LINK_TERMS = [
+    "privacy",       // en, nl (privacybeleid), it (commonly "Privacy")
+    "privacidad",    // es
+    "privacidade",   // pt
+    "privatezza",    // it
+    "datenschutz",   // de
+    "confidentialit",// fr (confidentialite / confidentialité)
+    "personvern",    // no
+    "integritetspolicy", // sv
+    "tietosuoja",    // fi
+    "personoplysninger", // da
+    "prywatno",      // pl (prywatnosci / prywatności)
+    "gizlilik",      // tr
+    "soukrom",       // cs (soukromi / soukromí)
+    "adatvedelmi",   // hu
+    "gdpr"           // jurisdiction-neutral, common in EU footers
+  ];
+
   set(api, "links", (input: unknown): string => {
     try {
       const limits = input as Record<string, unknown>;
@@ -333,9 +362,17 @@ export function installBoundedPageCollector(key: string): void {
         const text = call(nativeStringSlice, fullText, [0, maxTextChars]) as string;
         const lowerHref = call(nativeStringLower, href, []) as string;
         const lowerText = call(nativeStringLower, fullText, []) as string;
-        const matched =
-          (call(nativeStringIndexOf, lowerHref, ["privacy"]) as number) >= 0 ||
-          (call(nativeStringIndexOf, lowerText, ["privacy"]) as number) >= 0;
+        let matched = false;
+        for (let term = 0; term < POLICY_LINK_TERMS.length; term += 1) {
+          const needle = POLICY_LINK_TERMS[term];
+          if (
+            (call(nativeStringIndexOf, lowerHref, [needle]) as number) >= 0 ||
+            (call(nativeStringIndexOf, lowerText, [needle]) as number) >= 0
+          ) {
+            matched = true;
+            break;
+          }
+        }
         if (!matched) {
           // Only an unmatched link whose text was cut at the MATCH budget can
           // still be hiding the word past the cut.
