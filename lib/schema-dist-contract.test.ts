@@ -56,7 +56,15 @@ function referencedSchemaModules(): Map<string, string[]> {
   }
   for (const file of files) {
     const source = readFileSync(file, "utf8");
-    for (const match of source.matchAll(/dist\/schema\/lib\/([a-z0-9-]+)\.js/g)) {
+    // Both spellings automation uses: the literal path an npm script or
+    // workflow names, and the segmented `path.join(root, "dist", "schema",
+    // "lib", "x.js")` a launcher builds. Only the first was matched, so every
+    // module reached exclusively through a launcher was outside this contract.
+    const references = [
+      ...source.matchAll(/dist\/schema\/lib\/([a-z0-9-]+)\.js/g),
+      ...source.matchAll(/"dist",\s*"schema",\s*"lib",\s*"([a-z0-9-]+)\.js"/g)
+    ];
+    for (const match of references) {
       const key = `lib/${match[1]}.ts`;
       if (!referenced.has(key)) referenced.set(key, []);
       const where = path.relative(ROOT, file);
