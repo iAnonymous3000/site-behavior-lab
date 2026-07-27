@@ -28,7 +28,19 @@ const openAccessScanner = process.env.NEXT_PUBLIC_SITE_BEHAVIOR_LAB_OPEN_ACCESS 
 const archivePageSize = 24;
 const maxHomeHtmlBytes = 160 * 1024;
 const maxReportHtmlBytes = 200 * 1024;
-const maxInitialJsGzipBytes = 200 * 1024;
+// What a supported browser actually downloads on first load.
+//
+// This deliberately EXCLUDES the `noModule` polyfill bundle. Next emits it for
+// browsers without ES-module support, and every browser the framework supports
+// skips it, so counting its ~39 KB gzip measured a payload no visitor fetches
+// and left the real number invisible behind it.
+//
+// The value is the previous whole-tag budget (204,800) minus the exact size of
+// that bundle (39,520 gzip bytes, byte-identical across the framework versions
+// this repo has shipped), so the number of bytes a visitor may really receive
+// is unchanged to the byte. This corrects WHAT is measured; it does not relax
+// how much is allowed.
+const maxInitialJsGzipBytes = 204_800 - 39_520;
 const staticFetchTimeoutMs = 10_000;
 const controlResponseMaxBytes = 64 * 1024;
 const schemaResponseMaxBytes = 2 * 1024 * 1024;
@@ -710,9 +722,17 @@ async function assertStaticRouteBudgets(htmlPath, { label, maxHtmlBytes, maxInit
     fail(`${label} HTML is ${htmlBytes} bytes; budget is ${maxHtmlBytes} bytes`);
   }
 
-  const scripts = Array.from(
-    new Set(Array.from(html.matchAll(/<script\b[^>]*\bsrc="([^"]+\.js(?:\?[^\"]*)?)"/g), (match) => match[1]))
-  );
+  // Match the whole tag so the `noModule` attribute is visible wherever it
+  // sits relative to `src`; a src-anchored match silently dropped it.
+  const tags = Array.from(html.matchAll(/<script\b[^>]*?\bsrc="([^"]+\.js(?:\?[^\"]*)?)"[^>]*>/g));
+  const seen = new Set();
+  const scripts = [];
+  for (const tag of tags) {
+    if (seen.has(tag[1])) continue;
+    seen.add(tag[1]);
+    if (/\bnomodule\b/i.test(tag[0])) continue;
+    scripts.push(tag[1]);
+  }
   let compressedBytes = 0;
   for (const source of scripts) {
     let pathname;
