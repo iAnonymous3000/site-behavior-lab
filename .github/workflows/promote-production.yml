@@ -53,8 +53,14 @@ jobs:
       vars.SITE_BEHAVIOR_LAB_PROMOTION_PAUSED != '1'
     runs-on: ubuntu-latest
     steps:
+      # checkout v7 refuses to check out FORK pull-request code under
+      # workflow_run, which is the privileged-context attack this job would
+      # otherwise be shaped for. It resolves an explicit same-repository ref
+      # normally, and this one is a literal `main` rather than anything derived
+      # from the triggering event, so the refusal cannot apply here. The job
+      # additionally gates on head_repository above.
       - name: Checkout main history
-        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: main
           fetch-depth: 0

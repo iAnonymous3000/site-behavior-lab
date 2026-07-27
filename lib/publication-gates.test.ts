@@ -40,7 +40,7 @@ test("scan artifacts and commits include provenance sidecars", () => {
 
 test("official actions are pinned to reviewed Node-24-compatible releases", () => {
   const approvedPins = new Map([
-    ["actions/checkout", "93cb6efe18208431cddfb8368fd83d5badbf9bfd"],
+    ["actions/checkout", "3d3c42e5aac5ba805825da76410c181273ba90b1"],
     ["actions/setup-node", "a0853c24544627f65ddf259abe73b1d18a591444"],
     ["actions/upload-artifact", "043fb46d1a93c77aae656e7c1c64a875d1fc6a0a"]
   ]);
@@ -52,6 +52,23 @@ test("official actions are pinned to reviewed Node-24-compatible releases", () =
       assert.equal(ref, approvedPins.get(action), `${name}: ${action}`);
     }
   }
+});
+
+test("the workflow_run promotion never checks out code the triggering event chose", () => {
+  // checkout v7 refuses fork pull-request code under workflow_run because that
+  // trigger runs privileged. This job is the one that runs under it, so its
+  // checkout must stay a literal same-repository ref: resolving anything from
+  // github.event.workflow_run would be both refused by the action and the
+  // exact confused-deputy this repo's promotion gate exists to prevent.
+  const workflow = source(".github/workflows/promote-production.yml");
+  const checkoutStep = workflow.slice(
+    workflow.indexOf("- name: Checkout main history"),
+    workflow.indexOf("- name: Confirm every CI test gate passed")
+  );
+  assert.ok(checkoutStep.length > 0, "the promotion checkout step could not be located");
+  assert.match(checkoutStep, /^\s+ref: main$/m);
+  assert.doesNotMatch(checkoutStep, /\$\{\{/, "the promotion checkout ref must not be interpolated from the event");
+  assert.doesNotMatch(checkoutStep, /repository:/, "the promotion must never check out another repository");
 });
 
 test("Dependabot covers every tracked dependency ecosystem at its manifest path", () => {
