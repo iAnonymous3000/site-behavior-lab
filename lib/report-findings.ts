@@ -893,11 +893,16 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
           id: "gpc-comparison",
           icon: "shield-check",
           level: direction === "decreased" ? "ok" : direction === "flat" ? "quiet" : "info",
+          // `direction` is computed over every comparable family, so a pair
+          // whose only movement is in cookies or fingerprint-like calls would
+          // headline a request reduction the evidence never measured. The noun
+          // stays family-neutral, matching the Shields card; the lead below
+          // already names the exact metrics that moved.
           title:
             direction === "decreased"
-              ? "Fewer off-site requests observed in the visit with a privacy signal"
+              ? "Fewer tracking signals observed in the visit with a privacy signal"
               : direction === "increased"
-                ? "More off-site activity observed in the visit with a privacy signal"
+                ? "More tracking signals observed in the visit with a privacy signal"
                 : direction === "mixed"
                   ? "Mixed changes observed in the visit with a privacy signal"
                   : "No change observed in the visit with a privacy signal",

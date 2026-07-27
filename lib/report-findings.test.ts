@@ -864,11 +864,33 @@ test("an eligible GPC pair gets a card, signed and never attributed to the signa
   // board narrated only the baseline arm.
   const card = byId(buildFindings(viewFromV1Report(gpcPair(baseline, variant)), null), "gpc-comparison");
   assert.equal(card.level, "ok");
-  assert.match(card.title, /Fewer off-site requests observed in the visit with a privacy signal/);
+  assert.match(card.title, /Fewer tracking signals observed in the visit with a privacy signal/);
   assert.match(card.lead, /30 fewer third-party requests/);
   assert.match(card.detail, /not proof the site received or honored the signal/);
   assert.doesNotMatch(`${card.title} ${card.lead} ${card.detail}`, /honors|respects|complied|obeyed/i);
   assert.doesNotMatch(card.title, /not conclusive/);
+
+  // A GPC card's `direction` is computed over every comparable family, so the
+  // headline noun may not name one of them. Here the request counts are held
+  // equal and only third-party cookies move; the card must not publish that as
+  // a change in off-site requests.
+  const heldRequests = {
+    firstPartyDomain: "shop.example",
+    domains: [makeTrackerDomain("ads.example", 30, "AdCo", "advertising")],
+    totalRequests: 100,
+    thirdPartyRequests: 40,
+    thirdPartyDomains: 8
+  };
+  const cookiesOnly = byId(
+    buildFindings(
+      viewFromV1Report(gpcPair(makeResult({ ...heldRequests, thirdPartyCookies: 5 }), makeResult(heldRequests))),
+      null
+    ),
+    "gpc-comparison"
+  );
+  assert.match(cookiesOnly.lead, /fewer third-party cookies/);
+  assert.doesNotMatch(cookiesOnly.title, /off-site request|off-site activity/i);
+  assert.match(cookiesOnly.title, /Fewer tracking signals/);
 
   // Mixed directions must never collapse into a reduction story.
   const mixed = makeResult({
