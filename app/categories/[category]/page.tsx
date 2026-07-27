@@ -145,6 +145,11 @@ export default async function CategoryPage({ params }: { params: Promise<{ categ
         <h2 id="method-title">Eligibility and limits</h2>
         <ul>
           <li>Each row is the newest successful, request-complete, uncapped passive lead visit for one canonical site.</li>
+          <li>
+            Every row here was measured under one methodology cohort ({category.cohort.methodologyVersion}), which is
+            this page&apos;s denominator. Another category can publish a different cohort, so these medians are
+            comparable within this page and not against another category&apos;s.
+          </li>
           <li>Failed loads, incomplete recordings and accept/reject consent-interaction arms are excluded.</li>
           <li>Catalogued tracking-service counts are a lower bound based on the project&apos;s reviewed service catalog.</li>
           <li>Category membership is editorial. The corpus is curated and is not a random or representative web sample.</li>

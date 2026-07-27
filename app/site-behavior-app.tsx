@@ -77,7 +77,9 @@ export type CorpusHighlights = {
   cappedSiteCount: number;
   /** Sites eligible for the cross-version category medians. */
   eligibleSiteCount: number;
-  topCategories: { label: string; medianTrackers: number }[];
+  /** Distinct methodology cohorts those eligible sites span, one per category. */
+  eligibleCohortCount: number;
+  topCategories: { label: string; medianTrackers: number; cohortId: string }[];
 };
 
 type SiteBehaviorAppProps = {
@@ -524,7 +526,12 @@ function CorpusHero({ highlights }: { highlights: CorpusHighlights }) {
               <span className="corpus-hero-cat-label">{category.label}</span>
             </div>
           ))}
-          <span className="corpus-hero-cat-note">median catalogued tracking-service requests per site, by category</span>
+          <span className="corpus-hero-cat-note">
+            median catalogued tracking-service requests per site, by category
+            {new Set(highlights.topCategories.map((category) => category.cohortId)).size > 1
+              ? ". These categories were measured under different methodology generations, so read each on its own rather than ranking them against each other."
+              : ""}
+          </span>
         </div>
       )}
       <div className="corpus-hero-actions">
@@ -538,7 +545,9 @@ function CorpusHero({ highlights }: { highlights: CorpusHighlights }) {
       <details className="corpus-counting-disclosure">
         <summary>How coverage and category medians are counted</summary>
         <p>
-          The committed library attempted {plural(highlights.attemptedSiteCount, "real site")}. {plural(highlights.failedSiteCount, "site")} only produced failed or block-page primary visits, and {plural(highlights.cappedSiteCount, "successfully loaded site")} had at least one request-capped recording that remains visible as lower-bound evidence. Category medians use {plural(highlights.eligibleSiteCount, "site")} with an eligible, request-complete passive lead visit. Each site counts once, even when a comparison loaded both arms. Requests are also evaluated with the open-source <code>adblock-rust</code> engine and Brave&rsquo;s default filter lists.
+          The committed library attempted {plural(highlights.attemptedSiteCount, "real site")}. {plural(highlights.failedSiteCount, "site")} only produced failed or block-page primary visits, and {plural(highlights.cappedSiteCount, "successfully loaded site")} had at least one request-capped recording that remains visible as lower-bound evidence. Category medians use {plural(highlights.eligibleSiteCount, "site")} with an eligible, request-complete passive lead visit. Each site counts once, even when a comparison loaded both arms. {highlights.eligibleCohortCount > 1
+            ? `Those sites span ${highlights.eligibleCohortCount} methodology cohorts: each category publishes a single cohort, so a median is comparable within a category and not across them, and no one median covers all ${highlights.eligibleSiteCount} sites.`
+            : "Every one of them was measured under a single methodology cohort."} Requests are also evaluated with the open-source <code>adblock-rust</code> engine and Brave&rsquo;s default filter lists.
         </p>
       </details>
     </section>

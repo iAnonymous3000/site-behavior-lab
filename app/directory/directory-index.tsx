@@ -70,9 +70,13 @@ export async function DirectoryIndex({ page }: { page: number }) {
           <div className={styles.sectionHeading}>
             <div>
               <p className="eyebrow">Evidence by category</p>
-              <h2 id="category-title">Observed behavior across comparable sites</h2>
+              <h2 id="category-title">Observed behavior within each category</h2>
             </div>
-            <p>Only categories with at least five eligible canonical sites receive an aggregate page.</p>
+            <p>
+              Only categories with at least five eligible canonical sites receive an aggregate page. Each category
+              publishes one methodology cohort, so its medians are comparable inside the category rather than against
+              another category&apos;s.
+            </p>
           </div>
           <div className={styles.categoryGrid}>
             {categoryPages.map((category) => (

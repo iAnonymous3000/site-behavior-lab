@@ -20,13 +20,21 @@ export default async function Home() {
     failedSiteCount,
     cappedSiteCount,
     eligibleSiteCount: categoryPages.reduce((total, category) => total + category.rollup.siteCount, 0),
+    // Each category page publishes ONE cohort, but different categories can
+    // land on different ones during a methodology migration, so the sum above
+    // spans them and no single median covers it. The reader is told how many.
+    eligibleCohortCount: new Set(categoryPages.map((category) => category.cohort.id)).size,
     topCategories: [...categoryPages]
       .sort(
         (left, right) =>
           right.rollup.medianTrackers - left.rollup.medianTrackers || left.label.localeCompare(right.label)
       )
       .slice(0, 4)
-      .map((category) => ({ label: category.label, medianTrackers: category.rollup.medianTrackers }))
+      .map((category) => ({
+        label: category.label,
+        medianTrackers: category.rollup.medianTrackers,
+        cohortId: category.cohort.id
+      }))
   };
   if (!isFeaturedSiteConfig(featuredSiteConfigJson)) {
     throw new Error("public/featured-sites.json is not a valid featured site configuration.");
