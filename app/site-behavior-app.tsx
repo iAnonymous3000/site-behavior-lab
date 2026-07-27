@@ -2,11 +2,11 @@
 
 import {
   Cookie,
+  ExternalLink,
   Eye,
   FileJson,
   Fingerprint,
   FlaskConical,
-  Github,
   Keyboard,
   Loader2,
   Moon,
@@ -522,7 +522,7 @@ function StaticPublicPanel({
         </ReportUploadButton>
         {SCAN_WORKFLOW_URL && (
           <a className="secondary-button" href={SCAN_WORKFLOW_URL} target="_blank" rel="noreferrer">
-            <Github size={17} aria-hidden="true" />
+            <ExternalLink size={17} aria-hidden="true" />
             Maintainer scan (repository access)
           </a>
         )}
@@ -664,7 +664,7 @@ function EmptyState({
             </PageGraphR2UploadButton>
             {SCAN_WORKFLOW_URL && (
               <a className="secondary-button" href={SCAN_WORKFLOW_URL} target="_blank" rel="noreferrer">
-                <Github size={17} aria-hidden="true" />
+                <ExternalLink size={17} aria-hidden="true" />
                 Maintainer scan (repository access)
               </a>
             )}
