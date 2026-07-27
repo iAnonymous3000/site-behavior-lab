@@ -5,6 +5,7 @@ import {
   CONSENT_CANDIDATE_BUDGET,
   CONSENT_CONTEXT_ANCESTOR_DEPTH,
   CONSENT_CONTEXT_TEXT_MAX_LENGTH,
+  CONSENT_PROBE_OUTCOMES,
   cmpSelectorsForChoice,
   consentChoiceLabel,
   consentClickArgs,
@@ -891,6 +892,20 @@ test("a consent probe that never searched does not report a completed search", (
   const unreadable = consentInteractionWarning(summary, "engine-unavailable");
   assert.match(unreadable, /no frame could be read/);
   assert.doesNotMatch(unreadable, /no recognizable control was found/);
+
+  // A control that reloads the page on click destroys the context carrying the
+  // result, so the loudest evidence that the click WORKED arrives as a lost
+  // read. This line must never claim the page stayed pre-consent.
+  const interrupted = consentInteractionWarning(summary, "search-interrupted");
+  assert.match(interrupted, /moved out from under the search/);
+  assert.match(interrupted, /Whether a control was found or clicked is unknown/);
+  assert.match(interrupted, /both sides of that choice/);
+  assert.doesNotMatch(interrupted, /no recognizable control was found/);
+  assert.doesNotMatch(interrupted, /pre-consent state/);
+
+  // Every outcome the producer can record has its own sentence.
+  const sentences = new Set(CONSENT_PROBE_OUTCOMES.map((outcome) => consentInteractionWarning(summary, outcome)));
+  assert.equal(sentences.size, CONSENT_PROBE_OUTCOMES.length);
 
   // A real click is unaffected by the probe-failure channel.
   assert.match(

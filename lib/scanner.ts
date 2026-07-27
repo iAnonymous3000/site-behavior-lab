@@ -39,7 +39,8 @@ import {
   installConsentShadowRootCapture,
   type ConsentClickOutcome,
   type ConsentChoice,
-  type ConsentInteractionSummary
+  type ConsentInteractionSummary,
+  type ConsentProbeFailure
 } from "./consent-interaction";
 import {
   CONSENT_RELOAD_DISCLOSURE,
@@ -555,6 +556,16 @@ type ConsentChoiceProbeOutcome = {
    * detector ledger records different reasons for them.
    */
   budgetExhausted?: boolean;
+  /**
+   * Frames the probe asked to search and could not read to the end.
+   *
+   * The dominant cause is the thing this probe is FOR: a consent control that
+   * navigates or reloads on click destroys the execution context, and the
+   * in-page result is lost with it. The click landed, the page moved, and the
+   * only channel that could have said so is gone. Zero readable frames is a
+   * different failure and is counted separately.
+   */
+  unreadableFrames?: number;
 };
 
 const publicHostCheckFailures = new WeakMap<Map<string, Promise<void>>, Map<string, number>>();
@@ -1157,9 +1168,7 @@ export async function scanSiteWithMeasurement(
       }
     }
 
-    const consentProbeState: {
-      failure: "budget-unavailable" | "scan-failed" | "engine-unavailable" | null;
-    } = { failure: null };
+    const consentProbeState: { failure: ConsentProbeFailure | null } = { failure: null };
     // A choice was requested, the page loaded, and the phase still never began:
     // the only way to reach that is the budget check above. Record it, because
     // the synthesized `clicked: false` below is otherwise indistinguishable from
@@ -1200,6 +1209,18 @@ export async function scanSiteWithMeasurement(
       // the budget branch below could never be reached.
       consentProbeState.failure = consentProbe.budgetExhausted ? "budget-unavailable" : "engine-unavailable";
     }
+    if (
+      consentPhaseId !== null &&
+      consentProbeState.failure === null &&
+      consentInteraction?.clicked === false &&
+      (consentProbe?.unreadableFrames ?? 0) > 0
+    ) {
+      // Some frame's search never returned a result. Reporting that as "no
+      // recognizable control was found" is the exact inversion of what the
+      // evidence supports for the most common cause, a control that reloads the
+      // page on click: the search was cut short BY the thing it was looking for.
+      consentProbeState.failure = "search-interrupted";
+    }
     if (consentPhaseId !== null) {
       if (consentInteractionLeftSubject) {
         measurementKernel.setDetector("consent-banner", "partial", {
@@ -1209,6 +1230,14 @@ export async function scanSiteWithMeasurement(
       } else if (consentProbeState.failure === "budget-unavailable") {
         measurementKernel.setDetector("consent-banner", "partial", {
           reason: "budget-unavailable",
+          phaseId: consentPhaseId
+        });
+      } else if (consentProbeState.failure === "search-interrupted") {
+        // Partial, not failed: frames WERE read, the page just stopped standing
+        // still. Recording it keeps the run out of comparison eligibility for
+        // the reason that actually applies.
+        measurementKernel.setDetector("consent-banner", "partial", {
+          reason: "load-failed",
           phaseId: consentPhaseId
         });
       } else if (consentProbeState.failure === "scan-failed") {
@@ -2717,8 +2746,9 @@ async function applyConsentChoice(
 ): Promise<ConsentChoiceProbeOutcome> {
   const summary: ConsentInteractionSummary = { mode: choice, clicked: false };
   let readableFrames = 0;
+  let unreadableFrames = 0;
   if (MAX_SCAN_DURATION_MS - (Date.now() - started) < CONSENT_CLICK_MIN_BUDGET_MS) {
-    return { summary, readableFrames, budgetExhausted: true };
+    return { summary, readableFrames, unreadableFrames, budgetExhausted: true };
   }
 
   const args = consentClickArgs(choice, shadowRootCapability);
@@ -2730,6 +2760,12 @@ async function applyConsentChoice(
         outcome = await frame.evaluate(findAndClickConsentControl, args);
         readableFrames += 1;
       } catch {
+        // The in-page result is the ONLY evidence of what happened in this
+        // frame, so losing it is not the same as searching and finding nothing.
+        // A control that reloads the page on click destroys its own context
+        // this way, which means the very outcome the probe exists to record is
+        // the one most likely to arrive as an error.
+        unreadableFrames += 1;
         outcome = null;
       }
       if (!outcome?.clicked) continue;
@@ -2761,7 +2797,7 @@ async function applyConsentChoice(
     }
   }
 
-  return { summary, readableFrames };
+  return { summary, readableFrames, unreadableFrames };
 }
 
 /**

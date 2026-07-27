@@ -1061,7 +1061,13 @@ export function consentChoiceLabel(choice: ConsentChoice): string {
  * sentences exist. A hand-written copy on either side gets the honest failure
  * wording replaced by "[redacted warning]" in every saved report.
  */
-export const CONSENT_PROBE_OUTCOMES = ["budget-unavailable", "scan-failed", "engine-unavailable", null] as const;
+export const CONSENT_PROBE_OUTCOMES = [
+  "budget-unavailable",
+  "scan-failed",
+  "engine-unavailable",
+  "search-interrupted",
+  null
+] as const;
 
 /** Why the consent probe produced no click, when it was not a completed search. */
 export type ConsentProbeFailure = Exclude<(typeof CONSENT_PROBE_OUTCOMES)[number], null>;
@@ -1090,6 +1096,9 @@ export function consentInteractionWarning(
     }
     if (probeFailure === "engine-unavailable") {
       return `This visit was asked to choose "${label}" on a cookie/consent banner, but no frame could be read to search for one. Whether a control exists on this page is unknown, and results reflect the pre-consent state.`;
+    }
+    if (probeFailure === "search-interrupted") {
+      return `This visit was asked to choose "${label}" on a cookie/consent banner, but the page moved out from under the search before it finished: a frame stopped being readable, which is also what a control that reloads the page on click does. Whether a control was found or clicked is unknown, and this visit's requests, cookies, and storage may include traffic from both sides of that choice.`;
     }
     return `This visit was asked to choose "${label}" on a cookie/consent banner, but no recognizable control was found (the banner may not be shown to this scanner's location, the choice may sit behind a settings layer, or the control is not in the catalog). Results reflect the pre-consent state.`;
   }

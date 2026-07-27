@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { createServer } from "node:http";
 import { connect, createServer as createNetServer } from "node:net";
 import { test } from "node:test";
+import { RedactionPass, redactScannerWarnings } from "./redact-scan-report-v1";
 import { redactUrlForReport } from "./report-url";
 import { PublicScanError } from "./public-errors";
 import { TCF_API_METHOD } from "./consent-verification";
@@ -2306,6 +2307,60 @@ test("a consent click cannot promote a sibling origin into evidence or active-in
     }
   } finally {
     delete process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION;
+    await closeSharedBrowserForTests();
+    await new Promise<void>((resolve) => upstream.close(() => resolve()));
+  }
+});
+
+test("a consent control that reloads the page is not reported as a missing control", { timeout: 30_000 }, async () => {
+  // The subject URL never changes, so subject-loss detection cannot see this.
+  // The click lands, the reload destroys the context carrying its result, and
+  // the retry then searches a page whose banner is already gone.
+  const upstream = createServer((request, response) => {
+    const consented = (request.headers.cookie ?? "").includes("cmp-choice=granted");
+    response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+    response.end(`<!doctype html>
+      <title>Reloading CMP fixture</title>
+      ${
+        consented
+          ? "<p>Thanks</p>"
+          : `<div id="onetrust-banner-sdk">
+               <button id="onetrust-accept-btn-handler" onclick="document.cookie='cmp-choice=granted; path=/'; location.reload();">Accept all</button>
+             </div>`
+      }`);
+  });
+  await new Promise<void>((resolve, reject) => {
+    upstream.once("error", reject);
+    upstream.listen(0, "127.0.0.1", resolve);
+  });
+  const address = upstream.address();
+  assert.ok(address && typeof address === "object");
+
+  try {
+    const { result, measurement: staged } = await scanSiteWithMeasurement(
+      {
+        url: "http://reloading-cmp.test/",
+        device: "desktop",
+        gpcEnabled: false,
+        consentMode: "accept-all"
+      },
+      {
+        publicUrlAlreadyVerified: true,
+        verifyPublicUrl: async () => undefined,
+        resolvePublicHost: async () => [{ address: "93.184.216.34", family: 4 }],
+        connectProxyUpstreamForTests: () => connect(address.port, "127.0.0.1"),
+        resolveCnameChain: async () => []
+      }
+    );
+
+    const consentWarnings = result.warnings.filter((warning) => warning.startsWith("This visit was asked to choose"));
+    assert.deepEqual(consentWarnings, redactScannerWarnings(consentWarnings, new RedactionPass()));
+    assert.equal(consentWarnings.length, 1, consentWarnings.join(" | "));
+    assert.doesNotMatch(consentWarnings[0], /no recognizable control was found/);
+    assert.match(consentWarnings[0], /moved out from under the search/);
+    assert.equal(staged!.measurement.detectors["consent-banner"].status, "partial");
+    assert.equal(staged!.measurement.detectors["consent-banner"].reason, "load-failed");
+  } finally {
     await closeSharedBrowserForTests();
     await new Promise<void>((resolve) => upstream.close(() => resolve()));
   }
