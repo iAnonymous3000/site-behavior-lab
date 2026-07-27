@@ -76,7 +76,7 @@
     "aws4fetch": "^1.0.20",
     "lucide-react": "^0.468.0",
     "next": "^15.0.4",
-    "playwright": "1.61.1",
+    "playwright": "1.62.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "tldts": "7.4.9"
@@ -89,14 +89,14 @@
   "devDependencies": {
     "@axe-core/playwright": "4.12.1",
     "@cloudflare/containers": "^0.3.7",
-    "@cloudflare/workers-types": "^5.20260719.1",
+    "@cloudflare/workers-types": "^5.20260727.1",
     "@types/node": "^24.13.3",
     "@types/react": "^19.0.1",
     "@types/react-dom": "^19.0.2",
     "ajv": "8.20.0",
-    "miniflare": "4.20260721.0",
+    "miniflare": "4.20260722.0",
     "ts-json-schema-generator": "2.9.0",
     "typescript": "^5.7.2",
-    "wrangler": "^4.112.0"
+    "wrangler": "^4.114.0"
   }
 }
