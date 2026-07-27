@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { corpusCohortLabel } from "@/lib/corpus-cohort";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { loadCorpusOverview } from "@/lib/corpus-overview";
@@ -146,7 +147,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ categ
         <ul>
           <li>Each row is the newest successful, request-complete, uncapped passive lead visit for one canonical site.</li>
           <li>
-            Every row here was measured under one methodology cohort ({category.cohort.methodologyVersion}), which is
+            Every row here was measured under one cohort ({corpusCohortLabel(category.cohort)}), which is
             this page&apos;s denominator. Another category can publish a different cohort, so these medians are
             comparable within this page and not against another category&apos;s.
           </li>

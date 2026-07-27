@@ -33,6 +33,10 @@ import {
   clientReportRuntime,
   staticAssetPath
 } from "./client-runtime";
+import {
+  corpusCohortDifferences,
+  type CorpusCohortIdentity
+} from "@/lib/corpus-cohort";
 import { committedReportLocation } from "@/lib/report-locator";
 import { scanJobProgressCopy } from "@/lib/scan-job-progress";
 import {
@@ -79,7 +83,7 @@ export type CorpusHighlights = {
   eligibleSiteCount: number;
   /** Distinct methodology cohorts those eligible sites span, one per category. */
   eligibleCohortCount: number;
-  topCategories: { label: string; medianTrackers: number; cohortId: string }[];
+  topCategories: { label: string; medianTrackers: number; cohort: CorpusCohortIdentity }[];
 };
 
 type SiteBehaviorAppProps = {
@@ -471,6 +475,25 @@ export function SiteBehaviorApp({
   );
 }
 
+/**
+ * The homepage sums per-category medians that each belong to ONE cohort, so
+ * when the tiles span cohorts it must say so. Naming the cause matters: the
+ * cohort key covers schema, methodology, producer and the requested GPC
+ * condition, and attributing a GPC split to "different methodology
+ * generations" points the reader at the wrong thing.
+ */
+function cohortSplitNote(cohorts: readonly CorpusCohortIdentity[]): string {
+  if (new Set(cohorts.map((cohort) => cohort.id)).size <= 1) return "";
+  const differences = corpusCohortDifferences(cohorts);
+  const cause =
+    differences.length === 0
+      ? "different measurement cohorts"
+      : differences.length === 1
+        ? differences[0]
+        : `${differences.slice(0, -1).join(", ")} and ${differences[differences.length - 1]}`;
+  return `. These categories were measured under ${cause}, so read each on its own rather than ranking them against each other.`;
+}
+
 function StaticPublicPanel({
   onUploadReport,
   onUploadError
@@ -528,9 +551,7 @@ function CorpusHero({ highlights }: { highlights: CorpusHighlights }) {
           ))}
           <span className="corpus-hero-cat-note">
             median catalogued tracking-service requests per site, by category
-            {new Set(highlights.topCategories.map((category) => category.cohortId)).size > 1
-              ? ". These categories were measured under different methodology generations, so read each on its own rather than ranking them against each other."
-              : ""}
+            {cohortSplitNote(highlights.topCategories.map((category) => category.cohort))}
           </span>
         </div>
       )}

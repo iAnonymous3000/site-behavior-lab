@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  corpusCohortDifferences,
+  corpusCohortLabel,
   selectPrimaryCorpusCohort,
   type CorpusCohortCandidate,
   type CorpusCohortIdentity
@@ -99,4 +101,49 @@ test("an unparseable timestamp is treated as undated rather than ranking first",
   const broken = candidate("v1:broken:producer-unrecorded:gpc-on", 90, "not-a-date");
   const dated = candidate("v1:dated:producer-unrecorded:gpc-on", 60, "2026-07-20T00:00:00.000Z");
   assert.equal(selectPrimaryCorpusCohort([broken, dated], MIN)?.identity.id, dated.identity.id);
+});
+
+// ---------------------------------------------------------------------------
+// Naming a cohort. The gate keys on four components; a label that renders one
+// of them can print byte-identical text for two cohorts the gate holds apart.
+// ---------------------------------------------------------------------------
+
+
+test("two cohorts that differ only in the requested GPC condition get different labels", () => {
+  // The exact production case: the GPC component was added to the cohort key
+  // precisely because the two eras must not pool, so a label that cannot
+  // distinguish them tells the reader the medians are comparable.
+  const on = identity({ id: "v1:m1:producer-unrecorded:gpc-on", gpc: true });
+  const off = identity({ id: "v1:m1:producer-unrecorded:gpc-off", gpc: false });
+  assert.notEqual(on.id, off.id);
+  assert.notEqual(corpusCohortLabel(on), corpusCohortLabel(off));
+  assert.match(corpusCohortLabel(on), /GPC requested/);
+  assert.match(corpusCohortLabel(off), /GPC not requested/);
+});
+
+test("every component of a cohort id is distinguishable in its label", () => {
+  const base = identity({ id: "base" });
+  const variants = [
+    identity({ id: "a", methodologyVersion: "m2" }),
+    identity({ id: "b", schemaVersion: 2, schemaRevision: 2 }),
+    identity({ id: "c", producer: "controlled-runner" }),
+    identity({ id: "d", gpc: false })
+  ];
+  for (const variant of variants) {
+    assert.notEqual(corpusCohortLabel(variant), corpusCohortLabel(base), JSON.stringify(variant));
+  }
+});
+
+test("a cohort split is attributed to the components that actually differ", () => {
+  assert.deepEqual(corpusCohortDifferences([identity({ id: "base" }), identity({ id: "x", gpc: false })]), [
+    "a different requested GPC condition"
+  ]);
+  assert.deepEqual(corpusCohortDifferences([identity({ id: "base" }), identity({ id: "x", methodologyVersion: "m2" })]), [
+    "different methodology generations"
+  ]);
+  assert.deepEqual(
+    corpusCohortDifferences([identity({ id: "base" }), identity({ id: "x", methodologyVersion: "m2", gpc: false })]),
+    ["different methodology generations", "a different requested GPC condition"]
+  );
+  assert.deepEqual(corpusCohortDifferences([identity({ id: "base" }), identity({ id: "base" })]), []);
 });

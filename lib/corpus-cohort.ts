@@ -93,6 +93,44 @@ export function selectPrimaryCorpusCohort<Identity extends CorpusCohortIdentity>
   })[0];
 }
 
+/**
+ * Reader-facing name for a cohort, covering every component of its id.
+ *
+ * The gate keys on schema, methodology, producer AND the requested GPC
+ * condition, so naming a cohort by its methodology alone can print byte-
+ * identical labels for two cohorts the gate holds apart: after the gpc-off
+ * refresh, two categories differing only in the requested signal both read
+ * "measured under one methodology cohort (shields-request-context-v2-...)"
+ * while the page also tells the reader their medians are not comparable.
+ *
+ * The raw id is not usable here: it percent-encodes its components. This
+ * renders the same four fields as prose, from the typed identity, so the label
+ * and the gate cannot drift.
+ */
+export function corpusCohortLabel(cohort: CorpusCohortIdentity): string {
+  const schema =
+    cohort.schemaVersion === 1 ? "schema v1" : `schema v2 revision ${cohort.schemaRevision ?? "unrecorded"}`;
+  const producer = cohort.producer ?? "producer unrecorded";
+  const gpc = cohort.gpc ? "GPC requested" : "GPC not requested";
+  return `${cohort.methodologyVersion}, ${schema}, ${producer}, ${gpc}`;
+}
+
+/**
+ * Which identity components differ across a set of cohorts, as reader-facing
+ * nouns. Naming the wrong cause is its own defect: attributing a split to
+ * "different methodology generations" when the real difference is the
+ * requested GPC condition tells the reader to distrust the wrong thing.
+ */
+export function corpusCohortDifferences(cohorts: readonly CorpusCohortIdentity[]): string[] {
+  const distinct = <T,>(pick: (cohort: CorpusCohortIdentity) => T) => new Set(cohorts.map(pick)).size > 1;
+  const differences: string[] = [];
+  if (distinct((cohort) => cohort.methodologyVersion)) differences.push("different methodology generations");
+  if (distinct((cohort) => `${cohort.schemaVersion}:${cohort.schemaRevision}`)) differences.push("different schema revisions");
+  if (distinct((cohort) => cohort.producer)) differences.push("different producers");
+  if (distinct((cohort) => cohort.gpc)) differences.push("a different requested GPC condition");
+  return differences;
+}
+
 export function corpusCohortIdentityForView(view: ReportView): CorpusCohortIdentity {
   const run = displayRunView(view);
   const methodologyVersion =

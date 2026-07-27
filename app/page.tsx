@@ -33,7 +33,7 @@ export default async function Home() {
       .map((category) => ({
         label: category.label,
         medianTrackers: category.rollup.medianTrackers,
-        cohortId: category.cohort.id
+        cohort: category.cohort
       }))
   };
   if (!isFeaturedSiteConfig(featuredSiteConfigJson)) {
