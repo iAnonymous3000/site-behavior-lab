@@ -281,6 +281,13 @@ const MAX_POLICY_LINK_CANDIDATES = 12;
 export const MAX_POLICY_LINKS_INSPECTED = 2_000;
 export const MAX_POLICY_LINK_HREF_CHARS = MAX_RECORDED_REQUEST_URL_CHARS;
 export const MAX_POLICY_LINK_TEXT_CHARS = 80;
+/**
+ * How much of a link's text is read to DECIDE whether it is a policy link, as
+ * opposed to how much is stored as its label. Matching on the short display
+ * budget meant one long link label anywhere on the page reported the whole
+ * candidate collection as truncated.
+ */
+export const MAX_POLICY_LINK_MATCH_TEXT_CHARS = 512;
 const MAX_POLICY_PAGE_REQUESTS = 150;
 const MAX_POLICY_TEXT_CHARS = 400_000;
 let sharedBrowser: Browser | null = null;
@@ -2076,13 +2083,18 @@ export async function scanSiteWithMeasurement(
           verifyPublicUrl,
           warnings
         });
-        measurementKernel.setDetector(
-          "privacy-policy",
-          policyLinksTruncated ? "partial" : "complete",
-          policyLinksTruncated
-            ? { reason: "budget-unavailable", phaseId: policyPhaseId }
-            : { phaseId: policyPhaseId }
-        );
+        // The probe found a policy, fetched it, and cross-checked its text, so
+        // the detector's own work finished. A truncated candidate list means
+        // the SEARCH that fed it was incomplete, which is already recorded as
+        // a `policy-link-candidates` capture loss and already censors this
+        // family for absence claims.
+        //
+        // Reporting that as `partial` forced a reason from a closed vocabulary
+        // that has no code for it, and the one chosen said the scan ran out of
+        // budget. On a five-second scan of a small site that is simply false,
+        // and it was the reported cause on most real pages. Say what happened
+        // once, in the ledger that can express it.
+        measurementKernel.setDetector("privacy-policy", "complete", { phaseId: policyPhaseId });
       } catch {
         measurementKernel.setDetector("privacy-policy", "failed", { reason: "load-failed", phaseId: policyPhaseId });
         recordPolicyCaptureLoss("dropped", policyPhaseId);
@@ -3160,6 +3172,7 @@ export async function collectPrivacyPolicyLinks(
     maxCandidates: MAX_POLICY_LINK_CANDIDATES,
     maxHrefChars: MAX_POLICY_LINK_HREF_CHARS,
     maxInspected: MAX_POLICY_LINKS_INSPECTED,
+    maxMatchTextChars: MAX_POLICY_LINK_MATCH_TEXT_CHARS,
     maxTextChars: MAX_POLICY_LINK_TEXT_CHARS
   });
   if (typeof wire !== "string" || wire.length > 256 * 1024) {

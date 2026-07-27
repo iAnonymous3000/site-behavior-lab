@@ -295,7 +295,10 @@ export function installBoundedPageCollector(key: string): void {
       const maxHrefChars = boundedPositiveInteger(limits.maxHrefChars, 16_384);
       const maxInspected = boundedPositiveInteger(limits.maxInspected, 2_000);
       const maxTextChars = boundedPositiveInteger(limits.maxTextChars, 80);
-      if (!maxCandidates || !maxHrefChars || !maxInspected || !maxTextChars) return failWire("links");
+      const maxMatchTextChars = boundedPositiveInteger(limits.maxMatchTextChars, 512);
+      if (!maxCandidates || !maxHrefChars || !maxInspected || !maxTextChars || !maxMatchTextChars) {
+        return failWire("links");
+      }
       const documentValue = call(windowDocumentGetter, globalThis, []);
       const collection = call(documentLinksGetter, documentValue, []);
       const rawLength = call(collectionLengthGetter, collection, []);
@@ -313,15 +316,32 @@ export function installBoundedPageCollector(key: string): void {
           truncated = true;
           continue;
         }
-        const textRead = boundedNodeText(anchor as object, maxTextChars, 256);
-        const text = call(nativeStringTrim, textRead.value, []) as string;
-        if (textRead.truncated) truncated = true;
+        // Read far more text than is stored. The stored label is display copy
+        // and stays short; the MATCH needs enough of the link to decide
+        // whether it points at a privacy policy.
+        //
+        // Reading only the display budget made every long link label report
+        // the whole candidate collection as truncated, and a page needs just
+        // one such link to trigger it. Article teasers and headlines are
+        // routinely longer than a display label, so on real pages this fired
+        // constantly, censored the detector-output family, and marked the
+        // privacy-policy detector partial on sites where nothing had gone
+        // wrong. A clipped LABEL loses no candidate; only a match that could
+        // be hiding past the read does.
+        const textRead = boundedNodeText(anchor as object, maxMatchTextChars, 256);
+        const fullText = call(nativeStringTrim, textRead.value, []) as string;
+        const text = call(nativeStringSlice, fullText, [0, maxTextChars]) as string;
         const lowerHref = call(nativeStringLower, href, []) as string;
-        const lowerText = call(nativeStringLower, text, []) as string;
-        if (
-          (call(nativeStringIndexOf, lowerHref, ["privacy"]) as number) < 0 &&
-          (call(nativeStringIndexOf, lowerText, ["privacy"]) as number) < 0
-        ) continue;
+        const lowerText = call(nativeStringLower, fullText, []) as string;
+        const matched =
+          (call(nativeStringIndexOf, lowerHref, ["privacy"]) as number) >= 0 ||
+          (call(nativeStringIndexOf, lowerText, ["privacy"]) as number) >= 0;
+        if (!matched) {
+          // Only an unmatched link whose text was cut at the MATCH budget can
+          // still be hiding the word past the cut.
+          if (textRead.truncated) truncated = true;
+          continue;
+        }
         const link = record();
         set(link, "href", href);
         set(link, "text", text);
