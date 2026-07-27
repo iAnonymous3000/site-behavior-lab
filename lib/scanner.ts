@@ -1160,6 +1160,15 @@ export async function scanSiteWithMeasurement(
     const consentProbeState: {
       failure: "budget-unavailable" | "scan-failed" | "engine-unavailable" | null;
     } = { failure: null };
+    // A choice was requested, the page loaded, and the phase still never began:
+    // the only way to reach that is the budget check above. Record it, because
+    // the synthesized `clicked: false` below is otherwise indistinguishable from
+    // a completed search, and the disclosure would report "no recognizable
+    // control was found" - a claim about the SITE - for a banner nothing ever
+    // looked at. The detector already records skipped/budget-unavailable.
+    if (payload.consentMode !== "observe" && !pageLoadFailed && consentPhaseId === null) {
+      consentProbeState.failure = "budget-unavailable";
+    }
     const consentProbe =
       payload.consentMode === "observe" || pageLoadFailed
         ? undefined

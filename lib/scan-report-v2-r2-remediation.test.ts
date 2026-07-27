@@ -5,7 +5,9 @@ import { buildProvenanceEntry } from "./redaction-provenance";
 import { readManagedReport } from "./managed-report-reader";
 import {
   MIGRATABLE_REDACTION_V3_NORMALIZATIONS,
-  REDACTION_V3_TO_V4_NORMALIZATION_SUFFIX
+  NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION,
+  REDACTION_V3_TO_V4_NORMALIZATION_SUFFIX,
+  SUPERSEDED_R2_NORMALIZATIONS
 } from "./scan-report-v2-normalization";
 import {
   MIGRATABLE_REDACTION_VERSION,
@@ -406,6 +408,50 @@ test("mixed versions and unreviewed v3 normalization identities fail closed", ()
     () => redactPublicScanReportV2R2(unreviewed),
     (error: unknown) =>
       error instanceof R2RedactionRemediationError && error.reason === "unreviewed-normalization-identity"
+  );
+});
+
+test("a superseded normalization still reads, keeps its own identity, and admits nothing else", () => {
+  // Widening the sanitizer's admitted strings retires an identity without
+  // invalidating a single published byte: everything the narrower pass emitted
+  // is still a fixed point. Those reports must keep reading, and must keep
+  // declaring the vocabulary they were actually sanitized under.
+  const superseded = [...SUPERSEDED_R2_NORMALIZATIONS["node-playwright"]][0];
+  assert.notEqual(superseded, undefined);
+  assert.notEqual(superseded, NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION);
+
+  const report = makePublicSingleReportV2R2();
+  for (const run of r2ReportRuns(report)) {
+    run.privacy.redactionVersion = REDACTION_VERSION;
+    run.toolchain.normalizationVersion = superseded;
+    run.fingerprints = buildFingerprints({
+      conditions: run.conditions,
+      provenance: run.provenance,
+      toolchain: run.toolchain,
+      detectors: run.detectors
+    });
+  }
+
+  const redacted = redactPublicScanReportV2R2(structuredClone(report));
+  for (const run of r2ReportRuns(redacted)) {
+    assert.equal(run.toolchain.normalizationVersion, superseded);
+  }
+  assert.equal(JSON.stringify(redactPublicScanReportV2R2(redacted)), JSON.stringify(redacted));
+
+  const forged = makePublicSingleReportV2R2();
+  for (const run of r2ReportRuns(forged)) {
+    run.privacy.redactionVersion = REDACTION_VERSION;
+    run.toolchain.normalizationVersion = `${superseded}+self-declared`;
+    run.fingerprints = buildFingerprints({
+      conditions: run.conditions,
+      provenance: run.provenance,
+      toolchain: run.toolchain,
+      detectors: run.detectors
+    });
+  }
+  assert.throws(
+    () => redactPublicScanReportV2R2(forged),
+    (error: unknown) => error instanceof R2RedactionRemediationError
   );
 });
 

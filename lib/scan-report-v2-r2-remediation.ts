@@ -24,7 +24,7 @@ import {
   assertR2ProducerContract
 } from "./scan-report-v2-r2-producer-contract";
 import {
-  currentR2NormalizationForObserver,
+  isReadableR2Normalization,
   migratedR2NormalizationForV3,
   MIGRATABLE_REDACTION_V3_NORMALIZATIONS,
   REDACTION_V3_TO_V4_NORMALIZATION_SUFFIX
@@ -333,11 +333,10 @@ function normalizationAfterRedaction(run: ScanRunV2R2, sourceVersion: number): s
     return migrated;
   }
 
-  const fresh = currentR2NormalizationForObserver(run.provenance.observer);
   const migrated = [...MIGRATABLE_REDACTION_V3_NORMALIZATIONS[run.provenance.observer]].map(
     (identity) => `${identity}+${REDACTION_V3_TO_V4_NORMALIZATION_SUFFIX}`
   );
-  if (source !== fresh && !migrated.includes(source)) {
+  if (!isReadableR2Normalization(run.provenance.observer, source) && !migrated.includes(source)) {
     throw new R2RedactionRemediationError(
       "unreviewed-normalization-identity",
       `${run.provenance.observer}:${source}`

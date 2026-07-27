@@ -8,8 +8,8 @@ import {
 import { NODE_ADBLOCK_ENGINE_VERSION, NODE_SCANNER_METHODOLOGY_VERSION } from "./legacy-methodology";
 import { MAX_RECORDED_REQUESTS } from "./scan-runtime";
 import {
+  isReadableR2Normalization,
   MIGRATABLE_REDACTION_V3_NORMALIZATIONS,
-  NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION,
   REDACTION_V3_TO_V4_NORMALIZATION_SUFFIX
 } from "./scan-report-v2-normalization";
 import { canonicalJson } from "./scan-report-v2-fingerprints";
@@ -200,10 +200,11 @@ function isHistoricalNodeV3Normalization(normalization: string): boolean {
       return true;
     }
   }
-  // Every non-historical Node producer must use the exact active
-  // normalization. The sanitizer repeats this check, but the producer
+  // Every non-historical Node report must carry an identity this generation
+  // reviewed: the active one, or one it superseded by widening the sanitizer's
+  // admitted strings. The sanitizer repeats this check, but the producer
   // contract must not select the active identity for an arbitrary string.
-  if (normalization !== NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION) {
+  if (!isReadableR2Normalization("node-playwright", normalization)) {
     throw new R2ProducerContractError("unknown Node normalization identity");
   }
   return false;

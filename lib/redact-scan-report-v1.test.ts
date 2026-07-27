@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { compareScanResults, createGpcComparisonReport } from "./compare-reports";
 import { runHitResponseByteCap, runHitUploadByteCap } from "./comparison-eligibility";
+import { CONSENT_PROBE_OUTCOMES, consentInteractionWarning } from "./consent-interaction";
 import {
   NODE_PLAYWRIGHT_VERSION,
   NODE_SCANNER_METHODOLOGY_VERSION,
@@ -287,6 +288,23 @@ test("the invalid-upstream-response warning survives the public redaction bounda
 
   const { report } = redactScanResultV1(input);
   assert.deepEqual(report.warnings, [INVALID_UPSTREAM_RESPONSE_WARNING]);
+});
+
+test("every consent disclosure the producer can emit survives the public boundary", () => {
+  // The three failure sentences are the ones that say the INSTRUMENT failed
+  // rather than the site. Admitting only the completed-search default replaced
+  // exactly those with the placeholder, so the reader lost the disclosure on
+  // every run where the probe could not do its job.
+  for (const mode of ["accept-all", "reject-all"] as const) {
+    for (const failure of CONSENT_PROBE_OUTCOMES) {
+      const warning = consentInteractionWarning({ mode, clicked: false }, failure);
+      const input = sensitiveSingle();
+      input.warnings = [warning];
+
+      const { report } = redactScanResultV1(input);
+      assert.deepEqual(report.warnings, [warning], `${mode}/${failure ?? "searched"} was not admitted`);
+    }
+  }
 });
 
 test("valid generated consent and share literals survive exactly while invalid capability paths do not", () => {

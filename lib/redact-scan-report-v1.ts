@@ -1,6 +1,7 @@
 import { compareScanResults } from "./compare-reports";
 import {
   CONSENT_CMP_SELECTORS,
+  CONSENT_PROBE_OUTCOMES,
   CONSENT_SHADOW_HOSTS,
   CONSENT_TEXT_PATTERNS,
   consentInteractionWarning,
@@ -343,7 +344,7 @@ export const PUBLIC_STRING_POLICY_DIGEST = sha256Hex(
     chromiumUserAgentPattern: CHROMIUM_USER_AGENT.source,
     fixedWarnings: [...FIXED_SCANNER_WARNINGS].sort(),
     warningLabels: [...COMPARISON_WARNING_LABELS].sort(),
-    dynamicWarningPatterns: "scanner-warning-patterns-v4",
+    dynamicWarningPatterns: "scanner-warning-patterns-v5",
     cmpSelectors: CONSENT_CMP_SELECTORS,
     consentShadowHosts: CONSENT_SHADOW_HOSTS,
     consentTextPatterns: Object.fromEntries(
@@ -1178,7 +1179,13 @@ function isAlreadyRedactedUrl(value: string): boolean {
 
 function isGeneratedConsentWarning(warning: string): boolean {
   for (const mode of ["accept-all", "reject-all"] as const) {
-    if (warning === consentInteractionWarning({ mode, clicked: false })) return true;
+    // Every un-clicked variant, not just the default. The three failure
+    // sentences are the ones that say the instrument failed rather than the
+    // site; admitting only the default replaced exactly those with
+    // "[redacted warning]" and left the reader with no disclosure at all.
+    for (const failure of CONSENT_PROBE_OUTCOMES) {
+      if (warning === consentInteractionWarning({ mode, clicked: false }, failure)) return true;
+    }
     for (const cmp of KNOWN_CMP_NAMES) {
       if (warning === consentInteractionWarning({ mode, clicked: true, cmp })) return true;
     }

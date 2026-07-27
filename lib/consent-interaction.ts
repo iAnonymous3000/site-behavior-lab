@@ -1052,8 +1052,19 @@ export function consentChoiceLabel(choice: ConsentChoice): string {
   return choice === "accept-all" ? "Accept all" : "Reject all";
 }
 
+/**
+ * Every un-clicked outcome this module can disclose: each failure of the
+ * instrument, plus `null` for the one case that IS a completed search.
+ *
+ * The public redaction boundary admits consent warnings by regenerating them
+ * from this list, so the producer and the sanitizer cannot disagree about which
+ * sentences exist. A hand-written copy on either side gets the honest failure
+ * wording replaced by "[redacted warning]" in every saved report.
+ */
+export const CONSENT_PROBE_OUTCOMES = ["budget-unavailable", "scan-failed", "engine-unavailable", null] as const;
+
 /** Why the consent probe produced no click, when it was not a completed search. */
-export type ConsentProbeFailure = "budget-unavailable" | "scan-failed" | "engine-unavailable";
+export type ConsentProbeFailure = Exclude<(typeof CONSENT_PROBE_OUTCOMES)[number], null>;
 
 /**
  * One plain-language warning line disclosing the interaction (or its absence).
