@@ -39,6 +39,8 @@ const UPLOAD_BYTE_CAP_WARNING_FRAGMENT = "stopped forwarding additional request 
 const GPC_WORKER_CAPTURE_LOSS_WARNING_FRAGMENT = "Web Workers while applying the simulated GPC signal";
 const FINGERPRINT_OBSERVER_WARNING_FRAGMENT = "in-page fingerprint observer could not read one or more frames";
 const INVALID_UPSTREAM_RESPONSE_WARNING_FRAGMENT = "scan proxy rejected one or more invalid upstream responses";
+const UNSETTLED_ROUTED_REQUEST_WARNING_FRAGMENT =
+  "still being handled, so this visit's request evidence is incomplete";
 const PROXY_TRAFFIC_BUDGET_WARNING_FRAGMENT = "connection and target safety budget";
 
 export function comparisonEligibility(report: ComparisonScanResult): ComparisonEligibility {
@@ -77,6 +79,9 @@ export function comparisonEligibility(report: ComparisonScanResult): ComparisonE
     }
     if (runHitProxyTrafficBudget(run)) {
       reasons.push(`The "${label}" visit exhausted its proxy connection and target safety budget, so its request evidence is incomplete.`);
+    }
+    if (runHitUnsettledRoutedRequests(run)) {
+      reasons.push(`The "${label}" visit reached its scan deadline with requests still being handled, so its request evidence is incomplete.`);
     }
   }
 
@@ -369,6 +374,19 @@ export function runHitProxyTrafficBudget(run: ScanResult): boolean {
 }
 
 /**
+ * The scan deadline arrived with routed request handlers still in flight.
+ *
+ * The scanner degrades here rather than discarding a finished measurement, so
+ * the visit publishes normally and this warning is the only channel that says
+ * its request log is short. It is a capture loss, never the request-recording
+ * cap: the counts are truncated by a clock, not by a budget the reader can be
+ * told the size of.
+ */
+export function runHitUnsettledRoutedRequests(run: Pick<ScanResult, "warnings">): boolean {
+  return run.warnings.some((warning) => warning.includes(UNSETTLED_ROUTED_REQUEST_WARNING_FRAGMENT));
+}
+
+/**
  * Whether a legacy run's request evidence is incomplete. The historical
  * "Capped" export name is retained for reader compatibility; capture loss can
  * also come from Worker instrumentation or an invalid upstream response.
@@ -390,7 +408,8 @@ export function runRequestEvidenceCapped(run: ScanResult): boolean {
     runHitUploadByteCap(run) ||
     runHitGpcWorkerCaptureLoss(run) ||
     runHitInvalidUpstreamResponseCaptureLoss(run) ||
-    runHitProxyTrafficBudget(run)
+    runHitProxyTrafficBudget(run) ||
+    runHitUnsettledRoutedRequests(run)
   );
 }
 

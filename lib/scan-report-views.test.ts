@@ -18,7 +18,16 @@ import {
   NODE_PLAYWRIGHT_VERSION,
   NODE_SCANNER_METHODOLOGY_VERSION
 } from "./legacy-methodology";
-import { viewFromV1Report, viewFromV2 } from "./scan-report-views";
+import {
+  familyCensoredOnRun,
+  requestEvidenceState,
+  runHitRequestRecordingCap,
+  viewFromV1Report,
+  viewFromV2
+} from "./scan-report-views";
+import { runRequestEvidenceCapped } from "./comparison-eligibility";
+import { GPC_WORKER_CAPTURE_LOSS_WARNING } from "./gpc-injection";
+import { INVALID_UPSTREAM_RESPONSE_WARNING, UNSETTLED_ROUTED_REQUEST_WARNING } from "./scan-runtime";
 import type { ScanResult } from "./types";
 
 // ---------------------------------------------------------------------------
@@ -190,4 +199,55 @@ test("r2 views surface the recorded axis readbacks and replication-pair count", 
   if (!single.run.verificationFacts) {
     assert.equal(singleView.runs[0].verificationFacts, null);
   }
+});
+
+// ---------------------------------------------------------------------------
+// One producer warning, two readers. The scanner's request-family capture-loss
+// warnings are recognized in two independent places: comparison-eligibility's
+// fragment predicates, and runViewFromV1's derived quality reasons. Both halves
+// pass their own tests while disagreeing, which is exactly how a degraded visit
+// shipped as "complete": the v2 kernel censored the requests family and the v1
+// wire did not. This table is the shared contract; a new producer warning that
+// is not taught to both halves fails here.
+// ---------------------------------------------------------------------------
+
+const REQUEST_EVIDENCE_LOSS_WARNINGS: { name: string; warning: string }[] = [
+  { name: "GPC_WORKER_CAPTURE_LOSS_WARNING", warning: GPC_WORKER_CAPTURE_LOSS_WARNING },
+  { name: "INVALID_UPSTREAM_RESPONSE_WARNING", warning: INVALID_UPSTREAM_RESPONSE_WARNING },
+  { name: "UNSETTLED_ROUTED_REQUEST_WARNING", warning: UNSETTLED_ROUTED_REQUEST_WARNING }
+];
+
+test("every producer request-loss warning censors the requests family on both halves", () => {
+  for (const { name, warning } of REQUEST_EVIDENCE_LOSS_WARNINGS) {
+    const report = makeScanReportV1();
+    report.warnings = [warning];
+
+    // Half one: the eligibility predicate the corpus and export paths read.
+    assert.equal(runRequestEvidenceCapped(report as unknown as ScanResult), true, name);
+
+    // Half two: the rendered view. A run whose warning says its request
+    // evidence is incomplete may never render as complete, and may never be
+    // ranked against a corpus percentile.
+    const run = viewFromV1Report(report).runs[0];
+    assert.equal(familyCensoredOnRun(run, "requests"), true, name);
+    assert.notEqual(requestEvidenceState(run), "complete", name);
+
+    // Scoped, not global: a lost request log says nothing about cookies or
+    // storage, so a `budget-exhausted:` slug here would over-censor the run.
+    assert.equal(familyCensoredOnRun(run, "cookies"), false, name);
+    assert.equal(familyCensoredOnRun(run, "storage"), false, name);
+  }
+});
+
+test("an unsettled routed request is a capture loss, never the recording cap", () => {
+  const report = makeScanReportV1();
+  report.warnings = [UNSETTLED_ROUTED_REQUEST_WARNING];
+  const run = viewFromV1Report(report).runs[0];
+
+  // "capped" names the 1,000-request budget and tells the reader its size. A
+  // deadline that arrived mid-flight truncated the log by a clock instead, so
+  // the honest state is "incomplete".
+  assert.equal(runHitRequestRecordingCap(run), false);
+  assert.equal(requestEvidenceState(run), "incomplete");
+  assert.ok(run.quality.reasons.includes("capture-loss:unsettled-routed-requests"));
 });

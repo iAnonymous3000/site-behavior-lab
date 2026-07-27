@@ -12,7 +12,13 @@ import {
   temporalPairEligibility
 } from "./comparison-eligibility";
 import { GPC_WORKER_CAPTURE_LOSS_WARNING } from "./gpc-injection";
-import { INVALID_UPSTREAM_RESPONSE_WARNING, MAX_RECORDED_REQUESTS, ScanRequestBudget, ScanWarningCollector } from "./scan-runtime";
+import {
+  INVALID_UPSTREAM_RESPONSE_WARNING,
+  MAX_RECORDED_REQUESTS,
+  ScanRequestBudget,
+  ScanWarningCollector,
+  UNSETTLED_ROUTED_REQUEST_WARNING
+} from "./scan-runtime";
 import { SCAN_REPORT_SCHEMA_VERSION, type ScanConditions, type ScanResult } from "./types";
 
 test("the eligibility cap constant matches the scanner's recording cap", () => {
@@ -323,6 +329,10 @@ test("all scanner-declared request capture loss fails the legacy comparison clos
     {
       warning: "The scan stopped opening additional proxy requests after reaching its connection and target safety budget.",
       reason: /proxy connection and target safety budget/
+    },
+    {
+      warning: UNSETTLED_ROUTED_REQUEST_WARNING,
+      reason: /scan deadline with requests still being handled/
     }
   ];
 

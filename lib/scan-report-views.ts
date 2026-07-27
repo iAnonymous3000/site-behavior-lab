@@ -21,6 +21,7 @@ import {
   runHitProxyTrafficBudget,
   runHitRequestCap,
   runHitResponseByteCap,
+  runHitUnsettledRoutedRequests,
   runHitUploadByteCap
 } from "./comparison-eligibility";
 import { summarizeDomains } from "./domain-summaries";
@@ -569,6 +570,11 @@ function runViewFromV1(result: ScanResult, label: RunView["label"], scannedAt: s
   // without a hedge.
   if (runHitGpcWorkerCaptureLoss(result)) reasons.push("capture-loss:gpc-worker");
   if (runHitInvalidUpstreamResponseCaptureLoss(result)) reasons.push("capture-loss:invalid-upstream-response");
+  // A deadline that arrived mid-flight drops recorded requests and nothing
+  // else, so it censors the request family rather than the whole run. It is
+  // deliberately not a `budget-exhausted:` slug: that prefix censors every
+  // family, which would hide cookies and storage this visit did observe.
+  if (runHitUnsettledRoutedRequests(result)) reasons.push("capture-loss:unsettled-routed-requests");
   if (runHitProxyTrafficBudget(result)) reasons.push("budget-exhausted:proxy-traffic");
   // Not a budget: the instrument itself did not run. Scoped to the families it
   // actually covers rather than censoring the whole run.
@@ -1051,7 +1057,9 @@ const QUALITY_REASON_NOTES: Record<string, string> = {
   "capture-loss:gpc-worker":
     "the Worker instrumentation could not record every request, so the request evidence is incomplete",
   "capture-loss:invalid-upstream-response":
-    "the scan proxy rejected one or more invalid upstream responses, so the request evidence is incomplete"
+    "the scan proxy rejected one or more invalid upstream responses, so the request evidence is incomplete",
+  "capture-loss:unsettled-routed-requests":
+    "the scan deadline arrived while one or more requests were still being handled, so the request evidence is incomplete"
 };
 
 /**
@@ -1172,7 +1180,8 @@ export function familyCensoredOnRun(run: RunView, family: string): boolean {
   return (
     family === "requests" &&
     (run.quality.reasons.includes("capture-loss:gpc-worker") ||
-      run.quality.reasons.includes("capture-loss:invalid-upstream-response"))
+      run.quality.reasons.includes("capture-loss:invalid-upstream-response") ||
+      run.quality.reasons.includes("capture-loss:unsettled-routed-requests"))
   );
 }
 
