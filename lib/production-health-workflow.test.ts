@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { readFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import path from "node:path";
 import { test } from "node:test";
 import {
@@ -111,6 +112,55 @@ test("production health derives the exact container-sharding topology from the r
   assert.match(flagDeclarations[0][1], /^[01]$/);
   assert.equal(countDeclarations.length, 1);
   assert.match(countDeclarations[0][1], /^[1-3]$/);
+});
+
+/**
+ * Run the workflow's OWN config controller, the way the release validator
+ * tests run theirs. Asserting that the invariant's text appears in the YAML
+ * cannot tell a gate that always passes from one that never does, and it
+ * cannot tell whether the committed config actually satisfies it.
+ */
+function runProductionConfigController(config: string): { status: number; stderr: string; env: string } {
+  const block = workflow.match(/node <<'NODE'\n([\s\S]*?)\n *NODE\n/);
+  if (!block) throw new Error("the production-health config controller could not be located");
+  const controller = block[1]
+    .split("\n")
+    .map((line) => line.replace(/^ {10}/, ""))
+    .join("\n");
+  const configFile = path.join(mkdtempSync(path.join(tmpdir(), "production-config-")), "wrangler.container.jsonc");
+  const envFile = path.join(path.dirname(configFile), "github-env");
+  writeFileSync(configFile, config);
+  writeFileSync(envFile, "");
+  const run = spawnSync(process.execPath, ["--input-type=commonjs", "-e", controller], {
+    encoding: "utf8",
+    env: { ...process.env, PRODUCTION_CONFIG_FILE: configFile, GITHUB_ENV: envFile }
+  });
+  return { status: run.status ?? -1, stderr: run.stderr, env: readFileSync(envFile, "utf8") };
+}
+
+test("the committed production config satisfies the monitor's own activation invariants", () => {
+  // Sharding without durable jobs passes every CI job and then hard-fails the
+  // hourly monitor with "Invalid production config", where it also folds into
+  // the durable readiness check and takes durable jobs down with it. An
+  // ordering violation belongs in a red build, not in production.
+  const accepted = runProductionConfigController(containerConfig);
+  assert.equal(accepted.status, 0, accepted.stderr);
+  assert.match(accepted.env, /EXPECTED_DURABLE_JOBS=[01]\n/);
+  assert.match(accepted.env, /EXPECTED_CONTAINER_SHARDING=[01]\n/);
+
+  const shardWithoutDurable = containerConfig
+    .replace(/"SITE_BEHAVIOR_LAB_DURABLE_JOBS"(\s*:\s*)"[01]"/, '"SITE_BEHAVIOR_LAB_DURABLE_JOBS"$1"0"')
+    .replace(/"SITE_BEHAVIOR_LAB_CONTAINER_SHARDING"(\s*:\s*)"[01]"/, '"SITE_BEHAVIOR_LAB_CONTAINER_SHARDING"$1"1"');
+  assert.notEqual(shardWithoutDurable, containerConfig, "the sharding fixture must actually differ");
+  const refused = runProductionConfigController(shardWithoutDurable);
+  assert.equal(refused.status, 1);
+  assert.match(refused.stderr, /Invalid production container-sharding expectation/);
+
+  const oneShard = containerConfig
+    .replace(/"SITE_BEHAVIOR_LAB_DURABLE_JOBS"(\s*:\s*)"[01]"/, '"SITE_BEHAVIOR_LAB_DURABLE_JOBS"$1"1"')
+    .replace(/"SITE_BEHAVIOR_LAB_CONTAINER_SHARDING"(\s*:\s*)"[01]"/, '"SITE_BEHAVIOR_LAB_CONTAINER_SHARDING"$1"1"')
+    .replace(/"SITE_BEHAVIOR_LAB_CONTAINER_SHARD_COUNT"(\s*:\s*)"[1-3]"/, '"SITE_BEHAVIOR_LAB_CONTAINER_SHARD_COUNT"$1"1"');
+  assert.equal(runProductionConfigController(oneShard).status, 1);
 });
 
 test("production health requires the exact durable-jobs posture for both reviewed flag states", () => {
