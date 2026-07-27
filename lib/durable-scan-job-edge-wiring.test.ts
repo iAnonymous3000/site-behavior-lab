@@ -2,6 +2,35 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { test } from "node:test";
+
+/**
+ * These tests assert on the SHAPE of worker source, so every one of them is a
+ * marker lookup away from becoming vacuous: `indexOf` answers a missing marker
+ * with -1, `slice(start, -1)` silently widens to almost the whole file, and
+ * `-1 < anything` is trivially true. A rename then leaves the assertion green
+ * while it no longer constrains the region it names. That is exactly how two
+ * bounded-fetch guards here survived `gateDurableScanJobControlRequest`
+ * becoming `refuseUnauthorizedDurableScanJobControl`: both widened to ~48 kB
+ * and were satisfied by an unrelated copy of the pattern elsewhere in the file.
+ *
+ * Every marker lookup goes through these, so the next rename fails loudly and
+ * names the marker it could not find.
+ */
+function requireIndex(source: string, marker: string, label = "source"): number {
+  const index = source.indexOf(marker);
+  assert.ok(index >= 0, `${label} no longer contains ${JSON.stringify(marker)}; the assertion below constrains nothing until this marker is updated`);
+  return index;
+}
+
+function sliceBetween(source: string, startMarker: string, endMarker: string, label = "source"): string {
+  const start = requireIndex(source, startMarker, label);
+  const end = requireIndex(source, endMarker, label);
+  assert.ok(
+    end > start,
+    `${label}: ${JSON.stringify(endMarker)} precedes ${JSON.stringify(startMarker)}, so the intended region is empty`
+  );
+  return source.slice(start, end);
+}
 import type { DurableScanJobPreparation } from "./durable-scan-job-contract";
 import {
   awaitDurableScanJobAdmissionStep,
@@ -392,18 +421,15 @@ test("Worker wiring preserves Phase 1 while closing durable private boundaries",
   assert.match(source, /Could not park the durable scan-job pump; retrying once/);
   assert.match(source, /ensureDurablePumpFallbackSchedule/);
   assert.match(source, /INSERT INTO container_schedules \(id, callback, payload, type, time\)/);
-  const pump = source.slice(
-    source.indexOf("async pumpDurableScanJobs"),
-    source.indexOf("private async activateDurableClaim")
-  );
+  const pump = sliceBetween(source, "async pumpDurableScanJobs", "private async activateDurableClaim", "source");
   assert.match(pump, /runDurableScanJobPumpTurn/);
   assert.match(pump, /persistImmediateSuccessor: \(\) => this\.ensureDurablePumpFallbackSchedule\(\)/);
   assert.ok(
-    pump.indexOf("processExpiredCoreItem") < pump.indexOf("dispatchCore: (context)"),
+    requireIndex(pump, "processExpiredCoreItem", "pump") < requireIndex(pump, "dispatchCore: (context)", "pump"),
     "bounded lease/publication recovery must precede ordinary dispatch"
   );
   assert.ok(
-    pump.indexOf("dispatchCore: (context)") < pump.indexOf("listOptionalItems: (context)"),
+    requireIndex(pump, "dispatchCore: (context)", "pump") < requireIndex(pump, "listOptionalItems: (context)", "pump"),
     "optional watch work must never head-of-line block ordinary dispatch"
   );
   assert.match(source, /callback-entry prearm is already a durable immediate recovery driver/);
@@ -433,8 +459,7 @@ test("Worker wiring preserves Phase 1 while closing durable private boundaries",
   );
   assert.match(source, /completedAt >= snapshot\.purgeAt/);
   assert.ok(
-    pump.indexOf("await this.prearmDurablePumpSuccessor(schedule?.taskId)") <
-      pump.indexOf("await this.durableEncryptionKey()"),
+    requireIndex(pump, "await this.prearmDurablePumpSuccessor(schedule?.taskId)", "pump") < requireIndex(pump, "await this.durableEncryptionKey()", "pump"),
     "the invoking row must remain covered by a successor before key import yields"
   );
   assert.doesNotMatch(source, /\n\s*(?:async\s+)?alarm\s*\(/);
@@ -443,24 +468,17 @@ test("Worker wiring preserves Phase 1 while closing durable private boundaries",
   // reaches the Durable Object unauthenticated, the budget is committed before
   // the lookup, and a refused caller is never told whether the id exists.
   assert.ok(
-    source.indexOf("refuseUnauthorizedDurableScanJobControl(request, env)") <
-      source.indexOf("chargeAndFindDurableJob({"),
+    requireIndex(source, "refuseUnauthorizedDurableScanJobControl(request, env)", "source") < requireIndex(source, "chargeAndFindDurableJob({", "source"),
     "authorization must precede any Durable Object RPC"
   );
-  const polledJob = source.slice(
-    source.indexOf("chargeAndFindDurableJob(input: {"),
-    source.indexOf("findStagingDurableReplayFault(jobId: string)")
-  );
+  const polledJob = sliceBetween(source, "chargeAndFindDurableJob(input: {", "findStagingDurableReplayFault(jobId: string)", "source");
   assert.ok(polledJob.length > 0, "the combined poll RPC could not be located");
   assert.ok(
-    polledJob.indexOf("chargeDurableJobReadRateLimit") < polledJob.indexOf("findDurableJob(input.jobId)"),
+    requireIndex(polledJob, "chargeDurableJobReadRateLimit", "polledJob") < requireIndex(polledJob, "findDurableJob(input.jobId)", "polledJob"),
     "the read budget must be charged before the lookup"
   );
   assert.match(polledJob, /if \(!charge\.allowed\) return \{ charge, snapshot: null \}/);
-  const jobRouting = source.slice(
-    source.indexOf("if (scanJobId)"),
-    source.indexOf("// Report reads and CORS preflight")
-  );
+  const jobRouting = sliceBetween(source, "if (scanJobId)", "const reportRead = parsePublicReportReadPath(", "source");
   assert.match(jobRouting, /handleDurableScanJobRequest\(request, env, scanJobId\)/);
   assert.doesNotMatch(jobRouting, /if \(durableScanJobsEnabled\(env\)\)/);
   assert.match(source, /before\?\.state === "queued" && before\.leaseGeneration > 0/);
@@ -476,18 +494,9 @@ test("Worker wiring preserves Phase 1 while closing durable private boundaries",
 
 test("durable quota is deferred into admission while Phase 1 keeps immediate edge charging", async () => {
   const source = await readFile(path.join(process.cwd(), "cloudflare/container-worker.ts"), "utf8");
-  const fetchHandler = source.slice(
-    source.indexOf("export default"),
-    source.indexOf("type DurableScanJobConfig")
-  );
-  const gate = source.slice(
-    source.indexOf("async function gateScanRequest"),
-    source.indexOf("function parseScanGatePayload")
-  );
-  const submit = source.slice(
-    source.indexOf("async function submitDurableScanJob"),
-    source.indexOf("async function handleDurableScanJobRequest")
-  );
+  const fetchHandler = sliceBetween(source, "export default", "type DurableScanJobConfig", "source");
+  const gate = sliceBetween(source, "async function gateScanRequest", "function parseScanGatePayload", "source");
+  const submit = sliceBetween(source, "async function submitDurableScanJob", "async function handleDurableScanJobRequest", "source");
 
   assert.match(
     fetchHandler,
@@ -509,8 +518,7 @@ test("durable quota is deferred into admission while Phase 1 keeps immediate edg
     /scope: "public"[\s\S]*if \(chargeMode === "defer"\) \{[\s\S]*await assertDeferredScanRateLimitAvailable\(rateLimit, env\);[\s\S]*return rateLimit/
   );
   assert.ok(
-    gate.indexOf("await assertDeferredScanRateLimitAvailable(rateLimit, env)") <
-      gate.indexOf("chargePublicScanRateLimit(rateLimit)"),
+    requireIndex(gate, "await assertDeferredScanRateLimitAvailable(rateLimit, env)", "gate") < requireIndex(gate, "chargePublicScanRateLimit(rateLimit)", "gate"),
     "durable mode must preflight quota without consuming it before the Phase-1 charge"
   );
   assert.match(
@@ -518,8 +526,7 @@ test("durable quota is deferred into admission while Phase 1 keeps immediate edg
     /scope: "authenticated"[\s\S]*await assertDeferredScanRateLimitAvailable\(rateLimit, env\);[\s\S]*return rateLimit/
   );
   assert.ok(
-    fetchHandler.indexOf("deferredRateLimit = await gateScanRequest") <
-      fetchHandler.indexOf("submitDurableScanJob("),
+    requireIndex(fetchHandler, "deferredRateLimit = await gateScanRequest", "fetchHandler") < requireIndex(fetchHandler, "submitDurableScanJob(", "fetchHandler"),
     "the non-consuming DO quota check must finish before Node preparation starts"
   );
   assert.match(
@@ -538,14 +545,8 @@ test("durable quota is deferred into admission while Phase 1 keeps immediate edg
 
 test("public scan-admission recovery charges its dedicated limiter before capability lookup", async () => {
   const source = await readFile(path.join(process.cwd(), "cloudflare/container-worker.ts"), "utf8");
-  const containerMethod = source.slice(
-    source.indexOf("recoverCommittedScanAdmission(input:"),
-    source.indexOf("async admitEncryptedWatchPreparation(")
-  );
-  const publicRecovery = source.slice(
-    source.indexOf("async function recoverCommittedScanAdmission(request:"),
-    source.indexOf("async function authorizeScanAdmissionRecovery(")
-  );
+  const containerMethod = sliceBetween(source, "recoverCommittedScanAdmission(input:", "async admitEncryptedWatchPreparation(", "source");
+  const publicRecovery = sliceBetween(source, "async function recoverCommittedScanAdmission(request:", "async function authorizeScanAdmissionRecovery(", "source");
   assert.match(containerMethod, /transactionSync\([\s\S]*findScanAdmissionRateLimited\(/);
   assert.match(publicRecovery, /recoverCommittedScanAdmission\(\{[\s\S]*clientHash: await publicClientHash/);
   assert.match(publicRecovery, /result\.status === "rate-limited"[\s\S]*429/);
@@ -554,15 +555,9 @@ test("public scan-admission recovery charges its dedicated limiter before capabi
 
 test("active scan, watch, and private coordinator body reads are finite and caller-cancellable", async () => {
   const source = await readFile(path.join(process.cwd(), "cloudflare/container-worker.ts"), "utf8");
-  const fetchHandler = source.slice(source.indexOf("export default"), source.indexOf("type DurableScanJobConfig"));
-  const watchCreation = source.slice(
-    source.indexOf("async function handleEncryptedWatchCreationWithinDeadline("),
-    source.indexOf("function encryptedWatchAdmissionProofMatches(")
-  );
-  const coordinator = source.slice(
-    source.indexOf("async function handleDurableScanJobCoordinatorRequest("),
-    source.indexOf("function durableCoordinatorOwner(")
-  );
+  const fetchHandler = sliceBetween(source, "export default", "type DurableScanJobConfig", "source");
+  const watchCreation = sliceBetween(source, "async function handleEncryptedWatchCreationWithinDeadline(", "function encryptedWatchAdmissionProofMatches(", "source");
+  const coordinator = sliceBetween(source, "async function handleDurableScanJobCoordinatorRequest(", "function durableCoordinatorOwner(", "source");
 
   for (const section of [fetchHandler, watchCreation, coordinator]) {
     assert.match(
@@ -575,14 +570,8 @@ test("active scan, watch, and private coordinator body reads are finite and call
 
 test("authoritative and Phase-1 report recovery thread the bounded fetch signal to the container", async () => {
   const source = await readFile(path.join(process.cwd(), "cloudflare/container-worker.ts"), "utf8");
-  const authoritative = source.slice(
-    source.indexOf("return recoverDurableScanJobSnapshotResponse("),
-    source.indexOf("async function gateDurableScanJobControlRequest(")
-  );
-  const phaseOne = source.slice(
-    source.indexOf("async function recoverRegisteredScanJob("),
-    source.indexOf("function scanForwardHeaders(")
-  );
+  const authoritative = sliceBetween(source, "return recoverDurableScanJobSnapshotResponse(", "async function refuseUnauthorizedDurableScanJobControl(", "source");
+  const phaseOne = sliceBetween(source, "async function recoverRegisteredScanJob(", "function scanForwardHeaders(", "source");
   for (const section of [authoritative, phaseOne]) {
     assert.match(section, /fetchReport: \(reportId, signal\)/);
     assert.match(section, /new Request\(reportUrl, \{ method: "GET", headers, signal \}\)/);
@@ -594,18 +583,9 @@ test("authoritative and Phase-1 report recovery thread the bounded fetch signal 
 
 test("Durable Object RPC mutations own time and return plain conflict envelopes", async () => {
   const source = await readFile(path.join(process.cwd(), "cloudflare/container-worker.ts"), "utf8");
-  const container = source.slice(
-    source.indexOf("export class ScannerContainer"),
-    source.indexOf("export default")
-  );
-  const coordinator = source.slice(
-    source.indexOf("async function handleDurableScanJobCoordinatorRequest"),
-    source.indexOf("function durableCoordinatorOwner")
-  );
-  const publicControl = source.slice(
-    source.indexOf("async function handleDurableScanJobRequest"),
-    source.indexOf("async function gateDurableScanJobControlRequest")
-  );
+  const container = sliceBetween(source, "export class ScannerContainer", "export default", "source");
+  const coordinator = sliceBetween(source, "async function handleDurableScanJobCoordinatorRequest", "function durableCoordinatorOwner", "source");
+  const publicControl = sliceBetween(source, "async function handleDurableScanJobRequest", "async function refuseUnauthorizedDurableScanJobControl(", "source");
 
   assert.match(source, /type DurableScanJobMutationResult\s*=\s*\| \{ status: "success" \}\s*\| \{ status: "conflict" \}/);
   assert.match(
@@ -628,27 +608,25 @@ test("Durable Object RPC mutations own time and return plain conflict envelopes"
 
   for (const method of ["heartbeatDurableJob", "beginPublishingDurableJob", "resolveDurableJob"] as const) {
     const start = container.indexOf(`async ${method}`);
+    assert.ok(start >= 0, `the container no longer declares async ${method}`);
     const next = container.indexOf("\n  async ", start + 1);
     const body = container.slice(start, next === -1 ? undefined : next);
     assert.ok(start >= 0, `${method} must remain a Durable Object RPC`);
     assert.match(body, /const tokenHash = await hashDurableScanJobLeaseToken/);
     assert.ok(
-      body.indexOf("const tokenHash = await hashDurableScanJobLeaseToken") < body.indexOf("const now = Date.now()"),
+      requireIndex(body, "const tokenHash = await hashDurableScanJobLeaseToken", "body") < requireIndex(body, "const now = Date.now()", "body"),
       `${method} must sample authoritative time after hashing`
     );
     assert.ok(
-      body.indexOf("const now = Date.now()") < body.indexOf("this.ctx.storage.transactionSync"),
+      requireIndex(body, "const now = Date.now()", "body") < requireIndex(body, "this.ctx.storage.transactionSync", "body"),
       `${method} must sample authoritative time immediately before its transaction`
     );
     assert.match(body, /instanceof DurableScanJobStateError\) return \{ status: "conflict" \}/);
     assert.match(body, /return \{ status: "success" \}/);
   }
 
-  const cancellation = container.slice(
-    container.indexOf("async cancelDurableJob"),
-    container.indexOf("async heartbeatDurableJob")
-  );
-  assert.ok(cancellation.indexOf("const now = Date.now()") < cancellation.indexOf("this.ctx.storage.transactionSync"));
+  const cancellation = sliceBetween(container, "async cancelDurableJob", "async heartbeatDurableJob", "container");
+  assert.ok(requireIndex(cancellation, "const now = Date.now()", "cancellation") < requireIndex(cancellation, "this.ctx.storage.transactionSync", "cancellation"));
   assert.match(cancellation, /instanceof DurableScanJobStateError\) return \{ status: "conflict" \}/);
   assert.match(cancellation, /status: "success" as const/);
 
@@ -659,12 +637,11 @@ test("Durable Object RPC mutations own time and return plain conflict envelopes"
   assert.doesNotMatch(source, /charge(?:PublicScanRateLimit|DurableJobReadRateLimit)\(\{[\s\S]{0,500}?now: Date\.now\(\)/);
   assert.match(container, /createdAt: preparation\.payload\.admittedAt/);
   const admission = container.slice(
-    container.indexOf("async admitDurablePreparation"),
-    container.indexOf("findDurableJob", container.indexOf("async admitDurablePreparation"))
+    requireIndex(container, "async admitDurablePreparation", "container"),
+    container.indexOf("findDurableJob", requireIndex(container, "async admitDurablePreparation", "container"))
   );
   assert.ok(
-    admission.indexOf("publicScanRateLimitChargeMatchesCost") <
-      admission.indexOf("createDurableScanJobAdmission"),
+    requireIndex(admission, "publicScanRateLimitChargeMatchesCost", "admission") < requireIndex(admission, "createDurableScanJobAdmission", "admission"),
     "cost drift must fail before encryption, scheduling, quota, or row mutation"
   );
   assert.match(admission, /instanceof DurableScanJobCapacityError \|\| error instanceof DurableScanJobStateError/);
@@ -672,13 +649,11 @@ test("Durable Object RPC mutations own time and return plain conflict envelopes"
   assert.match(admission, /peekPublicScanRateLimitInStore\(this\.ctx\.storage\.sql, rateLimit, now\)/);
   assert.match(admission, /commitIdempotentScanAdmission\(/);
   assert.ok(
-    admission.indexOf("await this.ensureImmediateDurablePumpWake()") <
-      admission.indexOf("commitIdempotentScanAdmission"),
+    requireIndex(admission, "await this.ensureImmediateDurablePumpWake()", "admission") < requireIndex(admission, "commitIdempotentScanAdmission", "admission"),
     "durable quota must not be consumed before the admission wake is durable"
   );
   assert.ok(
-    admission.indexOf("commitIdempotentScanAdmission") <
-      admission.indexOf("admitDurableScanJob(this.ctx.storage.sql, admission)"),
+    requireIndex(admission, "commitIdempotentScanAdmission", "admission") < requireIndex(admission, "admitDurableScanJob(this.ctx.storage.sql, admission)", "admission"),
     "idempotency, quota, and row admission must execute in one final transaction"
   );
   const finalAdmissionTransaction = admission.slice(
@@ -714,7 +689,7 @@ test("durable preparation is isolated from the public Phase-1 scan route", async
   assert.doesNotMatch(publicRoute, /prepareDurableScanJobRequest|DURABLE_SCAN_JOB_PREPARED_HEADER/);
   assert.match(publicRoute, /if \(durableScanJobsEnabled\(\)\)/);
   assert.ok(
-    publicRoute.indexOf("if (durableScanJobsEnabled())") < publicRoute.indexOf("submitScanJobRequest(request)"),
+    requireIndex(publicRoute, "if (durableScanJobsEnabled())", "publicRoute") < requireIndex(publicRoute, "submitScanJobRequest(request)", "publicRoute"),
     "public durable mode must refuse before Phase-1 enqueue"
   );
   assert.match(privateRoute, /assertDurableScanJobInternalRequest\(request\)/);
@@ -728,10 +703,7 @@ test("Worker health performs the edge key upgrade and fail-closed downgrade", as
   assert.match(source, /await durableJobsEdgeHealthCheck\(health\.checks, env\)/);
   assert.match(source, /await importDurableScanJobEncryptionKey\(config\.encryptionKey\)/);
   assert.match(source, /durableScanJobSecretsAreDistinct\(encryptionKey, internalToken\)/);
-  const durableConfig = source.slice(
-    source.indexOf("function requireDurableScanJobConfig"),
-    source.indexOf("function requireDurableContainerShardingPlan")
-  );
+  const durableConfig = sliceBetween(source, "function requireDurableScanJobConfig", "function requireDurableContainerShardingPlan", "source");
   assert.equal(
     (durableConfig.match(/SITE_BEHAVIOR_LAB_SYNTHETIC_MONITOR_TOKEN/g) ?? []).length,
     2,
@@ -751,38 +723,34 @@ test("Worker health performs the edge key upgrade and fail-closed downgrade", as
   assert.match(source, /completionBeforeStatusRequestEvidence: true as const/);
   assert.match(source, /wholeOriginAccessGate: true as const/);
   assert.match(source, /durableReplayFaultConfig\(env as Env\)/);
-  const fetchHandler = source.slice(
-    source.indexOf("export default"),
-    source.indexOf("type DurableScanJobConfig")
-  );
+  const fetchHandler = sliceBetween(source, "export default", "type DurableScanJobConfig", "source");
   assert.ok(
-    fetchHandler.indexOf("durableReplayFaultIngressIntent(env)") <
-      fetchHandler.indexOf('url.pathname === "/api/health"'),
+    requireIndex(fetchHandler, "durableReplayFaultIngressIntent(env)", "fetchHandler") <
+      requireIndex(fetchHandler, 'url.pathname === "/api/health"', "fetchHandler"),
     "the staging whole-origin token gate must run before health can touch the container"
   );
   assert.match(
     fetchHandler,
     /durableReplayFaultIngressIntent\(env\)[\s\S]*durableReplayFaultConfig\(env\)\.status !== "ready"[\s\S]*scanAccessTokenMatches\(request\.headers, expectedToken\)/
   );
-  const healthCheck = source.slice(
-    source.indexOf("export async function durableJobsEdgeHealthCheck"),
-    source.indexOf("async function gateScanRequest")
-  );
+  const healthCheck = sliceBetween(source, "export async function durableJobsEdgeHealthCheck", "async function gateScanRequest", "source");
   assert.ok(
-    healthCheck.indexOf("const replayFault = durableReplayFaultConfig") <
-      healthCheck.indexOf('if (flag === "disabled")'),
+    requireIndex(healthCheck, "const replayFault = durableReplayFaultConfig", "healthCheck") <
+      requireIndex(healthCheck, 'if (flag === "disabled")', "healthCheck"),
     "health must evaluate replay-fault misconfiguration before the disabled early return"
   );
   assert.match(healthCheck, /if \(replayFault\.status === "misconfigured"\) reasons\.push/);
 
-  const forwarder = source.slice(
-    source.indexOf("function forwardToContainer"),
-    source.indexOf("function frontDoorOrigin")
-  );
+  const forwarder = sliceBetween(source, "function forwardToContainer", "function frontDoorOrigin", "source");
   assert.match(forwarder, /headers\.delete\(DURABLE_REPLAY_FAULT_MODE_HEADER\)/);
   assert.match(forwarder, /headers\.delete\(DURABLE_REPLAY_FAULT_TOKEN_HEADER\)/);
 
-  const purgeStart = source.indexOf("private purgeDurableScanJobState");
-  const purge = source.slice(purgeStart, source.indexOf("private durableEncryptionKey", purgeStart));
+  // `private durableEncryptionKey` also appears before the purge method, so
+  // this end marker must be the first one AFTER the start, not the first in
+  // the file.
+  const purgeStart = requireIndex(source, "private purgeDurableScanJobState");
+  const purgeEnd = source.indexOf("private durableEncryptionKey", purgeStart);
+  assert.ok(purgeEnd > purgeStart, "no method declaration follows purgeDurableScanJobState; update the end marker");
+  const purge = source.slice(purgeStart, purgeEnd);
   assert.match(purge, /purgeDurableReplayFaults\(this\.ctx\.storage\.sql, now\)/);
 });
