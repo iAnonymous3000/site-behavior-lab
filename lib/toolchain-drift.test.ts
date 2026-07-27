@@ -47,7 +47,12 @@ const helpers = nativeImport(
 
 const reviewedSeccompDigests: Readonly<Record<string, string>> = {
   // microsoft/playwright v1.61.1 utils/docker/seccomp_profile.json
-  "1.61.1": "cc3e61cabda6bbc1e53e54d27ba4d55a9d3be829b6dd1a596f4a7b31b1cc7849"
+  "1.61.1": "cc3e61cabda6bbc1e53e54d27ba4d55a9d3be829b6dd1a596f4a7b31b1cc7849",
+  // v1.62.0 ships the SAME bytes: the upstream profile was fetched at that tag
+  // and is byte-identical to v1.61.1's, so the container's syscall policy did
+  // not move with the toolchain. Same digest here records a completed review,
+  // not a skipped one.
+  "1.62.0": "cc3e61cabda6bbc1e53e54d27ba4d55a9d3be829b6dd1a596f4a7b31b1cc7849"
 };
 
 test("promotion CI pins the reviewed seccomp bytes to the exact Playwright version", () => {

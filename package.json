@@ -76,7 +76,7 @@
     "aws4fetch": "^1.0.20",
     "lucide-react": "^1.27.0",
     "next": "^15.0.4",
-    "playwright": "1.61.1",
+    "playwright": "1.62.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "tldts": "7.4.9"
