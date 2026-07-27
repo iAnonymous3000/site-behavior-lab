@@ -20,6 +20,16 @@ export const MAX_CAPTURED_STORAGE_KEY_CHARS = 1_024;
 export const MAX_CAPTURED_STORAGE_TOTAL_KEY_CHARS = 256 * 1024;
 export const MAX_CAPTURED_STORAGE_TOTAL_VALUE_CHARS = 1024 * 1024;
 export const NON_HTTP_WARNING_EXAMPLE_LIMIT = 5;
+/**
+ * The scan deadline arrived while a routed request handler was still running.
+ *
+ * v1 has no quality block, so without this line a visit whose final request
+ * evidence was cut short is indistinguishable on the wire from one that saw
+ * everything. The alternative the scanner used to take was rejecting the whole
+ * visit, which discarded a finished measurement over one slow route.
+ */
+export const UNSETTLED_ROUTED_REQUEST_WARNING =
+  "The scan deadline arrived while one or more requests were still being handled, so this visit's request evidence is incomplete.";
 export const INVALID_UPSTREAM_RESPONSE_WARNING =
   "The scan proxy rejected one or more invalid upstream responses; request evidence may be incomplete.";
 /**

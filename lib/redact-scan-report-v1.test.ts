@@ -15,7 +15,11 @@ import {
   redactScanResultV1
 } from "./redact-scan-report-v1";
 import { scannerDisclosure } from "./scan-condition-disclosure";
-import { aggregateByteBudgetWarning, INVALID_UPSTREAM_RESPONSE_WARNING } from "./scan-runtime";
+import {
+  aggregateByteBudgetWarning,
+  INVALID_UPSTREAM_RESPONSE_WARNING,
+  UNSETTLED_ROUTED_REQUEST_WARNING
+} from "./scan-runtime";
 import { readStoredScanReport } from "./scan-report-reader";
 import { makeScanReportV1 } from "./scan-report-v2-fixtures";
 import { findTrackerMatch } from "./tracker-catalog";
@@ -288,6 +292,16 @@ test("the invalid-upstream-response warning survives the public redaction bounda
 
   const { report } = redactScanResultV1(input);
   assert.deepEqual(report.warnings, [INVALID_UPSTREAM_RESPONSE_WARNING]);
+});
+
+test("the unsettled routed-request disclosure survives the public boundary", () => {
+  // v1 has no quality block, so this line is the only thing separating a visit
+  // whose request evidence was cut short from one that saw everything.
+  const input = sensitiveSingle();
+  input.warnings = [UNSETTLED_ROUTED_REQUEST_WARNING];
+
+  const { report } = redactScanResultV1(input);
+  assert.deepEqual(report.warnings, [UNSETTLED_ROUTED_REQUEST_WARNING]);
 });
 
 test("every consent disclosure the producer can emit survives the public boundary", () => {

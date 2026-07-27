@@ -143,7 +143,7 @@ test("the context gate honors its exact depth and text budgets in the browser", 
     await page.setContent(banner(reachableWrappers + 1));
     assert.deepEqual(
       await page.evaluate(findAndClickConsentControl, consentClickArgs("accept-all", SHADOW_ROOT_CAPABILITY)),
-      { clicked: false },
+      { clicked: false, dispatched: 0 },
       "one wrapper past the depth budget is out of reach"
     );
 
@@ -169,7 +169,7 @@ test("the context gate honors its exact depth and text budgets in the browser", 
     </body>`);
     assert.deepEqual(
       await page.evaluate(findAndClickConsentControl, consentClickArgs("accept-all", SHADOW_ROOT_CAPABILITY)),
-      { clicked: false },
+      { clicked: false, dispatched: 0 },
       "page-length prose is not banner context"
     );
   } finally {
@@ -199,11 +199,11 @@ test("generic consent labels require bounded banner context while known CMP sele
     );
     assert.deepEqual(
       await page.evaluate(findAndClickConsentControl, consentClickArgs("accept-all", SHADOW_ROOT_CAPABILITY)),
-      { clicked: false }
+      { clicked: false, dispatched: 0 }
     );
     assert.deepEqual(
       await page.evaluate(findAndClickConsentControl, consentClickArgs("reject-all", SHADOW_ROOT_CAPABILITY)),
-      { clicked: false }
+      { clicked: false, dispatched: 0 }
     );
     assert.deepEqual(
       await page.evaluate(() => ({
@@ -228,11 +228,11 @@ test("generic consent labels require bounded banner context while known CMP sele
     );
     assert.deepEqual(
       await page.evaluate(findAndClickConsentControl, consentClickArgs("accept-all", SHADOW_ROOT_CAPABILITY)),
-      { clicked: false }
+      { clicked: false, dispatched: 0 }
     );
     assert.deepEqual(
       await page.evaluate(findAndClickConsentControl, consentClickArgs("reject-all", SHADOW_ROOT_CAPABILITY)),
-      { clicked: false }
+      { clicked: false, dispatched: 0 }
     );
 
     await page.setContent(`<!doctype html><body>
@@ -368,11 +368,11 @@ test("browser probes reject hidden and no-op decoys and continue to a genuine re
     );
     assert.deepEqual(
       await page.evaluate(findAndClickConsentControl, consentClickArgs("accept-all", SHADOW_ROOT_CAPABILITY)),
-      { clicked: false }
+      { clicked: false, dispatched: 0 }
     );
     assert.deepEqual(
       await page.evaluate(findAndClickConsentControl, consentClickArgs("reject-all", SHADOW_ROOT_CAPABILITY)),
-      { clicked: false }
+      { clicked: false, dispatched: 0 }
     );
     assert.equal(await page.evaluate(() => Reflect.get(window, "hiddenClicks")), 0);
 
@@ -394,7 +394,7 @@ test("browser probes reject hidden and no-op decoys and continue to a genuine re
     );
     assert.deepEqual(
       await page.evaluate(findAndClickConsentControl, consentClickArgs("accept-all", SHADOW_ROOT_CAPABILITY)),
-      { clicked: false }
+      { clicked: false, dispatched: 0 }
     );
     assert.equal(await page.evaluate(() => Reflect.get(window, "shadowHiddenClicks") ?? 0), 0);
 
@@ -424,11 +424,11 @@ test("browser probes reject hidden and no-op decoys and continue to a genuine re
     );
     assert.deepEqual(
       await page.evaluate(findAndClickConsentControl, consentClickArgs("accept-all", SHADOW_ROOT_CAPABILITY)),
-      { clicked: false }
+      { clicked: false, dispatched: 0 }
     );
     assert.deepEqual(
       await page.evaluate(findAndClickConsentControl, consentClickArgs("reject-all", SHADOW_ROOT_CAPABILITY)),
-      { clicked: false }
+      { clicked: false, dispatched: 0 }
     );
     assert.equal(await page.evaluate(() => Reflect.get(window, "hiddenCssClicks")), 0);
 
@@ -453,7 +453,7 @@ test("browser probes reject hidden and no-op decoys and continue to a genuine re
     );
     assert.deepEqual(
       await page.evaluate(findAndClickConsentControl, consentClickArgs("reject-all", SHADOW_ROOT_CAPABILITY)),
-      { clicked: false }
+      { clicked: false, dispatched: 0 }
     );
     assert.equal(await page.evaluate(() => Reflect.get(window, "cumulativeOpacityClicks")), 0);
 
@@ -477,7 +477,7 @@ test("browser probes reject hidden and no-op decoys and continue to a genuine re
     );
     assert.deepEqual(
       await page.evaluate(findAndClickConsentControl, consentClickArgs("accept-all", SHADOW_ROOT_CAPABILITY)),
-      { clicked: false },
+      { clicked: false, dispatched: 0 },
       "a fully occluded known-selector decoy is not clicked"
     );
     assert.equal(await page.evaluate(() => Reflect.get(window, "occludedClicks")), 0);
@@ -517,7 +517,10 @@ test("browser probes reject hidden and no-op decoys and continue to a genuine re
     </body>`);
     assert.deepEqual(
       await page.evaluate(findAndClickConsentControl, consentClickArgs("reject-all", SHADOW_ROOT_CAPABILITY)),
-      { clicked: false },
+      // The click LANDED. It is still not activation proof, but the count is
+      // what stops the report from calling this an empty search: the page was
+      // clicked, so this visit's evidence can span both sides of a choice.
+      { clicked: false, dispatched: 1 },
       "dispatching a synthetic click without a control reaction is not activation proof"
     );
 
@@ -532,7 +535,9 @@ test("browser probes reject hidden and no-op decoys and continue to a genuine re
     </body>`);
     assert.deepEqual(
       await page.evaluate(findAndClickConsentControl, consentClickArgs("accept-all", SHADOW_ROOT_CAPABILITY)),
-      { clicked: false },
+      // A trusted MouseEvent still reached the control, so the dispatch is real
+      // even though the page's forged `disabled` cannot buy an activation.
+      { clicked: false, dispatched: 1 },
       "an own click override cannot forge event dispatch or a reacting activation"
     );
     assert.deepEqual(
@@ -567,7 +572,7 @@ test("browser probes reject hidden and no-op decoys and continue to a genuine re
     const timerSabotageStarted = Date.now();
     assert.deepEqual(
       await page.evaluate(findAndClickConsentControl, consentClickArgs("reject-all", SHADOW_ROOT_CAPABILITY)),
-      { clicked: false },
+      { clicked: false, dispatched: 1 },
       "page-authored timers cannot bypass the 350ms reaction bound"
     );
     const timerSabotageElapsed = Date.now() - timerSabotageStarted;
@@ -776,7 +781,8 @@ test("the browser probes reach closed known CMP roots while leaving unrelated ro
       findAndClickConsentControl,
       consentClickArgs("accept-all", SHADOW_ROOT_CAPABILITY)
     ), {
-      clicked: false
+      clicked: false,
+      dispatched: 0
     });
     assert.equal(await page.evaluate(() => Reflect.get(window, "knownAcceptClicks") ?? 0), 0);
     await page.evaluate(() => (Reflect.get(window, "enableKnownAccept") as () => void)());
@@ -811,7 +817,8 @@ test("the browser probes reach closed known CMP roots while leaving unrelated ro
       findAndClickConsentControl,
       consentClickArgs("accept-all", SHADOW_ROOT_CAPABILITY)
     ), {
-      clicked: false
+      clicked: false,
+      dispatched: 0
     });
     assert.equal(await page.evaluate(() => Reflect.get(window, "unrelatedClicks") ?? 0), 0);
 
@@ -902,6 +909,16 @@ test("a consent probe that never searched does not report a completed search", (
   assert.match(interrupted, /both sides of that choice/);
   assert.doesNotMatch(interrupted, /no recognizable control was found/);
   assert.doesNotMatch(interrupted, /pre-consent state/);
+
+  // A click that landed on a control which never visibly responded is neither
+  // a click nor an empty search: the page WAS clicked, so "results reflect the
+  // pre-consent state" would be false about it.
+  const unconfirmed = consentInteractionWarning(summary, "dispatch-unconfirmed");
+  assert.match(unconfirmed, /clicked a control that never visibly responded/);
+  assert.match(unconfirmed, /whether a choice registered is unknown/);
+  assert.match(unconfirmed, /traffic from after that click/);
+  assert.doesNotMatch(unconfirmed, /no recognizable control was found/);
+  assert.doesNotMatch(unconfirmed, /pre-consent state/);
 
   // Every outcome the producer can record has its own sentence.
   const sentences = new Set(CONSENT_PROBE_OUTCOMES.map((outcome) => consentInteractionWarning(summary, outcome)));

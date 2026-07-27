@@ -2378,6 +2378,55 @@ test("a consent control that reloads the page is not reported as a missing contr
   }
 });
 
+test("a consent control that never responds is disclosed as a click, not an empty search", { timeout: 30_000 }, async () => {
+  // The anti-decoy rule is why this is not recorded as a click. It is also not
+  // an empty search: a click landed, so the visit's evidence can span both
+  // sides of a choice and "results reflect the pre-consent state" would be
+  // false about a page this visit demonstrably clicked.
+  const upstream = createServer((_request, response) => {
+    response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+    response.end(`<!doctype html>
+      <title>Unresponsive CMP fixture</title>
+      <div id="onetrust-banner-sdk">
+        <button id="onetrust-accept-btn-handler">Accept all</button>
+      </div>`);
+  });
+  await new Promise<void>((resolve, reject) => {
+    upstream.once("error", reject);
+    upstream.listen(0, "127.0.0.1", resolve);
+  });
+  const address = upstream.address();
+  assert.ok(address && typeof address === "object");
+
+  try {
+    const { result } = await scanSiteWithMeasurement(
+      {
+        url: "http://unresponsive-cmp.test/",
+        device: "desktop",
+        gpcEnabled: false,
+        consentMode: "accept-all"
+      },
+      {
+        publicUrlAlreadyVerified: true,
+        verifyPublicUrl: async () => undefined,
+        resolvePublicHost: async () => [{ address: "93.184.216.34", family: 4 }],
+        connectProxyUpstreamForTests: () => connect(address.port, "127.0.0.1"),
+        resolveCnameChain: async () => []
+      }
+    );
+
+    assert.equal(result.consentInteraction?.clicked, false);
+    const consentWarnings = result.warnings.filter((warning) => warning.startsWith("This visit was asked to choose"));
+    assert.deepEqual(consentWarnings, redactScannerWarnings(consentWarnings, new RedactionPass()));
+    assert.equal(consentWarnings.length, 1, consentWarnings.join(" | "));
+    assert.match(consentWarnings[0], /clicked a control that never visibly responded/);
+    assert.doesNotMatch(consentWarnings[0], /no recognizable control was found/);
+  } finally {
+    await closeSharedBrowserForTests();
+    await new Promise<void>((resolve) => upstream.close(() => resolve()));
+  }
+});
+
 test("post-consent cross-site reload evidence is rejected and the active input probe is skipped", { timeout: 30_000 }, async () => {
   const upstream = createServer((request, response) => {
     if (request.headers.host?.startsWith("other-subject.test")) {

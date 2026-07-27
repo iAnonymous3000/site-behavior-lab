@@ -95,6 +95,7 @@ import {
   FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING,
   INVALID_UPSTREAM_RESPONSE_WARNING,
   MAX_RECORDED_REQUEST_URL_CHARS,
+  UNSETTLED_ROUTED_REQUEST_WARNING,
   ScanNetworkRecorder,
   ScanRequestBudget,
   type ScanRequestBudgetDiagnostics,
@@ -574,6 +575,12 @@ type ConsentChoiceProbeOutcome = {
    * different failure and is counted separately.
    */
   unreadableFrames?: number;
+  /**
+   * Clicks that landed on a candidate which never visibly responded. The page
+   * was clicked, so the visit's evidence can span both sides of a choice even
+   * though no control could be attributed.
+   */
+  dispatchedControls?: number;
 };
 
 const publicHostCheckFailures = new WeakMap<Map<string, Promise<void>>, Map<string, number>>();
@@ -1229,6 +1236,18 @@ export async function scanSiteWithMeasurement(
       consentPhaseId !== null &&
       consentProbeState.failure === null &&
       consentInteraction?.clicked === false &&
+      (consentProbe?.dispatchedControls ?? 0) > 0
+    ) {
+      // A click landed and nothing visibly reacted. The anti-decoy rule is why
+      // that is not recorded as a click, but it is also not an empty search:
+      // saying results reflect the pre-consent state would be false about a
+      // page this visit demonstrably clicked.
+      consentProbeState.failure = "dispatch-unconfirmed";
+    }
+    if (
+      consentPhaseId !== null &&
+      consentProbeState.failure === null &&
+      consentInteraction?.clicked === false &&
       (consentProbe?.unreadableFrames ?? 0) > 0
     ) {
       // Some frame's search never returned a result. Reporting that as "no
@@ -1806,7 +1825,18 @@ export async function scanSiteWithMeasurement(
     const pixelEventInputsByPhase = new Map<number, PixelEventInput[]>();
     const phaseAwareRequests: Array<NetworkRequestRecord & { phaseId: number }> = [];
     let gpcNavigationRetained = false;
-    await settleRoutedRequests(inFlightRouteHandlers, started, options.signal);
+    // The last boundary before evidence is read. Everything after it degrades
+    // gracefully on its own budget, so rejecting here threw away a completed
+    // measurement; record the loss and publish what was measured instead.
+    await settleRoutedRequests(inFlightRouteHandlers, started, options.signal, () => {
+      warnings.add(UNSETTLED_ROUTED_REQUEST_WARNING);
+      measurementKernel.recordCaptureLoss({
+        family: "requests",
+        phaseId: null,
+        kind: "dropped",
+        count: inFlightRouteHandlers.size
+      });
+    });
     const allPublicRequests = networkRecorder.publicRecords(trustedSubjectHostname, (record, request) => {
       const phaseId = measurementKernel.phaseForRequest(request) ?? passivePhaseId;
       const retainAtTrustedBoundary =
@@ -2383,14 +2413,34 @@ function throwIfScanAborted(signal?: AbortSignal): void {
   throw scanAbortError(signal);
 }
 
+/**
+ * Wait for every routed request handler to finish before evidence is read.
+ *
+ * `onDeadline` makes the wait degradable. At the FINAL evidence boundary a
+ * handler still in flight when the deadline lands used to reject the whole
+ * visit, so one slow route discarded a measurement that had already completed
+ * every phase. Recording the loss and publishing what was measured is the
+ * better answer there; every earlier boundary still fails closed, because
+ * continuing past one would attribute a phase's requests to the wrong phase.
+ *
+ * Cancellation always throws: a caller that went away is not owed a report.
+ */
 async function settleRoutedRequests(
   inFlight: ReadonlySet<Promise<void>>,
   started: number,
-  signal?: AbortSignal
+  signal?: AbortSignal,
+  onDeadline?: () => void
 ): Promise<void> {
   while (inFlight.size > 0) {
     throwIfScanAborted(signal);
-    await withScanTimeout(Promise.allSettled([...inFlight]), started);
+    try {
+      await withScanTimeout(Promise.allSettled([...inFlight]), started);
+    } catch (error) {
+      throwIfScanAborted(signal);
+      if (!onDeadline || !isScanBudgetError(error)) throw error;
+      onDeadline();
+      return;
+    }
   }
   throwIfScanAborted(signal);
 }
@@ -2803,8 +2853,9 @@ async function applyConsentChoice(
   const summary: ConsentInteractionSummary = { mode: choice, clicked: false };
   let readableFrames = 0;
   let unreadableFrames = 0;
+  let dispatchedControls = 0;
   if (MAX_SCAN_DURATION_MS - (Date.now() - started) < CONSENT_CLICK_MIN_BUDGET_MS) {
-    return { summary, readableFrames, unreadableFrames, budgetExhausted: true };
+    return { summary, readableFrames, unreadableFrames, dispatchedControls, budgetExhausted: true };
   }
 
   const args = consentClickArgs(choice, shadowRootCapability);
@@ -2824,6 +2875,7 @@ async function applyConsentChoice(
         unreadableFrames += 1;
         outcome = null;
       }
+      if (outcome && !outcome.clicked) dispatchedControls += outcome.dispatched;
       if (!outcome?.clicked) continue;
       summary.clicked = true;
       if (outcome.cmp) summary.cmp = outcome.cmp;
@@ -2853,7 +2905,7 @@ async function applyConsentChoice(
     }
   }
 
-  return { summary, readableFrames, unreadableFrames };
+  return { summary, readableFrames, unreadableFrames, dispatchedControls };
 }
 
 /**

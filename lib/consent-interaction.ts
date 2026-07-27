@@ -712,7 +712,13 @@ export type ConsentClickArgs = {
 
 export type ConsentClickOutcome =
   | { clicked: true; cmp?: string; selector?: string; matchedText?: string }
-  | { clicked: false };
+  /**
+   * No control was confirmed. `dispatched` counts the clicks that DID land on
+   * a candidate that never visibly responded, which is not the same finding as
+   * an empty search: the page was clicked, so this visit's evidence can span
+   * both sides of a choice even though nothing can be attributed.
+   */
+  | { clicked: false; dispatched: number };
 
 /** Serializable arguments for {@link findAndClickConsentControl} in one frame. */
 export function consentClickArgs(choice: ConsentChoice, shadowRootCapability: string): ConsentClickArgs {
@@ -774,7 +780,7 @@ export async function findAndClickConsentControl(args: ConsentClickArgs): Promis
     typeof runtime.hasConsentContext !== "function" ||
     typeof runtime.dispatchClick !== "function" ||
     typeof runtime.delay !== "function"
-  ) return { clicked: false };
+  ) return { clicked: false, dispatched: 0 };
   const capability = args.shadowRootCapability;
   const roots: { root: Document | ShadowRoot; knownConsentHost: boolean }[] = [
     { root: document, knownConsentHost: false }
@@ -803,10 +809,12 @@ export async function findAndClickConsentControl(args: ConsentClickArgs): Promis
   // into an unbounded wait. This is activation evidence, not proof of
   // registered CMP state.
   let activationAttempts = 0;
+  let dispatchedControls = 0;
   const activateControl = async (element: Element): Promise<"reacted" | "no-reaction" | "not-dispatched"> => {
     if (activationAttempts >= 12) return "not-dispatched";
     activationAttempts += 1;
     if (!runtime.dispatchClick!(element, capability)) return "not-dispatched";
+    dispatchedControls += 1;
     const reacted = (): boolean => {
       const state = stateFor(element);
       return !state.visible || !state.actionable;
@@ -897,7 +905,7 @@ export async function findAndClickConsentControl(args: ConsentClickArgs): Promis
     }
   }
 
-  return { clicked: false };
+  return { clicked: false, dispatched: dispatchedControls };
 }
 
 export type ConsentVisibilityArgs = {
@@ -1066,6 +1074,7 @@ export const CONSENT_PROBE_OUTCOMES = [
   "scan-failed",
   "engine-unavailable",
   "search-interrupted",
+  "dispatch-unconfirmed",
   null
 ] as const;
 
@@ -1096,6 +1105,9 @@ export function consentInteractionWarning(
     }
     if (probeFailure === "engine-unavailable") {
       return `This visit was asked to choose "${label}" on a cookie/consent banner, but no frame could be read to search for one. Whether a control exists on this page is unknown, and results reflect the pre-consent state.`;
+    }
+    if (probeFailure === "dispatch-unconfirmed") {
+      return `This visit was asked to choose "${label}" on a cookie/consent banner, and clicked a control that never visibly responded. A page shows an unresponsive control both when it is a decoy in front of the real one and when the real one acts more slowly than the scanner waits, so whether a choice registered is unknown, and this visit's requests, cookies, and storage may include traffic from after that click.`;
     }
     if (probeFailure === "search-interrupted") {
       return `This visit was asked to choose "${label}" on a cookie/consent banner, but the page moved out from under the search before it finished: a frame stopped being readable, which is also what a control that reloads the page on click does. Whether a control was found or clicked is unknown, and this visit's requests, cookies, and storage may include traffic from both sides of that choice.`;
