@@ -66,6 +66,18 @@ export type ReportHeadline = {
   kicker: string;
   headline: string;
   subhead: string;
+  /**
+   * The subhead without its trailing secondary-observation clause ("It also
+   * looks like ..."), which every headline family may append after the lead
+   * finding and its qualification.
+   *
+   * Surfaces that cannot fit the whole subhead drop SECONDARY findings before
+   * withholding the claim: losing an additional observation states nothing
+   * false, while withholding the lead finding costs the reader the claim and
+   * the hedge that qualifies it. Equal to `subhead` when there is no such
+   * clause.
+   */
+  subheadPrimaryClaim: string;
   caveat: string;
   stats: ReportHeadlineStat[];
   domain: string;
@@ -142,11 +154,17 @@ export function buildReportHeadline(view: ReportView): ReportHeadline {
     focusArm?: "baseline" | "variant"
   ): ReportHeadline => {
     const resolvedStats = statsOverride ?? stats;
+    // Derived from the exact clause appended above, never by re-matching its
+    // prose: a second copy of that sentence in another module is one wording
+    // change away from silently keeping the secondary claim.
+    const subheadPrimaryClaim =
+      extraNote.length > 0 && subhead.endsWith(extraNote) ? subhead.slice(0, -extraNote.length) : subhead;
     return {
       tone,
       kicker: KICKER,
       headline,
       subhead,
+      subheadPrimaryClaim,
       caveat: view.reportType === "comparison" ? COMPARISON_CAVEAT : SINGLE_VISIT_CAVEAT,
       stats: resolvedStats,
       domain,

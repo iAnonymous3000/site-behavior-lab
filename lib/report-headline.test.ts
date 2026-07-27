@@ -993,6 +993,7 @@ test("reportPageTitle prefixes the domain only when the headline does not alread
     tone: "info" as const,
     kicker: "What this actually means",
     subhead: "subhead",
+    subheadPrimaryClaim: "subhead",
     caveat: "caveat",
     stats: [],
     shareText: "share"

@@ -118,6 +118,43 @@ test("report social-card attribution names the observed site and UTC scan date",
   );
 });
 
+test("an over-long subhead drops its secondary observation, never its qualification", () => {
+  // The real case (homedepot.com, 2026-07-27 corpus refresh): a pixel
+  // identifier finding whose subhead runs 415 characters. The compaction above
+  // only knows how to restate a Shields comparison, so this fell straight
+  // through to the withheld-claim fallback and the card published no finding
+  // at all. Dropping the trailing "It also looks like ..." clause states
+  // nothing false and keeps the lead claim AND its hedge.
+  const og = loadOgReportCardModule();
+  const view = stableOverLimitShieldsView();
+  const primary =
+    "An advertising pixel on shop.example attached populated personal-identifier fields (external ID) to the events it reported. " +
+    "These fields exist to match a visit to a known person; the scanner records only that they were filled, never their values, so what they contained is not verified.";
+  const secondary =
+    " It also looks like a third-party script registered listeners on keyboard input and 4 browser-fingerprinting heuristics matched.";
+  const headline = {
+    ...buildReportHeadline(view),
+    subhead: `${primary}${secondary}`,
+    subheadPrimaryClaim: primary
+  };
+  assert.ok(headline.subhead.length > og.OG_REPORT_SUBHEAD_MAX_CHARACTERS);
+
+  const subhead = og.buildReportCardSubhead(view, headline);
+  assert.equal(subhead, primary);
+  assert.doesNotMatch(subhead, /^Automated-visit headline only/);
+  // The qualification is the whole point of keeping it.
+  assert.match(subhead, /never their values/);
+  assert.ok(subhead.length <= og.OG_REPORT_SUBHEAD_MAX_CHARACTERS);
+
+  // When even the lead claim will not fit, withholding is still correct.
+  const unfittable = {
+    ...headline,
+    subhead: `${"x".repeat(400)}${secondary}`,
+    subheadPrimaryClaim: "x".repeat(400)
+  };
+  assert.match(og.buildReportCardSubhead(view, unfittable), /^Automated-visit headline only/);
+});
+
 test("every committed OG report has bounded, non-truncated subhead copy", () => {
   const og = loadOgReportCardModule();
   for (const name of readdirSync(reportsDir).filter((entry) => reportFilePattern.test(entry))) {

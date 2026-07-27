@@ -167,6 +167,19 @@ export function buildReportCardSubhead(view: ReportView, headline = buildReportH
     }
   }
 
+  // Before withholding the claim, drop SECONDARY observations. Every headline
+  // family may append an "It also looks like ..." clause after its lead
+  // finding and that finding's qualification; omitting an additional
+  // observation states nothing false, while the fallback below costs the
+  // reader both the claim and the hedge that qualifies it. Still semantic:
+  // the clause is removed as a whole, by the headline itself, never cut.
+  if (
+    headline.subheadPrimaryClaim !== headline.subhead &&
+    headline.subheadPrimaryClaim.length <= OG_REPORT_SUBHEAD_MAX_CHARACTERS
+  ) {
+    return headline.subheadPrimaryClaim;
+  }
+
   // Default safe for an unexpectedly long future finding: do not publish a
   // visually severed qualification. The full claim is explicitly withheld
   // from the card and the viewer is directed to its evidence and limitations.
