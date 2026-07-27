@@ -297,8 +297,11 @@ function knownEnvironmentValue(value: string | undefined): string | null {
 /**
  * Whether one consent arm's declared banner click provably happened. A run
  * that never recorded a consent interaction cannot prove the click was
- * dispatched (the unknown rule), and a recorded `clicked: false` means the
- * control was never found, so the recording reflects the pre-consent state.
+ * dispatched (the unknown rule). A recorded `clicked: false` means no control
+ * activation was observed, which is NOT the same as "no control was found":
+ * the producer also records it for a click that was dispatched and never
+ * visibly responded, and the v1 wire cannot tell the two apart. So this may
+ * report the missing activation, never assert the visit stayed pre-consent.
  */
 function consentDispatchProblem(label: string, choice: "accept-all" | "reject-all", run: ScanResult): string[] {
   const interaction = run.consentInteraction;
@@ -309,7 +312,7 @@ function consentDispatchProblem(label: string, choice: "accept-all" | "reject-al
   }
   if (interaction.clicked !== true) {
     return [
-      `The "${label}" visit found no recognizable ${choice} control to click, so it records the pre-consent state, not that choice.`
+      `The "${label}" visit recorded no ${choice} control activation, so it cannot be shown to reflect that choice.`
     ];
   }
   return [];

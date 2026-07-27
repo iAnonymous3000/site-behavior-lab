@@ -30,8 +30,8 @@ test("consent methodology summaries translate every wire state into plain langua
 });
 
 test("a missing click is described as no dispatched choice regardless of verifier state", () => {
-  assert.equal(consentVerificationSummary(consent(null, false)), "no choice dispatched");
-  assert.equal(consentVerificationSummary(consent("unavailable", false)), "no choice dispatched");
+  assert.equal(consentVerificationSummary(consent(null, false)), "no activated choice");
+  assert.equal(consentVerificationSummary(consent("unavailable", false)), "no activated choice");
 });
 
 test("public consent outcomes require a verified registered choice, not dispatch or banner transition", () => {

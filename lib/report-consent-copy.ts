@@ -13,7 +13,11 @@ export function consentChoiceVerified(consent: RunConsentView | null): boolean {
 
 /** Compact, human-facing status for the methodology row; never expose wire tokens. */
 export function consentVerificationSummary(consent: RunConsentView): string {
-  if (!consent.controlActivated) return "no choice dispatched";
+  // `controlActivated` records that a control was found AND visibly reacted.
+  // It is false both for a search that found nothing and for a click that was
+  // dispatched and never confirmed, and the wire cannot tell those apart, so
+  // this may only report the activation, never claim nothing was dispatched.
+  if (!consent.controlActivated) return "no activated choice";
   switch (consent.choiceState) {
     case "verified":
       return "registered choice verified";

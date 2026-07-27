@@ -156,15 +156,15 @@ test("a consent pair requires both clicks to have really dispatched", () => {
   );
   assert.equal(neither.eligible, false);
   assert.equal(neither.reasons.length, 2);
-  assert.match(neither.reasons.join(" "), /found no recognizable accept-all control/);
-  assert.match(neither.reasons.join(" "), /found no recognizable reject-all control/);
+  assert.match(neither.reasons.join(" "), /recorded no accept-all control activation/);
+  assert.match(neither.reasons.join(" "), /recorded no reject-all control activation/);
 
   const oneOnly = comparisonEligibility(
     createConsentComparisonReport(consentArm("accept-all", true), consentArm("reject-all", false))
   );
   assert.equal(oneOnly.eligible, false);
   assert.equal(oneOnly.reasons.length, 1);
-  assert.match(oneOnly.reasons[0], /"Reject-all attempt" visit found no recognizable reject-all control/);
+  assert.match(oneOnly.reasons[0], /"Reject-all attempt" visit recorded no reject-all control activation/);
 
   // A visit that never recorded the interaction cannot prove the dispatch
   // (the unknown rule).

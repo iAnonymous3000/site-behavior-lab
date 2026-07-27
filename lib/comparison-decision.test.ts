@@ -373,7 +373,7 @@ test("consent pairs keep the dispatch rules through the decision", () => {
   const decision = legacyComparisonDecision(createConsentComparisonReport(accept, reject));
 
   assert.equal(decision.mode, "raw-only");
-  assert.match(decision.reasons.join(" "), /found no recognizable reject-all control/);
+  assert.match(decision.reasons.join(" "), /recorded no reject-all control activation/);
   assert.equal(decision.families["consent-verification"].mode, "suppressed");
 });
 

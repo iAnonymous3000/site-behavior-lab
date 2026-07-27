@@ -236,7 +236,7 @@ export function ReportRenderer({
                       ? `clicked "${consentChoiceLabel(displayedRun.consent.mode)}"${
                           displayedRun.consent.cmp ? ` (${displayedRun.consent.cmp})` : ""
                         }`
-                      : "no banner control found; pre-consent"}
+                      : "no control activation recorded"}
                     {` · ${consentVerificationSummary(displayedRun.consent)}`}
                   </dd>
                 </div>

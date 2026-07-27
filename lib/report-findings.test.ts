@@ -581,7 +581,7 @@ test("a no-click contradiction is non-calm evidence with explicit no-dispatch co
   assert.match(card.lead, /did not activate that control/);
   assert.doesNotMatch(`${card.title} ${card.lead}`, /dispatched choice|contradicted the Reject all click/);
   assert.notEqual(card.lead, "");
-  assert.match(card.evidence, /no choice dispatched/);
+  assert.match(card.evidence, /no activated choice/);
 
   const bottomLine = byId(findings, "bottom-line");
   assert.equal(bottomLine.level, "warn");
@@ -602,8 +602,42 @@ test("a consent comparison with no clickable banner claims nothing", () => {
   const card = byId(buildFindings(viewFromV1Report(report), null), "consent-comparison");
 
   assert.equal(card.level, "info");
-  assert.match(card.title, /No consent banner could be clicked/);
-  assert.match(card.lead, /pre-consent state/);
+  assert.match(card.title, /No consent control activation was recorded/);
+  assert.match(card.lead, /can be shown to reflect the choice it attempted/);
+});
+
+test("reader copy never asserts the pre-consent state from an unrecorded activation", () => {
+  // `clicked: false` records that no control activation was OBSERVED. The
+  // producer also writes it for a click that was dispatched and never visibly
+  // responded, whose own warning says the visit's requests, cookies and
+  // storage may include traffic from after that click. The v1 wire cannot tell
+  // the two apart, so no reader-derived sentence may claim the visit stayed
+  // pre-consent: on that run the claim is exactly false.
+  const acceptRun = {
+    ...makeResult({ firstPartyDomain: "shop.example", thirdPartyRequests: 21 }),
+    consentInteraction: { mode: "accept-all" as const, clicked: false }
+  };
+  const rejectRun = {
+    ...makeResult({ firstPartyDomain: "shop.example", thirdPartyRequests: 19 }),
+    consentInteraction: { mode: "reject-all" as const, clicked: false }
+  };
+
+  const card = byId(buildFindings(viewFromV1Report(consentPair(acceptRun, rejectRun)), null), "consent-comparison");
+  const rendered = `${card.title} ${card.lead} ${card.detail} ${card.evidence}`;
+  assert.doesNotMatch(rendered, /pre-consent/i);
+  assert.doesNotMatch(rendered, /found no recognizable/i);
+
+  // One arm activated, one not: the un-activated side must hedge the same way.
+  const mixed = byId(
+    buildFindings(
+      viewFromV1Report(
+        consentPair({ ...acceptRun, consentInteraction: { mode: "accept-all" as const, clicked: true } }, rejectRun)
+      ),
+      null
+    ),
+    "consent-comparison"
+  );
+  assert.doesNotMatch(`${mixed.title} ${mixed.lead} ${mixed.detail} ${mixed.evidence}`, /pre-consent/i);
 });
 
 test("a clean legacy reject attempt stays neutral, and a missing reject control is explicit", () => {

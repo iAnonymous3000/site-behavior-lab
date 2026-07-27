@@ -1170,12 +1170,12 @@ function buildConsentComparisonFinding(
   // not comparable across the two visits, the card keeps its per-visit story
   // but quotes no numbers side by side. The count labels come from what each
   // visit RECORDED: "21 with Accept all" on a visit that never clicked
-  // anything would caption the pre-consent state as a consent choice.
+  // anything would caption an unactivated visit as a consent choice.
   const evidence = rawCountsAllowed
     ? `Third-party requests: ${requestsBefore.toLocaleString("en-US")} ${
-        acceptClicked ? "with the accept-all click" : "in the accept-attempt visit (pre-consent)"
+        acceptClicked ? "with the accept-all click" : "in the accept-attempt visit (no activation recorded)"
       }, ${requestsAfter.toLocaleString("en-US")} ${
-        rejectClicked ? "with the reject-all click" : "in the reject-attempt visit (pre-consent)"
+        rejectClicked ? "with the reject-all click" : "in the reject-attempt visit (no activation recorded)"
       }.`
     : "Third-party request totals are not comparable across these two visits, so no count delta is quoted.";
 
@@ -1184,8 +1184,8 @@ function buildConsentComparisonFinding(
       id: "consent-comparison",
       icon: "cookie",
       level: "info",
-      title: "No consent banner could be clicked in either visit",
-      lead: "Neither visit found a recognizable accept or reject control, so both runs reflect the pre-consent state and this diff mostly shows run-to-run variance.",
+      title: "No consent control activation was recorded in either visit",
+      lead: "Neither visit recorded a control activation, so neither can be shown to reflect the choice it attempted, and this diff mostly shows run-to-run variance.",
       detail:
         "Many consent banners are only shown to visitors in regions where the law requires them (the EEA, UK, or California), so this scanner's location may simply not be served one; a banner may also use controls this scanner's catalog does not recognize. No claim about the site's consent behavior can be made from this pair of visits.",
       evidence
@@ -1200,11 +1200,11 @@ function buildConsentComparisonFinding(
       icon: "cookie",
       level: "info",
       title: `Only the ${clickedLabel} control could be clicked`,
-      lead: `The ${clickedLabel} visit clicked the banner, but no ${missingLabel} control was found, so that run reflects the pre-consent state and this diff does not measure the ${missingLabel.toLowerCase()} choice.`,
+      lead: `The ${clickedLabel} visit clicked the banner, but the ${missingLabel} visit recorded no control activation, so that run cannot be shown to reflect its choice and this diff does not measure the ${missingLabel.toLowerCase()} choice.`,
       detail:
         missingLabel === "Reject all"
           ? "Many banners offer no first-layer reject control and put refusal behind a settings layer this scanner does not navigate. That design is itself worth noting, but it can also mean this scanner's catalog simply does not recognize the control, so treat the asymmetry as a prompt to check the banner yourself."
-          : "The accept control was not recognized on its visit, so the accept side of this diff reflects the pre-consent state. Treat the comparison as incomplete rather than as evidence about the site's consent behavior.",
+          : "The accept visit recorded no control activation, so the accept side of this diff cannot be shown to reflect that choice. Treat the comparison as incomplete rather than as evidence about the site's consent behavior.",
       evidence
     };
   }
