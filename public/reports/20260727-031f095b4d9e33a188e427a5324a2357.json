@@ -1,0 +1,3100 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "reportType": "comparison",
+  "comparisonType": "shields",
+  "title": "Brave-list blocking off/on comparison",
+  "runLabels": {
+    "baseline": "No blocking",
+    "variant": "Brave-list blocking"
+  },
+  "requestedUrl": "https://www.nih.gov/",
+  "scannedAt": "2026-07-27T10:24:31.450Z",
+  "device": "desktop",
+  "baseline": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "",
+      "status": 200,
+      "durationMs": 6263,
+      "firstPartyDomain": "www.nih.gov",
+      "totalRequests": 111,
+      "thirdPartyRequests": 22,
+      "knownTrackerRequests": 17,
+      "thirdPartyDomains": 9,
+      "cookies": 7,
+      "thirdPartyCookies": 0,
+      "storageEntries": 0,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 22
+    },
+    "conditions": {
+      "requestedUrl": "https://www.nih.gov/",
+      "finalUrl": "https://www.nih.gov/",
+      "scannedAt": "2026-07-27T10:24:37.496Z",
+      "chromiumVersion": "149.0.7827.55",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": false,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "classification",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-25T14:05:35.223Z"
+      },
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.06",
+        "region": "US-biased",
+        "entries": 133,
+        "curatedOverrides": 133,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan using Playwright 1.61.1 from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Brave-list matching uses each route-evaluated request's initiating document (the parent document for a subframe navigation), under methodology shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.61.1; main-frame navigations are not blocked or counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.nih.gov/",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 46
+      },
+      {
+        "id": 2,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 253
+      },
+      {
+        "id": 3,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 254
+      },
+      {
+        "id": 4,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 255
+      },
+      {
+        "id": 5,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 256
+      },
+      {
+        "id": 6,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 257
+      },
+      {
+        "id": 7,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 257
+      },
+      {
+        "id": 8,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 257
+      },
+      {
+        "id": 9,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 257
+      },
+      {
+        "id": 10,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 257
+      },
+      {
+        "id": 11,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 257
+      },
+      {
+        "id": 12,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 257
+      },
+      {
+        "id": 13,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 257
+      },
+      {
+        "id": 14,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 258
+      },
+      {
+        "id": 15,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 258
+      },
+      {
+        "id": 16,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 258
+      },
+      {
+        "id": 17,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 258
+      },
+      {
+        "id": 18,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 258
+      },
+      {
+        "id": 19,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 258
+      },
+      {
+        "id": 20,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 258
+      },
+      {
+        "id": 21,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 261
+      },
+      {
+        "id": 22,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 261
+      },
+      {
+        "id": 23,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 262
+      },
+      {
+        "id": 24,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 262
+      },
+      {
+        "id": 25,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 262
+      },
+      {
+        "id": 26,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 262
+      },
+      {
+        "id": 27,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 262
+      },
+      {
+        "id": 28,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 263
+      },
+      {
+        "id": 29,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 263
+      },
+      {
+        "id": 30,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 263
+      },
+      {
+        "id": 31,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 263
+      },
+      {
+        "id": 32,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 263
+      },
+      {
+        "id": 33,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 263
+      },
+      {
+        "id": 34,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 264
+      },
+      {
+        "id": 35,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 264
+      },
+      {
+        "id": 36,
+        "url": "https://static.cloudflareinsights.com/{seg}/{seg}",
+        "domain": "static.cloudflareinsights.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 265
+      },
+      {
+        "id": 37,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 358
+      },
+      {
+        "id": 38,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 361
+      },
+      {
+        "id": 39,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 367
+      },
+      {
+        "id": 40,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 367
+      },
+      {
+        "id": 41,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 368
+      },
+      {
+        "id": 42,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 368
+      },
+      {
+        "id": 43,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 368
+      },
+      {
+        "id": 44,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 368
+      },
+      {
+        "id": 45,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 368
+      },
+      {
+        "id": 46,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 368
+      },
+      {
+        "id": 47,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 368
+      },
+      {
+        "id": 48,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 369
+      },
+      {
+        "id": 49,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 369
+      },
+      {
+        "id": 50,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 369
+      },
+      {
+        "id": 51,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 369
+      },
+      {
+        "id": 52,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 370
+      },
+      {
+        "id": 53,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 371
+      },
+      {
+        "id": 54,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 372
+      },
+      {
+        "id": 55,
+        "url": "https://{label}.verint-cdn.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.verint-cdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 404,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 372
+      },
+      {
+        "id": 56,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 374
+      },
+      {
+        "id": 57,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 375
+      },
+      {
+        "id": 58,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 375
+      },
+      {
+        "id": 59,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 375
+      },
+      {
+        "id": 60,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 376
+      },
+      {
+        "id": 61,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 376
+      },
+      {
+        "id": 62,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 376
+      },
+      {
+        "id": 63,
+        "url": "https://{label}.crazyegg.com/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.crazyegg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": null,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "crazyegg.com",
+          "entity": "Crazy Egg",
+          "category": "session replay / behavior analytics",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 376
+      },
+      {
+        "id": 64,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 377
+      },
+      {
+        "id": 65,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 377
+      },
+      {
+        "id": 66,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 377
+      },
+      {
+        "id": 67,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 377
+      },
+      {
+        "id": 68,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 378
+      },
+      {
+        "id": 69,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 378
+      },
+      {
+        "id": 70,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 378
+      },
+      {
+        "id": 71,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 378
+      },
+      {
+        "id": 72,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 378
+      },
+      {
+        "id": 73,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 378
+      },
+      {
+        "id": 74,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 379
+      },
+      {
+        "id": 75,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 379
+      },
+      {
+        "id": 76,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 379
+      },
+      {
+        "id": 77,
+        "url": "https://assets.pinterest.com/{seg}/{seg}",
+        "domain": "assets.pinterest.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "pinterest.com",
+          "entity": "Pinterest",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "blockedByShields": false,
+        "startedAtMs": 379
+      },
+      {
+        "id": 78,
+        "url": "https://www.googletagmanager.com/{seg}?id=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 379
+      },
+      {
+        "id": 79,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 379
+      },
+      {
+        "id": 80,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 403
+      },
+      {
+        "id": 81,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 403
+      },
+      {
+        "id": 82,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 404
+      },
+      {
+        "id": 83,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 405
+      },
+      {
+        "id": 84,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 405
+      },
+      {
+        "id": 85,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 406
+      },
+      {
+        "id": 86,
+        "url": "https://{label}.usa.gov/{seg}/{seg}",
+        "domain": "{label}.usa.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": null,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 521
+      },
+      {
+        "id": 87,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 302,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 549
+      },
+      {
+        "id": 88,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 549
+      },
+      {
+        "id": 89,
+        "url": "https://assets.pinterest.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "assets.pinterest.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "pinterest.com",
+          "entity": "Pinterest",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "blockedByShields": false,
+        "startedAtMs": 564
+      },
+      {
+        "id": 90,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 570
+      },
+      {
+        "id": 91,
+        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 629
+      },
+      {
+        "id": 92,
+        "url": "https://www.google-analytics.com/{seg}",
+        "domain": "www.google-analytics.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 630
+      },
+      {
+        "id": 93,
+        "url": "https://{label}.digitalgov.gov/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.digitalgov.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 630
+      },
+      {
+        "id": 94,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 685
+      },
+      {
+        "id": 95,
+        "url": "https://{label}.digitalgov.gov/{seg}/{seg}/{seg}",
+        "domain": "{label}.digitalgov.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 709
+      },
+      {
+        "id": 96,
+        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 710
+      },
+      {
+        "id": 97,
+        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 710
+      },
+      {
+        "id": 98,
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&%5Bredacted%5D=&t=&cid=&tid=",
+        "domain": "www.google-analytics.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 723
+      },
+      {
+        "id": 99,
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
+        "domain": "www.google-analytics.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 799
+      },
+      {
+        "id": 100,
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
+        "domain": "www.google-analytics.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 799
+      },
+      {
+        "id": 101,
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
+        "domain": "www.google-analytics.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 800
+      },
+      {
+        "id": 102,
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
+        "domain": "www.google-analytics.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 871
+      },
+      {
+        "id": 103,
+        "url": "https://www.nih.gov/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 902
+      },
+      {
+        "id": 104,
+        "url": "https://{label}.pinterest.com/?type=&%5Bredacted%5D=&lang=",
+        "domain": "{label}.pinterest.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "pinterest.com",
+          "entity": "Pinterest",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 1688
+      },
+      {
+        "id": 105,
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
+        "domain": "www.google-analytics.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 4149
+      },
+      {
+        "id": 106,
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
+        "domain": "www.google-analytics.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 4150
+      },
+      {
+        "id": 107,
+        "url": "https://www.nih.gov/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 4151
+      },
+      {
+        "id": 108,
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
+        "domain": "www.google-analytics.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 4151
+      },
+      {
+        "id": 109,
+        "url": "https://www.nih.gov/{seg}",
+        "domain": "www.nih.gov",
+        "method": "POST",
+        "resourceType": "other",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 4152
+      },
+      {
+        "id": 110,
+        "url": "https://www.nih.gov/{seg}",
+        "domain": "www.nih.gov",
+        "method": "POST",
+        "resourceType": "other",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 4153
+      },
+      {
+        "id": 111,
+        "url": "https://www.nih.gov/{seg}",
+        "domain": "www.nih.gov",
+        "method": "POST",
+        "resourceType": "other",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 4153
+      }
+    ],
+    "domains": [
+      {
+        "domain": "www.google-analytics.com",
+        "requests": 9,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          204
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr",
+          "fetch"
+        ]
+      },
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 4,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "assets.pinterest.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "pinterest.com",
+          "entity": "Pinterest",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "{label}.crazyegg.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "crazyegg.com",
+          "entity": "Crazy Egg",
+          "category": "session replay / behavior analytics",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "{label}.pinterest.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "pinterest.com",
+          "entity": "Pinterest",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "{label}.digitalgov.gov",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "static.cloudflareinsights.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "{label}.verint-cdn.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          404
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "{label}.usa.gov",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "www.nih.gov",
+        "requests": 89,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          302,
+          204
+        ],
+        "resourceTypes": [
+          "document",
+          "stylesheet",
+          "script",
+          "image",
+          "other",
+          "font",
+          "xhr",
+          "ping"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "cf_clearance",
+        "domain": ".nih.gov",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "__cf_bm",
+        "domain": ".nih.gov",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_gid",
+        "domain": ".nih.gov",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted:long-token]",
+        "domain": ".nih.gov",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_ga",
+        "domain": ".nih.gov",
+        "path": "/",
+        "sameSite": "Strict",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".nih.gov",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".nih.gov",
+        "path": "/",
+        "sameSite": "Strict",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [],
+    "fingerprintEvents": [],
+    "fingerprintDetections": [],
+    "privacyPolicy": {
+      "url": "https://www.nih.gov/privacy-policy",
+      "claims": [],
+      "mentionedEntities": [
+        "Google"
+      ],
+      "unmentionedEntities": [
+        "Pinterest",
+        "Crazy Egg"
+      ],
+      "policyTextLength": 37528
+    },
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+      "This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored. Requests the page sent during and after this typing, including any unload beacons, are part of the recorded request log and counts.",
+      "Read the site's privacy policy (https://www.nih.gov/privacy-policy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ]
+  },
+  "variant": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "",
+      "status": 200,
+      "durationMs": 6038,
+      "firstPartyDomain": "www.nih.gov",
+      "totalRequests": 85,
+      "thirdPartyRequests": 4,
+      "knownTrackerRequests": 2,
+      "thirdPartyDomains": 3,
+      "cookies": 2,
+      "thirdPartyCookies": 0,
+      "storageEntries": 0,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 6
+    },
+    "conditions": {
+      "requestedUrl": "https://www.nih.gov/",
+      "finalUrl": "https://www.nih.gov/",
+      "scannedAt": "2026-07-27T10:24:31.450Z",
+      "chromiumVersion": "149.0.7827.55",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": false,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "block-simulation",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-25T14:05:35.223Z"
+      },
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.06",
+        "region": "US-biased",
+        "entries": 133,
+        "curatedOverrides": 133,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan using Playwright 1.61.1 from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Brave-list matching uses each route-evaluated request's initiating document (the parent document for a subframe navigation), under methodology shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.61.1; main-frame navigations are not blocked or counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.nih.gov/",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 40
+      },
+      {
+        "id": 2,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 252
+      },
+      {
+        "id": 3,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 253
+      },
+      {
+        "id": 4,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 253
+      },
+      {
+        "id": 5,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 253
+      },
+      {
+        "id": 6,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 253
+      },
+      {
+        "id": 7,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 257
+      },
+      {
+        "id": 8,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 257
+      },
+      {
+        "id": 9,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 257
+      },
+      {
+        "id": 10,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 257
+      },
+      {
+        "id": 11,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 258
+      },
+      {
+        "id": 12,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 258
+      },
+      {
+        "id": 13,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 258
+      },
+      {
+        "id": 14,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 258
+      },
+      {
+        "id": 15,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 258
+      },
+      {
+        "id": 16,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 258
+      },
+      {
+        "id": 17,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 258
+      },
+      {
+        "id": 18,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 258
+      },
+      {
+        "id": 19,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 258
+      },
+      {
+        "id": 20,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 260
+      },
+      {
+        "id": 21,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 260
+      },
+      {
+        "id": 22,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 260
+      },
+      {
+        "id": 23,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 260
+      },
+      {
+        "id": 24,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 260
+      },
+      {
+        "id": 25,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 261
+      },
+      {
+        "id": 26,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 261
+      },
+      {
+        "id": 27,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 261
+      },
+      {
+        "id": 28,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 261
+      },
+      {
+        "id": 29,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 261
+      },
+      {
+        "id": 30,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 261
+      },
+      {
+        "id": 31,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 261
+      },
+      {
+        "id": 34,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 262
+      },
+      {
+        "id": 35,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 262
+      },
+      {
+        "id": 37,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 336
+      },
+      {
+        "id": 38,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 338
+      },
+      {
+        "id": 39,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 357
+      },
+      {
+        "id": 40,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 358
+      },
+      {
+        "id": 41,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 359
+      },
+      {
+        "id": 42,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 360
+      },
+      {
+        "id": 43,
+        "url": "https://{label}.verint-cdn.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.verint-cdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 404,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 360
+      },
+      {
+        "id": 44,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 361
+      },
+      {
+        "id": 45,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 361
+      },
+      {
+        "id": 46,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 362
+      },
+      {
+        "id": 47,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 362
+      },
+      {
+        "id": 48,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 362
+      },
+      {
+        "id": 49,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 362
+      },
+      {
+        "id": 50,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 362
+      },
+      {
+        "id": 51,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 362
+      },
+      {
+        "id": 52,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 362
+      },
+      {
+        "id": 53,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 363
+      },
+      {
+        "id": 54,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 363
+      },
+      {
+        "id": 55,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 364
+      },
+      {
+        "id": 57,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 365
+      },
+      {
+        "id": 58,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 365
+      },
+      {
+        "id": 59,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 365
+      },
+      {
+        "id": 60,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 366
+      },
+      {
+        "id": 61,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 366
+      },
+      {
+        "id": 62,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 366
+      },
+      {
+        "id": 64,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 368
+      },
+      {
+        "id": 65,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 369
+      },
+      {
+        "id": 66,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 369
+      },
+      {
+        "id": 67,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 369
+      },
+      {
+        "id": 68,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 370
+      },
+      {
+        "id": 69,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 370
+      },
+      {
+        "id": 70,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 370
+      },
+      {
+        "id": 71,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 370
+      },
+      {
+        "id": 72,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 371
+      },
+      {
+        "id": 73,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 371
+      },
+      {
+        "id": 74,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 371
+      },
+      {
+        "id": 75,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 371
+      },
+      {
+        "id": 76,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 371
+      },
+      {
+        "id": 77,
+        "url": "https://assets.pinterest.com/{seg}/{seg}",
+        "domain": "assets.pinterest.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "pinterest.com",
+          "entity": "Pinterest",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "blockedByShields": false,
+        "startedAtMs": 372
+      },
+      {
+        "id": 78,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 372
+      },
+      {
+        "id": 79,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 434
+      },
+      {
+        "id": 80,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 434
+      },
+      {
+        "id": 81,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 435
+      },
+      {
+        "id": 82,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 435
+      },
+      {
+        "id": 83,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 435
+      },
+      {
+        "id": 84,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 436
+      },
+      {
+        "id": 85,
+        "url": "https://{label}.usa.gov/{seg}/{seg}",
+        "domain": "{label}.usa.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": null,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 498
+      },
+      {
+        "id": 86,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 302,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 538
+      },
+      {
+        "id": 87,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 539
+      },
+      {
+        "id": 88,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 560
+      },
+      {
+        "id": 89,
+        "url": "https://assets.pinterest.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "assets.pinterest.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "pinterest.com",
+          "entity": "Pinterest",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "blockedByShields": false,
+        "startedAtMs": 574
+      },
+      {
+        "id": 90,
+        "url": "https://www.nih.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nih.gov",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 661
+      }
+    ],
+    "domains": [
+      {
+        "domain": "assets.pinterest.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "pinterest.com",
+          "entity": "Pinterest",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "{label}.verint-cdn.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          404
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "{label}.usa.gov",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "www.nih.gov",
+        "requests": 81,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200,
+          302
+        ],
+        "resourceTypes": [
+          "document",
+          "stylesheet",
+          "script",
+          "image",
+          "other",
+          "font",
+          "xhr"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "cf_clearance",
+        "domain": ".nih.gov",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "__cf_bm",
+        "domain": ".nih.gov",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [],
+    "fingerprintEvents": [],
+    "fingerprintDetections": [],
+    "privacyPolicy": {
+      "url": "https://www.nih.gov/privacy-policy",
+      "claims": [],
+      "mentionedEntities": [],
+      "unmentionedEntities": [
+        "Pinterest"
+      ],
+      "policyTextLength": 37528
+    },
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+      "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+      "This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored. Requests the page sent during and after this typing, including any unload beacons, are part of the recorded request log and counts.",
+      "Read the site's privacy policy (https://www.nih.gov/privacy-policy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ]
+  },
+  "diff": {
+    "totalRequests": {
+      "before": 111,
+      "after": 85,
+      "delta": -26
+    },
+    "thirdPartyRequests": {
+      "before": 22,
+      "after": 4,
+      "delta": -18
+    },
+    "knownTrackerRequests": {
+      "before": 17,
+      "after": 2,
+      "delta": -15
+    },
+    "thirdPartyDomains": {
+      "before": 9,
+      "after": 3,
+      "delta": -6
+    },
+    "cookies": {
+      "before": 7,
+      "after": 2,
+      "delta": -5
+    },
+    "thirdPartyCookies": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "storageEntries": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "fingerprintEvents": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "addedDomains": [],
+    "removedDomains": [
+      {
+        "domain": "www.google-analytics.com",
+        "requests": 9,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 4,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "{label}.digitalgov.gov",
+        "requests": 2,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.crazyegg.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "crazyegg.com",
+          "entity": "Crazy Egg",
+          "category": "session replay / behavior analytics",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "{label}.pinterest.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "pinterest.com",
+          "entity": "Pinterest",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "static.cloudflareinsights.com",
+        "requests": 1,
+        "tracker": null
+      }
+    ],
+    "addedEntities": [],
+    "removedEntities": [
+      {
+        "entity": "Google",
+        "requests": 13,
+        "domains": 2
+      },
+      {
+        "entity": "Crazy Egg",
+        "requests": 1,
+        "domains": 1
+      }
+    ],
+    "addedCookies": [],
+    "removedCookies": [
+      {
+        "name": "_ga",
+        "domain": ".nih.gov",
+        "thirdParty": false
+      },
+      {
+        "name": "_gid",
+        "domain": ".nih.gov",
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted:long-token]",
+        "domain": ".nih.gov",
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".nih.gov",
+        "thirdParty": false
+      }
+    ],
+    "addedStorageKeys": [],
+    "removedStorageKeys": [],
+    "addedFingerprinting": [],
+    "removedFingerprinting": [],
+    "addedProvenance": [],
+    "removedProvenance": [],
+    "shieldsBlockedRequests": {
+      "before": 22,
+      "after": 6,
+      "delta": -16
+    }
+  },
+  "warnings": [
+    "Brave-list blocking comparison runs should be collected under matched crawl conditions, and the blocking run is a simulation with Brave's engine and default lists in this scanner's browser, not a live Brave visit. Differences can still reflect timing, experiments, cache state, consent state, or bot detection.",
+    "The two visits ran in randomized order; the \"Brave-list blocking\" visit ran first.",
+    "No blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "No blocking: Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+    "No blocking: This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored. Requests the page sent during and after this typing, including any unload beacons, are part of the recorded request log and counts.",
+    "No blocking: Read the site's privacy policy (https://www.nih.gov/privacy-policy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
+    "Brave-list blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Brave-list blocking: Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+    "Brave-list blocking: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+    "Brave-list blocking: This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored. Requests the page sent during and after this typing, including any unload beacons, are part of the recorded request log and counts.",
+    "Brave-list blocking: Read the site's privacy policy (https://www.nih.gov/privacy-policy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+  ],
+  "share": {
+    "id": "20260727-031f095b4d9e33a188e427a5324a2357",
+    "path": "/reports/20260727-031f095b4d9e33a188e427a5324a2357/",
+    "jsonPath": "/reports/20260727-031f095b4d9e33a188e427a5324a2357.json"
+  }
+}

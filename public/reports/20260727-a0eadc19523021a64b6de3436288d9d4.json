@@ -1,0 +1,4985 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "reportType": "comparison",
+  "comparisonType": "shields",
+  "title": "Brave-list blocking off/on comparison",
+  "runLabels": {
+    "baseline": "No blocking",
+    "variant": "Brave-list blocking"
+  },
+  "requestedUrl": "https://www.americanexpress.com/",
+  "scannedAt": "2026-07-27T09:00:35.711Z",
+  "device": "desktop",
+  "baseline": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "",
+      "status": 200,
+      "durationMs": 9174,
+      "firstPartyDomain": "www.americanexpress.com",
+      "totalRequests": 184,
+      "thirdPartyRequests": 114,
+      "knownTrackerRequests": 30,
+      "thirdPartyDomains": 19,
+      "cookies": 31,
+      "thirdPartyCookies": 4,
+      "storageEntries": 0,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 40
+    },
+    "conditions": {
+      "requestedUrl": "https://www.americanexpress.com/",
+      "finalUrl": "https://www.americanexpress.com/",
+      "scannedAt": "2026-07-27T09:00:39.182Z",
+      "chromiumVersion": "149.0.7827.55",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": false,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "classification",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-25T14:05:35.223Z"
+      },
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.06",
+        "region": "US-biased",
+        "entries": 133,
+        "curatedOverrides": 133,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan using Playwright 1.61.1 from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Brave-list matching uses each route-evaluated request's initiating document (the parent document for a subframe navigation), under methodology shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.61.1; main-frame navigations are not blocked or counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.americanexpress.com/",
+        "domain": "www.americanexpress.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 44
+      },
+      {
+        "id": 2,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 232
+      },
+      {
+        "id": 3,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 256
+      },
+      {
+        "id": 4,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 256
+      },
+      {
+        "id": 5,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 256
+      },
+      {
+        "id": 6,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 256
+      },
+      {
+        "id": 7,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 256
+      },
+      {
+        "id": 8,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 256
+      },
+      {
+        "id": 9,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/app/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 263
+      },
+      {
+        "id": 10,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/app/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 264
+      },
+      {
+        "id": 11,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/app/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 264
+      },
+      {
+        "id": 12,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/app/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 264
+      },
+      {
+        "id": 13,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 265
+      },
+      {
+        "id": 14,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 265
+      },
+      {
+        "id": 15,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 266
+      },
+      {
+        "id": 16,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 266
+      },
+      {
+        "id": 17,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 266
+      },
+      {
+        "id": 18,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/app/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 266
+      },
+      {
+        "id": 19,
+        "url": "https://www.americanexpress.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.americanexpress.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 267
+      },
+      {
+        "id": 20,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 446
+      },
+      {
+        "id": 21,
+        "url": "https://{label}.americanexpress.com/{seg}",
+        "domain": "{label}.americanexpress.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 783
+      },
+      {
+        "id": 22,
+        "url": "https://{label}.americanexpress.com/{seg}",
+        "domain": "{label}.americanexpress.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 785
+      },
+      {
+        "id": 23,
+        "url": "https://{label}.americanexpress.com/{seg}",
+        "domain": "{label}.americanexpress.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 785
+      },
+      {
+        "id": 24,
+        "url": "https://{label}.americanexpress.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.americanexpress.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 785
+      },
+      {
+        "id": 25,
+        "url": "https://{label}.americanexpress.com/{seg}",
+        "domain": "{label}.americanexpress.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 785
+      },
+      {
+        "id": 26,
+        "url": "https://{label}.americanexpress.com/{seg}",
+        "domain": "{label}.americanexpress.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 400,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 785
+      },
+      {
+        "id": 27,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 785
+      },
+      {
+        "id": 28,
+        "url": "https://{label}.americanexpress.com/{seg}",
+        "domain": "{label}.americanexpress.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 400,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 786
+      },
+      {
+        "id": 29,
+        "url": "https://www.americanexpress.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.americanexpress.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 201,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 902
+      },
+      {
+        "id": 30,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 915
+      },
+      {
+        "id": 31,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 960
+      },
+      {
+        "id": 32,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 988
+      },
+      {
+        "id": 33,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1067
+      },
+      {
+        "id": 34,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1069
+      },
+      {
+        "id": 35,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1069
+      },
+      {
+        "id": 36,
+        "url": "https://www.americanexpress.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.americanexpress.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1080
+      },
+      {
+        "id": 37,
+        "url": "https://www.americanexpress.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.americanexpress.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1081
+      },
+      {
+        "id": 38,
+        "url": "https://www.americanexpress.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.americanexpress.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1081
+      },
+      {
+        "id": 39,
+        "url": "https://www.americanexpress.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.americanexpress.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1081
+      },
+      {
+        "id": 40,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1083
+      },
+      {
+        "id": 41,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1084
+      },
+      {
+        "id": 42,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1134
+      },
+      {
+        "id": 43,
+        "url": "https://{label}.americanexpress.com/{seg}",
+        "domain": "{label}.americanexpress.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1154
+      },
+      {
+        "id": 44,
+        "url": "https://{label}.americanexpress.com/{seg}",
+        "domain": "{label}.americanexpress.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1155
+      },
+      {
+        "id": 45,
+        "url": "https://{label}.americanexpress.com/{seg}",
+        "domain": "{label}.americanexpress.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1155
+      },
+      {
+        "id": 46,
+        "url": "https://{label}.americanexpress.com/{seg}",
+        "domain": "{label}.americanexpress.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1156
+      },
+      {
+        "id": 47,
+        "url": "https://{label}.americanexpress.com/{seg}",
+        "domain": "{label}.americanexpress.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1157
+      },
+      {
+        "id": 48,
+        "url": "https://{label}.americanexpress.com/{seg}",
+        "domain": "{label}.americanexpress.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1159
+      },
+      {
+        "id": 49,
+        "url": "https://{label}.americanexpress.com/{seg}",
+        "domain": "{label}.americanexpress.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1160
+      },
+      {
+        "id": 50,
+        "url": "https://{label}.americanexpress.com/{seg}",
+        "domain": "{label}.americanexpress.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1161
+      },
+      {
+        "id": 51,
+        "url": "https://{label}.americanexpress.com/{seg}",
+        "domain": "{label}.americanexpress.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1162
+      },
+      {
+        "id": 52,
+        "url": "https://{label}.americanexpress.com/{seg}",
+        "domain": "{label}.americanexpress.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1162
+      },
+      {
+        "id": 53,
+        "url": "https://{label}.americanexpress.com/{seg}",
+        "domain": "{label}.americanexpress.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1162
+      },
+      {
+        "id": 54,
+        "url": "https://{label}.americanexpress.com/{seg}",
+        "domain": "{label}.americanexpress.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1163
+      },
+      {
+        "id": 55,
+        "url": "https://{label}.americanexpress.com/{seg}",
+        "domain": "{label}.americanexpress.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1164
+      },
+      {
+        "id": 56,
+        "url": "https://{label}.americanexpress.com/{seg}",
+        "domain": "{label}.americanexpress.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1164
+      },
+      {
+        "id": 57,
+        "url": "https://{label}.americanexpress.com/{seg}",
+        "domain": "{label}.americanexpress.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1164
+      },
+      {
+        "id": 58,
+        "url": "https://{label}.americanexpress.com/{seg}",
+        "domain": "{label}.americanexpress.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1165
+      },
+      {
+        "id": 59,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 1216
+      },
+      {
+        "id": 60,
+        "url": "https://www.americanexpress.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.americanexpress.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1287
+      },
+      {
+        "id": 61,
+        "url": "https://www.americanexpress.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.americanexpress.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1288
+      },
+      {
+        "id": 62,
+        "url": "https://www.americanexpress.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.americanexpress.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1289
+      },
+      {
+        "id": 63,
+        "url": "https://www.americanexpress.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.americanexpress.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1289
+      },
+      {
+        "id": 64,
+        "url": "https://www.americanexpress.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.americanexpress.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1289
+      },
+      {
+        "id": 65,
+        "url": "https://www.americanexpress.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.americanexpress.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1290
+      },
+      {
+        "id": 66,
+        "url": "https://www.americanexpress.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.americanexpress.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1298
+      },
+      {
+        "id": 67,
+        "url": "https://www.americanexpress.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.americanexpress.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1298
+      },
+      {
+        "id": 68,
+        "url": "https://www.americanexpress.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.americanexpress.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1298
+      },
+      {
+        "id": 69,
+        "url": "https://www.americanexpress.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.americanexpress.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1298
+      },
+      {
+        "id": 70,
+        "url": "https://www.americanexpress.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.americanexpress.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1298
+      },
+      {
+        "id": 71,
+        "url": "https://www.americanexpress.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.americanexpress.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1299
+      },
+      {
+        "id": 72,
+        "url": "https://www.americanexpress.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.americanexpress.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1299
+      },
+      {
+        "id": 73,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1308
+      },
+      {
+        "id": 74,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1309
+      },
+      {
+        "id": 75,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 1310
+      },
+      {
+        "id": 76,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1310
+      },
+      {
+        "id": 77,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1311
+      },
+      {
+        "id": 78,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1311
+      },
+      {
+        "id": 79,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1311
+      },
+      {
+        "id": 80,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1312
+      },
+      {
+        "id": 81,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1313
+      },
+      {
+        "id": 82,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1313
+      },
+      {
+        "id": 83,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1332
+      },
+      {
+        "id": 84,
+        "url": "https://www.aexp-static.com/{seg}/us/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1337
+      },
+      {
+        "id": 85,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1337
+      },
+      {
+        "id": 86,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1339
+      },
+      {
+        "id": 87,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1339
+      },
+      {
+        "id": 88,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1366
+      },
+      {
+        "id": 89,
+        "url": "https://{label}.americanexpress.com/{seg}",
+        "domain": "{label}.americanexpress.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1368
+      },
+      {
+        "id": 90,
+        "url": "https://{label}.americanexpress.com/{seg}",
+        "domain": "{label}.americanexpress.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 202,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 1376
+      },
+      {
+        "id": 91,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1386
+      },
+      {
+        "id": 92,
+        "url": "https://{label}.americanexpress.com/{seg}",
+        "domain": "{label}.americanexpress.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 400,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1387
+      },
+      {
+        "id": 93,
+        "url": "https://{label}.contentsquare.net/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.contentsquare.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "contentsquare.net",
+          "entity": "Contentsquare",
+          "category": "session replay / behavior analytics",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 1389
+      },
+      {
+        "id": 94,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1411
+      },
+      {
+        "id": 95,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1411
+      },
+      {
+        "id": 96,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1412
+      },
+      {
+        "id": 97,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1413
+      },
+      {
+        "id": 98,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1414
+      },
+      {
+        "id": 99,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1415
+      },
+      {
+        "id": 100,
+        "url": "https://www.aexp-static.com/{seg}/api/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1415
+      },
+      {
+        "id": 101,
+        "url": "https://www.americanexpress.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.americanexpress.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1427
+      },
+      {
+        "id": 102,
+        "url": "https://www.americanexpress.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.americanexpress.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1427
+      },
+      {
+        "id": 103,
+        "url": "https://www.americanexpress.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.americanexpress.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1428
+      },
+      {
+        "id": 104,
+        "url": "https://www.americanexpress.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.americanexpress.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1428
+      },
+      {
+        "id": 105,
+        "url": "https://www.americanexpress.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.americanexpress.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1429
+      },
+      {
+        "id": 106,
+        "url": "https://{label}.dynatrace.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.dynatrace.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 1438
+      },
+      {
+        "id": 107,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1440
+      },
+      {
+        "id": 108,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1440
+      },
+      {
+        "id": 109,
+        "url": "https://{label}.americanexpress.com/{seg}",
+        "domain": "{label}.americanexpress.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 401,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1500
+      },
+      {
+        "id": 110,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1537
+      },
+      {
+        "id": 111,
+        "url": "https://{label}.americanexpress.com/{seg}",
+        "domain": "{label}.americanexpress.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 1555
+      },
+      {
+        "id": 112,
+        "url": "https://www.aexp-static.com/{seg}/api/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1559
+      },
+      {
+        "id": 113,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1562
+      },
+      {
+        "id": 114,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1569
+      },
+      {
+        "id": 115,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1569
+      },
+      {
+        "id": 116,
+        "url": "https://{label}.contentsquare.net/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.contentsquare.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "contentsquare.net",
+          "entity": "Contentsquare",
+          "category": "session replay / behavior analytics",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 1650
+      },
+      {
+        "id": 119,
+        "url": "https://www.americanexpress.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.americanexpress.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1805
+      },
+      {
+        "id": 120,
+        "url": "https://www.americanexpress.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.americanexpress.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1805
+      },
+      {
+        "id": 121,
+        "url": "https://www.americanexpress.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.americanexpress.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1806
+      },
+      {
+        "id": 122,
+        "url": "https://www.americanexpress.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.americanexpress.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1806
+      },
+      {
+        "id": 123,
+        "url": "https://www.americanexpress.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.americanexpress.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1806
+      },
+      {
+        "id": 124,
+        "url": "https://www.americanexpress.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.americanexpress.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1807
+      },
+      {
+        "id": 125,
+        "url": "https://www.americanexpress.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.americanexpress.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1807
+      },
+      {
+        "id": 126,
+        "url": "https://www.americanexpress.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.americanexpress.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1807
+      },
+      {
+        "id": 127,
+        "url": "https://www.americanexpress.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.americanexpress.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1807
+      },
+      {
+        "id": 128,
+        "url": "https://www.americanexpress.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.americanexpress.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1807
+      },
+      {
+        "id": 129,
+        "url": "https://www.americanexpress.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.americanexpress.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1808
+      },
+      {
+        "id": 130,
+        "url": "https://www.facebook.com/{seg}?id=&ev=&%5Bredacted%5D=&noscript=",
+        "domain": "www.facebook.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "facebook.com",
+          "entity": "Meta",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 1826
+      },
+      {
+        "id": 131,
+        "url": "https://ad.doubleclick.net/{seg}",
+        "domain": "ad.doubleclick.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 302,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 1826
+      },
+      {
+        "id": 132,
+        "url": "https://ad.doubleclick.net/{seg}",
+        "domain": "ad.doubleclick.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 302,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 1827
+      },
+      {
+        "id": 133,
+        "url": "https://www.facebook.com/{seg}?id=&ev=&%5Bredacted%5D=&noscript=",
+        "domain": "www.facebook.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "facebook.com",
+          "entity": "Meta",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 1827
+      },
+      {
+        "id": 134,
+        "url": "https://{label}.pinterest.com/{seg}?tid=&%5Bredacted%5D=&noscript=",
+        "domain": "{label}.pinterest.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "{label}.pinterest.com",
+          "entity": "Pinterest",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 1827
+      },
+      {
+        "id": 135,
+        "url": "https://{label}.amazon-adsystem.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.amazon-adsystem.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 302,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "amazon-adsystem.com",
+          "entity": "Amazon Ads",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 1827
+      },
+      {
+        "id": 136,
+        "url": "https://www.googleadservices.com/{seg}/{seg}/{n}?%5Bredacted%5D=",
+        "domain": "www.googleadservices.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 302,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googleadservices.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 1828
+      },
+      {
+        "id": 137,
+        "url": "https://{label}.amazon-adsystem.com/{seg}?%5Bredacted%5D=&cb=",
+        "domain": "{label}.amazon-adsystem.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 302,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "amazon-adsystem.com",
+          "entity": "Amazon Ads",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 1828
+      },
+      {
+        "id": 138,
+        "url": "https://www.googleadservices.com/{seg}/{seg}/{n}?%5Bredacted%5D=",
+        "domain": "www.googleadservices.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 302,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googleadservices.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 1828
+      },
+      {
+        "id": 139,
+        "url": "https://{label}.reddit.com/{seg}?id=&%5Bredacted%5D=",
+        "domain": "{label}.reddit.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 1828
+      },
+      {
+        "id": 140,
+        "url": "https://www.facebook.com/{seg}?id=&ev=&%5Bredacted%5D=&noscript=",
+        "domain": "www.facebook.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "facebook.com",
+          "entity": "Meta",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 1828
+      },
+      {
+        "id": 141,
+        "url": "https://secure.adnxs.com/{seg}?id=&%5Bredacted%5D=&t=",
+        "domain": "secure.adnxs.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": null,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 1828
+      },
+      {
+        "id": 142,
+        "url": "https://{label}.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.qualtrics.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 1831
+      },
+      {
+        "id": 143,
+        "url": "https://{label}.contentsquare.net/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.contentsquare.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "contentsquare.net",
+          "entity": "Contentsquare",
+          "category": "session replay / behavior analytics",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 1834
+      },
+      {
+        "id": 144,
+        "url": "https://{label}.contentsquare.net/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.contentsquare.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "contentsquare.net",
+          "entity": "Contentsquare",
+          "category": "session replay / behavior analytics",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 1834
+      },
+      {
+        "id": 145,
+        "url": "https://{label}.americanexpress.com/{seg}/{seg}",
+        "domain": "{label}.americanexpress.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 403,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1845
+      },
+      {
+        "id": 146,
+        "url": "https://{label}.americanexpress.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.americanexpress.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1845
+      },
+      {
+        "id": 147,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}/us",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1853
+      },
+      {
+        "id": 148,
+        "url": "https://{label}.contentsquare.net/{seg}?%5Bredacted%5D=&v=",
+        "domain": "{label}.contentsquare.net",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "contentsquare.net",
+          "entity": "Contentsquare",
+          "category": "session replay / behavior analytics",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 1932
+      },
+      {
+        "id": 149,
+        "url": "https://featureassets.org/{seg}/{seg}?%5Bredacted%5D=&t=",
+        "domain": "featureassets.org",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1950
+      },
+      {
+        "id": 150,
+        "url": "https://{label}.contentsquare.net/{seg}?v=&%5Bredacted%5D=",
+        "domain": "{label}.contentsquare.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "contentsquare.net",
+          "entity": "Contentsquare",
+          "category": "session replay / behavior analytics",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 1972
+      },
+      {
+        "id": 151,
+        "url": "https://ad.doubleclick.net/{seg}",
+        "domain": "ad.doubleclick.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 302,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 2045
+      },
+      {
+        "id": 152,
+        "url": "https://ad.doubleclick.net/{seg}",
+        "domain": "ad.doubleclick.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 302,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 2045
+      },
+      {
+        "id": 153,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}/us",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2046
+      },
+      {
+        "id": 154,
+        "url": "https://{label}.americanexpress.com/{seg}/{seg}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.americanexpress.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2067
+      },
+      {
+        "id": 155,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2075
+      },
+      {
+        "id": 156,
+        "url": "https://{label}.contentsquare.net/{seg}?v=&%5Bredacted%5D=",
+        "domain": "{label}.contentsquare.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "contentsquare.net",
+          "entity": "Contentsquare",
+          "category": "session replay / behavior analytics",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 2078
+      },
+      {
+        "id": 157,
+        "url": "https://{label}.amazon-adsystem.com/{seg}?%5Bredacted%5D=&cb=",
+        "domain": "{label}.amazon-adsystem.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "amazon-adsystem.com",
+          "entity": "Amazon Ads",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 2098
+      },
+      {
+        "id": 158,
+        "url": "https://pixel.mediaiqdigital.com/{seg}?%5Bredacted%5D=",
+        "domain": "pixel.mediaiqdigital.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": null,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2102
+      },
+      {
+        "id": 159,
+        "url": "https://{label}.americanexpress.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.americanexpress.com",
+        "method": "POST",
+        "resourceType": "other",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2102
+      },
+      {
+        "id": 160,
+        "url": "https://www.google.com/{seg}/{seg}/{seg}",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2106
+      },
+      {
+        "id": 161,
+        "url": "https://www.americanexpress.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.americanexpress.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 201,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2126
+      },
+      {
+        "id": 162,
+        "url": "https://{label}.amazon-adsystem.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.amazon-adsystem.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": null,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "amazon-adsystem.com",
+          "entity": "Amazon Ads",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 2129
+      },
+      {
+        "id": 163,
+        "url": "https://www.google.com/{seg}/{seg}/{seg}",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2129
+      },
+      {
+        "id": 164,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2149
+      },
+      {
+        "id": 165,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2149
+      },
+      {
+        "id": 166,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2151
+      },
+      {
+        "id": 167,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2151
+      },
+      {
+        "id": 168,
+        "url": "https://{label}.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=&version=",
+        "domain": "{label}.qualtrics.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 2151
+      },
+      {
+        "id": 169,
+        "url": "https://{label}.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=&version=",
+        "domain": "{label}.qualtrics.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 2151
+      },
+      {
+        "id": 170,
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}/{n}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 302,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 2153
+      },
+      {
+        "id": 171,
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}/{n}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 302,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 2153
+      },
+      {
+        "id": 172,
+        "url": "https://{label}.securedvisit.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.securedvisit.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 2169
+      },
+      {
+        "id": 173,
+        "url": "https://{label}.{label}.rkdms.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.rkdms.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 2169
+      },
+      {
+        "id": 174,
+        "url": "https://{label}.contentsquare.net/{seg}/{seg}?%5Bredacted%5D=&v=",
+        "domain": "{label}.contentsquare.net",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "contentsquare.net",
+          "entity": "Contentsquare",
+          "category": "session replay / behavior analytics",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 2213
+      },
+      {
+        "id": 175,
+        "url": "https://www.googletagmanager.com/{seg}/{seg}",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 2219
+      },
+      {
+        "id": 176,
+        "url": "https://{label}.qualtrics.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.qualtrics.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 2236
+      },
+      {
+        "id": 177,
+        "url": "https://www.google.com/{seg}/{seg}/{n}?%5Bredacted%5D=&cid=",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2282
+      },
+      {
+        "id": 178,
+        "url": "https://www.google.com/{seg}/{seg}/{n}?%5Bredacted%5D=&cid=",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2283
+      },
+      {
+        "id": 179,
+        "url": "https://{label}.contentsquare.net/{seg}?%5Bredacted%5D=&v=",
+        "domain": "{label}.contentsquare.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "contentsquare.net",
+          "entity": "Contentsquare",
+          "category": "session replay / behavior analytics",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 2431
+      },
+      {
+        "id": 180,
+        "url": "https://{label}.contentsquare.net/{seg}?%5Bredacted%5D=&v=",
+        "domain": "{label}.contentsquare.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "contentsquare.net",
+          "entity": "Contentsquare",
+          "category": "session replay / behavior analytics",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 2432
+      },
+      {
+        "id": 181,
+        "url": "https://{label}.contentsquare.net/{seg}?v=&%5Bredacted%5D=",
+        "domain": "{label}.contentsquare.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "contentsquare.net",
+          "entity": "Contentsquare",
+          "category": "session replay / behavior analytics",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 2433
+      },
+      {
+        "id": 182,
+        "url": "https://{label}.americanexpress.com/{seg}/{seg}",
+        "domain": "{label}.americanexpress.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 2445
+      },
+      {
+        "id": 183,
+        "url": "https://{label}.contentsquare.net/{seg}?%5Bredacted%5D=&v=",
+        "domain": "{label}.contentsquare.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "contentsquare.net",
+          "entity": "Contentsquare",
+          "category": "session replay / behavior analytics",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 2879
+      },
+      {
+        "id": 184,
+        "url": "https://{label}.contentsquare.net/{seg}?%5Bredacted%5D=&v=",
+        "domain": "{label}.contentsquare.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "contentsquare.net",
+          "entity": "Contentsquare",
+          "category": "session replay / behavior analytics",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 2880
+      },
+      {
+        "id": 185,
+        "url": "https://{label}.{label}.dynatrace.com/{seg}?type=&%5Bredacted%5D=",
+        "domain": "{label}.{label}.dynatrace.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 3287
+      },
+      {
+        "id": 186,
+        "url": "https://{label}.{label}.dynatrace.com/{seg}?type=&%5Bredacted%5D=",
+        "domain": "{label}.{label}.dynatrace.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 5316
+      }
+    ],
+    "domains": [
+      {
+        "domain": "{label}.contentsquare.net",
+        "requests": 13,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "contentsquare.net",
+          "entity": "Contentsquare",
+          "category": "session replay / behavior analytics",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          204
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr",
+          "image"
+        ]
+      },
+      {
+        "domain": "ad.doubleclick.net",
+        "requests": 4,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          302
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "{label}.amazon-adsystem.com",
+        "requests": 4,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "amazon-adsystem.com",
+          "entity": "Amazon Ads",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          302,
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "www.facebook.com",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "facebook.com",
+          "entity": "Meta",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "www.googleadservices.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googleadservices.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          302
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "{label}.{label}.doubleclick.net",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": false,
+        "statuses": [
+          302
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "{label}.pinterest.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "{label}.pinterest.com",
+          "entity": "Pinterest",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "www.aexp-static.com",
+        "requests": 67,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "stylesheet",
+          "image",
+          "script",
+          "font"
+        ]
+      },
+      {
+        "domain": "{label}.qualtrics.com",
+        "requests": 4,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "www.google.com",
+        "requests": 4,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "{label}.{label}.dynatrace.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "{label}.dynatrace.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "{label}.reddit.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "secure.adnxs.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "featureassets.org",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "pixel.mediaiqdigital.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "{label}.securedvisit.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "{label}.{label}.rkdms.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "www.americanexpress.com",
+        "requests": 37,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200,
+          201
+        ],
+        "resourceTypes": [
+          "document",
+          "script",
+          "xhr",
+          "image"
+        ]
+      },
+      {
+        "domain": "{label}.americanexpress.com",
+        "requests": 33,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          400,
+          202,
+          401,
+          403
+        ],
+        "resourceTypes": [
+          "fetch",
+          "ping",
+          "xhr",
+          "script",
+          "image",
+          "other"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "[redacted]",
+        "domain": ".amazon-adsystem.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".amazon-adsystem.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "_pinterest_ct_ua",
+        "domain": ".{label}.pinterest.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "IDE",
+        "domain": ".doubleclick.net",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".americanexpress.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".americanexpress.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".americanexpress.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".americanexpress.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".americanexpress.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".americanexpress.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".americanexpress.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".americanexpress.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".americanexpress.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".americanexpress.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".americanexpress.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".americanexpress.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".americanexpress.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".americanexpress.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".americanexpress.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".americanexpress.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".americanexpress.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".americanexpress.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".americanexpress.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".americanexpress.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".americanexpress.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "_abck",
+        "domain": ".americanexpress.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "JSESSIONID",
+        "domain": ".americanexpress.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".americanexpress.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".americanexpress.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".americanexpress.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted:long-token]",
+        "domain": "www.americanexpress.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [],
+    "fingerprintEvents": [],
+    "fingerprintDetections": [],
+    "cnameCloaks": [
+      {
+        "host": "{label}.americanexpress.com",
+        "cname": "{label}.{label}.{label}.{label}.{label}.omtrdc.net",
+        "tracker": {
+          "domain": "omtrdc.net",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        }
+      }
+    ],
+    "pixelEvents": [
+      {
+        "platform": "Meta",
+        "product": "Meta Pixel",
+        "events": [
+          "PageView"
+        ],
+        "advancedMatching": [],
+        "requests": 3
+      }
+    ],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+      "Blocked a request that could not be verified as public: https://{label}.aexp.com/api/{seg}/store/{seg}/{seg}/{seg}",
+      "Blocked a request that could not be verified as public: https://{label}.aexp.com/{seg}/{seg}/{seg}",
+      "The page did not reach network idle before the scan window ended.",
+      "The in-page fingerprint observer could not read one or more frames, so fingerprint-like API calls and heuristics for this visit are incomplete.",
+      "Resolved 1 first-party subdomain that is a CNAME alias for a third-party tracker (CNAME cloaking), which request-URL matching alone would miss."
+    ]
+  },
+  "variant": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "",
+      "status": 200,
+      "durationMs": 3463,
+      "firstPartyDomain": "www.americanexpress.com",
+      "totalRequests": 111,
+      "thirdPartyRequests": 61,
+      "knownTrackerRequests": 0,
+      "thirdPartyDomains": 2,
+      "cookies": 14,
+      "thirdPartyCookies": 0,
+      "storageEntries": 0,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 23
+    },
+    "conditions": {
+      "requestedUrl": "https://www.americanexpress.com/",
+      "finalUrl": "https://www.americanexpress.com/",
+      "scannedAt": "2026-07-27T09:00:35.711Z",
+      "chromiumVersion": "149.0.7827.55",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": false,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "block-simulation",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-25T14:05:35.223Z"
+      },
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.06",
+        "region": "US-biased",
+        "entries": 133,
+        "curatedOverrides": 133,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan using Playwright 1.61.1 from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Brave-list matching uses each route-evaluated request's initiating document (the parent document for a subframe navigation), under methodology shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.61.1; main-frame navigations are not blocked or counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.americanexpress.com/",
+        "domain": "www.americanexpress.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 42
+      },
+      {
+        "id": 2,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 332
+      },
+      {
+        "id": 3,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 364
+      },
+      {
+        "id": 4,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 365
+      },
+      {
+        "id": 5,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 365
+      },
+      {
+        "id": 6,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 366
+      },
+      {
+        "id": 7,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 367
+      },
+      {
+        "id": 8,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 367
+      },
+      {
+        "id": 9,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/app/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 373
+      },
+      {
+        "id": 10,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/app/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 374
+      },
+      {
+        "id": 11,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/app/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 374
+      },
+      {
+        "id": 12,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/app/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 374
+      },
+      {
+        "id": 13,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 374
+      },
+      {
+        "id": 14,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 374
+      },
+      {
+        "id": 15,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 374
+      },
+      {
+        "id": 16,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 374
+      },
+      {
+        "id": 17,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 374
+      },
+      {
+        "id": 18,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/app/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 374
+      },
+      {
+        "id": 19,
+        "url": "https://www.americanexpress.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.americanexpress.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 374
+      },
+      {
+        "id": 20,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 606
+      },
+      {
+        "id": 21,
+        "url": "https://{label}.americanexpress.com/{seg}",
+        "domain": "{label}.americanexpress.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1089
+      },
+      {
+        "id": 22,
+        "url": "https://{label}.americanexpress.com/{seg}",
+        "domain": "{label}.americanexpress.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1090
+      },
+      {
+        "id": 23,
+        "url": "https://{label}.americanexpress.com/{seg}",
+        "domain": "{label}.americanexpress.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1090
+      },
+      {
+        "id": 24,
+        "url": "https://{label}.americanexpress.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.americanexpress.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1090
+      },
+      {
+        "id": 25,
+        "url": "https://{label}.americanexpress.com/{seg}",
+        "domain": "{label}.americanexpress.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1090
+      },
+      {
+        "id": 26,
+        "url": "https://{label}.americanexpress.com/{seg}",
+        "domain": "{label}.americanexpress.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 400,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1090
+      },
+      {
+        "id": 27,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1090
+      },
+      {
+        "id": 28,
+        "url": "https://{label}.americanexpress.com/{seg}",
+        "domain": "{label}.americanexpress.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 400,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1091
+      },
+      {
+        "id": 29,
+        "url": "https://www.americanexpress.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.americanexpress.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 201,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1205
+      },
+      {
+        "id": 30,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1215
+      },
+      {
+        "id": 31,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1264
+      },
+      {
+        "id": 32,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1322
+      },
+      {
+        "id": 33,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1333
+      },
+      {
+        "id": 34,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1334
+      },
+      {
+        "id": 35,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1367
+      },
+      {
+        "id": 36,
+        "url": "https://www.americanexpress.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.americanexpress.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1379
+      },
+      {
+        "id": 37,
+        "url": "https://www.americanexpress.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.americanexpress.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1380
+      },
+      {
+        "id": 38,
+        "url": "https://www.americanexpress.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.americanexpress.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1380
+      },
+      {
+        "id": 39,
+        "url": "https://www.americanexpress.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.americanexpress.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1380
+      },
+      {
+        "id": 40,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1381
+      },
+      {
+        "id": 41,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1381
+      },
+      {
+        "id": 42,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1431
+      },
+      {
+        "id": 43,
+        "url": "https://{label}.americanexpress.com/{seg}",
+        "domain": "{label}.americanexpress.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1482
+      },
+      {
+        "id": 44,
+        "url": "https://{label}.americanexpress.com/{seg}",
+        "domain": "{label}.americanexpress.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1483
+      },
+      {
+        "id": 45,
+        "url": "https://{label}.americanexpress.com/{seg}",
+        "domain": "{label}.americanexpress.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1484
+      },
+      {
+        "id": 46,
+        "url": "https://{label}.americanexpress.com/{seg}",
+        "domain": "{label}.americanexpress.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1484
+      },
+      {
+        "id": 47,
+        "url": "https://{label}.americanexpress.com/{seg}",
+        "domain": "{label}.americanexpress.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1485
+      },
+      {
+        "id": 48,
+        "url": "https://{label}.americanexpress.com/{seg}",
+        "domain": "{label}.americanexpress.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1488
+      },
+      {
+        "id": 49,
+        "url": "https://{label}.americanexpress.com/{seg}",
+        "domain": "{label}.americanexpress.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1488
+      },
+      {
+        "id": 50,
+        "url": "https://{label}.americanexpress.com/{seg}",
+        "domain": "{label}.americanexpress.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1488
+      },
+      {
+        "id": 51,
+        "url": "https://{label}.americanexpress.com/{seg}",
+        "domain": "{label}.americanexpress.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1489
+      },
+      {
+        "id": 52,
+        "url": "https://{label}.americanexpress.com/{seg}",
+        "domain": "{label}.americanexpress.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1489
+      },
+      {
+        "id": 53,
+        "url": "https://{label}.americanexpress.com/{seg}",
+        "domain": "{label}.americanexpress.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1489
+      },
+      {
+        "id": 54,
+        "url": "https://{label}.americanexpress.com/{seg}",
+        "domain": "{label}.americanexpress.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1489
+      },
+      {
+        "id": 55,
+        "url": "https://{label}.americanexpress.com/{seg}",
+        "domain": "{label}.americanexpress.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1489
+      },
+      {
+        "id": 56,
+        "url": "https://{label}.americanexpress.com/{seg}",
+        "domain": "{label}.americanexpress.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1489
+      },
+      {
+        "id": 57,
+        "url": "https://{label}.americanexpress.com/{seg}",
+        "domain": "{label}.americanexpress.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1489
+      },
+      {
+        "id": 58,
+        "url": "https://{label}.americanexpress.com/{seg}",
+        "domain": "{label}.americanexpress.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1489
+      },
+      {
+        "id": 61,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1586
+      },
+      {
+        "id": 62,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1589
+      },
+      {
+        "id": 63,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1592
+      },
+      {
+        "id": 64,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1593
+      },
+      {
+        "id": 65,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1593
+      },
+      {
+        "id": 66,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1594
+      },
+      {
+        "id": 67,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1594
+      },
+      {
+        "id": 68,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1594
+      },
+      {
+        "id": 69,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1612
+      },
+      {
+        "id": 71,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1652
+      },
+      {
+        "id": 72,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1653
+      },
+      {
+        "id": 73,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1655
+      },
+      {
+        "id": 74,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1655
+      },
+      {
+        "id": 75,
+        "url": "https://www.aexp-static.com/{seg}/us/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1655
+      },
+      {
+        "id": 76,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1680
+      },
+      {
+        "id": 77,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1680
+      },
+      {
+        "id": 78,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1681
+      },
+      {
+        "id": 79,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1681
+      },
+      {
+        "id": 80,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1681
+      },
+      {
+        "id": 81,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1682
+      },
+      {
+        "id": 83,
+        "url": "https://www.aexp-static.com/{seg}/api/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1692
+      },
+      {
+        "id": 84,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1699
+      },
+      {
+        "id": 85,
+        "url": "https://{label}.americanexpress.com/{seg}",
+        "domain": "{label}.americanexpress.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1700
+      },
+      {
+        "id": 86,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1705
+      },
+      {
+        "id": 87,
+        "url": "https://{label}.americanexpress.com/{seg}",
+        "domain": "{label}.americanexpress.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 400,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1707
+      },
+      {
+        "id": 88,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1724
+      },
+      {
+        "id": 89,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1753
+      },
+      {
+        "id": 90,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1789
+      },
+      {
+        "id": 91,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1793
+      },
+      {
+        "id": 92,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1794
+      },
+      {
+        "id": 93,
+        "url": "https://{label}.americanexpress.com/{seg}",
+        "domain": "{label}.americanexpress.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 401,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1809
+      },
+      {
+        "id": 95,
+        "url": "https://www.aexp-static.com/{seg}/api/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1835
+      },
+      {
+        "id": 96,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1837
+      },
+      {
+        "id": 97,
+        "url": "https://www.americanexpress.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.americanexpress.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1898
+      },
+      {
+        "id": 98,
+        "url": "https://www.americanexpress.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.americanexpress.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1899
+      },
+      {
+        "id": 99,
+        "url": "https://www.americanexpress.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.americanexpress.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1900
+      },
+      {
+        "id": 100,
+        "url": "https://www.americanexpress.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.americanexpress.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1900
+      },
+      {
+        "id": 101,
+        "url": "https://www.americanexpress.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.americanexpress.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1901
+      },
+      {
+        "id": 102,
+        "url": "https://www.americanexpress.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.americanexpress.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1902
+      },
+      {
+        "id": 103,
+        "url": "https://www.americanexpress.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.americanexpress.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1910
+      },
+      {
+        "id": 104,
+        "url": "https://www.americanexpress.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.americanexpress.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1910
+      },
+      {
+        "id": 105,
+        "url": "https://www.americanexpress.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.americanexpress.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1911
+      },
+      {
+        "id": 106,
+        "url": "https://www.americanexpress.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.americanexpress.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1911
+      },
+      {
+        "id": 107,
+        "url": "https://www.americanexpress.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.americanexpress.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1912
+      },
+      {
+        "id": 108,
+        "url": "https://www.americanexpress.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.americanexpress.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1912
+      },
+      {
+        "id": 109,
+        "url": "https://www.americanexpress.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.americanexpress.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1912
+      },
+      {
+        "id": 125,
+        "url": "https://{label}.americanexpress.com/{seg}/{seg}",
+        "domain": "{label}.americanexpress.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 403,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2068
+      },
+      {
+        "id": 126,
+        "url": "https://{label}.americanexpress.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.americanexpress.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2072
+      },
+      {
+        "id": 127,
+        "url": "https://featureassets.org/{seg}/{seg}?%5Bredacted%5D=&t=",
+        "domain": "featureassets.org",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2094
+      },
+      {
+        "id": 128,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}/us",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2098
+      },
+      {
+        "id": 129,
+        "url": "https://{label}.americanexpress.com/{seg}/{seg}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.americanexpress.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2165
+      },
+      {
+        "id": 130,
+        "url": "https://www.aexp-static.com/{seg}/{seg}/{seg}/{seg}/{seg}/us",
+        "domain": "www.aexp-static.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2253
+      },
+      {
+        "id": 131,
+        "url": "https://www.americanexpress.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.americanexpress.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 201,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2282
+      }
+    ],
+    "domains": [
+      {
+        "domain": "www.aexp-static.com",
+        "requests": 60,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "stylesheet",
+          "image",
+          "script",
+          "font"
+        ]
+      },
+      {
+        "domain": "featureassets.org",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "{label}.americanexpress.com",
+        "requests": 29,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200,
+          400,
+          401,
+          403
+        ],
+        "resourceTypes": [
+          "fetch",
+          "xhr",
+          "script",
+          "image"
+        ]
+      },
+      {
+        "domain": "www.americanexpress.com",
+        "requests": 21,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200,
+          201
+        ],
+        "resourceTypes": [
+          "document",
+          "script",
+          "xhr",
+          "image"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "[redacted]",
+        "domain": ".americanexpress.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".americanexpress.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".americanexpress.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".americanexpress.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".americanexpress.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".americanexpress.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".americanexpress.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".americanexpress.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".americanexpress.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".americanexpress.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".americanexpress.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".americanexpress.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "_abck",
+        "domain": ".americanexpress.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted:long-token]",
+        "domain": "www.americanexpress.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [],
+    "fingerprintEvents": [],
+    "fingerprintDetections": [],
+    "cnameCloaks": [
+      {
+        "host": "{label}.americanexpress.com",
+        "cname": "{label}.{label}.{label}.{label}.{label}.omtrdc.net",
+        "tracker": {
+          "domain": "omtrdc.net",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        }
+      }
+    ],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+      "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+      "Blocked a request that could not be verified as public: https://{label}.aexp.com/{seg}/{seg}/{seg}",
+      "The in-page fingerprint observer could not read one or more frames, so fingerprint-like API calls and heuristics for this visit are incomplete.",
+      "Resolved 1 first-party subdomain that is a CNAME alias for a third-party tracker (CNAME cloaking), which request-URL matching alone would miss."
+    ]
+  },
+  "diff": {
+    "totalRequests": {
+      "before": 184,
+      "after": 111,
+      "delta": -73
+    },
+    "thirdPartyRequests": {
+      "before": 114,
+      "after": 61,
+      "delta": -53
+    },
+    "knownTrackerRequests": {
+      "before": 30,
+      "after": 0,
+      "delta": -30
+    },
+    "thirdPartyDomains": {
+      "before": 19,
+      "after": 2,
+      "delta": -17
+    },
+    "cookies": {
+      "before": 31,
+      "after": 14,
+      "delta": -17
+    },
+    "thirdPartyCookies": {
+      "before": 4,
+      "after": 0,
+      "delta": -4
+    },
+    "storageEntries": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "fingerprintEvents": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "addedDomains": [],
+    "removedDomains": [
+      {
+        "domain": "{label}.contentsquare.net",
+        "requests": 13,
+        "tracker": {
+          "domain": "contentsquare.net",
+          "entity": "Contentsquare",
+          "category": "session replay / behavior analytics",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "{label}.amazon-adsystem.com",
+        "requests": 4,
+        "tracker": {
+          "domain": "amazon-adsystem.com",
+          "entity": "Amazon Ads",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "{label}.qualtrics.com",
+        "requests": 4,
+        "tracker": null
+      },
+      {
+        "domain": "ad.doubleclick.net",
+        "requests": 4,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "www.google.com",
+        "requests": 4,
+        "tracker": null
+      },
+      {
+        "domain": "www.facebook.com",
+        "requests": 3,
+        "tracker": {
+          "domain": "facebook.com",
+          "entity": "Meta",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "{label}.{label}.doubleclick.net",
+        "requests": 2,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "{label}.{label}.dynatrace.com",
+        "requests": 2,
+        "tracker": null
+      },
+      {
+        "domain": "www.googleadservices.com",
+        "requests": 2,
+        "tracker": {
+          "domain": "googleadservices.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "{label}.{label}.rkdms.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.dynatrace.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.pinterest.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "{label}.pinterest.com",
+          "entity": "Pinterest",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "{label}.reddit.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.securedvisit.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "pixel.mediaiqdigital.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "secure.adnxs.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        }
+      }
+    ],
+    "addedEntities": [],
+    "removedEntities": [
+      {
+        "entity": "Contentsquare",
+        "requests": 13,
+        "domains": 1
+      },
+      {
+        "entity": "Google",
+        "requests": 9,
+        "domains": 4
+      },
+      {
+        "entity": "Amazon Ads",
+        "requests": 4,
+        "domains": 1
+      },
+      {
+        "entity": "Meta",
+        "requests": 3,
+        "domains": 1
+      },
+      {
+        "entity": "Pinterest",
+        "requests": 1,
+        "domains": 1
+      }
+    ],
+    "addedCookies": [],
+    "removedCookies": [
+      {
+        "name": "_pinterest_ct_ua",
+        "domain": ".{label}.pinterest.com",
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".amazon-adsystem.com",
+        "thirdParty": true
+      },
+      {
+        "name": "IDE",
+        "domain": ".doubleclick.net",
+        "thirdParty": true
+      },
+      {
+        "name": "JSESSIONID",
+        "domain": ".americanexpress.com",
+        "thirdParty": false
+      }
+    ],
+    "addedStorageKeys": [],
+    "removedStorageKeys": [],
+    "addedFingerprinting": [],
+    "removedFingerprinting": [],
+    "addedProvenance": [],
+    "removedProvenance": [],
+    "shieldsBlockedRequests": {
+      "before": 40,
+      "after": 23,
+      "delta": -17
+    },
+    "removedPixelEvents": [
+      {
+        "platform": "Meta",
+        "product": "Meta Pixel",
+        "events": [
+          "PageView"
+        ],
+        "advancedMatching": []
+      }
+    ]
+  },
+  "warnings": [
+    "Brave-list blocking comparison runs should be collected under matched crawl conditions, and the blocking run is a simulation with Brave's engine and default lists in this scanner's browser, not a live Brave visit. Differences can still reflect timing, experiments, cache state, consent state, or bot detection.",
+    "The two visits ran in randomized order; the \"Brave-list blocking\" visit ran first.",
+    "No blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "No blocking: Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+    "No blocking: Blocked a request that could not be verified as public: https://{label}.aexp.com/api/{seg}/store/{seg}/{seg}/{seg}",
+    "No blocking: Blocked a request that could not be verified as public: https://{label}.aexp.com/{seg}/{seg}/{seg}",
+    "No blocking: The page did not reach network idle before the scan window ended.",
+    "No blocking: The in-page fingerprint observer could not read one or more frames, so fingerprint-like API calls and heuristics for this visit are incomplete.",
+    "No blocking: Resolved 1 first-party subdomain that is a CNAME alias for a third-party tracker (CNAME cloaking), which request-URL matching alone would miss.",
+    "Brave-list blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Brave-list blocking: Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+    "Brave-list blocking: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+    "Brave-list blocking: Blocked a request that could not be verified as public: https://{label}.aexp.com/{seg}/{seg}/{seg}",
+    "Brave-list blocking: The in-page fingerprint observer could not read one or more frames, so fingerprint-like API calls and heuristics for this visit are incomplete.",
+    "Brave-list blocking: Resolved 1 first-party subdomain that is a CNAME alias for a third-party tracker (CNAME cloaking), which request-URL matching alone would miss."
+  ],
+  "share": {
+    "id": "20260727-a0eadc19523021a64b6de3436288d9d4",
+    "path": "/reports/20260727-a0eadc19523021a64b6de3436288d9d4/",
+    "jsonPath": "/reports/20260727-a0eadc19523021a64b6de3436288d9d4.json"
+  }
+}

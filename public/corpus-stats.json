@@ -1,10 +1,10 @@
 {
   "version": 2,
-  "generatedAt": "2026-07-25T23:11:17.196Z",
-  "sampleSize": 71,
+  "generatedAt": "2026-07-27T10:38:39.618Z",
+  "sampleSize": 59,
   "coverageSiteCount": 99,
-  "cappedSiteCount": 2,
-  "primaryCohortId": "v1:shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.61.1:producer-unrecorded:gpc-on",
+  "cappedSiteCount": 3,
+  "primaryCohortId": "v1:shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.61.1:producer-unrecorded:gpc-off",
   "cohorts": [
     {
       "id": "v1:legacy-v1-methodology-unspecified:producer-unrecorded:gpc-on",
@@ -61,6 +61,64 @@
           "p75": 4,
           "p90": 87,
           "p95": 205
+        }
+      }
+    },
+    {
+      "id": "v1:shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.61.1:producer-unrecorded:gpc-off",
+      "schemaVersion": 1,
+      "schemaRevision": null,
+      "methodologyVersion": "shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.61.1",
+      "methodologyOrigin": "legacy-derived",
+      "producer": null,
+      "gpc": false,
+      "sampleSize": 59,
+      "latestRunAt": "2026-07-27T10:27:57.414Z",
+      "metrics": {
+        "thirdPartyRequests": {
+          "count": 59,
+          "min": 0,
+          "max": 679,
+          "p50": 87,
+          "p75": 172,
+          "p90": 371,
+          "p95": 589
+        },
+        "thirdPartyDomains": {
+          "count": 59,
+          "min": 0,
+          "max": 153,
+          "p50": 14,
+          "p75": 28,
+          "p90": 55,
+          "p95": 114
+        },
+        "knownTrackerRequests": {
+          "count": 59,
+          "min": 0,
+          "max": 259,
+          "p50": 17,
+          "p75": 48,
+          "p90": 110,
+          "p95": 210
+        },
+        "thirdPartyCookies": {
+          "count": 59,
+          "min": 0,
+          "max": 138,
+          "p50": 3,
+          "p75": 11,
+          "p90": 26,
+          "p95": 131
+        },
+        "fingerprintEvents": {
+          "count": 55,
+          "min": 0,
+          "max": 544,
+          "p50": 0,
+          "p75": 12,
+          "p90": 93,
+          "p95": 172
         }
       }
     },
@@ -241,49 +299,49 @@
   ],
   "metrics": {
     "thirdPartyRequests": {
-      "count": 71,
+      "count": 59,
       "min": 0,
-      "max": 382,
-      "p50": 11,
-      "p75": 56,
-      "p90": 161,
-      "p95": 185
+      "max": 679,
+      "p50": 87,
+      "p75": 172,
+      "p90": 371,
+      "p95": 589
     },
     "thirdPartyDomains": {
-      "count": 71,
+      "count": 59,
       "min": 0,
-      "max": 59,
-      "p50": 3,
-      "p75": 9,
-      "p90": 21,
-      "p95": 29
+      "max": 153,
+      "p50": 14,
+      "p75": 28,
+      "p90": 55,
+      "p95": 114
     },
     "knownTrackerRequests": {
-      "count": 71,
+      "count": 59,
       "min": 0,
-      "max": 152,
-      "p50": 1,
-      "p75": 10,
-      "p90": 27,
-      "p95": 36
+      "max": 259,
+      "p50": 17,
+      "p75": 48,
+      "p90": 110,
+      "p95": 210
     },
     "thirdPartyCookies": {
-      "count": 71,
+      "count": 59,
       "min": 0,
-      "max": 36,
-      "p50": 0,
-      "p75": 0,
-      "p90": 5,
-      "p95": 19
+      "max": 138,
+      "p50": 3,
+      "p75": 11,
+      "p90": 26,
+      "p95": 131
     },
     "fingerprintEvents": {
-      "count": 71,
+      "count": 55,
       "min": 0,
-      "max": 122,
+      "max": 544,
       "p50": 0,
-      "p75": 0,
-      "p90": 2,
-      "p95": 8
+      "p75": 12,
+      "p90": 93,
+      "p95": 172
     }
   }
 }
