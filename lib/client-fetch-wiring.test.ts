@@ -93,3 +93,57 @@ test("public deployment status uses one bounded latest-operation owner and abort
   assert.match(client, /SCANNER_HEALTH_RESPONSE_MAX_BYTES = 64 \* 1024/);
   assert.match(client, /fetchJsonWithPolicy/);
 });
+
+test("a shared evidence fragment opens the explorer that reads it", () => {
+  const permalink = source("app/reports/[id]/saved-report-client.tsx");
+  const navigation = source("lib/report-evidence-navigation.ts");
+  const renderer = source("app/_components/report-renderer.tsx");
+  const tables = source("app/_components/report-tables.tsx");
+
+  // buildEvidenceHash advertises these links as same-page and reload-free, but
+  // every reader of the fragment ships inside the lazily imported renderer, which
+  // this page mounts only on request. Without consulting the fragment here a
+  // copied "#evidence=..." URL renders no table, no filter, and no scroll.
+  assert.match(navigation, /A same-page, reload-free report evidence link/);
+  for (const lazyReader of [renderer, tables]) {
+    assert.match(lazyReader, /parseEvidenceHash\(/);
+  }
+  assert.match(permalink, /import \{ parseEvidenceHash \} from "@\/lib\/report-evidence-navigation"/);
+  assert.match(permalink, /if \(autoOpenedRef\.current \|\| !parseEvidenceHash\(window\.location\.hash\)\) return/);
+  assert.match(permalink, /void loadEvidenceRef\.current\(\)/);
+  assert.match(permalink, /addEventListener\("hashchange", openWhenEvidenceLinked\)/);
+  assert.match(permalink, /removeEventListener\("hashchange", openWhenEvidenceLinked\)/);
+  // Opening must stay one-shot per report identity, or a failed read would retry
+  // itself on every hashchange.
+  assert.match(permalink, /autoOpenedRef\.current = false/);
+});
+
+test("a Turnstile failure cannot tear down a scan that is still running", () => {
+  const controls = source("app/_components/scan-controls.tsx");
+  const app = source("app/site-behavior-app.tsx");
+
+  // The widget's error and script-load paths used to reach the shell's
+  // surfaceReportOperationError, which sets loading=false. Mid-scan that unmounted
+  // the progress region while EmptyState stayed suppressed by activeScanJob, so the
+  // results area rendered nothing and the retained job kept polling unseen.
+  assert.match(controls, /const \[turnstileError, setTurnstileError\] = useState<string \| null>\(null\)/);
+  assert.match(controls, /onError=\{setTurnstileError\}/);
+  assert.match(controls, /\{turnstileError && \(/);
+  assert.doesNotMatch(app, /onError=\{surfaceReportOperationError\}/);
+  // surfaceReportOperationError is the report-open path and keeps that job.
+  assert.match(app, /onUploadError=\{surfaceReportOperationError\}/);
+});
+
+test("resuming status checks explains a lost lease instead of doing nothing", () => {
+  const hook = source("app/_hooks/use-scan-runtime.ts");
+  const resume = hook.slice(
+    hook.indexOf("async function resumeActiveScan"),
+    hook.indexOf("async function cancelActiveScan")
+  );
+
+  // The banner renders this control whenever an accepted job is retained, so the
+  // claim can lose to an in-flight request. It used to return silently, leaving an
+  // enabled button that provably could not work.
+  assert.match(resume, /if \(operation === null\) \{/);
+  assert.match(resume, /Another scan request from this tab is still in flight/);
+});

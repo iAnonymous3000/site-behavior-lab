@@ -293,7 +293,6 @@ export function SiteBehaviorApp({
       turnstileRequired={turnstileRequired}
       turnstileResetNonce={turnstileResetNonce}
       onTurnstileToken={setTurnstileToken}
-      onError={surfaceReportOperationError}
       turnstileUnsupported={turnstileUnsupported}
       awaitingTurnstile={awaitingTurnstile}
       gpcComparisonEnabled={gpcComparisonEnabled}

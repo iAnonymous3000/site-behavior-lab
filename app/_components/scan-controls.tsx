@@ -55,7 +55,6 @@ type ScanControlsProps = {
   turnstileRequired: boolean;
   turnstileResetNonce: number;
   onTurnstileToken: (token: string) => void;
-  onError: (message: string) => void;
   turnstileUnsupported: boolean;
   awaitingTurnstile: boolean;
   gpcComparisonEnabled: boolean;
@@ -137,7 +136,6 @@ export function ScanControls({
   turnstileRequired,
   turnstileResetNonce,
   onTurnstileToken,
-  onError,
   turnstileUnsupported,
   awaitingTurnstile,
   gpcComparisonEnabled,
@@ -151,6 +149,10 @@ export function ScanControls({
 }: ScanControlsProps) {
   const turnstileSiteKeyConfigured = Boolean(LIVE_SCAN_TURNSTILE_SITE_KEY);
   const knownSite = matchingKnownSite(form.url, knownSites);
+  // The verification widget failing is a problem with this control, not with a
+  // scan. Routing it up to the shell let a challenge error tear down the
+  // progress UI of a scan that was still running.
+  const [turnstileError, setTurnstileError] = useState<string | null>(null);
 
   return (
     <form className="scan-panel" onSubmit={onSubmit}>
@@ -326,9 +328,17 @@ export function ScanControls({
           <TurnstileWidget
             siteKey={LIVE_SCAN_TURNSTILE_SITE_KEY}
             resetNonce={turnstileResetNonce}
-            onToken={onTurnstileToken}
-            onError={onError}
+            onToken={(token) => {
+              if (token) setTurnstileError(null);
+              onTurnstileToken(token);
+            }}
+            onError={setTurnstileError}
           />
+          {turnstileError && (
+            <p className="scanner-status-note scanner-status-note-error" role="alert">
+              {turnstileError}
+            </p>
+          )}
         </div>
       )}
 

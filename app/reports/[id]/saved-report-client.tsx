@@ -8,6 +8,7 @@ import {
   fetchBytesResponseWithPolicy
 } from "@/lib/client-fetch-policy";
 import { parseDigestBoundReportJson } from "@/lib/client-report-integrity";
+import { parseEvidenceHash } from "@/lib/report-evidence-navigation";
 import { BROWSER_PUBLIC_REPORT_JSON_MAX_BYTES } from "@/lib/report-resource-limits";
 import type { LoadedReport } from "@/lib/scan-report-view";
 import { ThemeToggle } from "@/app/_components/theme-toggle";
@@ -44,6 +45,7 @@ export function SavedReportClient({
   const evidenceExplorerRef = useRef<HTMLElement | null>(null);
   const evidenceOperationRef = useRef<LatestClientOperation | null>(null);
   const evidenceIdentityRef = useRef({ id, evidenceHref, expectedEvidenceSha256 });
+  const autoOpenedRef = useRef(false);
   if (!evidenceOperationRef.current) evidenceOperationRef.current = new LatestClientOperation();
   const evidenceOperation = evidenceOperationRef.current;
 
@@ -58,6 +60,7 @@ export function SavedReportClient({
       setLoaded(null);
       setLoading(false);
       setError(null);
+      autoOpenedRef.current = false;
     }
     return () => evidenceOperation.cancel();
   }, [evidenceHref, evidenceOperation, expectedEvidenceSha256, id]);
@@ -104,6 +107,29 @@ export function SavedReportClient({
       }
     );
   }
+
+  const loadEvidenceRef = useRef(loadEvidence);
+  loadEvidenceRef.current = loadEvidence;
+
+  // "#evidence=..." links are minted by the explorer itself and documented as
+  // reload-free, but the code that reads the fragment ships with the lazy
+  // renderer, which on this page mounts only when someone presses the button
+  // below. So a shared or reloaded evidence link used to do nothing at all: no
+  // table, no filter, not even a scroll, and no hint the fragment meant
+  // anything. Opening the explorer hands the fragment to its existing handler.
+  useEffect(() => {
+    if (loaded) return;
+    const openWhenEvidenceLinked = () => {
+      if (autoOpenedRef.current || !parseEvidenceHash(window.location.hash)) return;
+      autoOpenedRef.current = true;
+      void loadEvidenceRef.current();
+    };
+    openWhenEvidenceLinked();
+    // A fragment can also arrive after mount, by editing the address bar or
+    // following a link to this same page.
+    window.addEventListener("hashchange", openWhenEvidenceLinked);
+    return () => window.removeEventListener("hashchange", openWhenEvidenceLinked);
+  }, [loaded]);
 
   return (
     <>

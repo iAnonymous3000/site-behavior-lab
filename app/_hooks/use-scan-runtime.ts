@@ -633,7 +633,13 @@ export function useScanRuntime({
     const retainedJob = activeScanJobRef.current;
     if (!retainedJob || loading || cancellingScan) return;
     const operation = operationOwnerRef.current.claim("resume");
-    if (operation === null) return;
+    // The button that calls this stays visible whenever an accepted job is
+    // retained, so a claim can legitimately lose to a request this tab is still
+    // running. Say so instead of returning silently and looking broken.
+    if (operation === null) {
+      setError("Another scan request from this tab is still in flight. Wait for it to finish, then resume status checks.");
+      return;
+    }
     const job = scanJobWithCurrentAccessKey(retainedJob, form.accessKey);
     setLoading(true);
     setScanning(true);
