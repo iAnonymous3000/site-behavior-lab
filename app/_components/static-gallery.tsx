@@ -104,6 +104,19 @@ function StaticReportGallery({
   }, [deviceFilter, query, sortBy, typeFilter]);
 
   const visibleReports = filteredReports.slice(0, visibleCount);
+  const countSummary = `${visibleReports.length.toLocaleString("en-US")} of ${filteredReports.length.toLocaleString(
+    "en-US"
+  )} shown`;
+
+  // The count changes on every keystroke, and polite announcements queue rather than
+  // replace, so announcing it live turned an eight-character search into eight
+  // announcements still playing after typing stopped. Sighted users keep the instant
+  // count; the announced copy waits for a pause.
+  const [announcedCount, setAnnouncedCount] = useState(countSummary);
+  useEffect(() => {
+    const timer = window.setTimeout(() => setAnnouncedCount(countSummary), 600);
+    return () => window.clearTimeout(timer);
+  }, [countSummary]);
 
   useEffect(() => {
     const pendingIndex = pendingFocusIndexRef.current;
@@ -284,8 +297,9 @@ function StaticReportGallery({
             Browse the full directory
             <ExternalLink size={14} aria-hidden="true" />
           </a>
-          <span className="static-gallery-count" aria-live="polite">
-            {visibleReports.length.toLocaleString("en-US")} of {filteredReports.length.toLocaleString("en-US")} shown
+          <span className="static-gallery-count">{countSummary}</span>
+          <span className="visually-hidden" role="status" aria-live="polite">
+            {announcedCount}
           </span>
         </div>
       </div>

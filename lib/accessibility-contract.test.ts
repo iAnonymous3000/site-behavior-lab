@@ -63,6 +63,29 @@ test("essential explanations and errors do not depend on pointer-only title tool
   }
 });
 
+test("links that retarget the tab say so in their accessible name", () => {
+  // A new tab kills the Back button, so the change of context has to be announced
+  // rather than left to the decorative icon that only some of these links carry.
+  const files = [
+    "app/site-behavior-app.tsx",
+    "app/_components/report-header.tsx",
+    "app/_components/report-overview.tsx",
+    "app/_components/report-page-context.tsx",
+    "app/_components/scheduled-rescans.tsx"
+  ];
+
+  let announced = 0;
+  let retargeted = 0;
+  for (const file of files) {
+    const contents = source(file);
+    retargeted += (contents.match(/target="_blank"/g) ?? []).length;
+    announced += (contents.match(/className="visually-hidden">[^<]*opens in a new tab/g) ?? []).length;
+  }
+
+  assert.equal(retargeted, 7, "the set of tab-retargeting links changed; announce the new one too");
+  assert.equal(announced, retargeted, "every target=\"_blank\" link needs a new-tab announcement");
+});
+
 test("clipped disclosure cards draw keyboard focus inside their boundaries", () => {
   const css = source("app/globals.css");
   assert.match(css, /\.data-section > summary:focus-visible,[\s\S]*\.state-change-disclosure > summary:focus-visible[\s\S]*box-shadow: inset 0 0 0 3px var\(--accent\)/);
@@ -97,6 +120,7 @@ test("dynamic archive, watch, and gallery replacements relocate keyboard focus",
 
 test("theme controls track OS preference changes only before an explicit override", () => {
   const hook = source("app/_hooks/use-theme-preference.ts");
+  const toggle = source("app/_components/theme-toggle.tsx");
   const home = source("app/site-behavior-app.tsx");
   const permalink = source("app/reports/[id]/saved-report-client.tsx");
 
@@ -104,8 +128,18 @@ test("theme controls track OS preference changes only before an explicit overrid
   assert.match(hook, /media\.addEventListener\("change", syncSystemTheme\)/);
   assert.match(hook, /media\.removeEventListener\("change", syncSystemTheme\)/);
   assert.match(hook, /removeSystemListenerRef\.current\?\.\(\)/);
-  assert.match(home, /useThemePreference\(\)/);
-  assert.match(permalink, /useThemePreference\(\)/);
+
+  // One control, shared, so the two shells cannot drift apart.
+  assert.match(toggle, /useThemePreference\(\)/);
+  assert.match(home, /<ThemeToggle \/>/);
+  assert.match(permalink, /<ThemeToggle \/>/);
+  for (const shell of [home, permalink]) {
+    assert.doesNotMatch(shell, /function ThemeToggle\(/, "the theme control was duplicated back into a shell");
+  }
+
+  // Until the effect resolves the OS preference the button must not claim a direction.
+  assert.match(toggle, /: "Switch colour theme"/);
+  assert.match(toggle, /<SunMoon size=\{18\} aria-hidden="true" \/>/);
 });
 
 test("category summaries keep valid definition-list semantics and usable touch targets", () => {

@@ -467,6 +467,7 @@ export function ScheduledRescans({
                             rel="noreferrer"
                           >
                             Open report if retained
+                            <span className="visually-hidden"> (opens in a new tab)</span>
                           </a>
                         )}
                       </li>

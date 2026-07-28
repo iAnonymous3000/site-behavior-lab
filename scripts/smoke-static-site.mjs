@@ -199,7 +199,9 @@ async function main() {
     });
     pass("static home defers saved-report tools on first load");
 
-    const themeToggle = page.getByRole("button", { name: /Switch to (?:light|dark) colour theme/ });
+    // Before the hook resolves the OS preference the button is named neutrally, so the
+    // locator must not depend on the effect having already run.
+    const themeToggle = page.getByRole("button", { name: /Switch (?:to (?:light|dark) )?colour theme/ });
     const themeRestingShadow = await themeToggle.evaluate((button) => getComputedStyle(button).boxShadow);
     let themeToggleHasKeyboardFocus = false;
     for (let step = 0; step < 20; step += 1) {

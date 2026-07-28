@@ -104,6 +104,7 @@ export function ReportHeader({
           <a href={finalUrl} target="_blank" rel="noreferrer">
             {run.conditions.finalUrl}
             <ExternalLink size={14} aria-hidden="true" />
+            <span className="visually-hidden"> (opens in a new tab)</span>
           </a>
         ) : (
           <span className="report-url">{run.conditions.finalUrl}</span>
@@ -150,10 +151,13 @@ export function ReportHeader({
 function CopyButton({ value, label }: { value: string; label: string }) {
   const [state, setState] = useState<"idle" | "copied" | "failed">("idle");
   return (
+    // No aria-label: a fixed one overrode the subtree, so the name stayed "Copy share
+    // link" while the button visibly read "Copied". That hid the confirmation from
+    // screen readers and left the visible label outside the accessible name, which
+    // also breaks voice control ("click Copied" had nothing to match).
     <button
       type="button"
       className="ghost-button"
-      aria-label={state === "failed" ? `Could not copy ${label}` : `Copy ${label}`}
       aria-live="polite"
       onClick={async () => {
         try {
@@ -174,6 +178,7 @@ function CopyButton({ value, label }: { value: string; label: string }) {
         <Copy size={14} aria-hidden="true" />
       )}
       {state === "copied" ? "Copied" : state === "failed" ? "Copy failed" : "Copy link"}
+      <span className="visually-hidden">{` (${label})`}</span>
     </button>
   );
 }

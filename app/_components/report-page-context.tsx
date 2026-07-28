@@ -84,6 +84,7 @@ export function ReportPageContext({
           )}
           <a className="topbar-link" href={activation.evidenceIssueUrl} target="_blank" rel="noreferrer">
             Report an evidence problem
+            <span className="visually-hidden"> (opens in a new tab)</span>
           </a>
         </div>
       </div>
@@ -212,7 +213,10 @@ function ReceiptFact({ term, children }: { term: string; children: ReactNode }) 
 
 function CommitValue({ value }: { value: string }) {
   return /^[0-9a-f]{40}$/i.test(value) ? (
-    <a href={`${SOURCE_REPOSITORY}/commit/${value}`} target="_blank" rel="noreferrer"><code>{value}</code></a>
+    <a href={`${SOURCE_REPOSITORY}/commit/${value}`} target="_blank" rel="noreferrer">
+      <code>{value}</code>
+      <span className="visually-hidden"> commit, opens in a new tab</span>
+    </a>
   ) : <code>{value}</code>;
 }
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { FlaskConical, Loader2, Moon, Sun } from "lucide-react";
+import { FlaskConical, Loader2 } from "lucide-react";
 import { lazy, Suspense, useEffect, useRef, useState, type ReactNode } from "react";
 import { readLoadedReport } from "@/lib/client-report-reader";
 import {
@@ -10,7 +10,7 @@ import {
 import { parseDigestBoundReportJson } from "@/lib/client-report-integrity";
 import { BROWSER_PUBLIC_REPORT_JSON_MAX_BYTES } from "@/lib/report-resource-limits";
 import type { LoadedReport } from "@/lib/scan-report-view";
-import { useThemePreference } from "@/app/_hooks/use-theme-preference";
+import { ThemeToggle } from "@/app/_components/theme-toggle";
 import { staticAssetPath } from "../../client-runtime";
 
 const LazyReportRenderer = lazy(() =>
@@ -179,17 +179,3 @@ export function SavedReportClient({
   );
 }
 
-function ThemeToggle() {
-  const { theme, toggleTheme } = useThemePreference();
-
-  return (
-    <button
-      className="icon-button"
-      type="button"
-      onClick={toggleTheme}
-      aria-label={theme === "dark" ? "Switch to light colour theme" : "Switch to dark colour theme"}
-    >
-      {theme === "dark" ? <Sun size={18} aria-hidden="true" /> : <Moon size={18} aria-hidden="true" />}
-    </button>
-  );
-}

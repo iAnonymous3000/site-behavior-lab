@@ -9,11 +9,9 @@ import {
   FlaskConical,
   Keyboard,
   Loader2,
-  Moon,
   Network,
   Radar,
-  Shield,
-  Sun
+  Shield
 } from "lucide-react";
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import {
@@ -25,7 +23,7 @@ import { ScanControls } from "./_components/scan-controls";
 import { ScanRecoveryBanner } from "./_components/scan-recovery-banner";
 import { ScheduledRescans } from "./_components/scheduled-rescans";
 import { useScanRuntime } from "./_hooks/use-scan-runtime";
-import { useThemePreference } from "./_hooks/use-theme-preference";
+import { ThemeToggle } from "./_components/theme-toggle";
 import {
   LIVE_SCAN_ENABLED,
   SCAN_WORKFLOW_URL,
@@ -530,6 +528,7 @@ function StaticPublicPanel({
           <a className="secondary-button" href={SCAN_WORKFLOW_URL} target="_blank" rel="noreferrer">
             <ExternalLink size={17} aria-hidden="true" />
             Maintainer scan (repository access)
+            <span className="visually-hidden"> (opens in a new tab)</span>
           </a>
         )}
       </div>
@@ -578,21 +577,6 @@ function CorpusHero({ highlights }: { highlights: CorpusHighlights }) {
         </p>
       </details>
     </section>
-  );
-}
-
-function ThemeToggle() {
-  const { theme, toggleTheme } = useThemePreference();
-
-  return (
-    <button
-      className="icon-button"
-      type="button"
-      onClick={toggleTheme}
-      aria-label={theme === "dark" ? "Switch to light colour theme" : "Switch to dark colour theme"}
-    >
-      {theme === "dark" ? <Sun size={18} aria-hidden="true" /> : <Moon size={18} aria-hidden="true" />}
-    </button>
   );
 }
 
@@ -674,6 +658,7 @@ function EmptyState({
               <a className="secondary-button" href={SCAN_WORKFLOW_URL} target="_blank" rel="noreferrer">
                 <ExternalLink size={17} aria-hidden="true" />
                 Maintainer scan (repository access)
+                <span className="visually-hidden"> (opens in a new tab)</span>
               </a>
             )}
             {staticExport && !archiveRequested && (

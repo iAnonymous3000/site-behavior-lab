@@ -155,6 +155,7 @@ export function HeadlineBanner({
           <a className="headline-share primary" href={xHref} target="_blank" rel="noreferrer">
             <ExternalLink size={15} aria-hidden="true" />
             Post on X
+            <span className="visually-hidden"> (opens in a new tab)</span>
           </a>
           <button type="button" className="headline-share" onClick={copyPost} aria-live="polite">
             {copyState === "copied" ? (
