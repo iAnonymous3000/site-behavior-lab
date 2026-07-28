@@ -342,6 +342,20 @@ export function SiteBehaviorApp({
             </div>
           </a>
           <div className="topbar-actions">
+            {/* The library is the larger half of the product. Without this the only
+                route to it is the footer, and Directory disappears entirely once a
+                report loads. */}
+            <nav className="topbar-nav" aria-label="Site">
+              <a className="topbar-link" href={staticAssetPath("/directory/")}>
+                Directory
+              </a>
+              <a className="topbar-link" href={staticAssetPath("/methodology/")}>
+                Methodology
+              </a>
+              <a className="topbar-link" href={staticAssetPath("/glossary/")}>
+                Glossary
+              </a>
+            </nav>
             <span className={statusClassName}>
               <span className="status-dot" />
               {statusLabel}

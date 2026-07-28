@@ -290,8 +290,17 @@ a {
 .topbar-actions {
   align-items: center;
   display: flex;
-  flex: 0 0 auto;
+  flex: 0 1 auto;
+  flex-wrap: wrap;
   gap: 10px;
+  justify-content: flex-end;
+}
+
+.topbar-nav {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
 }
 
 .topbar-link {
@@ -845,10 +854,15 @@ a {
 }
 
 /* ---- Controls ---- */
+/* Run mode sits above the disclosure now, so it spans the panel on its own. */
+.run-mode-row {
+  margin-top: 14px;
+}
+
 .controls-grid {
   display: grid;
   gap: 12px;
-  grid-template-columns: 1.55fr 1.05fr 0.9fr 0.9fr;
+  grid-template-columns: 1.05fr 0.9fr 0.9fr;
   margin-top: 14px;
 }
 
@@ -4263,6 +4277,28 @@ details[open] > summary .disclosure-chevron {
     align-items: flex-start;
     flex-direction: column;
     gap: 14px;
+  }
+
+  /* Stacked under the brand the actions are full width, so trailing alignment
+     strands the theme button alone on a second row. */
+  .topbar-actions {
+    justify-content: flex-start;
+    width: 100%;
+  }
+
+  .topbar-nav .topbar-link {
+    align-items: center;
+    display: inline-flex;
+    min-height: 44px;
+  }
+
+  /* "Cancel scan" and "Dismiss recovery" sit 8px apart and one of them is
+     destructive, so they get the full target on touch. */
+  .scan-recovery-actions .ghost-button,
+  .scan-recovery-actions .secondary-button,
+  .request-filter-chips .ghost-button,
+  .request-filter-chips .secondary-button {
+    min-height: 44px;
   }
 
   .report-evidence-loader {

@@ -13,7 +13,7 @@ import {
   Smartphone
 } from "lucide-react";
 import type { Dispatch, FormEventHandler, SetStateAction } from "react";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   LIVE_SCAN_TURNSTILE_SITE_KEY,
   STATIC_LIVE_SCAN_ENABLED,
@@ -210,6 +210,102 @@ export function ScanControls({
         </div>
       )}
 
+      {/* The comparison modes are the differentiator, so they stay visible. Burying
+          them in the disclosure also hid the reason a mode was unavailable. */}
+      <div className="run-mode-row">
+        <fieldset className="control-group run-mode-group">
+          <legend>Run</legend>
+          <div className="segmented-control run-mode-control" role="group" aria-label="Run mode">
+            <button
+              type="button"
+              aria-pressed={!isComparisonMode(form)}
+              aria-describedby="run-mode-single-description"
+              className={!isComparisonMode(form) ? "active" : ""}
+              onClick={() =>
+                setForm((current) => ({
+                  ...current,
+                  compareGpc: false,
+                  compareShields: false,
+                  compareConsent: false
+                }))
+              }
+            >
+              <Search size={16} aria-hidden="true" />
+              {RUN_MODE_LABELS.single}
+            </button>
+            <button
+              type="button"
+              aria-pressed={form.compareGpc}
+              aria-describedby="run-mode-gpc-description"
+              className={form.compareGpc ? "active" : ""}
+              disabled={!gpcComparisonEnabled}
+              onClick={() =>
+                setForm((current) => ({
+                  ...current,
+                  compareGpc: gpcComparisonEnabled,
+                  compareShields: false,
+                  compareConsent: false
+                }))
+              }
+            >
+              <ShieldCheck size={16} aria-hidden="true" />
+              {RUN_MODE_LABELS.gpc}
+            </button>
+            <button
+              type="button"
+              aria-pressed={form.compareShields}
+              aria-describedby="run-mode-shields-description"
+              className={form.compareShields ? "active" : ""}
+              disabled={!shieldsComparisonEnabled}
+              aria-label="Blocker comparison (Brave Shields)"
+              onClick={() =>
+                setForm((current) => ({
+                  ...current,
+                  compareGpc: false,
+                  compareShields: shieldsComparisonEnabled,
+                  compareConsent: false
+                }))
+              }
+            >
+              <Shield size={16} aria-hidden="true" />
+              {RUN_MODE_LABELS.shields}
+            </button>
+            <button
+              type="button"
+              aria-pressed={form.compareConsent}
+              aria-describedby="run-mode-consent-description"
+              className={form.compareConsent ? "active" : ""}
+              disabled={!consentComparisonEnabled}
+              aria-label="Consent comparison (accept all versus reject all)"
+              onClick={() =>
+                setForm((current) => ({
+                  ...current,
+                  compareGpc: false,
+                  compareShields: false,
+                  compareConsent: consentComparisonEnabled
+                }))
+              }
+            >
+              <Cookie size={16} aria-hidden="true" />
+              {RUN_MODE_LABELS.consent}
+            </button>
+          </div>
+          <div className="run-mode-descriptions">
+            <p className="visually-hidden" id="run-mode-single-description">{RUN_MODE_TITLES.single}</p>
+            <p className={gpcComparisonEnabled ? "visually-hidden" : "run-mode-unavailable"} id="run-mode-gpc-description">
+              {gpcComparisonEnabled ? RUN_MODE_TITLES.gpc : "GPC comparison is not available from this scanner."}
+            </p>
+            <p className={shieldsComparisonEnabled ? "visually-hidden" : "run-mode-unavailable"} id="run-mode-shields-description">
+              {shieldsComparisonEnabled ? RUN_MODE_TITLES.shields : "Blocker comparison requires the Node scanner."}
+            </p>
+            <p className={consentComparisonEnabled ? "visually-hidden" : "run-mode-unavailable"} id="run-mode-consent-description">
+              {consentComparisonEnabled ? RUN_MODE_TITLES.consent : "Consent comparison requires the Node scanner."}
+            </p>
+          </div>
+        </fieldset>
+        <p className="run-mode-hint" aria-live="polite">{runModeHint(selectedRunMode(form))}</p>
+      </div>
+
       <div className="scanner-health-row">
         <p
           className={`scanner-status-note${scannerStatusError ? " scanner-status-note-error" : ""}`}
@@ -245,108 +341,17 @@ export function ScanControls({
 
       {awaitingTurnstile && (
         <p className="scanner-status-note" role="status">
-          Finishing a quick browser check above. Scan turns on once it passes; reload the page if it does not complete.
+          Finishing a quick browser check above. Scan turns on once it passes; if the check does not load you can retry it there.
         </p>
       )}
 
       <details className="options-disclosure">
         <summary>
           <SlidersHorizontal size={15} aria-hidden="true" />
-          <span>Options</span>
+          <span>More options</span>
           <ChevronDown className="disclosure-chevron" size={15} aria-hidden="true" />
         </summary>
         <div className="controls-grid">
-          <fieldset className="control-group run-mode-group">
-            <legend>Run</legend>
-            <div className="segmented-control run-mode-control" role="group" aria-label="Run mode">
-              <button
-                type="button"
-                aria-pressed={!isComparisonMode(form)}
-                aria-describedby="run-mode-single-description"
-                className={!isComparisonMode(form) ? "active" : ""}
-                onClick={() =>
-                  setForm((current) => ({
-                    ...current,
-                    compareGpc: false,
-                    compareShields: false,
-                    compareConsent: false
-                  }))
-                }
-              >
-                <Search size={16} aria-hidden="true" />
-                {RUN_MODE_LABELS.single}
-              </button>
-              <button
-                type="button"
-                aria-pressed={form.compareGpc}
-                aria-describedby="run-mode-gpc-description"
-                className={form.compareGpc ? "active" : ""}
-                disabled={!gpcComparisonEnabled}
-                onClick={() =>
-                  setForm((current) => ({
-                    ...current,
-                    compareGpc: gpcComparisonEnabled,
-                    compareShields: false,
-                    compareConsent: false
-                  }))
-                }
-              >
-                <ShieldCheck size={16} aria-hidden="true" />
-                {RUN_MODE_LABELS.gpc}
-              </button>
-              <button
-                type="button"
-                aria-pressed={form.compareShields}
-                aria-describedby="run-mode-shields-description"
-                className={form.compareShields ? "active" : ""}
-                disabled={!shieldsComparisonEnabled}
-                aria-label="Blocker comparison (Brave Shields)"
-                onClick={() =>
-                  setForm((current) => ({
-                    ...current,
-                    compareGpc: false,
-                    compareShields: shieldsComparisonEnabled,
-                    compareConsent: false
-                  }))
-                }
-              >
-                <Shield size={16} aria-hidden="true" />
-                {RUN_MODE_LABELS.shields}
-              </button>
-              <button
-                type="button"
-                aria-pressed={form.compareConsent}
-                aria-describedby="run-mode-consent-description"
-                className={form.compareConsent ? "active" : ""}
-                disabled={!consentComparisonEnabled}
-                aria-label="Consent comparison (accept all versus reject all)"
-                onClick={() =>
-                  setForm((current) => ({
-                    ...current,
-                    compareGpc: false,
-                    compareShields: false,
-                    compareConsent: consentComparisonEnabled
-                  }))
-                }
-              >
-                <Cookie size={16} aria-hidden="true" />
-                {RUN_MODE_LABELS.consent}
-              </button>
-            </div>
-            <div className="run-mode-descriptions">
-              <p className="visually-hidden" id="run-mode-single-description">{RUN_MODE_TITLES.single}</p>
-              <p className={gpcComparisonEnabled ? "visually-hidden" : "run-mode-unavailable"} id="run-mode-gpc-description">
-                {gpcComparisonEnabled ? RUN_MODE_TITLES.gpc : "GPC comparison is not available from this scanner."}
-              </p>
-              <p className={shieldsComparisonEnabled ? "visually-hidden" : "run-mode-unavailable"} id="run-mode-shields-description">
-                {shieldsComparisonEnabled ? RUN_MODE_TITLES.shields : "Blocker comparison requires the Node scanner."}
-              </p>
-              <p className={consentComparisonEnabled ? "visually-hidden" : "run-mode-unavailable"} id="run-mode-consent-description">
-                {consentComparisonEnabled ? RUN_MODE_TITLES.consent : "Consent comparison requires the Node scanner."}
-              </p>
-            </div>
-          </fieldset>
-
           <fieldset className="control-group">
             <legend>Device</legend>
             <div className="segmented-control" role="group" aria-label="Device">
@@ -411,7 +416,6 @@ export function ScanControls({
             </fieldset>
           )}
         </div>
-        <p className="run-mode-hint" aria-live="polite">{runModeHint(selectedRunMode(form))}</p>
       </details>
     </form>
   );
@@ -453,6 +457,11 @@ function TurnstileWidget({
   const onErrorRef = useRef(onError);
   onTokenRef.current = onToken;
   onErrorRef.current = onError;
+  // The shared loader drops a dead <script> and re-injects on the next call, but
+  // nothing re-invoked it: the widget only remounts when scanner health flips, which
+  // a blocked challenge script does not do. This makes that retry reachable in place.
+  const [attempt, setAttempt] = useState(0);
+  const [loadFailed, setLoadFailed] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -465,14 +474,23 @@ function TurnstileWidget({
           callback: (token) => onTokenRef.current(token),
           "error-callback": () => {
             onTokenRef.current("");
-            onErrorRef.current("Turnstile verification could not be completed. Reload and try again.");
+            if (widgetIdRef.current && window.turnstile) {
+              try {
+                window.turnstile.reset(widgetIdRef.current);
+              } catch {
+                /* widget already gone */
+              }
+            }
+            onErrorRef.current("Turnstile verification could not be completed. Try the check again.");
           },
           "expired-callback": () => onTokenRef.current(""),
           "timeout-callback": () => onTokenRef.current("")
         });
       })
       .catch(() => {
-        if (!cancelled) onErrorRef.current("Turnstile could not load. Check your connection and reload.");
+        if (cancelled) return;
+        setLoadFailed(true);
+        onErrorRef.current("Turnstile could not load. Check your connection, then try the check again.");
       });
 
     return () => {
@@ -486,7 +504,7 @@ function TurnstileWidget({
         widgetIdRef.current = null;
       }
     };
-  }, [siteKey]);
+  }, [siteKey, attempt]);
 
   useEffect(() => {
     if (resetNonce === 0) return;
@@ -500,5 +518,21 @@ function TurnstileWidget({
     }
   }, [resetNonce]);
 
-  return <div className="turnstile-widget" ref={containerRef} />;
+  return (
+    <>
+      <div className="turnstile-widget" ref={containerRef} />
+      {loadFailed && (
+        <button
+          className="ghost-button"
+          type="button"
+          onClick={() => {
+            setLoadFailed(false);
+            setAttempt((current) => current + 1);
+          }}
+        >
+          Try the check again
+        </button>
+      )}
+    </>
+  );
 }
