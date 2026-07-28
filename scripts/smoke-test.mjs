@@ -290,7 +290,10 @@ async function uiChecks() {
         return Promise.resolve();
       };
     });
-    await page.getByRole("button", { name: "Copy share link" }).click();
+    // Matched on the "share link" part only: the control's accessible name has to
+    // contain its visible label ("Copy link" / "Copied"), so it changes as the
+    // button changes state and must not be pinned as one exact sentence here.
+    await page.getByRole("button", { name: /share link/i }).click();
     const copiedShareLink = await page.evaluate(() => window.__copiedShareLink);
     if (!copiedShareLink || !/^https?:\/\/.+\/reports\//.test(copiedShareLink)) {
       fail(`copy share link wrote a non-absolute URL: ${copiedShareLink}`);

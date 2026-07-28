@@ -633,7 +633,9 @@ async function main() {
     }
     if (
       (await page.getByRole("link", { name: "Share", exact: true }).count()) !== 0 ||
-      (await page.getByRole("button", { name: "Copy share link", exact: true }).count()) !== 0
+      // Loose on purpose. This asserts an ABSENCE, so an exact name that drifts
+      // would start passing vacuously instead of catching a retained capability.
+      (await page.getByRole("button", { name: /share link/i }).count()) !== 0
     ) {
       fail("locally opened report retained an imported share capability");
     }

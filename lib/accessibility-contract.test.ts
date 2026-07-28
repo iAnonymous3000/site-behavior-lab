@@ -86,6 +86,30 @@ test("links that retarget the tab say so in their accessible name", () => {
   assert.equal(announced, retargeted, "every target=\"_blank\" link needs a new-tab announcement");
 });
 
+test("the share-link copy button keeps its visible label inside its accessible name", () => {
+  const header = source("app/_components/report-header.tsx");
+
+  // A fixed aria-label used to override the subtree, so the name stayed put while
+  // the button read "Copied". The name is now composed from the visible text plus a
+  // hidden qualifier, which means it CHANGES with state: any locator (including the
+  // Playwright smoke suites) must match the "share link" qualifier, never a whole
+  // exact sentence.
+  const copyButton = header.slice(header.indexOf("function CopyButton"));
+  assert.doesNotMatch(copyButton, /aria-label=/, "a fixed aria-label would mask the copied state again");
+  assert.match(copyButton, /aria-live="polite"/);
+  assert.match(copyButton, /<span className="visually-hidden">\{` \(\$\{label\}\)`\}<\/span>/);
+  assert.match(header, /<CopyButton value=\{shareUrl \?\? sharePath\} label="share link" \/>/);
+
+  for (const script of ["scripts/smoke-test.mjs", "scripts/smoke-static-site.mjs"]) {
+    assert.match(
+      source(script),
+      /getByRole\("button", \{ name: \/share link\/i \}\)/,
+      `${script} must locate the copy control by its stable qualifier`
+    );
+    assert.doesNotMatch(source(script), /name: "Copy share link"/, `${script} pins a stale accessible name`);
+  }
+});
+
 test("clipped disclosure cards draw keyboard focus inside their boundaries", () => {
   const css = source("app/globals.css");
   assert.match(css, /\.data-section > summary:focus-visible,[\s\S]*\.state-change-disclosure > summary:focus-visible[\s\S]*box-shadow: inset 0 0 0 3px var\(--accent\)/);
