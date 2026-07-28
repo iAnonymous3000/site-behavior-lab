@@ -147,3 +147,62 @@ test("a cohort split is attributed to the components that actually differ", () =
   );
   assert.deepEqual(corpusCohortDifferences([identity({ id: "base" }), identity({ id: "base" })]), []);
 });
+
+// ---------------------------------------------------------------------------
+// Composition. The corpus is two disjoint catalogs: a deliberately
+// tracker-heavy "start here" gallery and a de-bias seed list. On 2026-07-27 the
+// weekly cron refreshed only the gallery, the resulting 59-site cohort cleared
+// the 50-site floor, and being newest it took the published aggregate. Median
+// third-party requests went 11 -> 87 and catalogued trackers 1 -> 17 with no
+// site behaving differently. A percentile is a claim about a population, so
+// swapping the population republishes a different question's answer.
+// ---------------------------------------------------------------------------
+
+const gallerySites = Array.from({ length: 59 }, (_, index) => `gallery${index}.example`);
+const seedSites = Array.from({ length: 35 }, (_, index) => `seed${index}.example`);
+
+function era(id: string, methodologyVersion: string, sites: string[], latestRunAt: string): CorpusCohortCandidate {
+  return {
+    identity: identity({ id, methodologyVersion }),
+    siteCount: sites.length,
+    latestRunAt,
+    sites
+  };
+}
+
+test("a newer cohort may not take the aggregate to a narrower catalog", () => {
+  const broad = era("gpc-on", "shields-v2", [...gallerySites.slice(0, 36), ...seedSites], "2026-07-25T18:23:27.000Z");
+  const galleryOnly = era("gpc-off", "shields-v2", gallerySites, "2026-07-27T10:27:57.000Z");
+
+  // Newest, and clears the floor on its own, but describes a different
+  // population: it is missing 35 of the 71 sites the incumbent measured.
+  assert.equal(selectPrimaryCorpusCohort([broad, galleryOnly], MIN)?.identity.id, "gpc-on");
+
+  // Once the same era covers both catalogs it leads on recency, as intended.
+  const complete = era("gpc-off", "shields-v2", [...gallerySites, ...seedSites], "2026-07-27T10:27:57.000Z");
+  assert.equal(selectPrimaryCorpusCohort([broad, complete], MIN)?.identity.id, "gpc-off");
+});
+
+test("a frozen legacy cohort neither blocks nor reclaims the live line", () => {
+  // The legacy cohort is keyed on an unrecorded methodology, so no scan can
+  // ever refresh it. Letting composition hand the aggregate back to it would
+  // re-freeze every published percentile, which is the failure the recency
+  // rule exists to prevent.
+  const legacy = era("legacy", "legacy-v1-methodology-unspecified", [...gallerySites, ...seedSites].slice(0, 85), "2026-07-06T09:35:14.000Z");
+  const broad = era("gpc-on", "shields-v2", [...gallerySites.slice(0, 36), ...seedSites], "2026-07-25T18:23:27.000Z");
+  const galleryOnly = era("gpc-off", "shields-v2", gallerySites, "2026-07-27T10:27:57.000Z");
+
+  assert.equal(selectPrimaryCorpusCohort([legacy, galleryOnly, broad], MIN)?.identity.id, "gpc-on");
+});
+
+test("composition only constrains cohorts that are substitutable descriptions", () => {
+  // A different methodology is a different question, not a narrower answer to
+  // the same one, so it must not gate this line.
+  const otherLine = era("other", "some-other-methodology", [...gallerySites, ...seedSites], "2026-07-20T00:00:00.000Z");
+  const current = era("current", "shields-v2", gallerySites, "2026-07-27T00:00:00.000Z");
+  assert.equal(selectPrimaryCorpusCohort([otherLine, current], MIN)?.identity.id, "current");
+
+  // And a cohort whose composition is unknown cannot be shown to be narrower.
+  const unknown = { ...current, sites: undefined };
+  assert.equal(selectPrimaryCorpusCohort([otherLine, unknown], MIN)?.identity.id, "current");
+});

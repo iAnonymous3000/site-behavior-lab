@@ -46,7 +46,29 @@ export type CorpusCohortCandidate<Identity extends CorpusCohortIdentity = Corpus
   siteCount: number;
   /** Newest eligible measurement in the cohort, ISO-8601, or null when unrecorded. */
   latestRunAt: string | null;
+  /**
+   * Distinct site keys the cohort measures, when the caller knows them.
+   *
+   * Recency alone cannot tell whether a newer cohort describes the same
+   * universe. Omit only when composition is genuinely unknown; an omitted set
+   * is treated as "cannot be shown to be narrower" and leaves ranking to
+   * recency, which is the behavior that existed before this guard.
+   */
+  sites?: readonly string[];
 };
+
+/**
+ * How much of another qualifying cohort's site set a candidate may be missing
+ * and still lead the aggregate.
+ *
+ * The corpus is two disjoint catalogs: a deliberately tracker-heavy gallery and
+ * a de-bias seed list. When only one is rescanned, the resulting cohort clears
+ * the site floor on its own and, being newest, took the aggregate — moving the
+ * published median third-party requests from 11 to 87 with no site behaving
+ * differently. A percentile is a claim about a population, so replacing the
+ * population silently republishes a different question's answer.
+ */
+export const MAX_DROPPED_SITE_SHARE = 0.1;
 
 /**
  * Choose the ONE cohort a corpus-wide aggregate speaks for.
@@ -80,7 +102,13 @@ export function selectPrimaryCorpusCohort<Identity extends CorpusCohortIdentity>
   const generation = legacy.length > 0 ? legacy : candidates;
   const usable = generation.filter((candidate) => candidate.siteCount >= minSiteCount);
   const pool = usable.length > 0 ? usable : generation;
-  return [...pool].sort((left, right) => {
+  // Recency may not buy a narrower universe. A candidate leads only if it is
+  // not missing a material share of any other qualifying cohort's sites; when
+  // every candidate drops one of the others, no composition is comparable and
+  // the broadest description is the honest one.
+  const ranked = pool.filter((candidate) => !dropsAComparableCohortsSites(candidate, pool));
+  const contenders = ranked.length > 0 ? ranked : [...pool].sort((left, right) => right.siteCount - left.siteCount).slice(0, 1);
+  return [...contenders].sort((left, right) => {
     const leftAt = Date.parse(left.latestRunAt ?? "");
     const rightAt = Date.parse(right.latestRunAt ?? "");
     const leftRank = Number.isFinite(leftAt) ? leftAt : Number.NEGATIVE_INFINITY;
@@ -91,6 +119,35 @@ export function selectPrimaryCorpusCohort<Identity extends CorpusCohortIdentity>
       left.identity.id.localeCompare(right.identity.id)
     );
   })[0];
+}
+
+function dropsAComparableCohortsSites<Identity extends CorpusCohortIdentity>(
+  candidate: CorpusCohortCandidate<Identity>,
+  pool: readonly CorpusCohortCandidate<Identity>[]
+): boolean {
+  const own = new Set(candidate.sites ?? []);
+  if (own.size === 0) return false;
+  return pool.some((other) => {
+    if (other === candidate) return false;
+    // Only cohorts on the SAME measurement line are substitutable descriptions
+    // of the corpus. A different methodology or producer is a different
+    // question, and a legacy cohort keyed on an unrecorded methodology can
+    // never receive another scan, so neither may veto this one.
+    if (
+      other.identity.methodologyVersion !== candidate.identity.methodologyVersion ||
+      other.identity.producer !== candidate.identity.producer ||
+      other.identity.schemaVersion !== candidate.identity.schemaVersion
+    ) {
+      return false;
+    }
+    // Asymmetric on purpose: only a BROADER comparable cohort blocks. Blocking
+    // in both directions would leave two partial refreshes vetoing each other
+    // and hand the aggregate to whatever frozen cohort remained.
+    const otherSites = other.sites ?? [];
+    if (otherSites.length === 0 || other.siteCount <= candidate.siteCount) return false;
+    const missing = otherSites.reduce((total, site) => (own.has(site) ? total : total + 1), 0);
+    return missing / otherSites.length > MAX_DROPPED_SITE_SHARE;
+  });
 }
 
 /**

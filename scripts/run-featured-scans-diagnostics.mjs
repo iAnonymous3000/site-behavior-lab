@@ -205,6 +205,26 @@ function isEnabled(value) {
   return /^(1|true|yes|on)$/i.test(typeof value === "string" ? value.trim() : "");
 }
 
+/**
+ * The committed catalogs a SCHEDULED corpus refresh may walk.
+ *
+ * The corpus is two disjoint lists and the weekly refresh covers both, so both
+ * are authoritative sources of scan failures. They stay separate from
+ * {@link isFullFeaturedCatalogSelection}, which additionally gates the
+ * full-catalog completeness floor that only the gallery is sized for.
+ */
+const SCHEDULED_CORPUS_CATALOGS = new Set(["", "public/featured-sites.json", "public/corpus-seed-sites.json"]);
+
+export function isScheduledCorpusCatalogSelection(environment) {
+  const sitesFile = environment.FEATURED_SITES_FILE?.trim() ?? "";
+  return (
+    SCHEDULED_CORPUS_CATALOGS.has(sitesFile) &&
+    (environment.FEATURED_CATEGORIES?.trim() ?? "") === "" &&
+    (environment.FEATURED_LIMIT?.trim() ?? "") === "" &&
+    !isEnabled(environment.FEATURED_INCLUDE_UNAVAILABLE)
+  );
+}
+
 export function isFullFeaturedCatalogSelection(environment) {
   const sitesFile = environment.FEATURED_SITES_FILE?.trim() ?? "";
   return (
@@ -374,7 +394,10 @@ export function isAuthoritativeFeaturedRefresh(environment) {
   return (
     environment.GITHUB_REF_TYPE === "branch" &&
     environment.GITHUB_REF_NAME === environment.FEATURED_DEFAULT_BRANCH &&
-    isFullFeaturedCatalogSelection(environment) &&
+    // Both scheduled catalogs are authoritative for alerting. Requiring the
+    // full-gallery selection here would have made a failed de-bias refresh
+    // silent, which is how the seed half could fall an era behind unnoticed.
+    isScheduledCorpusCatalogSelection(environment) &&
     environment.FEATURED_COMPARE_SHIELDS === "true" &&
     environment.FEATURED_COMPARE_CONSENT === "false" &&
     environment.FEATURED_COMPARE_GPC === "false" &&

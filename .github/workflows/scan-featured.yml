@@ -71,6 +71,16 @@ on:
     # (scripts/prune-static-reports.mjs), so the refresh feeds the directory's
     # "changed since last scan" view instead of replacing the corpus.
     - cron: "23 5 * * 1"
+    # Second leg, same era, other catalog. The corpus is TWO disjoint lists:
+    # public/featured-sites.json is the deliberately popular, tracker-heavy
+    # "start here" gallery, and public/corpus-seed-sites.json is the de-bias
+    # seed list that keeps the published percentiles from describing only
+    # commercial media. A scheduled run reached the first and never the second,
+    # because FEATURED_SITES_FILE below reads only dispatch inputs, so every
+    # methodology or GPC era flip stranded the de-bias half in the previous era.
+    # On 2026-07-27 that published a gallery-only cohort whose median
+    # third-party requests read 87 where the mixed corpus read 11.
+    - cron: "23 7 * * 1"
 
 permissions:
   contents: read
@@ -91,7 +101,11 @@ env:
   NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SITE_URL: "https://sitebehavior.org"
   # `/api/health` must identify the exact checkout before a scan can start.
   SITE_BEHAVIOR_LAB_BUILD_COMMIT: ${{ github.sha }}
-  FEATURED_SITES_FILE: ${{ github.event.inputs.sites_file || github.event.client_payload.sites_file || '' }}
+  FEATURED_SITES_FILE: >-
+    ${{ github.event.inputs.sites_file
+      || github.event.client_payload.sites_file
+      || (github.event.schedule == '23 7 * * 1' && 'public/corpus-seed-sites.json')
+      || '' }}
   FEATURED_CATEGORIES: ${{ github.event.inputs.categories || github.event.client_payload.categories || '' }}
   FEATURED_LIMIT: ${{ github.event.inputs.limit || github.event.client_payload.limit || '' }}
   FEATURED_COMPARE_GPC: ${{ github.event.inputs.compare_gpc || github.event.client_payload.compare_gpc || 'false' }}

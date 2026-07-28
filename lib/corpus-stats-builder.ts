@@ -181,8 +181,19 @@ export async function buildCorpusStats(reportsDir: string, now = new Date()): Pr
   // findings consumers. It names exactly one cohort, never a pool, chosen by
   // the shared selector the directory leaderboard also calls so the artifact
   // and the rendered aggregate can never name different cohorts.
+  // Site keys travel with each candidate so the selector can refuse to hand the
+  // aggregate to a structurally narrower universe; `byCohort` already holds
+  // them, keyed exactly as the eligibility pass counted them.
+  const cohortSites = new Map(
+    [...byCohort.values()].map(({ identity, bySite }) => [identity.id, [...bySite.keys()]] as const)
+  );
   const primary = selectPrimaryCorpusCohort(
-    cohorts.map((cohort) => ({ identity: cohort, siteCount: cohort.sampleSize, latestRunAt: cohort.latestRunAt })),
+    cohorts.map((cohort) => ({
+      identity: cohort,
+      siteCount: cohort.sampleSize,
+      latestRunAt: cohort.latestRunAt,
+      sites: cohortSites.get(cohort.id) ?? []
+    })),
     CORPUS_MIN_SAMPLE
   )?.identity;
 

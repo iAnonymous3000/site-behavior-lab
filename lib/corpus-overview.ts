@@ -365,7 +365,8 @@ export function selectAggregateCorpusCohort(entries: DirectoryEntry[]): {
     [...byCohort.values()].map((cohortEntries) => ({
       identity: cohortEntries[0].corpusCohort,
       siteCount: new Set(cohortEntries.map(corpusSiteKey)).size,
-      latestRunAt: newestScannedAt(cohortEntries)
+      latestRunAt: newestScannedAt(cohortEntries),
+      sites: [...new Set(cohortEntries.map(corpusSiteKey))]
     })),
     CORPUS_MIN_SAMPLE
   );

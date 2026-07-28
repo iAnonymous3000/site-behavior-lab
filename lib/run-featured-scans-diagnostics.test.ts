@@ -27,6 +27,7 @@ type FeaturedScanDiagnosticHelpers = {
     meetsFloor: boolean;
   };
   isFullFeaturedCatalogSelection(environment: Record<string, string | undefined>): boolean;
+  isScheduledCorpusCatalogSelection(environment: Record<string, string | undefined>): boolean;
   failureDiagnosticFromStderr(stderr: unknown): string | null;
   publicFeaturedScanSummary(value: unknown): {
     catalogVersion: number | null;
@@ -503,4 +504,33 @@ test("featured scans send GPC only when GPC is the measured axis", async () => {
   // The comparison axis flags stay mutually exclusive and unchanged.
   assert.match(harness, /SCAN_COMPARE_SHIELDS: compareShields \? "true" : "false"/);
   assert.match(harness, /SCAN_COMPARE_GPC: compareGpc \? "true" : "false"/);
+});
+
+test("a scheduled refresh of either corpus catalog is authoritative for alerting", async () => {
+  const { isAuthoritativeFeaturedRefresh, isFullFeaturedCatalogSelection } = await helpers;
+  const scheduled = (sitesFile: string) => ({
+    GITHUB_REF_TYPE: "branch",
+    GITHUB_REF_NAME: "main",
+    FEATURED_DEFAULT_BRANCH: "main",
+    FEATURED_SITES_FILE: sitesFile,
+    FEATURED_CATEGORIES: "",
+    FEATURED_LIMIT: "",
+    FEATURED_COMPARE_SHIELDS: "true",
+    FEATURED_COMPARE_CONSENT: "false",
+    FEATURED_COMPARE_GPC: "false",
+    FEATURED_DEVICE: "desktop"
+  });
+
+  // The corpus is two disjoint catalogs and the weekly refresh now walks both.
+  // A failed de-bias run used to be silent, which is how that half could fall
+  // an era behind without anyone being told.
+  assert.equal(isAuthoritativeFeaturedRefresh(scheduled("")), true);
+  assert.equal(isAuthoritativeFeaturedRefresh(scheduled("public/featured-sites.json")), true);
+  assert.equal(isAuthoritativeFeaturedRefresh(scheduled("public/corpus-seed-sites.json")), true);
+  assert.equal(isAuthoritativeFeaturedRefresh(scheduled("public/some-other-list.json")), false);
+
+  // The completeness floor still belongs to the gallery alone: the seed list is
+  // smaller by design and must not be measured against the gallery's size.
+  assert.equal(isFullFeaturedCatalogSelection(scheduled("public/corpus-seed-sites.json")), false);
+  assert.equal(isFullFeaturedCatalogSelection(scheduled("public/featured-sites.json")), true);
 });
