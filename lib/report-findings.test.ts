@@ -1659,3 +1659,73 @@ test("a warn-level Shields card raises the bottom line instead of being outranke
   assert.equal(findings[0].id, "bottom-line");
   assert.equal(findings[1].id, "shields-blocked");
 });
+
+test("the services card quantifies the domains the catalog could not name", () => {
+  const uncatalogued = (domain: string): DomainSummary => ({
+    domain,
+    requests: 1,
+    thirdParty: true,
+    tracker: null,
+    statuses: [200],
+    resourceTypes: ["script"]
+  });
+
+  // A catalog match plus two unnamed domains: the card must say how much of
+  // the visit it could not account for, not only what it recognized.
+  const mixed = buildFindings(
+    viewFromV1Report(
+      makeResult({
+        domains: [
+          makeTrackerDomain("google-analytics.com", 1, "Google", "analytics"),
+          uncatalogued("unknown-a.example"),
+          uncatalogued("unknown-b.example")
+        ],
+        thirdPartyRequests: 3,
+        thirdPartyDomains: 3
+      })
+    ),
+    null
+  );
+  const mixedDetail = byId(mixed, "third-party-services").detail;
+  assert.match(mixedDetail, /2 of the 3 third-party domains recorded here matched no catalog entry/);
+  assert.match(mixedDetail, /limit of catalog coverage, not evidence about the site/);
+
+  // Nothing matched, but third parties were still present. The old copy said
+  // only that unlabeled parties "may" exist; the count is what stops a reader
+  // treating no-matches as no-third-parties.
+  const unmatched = buildFindings(
+    viewFromV1Report(
+      makeResult({
+        domains: [uncatalogued("unknown-a.example")],
+        thirdPartyRequests: 1,
+        thirdPartyDomains: 1
+      })
+    ),
+    null
+  );
+  const unmatchedCard = byId(unmatched, "third-party-services");
+  assert.match(unmatchedCard.title, /No known services matched/);
+  assert.match(unmatchedCard.detail, /1 of the 1 third-party domain recorded here matched no catalog entry/);
+
+  // Full coverage must not borrow the shortfall sentence.
+  const covered = buildFindings(
+    viewFromV1Report(
+      makeResult({
+        domains: [makeTrackerDomain("google-analytics.com", 1, "Google", "analytics")],
+        thirdPartyRequests: 1,
+        thirdPartyDomains: 1
+      })
+    ),
+    null
+  );
+  const coveredDetail = byId(covered, "third-party-services").detail;
+  assert.match(coveredDetail, /Every one of the 1 third-party domain recorded here matched a catalog entry/);
+  assert.doesNotMatch(coveredDetail, /matched no catalog entry/);
+
+  // A visit with no third parties at all has nothing to quantify.
+  const none = buildFindings(
+    viewFromV1Report(makeResult({ domains: [], thirdPartyRequests: 0, thirdPartyDomains: 0 })),
+    null
+  );
+  assert.doesNotMatch(byId(none, "third-party-services").detail, /recorded here matched/);
+});

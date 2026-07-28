@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
+  catalogCoverage,
   gpcRunMeasurement,
   respondedTrackerEntityNames,
   shieldsRunMeasurement,
@@ -128,5 +129,66 @@ test("Shields display facts follow engine readback instead of configured mode", 
       verificationFacts: null
     }),
     { kind: "engine-blocked", count: 7, origin: "legacy-derived" }
+  );
+});
+
+test("catalog coverage counts the third-party domains the catalog could not name", () => {
+  const domain = (name: string, thirdParty: boolean, catalogued: boolean): DomainSummary => ({
+    domain: name,
+    requests: 1,
+    thirdParty,
+    tracker: catalogued
+      ? { domain: name, entity: "Named", category: "analytics", confidence: "curated" }
+      : null,
+    statuses: [200],
+    resourceTypes: ["script"]
+  });
+
+  // First-party rows never enter the denominator: the metric is about who else
+  // the visit contacted, not about the site's own hosts.
+  assert.deepEqual(
+    catalogCoverage({
+      domains: [
+        domain("self.example", false, false),
+        domain("known.example", true, true),
+        domain("unknown-a.example", true, false),
+        domain("unknown-b.example", true, false)
+      ]
+    }),
+    { thirdPartyDomains: 3, identified: 1, unidentified: 2 }
+  );
+
+  // Full coverage and no third parties at all are distinct states, and neither
+  // may be reported as the other.
+  assert.deepEqual(
+    catalogCoverage({ domains: [domain("known.example", true, true)] }),
+    { thirdPartyDomains: 1, identified: 1, unidentified: 0 }
+  );
+  assert.deepEqual(catalogCoverage({ domains: [domain("self.example", false, false)] }), {
+    thirdPartyDomains: 0,
+    identified: 0,
+    unidentified: 0
+  });
+
+  // A filter-list match names the domain just as a curated entry does.
+  assert.deepEqual(
+    catalogCoverage({
+      domains: [
+        {
+          domain: "listed.example",
+          requests: 1,
+          thirdParty: true,
+          tracker: {
+            domain: "listed.example",
+            entity: "listed.example",
+            category: "tracking (Brave Shields list)",
+            confidence: "shields-list"
+          },
+          statuses: [200],
+          resourceTypes: ["script"]
+        }
+      ]
+    }),
+    { thirdPartyDomains: 1, identified: 1, unidentified: 0 }
   );
 });

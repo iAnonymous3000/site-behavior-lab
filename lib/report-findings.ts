@@ -41,6 +41,7 @@ import {
   scanPageSubjectUnverified,
   scanSuspectedChallengeOrSoftBlock,
   shieldsRunMeasurement,
+  catalogCoverage,
   trackerOwnershipBreakdown,
   trackerResponseQualification,
   trackerEntitySummaries
@@ -185,6 +186,16 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
   const operationalNames = operationalEntities.map((entity) => entity.entity);
   const respondedEntities = respondedTrackerEntityNames(run.evidence);
   const topCategories = Array.from(new Set(trackingEntities.flatMap((entity) => entity.categories))).slice(0, 3);
+  const catalogReach = catalogCoverage(run.evidence);
+  // Quantify what the catalog could not name. "No known services matched" is
+  // otherwise read as "no third parties", when it can equally mean the catalog
+  // does not cover the ones that were there.
+  const catalogCoverageNote =
+    catalogReach.thirdPartyDomains === 0
+      ? ""
+      : catalogReach.unidentified === 0
+        ? ` Every one of the ${plural(catalogReach.thirdPartyDomains, "third-party domain")} recorded here matched a catalog entry.`
+        : ` ${catalogReach.unidentified} of the ${plural(catalogReach.thirdPartyDomains, "third-party domain")} recorded here matched no catalog entry, so this scan cannot say who operates ${catalogReach.unidentified === 1 ? "it" : "them"}. That is a limit of catalog coverage, not evidence about the site.`;
   const cookiesUnsupported = familyUnsupportedOnRun(run, "cookies");
   const detectorUnsupported =
     familyUnsupportedOnRun(run, "detector-output") || familyUnsupportedOnRun(run, "fingerprinting");
@@ -470,10 +481,10 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
           : "This scan did not match any third-party domains to the service catalog.",
     detail:
       trackingEntities.length > 0
-        ? `A catalog match identifies a maintainer-reviewed service/domain mapping; it does not establish why an individual request occurred, what it carried, or whether profiling happened.${topCategories.length > 0 ? ` Functional catalog labels include ${humanList(topCategories)}.` : ""}${sessionReplayNote}${operationalNote}${sameOrganizationNote}`
+        ? `A catalog match identifies a maintainer-reviewed service/domain mapping; it does not establish why an individual request occurred, what it carried, or whether profiling happened.${topCategories.length > 0 ? ` Functional catalog labels include ${humanList(topCategories)}.` : ""}${catalogCoverageNote}${sessionReplayNote}${operationalNote}${sameOrganizationNote}`
         : operationalEntities.length > 0
-          ? `The catalog assigns these services monitoring or support labels; the matches do not establish each request's purpose. Unlabeled cross-site domains may still be present.${sameOrganizationNote}${requestsCensored ? CENSORED_ABSENCE_NOTE : ""}`
-          : `There may still be unlabeled third parties, but no known catalog entity was matched.${requestsCensored ? CENSORED_ABSENCE_NOTE : ""}`,
+          ? `The catalog assigns these services monitoring or support labels; the matches do not establish each request's purpose.${catalogCoverageNote}${sameOrganizationNote}${requestsCensored ? CENSORED_ABSENCE_NOTE : ""}`
+          : `No known catalog entity was matched.${catalogCoverageNote}${requestsCensored ? CENSORED_ABSENCE_NOTE : ""}`,
     evidence: `${plural(run.counts.thirdPartyRequests, "cross-site request")} across ${plural(run.counts.thirdPartyDomains, "registrable-domain boundary")}.`,
     benchmark: !domainsBenchmarkAllowed
       ? undefined

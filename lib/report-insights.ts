@@ -168,6 +168,36 @@ export function trackingServiceRequests(result: Pick<ScanResult, "domains">): nu
     .reduce((total, entity) => total + entity.requests, 0);
 }
 
+export type CatalogCoverage = {
+  /** Distinct third-party registrable-domain boundaries the visit contacted. */
+  thirdPartyDomains: number;
+  /** Those a catalog entry or filter list named. */
+  identified: number;
+  /** Those nothing named. */
+  unidentified: number;
+};
+
+/**
+ * Partition the visit's third-party domains by whether the instrument could
+ * name them.
+ *
+ * `unidentified` is a property of the catalog's coverage, never a finding
+ * about the site: an unmatched domain is one this scan could not identify, not
+ * one shown to be harmless. Reports quantify it so a reader can see how much
+ * of a visit the catalog actually accounts for, instead of reading an absence
+ * of matches as an absence of third parties.
+ */
+export function catalogCoverage(result: Pick<ScanResult, "domains">): CatalogCoverage {
+  let thirdPartyDomains = 0;
+  let identified = 0;
+  for (const domain of result.domains) {
+    if (!domain.thirdParty) continue;
+    thirdPartyDomains += 1;
+    if (domain.tracker !== null) identified += 1;
+  }
+  return { thirdPartyDomains, identified, unidentified: thirdPartyDomains - identified };
+}
+
 /** High-entropy fingerprinting detections (canvas/WebGL/audio/WebRTC), excluding listener-coverage signals. */
 export function highEntropyDetections(result: Pick<ScanResult, "fingerprintDetections">): FingerprintDetectionSummary[] {
   return (result.fingerprintDetections ?? []).filter((detection) => HIGH_ENTROPY_FINGERPRINT_KINDS.has(detection.kind));
