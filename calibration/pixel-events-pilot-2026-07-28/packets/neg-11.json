@@ -1,0 +1,366 @@
+{
+  "caseId": "neg-11",
+  "conditionDigest": "2b144ce4c4ff46ca6e027487c1d14b275c99a9da031ed386ffab030b796bac0f",
+  "recordedRequests": [
+    {
+      "host": "www.eff.org",
+      "path": "/",
+      "method": "GET",
+      "resourceType": "document",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.eff.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "stylesheet",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.eff.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "stylesheet",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.eff.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "stylesheet",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.eff.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.eff.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.eff.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.eff.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.eff.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.eff.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.eff.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.eff.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.eff.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.eff.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "font",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.eff.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.eff.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.eff.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.eff.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.eff.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.eff.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.eff.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.eff.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.eff.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.eff.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.eff.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.eff.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.eff.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.eff.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.eff.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.eff.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.eff.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.eff.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.eff.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.eff.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.eff.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.eff.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.eff.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.eff.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.eff.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.eff.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.eff.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.eff.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "font",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.eff.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "font",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.eff.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "font",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "{label}.eff.org",
+      "path": "/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    }
+  ]
+}

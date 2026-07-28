@@ -1,0 +1,1358 @@
+{
+  "caseId": "pos-05",
+  "conditionDigest": "2b144ce4c4ff46ca6e027487c1d14b275c99a9da031ed386ffab030b796bac0f",
+  "recordedRequests": [
+    {
+      "host": "www.gap.com",
+      "path": "/",
+      "method": "GET",
+      "resourceType": "document",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.gap.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/static",
+      "method": "GET",
+      "resourceType": "stylesheet",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.gap.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/static",
+      "method": "GET",
+      "resourceType": "stylesheet",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.gap.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/static",
+      "method": "GET",
+      "resourceType": "stylesheet",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.gap.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/static",
+      "method": "GET",
+      "resourceType": "stylesheet",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.gap.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/static",
+      "method": "GET",
+      "resourceType": "font",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.gap.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bn%7D/%7Bn%7D/%7Bn%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.gap.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bn%7D/%7Bn%7D/%7Bn%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "{label}.gapinc.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "{label}.gapinc.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "www.gap.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "{label}.go-mpulse.net",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "www.gap.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "stylesheet",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.gap.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/static",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.gap.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/static",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.gap.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/static",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.gap.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/static",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.gap.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/static",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.gap.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/static",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.gap.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/static",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.gap.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/static",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.gap.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/static",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.gap.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/static",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.gap.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/static",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.gap.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/static",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.gap.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/static",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.gap.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/static",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.gap.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/static",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.gap.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/static",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.gap.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/static",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.gap.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/static",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.gap.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/static",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.gap.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/static",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.gap.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/static",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.gap.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/static",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.gap.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/static",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.gap.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/static",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.gap.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/static",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.gap.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/static",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.gap.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/static",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.gap.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/static",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.gap.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/static",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.gap.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/static",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.gap.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/static",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.gap.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/static",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.gap.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/static",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.gap.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/static",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.gap.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.gap.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "xhr",
+      "thirdParty": false,
+      "status": 201
+    },
+    {
+      "host": "{label}.newrelic.com",
+      "path": "/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "www.gap.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/static",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.gap.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/static",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.gap.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/static",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.gap.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/static",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.gap.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/static",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.gap.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "fetch",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "api.gap.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "fetch",
+      "thirdParty": false,
+      "status": 401
+    },
+    {
+      "host": "{label}.gapinc.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "{label}.gapinc.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "{label}.gapinc.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "{label}.gapinc.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "{label}.gapinc.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "{label}.gapinc.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "{label}.gapinc.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "{label}.gapinc.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "{label}.gapinc.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "{label}.gapinc.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "{label}.gapinc.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "{label}.gapinc.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "{label}.gapinc.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "{label}.gapinc.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "{label}.gapinc.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "{label}.gapinc.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "{label}.gapinc.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "{label}.gapinc.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "{label}.gapinc.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "{label}.gapinc.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "{label}.gapinc.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "{label}.gapinc.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "{label}.appsflyer.com",
+      "path": "/%7Bn%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "{label}.nr-data.net",
+      "path": "/%7Bn%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "xhr",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "{label}.go-mpulse.net",
+      "path": "/api/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "xhr",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "www.gap.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "xhr",
+      "thirdParty": false,
+      "status": 201
+    },
+    {
+      "host": "{label}.nr-data.net",
+      "path": "/%7Bseg%7D/%7Bn%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "xhr",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "{label}.nr-data.net",
+      "path": "/%7Bseg%7D/%7Bn%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "xhr",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "{label}.nr-data.net",
+      "path": "/%7Bseg%7D/%7Bn%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "xhr",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "{label}.nr-data.net",
+      "path": "/%7Bseg%7D/%7Bn%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "xhr",
+      "thirdParty": true,
+      "status": 204
+    },
+    {
+      "host": "www.gap.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "{label}.cdn.optimizely.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "document",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "{label}.gap.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "cdn.{label}.amplience.net",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "www.gap.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/static",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "cdn.cookielaw.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "{label}.gap.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "{label}.gap.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "{label}.gap.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "{label}.demdex.net",
+      "path": "/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "xhr",
+      "thirdParty": true,
+      "status": 302
+    },
+    {
+      "host": "www.gap.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "{label}.gap.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "{label}.gap.com",
+      "path": "/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "xhr",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "cdn.cookielaw.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "xhr",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "{label}.gap.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "{label}.gap.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "{label}.gap.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "{label}.onetrust.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "xhr",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "{label}.tealiumiq.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "{label}.gap.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "document",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "{label}.gap.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "xhr",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "{label}.gap.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 204
+    },
+    {
+      "host": "{label}.online-metrix.net",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 302
+    },
+    {
+      "host": "{label}.gap.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "{label}.gap.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "document",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "{label}.gap.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "{label}.online-metrix.net",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "document",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "{label}.online-metrix.net",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "{label}.demdex.net",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "xhr",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "{label}.{label}.{label}.online-metrix.net",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "{label}.gap.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "cdn.cookielaw.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "{label}.demdex.net",
+      "path": "/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "document",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "{label}.gap.com",
+      "path": "/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "xhr",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "{label}.everesttech.net",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": true,
+      "status": 302
+    },
+    {
+      "host": "{label}.online-metrix.net",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "{label}.gap.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 204
+    },
+    {
+      "host": "{label}.optimizely.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "xhr",
+      "thirdParty": true,
+      "status": 204
+    },
+    {
+      "host": "{label}.gap.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "{label}.gap.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 204
+    },
+    {
+      "host": "{label}.gap.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "{label}.gap.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "{label}.gap.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "{label}.online-metrix.net",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "cdn.cookielaw.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "fetch",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "cdn.cookielaw.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "fetch",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "cdn.cookielaw.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "fetch",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "cdn.cookielaw.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "fetch",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "cdn.cookielaw.org",
+      "path": "/%7Bseg%7D/static/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "fetch",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "cdn.cookielaw.org",
+      "path": "/%7Bseg%7D/static/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "cdn.cookielaw.org",
+      "path": "/%7Bseg%7D/static/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "fetch",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "cdn.cookielaw.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "cdn.cookielaw.org",
+      "path": "/%7Bseg%7D/static/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "{label}.gap.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "{label}.demdex.net",
+      "path": "/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "{label}.gap.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bn%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "{label}.gap.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 204
+    },
+    {
+      "host": "www.gap.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/static",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.gap.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "xhr",
+      "thirdParty": false,
+      "status": 201
+    },
+    {
+      "host": "api.gap.com",
+      "path": "/%7Bseg%7D/search/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "fetch",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "api.gap.com",
+      "path": "/%7Bseg%7D/search/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "fetch",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "api.gap.com",
+      "path": "/%7Bseg%7D/search/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "fetch",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "api.gap.com",
+      "path": "/%7Bseg%7D/search/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "fetch",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "api.gap.com",
+      "path": "/%7Bseg%7D/search/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "fetch",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "api.gap.com",
+      "path": "/%7Bseg%7D/search/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "fetch",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "api.gap.com",
+      "path": "/%7Bseg%7D/search/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "fetch",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "api.gap.com",
+      "path": "/%7Bseg%7D/search/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "fetch",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "api.gap.com",
+      "path": "/%7Bseg%7D/search/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "fetch",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "api.gap.com",
+      "path": "/%7Bseg%7D/search/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "fetch",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "api.gap.com",
+      "path": "/%7Bseg%7D/search/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "fetch",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "api.gap.com",
+      "path": "/%7Bseg%7D/search/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "fetch",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "api.gap.com",
+      "path": "/%7Bseg%7D/search/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "fetch",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "api.gap.com",
+      "path": "/%7Bseg%7D/search/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "fetch",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "api.gap.com",
+      "path": "/%7Bseg%7D/search/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "fetch",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "api.gap.com",
+      "path": "/%7Bseg%7D/search/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "fetch",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "api.gap.com",
+      "path": "/%7Bseg%7D/search/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "fetch",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "api.gap.com",
+      "path": "/%7Bseg%7D/search/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "fetch",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "api.gap.com",
+      "path": "/%7Bseg%7D/search/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "fetch",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "api.gap.com",
+      "path": "/%7Bseg%7D/search/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "fetch",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "api.gap.com",
+      "path": "/%7Bseg%7D/search/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "fetch",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "api.gap.com",
+      "path": "/%7Bseg%7D/search/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "fetch",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "{label}.nr-data.net",
+      "path": "/%7Bseg%7D/%7Bn%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "xhr",
+      "thirdParty": true,
+      "status": 204
+    }
+  ]
+}

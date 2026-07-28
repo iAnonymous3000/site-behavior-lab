@@ -1,0 +1,390 @@
+{
+  "caseId": "neg-07",
+  "conditionDigest": "2b144ce4c4ff46ca6e027487c1d14b275c99a9da031ed386ffab030b796bac0f",
+  "recordedRequests": [
+    {
+      "host": "nodejs.org",
+      "path": "/en",
+      "method": "GET",
+      "resourceType": "document",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "nodejs.org",
+      "path": "/%7Bseg%7D/static/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "font",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "nodejs.org",
+      "path": "/%7Bseg%7D/static/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "font",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "nodejs.org",
+      "path": "/%7Bseg%7D/static/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "stylesheet",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "nodejs.org",
+      "path": "/%7Bseg%7D/static/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "stylesheet",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "nodejs.org",
+      "path": "/%7Bseg%7D/static/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "stylesheet",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "nodejs.org",
+      "path": "/%7Bseg%7D/static/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "stylesheet",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "nodejs.org",
+      "path": "/%7Bseg%7D/static/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "nodejs.org",
+      "path": "/%7Bseg%7D/static/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "nodejs.org",
+      "path": "/%7Bseg%7D/static/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "nodejs.org",
+      "path": "/%7Bseg%7D/static/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "nodejs.org",
+      "path": "/%7Bseg%7D/static/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "nodejs.org",
+      "path": "/%7Bseg%7D/static/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "nodejs.org",
+      "path": "/%7Bseg%7D/static/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "nodejs.org",
+      "path": "/%7Bseg%7D/static/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "nodejs.org",
+      "path": "/%7Bseg%7D/static/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "nodejs.org",
+      "path": "/%7Bseg%7D/static/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "nodejs.org",
+      "path": "/%7Bseg%7D/static/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "nodejs.org",
+      "path": "/%7Bseg%7D/static/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "nodejs.org",
+      "path": "/%7Bseg%7D/static/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "nodejs.org",
+      "path": "/%7Bseg%7D/static/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "nodejs.org",
+      "path": "/%7Bseg%7D/static/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "nodejs.org",
+      "path": "/%7Bseg%7D/static/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "nodejs.org",
+      "path": "/%7Bseg%7D/static/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "nodejs.org",
+      "path": "/%7Bseg%7D/static/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "nodejs.org",
+      "path": "/%7Bseg%7D/static/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "nodejs.org",
+      "path": "/%7Bseg%7D/static/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "nodejs.org",
+      "path": "/%7Bseg%7D/static/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "nodejs.org",
+      "path": "/%7Bseg%7D/static/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "nodejs.org",
+      "path": "/%7Bseg%7D/static/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "nodejs.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "nodejs.org",
+      "path": "/%7Bseg%7D/static/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "stylesheet",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "nodejs.org",
+      "path": "/%7Bseg%7D/static/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "nodejs.org",
+      "path": "/en/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "fetch",
+      "thirdParty": false,
+      "status": 307
+    },
+    {
+      "host": "nodejs.org",
+      "path": "/en/about/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "fetch",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "nodejs.org",
+      "path": "/en/about/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "fetch",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "nodejs.org",
+      "path": "/en/download",
+      "method": "GET",
+      "resourceType": "fetch",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "nodejs.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "nodejs.org",
+      "path": "/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "fetch",
+      "thirdParty": false,
+      "status": 308
+    },
+    {
+      "host": "nodejs.org",
+      "path": "/%7Bseg%7D/static/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "nodejs.org",
+      "path": "/%7Bseg%7D/static/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "nodejs.org",
+      "path": "/%7Bseg%7D/static/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "nodejs.org",
+      "path": "/%7Bseg%7D/static/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "nodejs.org",
+      "path": "/en/blog",
+      "method": "GET",
+      "resourceType": "fetch",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "nodejs.org",
+      "path": "/en/about",
+      "method": "GET",
+      "resourceType": "fetch",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "nodejs.org",
+      "path": "/en",
+      "method": "GET",
+      "resourceType": "fetch",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "nodejs.org",
+      "path": "/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "fetch",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "nodejs.org",
+      "path": "/en",
+      "method": "GET",
+      "resourceType": "fetch",
+      "thirdParty": false,
+      "status": 200
+    }
+  ]
+}

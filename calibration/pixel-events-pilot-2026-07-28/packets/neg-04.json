@@ -1,0 +1,222 @@
+{
+  "caseId": "neg-04",
+  "conditionDigest": "2b144ce4c4ff46ca6e027487c1d14b275c99a9da031ed386ffab030b796bac0f",
+  "recordedRequests": [
+    {
+      "host": "www.w3.org",
+      "path": "/",
+      "method": "GET",
+      "resourceType": "document",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.w3.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "stylesheet",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.w3.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "stylesheet",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.w3.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.w3.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.w3.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.w3.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.w3.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "stylesheet",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.w3.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "font",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.w3.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.w3.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.w3.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "media",
+      "thirdParty": false,
+      "status": 206
+    },
+    {
+      "host": "www.w3.org",
+      "path": "/account/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "xhr",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.w3.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "font",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.w3.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.w3.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.w3.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.w3.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.w3.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.w3.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.w3.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.w3.org",
+      "path": "/%7Bseg%7D/%7Bn%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.w3.org",
+      "path": "/%7Bseg%7D/%7Bn%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.w3.org",
+      "path": "/%7Bseg%7D/%7Bn%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.w3.org",
+      "path": "/%7Bseg%7D/%7Bn%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.w3.org",
+      "path": "/%7Bseg%7D/%7Bn%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.w3.org",
+      "path": "/%7Bseg%7D/%7Bn%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    }
+  ]
+}

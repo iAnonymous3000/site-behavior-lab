@@ -1,0 +1,254 @@
+{
+  "caseId": "neg-05",
+  "conditionDigest": "2b144ce4c4ff46ca6e027487c1d14b275c99a9da031ed386ffab030b796bac0f",
+  "recordedRequests": [
+    {
+      "host": "www.rfc-editor.org",
+      "path": "/",
+      "method": "GET",
+      "resourceType": "document",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "static.ietf.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "stylesheet",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "www.rfc-editor.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "stylesheet",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.rfc-editor.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.rfc-editor.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.rfc-editor.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.rfc-editor.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.rfc-editor.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.rfc-editor.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.rfc-editor.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.rfc-editor.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.rfc-editor.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "static.ietf.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "font",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "www.rfc-editor.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.rfc-editor.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.rfc-editor.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "analytics.ietf.org",
+      "path": "/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "www.rfc-editor.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.rfc-editor.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.rfc-editor.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.rfc-editor.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.rfc-editor.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.rfc-editor.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.rfc-editor.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.rfc-editor.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "analytics.ietf.org",
+      "path": "/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "ping",
+      "thirdParty": true,
+      "status": 204
+    },
+    {
+      "host": "www.rfc-editor.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.rfc-editor.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "analytics.ietf.org",
+      "path": "/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "ping",
+      "thirdParty": true,
+      "status": 204
+    },
+    {
+      "host": "www.rfc-editor.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "fetch",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "analytics.ietf.org",
+      "path": "/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "ping",
+      "thirdParty": true,
+      "status": 204
+    }
+  ]
+}

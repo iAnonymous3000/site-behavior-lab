@@ -1,0 +1,3190 @@
+{
+  "caseId": "pos-12",
+  "conditionDigest": "2b144ce4c4ff46ca6e027487c1d14b275c99a9da031ed386ffab030b796bac0f",
+  "recordedRequests": [
+    {
+      "host": "www.allbirds.com",
+      "path": "/",
+      "method": "GET",
+      "resourceType": "document",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/shop/%7Bseg%7D/%7Bn%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "stylesheet",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "stylesheet",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/shop/%7Bseg%7D/%7Bn%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/shop/%7Bseg%7D/%7Bn%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/shop/%7Bseg%7D/%7Bn%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/shop/%7Bseg%7D/%7Bn%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/shop/%7Bseg%7D/%7Bn%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/shop/%7Bseg%7D/%7Bn%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/shop/%7Bseg%7D/%7Bn%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/shop/%7Bseg%7D/%7Bn%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/shop/%7Bseg%7D/%7Bn%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/shop/%7Bseg%7D/%7Bn%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/shop/%7Bseg%7D/%7Bn%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/shop/%7Bseg%7D/%7Bn%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/shop/%7Bseg%7D/%7Bn%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/shop/%7Bseg%7D/%7Bn%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/shop/%7Bseg%7D/%7Bn%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/shop/%7Bseg%7D/%7Bn%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/shop/%7Bseg%7D/%7Bn%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/shop/%7Bseg%7D/%7Bn%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/shop/%7Bseg%7D/%7Bn%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/shop/%7Bseg%7D/%7Bn%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/shop/%7Bseg%7D/%7Bn%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/shop/%7Bseg%7D/%7Bn%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/shop/%7Bseg%7D/%7Bn%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/shop/%7Bseg%7D/%7Bn%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/shop/%7Bseg%7D/%7Bn%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/shop/%7Bseg%7D/%7Bn%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/shop/%7Bseg%7D/%7Bn%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/shop/%7Bseg%7D/%7Bn%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/shop/%7Bseg%7D/%7Bn%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/shop/%7Bseg%7D/%7Bn%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/shop/%7Bseg%7D/%7Bn%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/shop/%7Bseg%7D/%7Bn%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/shop/%7Bseg%7D/%7Bn%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/shop/%7Bseg%7D/%7Bn%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/shop/%7Bseg%7D/%7Bn%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/shop/%7Bseg%7D/%7Bn%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/shop/%7Bseg%7D/%7Bn%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/shop/%7Bseg%7D/%7Bn%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "stylesheet",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/shop/%7Bseg%7D/%7Bn%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/shop/%7Bseg%7D/%7Bn%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/shop/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/shop/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/shop/%7Bseg%7D/%7Bn%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/shop/%7Bseg%7D/%7Bn%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/shop/%7Bseg%7D/%7Bn%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/shop/%7Bseg%7D/%7Bn%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/shop/%7Bseg%7D/%7Bn%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/shop/%7Bseg%7D/%7Bn%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/shop/%7Bseg%7D/%7Bn%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/shop/%7Bseg%7D/%7Bn%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/shop/%7Bseg%7D/%7Bn%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/shop/%7Bseg%7D/%7Bn%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/shop/%7Bseg%7D/%7Bn%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "shop.app",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/static/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bn%7D/%7Bn%7D/%7Bn%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "{label}.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.googletagmanager.com",
+      "path": "/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "ping",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "ping",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/shop/%7Bseg%7D/%7Bn%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "font",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/shop/%7Bseg%7D/%7Bn%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "font",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/shop/%7Bseg%7D/%7Bn%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "font",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/shop/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/shop/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/shop/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/shop/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/shop/%7Bseg%7D/%7Bn%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "font",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/shop/%7Bseg%7D/%7Bn%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "font",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/shop/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/shop/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/shop/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "{label}.shopifysvc.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "fetch",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/app/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "document",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/app/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "document",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "document",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "document",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "shop.app",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "fetch",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "ping",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "{label}.shopifysvc.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "fetch",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "ping",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "ping",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "ping",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "ping",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "ping",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "{label}.getredo.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "xhr",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "ping",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "shop.app",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "document",
+      "thirdParty": true,
+      "status": 403
+    },
+    {
+      "host": "{label}.getelevar.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "{label}.getelevar.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "cdn.attn.tv",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "HEAD",
+      "resourceType": "fetch",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "ping",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/app/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/app/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "xhr",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "{label}.getredo.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "xhr",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "fetch",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "{label}.getelevar.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "www.googletagmanager.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "www.googletagmanager.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "ping",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "{label}.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/static/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/api/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "fetch",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/shop/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/shop/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/shop/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/shop/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "fetch",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/shop/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/shop/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/shop/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/shop/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/shop/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/shop/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/shop/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/shop/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/shop/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/shop/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/shop/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "xhr",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "stylesheet",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "ping",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "{label}.reddit.com",
+      "path": "/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "fetch",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "cdn.attn.tv",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "HEAD",
+      "resourceType": "xhr",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "fetch",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "{label}.attn.tv",
+      "path": "/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "fetch",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "cdn.attn.tv",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "stylesheet",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "{label}.allbirds.com",
+      "path": "/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "ping",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/static/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "{label}.getredo.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "fetch",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "ping",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "fonts.googleapis.com",
+      "path": "/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "stylesheet",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "fonts.googleapis.com",
+      "path": "/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "stylesheet",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "{label}.shopifysvc.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "ping",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "{label}.shopifysvc.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "ping",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "xhr",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "weareallbirds.myshopify.com",
+      "path": "/api/%7Bseg%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "fetch",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "www.googletagmanager.com",
+      "path": "/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "cdn.cookielaw.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": null
+    },
+    {
+      "host": "{label}.attn.tv",
+      "path": "/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "fetch",
+      "thirdParty": true,
+      "status": 204
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "ping",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.googletagmanager.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "www.googletagmanager.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "{label}.facebook.net",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "fetch",
+      "thirdParty": false,
+      "status": 204
+    },
+    {
+      "host": "weareallbirds.myshopify.com",
+      "path": "/api/%7Bseg%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "fetch",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "weareallbirds.myshopify.com",
+      "path": "/api/%7Bseg%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "fetch",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/products/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "xhr",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "{label}.shopifysvc.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "fetch",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "{label}.shopifysvc.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "fetch",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "{label}.facebook.net",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bn%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "xhr",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "xhr",
+      "thirdParty": false,
+      "status": null
+    },
+    {
+      "host": "{label}.govx.com",
+      "path": "/app/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "cdn.attn.tv",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "{label}.impactcdn.com",
+      "path": "/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "xhr",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "xhr",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "analytics.google.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "fetch",
+      "thirdParty": true,
+      "status": 204
+    },
+    {
+      "host": "{label}.{label}.doubleclick.net",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "ping",
+      "thirdParty": true,
+      "status": 204
+    },
+    {
+      "host": "ad.doubleclick.net",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "fetch",
+      "thirdParty": true,
+      "status": 204
+    },
+    {
+      "host": "{label}.{label}.doubleclick.net",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bn%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "www.google.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bn%7D",
+      "method": "POST",
+      "resourceType": "fetch",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "{label}.{label}.doubleclick.net",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bn%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "www.google.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bn%7D",
+      "method": "POST",
+      "resourceType": "fetch",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "{label}.{label}.doubleclick.net",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bn%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "www.google.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bn%7D",
+      "method": "POST",
+      "resourceType": "fetch",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "{label}.{label}.doubleclick.net",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bn%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "www.google.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bn%7D",
+      "method": "POST",
+      "resourceType": "fetch",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "{label}.{label}.doubleclick.net",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bn%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "www.google.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bn%7D",
+      "method": "POST",
+      "resourceType": "fetch",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "www.google.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "fetch",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "www.google.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "fetch",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "www.google.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "fetch",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "www.google.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "fetch",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "www.google.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "fetch",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "www.google.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "fetch",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "xhr",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "xhr",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "{label}.pxf.io",
+      "path": "/%7Bseg%7D/%7Bn%7D/%7Bn%7D/%7Bn%7D",
+      "method": "POST",
+      "resourceType": "xhr",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "xhr",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.google.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bn%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "www.google.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bn%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "www.google.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bn%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "www.google.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bn%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "www.google.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bn%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "{label}.shopifycdn.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bn%7D/%7Bn%7D/%7Bn%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bn%7D/%7Bn%7D/%7Bn%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "cdn.shopify.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bn%7D/%7Bn%7D/%7Bn%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "other",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "analytics.google.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "fetch",
+      "thirdParty": true,
+      "status": 204
+    },
+    {
+      "host": "www.google.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bn%7D",
+      "method": "POST",
+      "resourceType": "fetch",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "www.google.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bn%7D",
+      "method": "POST",
+      "resourceType": "fetch",
+      "thirdParty": true,
+      "status": 204
+    },
+    {
+      "host": "{label}.{label}.doubleclick.net",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bn%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "www.google.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bn%7D",
+      "method": "POST",
+      "resourceType": "fetch",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "www.google.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bn%7D",
+      "method": "POST",
+      "resourceType": "fetch",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "www.google.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bn%7D",
+      "method": "POST",
+      "resourceType": "fetch",
+      "thirdParty": true,
+      "status": 204
+    },
+    {
+      "host": "{label}.{label}.doubleclick.net",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bn%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "www.google.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bn%7D",
+      "method": "POST",
+      "resourceType": "fetch",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "www.google.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bn%7D",
+      "method": "POST",
+      "resourceType": "fetch",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "www.google.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bn%7D",
+      "method": "POST",
+      "resourceType": "fetch",
+      "thirdParty": true,
+      "status": 204
+    },
+    {
+      "host": "{label}.{label}.doubleclick.net",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bn%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "www.google.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bn%7D",
+      "method": "POST",
+      "resourceType": "fetch",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "www.google.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bn%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "www.google.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bn%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "www.google.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bn%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "www.allbirds.com",
+      "path": "/api/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "fetch",
+      "thirdParty": false,
+      "status": 200
+    }
+  ]
+}

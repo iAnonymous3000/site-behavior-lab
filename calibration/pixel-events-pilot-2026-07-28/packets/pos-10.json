@@ -1,0 +1,54 @@
+{
+  "caseId": "pos-10",
+  "conditionDigest": "2b144ce4c4ff46ca6e027487c1d14b275c99a9da031ed386ffab030b796bac0f",
+  "recordedRequests": [
+    {
+      "host": "www.lowes.com",
+      "path": "/",
+      "method": "GET",
+      "resourceType": "document",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.lowescdn.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "font",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "www.lowescdn.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "font",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "{label}.go-mpulse.net",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "{label}.go-mpulse.net",
+      "path": "/api/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "xhr",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "{label}.akstat.io",
+      "path": "/",
+      "method": "POST",
+      "resourceType": "ping",
+      "thirdParty": true,
+      "status": 204
+    }
+  ]
+}

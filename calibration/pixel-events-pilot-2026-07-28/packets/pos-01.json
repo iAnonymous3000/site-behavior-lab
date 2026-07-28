@@ -1,0 +1,1846 @@
+{
+  "caseId": "pos-01",
+  "conditionDigest": "2b144ce4c4ff46ca6e027487c1d14b275c99a9da031ed386ffab030b796bac0f",
+  "recordedRequests": [
+    {
+      "host": "www.nike.com",
+      "path": "/",
+      "method": "GET",
+      "resourceType": "document",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/static/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "font",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "stylesheet",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/static/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "stylesheet",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/static/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/static/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/static/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "{label}.nike.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "stylesheet",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/static/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/static/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/static/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/%7Bseg%7D/static/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "stylesheet",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/%7Bseg%7D/static/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "stylesheet",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "{label}.nike.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/static/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "static.nike.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/static/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/static/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "{label}.go-mpulse.net",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/%7Bseg%7D/static/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/%7Bseg%7D/static/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/%7Bseg%7D/static/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/%7Bseg%7D/static/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/%7Bseg%7D/static/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/%7Bseg%7D/static/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/%7Bseg%7D/static/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/%7Bseg%7D/static/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/%7Bseg%7D/static/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/static/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/static/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/static/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/static/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/static/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/static/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/static/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/static/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/static/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "fetch",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/static/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "document",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "static.nike.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/static/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "font",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/static/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "font",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/static/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "font",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/static/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "font",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "api.nike.com",
+      "path": "/search/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "fetch",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/static/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/us/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "fetch",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/static/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/static/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "document",
+      "thirdParty": false,
+      "status": 429
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/%7Bseg%7D/static/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "stylesheet",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/%7Bseg%7D/static/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/%7Bseg%7D/static/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "fetch",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "fetch",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "fetch",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "fetch",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "fetch",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/static/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/static/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/static/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/static/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "static.nike.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "static.nike.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "static.nike.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "static.nike.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "static.nike.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "static.nike.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "static.nike.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "static.nike.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "static.nike.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "static.nike.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "static.nike.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "api.nike.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "fetch",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "api.nike.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "fetch",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "api.nike.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "fetch",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "api.nike.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "fetch",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "api.nike.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "fetch",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "api.nike.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "fetch",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "api.nike.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "fetch",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/static/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/static/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/static/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/static/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "{label}.go-mpulse.net",
+      "path": "/api/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "xhr",
+      "thirdParty": true,
+      "status": 204
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/static/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "fetch",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "fetch",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/static/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "font",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/static/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "font",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/static/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "font",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "api.nike.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "fetch",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "fetch",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "{label}.{label}.site.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "static.nike.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "static.nike.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "static.nike.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "static.nike.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "api.nike.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "fetch",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "{label}.{label}.site.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "stylesheet",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "{label}.{label}.salesforce-scrt.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "xhr",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "{label}.{label}.salesforce-scrt.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "xhr",
+      "thirdParty": true,
+      "status": 204
+    },
+    {
+      "host": "static.nike.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.googletagmanager.com",
+      "path": "/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "{label}.{label}.nike.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "ping",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "{label}.newrelic.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bn%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "fetch",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "fetch",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "analytics.nike.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "ping",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "{label}.{label}.nike.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "fetch",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "{label}.{label}.nike.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "fetch",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "{label}.{label}.nike.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "fetch",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "{label}.{label}.nike.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "fetch",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "analytics.nike.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "fetch",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "{label}.{label}.nike.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "fetch",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "analytics.nike.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "fetch",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "{label}.{label}.nike.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "fetch",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "analytics.nike.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "fetch",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "analytics.nike.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "fetch",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "{label}.{label}.nike.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "fetch",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "analytics.nike.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "fetch",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/static/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "fetch",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "{label}.cdndex.io",
+      "path": "/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "xhr",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "{label}.{label}.site.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "document",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "{label}.{label}.site.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "{label}.nike.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "fetch",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "{label}.nike.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "fetch",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "{label}.nike.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "fetch",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "{label}.{label}.site.com",
+      "path": "/%7Bseg%7D",
+      "method": "HEAD",
+      "resourceType": "xhr",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "{label}.{label}.site.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "www.googletagmanager.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "{label}.adsrvr.org",
+      "path": "/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "{label}.googlesyndication.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "fetch",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "{label}.{label}.site.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "{label}.{label}.site.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "{label}.{label}.site.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "{label}.{label}.site.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "{label}.{label}.site.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "{label}.{label}.site.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "{label}.{label}.site.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "{label}.{label}.site.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "{label}.{label}.site.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "{label}.{label}.site.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "stylesheet",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "{label}.{label}.site.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "stylesheet",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "{label}.{label}.nike.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "fetch",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.googletagmanager.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "www.googletagmanager.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "www.googletagmanager.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "{label}.{label}.nike.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "fetch",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "{label}.googlesyndication.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": true,
+      "status": 302
+    },
+    {
+      "host": "{label}.nike.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "fetch",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "{label}.googlesyndication.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "fetch",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "{label}.googlesyndication.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "fetch",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "api.nike.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "fetch",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "analytics.nike.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "ping",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "{label}.{label}.nike.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "fetch",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "xhr",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "{label}.nike.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "fetch",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "{label}.googlesyndication.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "{label}.nike.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "fetch",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/static/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "{label}.newrelic.com",
+      "path": "/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "{label}.adsrvr.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "document",
+      "thirdParty": true,
+      "status": 302
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/static/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/static/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/static/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/static/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/static/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/static/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/static/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/static/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/static/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/static/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/static/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/static/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/static/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/static/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/static/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/static/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/static/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/static/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "analytics.nike.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "ping",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "{label}.{label}.nike.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "fetch",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "{label}.nr-data.net",
+      "path": "/%7Bn%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "xhr",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/static/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "fetch",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/static/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "{label}.nike.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "fetch",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/static/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "{label}.adsrvr.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "document",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/static/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/static/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/static/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/static/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/static/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/static/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "api.nike.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/us/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "fetch",
+      "thirdParty": false,
+      "status": 404
+    },
+    {
+      "host": "{label}.nr-data.net",
+      "path": "/%7Bseg%7D/%7Bn%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "xhr",
+      "thirdParty": true,
+      "status": 204
+    },
+    {
+      "host": "{label}.nr-data.net",
+      "path": "/%7Bseg%7D/%7Bn%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "xhr",
+      "thirdParty": true,
+      "status": 204
+    },
+    {
+      "host": "{label}.nr-data.net",
+      "path": "/%7Bseg%7D/%7Bn%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "xhr",
+      "thirdParty": true,
+      "status": 204
+    },
+    {
+      "host": "{label}.nr-data.net",
+      "path": "/%7Bseg%7D/%7Bn%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "xhr",
+      "thirdParty": true,
+      "status": 204
+    },
+    {
+      "host": "{label}.nr-data.net",
+      "path": "/%7Bseg%7D/%7Bn%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "xhr",
+      "thirdParty": true,
+      "status": 204
+    },
+    {
+      "host": "{label}.nr-data.net",
+      "path": "/%7Bseg%7D/%7Bn%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "xhr",
+      "thirdParty": true,
+      "status": 204
+    },
+    {
+      "host": "{label}.nr-data.net",
+      "path": "/%7Bseg%7D/%7Bn%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "xhr",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "{label}.nr-data.net",
+      "path": "/%7Bseg%7D/%7Bn%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "xhr",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "{label}.nr-data.net",
+      "path": "/%7Bseg%7D/%7Bn%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "xhr",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "{label}.nr-data.net",
+      "path": "/%7Bseg%7D/%7Bn%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "xhr",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "{label}.nr-data.net",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "xhr",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "{label}.nr-data.net",
+      "path": "/%7Bseg%7D/%7Bn%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "xhr",
+      "thirdParty": true,
+      "status": 204
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/static/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "www.nike.com",
+      "path": "/static/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "{label}.adsrvr.org",
+      "path": "/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "script",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "{label}.nike.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "fetch",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "pixel.rubiconproject.com",
+      "path": "/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "document",
+      "thirdParty": true,
+      "status": 302
+    },
+    {
+      "host": "{label}.{label}.doubleclick.net",
+      "path": "/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "document",
+      "thirdParty": true,
+      "status": 302
+    },
+    {
+      "host": "{label}.adnxs.com",
+      "path": "/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "document",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "{label}.adsrvr.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "document",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "{label}.{label}.doubleclick.net",
+      "path": "/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "document",
+      "thirdParty": true,
+      "status": 302
+    },
+    {
+      "host": "api.nike.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/us/%7Bseg%7D/%7Bseg%7D",
+      "method": "PUT",
+      "resourceType": "fetch",
+      "thirdParty": false,
+      "status": 403
+    },
+    {
+      "host": "{label}.adsrvr.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "document",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "{label}.adsrvr.org",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "xhr",
+      "thirdParty": true,
+      "status": 200
+    },
+    {
+      "host": "analytics.nike.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "ping",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "{label}.{label}.nike.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D",
+      "method": "POST",
+      "resourceType": "fetch",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "api.nike.com",
+      "path": "/search/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "fetch",
+      "thirdParty": false,
+      "status": 200
+    },
+    {
+      "host": "static.nike.com",
+      "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+      "method": "GET",
+      "resourceType": "image",
+      "thirdParty": false,
+      "status": 200
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "analysisVersion": "detector-calibration-analysis-v2",
+  "status": "ineligible",
+  "studyId": "pixel-events-pilot-2026-07-28",
+  "detector": "pixel-events",
+  "studyDigest": "77258614be85f4dc193a052a8a353f32ea5da26e4373a8e61ea44497f8fb7e9f",
+  "issues": [],
+  "ineligibilityReasons": [
+    "censored-cases-present",
+    "missing-positive-reference-denominator"
+  ],
+  "denominators": {
+    "plannedCases": 24,
+    "recordedCases": 24,
+    "completeCases": 15,
+    "censoredCases": 9,
+    "referencePresent": 0,
+    "referenceAbsent": 15,
+    "predictedDetected": 0,
+    "predictedNotDetected": 15
+  },
+  "confusionMatrix": null,
+  "rates": null,
+  "uncertainty": {
+    "method": "none",
+    "reason": "study-ineligible"
+  },
+  "inference": {
+    "scope": "none",
+    "targetPopulation": null,
+    "conditionalTargetPopulationRateClaimAllowed": false,
+    "caveats": [
+      "No calibration claim is available from an ineligible study denominator."
+    ]
+  }
+}

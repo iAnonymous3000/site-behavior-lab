@@ -1,0 +1,466 @@
+{
+  "schemaVersion": 1,
+  "studyId": "pixel-events-pilot-2026-07-28",
+  "detector": "pixel-events",
+  "release": {
+    "buildCommit": "6579e6b3c0b72a8f3d7cadca1d377317b8d49950",
+    "detectorVersion": "pixel-request-decoder@2",
+    "detectorImplementationDigest": "21d513520c0fd149401d7a8bced2beb1adf52f281a3d1dc3b9c1dd9ecad89443",
+    "registryVersion": "node-detectors-v2",
+    "registryDigest": "4f4bf67ce216d0a5c173ae2d1a1ddb79bac3c7699c04e6900908350ee4f5bdc5",
+    "methodologyVersion": "shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.0+subject-validity-v2+detector-coverage-v2+phase-kernel-v2+boundary-state-v1+consent-r2-v4+resource-budget-v1+proxy-traffic-v1+service-worker-block-v1",
+    "normalizationVersion": "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:b68c7b0c0312d1ea5799aa491859ff88737e16da2791453b0936a9b4c14d62a7+tldts@7.4.9+node-evidence-policy-v1+r2-http-status-compat-v1",
+    "trackerCatalog": {
+      "version": "hand-curated-2026.07",
+      "digest": "7cade02ae20c3bb88e28e0de1135ef63c48f586e7196de3c02c13478f70c95bc",
+      "provenanceVersion": "catalog-review-v2",
+      "provenanceDigest": "78b5d48905eb5f5f99b6e3f26d2c380025a6f977f4d5ef10ed9e02ca2404748a"
+    },
+    "braveLists": {
+      "source": "Brave default ad-block lists",
+      "catalogCommit": "87e925ec3ed08b28b96460b7615b033c52971fa9",
+      "catalogDigest": "d701b93f8988851c1637548071bed1fe3f4a4abc8b138d4f3109d9373c3a3b0e",
+      "lists": 31,
+      "fetchedAt": "2026-07-25T14:05:35.223Z",
+      "manifestDigest": "34a785b40cef51a78901561747aa8e1649acdbde8f74370c80bae58e694e187b",
+      "rulesDigest": "5db37418d43a029830029233af15d00f7877b475b3cdb402f9de7374937812c0",
+      "engineVersion": "adblock-rust-0.13.2"
+    },
+    "runtime": {
+      "observer": "node-playwright",
+      "automation": "playwright-chromium",
+      "nodeVersion": "24.14.1",
+      "playwrightVersion": "1.62.0",
+      "browserName": "chromium",
+      "browserVersion": "151.0.7922.34",
+      "operatingSystem": "darwin 25.5.0",
+      "architecture": "arm64",
+      "runtimeDigest": "56dab141b19277125eebf7b26613d7ab60da25ba109fa7eb3d71284e3fd16596"
+    }
+  },
+  "targetPopulation": "None. The frame is a convenience list built to exercise the calibration pipeline end to end.",
+  "plannedCases": 24,
+  "design": {
+    "sampling": "convenience",
+    "samplingFrame": "calibration/pixel-events-pilot-2026-07-28/frame.json",
+    "samplingFrameDigest": "a39983ea322eab18cd4fbbca5cad2c6608eb1a8752c8a4e0a882410ad275a1ca",
+    "selectionProtocol": "Twelve sites chosen as likely pixel carriers (consumer retail and direct-to-consumer commerce, where Meta/TikTok/X advertising pixels are common) and twelve chosen as hard negatives (sites that do carry third-party requests, so an absent label is not trivially explained by an empty request log, but that are not consumer advertising properties). Strata were fixed before any scan ran and before any evidence was seen. The stratum is a DESIGN variable only: it is never used as, and never shown to, the reference label. Every listed case is attempted and none is replaced, so a site that blocks the scanner becomes a censored case rather than a silent substitution.",
+    "referenceProtocol": "Two independent automated labelers, each a separate language-model agent with no shared context, received an identical blinded packet per case containing only the visit's distinct recorded requests (method, host, path, count) and an exact endpoint-matching label definition. The detector's own pixel-events output, the case's design stratum, and all report headline and finding copy were withheld, so the reference is blinded to the prediction. Labelers were instructed not to read repository files, because an unblinded artifact was present on disk. THESE ARE AUTOMATED LABELERS, NOT HUMAN EXPERTS: this pilot validates the calibration pipeline, and a held-out study intended to support published rates requires human reference labeling.",
+    "referenceProtocolDigest": "f8cf20b3e679996c7ace56fb875b748c2d1cc1ecd1de58c0f53ab8c9b6b3a655",
+    "adjudicationProtocol": "Any case where the two labelers disagreed would be sent to a third independent agent, which received the same blinded evidence plus both recorded rationales without attribution, and decided the case itself. In this pilot the two labelers agreed on all 15 labeled cases, so no adjudication was invoked.",
+    "adjudicationProtocolDigest": "f4c9dbc6b8ec75d7a9f9815b80b96881074dd835d2e0b26d1bdacfeb1856f800",
+    "independentUnits": true,
+    "predictionBlindedToReference": true,
+    "referenceBlindedToPrediction": true
+  },
+  "cases": [
+    {
+      "caseId": "pos-01",
+      "outcome": "complete",
+      "conditionDigest": "2b144ce4c4ff46ca6e027487c1d14b275c99a9da031ed386ffab030b796bac0f",
+      "prediction": {
+        "value": "not-detected",
+        "artifactDigest": "11a2c75ef1517fa9d0f88f6819324bc2c9ff05a8c89c81fbaa29d511f72ac9de"
+      },
+      "reference": {
+        "value": "absent",
+        "evidenceArtifactDigest": "9d3021684690faa2233bac19ccb871ee72bc683d8440ec78f963c41d1feaa341",
+        "labelArtifactDigest": "409f210e1b563b4065425239f921ca400b9470c50eb424b8f3dea2b306de0284",
+        "labelerIds": [
+          "automated-llm-labeler-A.wf-b4c8d60c-a3c",
+          "automated-llm-labeler-B.wf-b4c8d60c-a3c"
+        ],
+        "adjudication": {
+          "status": "labelers-agreed",
+          "adjudicatorId": null,
+          "artifactDigest": null
+        }
+      }
+    },
+    {
+      "caseId": "pos-02",
+      "outcome": "censored",
+      "reason": "capture-failed",
+      "conditionDigest": "2b144ce4c4ff46ca6e027487c1d14b275c99a9da031ed386ffab030b796bac0f",
+      "attemptArtifactDigest": "f2df8ccae0229ab839550d8a23a5f59ff03155f550f640c764ff076ff90efb07"
+    },
+    {
+      "caseId": "pos-03",
+      "outcome": "censored",
+      "reason": "capture-failed",
+      "conditionDigest": "2b144ce4c4ff46ca6e027487c1d14b275c99a9da031ed386ffab030b796bac0f",
+      "attemptArtifactDigest": "cc32f5c5c0775089a12696dcee1611820d515fec35d40ace764e0e9c437a74cd"
+    },
+    {
+      "caseId": "pos-04",
+      "outcome": "censored",
+      "reason": "capture-failed",
+      "conditionDigest": "2b144ce4c4ff46ca6e027487c1d14b275c99a9da031ed386ffab030b796bac0f",
+      "attemptArtifactDigest": "f90dfe3e1921c2f04eed51a7c155dbec92ea4fd016c35b934d73e8f7aaedacc3"
+    },
+    {
+      "caseId": "pos-05",
+      "outcome": "complete",
+      "conditionDigest": "2b144ce4c4ff46ca6e027487c1d14b275c99a9da031ed386ffab030b796bac0f",
+      "prediction": {
+        "value": "not-detected",
+        "artifactDigest": "b102cf308617fdf32b44208e58902aa0b71b10925630c66af08aebf8276022a9"
+      },
+      "reference": {
+        "value": "absent",
+        "evidenceArtifactDigest": "a80edd33c146df882b095d1a6ec304acce877633024925de8b9c6a1085cb95e6",
+        "labelArtifactDigest": "b70d9430029f43ea1d128b011f0db7304813a956d0ad5dbf1ef0d1d74cb7981b",
+        "labelerIds": [
+          "automated-llm-labeler-A.wf-b4c8d60c-a3c",
+          "automated-llm-labeler-B.wf-b4c8d60c-a3c"
+        ],
+        "adjudication": {
+          "status": "labelers-agreed",
+          "adjudicatorId": null,
+          "artifactDigest": null
+        }
+      }
+    },
+    {
+      "caseId": "pos-06",
+      "outcome": "censored",
+      "reason": "capture-failed",
+      "conditionDigest": "2b144ce4c4ff46ca6e027487c1d14b275c99a9da031ed386ffab030b796bac0f",
+      "attemptArtifactDigest": "74eb1de51bcfcddff15e96faea837465cf6cf33c1ca78239ce5f337c454af346"
+    },
+    {
+      "caseId": "pos-07",
+      "outcome": "censored",
+      "reason": "capture-failed",
+      "conditionDigest": "2b144ce4c4ff46ca6e027487c1d14b275c99a9da031ed386ffab030b796bac0f",
+      "attemptArtifactDigest": "263dce5520b7d71ab1c2b202a039e048fa64f47c22205f539b4f716f54aea40e"
+    },
+    {
+      "caseId": "pos-08",
+      "outcome": "censored",
+      "reason": "capture-failed",
+      "conditionDigest": "2b144ce4c4ff46ca6e027487c1d14b275c99a9da031ed386ffab030b796bac0f",
+      "attemptArtifactDigest": "4b1df5f5d3edc589656b329d02a8ec08eefa98ee30a642f2c8cf956bc1a464c4"
+    },
+    {
+      "caseId": "pos-09",
+      "outcome": "censored",
+      "reason": "capture-failed",
+      "conditionDigest": "2b144ce4c4ff46ca6e027487c1d14b275c99a9da031ed386ffab030b796bac0f",
+      "attemptArtifactDigest": "6ced24939861cbc1cfe1bd802ec750e93caba854db740193ac73cf8931321430"
+    },
+    {
+      "caseId": "pos-10",
+      "outcome": "complete",
+      "conditionDigest": "2b144ce4c4ff46ca6e027487c1d14b275c99a9da031ed386ffab030b796bac0f",
+      "prediction": {
+        "value": "not-detected",
+        "artifactDigest": "87276cd6bd02eb3491bfb8af36b36ee80992bd1842c670e4b28e82c7f9b04ff9"
+      },
+      "reference": {
+        "value": "absent",
+        "evidenceArtifactDigest": "1cce0b6e79bd98587869568f03bfcf7b5d35a3ebf633d17a42027740058c17ad",
+        "labelArtifactDigest": "5c30c602171eb92294691ec7ae323192d3476a7188871f88d8cce695ed929968",
+        "labelerIds": [
+          "automated-llm-labeler-A.wf-b4c8d60c-a3c",
+          "automated-llm-labeler-B.wf-b4c8d60c-a3c"
+        ],
+        "adjudication": {
+          "status": "labelers-agreed",
+          "adjudicatorId": null,
+          "artifactDigest": null
+        }
+      }
+    },
+    {
+      "caseId": "pos-11",
+      "outcome": "censored",
+      "reason": "capture-failed",
+      "conditionDigest": "2b144ce4c4ff46ca6e027487c1d14b275c99a9da031ed386ffab030b796bac0f",
+      "attemptArtifactDigest": "de8f4e207f36aecb7715c4cb55a8c4c7a695386ff4c4132a0774f7fec344895f"
+    },
+    {
+      "caseId": "pos-12",
+      "outcome": "complete",
+      "conditionDigest": "2b144ce4c4ff46ca6e027487c1d14b275c99a9da031ed386ffab030b796bac0f",
+      "prediction": {
+        "value": "not-detected",
+        "artifactDigest": "f9ad06f8b17f24f0a35141607fcf0f8b0a4fdc23f6bcaf70218668f7290bcff7"
+      },
+      "reference": {
+        "value": "absent",
+        "evidenceArtifactDigest": "a78615c625f856c7a8bc8f959f1832e7b6e98ee129df97f23c653aa35b32144e",
+        "labelArtifactDigest": "b548f3fa655678c70a79aafc46bc09fb59dbf3c50508fe7cd29e8d455b2fce21",
+        "labelerIds": [
+          "automated-llm-labeler-A.wf-b4c8d60c-a3c",
+          "automated-llm-labeler-B.wf-b4c8d60c-a3c"
+        ],
+        "adjudication": {
+          "status": "labelers-agreed",
+          "adjudicatorId": null,
+          "artifactDigest": null
+        }
+      }
+    },
+    {
+      "caseId": "neg-01",
+      "outcome": "complete",
+      "conditionDigest": "2b144ce4c4ff46ca6e027487c1d14b275c99a9da031ed386ffab030b796bac0f",
+      "prediction": {
+        "value": "not-detected",
+        "artifactDigest": "03b72b41f1bc178baddfb887c33cf38a323355943bf5a1be7abe5c9d719ae23a"
+      },
+      "reference": {
+        "value": "absent",
+        "evidenceArtifactDigest": "3ced99484e17cf823060877bd77de402024ea39df61d41f5615701eb24d5ba50",
+        "labelArtifactDigest": "764ece85357c0e2facaaa165f181214457d005c3da000f8cd4ba822360652994",
+        "labelerIds": [
+          "automated-llm-labeler-A.wf-b4c8d60c-a3c",
+          "automated-llm-labeler-B.wf-b4c8d60c-a3c"
+        ],
+        "adjudication": {
+          "status": "labelers-agreed",
+          "adjudicatorId": null,
+          "artifactDigest": null
+        }
+      }
+    },
+    {
+      "caseId": "neg-02",
+      "outcome": "complete",
+      "conditionDigest": "2b144ce4c4ff46ca6e027487c1d14b275c99a9da031ed386ffab030b796bac0f",
+      "prediction": {
+        "value": "not-detected",
+        "artifactDigest": "c2451869e80bce8f4c40c0639a15559f7dd1ce0e3b31811becc5342bf40c109b"
+      },
+      "reference": {
+        "value": "absent",
+        "evidenceArtifactDigest": "00f6e0c59647cb483b10644ea0e6f9cb40faa8cdf3347c9f205396a591b37469",
+        "labelArtifactDigest": "d21fe8fa7eb9a943ebc52c6a46bc5c5fb56044dfa307ec04471771fabcf5f8de",
+        "labelerIds": [
+          "automated-llm-labeler-A.wf-b4c8d60c-a3c",
+          "automated-llm-labeler-B.wf-b4c8d60c-a3c"
+        ],
+        "adjudication": {
+          "status": "labelers-agreed",
+          "adjudicatorId": null,
+          "artifactDigest": null
+        }
+      }
+    },
+    {
+      "caseId": "neg-03",
+      "outcome": "censored",
+      "reason": "capture-failed",
+      "conditionDigest": "2b144ce4c4ff46ca6e027487c1d14b275c99a9da031ed386ffab030b796bac0f",
+      "attemptArtifactDigest": "07293539b5aae48d8bae8668485101ad7023086544eed9ce2ff35d1ed7836a28"
+    },
+    {
+      "caseId": "neg-04",
+      "outcome": "complete",
+      "conditionDigest": "2b144ce4c4ff46ca6e027487c1d14b275c99a9da031ed386ffab030b796bac0f",
+      "prediction": {
+        "value": "not-detected",
+        "artifactDigest": "873409b4b060cd14319bbe1108e97ad1ade85bbd9b88cb70f9924263a797c9e9"
+      },
+      "reference": {
+        "value": "absent",
+        "evidenceArtifactDigest": "16ce75081cc5ff78a9c9757ffe9606cf9a3948800d6855b9728c43dd72715386",
+        "labelArtifactDigest": "20e2a12fceb398713856e1030a49b123bf53c1136187c8ae99da8cf41ed54379",
+        "labelerIds": [
+          "automated-llm-labeler-A.wf-b4c8d60c-a3c",
+          "automated-llm-labeler-B.wf-b4c8d60c-a3c"
+        ],
+        "adjudication": {
+          "status": "labelers-agreed",
+          "adjudicatorId": null,
+          "artifactDigest": null
+        }
+      }
+    },
+    {
+      "caseId": "neg-05",
+      "outcome": "complete",
+      "conditionDigest": "2b144ce4c4ff46ca6e027487c1d14b275c99a9da031ed386ffab030b796bac0f",
+      "prediction": {
+        "value": "not-detected",
+        "artifactDigest": "1f6f4229a762b617b273bcb16eb8205e65dbdee7819d124b83ddb876ffec0d1d"
+      },
+      "reference": {
+        "value": "absent",
+        "evidenceArtifactDigest": "57b3a86a155b2f159f6e8229d3c754259dab7b588fa1d62098bbddb57b3c6ca8",
+        "labelArtifactDigest": "13f9ad3d66fc7b187f4c5d4d37a3d83710e68ce2b756858698a1acea7c2dfe9a",
+        "labelerIds": [
+          "automated-llm-labeler-A.wf-b4c8d60c-a3c",
+          "automated-llm-labeler-B.wf-b4c8d60c-a3c"
+        ],
+        "adjudication": {
+          "status": "labelers-agreed",
+          "adjudicatorId": null,
+          "artifactDigest": null
+        }
+      }
+    },
+    {
+      "caseId": "neg-06",
+      "outcome": "complete",
+      "conditionDigest": "2b144ce4c4ff46ca6e027487c1d14b275c99a9da031ed386ffab030b796bac0f",
+      "prediction": {
+        "value": "not-detected",
+        "artifactDigest": "7479d9041ef5753630a89c5c543e29c3ba8f4d7e5f17041aaee769389eb64a64"
+      },
+      "reference": {
+        "value": "absent",
+        "evidenceArtifactDigest": "037f4f0fa407f977f77648a5643720b4c1b04de97e06883ba2cb8bdecff9ee9d",
+        "labelArtifactDigest": "45a5e0195aca8c417f3c016f0891d46bdb1e0e4253b6b2307e302fa40a1391c0",
+        "labelerIds": [
+          "automated-llm-labeler-A.wf-b4c8d60c-a3c",
+          "automated-llm-labeler-B.wf-b4c8d60c-a3c"
+        ],
+        "adjudication": {
+          "status": "labelers-agreed",
+          "adjudicatorId": null,
+          "artifactDigest": null
+        }
+      }
+    },
+    {
+      "caseId": "neg-07",
+      "outcome": "complete",
+      "conditionDigest": "2b144ce4c4ff46ca6e027487c1d14b275c99a9da031ed386ffab030b796bac0f",
+      "prediction": {
+        "value": "not-detected",
+        "artifactDigest": "4697401b743a3588352794e15705bcaa7a133c7f6d7237d910569e3d5d8079f5"
+      },
+      "reference": {
+        "value": "absent",
+        "evidenceArtifactDigest": "ffad5db45989f097981be3fc868ccc4e0e4db3d7918a314b00f33057415997f3",
+        "labelArtifactDigest": "662753d6e37bd3526f67004b567054274f7d6d0e245cc63574dfb821cc34e79a",
+        "labelerIds": [
+          "automated-llm-labeler-A.wf-b4c8d60c-a3c",
+          "automated-llm-labeler-B.wf-b4c8d60c-a3c"
+        ],
+        "adjudication": {
+          "status": "labelers-agreed",
+          "adjudicatorId": null,
+          "artifactDigest": null
+        }
+      }
+    },
+    {
+      "caseId": "neg-08",
+      "outcome": "complete",
+      "conditionDigest": "2b144ce4c4ff46ca6e027487c1d14b275c99a9da031ed386ffab030b796bac0f",
+      "prediction": {
+        "value": "not-detected",
+        "artifactDigest": "e5881a33c3e27821409e7a95c1590f9ff6bc1d9f4e362646c46023b05407c150"
+      },
+      "reference": {
+        "value": "absent",
+        "evidenceArtifactDigest": "b919ecab537a69d588bb1bb25be74de5e47f4ee71675ee571357b8c0da3e9920",
+        "labelArtifactDigest": "ed090addb632a4baa120d01beccdb95193cd1163a33e88c6e4812e0a9fece6c7",
+        "labelerIds": [
+          "automated-llm-labeler-A.wf-b4c8d60c-a3c",
+          "automated-llm-labeler-B.wf-b4c8d60c-a3c"
+        ],
+        "adjudication": {
+          "status": "labelers-agreed",
+          "adjudicatorId": null,
+          "artifactDigest": null
+        }
+      }
+    },
+    {
+      "caseId": "neg-09",
+      "outcome": "complete",
+      "conditionDigest": "2b144ce4c4ff46ca6e027487c1d14b275c99a9da031ed386ffab030b796bac0f",
+      "prediction": {
+        "value": "not-detected",
+        "artifactDigest": "35300a7aa60246d26f24e1f6572b40166ffcf20d7a685968a15636f24a2d87c8"
+      },
+      "reference": {
+        "value": "absent",
+        "evidenceArtifactDigest": "c8b979304dbeae7db5e36fcebe3b21cb6e1212c4c9f0978035296b8425393a05",
+        "labelArtifactDigest": "73c1866674a7d128d92d75ba4563c4246b657b1faad19d5d07493af025a0e279",
+        "labelerIds": [
+          "automated-llm-labeler-A.wf-b4c8d60c-a3c",
+          "automated-llm-labeler-B.wf-b4c8d60c-a3c"
+        ],
+        "adjudication": {
+          "status": "labelers-agreed",
+          "adjudicatorId": null,
+          "artifactDigest": null
+        }
+      }
+    },
+    {
+      "caseId": "neg-10",
+      "outcome": "complete",
+      "conditionDigest": "2b144ce4c4ff46ca6e027487c1d14b275c99a9da031ed386ffab030b796bac0f",
+      "prediction": {
+        "value": "not-detected",
+        "artifactDigest": "55149cc3f2a852453ebbf904e4a6f8b47092e2a5c3804100e80221856eb83c2f"
+      },
+      "reference": {
+        "value": "absent",
+        "evidenceArtifactDigest": "281d6ebc242648dcaeb7003de989c795bb584b9faff67b81adfc5ad7487f4647",
+        "labelArtifactDigest": "ad5b3a8b4e7b5ca432f84543838d1ad6c09ba97377aee592fc42c15c2c73b5b8",
+        "labelerIds": [
+          "automated-llm-labeler-A.wf-b4c8d60c-a3c",
+          "automated-llm-labeler-B.wf-b4c8d60c-a3c"
+        ],
+        "adjudication": {
+          "status": "labelers-agreed",
+          "adjudicatorId": null,
+          "artifactDigest": null
+        }
+      }
+    },
+    {
+      "caseId": "neg-11",
+      "outcome": "complete",
+      "conditionDigest": "2b144ce4c4ff46ca6e027487c1d14b275c99a9da031ed386ffab030b796bac0f",
+      "prediction": {
+        "value": "not-detected",
+        "artifactDigest": "d5783e09ea865b5a472016618830cc45178b6abddde9e921b2ab116a285a2407"
+      },
+      "reference": {
+        "value": "absent",
+        "evidenceArtifactDigest": "1ce8866b1b40ef331c632f93630bf4329179e117251071c7ea6d6ce4757347c1",
+        "labelArtifactDigest": "0a0afb2e0dcf0dfe53fd7219e2e525a8fbc1c94cddfd3f60d1c5f0a504831f07",
+        "labelerIds": [
+          "automated-llm-labeler-A.wf-b4c8d60c-a3c",
+          "automated-llm-labeler-B.wf-b4c8d60c-a3c"
+        ],
+        "adjudication": {
+          "status": "labelers-agreed",
+          "adjudicatorId": null,
+          "artifactDigest": null
+        }
+      }
+    },
+    {
+      "caseId": "neg-12",
+      "outcome": "complete",
+      "conditionDigest": "2b144ce4c4ff46ca6e027487c1d14b275c99a9da031ed386ffab030b796bac0f",
+      "prediction": {
+        "value": "not-detected",
+        "artifactDigest": "e08081154ac6f3bd7099713d03300df89c5e7c7beced78067f743a012633089b"
+      },
+      "reference": {
+        "value": "absent",
+        "evidenceArtifactDigest": "4a75704e4a9c62b60a118b968e2bb13b9e746a514ca84875b3e28095ce4ddd65",
+        "labelArtifactDigest": "fe40d50a758bc40de7427eb55c476b5c5da75ee79983307fba41b22633cb497b",
+        "labelerIds": [
+          "automated-llm-labeler-A.wf-b4c8d60c-a3c",
+          "automated-llm-labeler-B.wf-b4c8d60c-a3c"
+        ],
+        "adjudication": {
+          "status": "labelers-agreed",
+          "adjudicatorId": null,
+          "artifactDigest": null
+        }
+      }
+    }
+  ]
+}

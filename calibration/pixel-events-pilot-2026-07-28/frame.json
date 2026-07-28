@@ -1,0 +1,43 @@
+{
+  "frameId": "pixel-events-pilot-2026-07-28",
+  "detector": "pixel-events",
+  "purpose": "Pipeline-validation pilot. This frame is deliberately enriched for likely positives and hard negatives and is NOT a random sample of any population. Analysis of a study built on it can only be descriptive of these recorded cases; no web-wide precision or recall claim follows from it.",
+  "sampling": "convenience",
+  "selectionProtocol": "Twelve sites chosen as likely pixel carriers (consumer retail and direct-to-consumer commerce, where Meta/TikTok/X advertising pixels are common) and twelve chosen as hard negatives (sites that do carry third-party requests, so an absent label is not trivially explained by an empty request log, but that are not consumer advertising properties). Strata were fixed before any scan ran and before any evidence was seen. The stratum is a DESIGN variable only: it is never used as, and never shown to, the reference label. Every listed case is attempted and none is replaced, so a site that blocks the scanner becomes a censored case rather than a silent substitution.",
+  "targetPopulation": "None. The frame is a convenience list built to exercise the calibration pipeline end to end.",
+  "labelDefinition": "PRESENT when the visit's recorded request log contains at least one request to a first-party-of-platform advertising pixel endpoint, defined as: host facebook.com or a subdomain with path /tr or /tr/*; host analytics.tiktok.com with path beginning /api/v2/pixel; host analytics.twitter.com or exactly t.co with path beginning /i/adsct. ABSENT when the recorded request log contains no such request. The label is a property of the RECORDED EVIDENCE for that visit, not of the site in general: a site that fires a pixel only after consent or interaction is correctly labelled ABSENT for a passive visit that recorded none.",
+  "conditions": {
+    "device": "desktop",
+    "consentMode": "observe",
+    "gpcEnabled": true,
+    "comparison": "none",
+    "egressRegion": "operator-local, single fixed network location for every case",
+    "note": "Every case is scanned under identical conditions from one machine in one session. Region is fixed by construction rather than declared, and is recorded in the study's condition digest."
+  },
+  "sites": [
+    { "caseId": "pos-01", "url": "https://www.nike.com/", "stratum": "likely-positive" },
+    { "caseId": "pos-02", "url": "https://www.sephora.com/", "stratum": "likely-positive" },
+    { "caseId": "pos-03", "url": "https://www.wayfair.com/", "stratum": "likely-positive" },
+    { "caseId": "pos-04", "url": "https://www.etsy.com/", "stratum": "likely-positive" },
+    { "caseId": "pos-05", "url": "https://www.gap.com/", "stratum": "likely-positive" },
+    { "caseId": "pos-06", "url": "https://www.chewy.com/", "stratum": "likely-positive" },
+    { "caseId": "pos-07", "url": "https://www.rei.com/", "stratum": "likely-positive" },
+    { "caseId": "pos-08", "url": "https://www.underarmour.com/", "stratum": "likely-positive" },
+    { "caseId": "pos-09", "url": "https://www2.hm.com/", "stratum": "likely-positive" },
+    { "caseId": "pos-10", "url": "https://www.lowes.com/", "stratum": "likely-positive" },
+    { "caseId": "pos-11", "url": "https://www.bhphotovideo.com/", "stratum": "likely-positive" },
+    { "caseId": "pos-12", "url": "https://www.allbirds.com/", "stratum": "likely-positive" },
+    { "caseId": "neg-01", "url": "https://www.debian.org/", "stratum": "hard-negative" },
+    { "caseId": "neg-02", "url": "https://www.kernel.org/", "stratum": "hard-negative" },
+    { "caseId": "neg-03", "url": "https://www.gnu.org/", "stratum": "hard-negative" },
+    { "caseId": "neg-04", "url": "https://www.w3.org/", "stratum": "hard-negative" },
+    { "caseId": "neg-05", "url": "https://www.rfc-editor.org/", "stratum": "hard-negative" },
+    { "caseId": "neg-06", "url": "https://www.python.org/", "stratum": "hard-negative" },
+    { "caseId": "neg-07", "url": "https://nodejs.org/en", "stratum": "hard-negative" },
+    { "caseId": "neg-08", "url": "https://www.postgresql.org/", "stratum": "hard-negative" },
+    { "caseId": "neg-09", "url": "https://www.apache.org/", "stratum": "hard-negative" },
+    { "caseId": "neg-10", "url": "https://www.mozilla.org/en-US/", "stratum": "hard-negative" },
+    { "caseId": "neg-11", "url": "https://www.eff.org/", "stratum": "hard-negative" },
+    { "caseId": "neg-12", "url": "https://archive.org/", "stratum": "hard-negative" }
+  ]
+}

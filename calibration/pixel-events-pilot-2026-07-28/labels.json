@@ -1,0 +1,240 @@
+{
+  "referenceProtocol": "Two independent automated labelers, each a separate language-model agent with no shared context, received an identical blinded packet per case containing only the visit's distinct recorded requests (method, host, path, count) and an exact endpoint-matching label definition. The detector's own pixel-events output, the case's design stratum, and all report headline and finding copy were withheld, so the reference is blinded to the prediction. Labelers were instructed not to read repository files, because an unblinded artifact was present on disk. THESE ARE AUTOMATED LABELERS, NOT HUMAN EXPERTS: this pilot validates the calibration pipeline, and a held-out study intended to support published rates requires human reference labeling.",
+  "adjudicationProtocol": "Any case where the two labelers disagreed would be sent to a third independent agent, which received the same blinded evidence plus both recorded rationales without attribution, and decided the case itself. In this pilot the two labelers agreed on all 15 labeled cases, so no adjudication was invoked.",
+  "labelerIds": [
+    "automated-llm-labeler-A.wf-b4c8d60c-a3c",
+    "automated-llm-labeler-B.wf-b4c8d60c-a3c"
+  ],
+  "interLabelerAgreement": {
+    "cases": 15,
+    "agreed": 15,
+    "disagreements": 0
+  },
+  "finalLabels": [
+    {
+      "caseId": "neg-01",
+      "value": "absent",
+      "evidenceArtifactDigest": "3ced99484e17cf823060877bd77de402024ea39df61d41f5615701eb24d5ba50",
+      "labelArtifactDigest": "764ece85357c0e2facaaa165f181214457d005c3da000f8cd4ba822360652994",
+      "labelerIds": [
+        "automated-llm-labeler-A.wf-b4c8d60c-a3c",
+        "automated-llm-labeler-B.wf-b4c8d60c-a3c"
+      ],
+      "adjudication": {
+        "status": "labelers-agreed",
+        "adjudicatorId": null,
+        "artifactDigest": null
+      }
+    },
+    {
+      "caseId": "neg-02",
+      "value": "absent",
+      "evidenceArtifactDigest": "00f6e0c59647cb483b10644ea0e6f9cb40faa8cdf3347c9f205396a591b37469",
+      "labelArtifactDigest": "d21fe8fa7eb9a943ebc52c6a46bc5c5fb56044dfa307ec04471771fabcf5f8de",
+      "labelerIds": [
+        "automated-llm-labeler-A.wf-b4c8d60c-a3c",
+        "automated-llm-labeler-B.wf-b4c8d60c-a3c"
+      ],
+      "adjudication": {
+        "status": "labelers-agreed",
+        "adjudicatorId": null,
+        "artifactDigest": null
+      }
+    },
+    {
+      "caseId": "neg-04",
+      "value": "absent",
+      "evidenceArtifactDigest": "16ce75081cc5ff78a9c9757ffe9606cf9a3948800d6855b9728c43dd72715386",
+      "labelArtifactDigest": "20e2a12fceb398713856e1030a49b123bf53c1136187c8ae99da8cf41ed54379",
+      "labelerIds": [
+        "automated-llm-labeler-A.wf-b4c8d60c-a3c",
+        "automated-llm-labeler-B.wf-b4c8d60c-a3c"
+      ],
+      "adjudication": {
+        "status": "labelers-agreed",
+        "adjudicatorId": null,
+        "artifactDigest": null
+      }
+    },
+    {
+      "caseId": "neg-05",
+      "value": "absent",
+      "evidenceArtifactDigest": "57b3a86a155b2f159f6e8229d3c754259dab7b588fa1d62098bbddb57b3c6ca8",
+      "labelArtifactDigest": "13f9ad3d66fc7b187f4c5d4d37a3d83710e68ce2b756858698a1acea7c2dfe9a",
+      "labelerIds": [
+        "automated-llm-labeler-A.wf-b4c8d60c-a3c",
+        "automated-llm-labeler-B.wf-b4c8d60c-a3c"
+      ],
+      "adjudication": {
+        "status": "labelers-agreed",
+        "adjudicatorId": null,
+        "artifactDigest": null
+      }
+    },
+    {
+      "caseId": "neg-06",
+      "value": "absent",
+      "evidenceArtifactDigest": "037f4f0fa407f977f77648a5643720b4c1b04de97e06883ba2cb8bdecff9ee9d",
+      "labelArtifactDigest": "45a5e0195aca8c417f3c016f0891d46bdb1e0e4253b6b2307e302fa40a1391c0",
+      "labelerIds": [
+        "automated-llm-labeler-A.wf-b4c8d60c-a3c",
+        "automated-llm-labeler-B.wf-b4c8d60c-a3c"
+      ],
+      "adjudication": {
+        "status": "labelers-agreed",
+        "adjudicatorId": null,
+        "artifactDigest": null
+      }
+    },
+    {
+      "caseId": "neg-07",
+      "value": "absent",
+      "evidenceArtifactDigest": "ffad5db45989f097981be3fc868ccc4e0e4db3d7918a314b00f33057415997f3",
+      "labelArtifactDigest": "662753d6e37bd3526f67004b567054274f7d6d0e245cc63574dfb821cc34e79a",
+      "labelerIds": [
+        "automated-llm-labeler-A.wf-b4c8d60c-a3c",
+        "automated-llm-labeler-B.wf-b4c8d60c-a3c"
+      ],
+      "adjudication": {
+        "status": "labelers-agreed",
+        "adjudicatorId": null,
+        "artifactDigest": null
+      }
+    },
+    {
+      "caseId": "neg-08",
+      "value": "absent",
+      "evidenceArtifactDigest": "b919ecab537a69d588bb1bb25be74de5e47f4ee71675ee571357b8c0da3e9920",
+      "labelArtifactDigest": "ed090addb632a4baa120d01beccdb95193cd1163a33e88c6e4812e0a9fece6c7",
+      "labelerIds": [
+        "automated-llm-labeler-A.wf-b4c8d60c-a3c",
+        "automated-llm-labeler-B.wf-b4c8d60c-a3c"
+      ],
+      "adjudication": {
+        "status": "labelers-agreed",
+        "adjudicatorId": null,
+        "artifactDigest": null
+      }
+    },
+    {
+      "caseId": "neg-09",
+      "value": "absent",
+      "evidenceArtifactDigest": "c8b979304dbeae7db5e36fcebe3b21cb6e1212c4c9f0978035296b8425393a05",
+      "labelArtifactDigest": "73c1866674a7d128d92d75ba4563c4246b657b1faad19d5d07493af025a0e279",
+      "labelerIds": [
+        "automated-llm-labeler-A.wf-b4c8d60c-a3c",
+        "automated-llm-labeler-B.wf-b4c8d60c-a3c"
+      ],
+      "adjudication": {
+        "status": "labelers-agreed",
+        "adjudicatorId": null,
+        "artifactDigest": null
+      }
+    },
+    {
+      "caseId": "neg-10",
+      "value": "absent",
+      "evidenceArtifactDigest": "281d6ebc242648dcaeb7003de989c795bb584b9faff67b81adfc5ad7487f4647",
+      "labelArtifactDigest": "ad5b3a8b4e7b5ca432f84543838d1ad6c09ba97377aee592fc42c15c2c73b5b8",
+      "labelerIds": [
+        "automated-llm-labeler-A.wf-b4c8d60c-a3c",
+        "automated-llm-labeler-B.wf-b4c8d60c-a3c"
+      ],
+      "adjudication": {
+        "status": "labelers-agreed",
+        "adjudicatorId": null,
+        "artifactDigest": null
+      }
+    },
+    {
+      "caseId": "neg-11",
+      "value": "absent",
+      "evidenceArtifactDigest": "1ce8866b1b40ef331c632f93630bf4329179e117251071c7ea6d6ce4757347c1",
+      "labelArtifactDigest": "0a0afb2e0dcf0dfe53fd7219e2e525a8fbc1c94cddfd3f60d1c5f0a504831f07",
+      "labelerIds": [
+        "automated-llm-labeler-A.wf-b4c8d60c-a3c",
+        "automated-llm-labeler-B.wf-b4c8d60c-a3c"
+      ],
+      "adjudication": {
+        "status": "labelers-agreed",
+        "adjudicatorId": null,
+        "artifactDigest": null
+      }
+    },
+    {
+      "caseId": "neg-12",
+      "value": "absent",
+      "evidenceArtifactDigest": "4a75704e4a9c62b60a118b968e2bb13b9e746a514ca84875b3e28095ce4ddd65",
+      "labelArtifactDigest": "fe40d50a758bc40de7427eb55c476b5c5da75ee79983307fba41b22633cb497b",
+      "labelerIds": [
+        "automated-llm-labeler-A.wf-b4c8d60c-a3c",
+        "automated-llm-labeler-B.wf-b4c8d60c-a3c"
+      ],
+      "adjudication": {
+        "status": "labelers-agreed",
+        "adjudicatorId": null,
+        "artifactDigest": null
+      }
+    },
+    {
+      "caseId": "pos-01",
+      "value": "absent",
+      "evidenceArtifactDigest": "9d3021684690faa2233bac19ccb871ee72bc683d8440ec78f963c41d1feaa341",
+      "labelArtifactDigest": "409f210e1b563b4065425239f921ca400b9470c50eb424b8f3dea2b306de0284",
+      "labelerIds": [
+        "automated-llm-labeler-A.wf-b4c8d60c-a3c",
+        "automated-llm-labeler-B.wf-b4c8d60c-a3c"
+      ],
+      "adjudication": {
+        "status": "labelers-agreed",
+        "adjudicatorId": null,
+        "artifactDigest": null
+      }
+    },
+    {
+      "caseId": "pos-05",
+      "value": "absent",
+      "evidenceArtifactDigest": "a80edd33c146df882b095d1a6ec304acce877633024925de8b9c6a1085cb95e6",
+      "labelArtifactDigest": "b70d9430029f43ea1d128b011f0db7304813a956d0ad5dbf1ef0d1d74cb7981b",
+      "labelerIds": [
+        "automated-llm-labeler-A.wf-b4c8d60c-a3c",
+        "automated-llm-labeler-B.wf-b4c8d60c-a3c"
+      ],
+      "adjudication": {
+        "status": "labelers-agreed",
+        "adjudicatorId": null,
+        "artifactDigest": null
+      }
+    },
+    {
+      "caseId": "pos-10",
+      "value": "absent",
+      "evidenceArtifactDigest": "1cce0b6e79bd98587869568f03bfcf7b5d35a3ebf633d17a42027740058c17ad",
+      "labelArtifactDigest": "5c30c602171eb92294691ec7ae323192d3476a7188871f88d8cce695ed929968",
+      "labelerIds": [
+        "automated-llm-labeler-A.wf-b4c8d60c-a3c",
+        "automated-llm-labeler-B.wf-b4c8d60c-a3c"
+      ],
+      "adjudication": {
+        "status": "labelers-agreed",
+        "adjudicatorId": null,
+        "artifactDigest": null
+      }
+    },
+    {
+      "caseId": "pos-12",
+      "value": "absent",
+      "evidenceArtifactDigest": "a78615c625f856c7a8bc8f959f1832e7b6e98ee129df97f23c653aa35b32144e",
+      "labelArtifactDigest": "b548f3fa655678c70a79aafc46bc09fb59dbf3c50508fe7cd29e8d455b2fce21",
+      "labelerIds": [
+        "automated-llm-labeler-A.wf-b4c8d60c-a3c",
+        "automated-llm-labeler-B.wf-b4c8d60c-a3c"
+      ],
+      "adjudication": {
+        "status": "labelers-agreed",
+        "adjudicatorId": null,
+        "artifactDigest": null
+      }
+    }
+  ]
+}

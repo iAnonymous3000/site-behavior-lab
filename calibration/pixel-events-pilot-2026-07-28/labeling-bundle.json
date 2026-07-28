@@ -1,0 +1,1391 @@
+{
+ "neg-01": {
+  "caseId": "neg-01",
+  "distinctRequests": [
+   {
+    "host": "www.debian.org",
+    "path": "/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 16
+   },
+   {
+    "host": "www.debian.org",
+    "path": "/%7Bseg%7D",
+    "method": "GET",
+    "count": 6
+   },
+   {
+    "host": "www.debian.org",
+    "path": "/",
+    "method": "GET",
+    "count": 1
+   }
+  ]
+ },
+ "neg-02": {
+  "caseId": "neg-02",
+  "distinctRequests": [
+   {
+    "host": "www.kernel.org",
+    "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 9
+   },
+   {
+    "host": "www.kernel.org",
+    "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 4
+   },
+   {
+    "host": "www.kernel.org",
+    "path": "/",
+    "method": "GET",
+    "count": 1
+   }
+  ]
+ },
+ "neg-04": {
+  "caseId": "neg-04",
+  "distinctRequests": [
+   {
+    "host": "www.w3.org",
+    "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 9
+   },
+   {
+    "host": "www.w3.org",
+    "path": "/%7Bseg%7D/%7Bn%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 6
+   },
+   {
+    "host": "www.w3.org",
+    "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 5
+   },
+   {
+    "host": "www.w3.org",
+    "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 4
+   },
+   {
+    "host": "www.w3.org",
+    "path": "/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 1
+   },
+   {
+    "host": "www.w3.org",
+    "path": "/",
+    "method": "GET",
+    "count": 1
+   },
+   {
+    "host": "www.w3.org",
+    "path": "/account/%7Bseg%7D",
+    "method": "GET",
+    "count": 1
+   }
+  ]
+ },
+ "neg-05": {
+  "caseId": "neg-05",
+  "distinctRequests": [
+   {
+    "host": "www.rfc-editor.org",
+    "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 23
+   },
+   {
+    "host": "analytics.ietf.org",
+    "path": "/%7Bseg%7D",
+    "method": "POST",
+    "count": 3
+   },
+   {
+    "host": "static.ietf.org",
+    "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 2
+   },
+   {
+    "host": "analytics.ietf.org",
+    "path": "/%7Bseg%7D",
+    "method": "GET",
+    "count": 1
+   },
+   {
+    "host": "www.rfc-editor.org",
+    "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 1
+   },
+   {
+    "host": "www.rfc-editor.org",
+    "path": "/",
+    "method": "GET",
+    "count": 1
+   }
+  ]
+ },
+ "neg-06": {
+  "caseId": "neg-06",
+  "distinctRequests": [
+   {
+    "host": "www.python.org",
+    "path": "/static/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 11
+   },
+   {
+    "host": "www.python.org",
+    "path": "/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 7
+   },
+   {
+    "host": "ajax.googleapis.com",
+    "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 4
+   },
+   {
+    "host": "www.python.org",
+    "path": "/static/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 3
+   },
+   {
+    "host": "ajax.googleapis.com",
+    "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 1
+   },
+   {
+    "host": "analytics.python.org",
+    "path": "/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 1
+   },
+   {
+    "host": "media.ethicalads.io",
+    "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 1
+   },
+   {
+    "host": "www.python.org",
+    "path": "/%7Bseg%7D",
+    "method": "GET",
+    "count": 1
+   },
+   {
+    "host": "www.python.org",
+    "path": "/",
+    "method": "GET",
+    "count": 1
+   },
+   {
+    "host": "{label}.python.org",
+    "path": "/%7Bseg%7D",
+    "method": "GET",
+    "count": 1
+   },
+   {
+    "host": "{label}.statuspage.io",
+    "path": "/api/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 1
+   }
+  ]
+ },
+ "neg-07": {
+  "caseId": "neg-07",
+  "distinctRequests": [
+   {
+    "host": "nodejs.org",
+    "path": "/%7Bseg%7D/static/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 35
+   },
+   {
+    "host": "nodejs.org",
+    "path": "/en",
+    "method": "GET",
+    "count": 3
+   },
+   {
+    "host": "nodejs.org",
+    "path": "/%7Bseg%7D",
+    "method": "GET",
+    "count": 2
+   },
+   {
+    "host": "nodejs.org",
+    "path": "/en/about/%7Bseg%7D",
+    "method": "GET",
+    "count": 2
+   },
+   {
+    "host": "nodejs.org",
+    "path": "/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 1
+   },
+   {
+    "host": "nodejs.org",
+    "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 1
+   },
+   {
+    "host": "nodejs.org",
+    "path": "/en/%7Bseg%7D",
+    "method": "GET",
+    "count": 1
+   },
+   {
+    "host": "nodejs.org",
+    "path": "/en/about",
+    "method": "GET",
+    "count": 1
+   },
+   {
+    "host": "nodejs.org",
+    "path": "/en/blog",
+    "method": "GET",
+    "count": 1
+   },
+   {
+    "host": "nodejs.org",
+    "path": "/en/download",
+    "method": "GET",
+    "count": 1
+   }
+  ]
+ },
+ "neg-08": {
+  "caseId": "neg-08",
+  "distinctRequests": [
+   {
+    "host": "www.postgresql.org",
+    "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 10
+   },
+   {
+    "host": "www.postgresql.org",
+    "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 3
+   },
+   {
+    "host": "www.google-analytics.com",
+    "path": "/%7Bseg%7D/%7Bseg%7D",
+    "method": "POST",
+    "count": 2
+   },
+   {
+    "host": "www.google-analytics.com",
+    "path": "/%7Bseg%7D",
+    "method": "GET",
+    "count": 1
+   },
+   {
+    "host": "www.googletagmanager.com",
+    "path": "/%7Bseg%7D",
+    "method": "GET",
+    "count": 1
+   },
+   {
+    "host": "www.googletagmanager.com",
+    "path": "/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 1
+   },
+   {
+    "host": "www.postgresql.org",
+    "path": "/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 1
+   },
+   {
+    "host": "www.postgresql.org",
+    "path": "/%7Bseg%7D/%7Bseg%7D/about/press/%7Bseg%7D",
+    "method": "GET",
+    "count": 1
+   },
+   {
+    "host": "www.postgresql.org",
+    "path": "/",
+    "method": "GET",
+    "count": 1
+   }
+  ]
+ },
+ "neg-09": {
+  "caseId": "neg-09",
+  "distinctRequests": [
+   {
+    "host": "www.apache.org",
+    "path": "/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 31
+   },
+   {
+    "host": "www.apache.org",
+    "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 15
+   },
+   {
+    "host": "www.apache.org",
+    "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 4
+   },
+   {
+    "host": "analytics.apache.org",
+    "path": "/%7Bseg%7D",
+    "method": "GET",
+    "count": 1
+   },
+   {
+    "host": "analytics.apache.org",
+    "path": "/%7Bseg%7D",
+    "method": "POST",
+    "count": 1
+   },
+   {
+    "host": "www.apache.org",
+    "path": "/",
+    "method": "GET",
+    "count": 1
+   },
+   {
+    "host": "www.apachecon.com",
+    "path": "/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 1
+   }
+  ]
+ },
+ "neg-10": {
+  "caseId": "neg-10",
+  "distinctRequests": [
+   {
+    "host": "www.mozilla.org",
+    "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 16
+   },
+   {
+    "host": "www.mozilla.org",
+    "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 15
+   },
+   {
+    "host": "www.mozilla.org",
+    "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 11
+   },
+   {
+    "host": "www.mozilla.org",
+    "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 10
+   },
+   {
+    "host": "transcend-cdn.com",
+    "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 3
+   },
+   {
+    "host": "transcend-cdn.com",
+    "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 1
+   },
+   {
+    "host": "www.mozilla.org",
+    "path": "/%7Bseg%7D",
+    "method": "GET",
+    "count": 1
+   }
+  ]
+ },
+ "neg-11": {
+  "caseId": "neg-11",
+  "distinctRequests": [
+   {
+    "host": "www.eff.org",
+    "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 34
+   },
+   {
+    "host": "www.eff.org",
+    "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 9
+   },
+   {
+    "host": "www.eff.org",
+    "path": "/",
+    "method": "GET",
+    "count": 1
+   },
+   {
+    "host": "{label}.eff.org",
+    "path": "/%7Bseg%7D",
+    "method": "GET",
+    "count": 1
+   }
+  ]
+ },
+ "neg-12": {
+  "caseId": "neg-12",
+  "distinctRequests": [
+   {
+    "host": "archive.org",
+    "path": "/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 55
+   },
+   {
+    "host": "archive.org",
+    "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 34
+   },
+   {
+    "host": "archive.org",
+    "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 5
+   },
+   {
+    "host": "archive.org",
+    "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 1
+   },
+   {
+    "host": "archive.org",
+    "path": "/",
+    "method": "GET",
+    "count": 1
+   },
+   {
+    "host": "{label}.archive.org",
+    "path": "/%7Bseg%7D",
+    "method": "POST",
+    "count": 1
+   },
+   {
+    "host": "{label}.archive.org",
+    "path": "/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 1
+   },
+   {
+    "host": "{label}.archive.org",
+    "path": "/api/%7Bn%7D/%7Bseg%7D",
+    "method": "POST",
+    "count": 1
+   }
+  ]
+ },
+ "pos-01": {
+  "caseId": "pos-01",
+  "distinctRequests": [
+   {
+    "host": "www.nike.com",
+    "path": "/static/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 34
+   },
+   {
+    "host": "static.nike.com",
+    "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 18
+   },
+   {
+    "host": "www.nike.com",
+    "path": "/static/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 18
+   },
+   {
+    "host": "www.nike.com",
+    "path": "/static/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 17
+   },
+   {
+    "host": "www.nike.com",
+    "path": "/%7Bseg%7D/static/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 12
+   },
+   {
+    "host": "{label}.nr-data.net",
+    "path": "/%7Bseg%7D/%7Bn%7D/%7Bseg%7D",
+    "method": "POST",
+    "count": 11
+   },
+   {
+    "host": "{label}.{label}.nike.com",
+    "path": "/%7Bseg%7D/%7Bseg%7D",
+    "method": "POST",
+    "count": 11
+   },
+   {
+    "host": "analytics.nike.com",
+    "path": "/%7Bseg%7D/%7Bseg%7D",
+    "method": "POST",
+    "count": 9
+   },
+   {
+    "host": "{label}.{label}.site.com",
+    "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 9
+   },
+   {
+    "host": "{label}.nike.com",
+    "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+    "method": "POST",
+    "count": 8
+   },
+   {
+    "host": "api.nike.com",
+    "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 7
+   },
+   {
+    "host": "{label}.{label}.site.com",
+    "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 7
+   },
+   {
+    "host": "www.nike.com",
+    "path": "/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 5
+   },
+   {
+    "host": "www.nike.com",
+    "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 5
+   },
+   {
+    "host": "www.googletagmanager.com",
+    "path": "/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 4
+   },
+   {
+    "host": "www.nike.com",
+    "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 4
+   },
+   {
+    "host": "www.nike.com",
+    "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 4
+   },
+   {
+    "host": "{label}.googlesyndication.com",
+    "path": "/%7Bseg%7D/%7Bseg%7D",
+    "method": "POST",
+    "count": 3
+   },
+   {
+    "host": "api.nike.com",
+    "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 2
+   },
+   {
+    "host": "api.nike.com",
+    "path": "/search/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 2
+   },
+   {
+    "host": "www.nike.com",
+    "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 2
+   },
+   {
+    "host": "www.nike.com",
+    "path": "/%7Bseg%7D/static/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 2
+   },
+   {
+    "host": "{label}.adsrvr.org",
+    "path": "/%7Bseg%7D",
+    "method": "GET",
+    "count": 2
+   },
+   {
+    "host": "{label}.adsrvr.org",
+    "path": "/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 2
+   },
+   {
+    "host": "{label}.adsrvr.org",
+    "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 2
+   },
+   {
+    "host": "{label}.googlesyndication.com",
+    "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 2
+   },
+   {
+    "host": "{label}.nike.com",
+    "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 2
+   },
+   {
+    "host": "{label}.{label}.doubleclick.net",
+    "path": "/%7Bseg%7D",
+    "method": "GET",
+    "count": 2
+   },
+   {
+    "host": "{label}.{label}.salesforce-scrt.com",
+    "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 2
+   },
+   {
+    "host": "api.nike.com",
+    "path": "/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 1
+   },
+   {
+    "host": "api.nike.com",
+    "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/us/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 1
+   },
+   {
+    "host": "api.nike.com",
+    "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/us/%7Bseg%7D/%7Bseg%7D",
+    "method": "PUT",
+    "count": 1
+   },
+   {
+    "host": "pixel.rubiconproject.com",
+    "path": "/%7Bseg%7D",
+    "method": "GET",
+    "count": 1
+   },
+   {
+    "host": "static.nike.com",
+    "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 1
+   },
+   {
+    "host": "www.googletagmanager.com",
+    "path": "/%7Bseg%7D",
+    "method": "GET",
+    "count": 1
+   },
+   {
+    "host": "www.nike.com",
+    "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+    "method": "POST",
+    "count": 1
+   },
+   {
+    "host": "www.nike.com",
+    "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/static/%7Bseg%7D",
+    "method": "GET",
+    "count": 1
+   },
+   {
+    "host": "www.nike.com",
+    "path": "/",
+    "method": "GET",
+    "count": 1
+   },
+   {
+    "host": "www.nike.com",
+    "path": "/static/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/us/%7Bseg%7D",
+    "method": "GET",
+    "count": 1
+   },
+   {
+    "host": "{label}.adnxs.com",
+    "path": "/%7Bseg%7D",
+    "method": "GET",
+    "count": 1
+   },
+   {
+    "host": "{label}.adsrvr.org",
+    "path": "/%7Bseg%7D/%7Bseg%7D",
+    "method": "POST",
+    "count": 1
+   },
+   {
+    "host": "{label}.cdndex.io",
+    "path": "/%7Bseg%7D",
+    "method": "POST",
+    "count": 1
+   },
+   {
+    "host": "{label}.go-mpulse.net",
+    "path": "/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 1
+   },
+   {
+    "host": "{label}.go-mpulse.net",
+    "path": "/api/%7Bseg%7D",
+    "method": "GET",
+    "count": 1
+   },
+   {
+    "host": "{label}.newrelic.com",
+    "path": "/%7Bseg%7D",
+    "method": "GET",
+    "count": 1
+   },
+   {
+    "host": "{label}.newrelic.com",
+    "path": "/%7Bseg%7D/%7Bseg%7D/%7Bn%7D/%7Bseg%7D",
+    "method": "POST",
+    "count": 1
+   },
+   {
+    "host": "{label}.nr-data.net",
+    "path": "/%7Bn%7D/%7Bseg%7D",
+    "method": "POST",
+    "count": 1
+   },
+   {
+    "host": "{label}.nr-data.net",
+    "path": "/%7Bseg%7D/%7Bseg%7D",
+    "method": "POST",
+    "count": 1
+   },
+   {
+    "host": "{label}.{label}.nike.com",
+    "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+    "method": "POST",
+    "count": 1
+   },
+   {
+    "host": "{label}.{label}.nike.com",
+    "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+    "method": "POST",
+    "count": 1
+   },
+   {
+    "host": "{label}.{label}.site.com",
+    "path": "/%7Bseg%7D",
+    "method": "HEAD",
+    "count": 1
+   }
+  ]
+ },
+ "pos-05": {
+  "caseId": "pos-05",
+  "distinctRequests": [
+   {
+    "host": "www.gap.com",
+    "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/static",
+    "method": "GET",
+    "count": 46
+   },
+   {
+    "host": "{label}.gapinc.com",
+    "path": "/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 24
+   },
+   {
+    "host": "api.gap.com",
+    "path": "/%7Bseg%7D/search/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 22
+   },
+   {
+    "host": "{label}.gap.com",
+    "path": "/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 19
+   },
+   {
+    "host": "{label}.nr-data.net",
+    "path": "/%7Bseg%7D/%7Bn%7D/%7Bseg%7D",
+    "method": "POST",
+    "count": 5
+   },
+   {
+    "host": "{label}.online-metrix.net",
+    "path": "/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 5
+   },
+   {
+    "host": "cdn.cookielaw.org",
+    "path": "/%7Bseg%7D/static/%7Bseg%7D",
+    "method": "GET",
+    "count": 4
+   },
+   {
+    "host": "{label}.gap.com",
+    "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 4
+   },
+   {
+    "host": "cdn.cookielaw.org",
+    "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 3
+   },
+   {
+    "host": "cdn.cookielaw.org",
+    "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 3
+   },
+   {
+    "host": "www.gap.com",
+    "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 3
+   },
+   {
+    "host": "www.gap.com",
+    "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+    "method": "POST",
+    "count": 3
+   },
+   {
+    "host": "{label}.demdex.net",
+    "path": "/%7Bseg%7D",
+    "method": "GET",
+    "count": 3
+   },
+   {
+    "host": "cdn.cookielaw.org",
+    "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 2
+   },
+   {
+    "host": "www.gap.com",
+    "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bn%7D/%7Bn%7D/%7Bn%7D",
+    "method": "GET",
+    "count": 2
+   },
+   {
+    "host": "api.gap.com",
+    "path": "/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 1
+   },
+   {
+    "host": "cdn.{label}.amplience.net",
+    "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 1
+   },
+   {
+    "host": "www.gap.com",
+    "path": "/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 1
+   },
+   {
+    "host": "www.gap.com",
+    "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 1
+   },
+   {
+    "host": "www.gap.com",
+    "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 1
+   },
+   {
+    "host": "www.gap.com",
+    "path": "/",
+    "method": "GET",
+    "count": 1
+   },
+   {
+    "host": "{label}.appsflyer.com",
+    "path": "/%7Bn%7D",
+    "method": "GET",
+    "count": 1
+   },
+   {
+    "host": "{label}.cdn.optimizely.com",
+    "path": "/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 1
+   },
+   {
+    "host": "{label}.demdex.net",
+    "path": "/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 1
+   },
+   {
+    "host": "{label}.everesttech.net",
+    "path": "/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 1
+   },
+   {
+    "host": "{label}.gap.com",
+    "path": "/%7Bseg%7D",
+    "method": "GET",
+    "count": 1
+   },
+   {
+    "host": "{label}.gap.com",
+    "path": "/%7Bseg%7D",
+    "method": "POST",
+    "count": 1
+   },
+   {
+    "host": "{label}.gap.com",
+    "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bn%7D/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 1
+   },
+   {
+    "host": "{label}.go-mpulse.net",
+    "path": "/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 1
+   },
+   {
+    "host": "{label}.go-mpulse.net",
+    "path": "/api/%7Bseg%7D",
+    "method": "GET",
+    "count": 1
+   },
+   {
+    "host": "{label}.newrelic.com",
+    "path": "/%7Bseg%7D",
+    "method": "GET",
+    "count": 1
+   },
+   {
+    "host": "{label}.nr-data.net",
+    "path": "/%7Bn%7D/%7Bseg%7D",
+    "method": "POST",
+    "count": 1
+   },
+   {
+    "host": "{label}.onetrust.com",
+    "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 1
+   },
+   {
+    "host": "{label}.optimizely.com",
+    "path": "/%7Bseg%7D/%7Bseg%7D",
+    "method": "POST",
+    "count": 1
+   },
+   {
+    "host": "{label}.tealiumiq.com",
+    "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 1
+   },
+   {
+    "host": "{label}.{label}.{label}.online-metrix.net",
+    "path": "/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 1
+   }
+  ]
+ },
+ "pos-10": {
+  "caseId": "pos-10",
+  "distinctRequests": [
+   {
+    "host": "www.lowescdn.com",
+    "path": "/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 2
+   },
+   {
+    "host": "www.lowes.com",
+    "path": "/",
+    "method": "GET",
+    "count": 1
+   },
+   {
+    "host": "{label}.akstat.io",
+    "path": "/",
+    "method": "POST",
+    "count": 1
+   },
+   {
+    "host": "{label}.go-mpulse.net",
+    "path": "/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 1
+   },
+   {
+    "host": "{label}.go-mpulse.net",
+    "path": "/api/%7Bseg%7D",
+    "method": "GET",
+    "count": 1
+   }
+  ]
+ },
+ "pos-12": {
+  "caseId": "pos-12",
+  "distinctRequests": [
+   {
+    "host": "www.allbirds.com",
+    "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 140
+   },
+   {
+    "host": "www.allbirds.com",
+    "path": "/%7Bseg%7D/shop/%7Bseg%7D/%7Bn%7D/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 57
+   },
+   {
+    "host": "cdn.shopify.com",
+    "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 38
+   },
+   {
+    "host": "www.allbirds.com",
+    "path": "/%7Bseg%7D/shop/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 24
+   },
+   {
+    "host": "www.allbirds.com",
+    "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+    "method": "POST",
+    "count": 14
+   },
+   {
+    "host": "www.google.com",
+    "path": "/%7Bseg%7D/%7Bseg%7D/%7Bn%7D",
+    "method": "POST",
+    "count": 14
+   },
+   {
+    "host": "www.allbirds.com",
+    "path": "/%7Bseg%7D",
+    "method": "GET",
+    "count": 11
+   },
+   {
+    "host": "www.google.com",
+    "path": "/%7Bseg%7D/%7Bseg%7D/%7Bn%7D",
+    "method": "GET",
+    "count": 8
+   },
+   {
+    "host": "{label}.{label}.doubleclick.net",
+    "path": "/%7Bseg%7D/%7Bseg%7D/%7Bn%7D",
+    "method": "GET",
+    "count": 8
+   },
+   {
+    "host": "www.google.com",
+    "path": "/%7Bseg%7D/%7Bseg%7D",
+    "method": "POST",
+    "count": 6
+   },
+   {
+    "host": "{label}.shopifysvc.com",
+    "path": "/%7Bseg%7D/%7Bseg%7D",
+    "method": "POST",
+    "count": 6
+   },
+   {
+    "host": "www.allbirds.com",
+    "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 5
+   },
+   {
+    "host": "cdn.shopify.com",
+    "path": "/%7Bseg%7D/%7Bseg%7D/%7Bn%7D/%7Bn%7D/%7Bn%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 4
+   },
+   {
+    "host": "www.googletagmanager.com",
+    "path": "/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 4
+   },
+   {
+    "host": "weareallbirds.myshopify.com",
+    "path": "/api/%7Bseg%7D/%7Bseg%7D",
+    "method": "POST",
+    "count": 3
+   },
+   {
+    "host": "www.allbirds.com",
+    "path": "/%7Bseg%7D/%7Bseg%7D",
+    "method": "POST",
+    "count": 3
+   },
+   {
+    "host": "www.allbirds.com",
+    "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 3
+   },
+   {
+    "host": "www.allbirds.com",
+    "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 3
+   },
+   {
+    "host": "{label}.getelevar.com",
+    "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 3
+   },
+   {
+    "host": "analytics.google.com",
+    "path": "/%7Bseg%7D/%7Bseg%7D",
+    "method": "POST",
+    "count": 2
+   },
+   {
+    "host": "cdn.attn.tv",
+    "path": "/%7Bseg%7D/%7Bseg%7D",
+    "method": "HEAD",
+    "count": 2
+   },
+   {
+    "host": "fonts.googleapis.com",
+    "path": "/%7Bseg%7D",
+    "method": "GET",
+    "count": 2
+   },
+   {
+    "host": "shop.app",
+    "path": "/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 2
+   },
+   {
+    "host": "www.allbirds.com",
+    "path": "/%7Bseg%7D/%7Bseg%7D/app/%7Bseg%7D",
+    "method": "GET",
+    "count": 2
+   },
+   {
+    "host": "www.allbirds.com",
+    "path": "/%7Bseg%7D/%7Bseg%7D/static/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 2
+   },
+   {
+    "host": "www.allbirds.com",
+    "path": "/%7Bseg%7D/app/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 2
+   },
+   {
+    "host": "www.allbirds.com",
+    "path": "/api/%7Bseg%7D",
+    "method": "POST",
+    "count": 2
+   },
+   {
+    "host": "www.googletagmanager.com",
+    "path": "/%7Bseg%7D",
+    "method": "GET",
+    "count": 2
+   },
+   {
+    "host": "{label}.allbirds.com",
+    "path": "/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 2
+   },
+   {
+    "host": "{label}.getredo.com",
+    "path": "/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 2
+   },
+   {
+    "host": "ad.doubleclick.net",
+    "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+    "method": "POST",
+    "count": 1
+   },
+   {
+    "host": "cdn.attn.tv",
+    "path": "/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 1
+   },
+   {
+    "host": "cdn.attn.tv",
+    "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 1
+   },
+   {
+    "host": "cdn.cookielaw.org",
+    "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 1
+   },
+   {
+    "host": "cdn.shopify.com",
+    "path": "/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 1
+   },
+   {
+    "host": "cdn.shopify.com",
+    "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 1
+   },
+   {
+    "host": "cdn.shopify.com",
+    "path": "/static/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 1
+   },
+   {
+    "host": "shop.app",
+    "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 1
+   },
+   {
+    "host": "www.allbirds.com",
+    "path": "/",
+    "method": "GET",
+    "count": 1
+   },
+   {
+    "host": "www.allbirds.com",
+    "path": "/products/%7Bseg%7D",
+    "method": "GET",
+    "count": 1
+   },
+   {
+    "host": "{label}.allbirds.com",
+    "path": "/%7Bseg%7D",
+    "method": "POST",
+    "count": 1
+   },
+   {
+    "host": "{label}.attn.tv",
+    "path": "/%7Bseg%7D",
+    "method": "GET",
+    "count": 1
+   },
+   {
+    "host": "{label}.attn.tv",
+    "path": "/%7Bseg%7D",
+    "method": "POST",
+    "count": 1
+   },
+   {
+    "host": "{label}.facebook.net",
+    "path": "/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 1
+   },
+   {
+    "host": "{label}.facebook.net",
+    "path": "/%7Bseg%7D/%7Bseg%7D/%7Bn%7D",
+    "method": "GET",
+    "count": 1
+   },
+   {
+    "host": "{label}.getredo.com",
+    "path": "/%7Bseg%7D/%7Bseg%7D",
+    "method": "POST",
+    "count": 1
+   },
+   {
+    "host": "{label}.govx.com",
+    "path": "/app/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 1
+   },
+   {
+    "host": "{label}.impactcdn.com",
+    "path": "/%7Bseg%7D",
+    "method": "GET",
+    "count": 1
+   },
+   {
+    "host": "{label}.pxf.io",
+    "path": "/%7Bseg%7D/%7Bn%7D/%7Bn%7D/%7Bn%7D",
+    "method": "POST",
+    "count": 1
+   },
+   {
+    "host": "{label}.reddit.com",
+    "path": "/%7Bseg%7D",
+    "method": "GET",
+    "count": 1
+   },
+   {
+    "host": "{label}.shopifycdn.com",
+    "path": "/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D/%7Bseg%7D",
+    "method": "GET",
+    "count": 1
+   },
+   {
+    "host": "{label}.{label}.doubleclick.net",
+    "path": "/%7Bseg%7D/%7Bseg%7D",
+    "method": "POST",
+    "count": 1
+   }
+  ]
+ }
+}
