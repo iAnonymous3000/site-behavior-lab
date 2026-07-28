@@ -4094,6 +4094,14 @@ td .mono {
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
   }
+
+  /* Freezing the shuttle would strand it at width: 40%, which reads as a completion
+     percentage this product never claims to know. Fill the track instead so it stays
+     an activity indicator. */
+  .progress-fill {
+    opacity: 0.35;
+    width: 100%;
+  }
 }
 
 /* ---- Disclosures ---- */
@@ -4578,5 +4586,121 @@ details[open] > summary .disclosure-chevron {
   .turnstile-row {
     display: flex;
     justify-content: center;
+  }
+}
+
+/* ---- Print ----
+   Reports are citation artifacts, so a printed page has to carry the evidence and
+   drop the operating surface. Three things matter here: the interactive chrome is
+   not evidence and goes away; the horizontal scrollers that make wide tables usable
+   on screen would silently clip in print, so they release and paginate instead; and
+   the theme is pinned light, because a dark-theme visitor would otherwise print a
+   page of white text that mostly renders as blank paper. */
+@media print {
+  /* Ink-legible regardless of the visitor's theme. */
+  :root,
+  :root[data-theme="dark"],
+  :root[data-theme="light"] {
+    color-scheme: light;
+    --bg: #ffffff;
+    --bg-grid: transparent;
+    --surface: #ffffff;
+    --surface-2: #ffffff;
+    --surface-3: #ffffff;
+    --border: #b7c0b8;
+    --border-strong: #8b968d;
+    --text: #000000;
+    --text-muted: #333333;
+    --text-subtle: #3d3d3d;
+    --shadow-sm: none;
+    --shadow: none;
+    --shadow-lg: none;
+  }
+
+  body {
+    background: #ffffff;
+  }
+
+  /* Controls, navigation, and progress affordances are not evidence. */
+  .skip-link,
+  .topbar-actions,
+  .topbar-nav,
+  .scan-workbench,
+  .corpus-hero,
+  .empty-state,
+  .app-footer,
+  .report-actions,
+  .headline-actions,
+  .report-activation-actions,
+  .homepage-discovery-actions,
+  .homepage-tools-disclosure,
+  .scan-checks,
+  .scan-checks-note,
+  .progress-track,
+  .pulse-dot,
+  .icon-button,
+  .error-banner,
+  .request-filter-chips {
+    display: none !important;
+  }
+
+  .app-shell {
+    min-height: 0;
+    padding: 0;
+  }
+
+  /* Side-by-side columns become one column: 360px of sidebar next to a table is a
+     guaranteed clip at portrait width. */
+  .report-grid,
+  .report-main,
+  .report-sidebar {
+    display: block;
+  }
+
+  /* On screen these clip deliberately. On paper clipping is silent data loss. */
+  .data-section,
+  .table-wrap,
+  .causal-graph-scroll {
+    overflow: visible !important;
+  }
+
+  table {
+    min-width: 0;
+    width: 100%;
+    table-layout: fixed;
+  }
+
+  table :is(td, th) {
+    overflow-wrap: anywhere;
+  }
+
+  /* Repeat column headers on every page and keep rows whole. */
+  thead {
+    display: table-header-group;
+  }
+
+  tr,
+  .findings-board,
+  .viz-card,
+  .comparison-card,
+  .report-header {
+    break-inside: avoid;
+  }
+
+  /* Collapsed evidence must print. The first rule covers engines that hide the
+     children directly; ::details-content covers current Chromium and Safari. Where
+     neither applies the disclosure prints collapsed rather than wrong. */
+  details:not([open]) > *:not(summary) {
+    display: block !important;
+  }
+
+  details::details-content {
+    content-visibility: visible !important;
+    display: block !important;
+  }
+
+  /* A bare "opens in a new tab" is meaningless on paper. */
+  .visually-hidden {
+    display: none !important;
   }
 }

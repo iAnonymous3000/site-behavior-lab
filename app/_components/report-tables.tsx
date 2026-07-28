@@ -429,7 +429,10 @@ function useEvidenceTarget(section: EvidenceSection): EvidenceTarget | null {
 function revealEvidenceSection(details: HTMLDetailsElement | null) {
   if (!details) return;
   window.requestAnimationFrame(() => {
-    details.scrollIntoView({ block: "start", behavior: "smooth" });
+    // The global reduced-motion rule cannot reach a scroll requested in JS, so this
+    // is the one animation a vestibular-sensitive visitor would still be served.
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    details.scrollIntoView({ block: "start", behavior: reduceMotion ? "auto" : "smooth" });
     details.querySelector("summary")?.focus({ preventScroll: true });
   });
 }
