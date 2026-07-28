@@ -1,0 +1,87 @@
+name: Scanner Fidelity
+
+# Scan real websites and assert invariants of the SCANNER.
+#
+# Deliberately NOT a required pull-request gate. It depends on third-party sites
+# being reachable, so making a merge wait on the BBC's uptime would teach people
+# to ignore it. It runs on a schedule instead, where a red result is a signal to
+# investigate rather than a blocked branch, and the required gates stay
+# hermetic.
+#
+# What it is for: every other test here drives the scanner with a fixture, and a
+# fixture never has a ninety-character headline in its footer. That is exactly
+# how a link-label budget came to censor the detector evidence of two-thirds of
+# all scans and publish "this scan was cut short" over complete request logs,
+# while unit tests, audits and adversarial review all stayed green.
+
+on:
+  schedule:
+    - cron: "35 4 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: scanner-fidelity
+  cancel-in-progress: true
+
+jobs:
+  fidelity:
+    name: Scan real sites and assert scanner invariants
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Use the repository's exact Node toolchain
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: 24.14.1
+
+      - name: Verify the exact toolchain before install
+        run: |
+          set -euo pipefail
+          test "$(node --version)" = "v24.14.1"
+          test "$(npm --version)" = "11.11.0"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Build
+        run: npm run build
+        env:
+          NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SITE_URL: https://sitebehavior.org
+
+      - name: Start the scanner
+        run: |
+          set -euo pipefail
+          npm run start -- --port 3000 > /tmp/scanner-fidelity.log 2>&1 &
+          echo $! > /tmp/scanner-fidelity.pid
+          for attempt in {1..45}; do
+            if curl -fsS http://127.0.0.1:3000/api/health >/dev/null 2>&1; then
+              exit 0
+            fi
+            sleep 1
+          done
+          cat /tmp/scanner-fidelity.log
+          exit 1
+        env:
+          # r2 is the producer production runs, and the per-family quality block
+          # these invariants read exists only there.
+          SITE_BEHAVIOR_LAB_PUBLIC_R2_REPORTS: "1"
+          SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION: "1"
+          SITE_BEHAVIOR_LAB_BUILD_COMMIT: ${{ github.sha }}
+          SITE_BEHAVIOR_LAB_SCANNER_EGRESS: github-actions-ubuntu
+          SITE_BEHAVIOR_LAB_CHROMIUM_SANDBOX: "1"
+
+      - name: Assert scanner invariants against real sites
+        run: npm run test:smoke:scanner-fidelity
+
+      - name: Scanner log on failure
+        if: failure()
+        run: tail -100 /tmp/scanner-fidelity.log || true

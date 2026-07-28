@@ -1,0 +1,16 @@
+{
+  "_note": "Sites the scanner-fidelity check visits. NOT a corpus: nothing here is published, ranked, or counted in any statistic. The list only has to exercise the page shapes that fixtures cannot: long link labels, non-English policy links, heavy request logs, consent walls, bot walls, and near-empty documents. Membership is deliberately boring and stable so a failure means the SCANNER changed, not that the web did.",
+  "version": 1,
+  "sites": [
+    { "url": "https://example.com/", "shape": "near-empty document" },
+    { "url": "https://codeberg.org/", "shape": "clean non-profit, no third-party requests" },
+    { "url": "https://www.eff.org/", "shape": "clean, long link labels" },
+    { "url": "https://www.debian.org/", "shape": "clean, many footer links" },
+    { "url": "https://en.wikipedia.org/wiki/Privacy", "shape": "very many links, long labels" },
+    { "url": "https://www.theguardian.com/international", "shape": "heavy news, headline link labels" },
+    { "url": "https://www.bbc.com/news", "shape": "heavy news, consent region" },
+    { "url": "https://www.corriere.it/", "shape": "non-English policy link (it)" },
+    { "url": "https://www.asahi.com/", "shape": "non-Latin script (ja)" },
+    { "url": "https://www.lemonde.fr/", "shape": "non-English policy link (fr)" }
+  ]
+}
