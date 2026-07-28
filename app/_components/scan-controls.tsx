@@ -20,6 +20,10 @@ import {
   clientReportRuntime,
   staticAssetPath
 } from "../client-runtime";
+import {
+  createTurnstileScriptLoader,
+  type TurnstileScriptDocument
+} from "@/lib/turnstile-script-loader";
 import type { HomepageKnownSite } from "@/lib/homepage-discovery";
 import { committedReportLocation } from "@/lib/report-locator";
 import { RUN_MODE_LABELS, RUN_MODE_TITLES, runModeHint, type RunMode } from "@/lib/run-mode-copy";
@@ -419,31 +423,16 @@ function formatKnownEvidenceDate(value: string): string {
   return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" });
 }
 
-function loadTurnstileScript(): Promise<void> {
-  if (typeof window === "undefined") return Promise.reject(new Error("Turnstile is only available in the browser."));
-  if (window.turnstile) return Promise.resolve();
-
-  return new Promise((resolve, reject) => {
-    const existing = document.querySelector<HTMLScriptElement>(`script[src="${TURNSTILE_SCRIPT_SRC}"]`);
-    if (existing) {
-      if (window.turnstile) {
-        resolve();
-        return;
+// One shared loader, retryable after a failure. See lib/turnstile-script-loader.ts
+// for why inferring load state from a leftover <script> tag deadlocks a remount.
+const loadTurnstileScript = createTurnstileScriptLoader(TURNSTILE_SCRIPT_SRC, () =>
+  typeof window === "undefined"
+    ? null
+    : {
+        document: document as unknown as TurnstileScriptDocument,
+        loaded: () => Boolean(window.turnstile)
       }
-      existing.addEventListener("load", () => resolve(), { once: true });
-      existing.addEventListener("error", () => reject(new Error("Turnstile failed to load.")), { once: true });
-      return;
-    }
-
-    const script = document.createElement("script");
-    script.src = TURNSTILE_SCRIPT_SRC;
-    script.async = true;
-    script.defer = true;
-    script.addEventListener("load", () => resolve(), { once: true });
-    script.addEventListener("error", () => reject(new Error("Turnstile failed to load.")), { once: true });
-    document.head.appendChild(script);
-  });
-}
+);
 
 // Renders a Cloudflare Turnstile widget and reports its single-use token. The
 // parent bumps `resetNonce` after each scan so the widget issues a fresh token.
