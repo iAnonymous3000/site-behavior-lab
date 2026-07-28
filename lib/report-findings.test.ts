@@ -1769,3 +1769,54 @@ test("a report never calls a domain unidentifiable while another card names it",
   assert.match(services, /could not identify 2 of the 4 third-party domains recorded here/);
   assert.doesNotMatch(services, /could not identify 4 of the 4/);
 });
+
+test("an uncatalogued platform domain is not reported as no platform requests", () => {
+  // terafab.ai, 2026-07-28: fonts.googleapis.com and a gstatic.com host were
+  // both contacted. Neither is in the service catalog, and the card derived its
+  // absence claim from catalog matches alone, so it published a green "no
+  // requests to catalogued Google domains were observed" over those requests.
+  // reviewed-ownership.ts names both as Google, so the report contradicted its
+  // own ownership data.
+  const asset = (domain: string): DomainSummary => ({
+    domain,
+    requests: 2,
+    thirdParty: true,
+    tracker: null,
+    statuses: [200],
+    resourceTypes: ["font"]
+  });
+  const findings = buildFindings(
+    viewFromV1Report(
+      makeResult({
+        firstPartyDomain: "terafab.ai",
+        domains: [asset("fonts.googleapis.com"), asset("{label}.gstatic.com")],
+        thirdPartyRequests: 4,
+        thirdPartyDomains: 2
+      })
+    ),
+    null
+  );
+
+  const platforms = byId(findings, "named-platforms");
+  assert.notEqual(platforms.level, "ok", "an observed platform request may not read as a clean absence");
+  assert.doesNotMatch(platforms.lead, /No requests to catalogued Google/);
+  assert.match(platforms.lead, /dispatched requests to Google domains/);
+  // Naming the operator must not inflate the tracker counts.
+  assert.match(platforms.detail, /not counted as catalogued tracker requests/);
+
+  // A visit that really contacted no platform domain keeps the clean absence.
+  const clean = buildFindings(
+    viewFromV1Report(
+      makeResult({
+        firstPartyDomain: "terafab.ai",
+        domains: [asset("unknown-vendor.example")],
+        thirdPartyRequests: 2,
+        thirdPartyDomains: 1
+      })
+    ),
+    null
+  );
+  const cleanCard = byId(clean, "named-platforms");
+  assert.equal(cleanCard.level, "ok");
+  assert.match(cleanCard.lead, /No requests to catalogued Google/);
+});

@@ -46,7 +46,11 @@ import {
   trackerResponseQualification,
   trackerEntitySummaries
 } from "./report-insights";
-import { reviewedOwnershipRelationship } from "./reviewed-ownership";
+import {
+  isReviewedSameOrganizationDomain,
+  reviewedOrganizationForDomain,
+  reviewedOwnershipRelationship
+} from "./reviewed-ownership";
 import { isCurrentlyCheckablePolicyClaim } from "./privacy-policy";
 import {
   comparisonArmViews,
@@ -257,6 +261,25 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
     HEADLINE_PLATFORMS.includes(entity.entity)
   );
   const headlineNames = headlineEntities.map((entity) => entity.entity);
+  // Platform domains the ownership map names but the service catalog does not
+  // carry, for example fonts.googleapis.com and gstatic.com. The card's absence
+  // claim is derived from catalog matches alone, so without these it published
+  // a green "no requests to Google domains were observed" over an observed
+  // request to exactly such a domain.
+  const uncataloguedPlatformOrganizations = Array.from(
+    new Set(
+      run.evidence.domains
+        .filter(
+          (domain) =>
+            domain.thirdParty &&
+            domain.tracker === null &&
+            !isReviewedSameOrganizationDomain(run.domain, domain.domain)
+        )
+        .map((domain) => reviewedOrganizationForDomain(domain.domain))
+        .filter((organization) => organization !== null && HEADLINE_PLATFORMS.includes(organization))
+        .map((organization) => String(organization))
+    )
+  ).sort();
   const headlineRequests = headlineEntities.reduce((total, entity) => total + entity.requests, 0);
   const provenanceHighlights = requestProvenanceHighlights(run.evidence.requests);
   const requestsWithProvenance = run.evidence.requests.filter((request) => request.provenance).length;
@@ -502,7 +525,9 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
     icon: "network",
     level:
       headlineNames.length === 0
-        ? sameOrganizationHeadlineEntities.length > 0 || requestsCensored
+        ? sameOrganizationHeadlineEntities.length > 0 ||
+          uncataloguedPlatformOrganizations.length > 0 ||
+          requestsCensored
           ? "info"
           : "ok"
         : headlineNames.length >= 3
@@ -513,7 +538,9 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
         ? "Requests were dispatched to catalogued major-platform domains"
         : sameOrganizationHeadlineEntities.length > 0
           ? "Major-platform domains matched within the site's reviewed organization"
-          : "No requests to major-platform domains were recorded",
+          : uncataloguedPlatformOrganizations.length > 0
+            ? "Requests were dispatched to major-platform domains the catalog does not carry"
+            : "No requests to major-platform domains were recorded",
     lead:
       headlineNames.length > 0
         ? `This visit dispatched requests to catalogued domains for ${humanList(headlineNames)}.`
@@ -521,13 +548,19 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
           ? `${humanList(
               sameOrganizationHeadlineEntities.map((entity) => entity.entity)
             )} domains appeared across a registrable-domain boundary, but the reviewed ownership map groups them with the site rather than an outside company.`
-          : "No requests to catalogued Google, Meta, TikTok, X, Microsoft, LinkedIn, or Pinterest domains were observed in this visit.",
+          : uncataloguedPlatformOrganizations.length > 0
+            ? `This visit dispatched requests to ${humanList(
+                uncataloguedPlatformOrganizations
+              )} domains that the reviewed ownership map names, though the service catalog carries no entry for them.`
+            : "No requests to catalogued Google, Meta, TikTok, X, Microsoft, LinkedIn, or Pinterest domains were observed in this visit.",
     detail:
       headlineNames.length > 0
         ? `The domain matches identify services, not the requests' purpose, payload, or whether any profile linking occurred.${sameOrganizationNote}`
         : sameOrganizationHeadlineEntities.length > 0
           ? "Cross-registrable-domain traffic remains counted in the report, but this reviewed ownership relationship does not support an outside-recipient disclosure claim. The catalog match also does not prove request purpose."
-          : `Major-platform domains were not observed in this single passive visit; interaction-gated requests could still load for real users.${requestsCensored ? CENSORED_ABSENCE_NOTE : ""}`,
+          : uncataloguedPlatformOrganizations.length > 0
+            ? `Asset and font hosts reach this state often: the ownership map establishes who operates the domain, and nothing here establishes the request's purpose or payload. These domains are not counted as catalogued tracker requests.${requestsCensored ? CENSORED_ABSENCE_NOTE : ""}`
+            : `Major-platform domains were not observed in this single passive visit; interaction-gated requests could still load for real users.${requestsCensored ? CENSORED_ABSENCE_NOTE : ""}`,
     evidence:
       headlineNames.length > 0
         ? `${plural(headlineRequests, "request")} to these platforms.`
