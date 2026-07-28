@@ -228,3 +228,35 @@ const POISON_PAGE_REALM = String.raw`
   Reflect.apply = function () { throw new Error("page Reflect.apply invoked"); };
   JSON.stringify = function () { throw new Error("page JSON.stringify invoked"); };
 `;
+
+test("an image map does not cost the page its privacy-policy candidates", async () => {
+  // `document.links` is <a href> AND <area href>. The href getter is captured
+  // from HTMLAnchorElement.prototype and WebIDL brand-checks its receiver, so
+  // calling it on an <area> throws "Illegal invocation". That failed the whole
+  // wire, and the probe published the loss as a fact about the SITE: any page
+  // carrying an image map lost its privacy-policy evidence.
+  const { chromium } = await import("playwright");
+  const browser = await chromium.launch();
+  try {
+    const context = await browser.newContext();
+    const key = createBoundedPageCollectorKey();
+    await context.addInitScript(installBoundedPageCollector, key);
+    const page = await context.newPage();
+    await page.setContent(
+      `<img src="data:image/gif;base64,R0lGODlhAQABAAAAACw=" usemap="#m">` +
+        `<map name="m"><area shape="rect" coords="0,0,1,1" href="https://example.com/imagemap"></map>` +
+        `<a href="https://example.com/privacy">Privacy</a>`
+    );
+    const collection = await collectPrivacyPolicyLinks(page, key);
+
+    // The <area> comes first in document.links here, so before the fix the
+    // collector returned its failure wire and no candidate survived.
+    assert.deepEqual(
+      collection.links.map((link) => link.href),
+      ["https://example.com/privacy"]
+    );
+    assert.equal(collection.truncated, false);
+  } finally {
+    await browser.close();
+  }
+});

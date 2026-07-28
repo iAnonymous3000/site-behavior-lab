@@ -98,6 +98,13 @@ export function installBoundedPageCollector(key: string): void {
   const collectionItem = method(collectionPrototype, "item");
   const anchorPrototype = typeof HTMLAnchorElement === "function" ? HTMLAnchorElement.prototype : null;
   const anchorHrefGetter = getter(anchorPrototype, "href");
+  // `document.links` is <a href> AND <area href>. The anchor getter WebIDL
+  // brand-checks its receiver, so calling it on an <area> throws "Illegal
+  // invocation", the outer catch fails the whole wire, and every page carrying
+  // an image map lost its entire privacy-policy probe — reported downstream as
+  // a fact about the site. Capture the sibling getter and pick per element.
+  const areaPrototype = typeof HTMLAreaElement === "function" ? HTMLAreaElement.prototype : null;
+  const areaHrefGetter = getter(areaPrototype, "href");
   const nodePrototype = typeof Node === "function" ? Node.prototype : null;
   const nodeFirstChildGetter = getter(nodePrototype, "firstChild");
   const nodeNextSiblingGetter = getter(nodePrototype, "nextSibling");
@@ -317,6 +324,21 @@ export function installBoundedPageCollector(key: string): void {
     "gdpr"           // jurisdiction-neutral, common in EU footers
   ];
 
+  // Resolve an href from either element `document.links` can contain. Returns
+  // null rather than throwing so one exotic element cannot cost the whole
+  // collection; the caller treats null as "not a candidate".
+  const linkHref = (element: object): string | null => {
+    try {
+      return call(anchorHrefGetter, element, []) as string;
+    } catch {
+      try {
+        return areaHrefGetter ? (call(areaHrefGetter, element, []) as string) : null;
+      } catch {
+        return null;
+      }
+    }
+  };
+
   set(api, "links", (input: unknown): string => {
     try {
       const limits = input as Record<string, unknown>;
@@ -340,8 +362,10 @@ export function installBoundedPageCollector(key: string): void {
       for (let index = 0; index < inspected; index += 1) {
         const anchor = call(collectionItem, collection, [index]);
         if (!anchor) continue;
-        const href = call(anchorHrefGetter, anchor, []);
+        const href = linkHref(anchor as object);
         if (typeof href !== "string" || href.length > maxHrefChars) {
+          // An href we could not read or could not bound may have been a
+          // candidate, so the candidate list really is incomplete.
           truncated = true;
           continue;
         }

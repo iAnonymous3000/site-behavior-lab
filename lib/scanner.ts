@@ -1402,6 +1402,10 @@ export async function scanSiteWithMeasurement(
     let tentativeScreenshot: string | null = null;
     let tentativePolicyLinks: PolicyLinkCandidate[] = [];
     let tentativePolicyLinksTruncated = false;
+    // The link collection FAILED, as opposed to finding nothing. Publishing
+    // those two the same way is how an instrument failure became a statement
+    // about the site.
+    let tentativePolicyLinksFailed = false;
 
     if (subjectStateTrusted) {
       const titleRead = await withScanTimeout(
@@ -1428,12 +1432,20 @@ export async function scanSiteWithMeasurement(
           .catch(() => null),
         started
       );
+      // A bare catch here made every failure of this read indistinguishable
+      // from a page that offers no policy link, and the probe published the
+      // second: a claim about the SITE for a failure of the INSTRUMENT. The
+      // sibling title read above already rethrows a budget error; this one is
+      // the outlier. Other failures are recorded as a failed collection so the
+      // detector can say what actually happened.
       const policyLinkCollection = await withScanTimeout(
         collectPrivacyPolicyLinks(page, boundedPageCollectorKey),
         started
-      ).catch(
-        () => ({ links: [] as PolicyLinkCandidate[], truncated: false })
-      );
+      ).catch((error) => {
+        if (isScanBudgetError(error)) throw error;
+        tentativePolicyLinksFailed = true;
+        return { links: [] as PolicyLinkCandidate[], truncated: false };
+      });
       tentativePolicyLinks = policyLinkCollection.links;
       tentativePolicyLinksTruncated = policyLinkCollection.truncated;
       tentativeFinalUrl = page.url();
@@ -1588,6 +1600,7 @@ export async function scanSiteWithMeasurement(
     // this frozen list, after the request log has been snapshotted.
     const policyLinks = subjectStateTrusted ? tentativePolicyLinks : [];
     const policyLinksTruncated = subjectStateTrusted && tentativePolicyLinksTruncated;
+    const policyLinksFailed = subjectStateTrusted && tentativePolicyLinksFailed;
 
     // Kernel step 3 (flag-gated): one post-choice reload to read the site's
     // REGISTERED consent state from a fresh document. It runs in its own
@@ -2099,16 +2112,25 @@ export async function scanSiteWithMeasurement(
         measurementKernel.setDetector("privacy-policy", "failed", { reason: "load-failed", phaseId: policyPhaseId });
         recordPolicyCaptureLoss("dropped", policyPhaseId);
       }
-    } else if ((policyCandidate && !policyBudgetAvailable) || policyLinksTruncated) {
-      measurementKernel.setDetector("privacy-policy", "skipped", { reason: "budget-unavailable" });
-      recordPolicyCaptureLoss("cap", policyPhaseId);
     } else if (!subjectStateTrusted || consentInteractionLeftSubject) {
       measurementKernel.setDetector("privacy-policy", "skipped", { reason: "load-failed" });
       recordPolicyCaptureLoss("dropped", policyPhaseId);
     } else if (pageLoadFailed) {
       // A challenge/error page's policy link is the interstitial vendor's, not
       // the site's; the probe is deliberately withheld on failed loads.
+      //
+      // This MUST precede the truncation branch below. A fat vendor error page
+      // trips the candidate cap like any other page, and checking truncation
+      // first published a budget failure and a capture loss for a visit the
+      // contract says stays silent.
       measurementKernel.setDetector("privacy-policy", "skipped", { reason: "load-failed" });
+    } else if (policyLinksFailed) {
+      // The collection itself failed. Not a budget, and not an absence.
+      measurementKernel.setDetector("privacy-policy", "failed", { reason: "scan-failed", ...(policyPhaseId === null ? {} : { phaseId: policyPhaseId }) });
+      recordPolicyCaptureLoss("dropped", policyPhaseId);
+    } else if ((policyCandidate && !policyBudgetAvailable) || policyLinksTruncated) {
+      measurementKernel.setDetector("privacy-policy", "skipped", { reason: "budget-unavailable" });
+      recordPolicyCaptureLoss("cap", policyPhaseId);
     } else {
       // The probe is configured on, but the page offers no discoverable policy
       // link: the subject does not support this probe. "unsupported" (not
