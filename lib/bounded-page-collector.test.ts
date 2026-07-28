@@ -158,6 +158,7 @@ const REALM_SETUP = String.raw`
   const nodeState = new WeakMap();
   const elementState = new WeakMap();
   const htmlState = new WeakMap();
+  const inputState = new WeakMap();
   const anchorState = new WeakMap();
   const documentState = new WeakMap();
   const collectionState = new WeakMap();
@@ -199,6 +200,14 @@ const REALM_SETUP = String.raw`
     }
     get isContentEditable() { return htmlState.get(this).editable; }
     blur() { htmlState.get(this).blurred = true; }
+  }
+  class HTMLInputElement extends HTMLElement {
+    constructor(tagName) {
+      super(tagName);
+      inputState.set(this, { value: "" });
+    }
+    get value() { return inputState.get(this).value; }
+    set value(next) { inputState.get(this).value = next; }
   }
   class HTMLAnchorElement extends HTMLElement {
     constructor(href, text) {
@@ -248,7 +257,7 @@ const REALM_SETUP = String.raw`
   for (let index = 1; index < entries.length; index += 1) entries[index] = ["key-" + index, "v"];
   const localValue = new Storage(entries);
   const sessionValue = new Storage([]);
-  const __field = new HTMLElement("INPUT");
+  const __field = new HTMLInputElement("INPUT");
   __field.setAttribute("type", "EMAIL");
 
   Object.defineProperty(globalThis, "document", { configurable: true, get() { return documentValue; } });
@@ -261,6 +270,7 @@ const REALM_SETUP = String.raw`
     );
   };
   globalThis.__wasBlurred = () => htmlState.get(__field).blurred;
+  globalThis.__setFieldValue = (value) => { inputState.get(__field).value = value; };
 `;
 
 const POISON_PAGE_REALM = String.raw`
@@ -279,7 +289,8 @@ const POISON_PAGE_REALM = String.raw`
     [HTMLAnchorElement.prototype, "href"], [Node.prototype, "firstChild"],
     [Node.prototype, "nextSibling"], [Node.prototype, "parentNode"],
     [Node.prototype, "nodeType"], [Node.prototype, "nodeValue"],
-    [Element.prototype, "tagName"], [HTMLElement.prototype, "isContentEditable"]
+    [Element.prototype, "tagName"], [HTMLElement.prototype, "isContentEditable"],
+    [HTMLInputElement.prototype, "value"]
   ]) Object.defineProperty(prototype, name, poisonedGetter);
   Storage.prototype.key = Storage.prototype.getItem = function () { throw new Error("page method invoked"); };
   HTMLCollection.prototype.item = function () { throw new Error("page method invoked"); };
@@ -325,4 +336,63 @@ test("an image map does not cost the page its privacy-policy candidates", async 
   } finally {
     await browser.close();
   }
+});
+
+test("a typed field is only counted when the scanner's sentinel actually landed", async () => {
+  const key = createBoundedPageCollectorKey();
+  const realm = hostileDomRealm();
+  realm.run(`(${installBoundedPageCollector.toString()})(${JSON.stringify(key)})`);
+  const sentinel = "sbl-sentinel-0123456789";
+
+  // A field that refused the input reads back empty. Playwright's type()
+  // resolves either way, so this readback is the only thing separating a
+  // recorded keystroke from a claimed one.
+  assert.equal(
+    await callBoundedElementCollector(realm.element, key, "sentinelPresent", sentinel),
+    false
+  );
+
+  realm.run(`__setFieldValue(${JSON.stringify(sentinel)})`);
+  assert.equal(
+    await callBoundedElementCollector(realm.element, key, "sentinelPresent", sentinel),
+    true
+  );
+
+  // Only the scanner's own synthetic value counts; a field holding something
+  // else is not evidence that this probe's keystrokes were accepted.
+  realm.run(`__setFieldValue("someone else's text")`);
+  assert.equal(
+    await callBoundedElementCollector(realm.element, key, "sentinelPresent", sentinel),
+    false
+  );
+
+  // An empty or missing expectation can never report success.
+  realm.run(`__setFieldValue(${JSON.stringify(sentinel)})`);
+  assert.equal(await callBoundedElementCollector(realm.element, key, "sentinelPresent", ""), false);
+  assert.equal(await callBoundedElementCollector(realm.element, key, "sentinelPresent"), false);
+});
+
+test("a poisoned value accessor cannot change the sentinel answer", async () => {
+  const key = createBoundedPageCollectorKey();
+  const realm = hostileDomRealm();
+  realm.run(`(${installBoundedPageCollector.toString()})(${JSON.stringify(key)})`);
+  const sentinel = "sbl-sentinel-0123456789";
+  realm.run(`__setFieldValue(${JSON.stringify(sentinel)})`);
+  realm.run(POISON_PAGE_REALM);
+
+  // The collector captured the value accessor before the page ran, so a
+  // hostile getter cannot hide a landed sentinel.
+  assert.equal(
+    await callBoundedElementCollector(realm.element, key, "sentinelPresent", sentinel),
+    true
+  );
+
+  // Nor can it manufacture one: a refused field still reads back as refused.
+  const cleanRealm = hostileDomRealm();
+  cleanRealm.run(`(${installBoundedPageCollector.toString()})(${JSON.stringify(key)})`);
+  cleanRealm.run(POISON_PAGE_REALM);
+  assert.equal(
+    await callBoundedElementCollector(cleanRealm.element, key, "sentinelPresent", sentinel),
+    false
+  );
 });

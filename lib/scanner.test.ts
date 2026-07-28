@@ -180,6 +180,7 @@ test("active input typing stops if focus races an origin change", async () => {
         configurable: true,
         value: {
           fieldType: () => "text",
+          sentinelPresent: () => true,
           blur: () => true
         }
       });
@@ -212,7 +213,7 @@ test("active input typing stops if focus races an origin change", async () => {
     "test-collector"
   );
 
-  assert.deepEqual(result, { count: 0, types: [], subjectLost: true, omittedCandidateCount: 0 });
+  assert.deepEqual(result, { count: 0, types: [], subjectLost: true, omittedCandidateCount: 0, preventedFieldCount: 0 });
   assert.equal(typed, false);
 });
 
@@ -233,6 +234,7 @@ test("active input typing records a typed field before a failing blur can hide t
         configurable: true,
         value: {
           fieldType: () => "text",
+          sentinelPresent: () => true,
           blur: () => {
             throw new Error("execution context disappeared after typing");
           }
@@ -274,7 +276,77 @@ test("active input typing records a typed field before a failing blur can hide t
     count: 1,
     types: ["text"],
     subjectLost: false,
-    omittedCandidateCount: 0
+    omittedCandidateCount: 0,
+    preventedFieldCount: 0
+  });
+});
+
+test("a field that refuses the sentinel is never reported as a typed field", async () => {
+  // Playwright's type() resolves against a readonly field, a disabled field,
+  // and a field whose keydown handler cancels every event. Counting on that
+  // resolution alone published "typed into 1 field" for input the page never
+  // accepted, and the keystroke disclosure rests on that count.
+  let reportedTypedCount = 0;
+  const handle = {
+    async isVisible() {
+      return true;
+    },
+    async evaluate<Arg>(callback: (element: HTMLElement, arg: Arg) => unknown, arg: Arg) {
+      const element = {
+        tagName: "INPUT",
+        isContentEditable: false,
+        getAttribute: () => "text",
+        blur: () => undefined
+      } as unknown as HTMLElement;
+      Object.defineProperty(globalThis, "test-collector", {
+        configurable: true,
+        value: {
+          fieldType: () => "text",
+          // The field stayed empty: the page refused the keystrokes.
+          sentinelPresent: () => false,
+          blur: () => true
+        }
+      });
+      try {
+        return callback(element, arg);
+      } finally {
+        Reflect.deleteProperty(globalThis, "test-collector");
+      }
+    },
+    async focus() {},
+    async type() {},
+    async dispose() {}
+  };
+  const page = {
+    url: () => "https://www.example.com/form",
+    locator: () => ({
+      count: async () => 1,
+      nth: () => ({ elementHandle: async () => handle })
+    })
+  };
+
+  const result = await typeSentinelIntoFields(
+    page as unknown as Parameters<typeof typeSentinelIntoFields>[0],
+    "synthetic-value",
+    "https://www.example.com/form",
+    "test-collector",
+    {
+      isCancelled: () => false,
+      onTypedField: (count) => {
+        reportedTypedCount = count;
+      }
+    }
+  );
+
+  assert.equal(reportedTypedCount, 0, "a refused field must not be disclosed as typed");
+  assert.deepEqual(result, {
+    count: 0,
+    types: [],
+    subjectLost: false,
+    omittedCandidateCount: 0,
+    // The probe reached the field and could not exercise it, which is measured
+    // coverage lost, not a clean negative.
+    preventedFieldCount: 1
   });
 });
 
@@ -324,7 +396,8 @@ test("active input typing materializes only the bounded candidate window", async
     count: 0,
     types: [],
     subjectLost: false,
-    omittedCandidateCount: 1_000_000 - MAX_PROBE_FIELD_CANDIDATES
+    omittedCandidateCount: 1_000_000 - MAX_PROBE_FIELD_CANDIDATES,
+    preventedFieldCount: 0
   });
 });
 

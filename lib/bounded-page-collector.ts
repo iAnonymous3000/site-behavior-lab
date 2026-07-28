@@ -117,6 +117,11 @@ export function installBoundedPageCollector(key: string): void {
   const htmlElementPrototype = typeof HTMLElement === "function" ? HTMLElement.prototype : null;
   const contentEditableGetter = getter(htmlElementPrototype, "isContentEditable");
   const blurMethod = method(htmlElementPrototype, "blur");
+  const inputPrototype = typeof HTMLInputElement === "function" ? HTMLInputElement.prototype : null;
+  const inputValueGetter = getter(inputPrototype, "value");
+  const textAreaPrototype = typeof HTMLTextAreaElement === "function" ? HTMLTextAreaElement.prototype : null;
+  const textAreaValueGetter = getter(textAreaPrototype, "value");
+  const elementTextContentGetter = getter(nodePrototype, "textContent");
 
   const failWire = (kind: "title" | "storage" | "links" | "text" | "contentText"): string => {
     const output = record();
@@ -469,6 +474,33 @@ export function installBoundedPageCollector(key: string): void {
     }
   });
 
+  // Did the scanner's own synthetic sentinel actually land in this field?
+  //
+  // Returns a BOOLEAN ONLY. The field's contents never leave the page: the
+  // comparison happens here, against a value the scanner generated itself, so
+  // nothing a real person could have typed is ever read out. Needed because
+  // `type()` resolving does not mean the characters were accepted; a field can
+  // be readonly, disabled mid-type, or cancel every keydown, and counting the
+  // field anyway published "typed into 1 field" for input that never arrived.
+  set(api, "sentinelPresent", (element: unknown, expected: unknown): boolean => {
+    try {
+      if (typeof expected !== "string" || !expected) return false;
+      const tagName = call(elementTagNameGetter, element, []);
+      const raw =
+        tagName === "INPUT"
+          ? call(inputValueGetter, element, [])
+          : tagName === "TEXTAREA"
+            ? call(textAreaValueGetter, element, [])
+            : call(contentEditableGetter, element, []) === true
+              ? call(elementTextContentGetter, element, [])
+              : null;
+      if (typeof raw !== "string") return false;
+      return call(nativeStringIndexOf, raw, [expected]) !== -1;
+    } catch {
+      return false;
+    }
+  });
+
   set(api, "blur", (element: unknown): boolean => {
     try {
       call(blurMethod, element, []);
@@ -557,11 +589,13 @@ export async function callBoundedPageCollector(
 export async function callBoundedElementCollector(
   handle: { evaluate<T, Arg>(pageFunction: (element: Element, arg: Arg) => T, arg: Arg): Promise<T> },
   key: string,
-  method: "fieldType" | "blur"
+  method: "fieldType" | "blur" | "sentinelPresent",
+  argument?: string
 ): Promise<unknown> {
   return handle.evaluate((element, arg) => {
     const api = (globalThis as Record<string, unknown>)[arg.key] as Record<string, unknown> | undefined;
     const collector = api?.[arg.method];
-    return typeof collector === "function" ? collector(element) : null;
-  }, { key, method });
+    if (typeof collector !== "function") return null;
+    return arg.argument === undefined ? collector(element) : collector(element, arg.argument);
+  }, { key, method, argument });
 }

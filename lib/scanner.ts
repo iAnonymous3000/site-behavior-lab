@@ -2315,7 +2315,20 @@ export async function scanSiteWithMeasurement(
         // budget. On a five-second scan of a small site that is simply false,
         // and it was the reported cause on most real pages. Say what happened
         // once, in the ledger that can express it.
-        measurementKernel.setDetector("privacy-policy", "complete", { phaseId: policyPhaseId });
+        //
+        // "Complete" requires evidence. The probe returns null when the policy
+        // page did not serve, when it served an error body, or when its text is
+        // too short to be a policy, and reporting complete over that told
+        // readers the cross-check had run when nothing was ever checked.
+        if (privacyPolicy === null) {
+          measurementKernel.setDetector("privacy-policy", "failed", {
+            reason: "load-failed",
+            phaseId: policyPhaseId
+          });
+          recordPolicyCaptureLoss("dropped", policyPhaseId);
+        } else {
+          measurementKernel.setDetector("privacy-policy", "complete", { phaseId: policyPhaseId });
+        }
       } catch {
         measurementKernel.setDetector("privacy-policy", "failed", { reason: "load-failed", phaseId: policyPhaseId });
         recordPolicyCaptureLoss("dropped", policyPhaseId);
@@ -3218,7 +3231,7 @@ async function probeKeystrokeExfiltration(
 
   page.on("request", onRequest);
   lifecycle.stopCapture = () => page.off("request", onRequest);
-  let typed: { count: number; types: string[]; subjectLost: boolean; omittedCandidateCount: number };
+  let typed: { count: number; types: string[]; subjectLost: boolean; omittedCandidateCount: number; preventedFieldCount: number };
   // Disclosure must survive a mid-probe failure. Typing has already happened by
   // the time anything below can throw, and those requests stay in the retained
   // log, so a scan that reports them without saying the scanner provoked them
@@ -3250,7 +3263,7 @@ async function probeKeystrokeExfiltration(
     if (typed.count === 0) {
       const captureLossCount = Math.min(
         Number.MAX_SAFE_INTEGER,
-        captured.captureLossCount + typed.omittedCandidateCount
+        captured.captureLossCount + typed.omittedCandidateCount + typed.preventedFieldCount
       );
       return captureLossCount > 0
         ? { status: "partial", reason: "budget-unavailable", detection: null, captureLossCount }
@@ -3283,7 +3296,7 @@ async function probeKeystrokeExfiltration(
 
   const captureLossCount = Math.min(
     Number.MAX_SAFE_INTEGER,
-    captured.captureLossCount + typed.omittedCandidateCount
+    captured.captureLossCount + typed.omittedCandidateCount + typed.preventedFieldCount
   );
   const detection = buildKeystrokeExfiltrationDetection(
     findSentinelLeaks(sentinelEncodings(sentinel), captured.requests),
@@ -3336,9 +3349,9 @@ export async function typeSentinelIntoFields(
     isCancelled: () => boolean;
     onTypedField: (count: number) => void;
   }
-): Promise<{ count: number; types: string[]; subjectLost: boolean; omittedCandidateCount: number }> {
+): Promise<{ count: number; types: string[]; subjectLost: boolean; omittedCandidateCount: number; preventedFieldCount: number }> {
   if (!sameScanSubjectUrl(page.url(), trustedSubjectUrl)) {
-    return { count: 0, types: [], subjectLost: true, omittedCandidateCount: 0 };
+    return { count: 0, types: [], subjectLost: true, omittedCandidateCount: 0, preventedFieldCount: 0 };
   }
   const locator = page.locator(FILLABLE_FIELD_SELECTOR);
   const rawCandidateCount = await locator.count();
@@ -3349,6 +3362,9 @@ export async function typeSentinelIntoFields(
   const omittedCandidateCount = Math.max(0, totalCandidateCount - candidateCount);
   const types: string[] = [];
   let count = 0;
+  // Fields the probe reached and typed into, where the page refused the input.
+  // Tracked separately so a refused field is never reported as a typed one.
+  let preventedFieldCount = 0;
 
   for (
     let candidateIndex = 0;
@@ -3359,7 +3375,7 @@ export async function typeSentinelIntoFields(
     if (!handle) continue;
     if (!sameScanSubjectUrl(page.url(), trustedSubjectUrl)) {
       await handle.dispose().catch(() => undefined);
-      return { count, types, subjectLost: true, omittedCandidateCount };
+      return { count, types, subjectLost: true, omittedCandidateCount, preventedFieldCount };
     }
     try {
       if (!(await handle.isVisible())) continue;
@@ -3370,20 +3386,33 @@ export async function typeSentinelIntoFields(
       );
       const fieldType = isBoundedFieldType(rawFieldType) ? rawFieldType : "other";
       if (!sameScanSubjectUrl(page.url(), trustedSubjectUrl)) {
-        return { count, types, subjectLost: true, omittedCandidateCount };
+        return { count, types, subjectLost: true, omittedCandidateCount, preventedFieldCount };
       }
       await handle.focus();
       if (!sameScanSubjectUrl(page.url(), trustedSubjectUrl)) {
-        return { count, types, subjectLost: true, omittedCandidateCount };
+        return { count, types, subjectLost: true, omittedCandidateCount, preventedFieldCount };
       }
       // Bind typing to the element handle from the trusted document. If a
       // navigation detaches it after the final origin check, Playwright throws;
       // page.keyboard.type could otherwise deliver the sentinel to whichever
       // element happens to gain focus in the replacement document.
       if (lifecycle?.isCancelled()) {
-        return { count, types, subjectLost: false, omittedCandidateCount };
+        return { count, types, subjectLost: false, omittedCandidateCount, preventedFieldCount };
       }
       await handle.type(sentinel, { delay: 1 });
+      // `type()` resolving only means the keystrokes were dispatched. A field
+      // that is readonly, disabled mid-type, or that cancels every keydown
+      // accepts none of them, and counting it anyway told readers the scan had
+      // "typed into 1 field" when nothing was ever entered. Confirm the
+      // scanner's own sentinel is actually in the field before claiming it.
+      // The check returns a boolean computed in the page; no field contents
+      // are read out.
+      const sentinelLanded =
+        (await callBoundedElementCollector(handle, boundedPageCollectorKey, "sentinelPresent", sentinel)) === true;
+      if (!sentinelLanded) {
+        preventedFieldCount += 1;
+        continue;
+      }
       types.push(fieldType);
       count += 1;
       lifecycle?.onTypedField(count);
@@ -3401,7 +3430,8 @@ export async function typeSentinelIntoFields(
     count,
     types,
     subjectLost: !sameScanSubjectUrl(page.url(), trustedSubjectUrl),
-    omittedCandidateCount
+    omittedCandidateCount,
+    preventedFieldCount
   };
 }
 
@@ -3502,10 +3532,21 @@ async function probePrivacyPolicy(input: {
       await route.continue();
     });
 
-    await policyPage.goto(policyUrl, {
+    const policyResponse = await policyPage.goto(policyUrl, {
       waitUntil: "domcontentloaded",
       timeout: scanTimeout(input.started, PRIVACY_POLICY_NAV_TIMEOUT_MS)
     });
+    // The candidate link is only a guess about where the policy lives. A 404,
+    // a 403, or any other error response is an error page, not the site's
+    // policy, and reading its body produced claims (and contradictions with
+    // the visit's evidence) attributed to a document the site never published.
+    // Retain the response and refuse anything that did not actually serve.
+    // Reported through the detector ledger and its capture loss rather than a
+    // new warning string: the scanner's fixed warning vocabulary is part of the
+    // published redaction identity, and adding to it would retire the current
+    // r2 normalization for every live report.
+    const policyStatus = policyResponse?.status() ?? null;
+    if (policyStatus === null || policyStatus < 200 || policyStatus >= 400) return null;
     assertAllowedPrivacyPolicyPage(policyPage.url(), input.firstPartyHostname);
     // CMP-hosted policies often render their text client-side after load.
     const renderWait = Math.min(PRIVACY_POLICY_RENDER_WAIT_MS, MAX_SCAN_DURATION_MS - (Date.now() - input.started) - 500);
