@@ -27,6 +27,11 @@
  *                                     nonzero, even though independently
  *                                     validated successes can still publish.
  *
+ * CLI:
+ *   --plan                            Print the selected domains, conditions,
+ *                                     and bounded attempt/page-visit budget as
+ *                                     JSON without building or scanning.
+ *
  * A full featured-catalog run also has fixed, non-overridable eligibility
  * gates: at least 80% of the whole catalog and at least 50 sites must remain
  * active. Temporarily unavailable entries stay in that denominator.
@@ -53,7 +58,8 @@ const configPath = sitesFileEnv ? path.resolve(rootDir, sitesFileEnv) : path.joi
 const ciScanScript = path.join(rootDir, "scripts", "run-ci-scan.mjs");
 const manifestScript = path.join(rootDir, "scripts", "build-static-report-manifest.mjs");
 
-async function main() {
+async function main(args = process.argv.slice(2)) {
+  const planOnly = parseArguments(args);
   const config = await readConfig();
   const { sites, unavailable, catalogTotal, catalogVersion, fullCatalog, eligibility } = selectSites(config);
 
@@ -69,6 +75,33 @@ async function main() {
   const delayMs = positiveIntEnv("FEATURED_DELAY_MS", 1500);
   const transientRetries = featuredTransientRetryLimit(process.env.FEATURED_TRANSIENT_RETRIES);
   const transientRetryDelayMs = positiveIntEnv("FEATURED_TRANSIENT_RETRY_DELAY_MS", 5000);
+  const minSuccessRate = featuredMinimumSuccessRate(process.env.FEATURED_MIN_SUCCESS_RATE, 0.9, 0.8);
+
+  if (planOnly) {
+    console.log(
+      JSON.stringify(
+        featuredRunPlan({
+          sites,
+          unavailable,
+          catalogTotal,
+          catalogVersion,
+          fullCatalog,
+          eligibility,
+          compareShields,
+          compareConsent,
+          compareGpc,
+          device,
+          delayMs,
+          transientRetries,
+          transientRetryDelayMs,
+          minSuccessRate
+        }),
+        null,
+        2
+      )
+    );
+    return;
+  }
 
   console.log(
     `Scanning ${sites.length} eligible featured site${sites.length === 1 ? "" : "s"} (compareShields=${compareShields}, compareConsent=${compareConsent}, compareGpc=${compareGpc}, device=${device}, transientRetries=${transientRetries}).`
@@ -114,7 +147,6 @@ async function main() {
     }
   }
 
-  const minSuccessRate = featuredMinimumSuccessRate(process.env.FEATURED_MIN_SUCCESS_RATE, 0.9, 0.8);
   const successRate = succeeded / sites.length;
   await publishRunDiagnostics({
     sites,
@@ -156,6 +188,64 @@ async function main() {
     );
     process.exit(1);
   }
+}
+
+export function featuredRunPlan({
+  sites,
+  unavailable,
+  catalogTotal,
+  catalogVersion,
+  fullCatalog,
+  eligibility,
+  compareShields,
+  compareConsent,
+  compareGpc,
+  device,
+  delayMs,
+  transientRetries,
+  transientRetryDelayMs,
+  minSuccessRate
+}) {
+  const comparisonMode = compareShields ? "shields" : compareConsent ? "consent" : compareGpc ? "gpc" : "single";
+  const pageVisitsPerAttempt = comparisonMode === "single" ? 1 : 2;
+  const attemptsPerTarget = transientRetries + 1;
+  return {
+    planVersion: 1,
+    kind: "site-behavior-featured-scan-plan",
+    mutatesReports: false,
+    catalog: {
+      version: catalogVersion,
+      fullCatalog,
+      selected: sites.length,
+      deferred: unavailable.length,
+      total: catalogTotal,
+      coverage: eligibility.catalogCoverage
+    },
+    conditions: {
+      comparisonMode,
+      device
+    },
+    budget: {
+      attemptsPerTarget,
+      pageVisitsPerAttempt,
+      maximumSubmittedScans: sites.length * attemptsPerTarget,
+      maximumPageVisits: sites.length * attemptsPerTarget * pageVisitsPerAttempt,
+      delayBetweenTargetsMs: delayMs,
+      initialTransientRetryDelayMs: transientRetryDelayMs
+    },
+    acceptance: {
+      minimumSuccessRate: minSuccessRate,
+      requiredSuccesses: Math.ceil(sites.length * minSuccessRate)
+    },
+    targets: sites.map((site) => ({ domain: site.domain, category: site.category })),
+    deferred: unavailable
+  };
+}
+
+function parseArguments(args) {
+  if (args.length === 0) return false;
+  if (args.length === 1 && args[0] === "--plan") return true;
+  throw new Error("Usage: node scripts/run-featured-scans.mjs [--plan]");
 }
 
 async function publishRunDiagnostics({
@@ -324,6 +414,10 @@ function runOneScan(site, { compareGpc, compareShields, compareConsent, device }
       // a Shields comparison. A Shields visit with gpcEnabled false is also the
       // more representative baseline, since most visitors send no GPC header.
       SCAN_GPC_ENABLED: compareGpc ? "true" : "false",
+      // Each child publisher still deep-validates the exact new report and
+      // provenance sidecar. Defer the O(corpus) remediation pass to this
+      // trusted parent, which runs it once after every child has exited.
+      CI_SCAN_DEFER_CORPUS_CHECK: "1",
       // Avoid each child appending duplicate keys to a shared GITHUB_OUTPUT file.
       GITHUB_OUTPUT: ""
     },

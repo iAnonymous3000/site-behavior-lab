@@ -63,7 +63,7 @@ test("runtimeStatus degrades instead of throwing when the store backend is misco
   // the configuration is broken, so it must answer, degraded.
   process.env[REPORT_STORE_BACKEND_ENV] = "r2";
   process.env[SCAN_ACCESS_TOKEN_ENV] = "secret-key";
-  process.env[SCANNER_EGRESS_ENV] = "iad-lab-egress";
+  process.env[SCANNER_EGRESS_ENV] = "github-actions-ubuntu";
 
   const status = await runtimeStatus(loadedAdblock);
   assert.equal(status.ok, true);
@@ -117,10 +117,35 @@ test("runtimeStatus reports degraded status for open local defaults", async () =
   assert.equal(status.warnings.length, 3);
 });
 
+test("runtimeStatus discloses an egress label canonicalized before collection", async () => {
+  process.env[SCANNER_EGRESS_ENV] = "iad-lab-egress";
+
+  const status = await runtimeStatus(loadedAdblock);
+
+  assert.equal(status.status, "degraded");
+  assert.equal(status.checks.scannerEgress, "canonicalized");
+  assert.equal(
+    status.warnings.some((warning) => warning.includes("not in the reviewed public vocabulary")),
+    true
+  );
+});
+
+test("runtimeStatus recognizes the controlled acquisition alias without publishing it", async () => {
+  process.env[SCANNER_EGRESS_ENV] = "controlled-self-hosted";
+
+  const status = await runtimeStatus(loadedAdblock);
+
+  assert.equal(status.checks.scannerEgress, "aliased");
+  assert.equal(
+    status.warnings.some((warning) => warning.includes("not in the reviewed public vocabulary")),
+    false
+  );
+});
+
 test("runtimeStatus reports ok status when production controls are configured", async () => {
   process.env[SCAN_ACCESS_TOKEN_ENV] = "secret-key";
   process.env[REPORT_STORE_DIR_ENV] = "/var/lib/site-behavior-lab/reports";
-  process.env[SCANNER_EGRESS_ENV] = "iad-lab-egress";
+  process.env[SCANNER_EGRESS_ENV] = "github-actions-ubuntu";
   process.env[CHROMIUM_SANDBOX_ENV] = "1";
 
   const status = await runtimeStatus(loadedAdblock);
@@ -167,7 +192,7 @@ test("runtimeStatus fails health and publication capabilities closed on durable 
   try {
     process.env[SCAN_ACCESS_TOKEN_ENV] = "secret-key";
     process.env[REPORT_STORE_DIR_ENV] = dir;
-    process.env[SCANNER_EGRESS_ENV] = "iad-lab-egress";
+    process.env[SCANNER_EGRESS_ENV] = "github-actions-ubuntu";
     process.env[CHROMIUM_SANDBOX_ENV] = "1";
     const debtDir = path.join(dir, ".retention-debt");
     await mkdir(debtDir, { recursive: true });
@@ -217,7 +242,7 @@ test("runtimeStatus exposes only a full validated build revision", async () => {
 test("runtimeStatus makes public-r2 rollout readiness explicit and refuses misconfiguration", async () => {
   process.env[SCAN_ACCESS_TOKEN_ENV] = "secret-key";
   process.env[REPORT_STORE_DIR_ENV] = "/var/lib/site-behavior-lab/reports";
-  process.env[SCANNER_EGRESS_ENV] = "iad-lab-egress";
+  process.env[SCANNER_EGRESS_ENV] = "github-actions-ubuntu";
 
   process.env[PUBLIC_R2_REPORTS_ENV] = "sometimes";
   const badFlag = await runtimeStatus(loadedAdblock);
@@ -246,7 +271,7 @@ test("runtimeStatus makes public-r2 rollout readiness explicit and refuses misco
 
 test("runtimeStatus exposes Node-only durable-job readiness without claiming edge readiness", async () => {
   process.env[SCAN_ACCESS_TOKEN_ENV] = "secret-key";
-  process.env[SCANNER_EGRESS_ENV] = "iad-lab-egress";
+  process.env[SCANNER_EGRESS_ENV] = "github-actions-ubuntu";
   process.env[SCANNER_EGRESS_REGION_ENV] = "us-west";
   process.env[REPORT_STORE_BACKEND_ENV] = "r2";
   process.env.SITE_BEHAVIOR_LAB_R2_BUCKET = "reports";
@@ -367,7 +392,7 @@ test("runtimeStatus exposes Node-only durable-job readiness without claiming edg
 test("runtimeStatus fails durable-job readiness closed when requested prerequisites are absent", async () => {
   process.env[SCAN_ACCESS_TOKEN_ENV] = "secret-key";
   process.env[REPORT_STORE_DIR_ENV] = "/var/lib/site-behavior-lab/reports";
-  process.env[SCANNER_EGRESS_ENV] = "iad-lab-egress";
+  process.env[SCANNER_EGRESS_ENV] = "github-actions-ubuntu";
   process.env[DURABLE_JOBS_ENV] = "1";
   process.env[DURABLE_JOBS_COORDINATOR_URL_ENV] = "https://user@scan.sitebehavior.org";
 
@@ -386,7 +411,7 @@ test("runtimeStatus fails durable-job readiness closed when requested prerequisi
 test("runtimeStatus reports an invalid durable-job flag as misconfigured, not enabled", async () => {
   process.env[SCAN_ACCESS_TOKEN_ENV] = "secret-key";
   process.env[REPORT_STORE_DIR_ENV] = "/var/lib/site-behavior-lab/reports";
-  process.env[SCANNER_EGRESS_ENV] = "iad-lab-egress";
+  process.env[SCANNER_EGRESS_ENV] = "github-actions-ubuntu";
   process.env[DURABLE_JOBS_ENV] = "yes";
 
   const status = await runtimeStatus(loadedAdblock);
@@ -403,7 +428,7 @@ test("runtimeStatus reports an invalid durable-job flag as misconfigured, not en
 test("runtimeStatus makes an unrecorded public-r2 egress region observable", async () => {
   process.env[SCAN_ACCESS_TOKEN_ENV] = "secret-key";
   process.env[REPORT_STORE_DIR_ENV] = "/var/lib/site-behavior-lab/reports";
-  process.env[SCANNER_EGRESS_ENV] = "iad-lab-egress";
+  process.env[SCANNER_EGRESS_ENV] = "github-actions-ubuntu";
   process.env[PUBLIC_R2_REPORTS_ENV] = "1";
   process.env[BUILD_COMMIT_ENV] = "a".repeat(40);
   process.env[CONSENT_VERIFICATION_ENV] = "1";
@@ -432,7 +457,7 @@ test("runtimeStatus makes an unrecorded public-r2 egress region observable", asy
 test("runtimeStatus rejects explicit egress regions outside the r2 text envelope", async () => {
   process.env[SCAN_ACCESS_TOKEN_ENV] = "secret-key";
   process.env[REPORT_STORE_DIR_ENV] = "/var/lib/site-behavior-lab/reports";
-  process.env[SCANNER_EGRESS_ENV] = "iad-lab-egress";
+  process.env[SCANNER_EGRESS_ENV] = "github-actions-ubuntu";
   process.env[SCANNER_EGRESS_REGION_ENV] = "x".repeat(65);
 
   const status = await runtimeStatus(loadedAdblock);
@@ -444,7 +469,7 @@ test("runtimeStatus rejects explicit egress regions outside the r2 text envelope
 test("runtimeStatus exposes a configured private R2 shadow posture", async () => {
   process.env[SCAN_ACCESS_TOKEN_ENV] = "secret-key";
   process.env[REPORT_STORE_DIR_ENV] = "/var/lib/site-behavior-lab/reports";
-  process.env[SCANNER_EGRESS_ENV] = "iad-lab-egress";
+  process.env[SCANNER_EGRESS_ENV] = "github-actions-ubuntu";
   process.env[BUILD_COMMIT_ENV] = "a".repeat(40);
   process.env[CONSENT_VERIFICATION_ENV] = "1";
   process.env[V2_SHADOW_EMISSION_ENV] = "1";
@@ -464,7 +489,7 @@ test("runtimeStatus exposes a configured private R2 shadow posture", async () =>
 test("runtimeStatus degrades explicit shadow flag and sink misconfiguration", async () => {
   process.env[SCAN_ACCESS_TOKEN_ENV] = "secret-key";
   process.env[REPORT_STORE_DIR_ENV] = "/var/lib/site-behavior-lab/reports";
-  process.env[SCANNER_EGRESS_ENV] = "iad-lab-egress";
+  process.env[SCANNER_EGRESS_ENV] = "github-actions-ubuntu";
   process.env[BUILD_COMMIT_ENV] = "a".repeat(40);
   process.env[CONSENT_VERIFICATION_ENV] = "1";
   process.env[V2_SHADOW_EMISSION_ENV] = "1";
@@ -484,7 +509,7 @@ test("runtimeStatus degrades explicit shadow flag and sink misconfiguration", as
 test("runtimeStatus names consent verification required by observe-mode shadow emission", async () => {
   process.env[SCAN_ACCESS_TOKEN_ENV] = "secret-key";
   process.env[REPORT_STORE_DIR_ENV] = "/var/lib/site-behavior-lab/reports";
-  process.env[SCANNER_EGRESS_ENV] = "iad-lab-egress";
+  process.env[SCANNER_EGRESS_ENV] = "github-actions-ubuntu";
   process.env[BUILD_COMMIT_ENV] = "a".repeat(40);
   process.env[V2_SHADOW_EMISSION_ENV] = "1";
 
@@ -498,7 +523,7 @@ test("runtimeStatus names consent verification required by observe-mode shadow e
 test("runtimeStatus refuses filesystem shadow readiness without full build provenance", async () => {
   process.env[SCAN_ACCESS_TOKEN_ENV] = "secret-key";
   process.env[REPORT_STORE_DIR_ENV] = "/var/lib/site-behavior-lab/reports";
-  process.env[SCANNER_EGRESS_ENV] = "iad-lab-egress";
+  process.env[SCANNER_EGRESS_ENV] = "github-actions-ubuntu";
   process.env[CONSENT_VERIFICATION_ENV] = "1";
   process.env[V2_SHADOW_EMISSION_ENV] = "1";
 
@@ -511,7 +536,7 @@ test("runtimeStatus refuses filesystem shadow readiness without full build prove
 test("runtimeStatus treats explicit open access as intentional, not a degradation", async () => {
   process.env[ALLOW_UNAUTHENTICATED_SCANS_ENV] = "1";
   process.env[REPORT_STORE_DIR_ENV] = "/var/lib/site-behavior-lab/reports";
-  process.env[SCANNER_EGRESS_ENV] = "iad-lab-egress";
+  process.env[SCANNER_EGRESS_ENV] = "github-actions-ubuntu";
 
   const status = await runtimeStatus(loadedAdblock);
 
@@ -526,7 +551,7 @@ test("runtimeStatus treats explicit open access as intentional, not a degradatio
 test("runtimeStatus degrades when Brave adblock cannot load", async () => {
   process.env[SCAN_ACCESS_TOKEN_ENV] = "secret-key";
   process.env[REPORT_STORE_DIR_ENV] = "/var/lib/site-behavior-lab/reports";
-  process.env[SCANNER_EGRESS_ENV] = "iad-lab-egress";
+  process.env[SCANNER_EGRESS_ENV] = "github-actions-ubuntu";
 
   const status = await runtimeStatus(async () => ({
     active: false,

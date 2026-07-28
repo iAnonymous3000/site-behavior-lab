@@ -27,7 +27,12 @@ import {
 } from "./scan-report-views";
 import { runRequestEvidenceCapped } from "./comparison-eligibility";
 import { GPC_WORKER_CAPTURE_LOSS_WARNING } from "./gpc-injection";
-import { INVALID_UPSTREAM_RESPONSE_WARNING, UNSETTLED_ROUTED_REQUEST_WARNING } from "./scan-runtime";
+import {
+  INVALID_UPSTREAM_RESPONSE_WARNING,
+  KEYSTROKE_PROBE_INCOMPLETE_WARNING,
+  PIXEL_DECODE_CAPTURE_LOSS_WARNING,
+  UNSETTLED_ROUTED_REQUEST_WARNING
+} from "./scan-runtime";
 import type { ScanResult } from "./types";
 
 // ---------------------------------------------------------------------------
@@ -250,4 +255,29 @@ test("an unsettled routed request is a capture loss, never the recording cap", (
   assert.equal(runHitRequestRecordingCap(run), false);
   assert.equal(requestEvidenceState(run), "incomplete");
   assert.ok(run.quality.reasons.includes("capture-loss:unsettled-routed-requests"));
+});
+
+test("an incomplete v1 pixel-body read censors detector output only", () => {
+  const report = makeScanReportV1();
+  report.warnings = [PIXEL_DECODE_CAPTURE_LOSS_WARNING];
+  const run = viewFromV1Report(report).runs[0];
+
+  assert.ok(run.quality.reasons.includes("capture-loss:pixel-decode"));
+  assert.equal(familyCensoredOnRun(run, "detector-output"), true);
+  assert.equal(familyCensoredOnRun(run, "requests"), false);
+  assert.equal(familyCensoredOnRun(run, "cookies"), false);
+  assert.equal(familyCensoredOnRun(run, "storage"), false);
+  assert.equal(familyCensoredOnRun(run, "fingerprinting"), false);
+});
+
+test("a timed-out v1 synthetic-input probe censors detector and request evidence", () => {
+  const report = makeScanReportV1();
+  report.warnings = [KEYSTROKE_PROBE_INCOMPLETE_WARNING];
+  const run = viewFromV1Report(report).runs[0];
+
+  assert.ok(run.quality.reasons.includes("capture-loss:keystroke-probe"));
+  assert.equal(familyCensoredOnRun(run, "detector-output"), true);
+  assert.equal(familyCensoredOnRun(run, "requests"), true);
+  assert.equal(familyCensoredOnRun(run, "cookies"), false);
+  assert.equal(requestEvidenceState(run), "incomplete");
 });

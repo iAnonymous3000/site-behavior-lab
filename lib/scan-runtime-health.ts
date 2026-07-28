@@ -58,6 +58,13 @@ export type ScanRuntimeHealth = {
     };
     chromiumSandbox?: "enabled" | "disabled";
     scanAccess?: "configured" | "open" | "refused";
+    /**
+     * Whether the scanner's configured egress label is safe to expose.
+     * `aliased` is an intentional, reviewed private configuration alias whose
+     * public report value is the generic label; `canonicalized` is an
+     * unreviewed operator value and must not satisfy production posture gates.
+     */
+    scannerEgress?: "configured" | "default" | "aliased" | "canonicalized";
     scannerEgressRegion?: "configured" | "unrecorded" | "misconfigured";
     consentVerification?: "enabled" | "disabled" | "misconfigured";
     publicR2Reports?: {
@@ -153,6 +160,15 @@ function isChecks(value: unknown): value is NonNullable<ScanRuntimeHealth["check
     value.scanAccess !== "configured" &&
     value.scanAccess !== "open" &&
     value.scanAccess !== "refused"
+  ) {
+    return false;
+  }
+  if (
+    value.scannerEgress !== undefined &&
+    value.scannerEgress !== "configured" &&
+    value.scannerEgress !== "default" &&
+    value.scannerEgress !== "aliased" &&
+    value.scannerEgress !== "canonicalized"
   ) {
     return false;
   }

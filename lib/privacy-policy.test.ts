@@ -104,10 +104,129 @@ test("pickPrivacyPolicyLink never picks Do Not Sell opt-out links or non-http sc
   );
 });
 
+test("pickPrivacyPolicyLink recognizes exact localized policy paths without relying on link text", () => {
+  const cases = [
+    {
+      locale: "Spanish policy",
+      href: "https://shop.example/legal/politica-de-privacidad",
+      text: "Legal"
+    },
+    {
+      locale: "Spanish privacy notice",
+      href: "https://shop.example/legal/aviso-de-privacidad.html",
+      text: "Legal"
+    },
+    {
+      locale: "French policy",
+      href: "https://shop.example/legal/politique-de-confidentialite",
+      text: "Legal"
+    },
+    {
+      locale: "French percent-encoded path",
+      href: "https://shop.example/legal/politique-de-confidentialit%C3%A9",
+      text: "Legal"
+    },
+    {
+      locale: "German declaration",
+      href: "https://shop.example/legal/datenschutzerklaerung",
+      text: "Legal"
+    },
+    {
+      locale: "German percent-encoded declaration",
+      href: "https://shop.example/legal/datenschutzerkl%C3%A4rung",
+      text: "Legal"
+    },
+    {
+      locale: "Dutch policy",
+      href: "https://shop.example/legal/privacybeleid",
+      text: "Legal"
+    },
+    {
+      locale: "Dutch statement",
+      href: "https://shop.example/legal/privacyverklaring",
+      text: "Legal"
+    },
+    {
+      locale: "Portuguese policy",
+      href: "https://shop.example/legal/politica-de-privacidade",
+      text: "Legal"
+    },
+    {
+      locale: "Portuguese notice",
+      href: "https://shop.example/legal/aviso-de-privacidade",
+      text: "Legal"
+    }
+  ];
+
+  for (const fixture of cases) {
+    assert.equal(
+      pickPrivacyPolicyLink([{ href: fixture.href, text: fixture.text }], "shop.example"),
+      fixture.href,
+      fixture.locale
+    );
+  }
+});
+
+test("pickPrivacyPolicyLink accepts localized policy labels on a generic legal path", () => {
+  for (const fixture of [
+    { href: "https://shop.example/legal/es", text: "Política de privacidad" },
+    { href: "https://shop.example/legal/es-notice", text: "Declaración de privacidad" },
+    { href: "https://shop.example/legal/fr", text: "Politique de confidentialité" },
+    { href: "https://shop.example/legal/fr-data", text: "Politique de protection des données" },
+    { href: "https://shop.example/legal/de", text: "Datenschutzerklärung" },
+    { href: "https://shop.example/legal/de-notice", text: "Datenschutzhinweise" },
+    { href: "https://shop.example/legal/nl", text: "Privacyverklaring" },
+    { href: "https://shop.example/legal/nl-data", text: "Gegevensbeschermingsbeleid" },
+    { href: "https://shop.example/legal/pt", text: "Política de privacidade" },
+    { href: "https://shop.example/legal/pt-notice", text: "Declaração de privacidade" },
+    { href: "https://shop.example/legal/pt-data", text: "Política de proteção de dados" }
+  ]) {
+    assert.equal(
+      pickPrivacyPolicyLink([{ href: fixture.href, text: fixture.text }], "shop.example"),
+      fixture.href,
+      fixture.text
+    );
+  }
+});
+
+test("pickPrivacyPolicyLink keeps localized marketing, preferences, and bare mentions out", () => {
+  assert.equal(
+    pickPrivacyPolicyLink(
+      [
+        { href: "https://shop.example/blog/por-que-la-privacidad-importa", text: "Por qué importa la privacidad" },
+        { href: "https://shop.example/legal/es", text: "Cómo redactar una política de privacidad" },
+        { href: "https://shop.example/legal/fr", text: "Guide de la politique de confidentialité" },
+        { href: "https://shop.example/legal/de", text: "Was gehört in eine Datenschutzerklärung?" },
+        { href: "https://shop.example/legal/nl", text: "Voorbeeld privacyverklaring" },
+        { href: "https://shop.example/legal/pt", text: "Modelo de política de privacidade" },
+        { href: "https://shop.example/privacidad", text: "Preferencias de privacidad" },
+        { href: "https://shop.example/confidentialite", text: "Préférences de confidentialité" },
+        { href: "https://shop.example/datenschutz", text: "Datenschutz-Tipps" },
+        { href: "https://shop.example/privacybeleid", text: "Voorbeeld privacybeleid" },
+        { href: "https://shop.example/privacidade", text: "Dicas de privacidade" },
+        { href: "https://shop.example/legal%2Fprivacy", text: "Legal" },
+        { href: "https://shop.example/gdpr", text: "GDPR" }
+      ],
+      "shop.example"
+    ),
+    null
+  );
+});
+
+test("pickPrivacyPolicyLink never attributes a localized policy to another site", () => {
+  assert.equal(
+    pickPrivacyPolicyLink(
+      [{ href: "https://other.example/legal", text: "Política de privacidad" }],
+      "shop.example"
+    ),
+    null
+  );
+});
+
 test("extractPolicyClaims matches first-person testable statements with quotes", () => {
   const claims = extractPolicyClaims(
     "About us. We do not use third-party cookies on this website. " +
-      "We will not sell your personal information to anyone. " +
+      "We will not sell or share your personal information with anyone. " +
       "We honor the Global Privacy Control signal as a valid opt-out."
   );
 
@@ -144,6 +263,81 @@ test("extractPolicyClaims ignores opt-out link labels and scoped cookie statemen
       "Your Privacy Choices."
   );
   assert.deepEqual(claims, []);
+});
+
+test("extractPolicyClaims keeps only blanket combined no-selling-and-sharing statements", () => {
+  for (const sentence of [
+    "We do not sell or share your personal information with anyone.",
+    "We never share or sell personal data.",
+    "Our website will not rent, sell, or share your personal information.",
+    "We do not sell your personal information to third parties, nor share it with advertisers."
+  ]) {
+    assert.deepEqual(
+      extractPolicyClaims(sentence).map((claim) => claim.kind),
+      ["no-selling-or-sharing"],
+      sentence
+    );
+  }
+});
+
+test("extractPolicyClaims requires selling and sharing under the same explicit negation", () => {
+  for (const sentence of [
+    "We do not sell your personal information.",
+    "We do not share your personal information.",
+    "We do not sell personal data. We do not share personal data.",
+    "We do not sell personal data and we do not share it.",
+    "We do not sell and share personal information.",
+    "We do not restrict partners from selling or sharing your personal information.",
+    "We do not sell personal information to partners who share it."
+  ]) {
+    assert.deepEqual(extractPolicyClaims(sentence), [], sentence);
+  }
+});
+
+test("extractPolicyClaims does not turn qualified real-policy wording into blanket combined claims", () => {
+  // These reproduce the clauses that generated false policy conflicts in the
+  // committed eHarmony, Scholastic, Citi, and Psychology Today reports.
+  const qualifiedOrContradictory = [
+    "We do not knowingly collect, share, or sell the personal information of minors under 16 years of age.",
+    "We do not knowingly sell children’s CCPA Personal Information.",
+    "Please also note, for purposes of California law, we do not knowingly sell or share the Personal Information of minors under 16 years of age.",
+    "Although we do not “sell” personal data for direct monetary gain, some data sharing for cross-context behavioral advertising may be considered a “sale” under CCPA.",
+    "While we do not currently sell personal data for monetary gain, certain types of data sharing may qualify as a sale under applicable state laws."
+  ];
+
+  for (const sentence of qualifiedOrContradictory) {
+    assert.deepEqual(extractPolicyClaims(sentence), [], sentence);
+  }
+});
+
+test("extractPolicyClaims rejects other population, time, value, and exception qualifiers", () => {
+  for (const sentence of [
+    "We currently do not sell or share your personal information.",
+    "We do not sell or share your personal information at this time.",
+    "We do not sell or share sensitive personal information.",
+    "We do not sell or share personal data for monetary consideration.",
+    "We do not sell or share personal data in exchange for payment.",
+    'We do not "sell" or "share" Personal Data as defined under those laws.',
+    "We do not sell or share your personal information except to complete a merger.",
+    "We do not sell or share your personal information without your consent.",
+    "We do not sell personal data, but we may share it with advertising partners.",
+    "We do not restrict our partners from selling or sharing your personal information."
+  ]) {
+    assert.deepEqual(extractPolicyClaims(sentence), [], sentence);
+  }
+});
+
+test("a qualified combined transfer sentence does not suppress other checkable policy claims", () => {
+  const claims = extractPolicyClaims(
+    "We do not knowingly sell or share the personal information of minors under 16 years of age. " +
+      "We do not use third-party cookies. " +
+      "We honor Global Privacy Control signals."
+  );
+
+  assert.deepEqual(
+    claims.map((claim) => claim.kind).sort(),
+    ["honors-gpc", "no-third-party-cookies"]
+  );
 });
 
 test("extractPolicyClaims matches a blanket no-cookies statement", () => {

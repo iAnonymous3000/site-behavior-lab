@@ -280,7 +280,10 @@ jobs:
           // This endpoint intentionally proves configuration only. The scoped
           // synthetic lane below separately proves scan execution, remote R2
           // write/readback, and report rendering when its credential is active.
-          assertPosture(health?.checks?.scannerEgress === "configured", "scanner egress proxy must be configured");
+          assertPosture(
+            ["configured", "aliased"].includes(health?.checks?.scannerEgress),
+            "scanner egress must use a reviewed public label or the controlled private alias"
+          );
           assertPosture(health?.checks?.scannerEgressRegion === "configured",
             "scanner egress region must be recorded so r2 comparison metrics remain eligible");
           assertPosture(health?.checks?.consentVerification === "enabled",

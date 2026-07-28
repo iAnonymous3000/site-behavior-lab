@@ -118,9 +118,10 @@ export function installBoundedPageCollector(key: string): void {
   const contentEditableGetter = getter(htmlElementPrototype, "isContentEditable");
   const blurMethod = method(htmlElementPrototype, "blur");
 
-  const failWire = (kind: "title" | "storage" | "links" | "text"): string => {
+  const failWire = (kind: "title" | "storage" | "links" | "text" | "contentText"): string => {
     const output = record();
-    if (kind === "title" || kind === "text") set(output, "value", "");
+    if (kind === "title" || kind === "text" || kind === "contentText") set(output, "value", "");
+    if (kind === "contentText") set(output, "available", false);
     if (kind === "storage") {
       set(output, "records", list());
       set(output, "omittedCount", 1);
@@ -150,7 +151,8 @@ export function installBoundedPageCollector(key: string): void {
   const boundedNodeText = (
     root: object,
     maxChars: number,
-    maxNodes: number
+    maxNodes: number,
+    skipNonContent = false
   ): { value: string; truncated: boolean } => {
     let value = "";
     let visited = 0;
@@ -161,12 +163,36 @@ export function installBoundedPageCollector(key: string): void {
       if (call(nodeTypeGetter, current, []) === 3) {
         const nodeValue = call(nodeValueGetter, current, []);
         if (typeof nodeValue === "string") {
-          const remaining = maxChars - value.length;
+          let remaining = maxChars - value.length;
+          // DOM text split across adjacent/nested nodes still represents
+          // separate words. Preserve that boundary without doubling existing
+          // HTML whitespace; otherwise "Política de" + "privacidad" becomes
+          // "Política deprivacidad" and cannot pass the conservative selector.
+          if (value.length > 0 && nodeValue.length > 0) {
+            const previousCode = call(nativeStringCharCodeAt, value, [value.length - 1]) as number;
+            const nextCode = call(nativeStringCharCodeAt, nodeValue, [0]) as number;
+            const isBoundaryWhitespace = (code: number): boolean =>
+              (code >= 9 && code <= 13) || code === 32 || code === 160;
+            if (!isBoundaryWhitespace(previousCode) && !isBoundaryWhitespace(nextCode)) {
+              value += " ";
+              remaining -= 1;
+            }
+          }
+          if (remaining < 0) remaining = 0;
           value += call(nativeStringSlice, nodeValue, [0, remaining]) as string;
           if (nodeValue.length > remaining) truncated = true;
         }
       }
-      const child = call(nodeFirstChildGetter, current, []) as object | null;
+      let skipChildren = false;
+      if (skipNonContent && call(nodeTypeGetter, current, []) === 1) {
+        const tagName = call(elementTagNameGetter, current, []);
+        skipChildren =
+          tagName === "SCRIPT" ||
+          tagName === "STYLE" ||
+          tagName === "NOSCRIPT" ||
+          tagName === "TEMPLATE";
+      }
+      const child = skipChildren ? null : call(nodeFirstChildGetter, current, []) as object | null;
       if (child) {
         current = child;
         continue;
@@ -313,6 +339,10 @@ export function installBoundedPageCollector(key: string): void {
     "privatezza",    // it
     "datenschutz",   // de
     "confidentialit",// fr (confidentialite / confidentialité)
+    "protection des donn", // fr (donnees / données)
+    "gegevensbescherming", // nl
+    "protecao de dados", // pt, ASCII/transliterated
+    "proteção de dados", // pt
     "personvern",    // no
     "integritetspolicy", // sv
     "tietosuoja",    // fi
@@ -320,8 +350,7 @@ export function installBoundedPageCollector(key: string): void {
     "prywatno",      // pl (prywatnosci / prywatności)
     "gizlilik",      // tr
     "soukrom",       // cs (soukromi / soukromí)
-    "adatvedelmi",   // hu
-    "gdpr"           // jurisdiction-neutral, common in EU footers
+    "adatvedelmi"    // hu
   ];
 
   // Resolve an href from either element `document.links` can contain. Returns
@@ -466,6 +495,29 @@ export function installBoundedPageCollector(key: string): void {
     }
   });
 
+  // Main-document content used only for interstitial classification. Exclude
+  // script/style/template text so a small legitimate page cannot be failed by
+  // a challenge phrase embedded in code or hidden fallback markup. This is not
+  // called "visible text": CSS can still hide an ordinary DOM subtree, and the
+  // scanner deliberately does not claim otherwise.
+  set(api, "contentText", (maxCharsInput: unknown): string => {
+    try {
+      const maxChars = boundedPositiveInteger(maxCharsInput, 32_768);
+      if (!maxChars) return failWire("contentText");
+      const documentValue = call(windowDocumentGetter, globalThis, []);
+      const body = call(documentBodyGetter, documentValue, []);
+      if (!body) return failWire("contentText");
+      const text = boundedNodeText(body as object, maxChars, 20_000, true);
+      const output = record();
+      set(output, "value", text.value);
+      set(output, "truncated", text.truncated);
+      set(output, "available", true);
+      return stringify(output);
+    } catch {
+      return failWire("contentText");
+    }
+  });
+
   nativeFreeze(api);
   try {
     nativeDefine(globalThis, key, {
@@ -487,7 +539,7 @@ export type BoundedCollectorEvaluateLike = {
 export async function callBoundedPageCollector(
   page: BoundedCollectorEvaluateLike,
   key: string,
-  method: "title" | "storage" | "links" | "text",
+  method: "title" | "storage" | "links" | "text" | "contentText",
   input: unknown
 ): Promise<string | null> {
   return page.evaluate((arg) => {

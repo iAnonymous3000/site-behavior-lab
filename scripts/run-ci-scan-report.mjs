@@ -1,4 +1,8 @@
-import { isLikelyBotWallPage } from "../lib/bot-wall-classifier.ts";
+import {
+  isLikelyBotWallPage,
+  PAGE_SUBJECT_UNVERIFIED_WARNING,
+  SUSPECTED_CHALLENGE_OR_SOFT_BLOCK_WARNING
+} from "../lib/bot-wall-classifier.ts";
 
 /**
  * The CI lane publishes frozen v1 and the current v2/r2 revision. V2 roots do
@@ -60,6 +64,12 @@ function runFailureReason(run) {
   if (status >= 400) {
     return `${run.label}: main navigation returned HTTP ${status}`;
   }
+  if (Array.isArray(run.warnings) && run.warnings.includes(SUSPECTED_CHALLENGE_OR_SOFT_BLOCK_WARNING)) {
+    return `${run.label}: report recorded a suspected challenge or soft block`;
+  }
+  if (Array.isArray(run.warnings) && run.warnings.includes(PAGE_SUBJECT_UNVERIFIED_WARNING)) {
+    return `${run.label}: report could not verify the rendered page subject`;
+  }
   if (run.qualityFacts?.navigationSettled === false) {
     return `${run.label}: main navigation did not settle`;
   }
@@ -75,7 +85,7 @@ function reportRuns(report) {
   if (report.reportType === "single") {
     const run = report.schemaVersion === 2 ? report.run : report;
     return isRecord(run)
-      ? [{ label: "single run", summary: run.summary, qualityFacts: run.qualityFacts, quality: run.quality }]
+      ? [{ label: "single run", summary: run.summary, qualityFacts: run.qualityFacts, quality: run.quality, warnings: run.warnings }]
       : [];
   }
   if (report.reportType !== "comparison") return [];
@@ -108,7 +118,7 @@ function reportRuns(report) {
 }
 
 function reportRun(label, run) {
-  return { label, summary: run.summary, qualityFacts: run.qualityFacts, quality: run.quality };
+  return { label, summary: run.summary, qualityFacts: run.qualityFacts, quality: run.quality, warnings: run.warnings };
 }
 
 function isRecord(value) {

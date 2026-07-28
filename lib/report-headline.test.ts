@@ -1,5 +1,10 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import {
+  PAGE_SUBJECT_CAPTURE_LOSS_DETAIL,
+  PAGE_SUBJECT_UNVERIFIED_WARNING,
+  SUSPECTED_CHALLENGE_OR_SOFT_BLOCK_WARNING
+} from "./bot-wall-classifier";
 import { createConsentComparisonReport, createGpcComparisonReport, createShieldsComparisonReport } from "./compare-reports";
 import { GPC_WORKER_CAPTURE_LOSS_WARNING } from "./gpc-injection";
 import { displayableScreenshot } from "./report-insights";
@@ -49,7 +54,7 @@ test("leads with named platforms and strips the www prefix", () => {
 
   assert.equal(headline.domain, "shop.example");
   assert.equal(headline.tone, "warn");
-  assert.match(headline.headline, /shop\.example told Google and Meta you were here\./);
+  assert.match(headline.headline, /shop\.example contacted catalogued Google and Meta domains during this visit\./);
   assert.equal(headline.stats[0].value, "2");
 });
 
@@ -58,6 +63,20 @@ test("headlines name the stable site instead of a redacted subdomain marker", ()
   const headline = buildReportHeadline(viewFromV1Report(result));
   assert.equal(headline.domain, "clevelandclinic.org");
   assert.equal(headline.headline.includes("{label}"), false);
+});
+
+test("same-organization infrastructure is not headlined as an outside recipient", () => {
+  const result = makeResult({
+    firstPartyDomain: "youtube.com",
+    domains: [makeTrackerDomain("stats.g.doubleclick.net", 4, "Google", "advertising")],
+    thirdPartyRequests: 4,
+    thirdPartyDomains: 1
+  });
+
+  const headline = buildReportHeadline(viewFromV1Report(result));
+  assert.match(headline.headline, /youtube\.com contacted catalogued services on separate Google domains/);
+  assert.match(headline.subhead, /not evidence of disclosure to an outside company/);
+  assert.doesNotMatch(headline.headline, /told Google|shared this visit|outside company/);
 });
 
 test("escalates to alarm when three or more major platforms appear", () => {
@@ -75,7 +94,7 @@ test("escalates to alarm when three or more major platforms appear", () => {
 
   const headline = buildReportHeadline(viewFromV1Report(result));
   assert.equal(headline.tone, "alarm");
-  assert.match(headline.headline, /news\.example told Google, Meta and TikTok, \+1 more you were here\./);
+  assert.match(headline.headline, /news\.example contacted catalogued Google, Meta and TikTok, \+1 more domains during this visit\./);
 });
 
 test("falls back to a tracking-company count when no major platform matches", () => {
@@ -90,9 +109,11 @@ test("falls back to a tracking-company count when no major platform matches", ()
   });
 
   const headline = buildReportHeadline(viewFromV1Report(result));
-  assert.match(headline.headline, /store\.example shared this visit with 2 tracking companies\./);
-  // Hotjar is a session-replay vendor, so the subhead should flag recording.
-  assert.match(headline.subhead, /session-replay vendor can record/);
+  assert.match(headline.headline, /store\.example contacted 2 catalogued tracking-related services during this visit\./);
+  // Hotjar is catalogued as session replay; the copy must keep the domain match
+  // separate from a claim that recording actually happened.
+  assert.match(headline.subhead, /catalogued session-replay service appeared/);
+  assert.doesNotMatch(headline.subhead, /can record how you move/);
 });
 
 test("treats operational-only services as not tracking", () => {
@@ -108,7 +129,7 @@ test("treats operational-only services as not tracking", () => {
 
   const headline = buildReportHeadline(viewFromV1Report(result));
   assert.equal(headline.tone, "calm");
-  assert.match(headline.headline, /app\.example kept this visit relatively private\./);
+  assert.match(headline.headline, /app\.example showed few catalogued or fingerprint-like signals in this visit\./);
 });
 
 test("flags a GPC comparison that barely changed as an alarm", () => {
@@ -129,7 +150,7 @@ test("flags a GPC comparison that barely changed as an alarm", () => {
   assert.equal(headline.tone, "alarm");
   // V1 records configuration but no readback, so the headline must not claim
   // that the signal was verified as received or applied.
-  assert.match(headline.headline, /amazon\.com still sent requests to 1 tracking company with a privacy signal configured\./);
+  assert.match(headline.headline, /amazon\.com still contacted 1 catalogued tracking-related service with a privacy signal configured\./);
   assert.match(headline.subhead, /do not sell or share/);
   assert.match(headline.subhead, /versus 420 in the visit without the signal/);
   // The lead finding quotes the GPC-on visit's numbers, so the evidence
@@ -201,13 +222,13 @@ test("the GPC alarm counts tracking companies from the GPC-on visit, not the bas
 
   const headline = buildReportHeadline(viewFromV1Report(gpcPair(baseline, variant)));
   assert.equal(headline.tone, "alarm");
-  assert.match(headline.subhead, /still sent requests to 1 tracking company:/);
-  assert.doesNotMatch(headline.subhead, /3 tracking companies/);
+  assert.match(headline.subhead, /still contacted 1 catalogued tracking-related service:/);
+  assert.doesNotMatch(headline.subhead, /3 catalogued tracking-related services/);
   // The stat chips and share text sit next to the sentence, so they must quote
   // the same GPC-on visit, not the baseline's three companies.
-  assert.equal(headline.stats.find((stat) => stat.label.includes("tracking"))?.value, "1");
-  assert.match(headline.shareText, /1 tracking company/);
-  assert.doesNotMatch(headline.shareText, /3 tracking companies/);
+  assert.equal(headline.stats.find((stat) => stat.label.includes("catalogued"))?.value, "1");
+  assert.match(headline.shareText, /1 catalogued service/);
+  assert.doesNotMatch(headline.shareText, /3 catalogued services/);
 });
 
 test("the GPC alarm is not raised from baseline-only tracking companies", () => {
@@ -371,7 +392,7 @@ test("listener detections whose origins are same-site per the request log claim 
   });
 
   const headline = buildReportHeadline(viewFromV1Report(result));
-  assert.doesNotMatch(headline.headline, /probed your browser/);
+  assert.doesNotMatch(headline.headline, /fingerprint-like browser API patterns/);
   assert.doesNotMatch(headline.subhead, /keyboard input/);
   assert.equal(headline.tone, "calm");
 });
@@ -386,7 +407,7 @@ test("cross-site input monitoring keeps the probe headline with listener wording
   });
 
   const headline = buildReportHeadline(viewFromV1Report(result));
-  assert.match(headline.headline, /probed your browser/);
+  assert.match(headline.headline, /triggered fingerprint-like browser API patterns/);
   // The evidence is listener registration, not observed capture, so the
   // wording must not say the script "watched" input.
   assert.match(headline.subhead, /registered listeners on keyboard input/);
@@ -404,7 +425,7 @@ test("surfaces browser probing when fingerprinting matches without catalogued tr
 
   const headline = buildReportHeadline(viewFromV1Report(result));
   assert.equal(headline.tone, "warn");
-  assert.match(headline.headline, /fp\.example probed your browser, not just served a page\./);
+  assert.match(headline.headline, /fp\.example triggered fingerprint-like browser API patterns\./);
   assert.equal(headline.stats[0].value, "1");
 });
 
@@ -417,7 +438,7 @@ test("share text combines the headline, top stats, and the reproducibility tagli
   });
 
   const headline = buildReportHeadline(viewFromV1Report(result));
-  assert.match(headline.shareText, /shared this visit with 1 tracking company/);
+  assert.match(headline.shareText, /contacted 1 catalogued tracking-related service/);
   assert.match(headline.shareText, /Open-source and reproducible:/);
 });
 
@@ -441,8 +462,10 @@ test("a hashed keystroke leak leads the headline with alarm", () => {
   const headline = buildReportHeadline(viewFromV1Report(result));
   // Confirmed input capture outranks the named-platform (Google) story.
   assert.equal(headline.tone, "alarm");
-  assert.match(headline.headline, /shop\.example sent a hashed copy of what you type to 1 third party\./);
+  assert.match(headline.headline, /shop\.example sent a hashed form of synthetic input to 1 cross-site domain before submission\./);
   assert.match(headline.subhead, /collect\.tracker\.example/);
+  assert.match(headline.subhead, /does not establish whether transmission happened during typing, blur, or unload/);
+  assert.doesNotMatch(headline.subhead, /known identity/);
 });
 
 test("a reversible (base64) keystroke leak stays a warn, not an alarm", () => {
@@ -462,7 +485,7 @@ test("a reversible (base64) keystroke leak stays a warn, not an alarm", () => {
 
   const headline = buildReportHeadline(viewFromV1Report(result));
   assert.equal(headline.tone, "warn");
-  assert.match(headline.headline, /shop\.example sends what you type to 1 third party as you type\./);
+  assert.match(headline.headline, /shop\.example sent synthetic form input to 1 cross-site domain before submission\./);
 });
 
 test("a plain-text keystroke leak reads as a calmer third-party type-ahead, not an alarm", () => {
@@ -482,7 +505,7 @@ test("a plain-text keystroke leak reads as a calmer third-party type-ahead, not 
 
   const headline = buildReportHeadline(viewFromV1Report(result));
   assert.equal(headline.tone, "warn");
-  assert.match(headline.headline, /weather\.gov sends what you type to 1 third party as you type\./);
+  assert.match(headline.headline, /weather\.gov sent synthetic form input to 1 cross-site domain before submission\./);
   assert.match(headline.subhead, /geocode\.arcgis\.com/);
 });
 
@@ -504,6 +527,25 @@ test("privacy-generalized recipient hosts render as wildcards in headline prose"
   assert.equal(headline.subhead.includes("{label}"), false);
 });
 
+test("same-organization synthetic-input recipients retain the boundary fact without an outside-company claim", () => {
+  const result = makeResult({
+    firstPartyDomain: "x.com",
+    fingerprintDetections: [
+      {
+        kind: "keystroke-exfiltration",
+        heuristic: "input-sentinel-exfiltration-v1",
+        count: 1,
+        evidence: { recipients: ["api.twimg.com"], encodings: ["plain"], fieldsTyped: 1, fieldTypes: ["search"] }
+      }
+    ]
+  });
+
+  const headline = buildReportHeadline(viewFromV1Report(result));
+  assert.match(headline.headline, /1 cross-site domain/);
+  assert.match(headline.subhead, /same reviewed organization/);
+  assert.match(headline.subhead, /not disclosure to an outside company/);
+});
+
 test("a pixel with populated identifier fields leads over the named-platform story", () => {
   const result = makeResult({
     firstPartyDomain: "shop.example",
@@ -522,7 +564,7 @@ test("a pixel with populated identifier fields leads over the named-platform sto
   // the values hashed, and must not assert matching succeeded.
   assert.match(headline.headline, /shop\.example sent data in personal-identifier fields to Meta Pixel\./);
   assert.doesNotMatch(headline.headline, /sent personal identifiers to/);
-  assert.match(headline.subhead, /personal-identifier fields \(email and phone\)/);
+  assert.match(headline.subhead, /platform designates for personal identifiers \(email and phone\)/);
   assert.match(headline.subhead, /never their values/);
   assert.doesNotMatch(headline.subhead, /hashed/);
 });
@@ -538,7 +580,7 @@ test("an event-only pixel does not trigger the identifier headline", () => {
 
   const headline = buildReportHeadline(viewFromV1Report(result));
   // No advanced matching, so it falls through to the named-platform line.
-  assert.match(headline.headline, /shop\.example told Meta you were here\./);
+  assert.match(headline.headline, /shop\.example contacted catalogued Meta domains during this visit\./);
 });
 
 test("an unverified legacy consent pair falls through to the raw evidence headline", () => {
@@ -564,7 +606,7 @@ test("an unverified legacy consent pair falls through to the raw evidence headli
 
   const headline = buildReportHeadline(viewFromV1Report(consentPair(acceptRun, rejectRun)));
   assert.equal(headline.tone, "warn");
-  assert.match(headline.headline, /shop\.example told Google and Meta you were here\./);
+  assert.match(headline.headline, /shop\.example contacted catalogued Google and Meta domains during this visit\./);
   assert.doesNotMatch(`${headline.headline} ${headline.subhead}`, /Reject all|Accept all|after the click/);
   assert.equal(headline.focusArm, undefined);
 });
@@ -584,8 +626,8 @@ test("an unverified legacy consent pair keeps unanswered traffic in raw send-onl
   };
 
   const headline = buildReportHeadline(viewFromV1Report(consentPair(acceptRun, rejectRun)));
-  assert.match(headline.headline, /sent this visit to 1 tracking company/);
-  assert.match(headline.subhead, /recorded no response, so receipt is unproven/);
+  assert.match(headline.headline, /contacted 1 catalogued tracking-related service/);
+  assert.match(headline.subhead, /had requests dispatched with no recorded response/);
   assert.doesNotMatch(`${headline.headline} ${headline.subhead}`, /received requests|still reached|Reject all|Accept all/);
 });
 
@@ -664,7 +706,7 @@ test("a clean legacy reject attempt cannot drive a consent headline", () => {
 
   const headline = buildReportHeadline(viewFromV1Report(consentPair(acceptRun, rejectRun)));
   assert.equal(headline.tone, "warn");
-  assert.match(headline.headline, /shop\.example told Google you were here\./);
+  assert.match(headline.headline, /shop\.example contacted catalogued Google domains during this visit\./);
   assert.doesNotMatch(`${headline.headline} ${headline.subhead}`, /Reject all|Accept all|Rejecting|removed/);
 });
 
@@ -686,7 +728,7 @@ test("an un-clicked reject run falls through to the ordinary evidence headline",
   // No Reject all claim is allowed when the click never happened; the report
   // leads with the ordinary evidence story instead.
   assert.equal(/Reject all/.test(headline.headline), false);
-  assert.match(headline.headline, /shop\.example told Google you were here\./);
+  assert.match(headline.headline, /shop\.example contacted catalogued Google domains during this visit\./);
 });
 
 test("an HTTP error load is framed as a failed load, not as relatively private", () => {
@@ -701,8 +743,99 @@ test("an HTTP error load is framed as a failed load, not as relatively private",
   // Advising a retry "when it is reachable" sent readers into a loop against a
   // deterministic refusal.
   assert.doesNotMatch(headline.subhead, /when it is reachable/);
-  assert.match(headline.subhead, /answered and refused this automated visit/);
+  assert.match(headline.subhead, /status alone cannot identify/);
+  assert.doesNotMatch(headline.subhead, /automated visit.*caused|usually repeats/);
   assert.equal(headline.stats[0]?.value, "403");
+});
+
+test("subresource 401, 403, and 429 responses do not become a site-access failure", () => {
+  for (const subresourceStatus of [401, 403, 429]) {
+    const result = makeResult({
+      firstPartyDomain: "shop.example",
+      status: 200,
+      domains: [
+        {
+          ...makeTrackerDomain("google-analytics.com", 1, "Google", "analytics"),
+          statuses: [subresourceStatus]
+        }
+      ],
+      thirdPartyRequests: 1,
+      thirdPartyDomains: 1
+    });
+
+    const headline = buildReportHeadline(viewFromV1Report(result));
+    assert.match(headline.headline, /contacted catalogued Google domains/, String(subresourceStatus));
+    assert.doesNotMatch(
+      `${headline.headline} ${headline.subhead}`,
+      /refused this visit|returned an error|little to scan/,
+      String(subresourceStatus)
+    );
+  }
+});
+
+test("an HTTP-200 suspected soft block cannot produce a calm or comparison headline", () => {
+  const result = makeResult({ firstPartyDomain: "www.amazon.com", status: 200, totalRequests: 3 });
+  result.warnings.push(SUSPECTED_CHALLENGE_OR_SOFT_BLOCK_WARNING);
+
+  const view = viewFromV1Report(result);
+  const headline = buildReportHeadline(view);
+  assert.equal(view.runs[0].quality.outcome, "failed");
+  assert.equal(headline.tone, "info");
+  assert.match(headline.headline, /suspected challenge or soft block/);
+  assert.match(headline.subhead, /robot check, CAPTCHA, or blocking consent interstitial/);
+  assert.doesNotMatch(`${headline.headline} ${headline.subhead}`, /relatively private/);
+
+  const baseline = makeResult({ firstPartyDomain: "www.amazon.com", totalRequests: 300 });
+  const comparison = viewFromV1Report(gpcPair(baseline, result));
+  assert.equal(comparison.claims.pairComparison?.allowed, false);
+  assert.doesNotMatch(buildReportHeadline(comparison).headline, /with a privacy signal|fewer|more/);
+});
+
+test("the frozen r2 bot-wall fact renders the same suspected-soft-block state", () => {
+  const report = makePublicSingleReportV2R2();
+  report.run.qualityFacts.status = 200;
+  report.run.summary.status = 200;
+  report.run.qualityFacts.botWallTitleMatched = true;
+  report.run.quality = evaluateQuality(report.run.qualityFacts, {
+    observedRequests: report.run.evidence.requests.length
+  });
+
+  const headline = buildReportHeadline(viewFromV2(report, 2));
+  assert.equal(report.run.quality.run.outcome, "failed");
+  assert.match(headline.headline, /suspected challenge or soft block/);
+  assert.doesNotMatch(`${headline.headline} ${headline.subhead}`, /relatively private/);
+});
+
+test("an unavailable subject collector prevents calm v1 and r2 headlines", () => {
+  const legacy = makeResult({ firstPartyDomain: "unknown-subject.example", status: 200, totalRequests: 4 });
+  legacy.warnings.push(PAGE_SUBJECT_UNVERIFIED_WARNING);
+  const legacyView = viewFromV1Report(legacy);
+  const legacyHeadline = buildReportHeadline(legacyView);
+  assert.equal(legacyView.runs[0].quality.outcome, "failed");
+  assert.match(legacyHeadline.headline, /could not be verified as the requested page/);
+  assert.doesNotMatch(`${legacyHeadline.headline} ${legacyHeadline.subhead}`, /relatively private/);
+
+  const report = makePublicSingleReportV2R2();
+  report.run.qualityFacts.status = 200;
+  report.run.summary.status = 200;
+  report.run.qualityFacts.captureLoss.push({
+    family: "detector-output",
+    phaseId: null,
+    kind: "dropped",
+    count: 1,
+    detail: PAGE_SUBJECT_CAPTURE_LOSS_DETAIL
+  });
+  report.run.warnings.push(PAGE_SUBJECT_UNVERIFIED_WARNING);
+  report.run.quality = evaluateQuality(report.run.qualityFacts, {
+    observedRequests: report.run.evidence.requests.length
+  });
+  const r2Headline = buildReportHeadline(viewFromV2(report, 2));
+  assert.equal(report.run.quality.run.outcome, "failed");
+  assert.deepEqual(report.run.quality.run.reasons, [
+    `capture-loss:${PAGE_SUBJECT_CAPTURE_LOSS_DETAIL}`
+  ]);
+  assert.match(r2Headline.headline, /could not be verified as the requested page/);
+  assert.doesNotMatch(`${r2Headline.headline} ${r2Headline.subhead}`, /relatively private/);
 });
 
 test("a server-error load with zero requests does not read as private", () => {
@@ -711,6 +844,7 @@ test("a server-error load with zero requests does not read as private", () => {
   const headline = buildReportHeadline(viewFromV1Report(result));
   assert.equal(headline.tone, "info");
   assert.match(headline.subhead, /HTTP 503/);
+  assert.doesNotMatch(headline.subhead, /denied this visit/);
   assert.doesNotMatch(headline.headline, /relatively private/);
 });
 
@@ -742,7 +876,7 @@ test("a null status (e.g. PageGraph import) is not treated as a failed load", ()
 
   const headline = buildReportHeadline(viewFromV1Report(result));
   assert.equal(headline.tone, "calm");
-  assert.match(headline.headline, /quiet\.example kept this visit relatively private\./);
+  assert.match(headline.headline, /quiet\.example showed few catalogued or fingerprint-like signals in this visit\./);
 });
 
 test("the calm absence claim qualifies cookies as third-party", () => {
@@ -750,7 +884,7 @@ test("the calm absence claim qualifies cookies as third-party", () => {
 
   const headline = buildReportHeadline(viewFromV1Report(result));
   assert.equal(headline.tone, "calm");
-  assert.match(headline.subhead, /third-party cookies/);
+  assert.match(headline.subhead, /third-party cookie records/);
   assert.doesNotMatch(headline.subhead, /tracking companies, cookies/);
 });
 
@@ -1002,8 +1136,8 @@ test("platforms whose requests all went unanswered get attempt wording, not rece
   });
 
   const headline = buildReportHeadline(viewFromV1Report(result));
-  assert.match(headline.headline, /shop\.example tried to tell Google and Meta you were here\./);
-  assert.match(headline.subhead, /receipt is unproven/);
+  assert.match(headline.headline, /shop\.example contacted catalogued Google and Meta domains during this visit\./);
+  assert.match(headline.subhead, /had requests dispatched, though no response was recorded/);
 });
 
 test("a mixed answered/unanswered platform set names only the answered platforms as told", () => {
@@ -1018,9 +1152,8 @@ test("a mixed answered/unanswered platform set names only the answered platforms
   });
 
   const headline = buildReportHeadline(viewFromV1Report(result));
-  assert.match(headline.headline, /shop\.example told Google you were here\./);
-  assert.doesNotMatch(headline.headline, /Meta/);
-  assert.match(headline.subhead, /1 answered; the rest recorded no response/);
+  assert.match(headline.headline, /shop\.example contacted catalogued Google and Meta domains during this visit\./);
+  assert.match(headline.subhead, /1 recorded responses; the rest recorded no response/);
 });
 
 test("unanswered tracking companies get sent-not-shared wording", () => {
@@ -1034,8 +1167,8 @@ test("unanswered tracking companies get sent-not-shared wording", () => {
   });
 
   const headline = buildReportHeadline(viewFromV1Report(result));
-  assert.match(headline.headline, /shop\.example sent this visit to 1 tracking company\./);
-  assert.match(headline.subhead, /recorded no response, so receipt is unproven/);
+  assert.match(headline.headline, /shop\.example contacted 1 catalogued tracking-related service during this visit\./);
+  assert.match(headline.subhead, /had requests dispatched with no recorded response/);
 });
 
 test("reportPageTitle prefixes the domain only when the headline does not already name the site", () => {

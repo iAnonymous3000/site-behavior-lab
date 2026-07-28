@@ -9,7 +9,7 @@ function controlledEnvironment(overrides: NodeJS.ProcessEnv = {}): NodeJS.Proces
     RUNNER_ENVIRONMENT: "self-hosted",
     FEATURED_R2_EGRESS_ATTESTED: "1",
     SITE_BEHAVIOR_LAB_CHROMIUM_SANDBOX: "1",
-    SITE_BEHAVIOR_LAB_SCANNER_EGRESS: "controlled-nat",
+    SITE_BEHAVIOR_LAB_SCANNER_EGRESS: "controlled-self-hosted",
     SITE_BEHAVIOR_LAB_SCANNER_EGRESS_REGION: "iad-egress-1",
     ...overrides
   };
@@ -28,6 +28,9 @@ test("ci-workflow acquisition requires every controlled r2 preflight fact", () =
     ["attestation", controlledEnvironment({ FEATURED_R2_EGRESS_ATTESTED: "0" })],
     ["sandbox", controlledEnvironment({ SITE_BEHAVIOR_LAB_CHROMIUM_SANDBOX: "0" })],
     ["label", controlledEnvironment({ SITE_BEHAVIOR_LAB_SCANNER_EGRESS: "github-actions-ubuntu" })],
+    ["generic label", controlledEnvironment({ SITE_BEHAVIOR_LAB_SCANNER_EGRESS: "this scanner instance" })],
+    ["test label", controlledEnvironment({ SITE_BEHAVIOR_LAB_SCANNER_EGRESS: "test" })],
+    ["unreviewed label", controlledEnvironment({ SITE_BEHAVIOR_LAB_SCANNER_EGRESS: "controlled-nat" })],
     ["region", controlledEnvironment({ SITE_BEHAVIOR_LAB_SCANNER_EGRESS_REGION: "" })],
     ["mode", controlledEnvironment(), "v1"]
   ] as const) {

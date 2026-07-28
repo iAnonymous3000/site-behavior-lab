@@ -6,14 +6,15 @@
  * 1. Compiles the v2 reader/validator lane to dist/schema/ (CommonJS), the
  *    production-safe artifact .mjs scripts consume during consumer migration;
  *    never the .unit-test-dist test tree.
- * 2. Generates the immutable revisioned JSON Schema from the TS types (the
- *    source of truth) and writes it to public/schemas/ plus the stable alias
- *    public/scan-report.schema.json, so both publish with any static build.
+ * 2. Generates the immutable revisioned scan-report and detector-calibration
+ *    JSON Schemas from their TS types (the source of truth), writes them to
+ *    public/schemas/, and updates the stable scan-report alias, so all schemas
+ *    publish with any static build.
  *
- * The generated files are committed; lib/scan-report-schema-parity.test.ts
- * fails on drift between the committed schema and a fresh generation. The
- * Pages builder also reruns this script inside its isolated worktree (which
- * excludes dist/) so the published copy can never go stale.
+ * The generated files are committed; the scan-report and detector-calibration
+ * schema-parity tests fail on drift between the committed schemas and fresh
+ * generation. The Pages builder also reruns this script inside its isolated
+ * worktree (which excludes dist/) so the published copy can never go stale.
  */
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
@@ -26,8 +27,16 @@ const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..")
 
 export const SCHEMA_ID = "https://sitebehavior.org/schemas/scan-report.v2.r1.schema.json";
 export const R2_SCHEMA_ID = "https://sitebehavior.org/schemas/scan-report.v2.r2.schema.json";
+export const DETECTOR_CALIBRATION_SCHEMA_ID =
+  "https://sitebehavior.org/schemas/detector-calibration-study.v1.schema.json";
 const REVISIONED_PATH = path.join(rootDir, "public", "schemas", "scan-report.v2.r1.schema.json");
 const R2_REVISIONED_PATH = path.join(rootDir, "public", "schemas", "scan-report.v2.r2.schema.json");
+const DETECTOR_CALIBRATION_PATH = path.join(
+  rootDir,
+  "public",
+  "schemas",
+  "detector-calibration-study.v1.schema.json"
+);
 // The stable alias serves the current revision (r2). The immutable r1 and r2
 // files above remain independently published for exact historical reads.
 const ALIAS_PATH = path.join(rootDir, "public", "scan-report.schema.json");
@@ -48,6 +57,10 @@ export const R1_SCHEMA_SHA256 = "018584cefeebedfe2d17ba0117216257865637fc23ba7aa
  * shapes belong in a future revision's file.
  */
 export const R2_SCHEMA_SHA256 = "37775a2692dba7ef247cea6047d9da0f355d7084483fda328e5beaca5d2e3df1";
+
+/** Published detector-calibration study v1 is immutable; incompatible changes require v2. */
+export const DETECTOR_CALIBRATION_SCHEMA_SHA256 =
+  "420cb5db0992cf11a1145fef594d6aeb61dc29cc87ea521a559f1b3c3e538694";
 
 export function generateScanReportV2Schema() {
   const schema = createGenerator({
@@ -71,6 +84,17 @@ export function generateScanReportV2R2Schema() {
   return { $id: R2_SCHEMA_ID, ...schema };
 }
 
+export function generateDetectorCalibrationStudySchema() {
+  const schema = createGenerator({
+    path: path.join(rootDir, "lib", "detector-calibration.ts"),
+    type: "DetectorCalibrationStudy",
+    skipTypeCheck: true,
+    additionalProperties: false,
+    topRef: true
+  }).createSchema("DetectorCalibrationStudy");
+  return { $id: DETECTOR_CALIBRATION_SCHEMA_ID, ...schema };
+}
+
 function main() {
   // Atomicity: verify the freeze BEFORE any other side effect (including the
   // validator-artifact compile), so a rejected mutation leaves nothing behind.
@@ -78,6 +102,8 @@ function main() {
   const serialized = `${JSON.stringify(schema, null, 2)}\n`;
   const r2Schema = generateScanReportV2R2Schema();
   const r2Serialized = `${JSON.stringify(r2Schema, null, 2)}\n`;
+  const detectorCalibrationSchema = generateDetectorCalibrationStudySchema();
+  const detectorCalibrationSerialized = `${JSON.stringify(detectorCalibrationSchema, null, 2)}\n`;
   const digest = createHash("sha256").update(serialized).digest("hex");
   if (digest !== R1_SCHEMA_SHA256) {
     console.error(
@@ -98,6 +124,16 @@ function main() {
     process.exit(1);
   }
 
+  const detectorCalibrationDigest = createHash("sha256").update(detectorCalibrationSerialized).digest("hex");
+  if (detectorCalibrationDigest !== DETECTOR_CALIBRATION_SCHEMA_SHA256) {
+    console.error(
+      `FATAL: generated detector-calibration v1 schema hash ${detectorCalibrationDigest} does not match the frozen ` +
+        `${DETECTOR_CALIBRATION_SCHEMA_SHA256}.\n` +
+        "The published detector-calibration v1 shape is immutable. Revert the change or introduce a v2 study schema."
+    );
+    process.exit(1);
+  }
+
   execFileSync(process.execPath, [path.join(rootDir, "node_modules", "typescript", "bin", "tsc"), "-p", "tsconfig.schema.json"], {
     cwd: rootDir,
     stdio: "inherit"
@@ -106,12 +142,13 @@ function main() {
   mkdirSync(path.dirname(REVISIONED_PATH), { recursive: true });
   writeFileSync(REVISIONED_PATH, serialized);
   writeFileSync(R2_REVISIONED_PATH, r2Serialized);
+  writeFileSync(DETECTOR_CALIBRATION_PATH, detectorCalibrationSerialized);
   // Dual-read migration is complete: the stable alias now serves r2. This
   // does not mutate either revisioned file or rewrite historical reports.
   writeFileSync(ALIAS_PATH, r2Serialized);
   console.log(
-    `Schemas written: ${path.relative(rootDir, REVISIONED_PATH)}, ${path.relative(rootDir, R2_REVISIONED_PATH)} ` +
-      "(+ stable alias on r2), validator artifact in dist/schema/."
+    `Schemas written: ${path.relative(rootDir, REVISIONED_PATH)}, ${path.relative(rootDir, R2_REVISIONED_PATH)}, ` +
+      `${path.relative(rootDir, DETECTOR_CALIBRATION_PATH)} (+ stable alias on r2), validator artifact in dist/schema/.`
   );
 }
 

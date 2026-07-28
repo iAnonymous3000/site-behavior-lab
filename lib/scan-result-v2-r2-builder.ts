@@ -1,3 +1,4 @@
+import { parse as parseDomain } from "tldts";
 import { adblockListMeta, type AdblockListMeta } from "./adblock-engine";
 import { BUILD_COMMIT_ENV, recordedBuildCommit } from "./build-provenance";
 import { NODE_ADBLOCK_ENGINE_VERSION } from "./legacy-methodology";
@@ -641,8 +642,17 @@ function sanitizeEvidence(
   qualityFacts: QualityFacts
 ): RunEvidenceR2 {
   assertRequestTrackerAndPolicyVocabulary(source, observedRegistrableDomain, adblockEngineLoaded);
+  const publishableRequests = source.requests.filter(requestHasPublicPartyBoundary);
+  if (publishableRequests.length !== source.requests.length) {
+    recordPublicNonBudgetCaptureLoss(
+      "requests",
+      "public-request-unregistrable-hosts",
+      source.requests.length - publishableRequests.length,
+      qualityFacts
+    );
+  }
   const requests = clipArray(
-    source.requests,
+    publishableRequests,
     MAX_RECORDED_REQUESTS,
     "requests",
     "public-request-records",
@@ -789,10 +799,21 @@ function assertRequestTrackerAndPolicyVocabulary(
       throw new Error("Node request evidence contains a non-HTTP(S) URL.");
     }
     const canonicalDomain = parsed.hostname.toLowerCase().replace(/\.$/, "");
-    const requestParty = evidencePartyKey(canonicalDomain);
-    if (requestParty === null) throw new Error("Node request evidence host has no public registrable domain.");
     if (request.domain.toLowerCase().replace(/\.$/, "") !== canonicalDomain) {
       throw new Error("Node request evidence domain disagrees with its URL.");
+    }
+    if (request.blockedByShields === true && !adblockEngineLoaded) {
+      throw new Error("Shields-derived request evidence requires the loaded adblock toolchain identity.");
+    }
+    const requestParty = evidencePartyKey(canonicalDomain);
+    if (requestParty === null) {
+      if (!isExactRecognizedPublicSuffix(canonicalDomain)) {
+        throw new Error("Node request evidence host has no public registrable domain.");
+      }
+      if (request.tracker !== null) {
+        throw new Error("Request evidence without a public registrable domain cannot carry tracker evidence.");
+      }
+      continue;
     }
     const thirdParty = requestParty !== observedRegistrableDomain;
     if (request.thirdParty !== thirdParty) {
@@ -800,9 +821,6 @@ function assertRequestTrackerAndPolicyVocabulary(
     }
     if (!thirdParty && request.tracker !== null) {
       throw new Error("First-party request evidence cannot carry a third-party tracker classification.");
-    }
-    if (request.blockedByShields === true && !adblockEngineLoaded) {
-      throw new Error("Shields-derived request evidence requires the loaded adblock toolchain identity.");
     }
     requestHosts.add(canonicalDomain);
     if (request.tracker === null) continue;
@@ -853,6 +871,21 @@ function evidencePartyKey(host: string): string | null {
   if (registrable !== null) return registrable;
   if (/^(?:\d{1,3}\.){3}\d{1,3}$/.test(host) || /^\[[0-9a-f:.]+\]$/i.test(host)) return host;
   return null;
+}
+
+function requestHasPublicPartyBoundary(request: RunEvidenceR2["requests"][number]): boolean {
+  const parsed = new URL(request.url);
+  const canonicalDomain = parsed.hostname.toLowerCase().replace(/\.$/, "");
+  return evidencePartyKey(canonicalDomain) !== null;
+}
+
+function isExactRecognizedPublicSuffix(host: string): boolean {
+  const parsed = parseDomain(host, { allowPrivateDomains: true });
+  return (
+    parsed.domain === null &&
+    parsed.publicSuffix === host &&
+    (parsed.isIcann === true || parsed.isPrivate === true)
+  );
 }
 
 function assertCookieParty(cookie: RunEvidenceR2["cookiesFinal"][number], observedRegistrableDomain: string): void {
@@ -1072,6 +1105,16 @@ function recordPublicCaptureLoss(
   assertVocabCode("capture-loss detail", detail);
   if (!qualityFacts.budgetsExhausted.includes(detail)) qualityFacts.budgetsExhausted.push(detail);
   qualityFacts.captureLoss.push({ family, phaseId: null, kind: "clipped", count, detail });
+}
+
+function recordPublicNonBudgetCaptureLoss(
+  family: CaptureLossEntry["family"],
+  detail: string,
+  count: number,
+  qualityFacts: QualityFacts
+): void {
+  assertVocabCode("capture-loss detail", detail);
+  qualityFacts.captureLoss.push({ family, phaseId: null, kind: "dropped", count, detail });
 }
 
 function assertVocabCode(label: string, value: string): void {

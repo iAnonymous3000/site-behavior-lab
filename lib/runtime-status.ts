@@ -37,9 +37,11 @@ import {
   V2_SHADOW_EMISSION_ENV,
   v2ShadowStoreStatus
 } from "./scan-report-v2-shadow-store";
-import { resolveScannerEgressRegion, SCANNER_EGRESS_REGION_ENV } from "./scanner-egress";
-
-const SCANNER_EGRESS_ENV = "SITE_BEHAVIOR_LAB_SCANNER_EGRESS";
+import {
+  resolveScannerEgressLabel,
+  resolveScannerEgressRegion,
+  SCANNER_EGRESS_REGION_ENV
+} from "./scanner-egress";
 
 // Backend-agnostic public projection: never exposes a filesystem path or an R2
 // bucket/endpoint to /api/health, only the backend kind and shared policy.
@@ -80,7 +82,7 @@ export type RuntimeStatus = {
     scanAccess: "configured" | "open";
     dnsRebindingGuard: "connect-time-proxy";
     reportStore: PublicReportStoreStatus;
-    scannerEgress: "configured" | "default";
+    scannerEgress: "configured" | "default" | "aliased" | "canonicalized";
     scannerEgressRegion: "configured" | "unrecorded" | "misconfigured";
     consentVerification: "enabled" | "disabled" | "misconfigured";
     publicR2Reports: Pick<PublicR2ReportsReadiness, "status">;
@@ -115,7 +117,8 @@ export async function runtimeStatus(
   // must degrade health, never crash it: /api/health is exactly the endpoint an
   // operator checks when the configuration is broken.
   const store = await safeReportStoreStatus();
-  const warnings = productionWarnings(store.status);
+  const egressLabel = resolveScannerEgressLabel();
+  const warnings = productionWarnings(store.status, egressLabel.status);
   const shadow = shadowRuntimeCheck();
   warnings.push(...shadow.warnings);
   const publicR2Config = publicR2ReportsReadiness();
@@ -193,7 +196,7 @@ export async function runtimeStatus(
       scanAccess: authenticated ? "configured" : "open",
       dnsRebindingGuard: "connect-time-proxy",
       reportStore,
-      scannerEgress: process.env[SCANNER_EGRESS_ENV]?.trim() ? "configured" : "default",
+      scannerEgress: egressLabel.status,
       scannerEgressRegion: egressRegion.status,
       consentVerification: shadow.consentVerification,
       publicR2Reports: { status: publicR2Status },
@@ -488,7 +491,10 @@ function scannerBuildCommit(): string {
   return recordedBuildCommit() ?? "unknown";
 }
 
-function productionWarnings(reportStore: ReturnType<typeof reportStoreStatus> | null): string[] {
+function productionWarnings(
+  reportStore: ReturnType<typeof reportStoreStatus> | null,
+  egressLabelStatus: "configured" | "default" | "aliased" | "canonicalized"
+): string[] {
   const warnings: string[] = [];
 
   // No token means anyone can scan. That is a warning when it looks accidental,
@@ -503,8 +509,12 @@ function productionWarnings(reportStore: ReturnType<typeof reportStoreStatus> | 
     warnings.push("SITE_BEHAVIOR_LAB_REPORT_STORE_DIR is not configured; reports use the app working directory.");
   }
 
-  if (!process.env[SCANNER_EGRESS_ENV]?.trim()) {
+  if (egressLabelStatus === "default") {
     warnings.push("SITE_BEHAVIOR_LAB_SCANNER_EGRESS is not configured; reports use the generic scanner egress label.");
+  } else if (egressLabelStatus === "canonicalized") {
+    warnings.push(
+      "SITE_BEHAVIOR_LAB_SCANNER_EGRESS is not in the reviewed public vocabulary; reports use the generic scanner egress label."
+    );
   }
 
   if (process.env.NODE_ENV === "production" && scannerBuildCommit() === "unknown") {

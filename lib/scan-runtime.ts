@@ -15,6 +15,7 @@ export const MAX_RECORDED_REQUEST_URL_CHARS = 16_384;
 export const MAX_RECORDED_REQUEST_METHOD_CHARS = 64;
 export const MAX_RECORDED_RESOURCE_TYPE_CHARS = 64;
 export const MAX_PAGE_TITLE_CHARS = 512;
+export const MAX_PAGE_SUBJECT_TEXT_CHARS = 16 * 1024;
 export const MAX_CAPTURED_STORAGE_RECORDS = 1_000;
 export const MAX_CAPTURED_STORAGE_KEY_CHARS = 1_024;
 export const MAX_CAPTURED_STORAGE_TOTAL_KEY_CHARS = 256 * 1024;
@@ -32,6 +33,8 @@ export const UNSETTLED_ROUTED_REQUEST_WARNING =
   "The scan deadline arrived while one or more requests were still being handled, so this visit's request evidence is incomplete.";
 export const INVALID_UPSTREAM_RESPONSE_WARNING =
   "The scan proxy rejected one or more invalid upstream responses; request evidence may be incomplete.";
+export const KEYSTROKE_PROBE_INCOMPLETE_WARNING =
+  "The synthetic form-input probe ended before it finished. Synthetic typing may have occurred; requests emitted near the cutoff may be missing from the recorded request log and counts, and input-capture conclusions are incomplete.";
 /**
  * The in-page fingerprint observer could not read every frame it attempted.
  *
@@ -44,6 +47,15 @@ export const INVALID_UPSTREAM_RESPONSE_WARNING =
  */
 export const FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING =
   "The in-page fingerprint observer could not read one or more frames, so fingerprint-like API calls and heuristics for this visit are incomplete.";
+/**
+ * A recognized advertising-pixel request carried a body that the scanner
+ * could not read completely. v2 records the same fact in the
+ * `detector-output` capture-loss ledger; v1 needs this stable warning so its
+ * report reader does not turn a partial decode into a definitive absence of
+ * advanced-matching fields.
+ */
+export const PIXEL_DECODE_CAPTURE_LOSS_WARNING =
+  "One or more recognized advertising-pixel request bodies could not be read in full, so pixel event and advanced-matching detection for this visit are incomplete.";
 const SCAN_TIMEOUT_MESSAGE = "The scan exceeded the maximum scan duration.";
 
 export class ScanWarningCollector {
@@ -513,6 +525,52 @@ export async function collectBoundedPageTitle(
     return { value: "", truncated: true };
   }
   return result as BoundedPageTitle;
+}
+
+export type BoundedPageContentText = {
+  value: string;
+  truncated: boolean;
+  /** False means the trusted collector capability did not return a usable read. */
+  available: boolean;
+};
+
+/**
+ * Read a bounded main-document text sample for challenge/soft-block
+ * classification. The in-page collector excludes script/style/template text;
+ * the raw sample is process-local and must never be copied onto a report wire.
+ */
+export async function collectBoundedPageContentText(
+  page: BoundedPageEvaluateLike,
+  collectorKey: string
+): Promise<BoundedPageContentText> {
+  const wire = await callBoundedPageCollector(
+    page,
+    collectorKey,
+    "contentText",
+    MAX_PAGE_SUBJECT_TEXT_CHARS
+  );
+  // JSON escaping can expand one input character to six wire characters.
+  if (typeof wire !== "string" || wire.length > MAX_PAGE_SUBJECT_TEXT_CHARS * 6 + 128) {
+    return { value: "", truncated: true, available: false };
+  }
+  let result: unknown;
+  try {
+    result = JSON.parse(wire);
+  } catch {
+    return { value: "", truncated: true, available: false };
+  }
+
+  if (
+    !result ||
+    typeof result !== "object" ||
+    typeof (result as BoundedPageContentText).value !== "string" ||
+    typeof (result as BoundedPageContentText).truncated !== "boolean" ||
+    typeof (result as BoundedPageContentText).available !== "boolean" ||
+    (result as BoundedPageContentText).value.length > MAX_PAGE_SUBJECT_TEXT_CHARS
+  ) {
+    return { value: "", truncated: true, available: false };
+  }
+  return result as BoundedPageContentText;
 }
 
 export type StorageEntryCollection = {

@@ -17,10 +17,13 @@ export type CatalogProvenance = {
 type EntitySource = {
   title: string;
   url: string;
+  reviewedAt?: string;
 };
 
-export const TRACKER_CATALOG_REVIEW_VERSION = "catalog-review-v1";
-export const TRACKER_CATALOG_REVIEW_DATE = "2026-07-21";
+export const TRACKER_CATALOG_REVIEW_VERSION = "catalog-review-v2";
+/** Release date for this reviewed-catalog revision and its newly added sources. */
+export const TRACKER_CATALOG_REVIEW_DATE = "2026-07-28";
+const PRIOR_CATALOG_ENTRY_REVIEW_DATE = "2026-07-21";
 
 /*
  * Public, first-party references for every named entity in the hand-curated
@@ -46,7 +49,17 @@ const ENTITY_SOURCES: Readonly<Record<string, EntitySource>> = {
   "Crazy Egg": { title: "Crazy Egg", url: "https://www.crazyegg.com/" },
   "Criteo": { title: "Criteo", url: "https://www.criteo.com/" },
   "Datadog": { title: "Datadog", url: "https://www.datadoghq.com/" },
+  "DoubleVerify": {
+    title: "DoubleVerify company overview",
+    url: "https://doubleverify.com/company/about",
+    reviewedAt: TRACKER_CATALOG_REVIEW_DATE
+  },
   "Drift": { title: "Drift", url: "https://www.drift.com/" },
+  "Equativ": {
+    title: "Equativ Smart AdServer ads.txt implementation",
+    url: "https://help.equativ.com/implement-adstxt-specification",
+    reviewedAt: TRACKER_CATALOG_REVIEW_DATE
+  },
   "Fathom": { title: "Fathom Analytics", url: "https://usefathom.com/" },
   "FullStory": { title: "Fullstory", url: "https://www.fullstory.com/" },
   "Google": { title: "Google Analytics", url: "https://marketingplatform.google.com/about/analytics/" },
@@ -91,11 +104,21 @@ const ENTITY_SOURCES: Readonly<Record<string, EntitySource>> = {
   "Smartlook": { title: "Smartlook", url: "https://www.smartlook.com/" },
   "Snowplow": { title: "Snowplow", url: "https://snowplow.io/" },
   "Sovrn": { title: "Sovrn", url: "https://www.sovrn.com/" },
+  "StackAdapt": {
+    title: "StackAdapt platform",
+    url: "https://www.stackadapt.com/platform",
+    reviewedAt: TRACKER_CATALOG_REVIEW_DATE
+  },
   "Statsig": { title: "Statsig", url: "https://www.statsig.com/" },
   "Taboola": { title: "Taboola", url: "https://www.taboola.com/" },
   "Tealium": { title: "Tealium", url: "https://tealium.com/" },
   "The Trade Desk": { title: "The Trade Desk", url: "https://www.thetradedesk.com/" },
   "TikTok": { title: "TikTok Pixel", url: "https://ads.tiktok.com/business/en-US/solutions/tiktok-pixel" },
+  "TripleLift": {
+    title: "TripleLift advertising technology platform cookie notice",
+    url: "https://triplelift.com/advertising-technology-platform-cookie-notice/",
+    reviewedAt: TRACKER_CATALOG_REVIEW_DATE
+  },
   "Twilio Segment": { title: "Twilio Segment", url: "https://segment.com/" },
   "VWO": { title: "VWO", url: "https://vwo.com/" },
   "X": { title: "X conversion tracking", url: "https://business.x.com/en/help/campaign-measurement-and-analytics/conversion-tracking-for-websites" },
@@ -109,7 +132,7 @@ export function catalogProvenanceFor(entity: string, category: string): CatalogP
 
   return {
     status: "maintainer-reviewed",
-    reviewedAt: TRACKER_CATALOG_REVIEW_DATE,
+    reviewedAt: source.reviewedAt ?? PRIOR_CATALOG_ENTRY_REVIEW_DATE,
     reviewer: "Site Behavior Lab maintainers",
     relationship: "entity or product identity reference only",
     categoryRationale:

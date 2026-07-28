@@ -1,6 +1,11 @@
 import { isSafeInlineScreenshotDataUri } from "./inline-screenshot";
+import {
+  PAGE_SUBJECT_CAPTURE_LOSS_DETAIL,
+  PAGE_SUBJECT_UNVERIFIED_WARNING
+} from "./bot-wall-classifier";
+import { isReviewedSameOrganizationDomain, reviewedOrganizationForDomain } from "./reviewed-ownership";
 import { humanList, plural } from "./text-format";
-import type { FingerprintDetectionSummary, PixelEventSummary, PixelMatchField, ScanResult } from "./types";
+import type { DomainSummary, FingerprintDetectionSummary, PixelEventSummary, PixelMatchField, ScanResult } from "./types";
 
 /**
  * Shared tracker/fingerprint classification derived from a {@link ScanResult}.
@@ -54,9 +59,52 @@ export type TrackerEntitySummary = {
 
 /** Group a scan's third-party tracker domains by entity, busiest first. */
 export function trackerEntitySummaries(result: Pick<ScanResult, "domains">): TrackerEntitySummary[] {
-  const summaries = new Map<string, TrackerEntitySummary>();
+  return summarizeTrackerDomains(result.domains);
+}
+
+export type TrackerOwnershipBreakdown = {
+  /**
+   * Catalogued domains that a reviewed map places in the subject site's own
+   * organization. They remain cross-registrable-domain observations in the
+   * scan counts; this partition only prevents report prose from describing
+   * them as disclosure to an outside company.
+   */
+  sameOrganization: TrackerEntitySummary[];
+  /** All other catalogued domains. Their ownership is not necessarily reviewed. */
+  otherOrUnreviewed: TrackerEntitySummary[];
+  sameOrganizationName: string | null;
+  sameOrganizationDomainCount: number;
+};
+
+export function trackerOwnershipBreakdown(
+  result: Pick<ScanResult, "domains">,
+  subjectDomain: string
+): TrackerOwnershipBreakdown {
+  const sameOrganizationDomains: DomainSummary[] = [];
+  const otherOrUnreviewedDomains: DomainSummary[] = [];
 
   for (const domain of result.domains) {
+    if (isReviewedSameOrganizationDomain(subjectDomain, domain.domain)) {
+      sameOrganizationDomains.push(domain);
+    } else {
+      otherOrUnreviewedDomains.push(domain);
+    }
+  }
+
+  return {
+    sameOrganization: summarizeTrackerDomains(sameOrganizationDomains),
+    otherOrUnreviewed: summarizeTrackerDomains(otherOrUnreviewedDomains),
+    sameOrganizationName: reviewedOrganizationForDomain(subjectDomain),
+    sameOrganizationDomainCount: sameOrganizationDomains.filter(
+      (domain) => domain.thirdParty && domain.tracker
+    ).length
+  };
+}
+
+function summarizeTrackerDomains(domains: readonly DomainSummary[]): TrackerEntitySummary[] {
+  const summaries = new Map<string, TrackerEntitySummary>();
+
+  for (const domain of domains) {
     if (!domain.thirdParty || !domain.tracker) continue;
     const current = summaries.get(domain.tracker.entity) ?? {
       entity: domain.tracker.entity,
@@ -141,6 +189,30 @@ export function highEntropyDetections(result: Pick<ScanResult, "fingerprintDetec
  */
 export function scanLoadFailureStatus(status: number | null | undefined): number | null {
   return typeof status === "number" && status >= 400 ? status : null;
+}
+
+/**
+ * Both wire generations' normalized run-quality marker for an interstitial
+ * that answered like a page. R2 retains its frozen `bot-wall-title` reason;
+ * v1 derives the more descriptive reason from the scanner-owned warning.
+ */
+export function scanSuspectedChallengeOrSoftBlock(run: { quality: { reasons: readonly string[] } }): boolean {
+  return (
+    run.quality.reasons.includes("bot-wall-title") ||
+    run.quality.reasons.includes("suspected-challenge-or-soft-block")
+  );
+}
+
+/** The scanner could not establish that the rendered document was the subject. */
+export function scanPageSubjectUnverified(run: {
+  warnings: readonly string[];
+  quality: { reasons: readonly string[] };
+}): boolean {
+  return (
+    run.warnings.includes(PAGE_SUBJECT_UNVERIFIED_WARNING) ||
+    run.quality.reasons.includes("page-subject-unverified") ||
+    run.quality.reasons.includes(`capture-loss:${PAGE_SUBJECT_CAPTURE_LOSS_DETAIL}`)
+  );
 }
 
 function isTrackingCategory(category: string): boolean {

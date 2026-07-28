@@ -1,10 +1,15 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import {
+  PAGE_SUBJECT_UNVERIFIED_WARNING,
+  SUSPECTED_CHALLENGE_OR_SOFT_BLOCK_WARNING
+} from "./bot-wall-classifier";
 import { createConsentComparisonReport, createGpcComparisonReport, createShieldsComparisonReport, createTemporalComparisonReport } from "./compare-reports";
 import {
   COMPARISON_REQUEST_CAP,
   comparableSubjectHosts,
   comparisonEligibility,
+  runHitPixelDecodeCaptureLoss,
   runHitRequestCap,
   runHitResponseByteCap,
   runHitUploadByteCap,
@@ -14,7 +19,9 @@ import {
 import { GPC_WORKER_CAPTURE_LOSS_WARNING } from "./gpc-injection";
 import {
   INVALID_UPSTREAM_RESPONSE_WARNING,
+  KEYSTROKE_PROBE_INCOMPLETE_WARNING,
   MAX_RECORDED_REQUESTS,
+  PIXEL_DECODE_CAPTURE_LOSS_WARNING,
   ScanRequestBudget,
   ScanWarningCollector,
   UNSETTLED_ROUTED_REQUEST_WARNING
@@ -39,6 +46,26 @@ test("a failed arm disqualifies the comparison and names the run label", () => {
   assert.equal(eligibility.eligible, false);
   assert.equal(eligibility.reasons.length, 1);
   assert.match(eligibility.reasons[0], /"Brave-list blocking" visit returned HTTP 403/);
+});
+
+test("a successful-status suspected soft block disqualifies the comparison", () => {
+  const softBlocked = makeRun({ status: 200 });
+  softBlocked.warnings.push(SUSPECTED_CHALLENGE_OR_SOFT_BLOCK_WARNING);
+  const eligibility = comparisonEligibility(shieldsPair(makeRun({}), softBlocked));
+
+  assert.equal(eligibility.eligible, false);
+  assert.equal(eligibility.reasons.length, 1);
+  assert.match(eligibility.reasons[0], /suspected challenge, robot check, or blocking consent interstitial/);
+});
+
+test("an unverified page subject disqualifies the comparison", () => {
+  const unverified = makeRun({ status: 200 });
+  unverified.warnings.push(PAGE_SUBJECT_UNVERIFIED_WARNING);
+  const eligibility = comparisonEligibility(shieldsPair(makeRun({}), unverified));
+
+  assert.equal(eligibility.eligible, false);
+  assert.equal(eligibility.reasons.length, 1);
+  assert.match(eligibility.reasons[0], /could not verify that the rendered document was the requested page/);
 });
 
 test("the declared experiment must have happened: unvaried axes disqualify", () => {
@@ -333,6 +360,10 @@ test("all scanner-declared request capture loss fails the legacy comparison clos
     {
       warning: UNSETTLED_ROUTED_REQUEST_WARNING,
       reason: /scan deadline with requests still being handled/
+    },
+    {
+      warning: KEYSTROKE_PROBE_INCOMPLETE_WARNING,
+      reason: /synthetic form-input probe before it finished/
     }
   ];
 
@@ -346,6 +377,14 @@ test("all scanner-declared request capture loss fails the legacy comparison clos
     assert.match(eligibility.reasons.join(" "), reason, warning);
     assert.match(eligibility.reasons.join(" "), /request evidence is incomplete/, warning);
   }
+});
+
+test("the pixel-body warning is recognized as scoped detector loss, not request loss", () => {
+  const run = makeRun({ totalRequests: 20 });
+  run.warnings = [PIXEL_DECODE_CAPTURE_LOSS_WARNING];
+
+  assert.equal(runHitPixelDecodeCaptureLoss(run), true);
+  assert.equal(runRequestEvidenceCapped(run), false);
 });
 
 test("mismatched subjects, devices, and pipelines each disqualify", () => {

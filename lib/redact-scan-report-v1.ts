@@ -1,3 +1,7 @@
+import {
+  PAGE_SUBJECT_UNVERIFIED_WARNING,
+  SUSPECTED_CHALLENGE_OR_SOFT_BLOCK_WARNING
+} from "./bot-wall-classifier";
 import { compareScanResults } from "./compare-reports";
 import {
   CONSENT_CMP_SELECTORS,
@@ -38,9 +42,12 @@ import {
 import { isCanonicalReportShare } from "./report-locator";
 import { MIN_POLICY_TEXT_LENGTH } from "./privacy-policy";
 import { scannerDisclosure, type ScanConditionsProfile } from "./scan-condition-disclosure";
+import { PUBLIC_SCANNER_EGRESS_LABELS } from "./scanner-egress";
 import {
   FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING,
   INVALID_UPSTREAM_RESPONSE_WARNING,
+  KEYSTROKE_PROBE_INCOMPLETE_WARNING,
+  PIXEL_DECODE_CAPTURE_LOSS_WARNING,
   UNSETTLED_ROUTED_REQUEST_WARNING
 } from "./scan-runtime";
 import { GPC_WORKER_CAPTURE_LOSS_WARNING } from "./gpc-injection";
@@ -112,18 +119,21 @@ const SAFE_RESOURCE_TYPES = new Set([
   "manifest",
   "other"
 ]);
-const SAFE_SCANNER_EGRESS = new Set([
-  "this scanner instance",
-  "cloudflare-containers",
-  "cloudflare-browser-run",
-  "github-actions-ubuntu",
-  "docker-smoke",
-  "test"
-]);
+const SAFE_SCANNER_EGRESS = new Set<string>(PUBLIC_SCANNER_EGRESS_LABELS);
 const SAFE_ADBLOCK_SOURCE = "Brave default ad-block lists";
 const INVALID_METHODOLOGY_DISCLOSURE = "Methodology metadata was invalid and was removed at the public boundary.";
 const CHROMIUM_VERSION = /^(?:Brave\/\d+(?:\.\d+){1,3} Chromium\/)?\d+(?:\.\d+){1,3}$/;
 const CHROMIUM_USER_AGENT = /^Mozilla\/5\.0 \((?:X11; Linux x86_64|Macintosh; Intel Mac OS X \d+(?:_\d+){1,3}|Windows NT \d+\.\d+; Win64; x64)\) AppleWebKit\/\d+\.\d+ \(KHTML, like Gecko\) (?:HeadlessChrome|Chrome)\/\d+(?:\.\d+){1,3} Safari\/\d+\.\d+$/;
+const HISTORICAL_TRACKER_CATALOGS = Object.freeze([
+  Object.freeze({
+    source: "Hand-curated service catalog",
+    version: "hand-curated-2026.06",
+    region: "US-biased",
+    entries: 133,
+    curatedOverrides: 133,
+    license: "AGPL-3.0-or-later"
+  })
+] satisfies readonly ScanConditions["trackerCatalog"][]);
 
 // PageGraph exports are external input. Lexical shape cannot prove an id or
 // node type is producer-owned rather than a page-controlled name. A redaction
@@ -274,11 +284,15 @@ const FIXED_SCANNER_WARNINGS = new Set([
   "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
   "The page did not reach network idle before the scan window ended.",
   "The page did not reach network idle before the Cloudflare scan window ended.",
+  SUSPECTED_CHALLENGE_OR_SOFT_BLOCK_WARNING,
+  PAGE_SUBJECT_UNVERIFIED_WARNING,
   "Blocked one or more requests that resolved to local or private network addresses at connection time.",
   "The scan stopped opening additional proxy requests after reaching its connection and target safety budget.",
   INVALID_UPSTREAM_RESPONSE_WARNING,
   UNSETTLED_ROUTED_REQUEST_WARNING,
   FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING,
+  KEYSTROKE_PROBE_INCOMPLETE_WARNING,
+  PIXEL_DECODE_CAPTURE_LOSS_WARNING,
   GPC_WORKER_CAPTURE_LOSS_WARNING,
   CONSENT_RELOAD_DISCLOSURE,
   "The consent interaction left the recorded site; later page state was not used and the active input probe was skipped.",
@@ -345,6 +359,7 @@ export const PUBLIC_STRING_POLICY_DIGEST = sha256Hex(
     cookieSameSite: [...SAFE_COOKIE_SAME_SITE].sort(),
     scannerEgress: [...SAFE_SCANNER_EGRESS].sort(),
     adblockSource: SAFE_ADBLOCK_SOURCE,
+    historicalTrackerCatalogs: HISTORICAL_TRACKER_CATALOGS,
     chromiumVersionPattern: CHROMIUM_VERSION.source,
     chromiumUserAgentPattern: CHROMIUM_USER_AGENT.source,
     fixedWarnings: [...FIXED_SCANNER_WARNINGS].sort(),
@@ -607,7 +622,7 @@ function redactConditions(conditions: ScanConditions, pass: RedactionPass): Scan
     scannerEgress,
     ...(conditions.shieldsMode !== undefined ? { shieldsMode } : {}),
     ...(adblock !== undefined ? { adblock } : {}),
-    trackerCatalog: safeTrackerCatalog(profile),
+    trackerCatalog: safeTrackerCatalog(profile, conditions.trackerCatalog),
     scannerDisclosure: scannerDisclosureValue
   };
 }
@@ -634,7 +649,10 @@ function safeScannerEgress(profile: ScanConditionsProfile, value: string): strin
   return SAFE_SCANNER_EGRESS.has(value) ? value : "this scanner instance";
 }
 
-function safeTrackerCatalog(profile: ScanConditionsProfile): ScanConditions["trackerCatalog"] {
+function safeTrackerCatalog(
+  profile: ScanConditionsProfile,
+  declared: ScanConditions["trackerCatalog"]
+): ScanConditions["trackerCatalog"] {
   if (profile === "cloudflare-browser-run") {
     return {
       source: "none",
@@ -645,7 +663,7 @@ function safeTrackerCatalog(profile: ScanConditionsProfile): ScanConditions["tra
       license: "n/a"
     };
   }
-  return {
+  const current = {
     source: trackerCatalogMetadata.source,
     version: trackerCatalogMetadata.version,
     region: trackerCatalogMetadata.region,
@@ -653,6 +671,15 @@ function safeTrackerCatalog(profile: ScanConditionsProfile): ScanConditions["tra
     curatedOverrides: trackerCatalogMetadata.curatedOverrides,
     license: trackerCatalogMetadata.license
   };
+  // Frozen v1 has no separate producer-contract epoch. Replacing an already
+  // published catalog identity with today's catalog makes every historical
+  // report non-idempotent and, worse, says old classifications used entries
+  // that did not yet exist. Preserve only exact reviewed historical identities;
+  // arbitrary self-declared metadata still canonicalizes to the current one.
+  const reviewed = [current, ...HISTORICAL_TRACKER_CATALOGS].find(
+    (candidate) => canonicalJson(candidate) === canonicalJson(declared)
+  );
+  return { ...(reviewed ?? current) };
 }
 
 function previousNodeScannerDisclosure(

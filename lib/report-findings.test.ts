@@ -1,11 +1,19 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import {
+  PAGE_SUBJECT_UNVERIFIED_WARNING,
+  SUSPECTED_CHALLENGE_OR_SOFT_BLOCK_WARNING
+} from "./bot-wall-classifier";
 import { createConsentComparisonReport, createGpcComparisonReport, createShieldsComparisonReport } from "./compare-reports";
 import { corpusCohortIdentityForView } from "./corpus-cohort";
 import { GPC_WORKER_CAPTURE_LOSS_WARNING } from "./gpc-injection";
 import { buildFindings, type Finding, type FindingIconKey } from "./report-findings";
 import type { CorpusStats } from "./corpus-stats";
-import { FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING, INVALID_UPSTREAM_RESPONSE_WARNING } from "./scan-runtime";
+import {
+  FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING,
+  INVALID_UPSTREAM_RESPONSE_WARNING,
+  PIXEL_DECODE_CAPTURE_LOSS_WARNING
+} from "./scan-runtime";
 import { evaluateQuality } from "./scan-report-v2-evaluators";
 import { R2_NAVIGATION_STATUS_UNREPRESENTABLE } from "./scan-report-v2-http-status";
 import {
@@ -83,8 +91,9 @@ test("an HTTP error load gets a failed-load bottom line, not a low-signal one", 
   // A 403 is a refusal, not an outage: the site answered. Advising a retry "when
   // the site is reachable" pointed readers at a loop.
   assert.doesNotMatch(bottomLine.detail, /when the site is reachable/);
-  assert.match(bottomLine.detail, /answered, so it was reachable; it refused this visit/);
-  assert.match(bottomLine.detail, /does not disguise itself/);
+  assert.match(bottomLine.detail, /answered and denied this visit/);
+  assert.match(bottomLine.detail, /status alone cannot distinguish/);
+  assert.doesNotMatch(bottomLine.detail, /most common reason|does not disguise itself/);
 
   // An error page cannot support reassuring absence cards. This branch used to
   // return before the hedge that the failed-navigation branch applies.
@@ -95,6 +104,75 @@ test("an HTTP error load gets a failed-load bottom line, not a low-signal one", 
     assert.notEqual(finding.level, "quiet");
     assert.match(finding.detail, /error or block page, not the site/);
   }
+});
+
+test("subresource access statuses never replace a successful page with a failed-load finding", () => {
+  for (const subresourceStatus of [401, 403, 429]) {
+    const result = makeResult({
+      status: 200,
+      domains: [
+        {
+          ...makeTrackerDomain("google-analytics.com", 1, "Google", "analytics"),
+          statuses: [subresourceStatus]
+        }
+      ],
+      thirdPartyRequests: 1,
+      thirdPartyDomains: 1
+    });
+    const findings = buildFindings(viewFromV1Report(result), null);
+    assert.doesNotMatch(findings[0].title, /did not serve its page/, String(subresourceStatus));
+    assert.match(byId(findings, "third-party-services").lead, /Google appeared in the request log/);
+  }
+});
+
+test("catalog, cookie, and ownership cards state only what their evidence supports", () => {
+  const result = makeResult({
+    firstPartyDomain: "youtube.com",
+    domains: [makeTrackerDomain("stats.g.doubleclick.net", 2, "Google", "advertising")],
+    thirdPartyRequests: 2,
+    thirdPartyDomains: 1,
+    thirdPartyCookies: 1
+  });
+
+  const findings = buildFindings(viewFromV1Report(result), null);
+  const services = byId(findings, "third-party-services");
+  assert.match(services.detail, /does not establish why an individual request occurred/);
+  assert.doesNotMatch(services.detail, /can profile visitors/);
+  assert.match(services.detail, /not evidence of disclosure to an outside company/);
+
+  const platforms = byId(findings, "named-platforms");
+  assert.match(platforms.title, /within the site's reviewed organization/);
+  assert.match(platforms.detail, /does not support an outside-recipient disclosure claim/);
+
+  const cookies = byId(findings, "third-party-cookies");
+  assert.match(cookies.detail, /does not retain cookie values or partition keys/);
+  assert.match(cookies.detail, /does not establish whether a cookie was a persistent identifier/);
+  assert.doesNotMatch(cookies.detail, /can help outside services recognize/);
+});
+
+test("an HTTP-200 suspected soft block hedges every reassuring absence card", () => {
+  const result = makeResult({ firstPartyDomain: "www.amazon.com", status: 200, totalRequests: 3 });
+  result.warnings.push(SUSPECTED_CHALLENGE_OR_SOFT_BLOCK_WARNING);
+
+  const findings = buildFindings(viewFromV1Report(result), null);
+  assert.match(findings[0].title, /suspected challenge or soft block/);
+  assert.match(findings[0].lead, /robot check, CAPTCHA, or blocking consent interstitial/);
+  assert.doesNotMatch(findings[0].title, /few review signals/);
+  assert.equal(findings.some((finding) => finding.level === "ok" || finding.level === "quiet"), false);
+  assert.match(byId(findings, "third-party-services").detail, /interstitial, not the site/);
+  assert.match(byId(findings, "third-party-cookies").detail, /interstitial, not the site/);
+});
+
+test("an unverified page subject hedges every reassuring absence card", () => {
+  const result = makeResult({ firstPartyDomain: "unknown-subject.example", status: 200, totalRequests: 4 });
+  result.warnings.push(PAGE_SUBJECT_UNVERIFIED_WARNING);
+
+  const findings = buildFindings(viewFromV1Report(result), null);
+  assert.match(findings[0].title, /page subject was not verified/);
+  assert.doesNotMatch(findings[0].title, /few review signals/);
+  assert.equal(findings.some((finding) => finding.level === "ok" || finding.level === "quiet"), false);
+  assert.match(byId(findings, "third-party-services").detail, /does not describe the site/);
+  assert.match(byId(findings, "third-party-cookies").detail, /does not describe the site/);
 });
 
 test("a failed r2 navigation with an unrepresentable status leads with incomplete navigation, not reassurance", () => {
@@ -242,8 +320,8 @@ test("names major platforms and escalates the third-party card", () => {
   assert.match(platforms.lead, /Google, Meta and TikTok/);
 
   const services = byId(findings, "third-party-services");
-  assert.equal(services.title, "Tracking and ad services responded during this visit");
-  assert.match(services.detail, /Catalog labels for those services include/);
+  assert.equal(services.title, "Catalogued service domains recorded responses during this visit");
+  assert.match(services.detail, /Functional catalog labels include/);
   assert.doesNotMatch(services.detail, /Observed categories/);
 });
 
@@ -729,8 +807,10 @@ test("confirmed keystroke exfiltration surfaces a loud finding and drives the bo
   const card = byId(findings, "keystroke-exfiltration");
   assert.equal(card.level, "loud");
   assert.equal(card.icon, "keyboard");
-  assert.match(card.title, /What you type was sent to 1 third party/);
+  assert.match(card.title, /hashed form of synthetic input reached 1 cross-site domain before submission/);
   assert.match(card.lead, /collect\.example/);
+  assert.match(card.detail, /does not establish whether transmission happened during typing, blur, or unload/);
+  assert.doesNotMatch(card.detail, /known identity/);
   // A loud signal forces the bottom line loud, and bottom line still leads.
   assert.equal(findings[0].id, "bottom-line");
   assert.equal(byId(findings, "bottom-line").level, "loud");
@@ -741,19 +821,19 @@ test("keystroke leak severity escalates on one-way hashing, not reversible encod
   const plain = makeResult({ fingerprintDetections: [makeKeystrokeDetection(["plain"])] });
   const plainCard = byId(buildFindings(viewFromV1Report(plain), null), "keystroke-exfiltration");
   assert.equal(plainCard.level, "warn");
-  assert.match(plainCard.title, /Your typing is sent to/);
+  assert.match(plainCard.title, /Synthetic form input reached/);
 
   // Reversible base64/hex is common in legitimate APIs, so it stays "warn", not an alarm.
   const reversible = makeResult({ fingerprintDetections: [makeKeystrokeDetection(["base64"])] });
   const reversibleCard = byId(buildFindings(viewFromV1Report(reversible), null), "keystroke-exfiltration");
   assert.equal(reversibleCard.level, "warn");
-  assert.match(reversibleCard.title, /Your typing is sent to/);
+  assert.match(reversibleCard.title, /Synthetic form input reached/);
 
   // A one-way hash cannot drive a type-ahead, so it reads as deliberate capture → "loud".
   const hashed = makeResult({ fingerprintDetections: [makeKeystrokeDetection(["sha256"])] });
   const hashedCard = byId(buildFindings(viewFromV1Report(hashed), null), "keystroke-exfiltration");
   assert.equal(hashedCard.level, "loud");
-  assert.match(hashedCard.title, /What you type was sent to/);
+  assert.match(hashedCard.title, /hashed form of synthetic input reached/);
 });
 
 test("surfaces CNAME-cloaked trackers as their own finding, and omits it when there are none", () => {
@@ -809,7 +889,7 @@ test("surfaces pre-consent tracking when a consent-management platform is presen
   const informational = byId(buildFindings(viewFromV1Report(cmpOnly), null), "consent-banner");
   assert.equal(informational.level, "info");
   assert.equal(informational.title, "A consent management platform answered");
-  assert.match(informational.lead, /no request to a catalogued tracking company was recorded/);
+  assert.match(informational.lead, /no request to a catalogued tracking-related service was recorded/);
   assert.match(informational.lead, /before the scanner made any consent choice/);
 
   const noCmp = makeResult({
@@ -1124,7 +1204,7 @@ test("reports a clean policy check at ok level", () => {
   const result = makeResult({});
   result.privacyPolicy = {
     url: "https://example.com/privacy",
-    claims: [{ kind: "no-selling-or-sharing", quote: "We do not sell your personal information." }],
+    claims: [{ kind: "no-selling-or-sharing", quote: "We do not sell or share your personal information." }],
     mentionedEntities: [],
     unmentionedEntities: [],
     policyTextLength: 5000
@@ -1133,6 +1213,59 @@ test("reports a clean policy check at ok level", () => {
   const card = byId(buildFindings(viewFromV1Report(result), null), "privacy-policy");
   assert.equal(card.level, "ok");
   assert.match(card.title, /no checked statement contradicted/);
+  assert.match(card.detail, /combined do-not-sell-or-share claims/);
+});
+
+test("historical sell-only or share-only combined claims are not treated as checkable", () => {
+  for (const quote of [
+    "We do not sell your personal information.",
+    "We do not share your personal information.",
+    "We do not sell personal data and we do not share it."
+  ]) {
+    const result = makeResult({});
+    result.privacyPolicy = {
+      url: "https://example.com/privacy",
+      claims: [{ kind: "no-selling-or-sharing", quote }],
+      mentionedEntities: [],
+      unmentionedEntities: [],
+      policyTextLength: 5000
+    };
+
+    const card = byId(buildFindings(viewFromV1Report(result), null), "privacy-policy");
+    assert.equal(card.level, "info", quote);
+    assert.match(card.title, /no statement this scan can check/, quote);
+    assert.match(card.evidence, /0 checkable statements matched/, quote);
+  }
+});
+
+test("a blanket combined no-selling-or-sharing claim uses combined finding wording", () => {
+  const result = makeResult({});
+  result.pixelEvents = [
+    {
+      platform: "Meta",
+      product: "Meta Pixel",
+      events: ["PageView"],
+      advancedMatching: ["email"],
+      requests: 1
+    }
+  ];
+  result.privacyPolicy = {
+    url: "https://example.com/privacy",
+    claims: [
+      {
+        kind: "no-selling-or-sharing",
+        quote: "We do not sell or share your personal information."
+      }
+    ],
+    mentionedEntities: ["Meta"],
+    unmentionedEntities: [],
+    policyTextLength: 5000
+  };
+
+  const card = byId(buildFindings(viewFromV1Report(result), null), "privacy-policy");
+  assert.equal(card.level, "info");
+  assert.match(card.title, /may conflict/);
+  assert.match(card.lead, /personal information is not sold or shared/);
 });
 
 test("a policy with no checkable statement never reads as a clean comparison", () => {
@@ -1155,6 +1288,37 @@ test("a policy with no checkable statement never reads as a clean comparison", (
   assert.match(card.lead, /nothing was compared against this visit's evidence/);
   assert.match(card.lead, /not a finding about the site either way/);
   // The honest count stays visible alongside the corrected headline.
+  assert.match(card.evidence, /0 checkable statements matched/);
+});
+
+test("a qualified legacy combined transfer quote is revalidated before it can drive a finding", () => {
+  const result = makeResult({});
+  result.pixelEvents = [
+    {
+      platform: "Meta",
+      product: "Meta Pixel",
+      events: ["PageView"],
+      advancedMatching: ["email"],
+      requests: 1
+    }
+  ];
+  result.privacyPolicy = {
+    url: "https://example.com/privacy",
+    claims: [
+      {
+        kind: "no-selling-or-sharing",
+        quote: "We do not knowingly sell or share the personal information of minors under 16 years of age."
+      }
+    ],
+    mentionedEntities: [],
+    unmentionedEntities: [],
+    policyTextLength: 5000
+  };
+
+  const card = byId(buildFindings(viewFromV1Report(result), null), "privacy-policy");
+  assert.equal(card.level, "info");
+  assert.match(card.title, /no statement this scan can check/);
+  assert.doesNotMatch(card.title, /may conflict/);
   assert.match(card.evidence, /0 checkable statements matched/);
 });
 
@@ -1448,6 +1612,33 @@ test("a fingerprint observer that never read a frame cannot publish a clean abse
     runCensorshipNotes(run).some((note) => note.includes("in-page fingerprint observer")),
     true
   );
+});
+
+test("an incomplete pixel-body read never publishes a no-identifier-fields claim", () => {
+  const result = makeResult({ firstPartyDomain: "shop.example" });
+  result.pixelEvents = [
+    {
+      platform: "Meta",
+      product: "Meta Pixel",
+      events: ["PageView"],
+      advancedMatching: [],
+      requests: 1
+    }
+  ];
+
+  const complete = byId(buildFindings(viewFromV1Report(result), null), "pixel-events");
+  assert.match(complete.detail, /No advanced-matching identifier fields were observed/);
+
+  result.warnings = [PIXEL_DECODE_CAPTURE_LOSS_WARNING];
+  const view = viewFromV1Report(result);
+  const run = displayRunView(view);
+  assert.equal(familyCensoredOnRun(run, "detector-output"), true);
+  assert.equal(familyCensoredOnRun(run, "requests"), false);
+
+  const partial = byId(buildFindings(view, null), "pixel-events");
+  assert.doesNotMatch(partial.detail, /No advanced-matching identifier fields were observed/);
+  assert.match(partial.detail, /Pixel decoding was incomplete/);
+  assert.match(partial.detail, /advanced-matching identifier fields is unknown/);
 });
 
 test("a warn-level Shields card raises the bottom line instead of being outranked by it", () => {

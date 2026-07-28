@@ -43,6 +43,17 @@ test("isScanRuntimeHealth accepts the private shadow readiness projection", () =
   assert.equal(isScanRuntimeHealth({ ok: true, checks: { scannerEgressRegion: "misconfigured" } }), true);
 });
 
+test("isScanRuntimeHealth validates every declared scanner-egress configuration state", () => {
+  for (const scannerEgress of ["configured", "default", "aliased", "canonicalized"]) {
+    assert.equal(
+      isScanRuntimeHealth({ ok: true, checks: { scannerEgress } }),
+      true,
+      scannerEgress
+    );
+  }
+  assert.equal(isScanRuntimeHealth({ ok: true, checks: { scannerEgress: "unknown" } }), false);
+});
+
 test("isScanRuntimeHealth validates the bounded durable container topology", () => {
   const durableJobs = {
     requested: true,
@@ -82,6 +93,7 @@ test("isScanRuntimeHealth rejects malformed payloads", () => {
   assert.equal(isScanRuntimeHealth({ ok: true, scansAvailable: "yes" }), false);
   assert.equal(isScanRuntimeHealth({ ok: true, warnings: ["ok", 1] }), false);
   assert.equal(isScanRuntimeHealth({ ok: true, checks: { scanAccess: "broken" } }), false);
+  assert.equal(isScanRuntimeHealth({ ok: true, checks: { scannerEgress: "configured-ish" } }), false);
   assert.equal(isScanRuntimeHealth({ ok: true, checks: { consentVerification: "sometimes" } }), false);
   assert.equal(isScanRuntimeHealth({ ok: true, checks: { scannerEgressRegion: "unknown" } }), false);
   assert.equal(isScanRuntimeHealth({ ok: true, checks: { publicR2Reports: { status: "sometimes" } } }), false);

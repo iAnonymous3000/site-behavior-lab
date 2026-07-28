@@ -18,6 +18,34 @@ on:
   schedule:
     - cron: "35 4 * * *"
   workflow_dispatch:
+    inputs:
+      mode:
+        description: Scan shape
+        required: true
+        default: single
+        type: choice
+        options:
+          - single
+          - shields
+          - gpc
+          - consent
+      device:
+        description: Viewport
+        required: true
+        default: desktop
+        type: choice
+        options:
+          - desktop
+          - mobile
+      repetitions:
+        description: Independent attempts per target
+        required: true
+        default: "2"
+        type: choice
+        options:
+          - "1"
+          - "2"
+          - "3"
 
 permissions:
   contents: read
@@ -28,9 +56,13 @@ concurrency:
 
 jobs:
   fidelity:
-    name: Scan real sites and assert scanner invariants
+    name: Scan real sites and assert scanner invariants (shard ${{ matrix.shard }})
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1]
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -48,6 +80,15 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Allow the Chromium sandbox to initialize on the hosted runner
+        run: |
+          set -euo pipefail
+          current="$(sysctl -n kernel.apparmor_restrict_unprivileged_userns 2>/dev/null || echo 0)"
+          if [[ "$current" != "0" ]]; then
+            sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+          fi
+          echo "kernel.apparmor_restrict_unprivileged_userns=$(sysctl -n kernel.apparmor_restrict_unprivileged_userns 2>/dev/null || echo unavailable)"
 
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
@@ -81,6 +122,29 @@ jobs:
 
       - name: Assert scanner invariants against real sites
         run: npm run test:smoke:scanner-fidelity
+        env:
+          SCANNER_FIDELITY_SHARD_COUNT: "2"
+          SCANNER_FIDELITY_SHARD_INDEX: ${{ matrix.shard }}
+          # Keep the repeatability path live without pretending a target is
+          # stable: both runs must independently be invariant-clean and
+          # request-complete before they enter the denominator.
+          SCANNER_FIDELITY_MODE: ${{ inputs.mode || 'single' }}
+          SCANNER_FIDELITY_DEVICE: ${{ inputs.device || 'desktop' }}
+          SCANNER_FIDELITY_REPETITIONS: ${{ inputs.repetitions || '2' }}
+          # A deliberate one-repetition manual smoke has no repeatability
+          # denominator; scheduled/default runs require at least one target.
+          SCANNER_FIDELITY_MIN_REPEATABLE_TARGETS: ${{ inputs.repetitions == '1' && '0' || '1' }}
+          SCANNER_FIDELITY_OUTPUT: ${{ runner.temp }}/scanner-fidelity-attempts-${{ matrix.shard }}.json
+          SITE_BEHAVIOR_LAB_BUILD_COMMIT: ${{ github.sha }}
+
+      - name: Upload the complete attempted-run ledger
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: scanner-fidelity-attempts-${{ matrix.shard }}
+          path: ${{ runner.temp }}/scanner-fidelity-attempts-${{ matrix.shard }}.json
+          if-no-files-found: warn
+          retention-days: 14
 
       - name: Scanner log on failure
         if: failure()

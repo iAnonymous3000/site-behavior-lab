@@ -1,11 +1,17 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { isLikelyBotWallPage } from "./bot-wall-classifier";
+import {
+  classifyPageSubject,
+  isLikelyBotWallPage,
+  PAGE_SUBJECT_UNVERIFIED_STATE,
+  SUSPECTED_CHALLENGE_OR_SOFT_BLOCK_STATE
+} from "./bot-wall-classifier";
 
 test("bot-wall classification requires a whole-title signature and corroborating visit facts", () => {
   assert.equal(
     isLikelyBotWallPage({
       pageTitle: "Just a moment...",
+      pageText: "Please wait while the article loads.",
       status: 200,
       navigationSettled: true,
       totalRequests: 4
@@ -16,6 +22,7 @@ test("bot-wall classification requires a whole-title signature and corroborating
   assert.equal(
     isLikelyBotWallPage({
       pageTitle: "Security check",
+      pageText: "A guide to reviewing your account security settings.",
       status: 200,
       navigationSettled: true,
       totalRequests: 20
@@ -26,6 +33,7 @@ test("bot-wall classification requires a whole-title signature and corroborating
   assert.equal(
     isLikelyBotWallPage({
       pageTitle: "How to enable JavaScript in your browser",
+      pageText: "This help article explains how to enable JavaScript.",
       status: 200,
       navigationSettled: true,
       totalRequests: 2
@@ -35,7 +43,13 @@ test("bot-wall classification requires a whole-title signature and corroborating
   );
   for (const pageTitle of ["Security check", "Captcha", "Enable JavaScript"]) {
     assert.equal(
-      isLikelyBotWallPage({ pageTitle, status: 200, navigationSettled: true, totalRequests: 1 }),
+      isLikelyBotWallPage({
+        pageTitle,
+        pageText: "Ordinary page content.",
+        status: 200,
+        navigationSettled: true,
+        totalRequests: 1
+      }),
       false,
       `${pageTitle} is generic page-controlled testimony even on a sparse page`
     );
@@ -43,6 +57,7 @@ test("bot-wall classification requires a whole-title signature and corroborating
   assert.equal(
     isLikelyBotWallPage({
       pageTitle: "Account security check results",
+      pageText: "Account results",
       status: 429,
       navigationSettled: false,
       totalRequests: 1
@@ -65,4 +80,92 @@ test("bot-wall classification recognizes vendor title variants without exposing 
       pageTitle
     );
   }
+});
+
+test("a settled Amazon-like HTTP-200 robot page needs corroborating body and request-shape signals", () => {
+  const amazonRobotText =
+    "Enter the characters you see below. Sorry, we just need to make sure you're not a robot. " +
+    "For best results, please make sure your browser is accepting cookies.";
+
+  assert.equal(
+    classifyPageSubject({
+      pageTitle: "",
+      pageText: amazonRobotText,
+      status: 200,
+      navigationSettled: true,
+      totalRequests: 3
+    }),
+    SUSPECTED_CHALLENGE_OR_SOFT_BLOCK_STATE
+  );
+  assert.equal(
+    isLikelyBotWallPage({
+      pageTitle: "",
+      pageText: amazonRobotText,
+      status: 200,
+      navigationSettled: true,
+      totalRequests: 80
+    }),
+    false,
+    "quoted challenge prose alone must not fail a normal-sized page"
+  );
+  assert.equal(
+    isLikelyBotWallPage({
+      pageTitle: "",
+      pageText: "This short article quotes the instruction: Enter the characters you see below.",
+      status: 200,
+      navigationSettled: true,
+      totalRequests: 2
+    }),
+    false,
+    "one quoted challenge signature plus sparsity is not enough"
+  );
+  assert.equal(
+    isLikelyBotWallPage({
+      pageTitle: "Robot Check",
+      pageText: amazonRobotText,
+      status: 200,
+      navigationSettled: true,
+      totalRequests: 40
+    }),
+    true,
+    "a specific title and specific body phrase corroborate one another without a sparsity requirement"
+  );
+});
+
+test("an unavailable content collector makes page-subject validity unknown", () => {
+  assert.equal(
+    classifyPageSubject({
+      pageTitle: "Example Domain",
+      pageText: "",
+      pageTextAvailable: false,
+      status: 200,
+      navigationSettled: true,
+      totalRequests: 4
+    }),
+    PAGE_SUBJECT_UNVERIFIED_STATE
+  );
+});
+
+test("a blocking consent interstitial needs both a wall title and wall body", () => {
+  assert.equal(
+    isLikelyBotWallPage({
+      pageTitle: "Before you continue to Google",
+      pageText: "Before you continue to Google, we use cookies and data to deliver and maintain our services.",
+      status: 200,
+      navigationSettled: true,
+      totalRequests: 14
+    }),
+    true
+  );
+  assert.equal(
+    isLikelyBotWallPage({
+      pageTitle: "Example Domain",
+      pageText: "We use cookies and data to improve this site. You can keep reading without choosing.",
+      status: 200,
+      navigationSettled: true,
+      totalRequests: 2
+    }),
+    false,
+    "a normal page with cookie-banner prose is not a blocking consent wall"
+  );
 });

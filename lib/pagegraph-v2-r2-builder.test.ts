@@ -28,6 +28,9 @@ import {
 } from "./scan-report-views";
 import { sha256BytesHex } from "./sha256";
 import { publicReportDigest } from "./canonical-json";
+import { buildFingerprints } from "./scan-report-v2-fingerprints";
+import { SUPERSEDED_R2_NORMALIZATIONS } from "./scan-report-v2-normalization";
+import { HISTORICAL_R2_2026_06_TRACKER_CATALOG } from "./scan-report-v2-r2-producer-contract";
 import {
   R2RedactionRemediationError,
   redactPublicScanReportV2R2
@@ -103,6 +106,40 @@ test("real PageGraph capture emits one passive, request-only, valid r2 report", 
   assert.equal(report.run.warnings.some((warning) => warning.includes("request observations only")), true);
   assert.equal(report.run.warnings.some((warning) => warning.includes("not script-to-request causality")), true);
   assert.equal(report.run.warnings.some((warning) => warning.includes("quality and coverage declarations")), true);
+});
+
+test("superseded PageGraph normalizations retain their historical catalog epoch", () => {
+  for (const normalizationVersion of SUPERSEDED_R2_NORMALIZATIONS["pagegraph-import"]) {
+    const report = buildPageGraphScanReportV2R2(GRAPH_BYTES, metadata(), CONTEXT);
+    report.run.toolchain.normalizationVersion = normalizationVersion;
+    report.run.toolchain.trackerCatalog = { ...HISTORICAL_R2_2026_06_TRACKER_CATALOG };
+    report.run.fingerprints = buildFingerprints({
+      conditions: report.run.conditions,
+      provenance: report.run.provenance,
+      toolchain: report.run.toolchain,
+      detectors: report.run.detectors
+    });
+    assert.equal(
+      publicReportDigest(redactPublicScanReportV2R2(report)),
+      publicReportDigest(report),
+      normalizationVersion
+    );
+  }
+
+  const mixedEpoch = buildPageGraphScanReportV2R2(GRAPH_BYTES, metadata(), CONTEXT);
+  const [superseded] = SUPERSEDED_R2_NORMALIZATIONS["pagegraph-import"];
+  assert.notEqual(superseded, undefined);
+  mixedEpoch.run.toolchain.normalizationVersion = superseded!;
+  mixedEpoch.run.fingerprints = buildFingerprints({
+    conditions: mixedEpoch.run.conditions,
+    provenance: mixedEpoch.run.provenance,
+    toolchain: mixedEpoch.run.toolchain,
+    detectors: mixedEpoch.run.detectors
+  });
+  assert.throws(
+    () => redactPublicScanReportV2R2(mixedEpoch),
+    (error: unknown) => error instanceof R2RedactionRemediationError
+  );
 });
 
 test("PageGraph producer identity fails closed on impossible non-request evidence", () => {

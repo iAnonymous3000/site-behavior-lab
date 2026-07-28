@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import { PAGE_SUBJECT_UNVERIFIED_WARNING } from "./bot-wall-classifier";
 import { compareScanResults, createGpcComparisonReport } from "./compare-reports";
 import { runHitResponseByteCap, runHitUploadByteCap } from "./comparison-eligibility";
 import { CONSENT_PROBE_OUTCOMES, consentInteractionWarning } from "./consent-interaction";
@@ -18,6 +19,8 @@ import { scannerDisclosure } from "./scan-condition-disclosure";
 import {
   aggregateByteBudgetWarning,
   INVALID_UPSTREAM_RESPONSE_WARNING,
+  KEYSTROKE_PROBE_INCOMPLETE_WARNING,
+  PIXEL_DECODE_CAPTURE_LOSS_WARNING,
   UNSETTLED_ROUTED_REQUEST_WARNING
 } from "./scan-runtime";
 import { readStoredScanReport } from "./scan-report-reader";
@@ -304,6 +307,30 @@ test("the unsettled routed-request disclosure survives the public boundary", () 
   assert.deepEqual(report.warnings, [UNSETTLED_ROUTED_REQUEST_WARNING]);
 });
 
+test("the unverified page-subject disclosure survives the public boundary", () => {
+  const input = sensitiveSingle();
+  input.warnings = [PAGE_SUBJECT_UNVERIFIED_WARNING];
+
+  const { report } = redactScanResultV1(input);
+  assert.deepEqual(report.warnings, [PAGE_SUBJECT_UNVERIFIED_WARNING]);
+});
+
+test("the incomplete pixel-decoder disclosure survives the public boundary", () => {
+  const input = sensitiveSingle();
+  input.warnings = [PIXEL_DECODE_CAPTURE_LOSS_WARNING];
+
+  const { report } = redactScanResultV1(input);
+  assert.deepEqual(report.warnings, [PIXEL_DECODE_CAPTURE_LOSS_WARNING]);
+});
+
+test("the incomplete synthetic-input probe disclosure survives the public boundary", () => {
+  const input = sensitiveSingle();
+  input.warnings = [KEYSTROKE_PROBE_INCOMPLETE_WARNING];
+
+  const { report } = redactScanResultV1(input);
+  assert.deepEqual(report.warnings, [KEYSTROKE_PROBE_INCOMPLETE_WARNING]);
+});
+
 test("every consent disclosure the producer can emit survives the public boundary", () => {
   // The three failure sentences are the ones that say the INSTRUMENT failed
   // rather than the site. Admitting only the completed-search default replaced
@@ -386,6 +413,32 @@ test("the full report transform is byte-idempotent and rebuilds comparison diffs
     malformedUrlsDropped: 0
   });
   assert.equal(readStoredScanReport(first.report).ok, true);
+});
+
+test("v1 redaction preserves a reviewed historical tracker-catalog identity", () => {
+  const report = sensitiveSingle();
+  report.conditions.trackerCatalog = {
+    source: "Hand-curated service catalog",
+    version: "hand-curated-2026.06",
+    region: "US-biased",
+    entries: 133,
+    curatedOverrides: 133,
+    license: "AGPL-3.0-or-later"
+  };
+
+  const first = redactScanResultV1(report).report;
+  const second = redactScanResultV1(first).report;
+  assert.deepEqual(first.conditions.trackerCatalog, report.conditions.trackerCatalog);
+  assert.equal(JSON.stringify(first), JSON.stringify(second));
+
+  report.conditions.trackerCatalog = {
+    ...report.conditions.trackerCatalog,
+    version: "self-declared-catalog"
+  };
+  assert.notEqual(
+    redactScanResultV1(report).report.conditions.trackerCatalog.version,
+    "self-declared-catalog"
+  );
 });
 
 test("v1 comparison redaction preserves marker-backed diff entries at its fixed point", () => {

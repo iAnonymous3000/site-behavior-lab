@@ -415,7 +415,7 @@ test("the Node builder emits a validator-clean r2 shell with current provenance 
   assert.equal(isEphemeralScanReportR2(report), true);
   assert.equal(report.run.provenance.observer, "node-playwright");
   assert.equal(report.run.provenance.methodologyVersion, NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION);
-  assert.match(report.run.provenance.methodologyVersion, new RegExp(NODE_SCANNER_METHODOLOGY_VERSION));
+  assert.equal(report.run.provenance.methodologyVersion.includes(NODE_SCANNER_METHODOLOGY_VERSION), true);
   assert.equal(recordedPlaywrightVersion(report.run.provenance.methodologyVersion), NODE_PLAYWRIGHT_VERSION);
   assert.match(report.run.provenance.methodologyVersion, /\+consent-r2-v4\+/);
   assert.deepEqual(report.run.provenance.detectorRegistry, {
@@ -893,6 +893,64 @@ test("public evidence arrays clip with explicit family-scoped capture loss", () 
   });
 });
 
+test("requests on an exact private suffix are omitted with explicit request capture loss", () => {
+  const input = baseInput();
+  input.evidence.requests.push({
+    ...input.evidence.requests[0],
+    id: 2,
+    url: "https://s3-us-gov-west-1.amazonaws.com/cdn-digitalgov-us-gov/waittime.json",
+    domain: "s3-us-gov-west-1.amazonaws.com",
+    resourceType: "fetch",
+    thirdParty: true,
+    tracker: null,
+    startedAtMs: 500
+  });
+
+  const report = buildNodeScanReportV2R2(input);
+  assert.equal(report.run.evidence.requests.length, 1);
+  assert.equal(
+    report.run.evidence.requests.some((request) => request.domain.includes("s3-us-gov-west-1")),
+    false
+  );
+  assert.equal(report.run.quality.byFamily.requests.outcome, "censored");
+  assert.deepEqual(
+    report.run.qualityFacts.captureLoss.find(
+      (loss) => loss.detail === "public-request-unregistrable-hosts"
+    ),
+    {
+      family: "requests",
+      phaseId: null,
+      kind: "dropped",
+      count: 1,
+      detail: "public-request-unregistrable-hosts"
+    }
+  );
+  assert.equal(
+    report.run.qualityFacts.budgetsExhausted.includes("public-request-unregistrable-hosts"),
+    false
+  );
+  assert.deepEqual(scanReportV2R2SemanticViolations(report), []);
+});
+
+test("unknown and special-use request hosts remain invalid rather than becoming capture loss", () => {
+  const input = baseInput();
+  input.evidence.requests.push({
+    ...input.evidence.requests[0],
+    id: 2,
+    url: "https://alice.internal/telemetry",
+    domain: "alice.internal",
+    resourceType: "fetch",
+    thirdParty: true,
+    tracker: null,
+    startedAtMs: 500
+  });
+
+  assert.throws(
+    () => buildNodeScanReportV2R2(input),
+    /request evidence host has no public registrable domain/i
+  );
+});
+
 test("the final byte cap covers nested public evidence but excludes the ephemeral screenshot", () => {
   const oversized = baseInput();
   oversized.evidence.fingerprintDetections.push({
@@ -1352,6 +1410,9 @@ test("every capture-loss detail a producer can record is registered in BUDGET_FA
 
   assert.ok(recorded.size >= 5, `expected to find recorded details, found ${recorded.size}`);
   assert.ok(recorded.has("policy-link-candidates"), "the regression case must still be covered");
+  // The consent helper passes its detail through a typed local variable, so
+  // the literal-source scanner below cannot discover it automatically.
+  assert.equal(BUDGET_FAMILIES["consent-banner"], "detector-output");
 
   const unregistered: string[] = [];
   const misfiled: string[] = [];

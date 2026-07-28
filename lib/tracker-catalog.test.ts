@@ -13,11 +13,11 @@ import {
 
 test("tracker catalog metadata describes the bundled source without third-party provenance claims", () => {
   assert.equal(trackerCatalogMetadata.source, "Hand-curated service catalog");
-  assert.equal(trackerCatalogMetadata.version, "hand-curated-2026.06");
+  assert.equal(trackerCatalogMetadata.version, "hand-curated-2026.07");
   assert.equal(trackerCatalogMetadata.region, "US-biased");
   assert.equal(trackerCatalogMetadata.license, "AGPL-3.0-or-later");
   assert.match(trackerCatalogMetadata.digest, /^[a-f0-9]{64}$/);
-  assert.equal(trackerCatalogMetadata.provenanceVersion, "catalog-review-v1");
+  assert.equal(trackerCatalogMetadata.provenanceVersion, "catalog-review-v2");
   assert.equal(trackerCatalogMetadata.reviewedEntries, trackerCatalogMetadata.entries);
   assert.match(trackerCatalogMetadata.provenanceDigest, /^[a-f0-9]{64}$/);
 });
@@ -27,7 +27,14 @@ test("every effective catalog domain has mechanically valid review provenance", 
   assert.equal(records.length, trackerCatalogMetadata.entries);
   assert.deepEqual(validateTrackerCatalogRecords(records), []);
   assert.equal(records.every((record) => record.provenance.entityReferences.length > 0), true);
-  assert.equal(records.every((record) => record.provenance.reviewedAt === "2026-07-21"), true);
+  assert.equal(
+    records.every((record) => ["2026-07-21", "2026-07-28"].includes(record.provenance.reviewedAt)),
+    true
+  );
+  assert.equal(
+    records.find((record) => record.domain === "google-analytics.com")?.provenance.reviewedAt,
+    "2026-07-21"
+  );
   assert.equal(
     records.every((record) => record.provenance.relationship === "entity or product identity reference only"),
     true
@@ -76,6 +83,39 @@ test("findTrackerMatch returns exact curated matches", () => {
     category: "advertising",
     confidence: "curated"
   });
+});
+
+test("reviewed advertising-service additions map their exact suffixes", () => {
+  assert.deepEqual(
+    [
+      findTrackerMatch("ads.3lift.com"),
+      findTrackerMatch("smartadserver.com"),
+      findTrackerMatch("cdn.doubleverify.com"),
+      findTrackerMatch("stackadapt.com")
+    ].map((match) => match && ({ domain: match.domain, entity: match.entity, category: match.category })),
+    [
+      { domain: "3lift.com", entity: "TripleLift", category: "advertising / supply-side platform" },
+      { domain: "smartadserver.com", entity: "Equativ", category: "advertising / supply-side platform" },
+      { domain: "doubleverify.com", entity: "DoubleVerify", category: "advertising measurement / verification" },
+      { domain: "stackadapt.com", entity: "StackAdapt", category: "advertising / demand-side platform" }
+    ]
+  );
+
+  const expectedSources = new Map([
+    ["3lift.com", "https://triplelift.com/advertising-technology-platform-cookie-notice/"],
+    ["smartadserver.com", "https://help.equativ.com/implement-adstxt-specification"],
+    ["doubleverify.com", "https://doubleverify.com/company/about"],
+    ["stackadapt.com", "https://www.stackadapt.com/platform"]
+  ]);
+  const records = trackerCatalogRecords();
+  for (const [domain, expectedSource] of expectedSources) {
+    const record = records.find((candidate) => candidate.domain === domain);
+    assert.ok(record, `expected reviewed record for ${domain}`);
+    assert.equal(record.provenance.reviewedAt, "2026-07-28");
+    assert.equal(record.provenance.entityReferences[0]?.kind, "official");
+    assert.equal(record.provenance.entityReferences[0]?.url, expectedSource);
+    assert.match(record.provenance.limitations, /may not list this suffix/);
+  }
 });
 
 test("findTrackerMatch returns suffix matches for subdomains", () => {

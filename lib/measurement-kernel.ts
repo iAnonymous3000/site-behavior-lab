@@ -53,11 +53,11 @@ export function isDetectorReasonForStatus(status: DetectorStatus, reason: string
 
 export const DETECTOR_VERSIONS: Readonly<Record<DetectorId, string>> = {
   "fingerprint-heuristics": "fingerprint-observer@1",
-  "keystroke-exfiltration": "synthetic-sentinel@1",
-  "cname-uncloaking": "dns-cname-chain@1",
-  "pixel-events": "pixel-request-decoder@1",
-  "consent-banner": "consent-control-and-state@1",
-  "privacy-policy": "policy-text-cross-check@1"
+  "keystroke-exfiltration": "synthetic-sentinel@2",
+  "cname-uncloaking": "dns-cname-chain@2",
+  "pixel-events": "pixel-request-decoder@2",
+  "consent-banner": "consent-control-and-state@2",
+  "privacy-policy": "policy-text-cross-check@2"
 };
 
 export const FINGERPRINT_EVENT_APIS = [

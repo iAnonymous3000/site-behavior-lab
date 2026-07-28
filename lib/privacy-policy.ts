@@ -12,8 +12,9 @@ export type { PrivacyPolicyClaim, PrivacyPolicyClaimKind, PrivacyPolicySummary }
  *
  *   1. Checkable claims: conservative sentence-level matches for statements a
  *      scan can actually test ("we do not use third-party cookies", "we do not
- *      sell personal information", "we honor Global Privacy Control"). Each
- *      claim stores the matched sentence so a reader can verify it in context.
+ *      sell or share personal information", "we honor Global Privacy Control").
+ *      Each claim stores the matched sentence so a reader can verify it in
+ *      context.
  *   2. Disclosure gaps: observed tracking companies whose name (or a common
  *      alias, e.g. Facebook for Meta) never appears in the policy text.
  *
@@ -59,11 +60,29 @@ const POLICY_HOSTING_SERVICES = [
 // strongest signal, and it is what separates the real policy from marketing
 // pages: brave.com/privacy/browser/ (segment "privacy") is the policy, while
 // brave.com/privacy-features/ (a product page) is not, even though its link
-// text reads "Privacy features". Matches "privacy", "privacy-policy",
-// "privacypolicy", "privacy-notice", "privacy-statement", "datenschutz", ...
-// The trailing `(\.[a-z0-9]+)?` tolerates a file extension (privacy-policy.html,
-// privacy.php) so those still count as policy paths.
-const POLICY_PATH_SEGMENT = /^(privacy|privacy[-_]?(policy|notice|statement|centre|center)|datenschutz|privacybeleid)(\.[a-z0-9]+)?$/;
+// text reads "Privacy features".
+//
+// Keep the vocabulary aligned with the bounded in-page candidate collector.
+// The collector deliberately casts a broad net; this selector is the
+// conservative second stage, so every localized form below is either an exact
+// policy-shaped path segment or an explicit phrase that means policy/notice/
+// statement. Bare mentions such as "why privacy matters" remain insufficient.
+const POLICY_PATH_SEGMENT =
+  /^(?:privacy|privacy[-_]?(?:policy|notice|statement|centre|center)|datenschutz(?:erkl(?:a|ae)rung|hinweise?|richtlinie|bestimmungen)?|privacybeleid|privacyverklaring|gegevensbeschermingsbeleid|privacidad|(?:politica|politicas|aviso|declaracion)[-_](?:de[-_])?privacidad|confidentialite|(?:politique|charte|avis)[-_](?:de[-_])?confidentialite|politique[-_](?:de[-_])?protection[-_]des[-_]donnees|privacidade|(?:politica|politicas|aviso|declaracao)[-_](?:de[-_])?privacidade|politica[-_](?:de[-_])?protecao[-_]de[-_]dados)(?:\.[a-z0-9]+)?$/;
+
+const POLICY_TEXT_PATTERNS = [
+  /\bprivacy\s+(?:policy|notice|statement)\b/,
+  /^(?:politica|politicas|aviso|declaracion)\s+(?:de\s+)?privacidad$/,
+  /^(?:politique|charte|avis)\s+(?:de\s+)?confidentialite$/,
+  /^politique\s+(?:de\s+)?protection\s+des\s+donnees$/,
+  /^datenschutz(?:erkl(?:a|ae)rung|hinweise?|richtlinie|bestimmungen)$/,
+  /^(?:privacybeleid|privacyverklaring|gegevensbeschermingsbeleid)$/,
+  /^(?:politica|politicas|aviso|declaracao)\s+(?:de\s+)?privacidade$/,
+  /^politica\s+(?:de\s+)?protecao\s+de\s+dados$/
+];
+
+const PRIVACY_TERM =
+  /\b(?:privacy|privacidad|privacidade|confidentialite|datenschutz|privacybeleid|privacyverklaring|gegevensbescherming)\b/;
 
 // Privacy-adjacent pages that are NOT the policy: product/marketing ("privacy
 // features", "privacy principles/promise"), changelogs ("privacy updates"),
@@ -73,6 +92,9 @@ const POLICY_PATH_SEGMENT = /^(privacy|privacy[-_]?(policy|notice|statement|cent
 // excluding a genuine policy that happens to sit at an unusual path.
 const NON_POLICY_PRIVACY_PAGE =
   /privacy[-_ ]?(feature|update|day|month|week|matter|blog|news|tip|principle|promise|commitment|glossary)/;
+
+const NON_POLICY_LOCALIZED_LINK =
+  /\b(?:consejos?|preferencias?|opciones?|configuracion|centro|guia|modelo|como redactar)\b|\b(?:fonctionnalites?|preferences?|choix|parametres?|conseils?|guide|centre)\b|\b(?:einstellungen|tipps?|ratgeber|beispiel|was gehort)\b|\b(?:voorbeeld|voorkeuren|tips?|centrum|handleiding)\b|\b(?:preferencias?|opcoes|configuracoes|dicas|modelo|guia)\b/;
 
 /**
  * Whether a policy document URL can still be attributed to the scanned site.
@@ -117,22 +139,38 @@ export function pickPrivacyPolicyLink(links: PolicyLinkCandidate[], firstPartyHo
     const linkParty = partyKey(parsed.hostname);
     const sameParty = linkParty === firstParty;
 
-    const text = link.text.trim().toLowerCase();
-    const path = parsed.pathname.toLowerCase();
-    const segments = path.split("/").filter(Boolean);
+    const text = normalizePolicySignal(link.text.trim());
+    const segments = normalizedPolicyPathSegments(parsed.pathname);
+    if (!segments) continue;
+    const path = segments.join("/");
 
     // Marketing/changelog/opt-out pages are never the policy, regardless of the
     // word "privacy" appearing in the text or path.
-    if (NON_POLICY_PRIVACY_PAGE.test(path) || NON_POLICY_PRIVACY_PAGE.test(text)) continue;
-    if (/do not sell|cookie (settings|preferences)|opt[- ]out|your privacy choices/.test(text)) continue;
+    if (
+      NON_POLICY_PRIVACY_PAGE.test(path) ||
+      NON_POLICY_PRIVACY_PAGE.test(text) ||
+      NON_POLICY_LOCALIZED_LINK.test(text)
+    ) {
+      continue;
+    }
+    if (
+      /do not sell|cookie (?:settings|preferences)|opt[- ]out|your privacy choices/.test(text) ||
+      /no vender|preferencias de privacidad|opciones de privacidad|configuracion de cookies/.test(text) ||
+      /preferences de confidentialite|choix de confidentialite|parametres des cookies/.test(text) ||
+      /datenschutzeinstellungen|cookie[- ]einstellungen/.test(text) ||
+      /privacyvoorkeuren|cookie[- ]instellingen/.test(text) ||
+      /preferencias de privacidade|opcoes de privacidade|configuracoes de cookies/.test(text)
+    ) {
+      continue;
+    }
 
     const hasPolicyPath = segments.some((segment) => POLICY_PATH_SEGMENT.test(segment));
-    const hasPolicyText = /\bprivacy\s+(policy|notice|statement)\b/.test(text);
+    const hasPolicyText = POLICY_TEXT_PATTERNS.some((pattern) => pattern.test(text));
 
     let score = 0;
     if (hasPolicyPath) score += 5;
     if (hasPolicyText) score += 4;
-    if (/\bprivacy\b/.test(text)) score += 1;
+    if (PRIVACY_TERM.test(text)) score += 1;
     // Require a strong signal: a policy-shaped path or an explicit "privacy
     // policy/notice/statement" in the text. A bare "privacy" mention (a "Global
     // Privacy Control" explainer, a "privacy features" teaser) never qualifies.
@@ -156,6 +194,141 @@ export function pickPrivacyPolicyLink(links: PolicyLinkCandidate[], firstPartyHo
 const FIRST_PERSON_NEGATION =
   /\b(?:we|our (?:web)?site|this (?:web)?site)\s+(?:currently\s+)?(?:do(?:es)?\s+not|don'?t|doesn'?t|never|will\s+not|won'?t)\b/;
 
+type NoSellingOrSharingClaimScope = "blanket" | "qualified" | "not-checkable";
+
+const NO_TRANSFER_BRIDGE_WORDS = new Set([
+  "and",
+  "any",
+  "collect",
+  "currently",
+  "disclose",
+  "ever",
+  "exchange",
+  "in",
+  "knowingly",
+  "lease",
+  "license",
+  "nor",
+  "or",
+  "otherwise",
+  "rent",
+  "share",
+  "trade",
+  "transfer",
+  "use",
+  "way"
+]);
+
+const NO_TRANSFER_GOVERNED_WORDS = new Set([
+  ...NO_TRANSFER_BRIDGE_WORDS,
+  "address",
+  "data",
+  "email",
+  "information",
+  "it",
+  "other",
+  "party",
+  "parties",
+  "personal",
+  "provided",
+  "sell",
+  "selling",
+  "sells",
+  "shares",
+  "sharing",
+  "them",
+  "third",
+  "to",
+  "with",
+  "your"
+]);
+
+/**
+ * Classify a combined no-selling-or-sharing sentence before it is allowed to
+ * become a checkable blanket claim.
+ *
+ * A scanner observation cannot contradict a promise limited to children,
+ * knowing conduct, a particular kind of consideration, or the current moment.
+ * Nor can this sentence matcher safely summarize an adversarial/contradictory
+ * clause such as "we do not sell for money, but sharing may be a sale." Those
+ * statements can still be meaningful legal disclosures; they are simply not
+ * the blanket factual promise represented by `no-selling-or-sharing`.
+ */
+function noSellingOrSharingClaimScope(sentence: string): NoSellingOrSharingClaimScope {
+  const lower = normalizePolicySignal(sentence);
+  const negation = FIRST_PERSON_NEGATION.exec(lower);
+  if (!negation) return "not-checkable";
+
+  const governedClause = lower
+    .slice(negation.index + negation[0].length)
+    .split(/[.!?]/, 1)[0] ?? "";
+  if (/[;:]/.test(governedClause)) return "not-checkable";
+  const sale = /\b(?:sell|sells|selling)\b/.exec(governedClause);
+  const sharing = /\b(?:share|shares|sharing)\b/.exec(governedClause);
+  if (!sale || !sharing) return "not-checkable";
+  const personalData = /\b(?:personal|your)\s+(?:information|data)\b/.exec(governedClause);
+  if (!personalData) return "not-checkable";
+
+  // Both transfer verbs must live in the same direct action phrase governed by
+  // this ONE negation. Sell-only/share-only wording cannot populate a combined
+  // field, and a second subject or second negation cannot be borrowed to make
+  // two separate promises look like one.
+  const firstActionIndex = Math.min(sale.index, sharing.index);
+  const lastActionEnd = Math.max(sale.index + sale[0].length, sharing.index + sharing[0].length);
+  const transferScopeEnd = Math.max(lastActionEnd, personalData.index + personalData[0].length);
+  if (!/\b(?:or|nor)\b/.test(governedClause.slice(0, transferScopeEnd))) return "not-checkable";
+  const bridge = governedClause.slice(0, firstActionIndex);
+  if (bridge.length > 120 || /\b(?:but|however|although|though|while|whereas|yet)\b|[.;:]/.test(bridge)) {
+    return "not-checkable";
+  }
+  const bridgeWords = bridge.match(/[a-z]+/g) ?? [];
+  if (bridgeWords.some((word) => !NO_TRANSFER_BRIDGE_WORDS.has(word))) return "not-checkable";
+  const governedWords = governedClause.slice(0, lastActionEnd).match(/[a-z]+/g) ?? [];
+  if (governedWords.some((word) => !NO_TRANSFER_GOVERNED_WORDS.has(word))) return "not-checkable";
+
+  // A sentence with a second, contrasting clause is not safely reducible to
+  // its first negative clause, even when the narrowing words appear later.
+  if (/\b(?:but|however|although|though|while|whereas|yet)\b/.test(lower)) return "not-checkable";
+  if (
+    /\b(?:may|might|can|could)\s+(?:still\s+|also\s+)?(?:sell|share)\b/.test(lower) ||
+    /\b(?:sale|sharing)\b[^.!?]{0,60}\b(?:considered|deemed|constitute|qualif(?:y|ies))\b/.test(lower)
+  ) {
+    return "not-checkable";
+  }
+
+  // These terms narrow the population, state of mind, time, data category, or
+  // form of value covered by the promise. Treat the sentence as qualified
+  // rather than publishing it as "the policy says personal information is not
+  // sold or shared."
+  if (
+    /\bknowingly\b/.test(lower) ||
+    /\b(?:minor|child|children)(?:s|'s)?\b|\bunder\s+(?:the\s+age\s+of\s+)?\d{1,2}\b/.test(lower) ||
+    /\b(?:currently|at (?:this|the present) time|for now|today|to date)\b/.test(lower) ||
+    /\b(?:monetary|financial)\s+(?:gain|consideration|compensation|payment|benefit|value)\b|\bfor money\b|\bin exchange for\b/.test(lower) ||
+    /\b(?:except|unless|other than|only|certain|specific|sensitive)\b/.test(lower) ||
+    /\bwithout\s+(?:your|the user's|the users')\s+(?:consent|permission)\b/.test(lower) ||
+    /\b(?:as defined (?:by|under|in)|as (?:that|those|the) terms? (?:is|are) defined|within the meaning of|pursuant to|for purposes of)\b/.test(lower) ||
+    /\bunder\s+(?:applicable|state|federal|california|consumer|privacy|data protection)[^.!?]{0,40}\blaws?\b/.test(lower)
+  ) {
+    return "qualified";
+  }
+
+  return "blanket";
+}
+
+/**
+ * Revalidate stored claims at render time as well as extraction time. Public
+ * archives can contain claims produced by an older detector revision; a
+ * qualified historical quote must not keep driving a current contradiction
+ * card merely because its old wire enum is still valid.
+ */
+export function isCurrentlyCheckablePolicyClaim(claim: PrivacyPolicyClaim): boolean {
+  if (claim.kind !== "no-selling-or-sharing") return true;
+  // A capped quote may have lost a qualifier after its retained prefix.
+  if (claim.quote.trimEnd().endsWith("...")) return false;
+  return noSellingOrSharingClaimScope(claim.quote) === "blanket";
+}
+
 /** Extract checkable claims from the policy text, one per kind, with the matched sentence as the quote. */
 export function extractPolicyClaims(policyText: string): PrivacyPolicyClaim[] {
   const claims = new Map<PrivacyPolicyClaim["kind"], string>();
@@ -178,7 +351,7 @@ export function extractPolicyClaims(policyText: string): PrivacyPolicyClaim[] {
       claims.set("no-cookies", sentence);
     }
 
-    if (!claims.has("no-selling-or-sharing") && negated && /\bsell\b|\bsells\b|\bselling\b/.test(lower) && /\b(?:personal|your)\s+(?:information|data)\b/.test(lower)) {
+    if (!claims.has("no-selling-or-sharing") && noSellingOrSharingClaimScope(sentence) === "blanket") {
       claims.set("no-selling-or-sharing", sentence);
     }
 
@@ -287,4 +460,32 @@ function truncateQuote(sentence: string): string {
 
 function escapeRegExp(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function normalizePolicySignal(value: string): string {
+  return value
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[’‘]/g, "'")
+    .toLowerCase()
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function normalizedPolicyPathSegments(pathname: string): string[] | null {
+  const segments: string[] = [];
+  for (const rawSegment of pathname.split("/").filter(Boolean)) {
+    let decoded: string;
+    try {
+      decoded = decodeURIComponent(rawSegment);
+    } catch {
+      return null;
+    }
+    // Decode only after splitting and reject delimiters introduced by escapes:
+    // `%2Fprivacy` is one path segment, not a synthetic strong `privacy`
+    // segment, and must not gain policy status through decoding.
+    if (/[\\/]/.test(decoded)) return null;
+    segments.push(normalizePolicySignal(decoded));
+  }
+  return segments;
 }

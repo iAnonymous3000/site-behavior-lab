@@ -200,7 +200,7 @@ export function renderMissingReportCard(): ImageResponse {
 export function renderHomeCard(): ImageResponse {
   return renderBrandedCard(
     "See what a site does, not just what it says.",
-    "Point it at any site: it runs a controlled browser visit and shows the trackers, cookies, and fingerprinting it actually loads, as reproducible evidence."
+    "Point it at any site: it runs a controlled browser visit and shows observed requests, cookie metadata, catalog matches, and fingerprint-like API patterns as reproducible evidence."
   );
 }
 

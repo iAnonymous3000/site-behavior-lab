@@ -1,4 +1,6 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import path from "node:path";
 import { test } from "node:test";
 import { publicReportDigest } from "./canonical-json";
 import { buildProvenanceEntry } from "./redaction-provenance";
@@ -25,13 +27,22 @@ import {
   makeSupportingPairInterventionReportV2R2
 } from "./scan-report-v2-r2-fixtures";
 import { REDACTION_VERSION } from "./redaction-v2";
-import { DETECTOR_VERSIONS } from "./measurement-kernel";
 import { findTrackerMatch } from "./tracker-catalog";
 import {
   HISTORICAL_NODE_R2_V3_ADBLOCK_ENGINE_VERSION,
   HISTORICAL_NODE_R2_V3_DETECTOR_REGISTRY_DIGEST,
   HISTORICAL_NODE_R2_V3_DETECTOR_REGISTRY_VERSION,
+  HISTORICAL_NODE_R2_V3_DETECTOR_VERSIONS,
   HISTORICAL_NODE_R2_V3_METHODOLOGY_VERSION,
+  HISTORICAL_NODE_R2_V3_TRACKER_CATALOG,
+  HISTORICAL_NODE_R2_V4_ADBLOCK_ENGINE_VERSION,
+  HISTORICAL_NODE_R2_V4_DETECTOR_REGISTRY_DIGEST,
+  HISTORICAL_NODE_R2_V4_DETECTOR_REGISTRY_VERSION,
+  HISTORICAL_NODE_R2_V4_DETECTOR_VERSIONS,
+  HISTORICAL_NODE_R2_V4_METHODOLOGIES_BY_NORMALIZATION,
+  HISTORICAL_NODE_R2_V4_METHODOLOGY_VERSION,
+  HISTORICAL_NODE_R2_V4_PLAYWRIGHT_1_62_METHODOLOGY_VERSION,
+  HISTORICAL_NODE_R2_V4_TRACKER_CATALOG,
   NODE_R2_PUBLIC_LIMITS
 } from "./scan-report-v2-r2-producer-contract";
 import type { ScanRunV2R2 } from "./scan-report-v2-r2";
@@ -39,6 +50,23 @@ import type { ScanRunV2R2 } from "./scan-report-v2-r2";
 const LEGACY_NODE_NORMALIZATION = [
   ...MIGRATABLE_REDACTION_V3_NORMALIZATIONS["node-playwright"]
 ][0];
+
+test("a committed historical Node v3 report remains readable after producer epochs advance", () => {
+  const reportId = "20260714-be94cc2d911e26d027950a336147917e";
+  const reportContents = readFileSync(path.join(process.cwd(), "public", "reports", `${reportId}.json`), "utf8");
+  const sidecarContents = readFileSync(
+    path.join(process.cwd(), "public", "reports", `${reportId}.provenance.json`),
+    "utf8"
+  );
+  const sidecar = JSON.parse(sidecarContents) as { createdAt: string; expiresAt: string | null };
+  const read = readManagedReport({
+    reportId,
+    reportContents,
+    sidecarContents,
+    retention: { createdAt: sidecar.createdAt, expiresAt: sidecar.expiresAt }
+  });
+  assert.equal(read.ok, true);
+});
 
 function markHistoricalNodeV3(run: ScanRunV2R2): void {
   run.privacy.redactionVersion = MIGRATABLE_REDACTION_VERSION;
@@ -48,6 +76,10 @@ function markHistoricalNodeV3(run: ScanRunV2R2): void {
     version: HISTORICAL_NODE_R2_V3_DETECTOR_REGISTRY_VERSION,
     digest: HISTORICAL_NODE_R2_V3_DETECTOR_REGISTRY_DIGEST
   };
+  run.toolchain.trackerCatalog = { ...HISTORICAL_NODE_R2_V3_TRACKER_CATALOG };
+  for (const id of Object.keys(run.detectors) as Array<keyof typeof run.detectors>) {
+    run.detectors[id] = { ...run.detectors[id], version: HISTORICAL_NODE_R2_V3_DETECTOR_VERSIONS[id] };
+  }
   if (run.toolchain.adblock !== null) {
     run.toolchain.adblock.engineVersion = HISTORICAL_NODE_R2_V3_ADBLOCK_ENGINE_VERSION;
   }
@@ -102,7 +134,7 @@ function comprehensiveLegacyV3Report() {
   run.conditions.probes.policyVisit = true;
   run.phases.push({ phaseId: 1, kind: "policy-analysis", startedAtMs: 5_000, endedAtMs: 5_100 });
   run.detectors["privacy-policy"] = {
-    version: DETECTOR_VERSIONS["privacy-policy"],
+    version: HISTORICAL_NODE_R2_V3_DETECTOR_VERSIONS["privacy-policy"],
     status: "complete",
     phaseId: 1
   };
@@ -411,32 +443,76 @@ test("mixed versions and unreviewed v3 normalization identities fail closed", ()
   );
 });
 
-test("a superseded normalization still reads, keeps its own identity, and admits nothing else", () => {
+test("every superseded normalization reads only with its pinned historical producer epoch", () => {
   // Widening the sanitizer's admitted strings retires an identity without
   // invalidating a single published byte: everything the narrower pass emitted
   // is still a fixed point. Those reports must keep reading, and must keep
   // declaring the vocabulary they were actually sanitized under.
-  const superseded = [...SUPERSEDED_R2_NORMALIZATIONS["node-playwright"]][0];
+  assert.deepEqual(
+    Object.keys(HISTORICAL_NODE_R2_V4_METHODOLOGIES_BY_NORMALIZATION).sort(),
+    [...SUPERSEDED_R2_NORMALIZATIONS["node-playwright"]].sort()
+  );
+  const dualMethodologyNormalization = Object.entries(
+    HISTORICAL_NODE_R2_V4_METHODOLOGIES_BY_NORMALIZATION
+  ).find(([normalization]) => normalization.includes("61319540712ac2cf0c4851669a5a2fddbe96305b885818269808bd5706632f3a"));
+  assert.deepEqual(dualMethodologyNormalization?.[1], [
+    HISTORICAL_NODE_R2_V4_METHODOLOGY_VERSION,
+    HISTORICAL_NODE_R2_V4_PLAYWRIGHT_1_62_METHODOLOGY_VERSION
+  ]);
+  for (const superseded of SUPERSEDED_R2_NORMALIZATIONS["node-playwright"]) {
+    assert.notEqual(superseded, NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION);
+    const historicalMethodologies = HISTORICAL_NODE_R2_V4_METHODOLOGIES_BY_NORMALIZATION[superseded];
+    assert.notEqual(historicalMethodologies, undefined);
+    for (const historicalMethodology of historicalMethodologies!) {
+      const report = makePublicSingleReportV2R2();
+      for (const run of r2ReportRuns(report)) {
+        run.privacy.redactionVersion = REDACTION_VERSION;
+        run.toolchain.normalizationVersion = superseded;
+        run.provenance.methodologyVersion = historicalMethodology;
+        run.provenance.detectorRegistry = {
+          version: HISTORICAL_NODE_R2_V4_DETECTOR_REGISTRY_VERSION,
+          digest: HISTORICAL_NODE_R2_V4_DETECTOR_REGISTRY_DIGEST
+        };
+        run.toolchain.trackerCatalog = { ...HISTORICAL_NODE_R2_V4_TRACKER_CATALOG };
+        if (run.toolchain.adblock !== null) {
+          run.toolchain.adblock.engineVersion = HISTORICAL_NODE_R2_V4_ADBLOCK_ENGINE_VERSION;
+        }
+        for (const id of Object.keys(run.detectors) as Array<keyof typeof run.detectors>) {
+          run.detectors[id] = { ...run.detectors[id], version: HISTORICAL_NODE_R2_V4_DETECTOR_VERSIONS[id] };
+        }
+        run.fingerprints = buildFingerprints({
+          conditions: run.conditions,
+          provenance: run.provenance,
+          toolchain: run.toolchain,
+          detectors: run.detectors
+        });
+      }
+
+      const redacted = redactPublicScanReportV2R2(structuredClone(report));
+      for (const run of r2ReportRuns(redacted)) {
+        assert.equal(run.toolchain.normalizationVersion, superseded);
+      }
+      assert.equal(JSON.stringify(redactPublicScanReportV2R2(redacted)), JSON.stringify(redacted));
+    }
+  }
+
+  const [superseded] = SUPERSEDED_R2_NORMALIZATIONS["node-playwright"];
   assert.notEqual(superseded, undefined);
-  assert.notEqual(superseded, NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION);
 
-  const report = makePublicSingleReportV2R2();
-  for (const run of r2ReportRuns(report)) {
-    run.privacy.redactionVersion = REDACTION_VERSION;
-    run.toolchain.normalizationVersion = superseded;
-    run.fingerprints = buildFingerprints({
-      conditions: run.conditions,
-      provenance: run.provenance,
-      toolchain: run.toolchain,
-      detectors: run.detectors
-    });
-  }
-
-  const redacted = redactPublicScanReportV2R2(structuredClone(report));
-  for (const run of r2ReportRuns(redacted)) {
-    assert.equal(run.toolchain.normalizationVersion, superseded);
-  }
-  assert.equal(JSON.stringify(redactPublicScanReportV2R2(redacted)), JSON.stringify(redacted));
+  // A fresh producer fixture relabeled with an old sanitizer identity is a
+  // mixed epoch, not a historical report, and must fail closed.
+  const mixedEpoch = makePublicSingleReportV2R2();
+  mixedEpoch.run.toolchain.normalizationVersion = superseded!;
+  mixedEpoch.run.fingerprints = buildFingerprints({
+    conditions: mixedEpoch.run.conditions,
+    provenance: mixedEpoch.run.provenance,
+    toolchain: mixedEpoch.run.toolchain,
+    detectors: mixedEpoch.run.detectors
+  });
+  assert.throws(
+    () => redactPublicScanReportV2R2(mixedEpoch),
+    (error: unknown) => error instanceof R2RedactionRemediationError
+  );
 
   const forged = makePublicSingleReportV2R2();
   for (const run of r2ReportRuns(forged)) {

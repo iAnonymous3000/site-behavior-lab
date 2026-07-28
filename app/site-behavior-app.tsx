@@ -749,13 +749,13 @@ function HomepageFeaturedGallery({ groups }: { groups: HomepageFeaturedGroup[] }
 }
 
 const SCAN_CHECKS: { icon: typeof Eye; label: string; question: string }[] = [
-  { icon: Radar, label: "Ad & tracking services", question: "Which advertising and analytics companies received requests?" },
-  { icon: Cookie, label: "Third-party cookies", question: "Cookies that can recognize you across other sites?" },
-  { icon: Network, label: "Named platforms", question: "Did data go to Google, Meta, TikTok, or X?" },
-  { icon: Radar, label: "Google Analytics remarketing", question: "Is Google Analytics also feeding ad-remarketing audiences?" },
-  { icon: Fingerprint, label: "Fingerprint-like API calls", question: "Calls to canvas, WebGL, or audio APIs used for device recognition?" },
-  { icon: Eye, label: "Session-replay vendors", question: "Known session-recording tools present on the page?" },
-  { icon: Keyboard, label: "Keystroke capture", question: "Is what you type into a form sent to a third party?" }
+  { icon: Radar, label: "Catalogued services", question: "Which advertising or analytics service domains had requests dispatched?" },
+  { icon: Cookie, label: "Third-party cookie records", question: "Which cookie records crossed the site's registrable-domain boundary?" },
+  { icon: Network, label: "Named platforms", question: "Were requests dispatched to catalogued Google, Meta, TikTok, or X domains?" },
+  { icon: Radar, label: "Google Analytics remarketing", question: "Did the scan see the Analytics-to-DoubleClick request marker?" },
+  { icon: Fingerprint, label: "Fingerprint-like API calls", question: "Did canvas, WebGL, or audio behavior cross a documented heuristic threshold?" },
+  { icon: Eye, label: "Session-replay signals", question: "Did a catalogued service appear or broad interaction listeners register?" },
+  { icon: Keyboard, label: "Synthetic input check", question: "Did the test value appear in a cross-site request before form submission?" }
 ];
 
 function LoadingState({
@@ -841,7 +841,9 @@ function LoadingState({
       </ul>
       <p className="scan-checks-note">
         Keystroke capture is tested by typing a synthetic value into the page&rsquo;s form fields (never submitting) and
-        watching for it to be sent off-site. It covers fields on the loaded page, not flows behind login or extra steps.
+        watching for it to appear in a request to another registrable domain during typing, blur, or unload. A match
+        proves that synthetic value crossed the domain boundary, not why it was sent. It covers fields on the loaded
+        page, not flows behind login or extra steps.
       </p>
     </section>
   );

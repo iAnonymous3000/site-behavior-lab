@@ -1,4 +1,8 @@
 import type { ComparisonScanResult, ScanResult } from "./types";
+import {
+  PAGE_SUBJECT_UNVERIFIED_WARNING,
+  SUSPECTED_CHALLENGE_OR_SOFT_BLOCK_WARNING
+} from "./bot-wall-classifier";
 import { legacyV1MethodologyIdentity } from "./legacy-methodology";
 
 /**
@@ -38,6 +42,10 @@ const UPLOAD_BYTE_CAP_WARNING_FRAGMENT = "stopped forwarding additional request 
 // fragments to the producer's exact warning vocabulary.
 const GPC_WORKER_CAPTURE_LOSS_WARNING_FRAGMENT = "Web Workers while applying the simulated GPC signal";
 const FINGERPRINT_OBSERVER_WARNING_FRAGMENT = "in-page fingerprint observer could not read one or more frames";
+const PIXEL_DECODE_WARNING_FRAGMENT =
+  "recognized advertising-pixel request bodies could not be read in full";
+const KEYSTROKE_PROBE_INCOMPLETE_WARNING_FRAGMENT =
+  "synthetic form-input probe ended before it finished";
 const INVALID_UPSTREAM_RESPONSE_WARNING_FRAGMENT = "scan proxy rejected one or more invalid upstream responses";
 const UNSETTLED_ROUTED_REQUEST_WARNING_FRAGMENT =
   "still being handled, so this visit's request evidence is incomplete";
@@ -59,6 +67,16 @@ export function comparisonEligibility(report: ComparisonScanResult): ComparisonE
     // recorded HTTP status cannot be proven to have loaded the real site.
     if (status === null || status === undefined) {
       reasons.push(`The "${label}" visit recorded no HTTP status, so a successful load cannot be proven.`);
+    }
+    if (runHitSuspectedChallengeOrSoftBlock(run)) {
+      reasons.push(
+        `The "${label}" visit showed a suspected challenge, robot check, or blocking consent interstitial, not a trustworthy normal page load.`
+      );
+    }
+    if (runHitPageSubjectUnverified(run)) {
+      reasons.push(
+        `The "${label}" visit could not verify that the rendered document was the requested page, so its evidence cannot support a comparison.`
+      );
     }
     if (runHitRequestCap(run)) {
       reasons.push(
@@ -82,6 +100,9 @@ export function comparisonEligibility(report: ComparisonScanResult): ComparisonE
     }
     if (runHitUnsettledRoutedRequests(run)) {
       reasons.push(`The "${label}" visit reached its scan deadline with requests still being handled, so its request evidence is incomplete.`);
+    }
+    if (runHitKeystrokeProbeCaptureLoss(run)) {
+      reasons.push(`The "${label}" visit ended its synthetic form-input probe before it finished, so its request evidence is incomplete.`);
     }
   }
 
@@ -356,6 +377,16 @@ export function runHitRequestCap(run: ScanResult): boolean {
   return run.warnings.some((warning) => warning.includes(REQUEST_CAP_WARNING_FRAGMENT));
 }
 
+/** V1's stable compatibility fact for a successful-status soft block. */
+export function runHitSuspectedChallengeOrSoftBlock(run: ScanResult): boolean {
+  return run.warnings.includes(SUSPECTED_CHALLENGE_OR_SOFT_BLOCK_WARNING);
+}
+
+/** V1's stable compatibility fact for an unavailable page-subject collector. */
+export function runHitPageSubjectUnverified(run: ScanResult): boolean {
+  return run.warnings.includes(PAGE_SUBJECT_UNVERIFIED_WARNING);
+}
+
 export function runHitResponseByteCap(run: ScanResult): boolean {
   return run.warnings.some((warning) => warning.includes(RESPONSE_BYTE_CAP_WARNING_FRAGMENT));
 }
@@ -404,6 +435,19 @@ export function runHitFingerprintObserverCaptureLoss(run: Pick<ScanResult, "warn
   return run.warnings.some((warning) => warning.includes(FINGERPRINT_OBSERVER_WARNING_FRAGMENT));
 }
 
+/**
+ * Whether a legacy run failed to read every recognized pixel request body.
+ * This is detector-output loss only: request counts and other observers remain
+ * independently usable.
+ */
+export function runHitPixelDecodeCaptureLoss(run: Pick<ScanResult, "warnings">): boolean {
+  return run.warnings.some((warning) => warning.includes(PIXEL_DECODE_WARNING_FRAGMENT));
+}
+
+export function runHitKeystrokeProbeCaptureLoss(run: Pick<ScanResult, "warnings">): boolean {
+  return run.warnings.some((warning) => warning.includes(KEYSTROKE_PROBE_INCOMPLETE_WARNING_FRAGMENT));
+}
+
 export function runRequestEvidenceCapped(run: ScanResult): boolean {
   return (
     runHitRequestCap(run) ||
@@ -411,6 +455,7 @@ export function runRequestEvidenceCapped(run: ScanResult): boolean {
     runHitUploadByteCap(run) ||
     runHitGpcWorkerCaptureLoss(run) ||
     runHitInvalidUpstreamResponseCaptureLoss(run) ||
+    runHitKeystrokeProbeCaptureLoss(run) ||
     runHitProxyTrafficBudget(run) ||
     runHitUnsettledRoutedRequests(run)
   );

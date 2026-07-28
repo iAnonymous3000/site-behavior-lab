@@ -30,7 +30,9 @@ import {
   HISTORICAL_NODE_R2_V3_ADBLOCK_ENGINE_VERSION,
   HISTORICAL_NODE_R2_V3_DETECTOR_REGISTRY_DIGEST,
   HISTORICAL_NODE_R2_V3_DETECTOR_REGISTRY_VERSION,
-  HISTORICAL_NODE_R2_V3_METHODOLOGY_VERSION
+  HISTORICAL_NODE_R2_V3_DETECTOR_VERSIONS,
+  HISTORICAL_NODE_R2_V3_METHODOLOGY_VERSION,
+  HISTORICAL_NODE_R2_V3_TRACKER_CATALOG
 } from "./scan-report-v2-r2-producer-contract";
 import type { ScanRunV2R2 } from "./scan-report-v2-r2";
 
@@ -612,6 +614,10 @@ function markHistoricalNodeV3(run: ScanRunV2R2): void {
     version: HISTORICAL_NODE_R2_V3_DETECTOR_REGISTRY_VERSION,
     digest: HISTORICAL_NODE_R2_V3_DETECTOR_REGISTRY_DIGEST
   };
+  run.toolchain.trackerCatalog = { ...HISTORICAL_NODE_R2_V3_TRACKER_CATALOG };
+  for (const id of Object.keys(run.detectors) as Array<keyof typeof run.detectors>) {
+    run.detectors[id] = { ...run.detectors[id], version: HISTORICAL_NODE_R2_V3_DETECTOR_VERSIONS[id] };
+  }
   if (run.toolchain.adblock !== null) {
     run.toolchain.adblock.engineVersion = HISTORICAL_NODE_R2_V3_ADBLOCK_ENGINE_VERSION;
   }

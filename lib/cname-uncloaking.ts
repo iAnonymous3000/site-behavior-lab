@@ -81,18 +81,28 @@ export function classifyCnameCloak(
 
 export type CnameChainResolver = (host: string) => Promise<string[]>;
 
+export type CnameCloakResolution = {
+  cloaks: CnameCloak[];
+  /** Candidate hosts left unresolved because the caller's bounded lookup cap was reached. */
+  omittedCandidateCount: number;
+};
+
 /**
  * Resolve the first-party subdomains the page contacted and return those that are
  * actually CNAME-cloaked trackers. The DNS resolver is injected (the scanner
  * supplies `node:dns`; tests a fixture map) so this stays unit-testable. Bounded
- * by `maxHosts`; a resolution failure for one host is skipped, never thrown.
+ * by `maxHosts`; omitted candidates are returned as measurement loss instead of
+ * silently looking like a complete negative. A resolution failure for one host
+ * is skipped, never thrown.
  */
 export async function resolveCnameCloaks(
   requests: NetworkRequestRecord[],
   firstPartyDomain: string,
   deps: CnameCloakDeps & { resolveCnameChain: CnameChainResolver; maxHosts?: number }
-): Promise<CnameCloak[]> {
-  const candidates = cnameCloakCandidates(requests, firstPartyDomain, deps).slice(0, deps.maxHosts ?? 12);
+): Promise<CnameCloakResolution> {
+  const allCandidates = cnameCloakCandidates(requests, firstPartyDomain, deps);
+  const maxHosts = Math.max(0, Math.floor(deps.maxHosts ?? 12));
+  const candidates = allCandidates.slice(0, maxHosts);
   const cloaks: CnameCloak[] = [];
   const seen = new Set<string>();
 
@@ -111,7 +121,10 @@ export async function resolveCnameCloaks(
     }
   }
 
-  return cloaks;
+  return {
+    cloaks,
+    omittedCandidateCount: Math.max(0, allCandidates.length - candidates.length)
+  };
 }
 
 function normalizeHost(host: string): string {

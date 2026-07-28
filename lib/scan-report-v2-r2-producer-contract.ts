@@ -8,16 +8,20 @@ import {
 import { NODE_ADBLOCK_ENGINE_VERSION, NODE_SCANNER_METHODOLOGY_VERSION } from "./legacy-methodology";
 import { MAX_RECORDED_REQUESTS } from "./scan-runtime";
 import {
-  isReadableR2Normalization,
   MIGRATABLE_REDACTION_V3_NORMALIZATIONS,
-  REDACTION_V3_TO_V4_NORMALIZATION_SUFFIX
+  NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION,
+  PAGEGRAPH_R2_NORMALIZATION_VERSION,
+  REDACTION_V3_TO_V4_NORMALIZATION_SUFFIX,
+  SUPERSEDED_R2_NORMALIZATIONS
 } from "./scan-report-v2-normalization";
 import { canonicalJson } from "./scan-report-v2-fingerprints";
 import { sha256Hex } from "./sha256";
 import { trackerCatalogMetadata } from "./tracker-catalog";
 import {
   DETECTOR_IDS,
-  type DetectorLedger
+  type DetectorId,
+  type DetectorLedger,
+  type Toolchain
 } from "./scan-report-v2";
 import type { ScanRunV2R2 } from "./scan-report-v2-r2";
 
@@ -53,6 +57,52 @@ export const HISTORICAL_NODE_R2_V3_DETECTOR_REGISTRY_VERSION = "node-detectors-v
 export const HISTORICAL_NODE_R2_V3_DETECTOR_REGISTRY_DIGEST =
   "1961b4197b649b6eb8028f95a9f2f6b28973b7427178b23e661017da7ed0c7c4";
 export const HISTORICAL_NODE_R2_V3_ADBLOCK_ENGINE_VERSION = "adblock-rust-0.13.0";
+export const HISTORICAL_NODE_R2_V3_DETECTOR_VERSIONS = Object.freeze({
+  "fingerprint-heuristics": "fingerprint-observer@1",
+  "keystroke-exfiltration": "synthetic-sentinel@1",
+  "cname-uncloaking": "dns-cname-chain@1",
+  "pixel-events": "pixel-request-decoder@1",
+  "consent-banner": "consent-control-and-state@1",
+  "privacy-policy": "policy-text-cross-check@1"
+} satisfies Readonly<Record<DetectorId, string>>);
+export const HISTORICAL_R2_2026_06_TRACKER_CATALOG = Object.freeze({
+  source: "Hand-curated service catalog",
+  version: "hand-curated-2026.06",
+  entries: 133,
+  digest: "b7d4991063310a81b56342ca7ad949723e785704326179e1658335d7af2f88cf"
+} satisfies Toolchain["trackerCatalog"]);
+export const HISTORICAL_NODE_R2_V3_TRACKER_CATALOG = HISTORICAL_R2_2026_06_TRACKER_CATALOG;
+
+/**
+ * Exact producer epoch for the already-published v4 normalization identities
+ * retired by sanitizer-vocabulary widening. Git history pins each identity to
+ * its pre-detector-coverage Node release.
+ */
+export const HISTORICAL_NODE_R2_V4_METHODOLOGY_VERSION =
+  "shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.61.1+phase-kernel-v2+boundary-state-v1+consent-r2-v4+resource-budget-v1+proxy-traffic-v1+service-worker-block-v1";
+export const HISTORICAL_NODE_R2_V4_PLAYWRIGHT_1_62_METHODOLOGY_VERSION =
+  "shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.0+phase-kernel-v2+boundary-state-v1+consent-r2-v4+resource-budget-v1+proxy-traffic-v1+service-worker-block-v1";
+export const HISTORICAL_NODE_R2_V4_DETECTOR_REGISTRY_VERSION = "node-detectors-v2";
+export const HISTORICAL_NODE_R2_V4_DETECTOR_REGISTRY_DIGEST =
+  "1961b4197b649b6eb8028f95a9f2f6b28973b7427178b23e661017da7ed0c7c4";
+export const HISTORICAL_NODE_R2_V4_ADBLOCK_ENGINE_VERSION = "adblock-rust-0.13.2";
+export const HISTORICAL_NODE_R2_V4_DETECTOR_VERSIONS = HISTORICAL_NODE_R2_V3_DETECTOR_VERSIONS;
+export const HISTORICAL_NODE_R2_V4_TRACKER_CATALOG = HISTORICAL_NODE_R2_V3_TRACKER_CATALOG;
+export const HISTORICAL_NODE_R2_V4_METHODOLOGIES_BY_NORMALIZATION: Readonly<
+  Record<string, readonly string[]>
+> = Object.freeze({
+  "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:6e87d9833c274788638c00887eb2dc1f3edd6e45ea5137ac07871279b24ec40b+tldts@7.4.9+node-evidence-policy-v1+r2-http-status-compat-v1":
+    Object.freeze([HISTORICAL_NODE_R2_V4_METHODOLOGY_VERSION]),
+  "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:5b1fd8d09fed5a91b2f1e3a395a2a5a6794fc879f05f9eaea1b00652542cf0bd+tldts@7.4.9+node-evidence-policy-v1+r2-http-status-compat-v1":
+    Object.freeze([HISTORICAL_NODE_R2_V4_METHODOLOGY_VERSION]),
+  "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:61319540712ac2cf0c4851669a5a2fddbe96305b885818269808bd5706632f3a+tldts@7.4.9+node-evidence-policy-v1+r2-http-status-compat-v1":
+    Object.freeze([
+      HISTORICAL_NODE_R2_V4_METHODOLOGY_VERSION,
+      HISTORICAL_NODE_R2_V4_PLAYWRIGHT_1_62_METHODOLOGY_VERSION
+    ]),
+  "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:68c36f5132e92c25d024a23e201f931304ff9527063ac622f622e5955682bf23+tldts@7.4.9+node-evidence-policy-v1+r2-http-status-compat-v1":
+    Object.freeze([HISTORICAL_NODE_R2_V4_PLAYWRIGHT_1_62_METHODOLOGY_VERSION])
+});
 
 export const PAGEGRAPH_R2_DETECTOR_VERSION = "pagegraph-import-unsupported@1" as const;
 export const PAGEGRAPH_R2_DETECTOR_REGISTRY_VERSION = "pagegraph-import-detectors@1" as const;
@@ -104,22 +154,13 @@ export function assertR2ProducerContract(run: ScanRunV2R2): void {
 }
 
 function assertNodeProducerContract(run: ScanRunV2R2): void {
-  const historicalV3 = isHistoricalNodeV3Normalization(run.toolchain.normalizationVersion);
-  const expectedMethodology = historicalV3
-    ? HISTORICAL_NODE_R2_V3_METHODOLOGY_VERSION
-    : NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION;
-  const expectedRegistry = historicalV3
-    ? {
-        version: HISTORICAL_NODE_R2_V3_DETECTOR_REGISTRY_VERSION,
-        digest: HISTORICAL_NODE_R2_V3_DETECTOR_REGISTRY_DIGEST
-      }
-    : { version: DETECTOR_REGISTRY_VERSION, digest: DETECTOR_REGISTRY_DIGEST };
-  if (run.provenance.methodologyVersion !== expectedMethodology) {
+  const epoch = nodeProducerEpochForNormalization(run.toolchain.normalizationVersion);
+  if (!epoch.methodologyVersions.includes(run.provenance.methodologyVersion)) {
     throw new R2ProducerContractError("unknown Node methodology identity");
   }
   if (
-    run.provenance.detectorRegistry.version !== expectedRegistry.version ||
-    run.provenance.detectorRegistry.digest !== expectedRegistry.digest
+    run.provenance.detectorRegistry.version !== epoch.detectorRegistry.version ||
+    run.provenance.detectorRegistry.digest !== epoch.detectorRegistry.digest
   ) {
     throw new R2ProducerContractError("unknown Node detector registry identity");
   }
@@ -137,11 +178,10 @@ function assertNodeProducerContract(run: ScanRunV2R2): void {
   ) {
     throw new R2ProducerContractError("conditions are impossible for the Node producer");
   }
-  assertCurrentTrackerCatalog(run);
+  assertTrackerCatalog(run, epoch.trackerCatalog);
   if (run.toolchain.adblock !== null) {
     if (
-      run.toolchain.adblock.engineVersion !==
-        (historicalV3 ? HISTORICAL_NODE_R2_V3_ADBLOCK_ENGINE_VERSION : NODE_ADBLOCK_ENGINE_VERSION) ||
+      run.toolchain.adblock.engineVersion !== epoch.adblockEngineVersion ||
       !Number.isSafeInteger(run.toolchain.adblock.lists) ||
       run.toolchain.adblock.lists <= 0 ||
       !/^[0-9a-f]{64}$/.test(run.toolchain.adblock.manifestDigest) ||
@@ -150,7 +190,7 @@ function assertNodeProducerContract(run: ScanRunV2R2): void {
       throw new R2ProducerContractError("invalid Node adblock toolchain identity");
     }
   }
-  assertNodeDetectorLedger(run.detectors);
+  assertNodeDetectorLedger(run.detectors, epoch.detectorVersions);
   assertAtMost("phases", run.phases.length, NODE_R2_PUBLIC_LIMITS.phases);
   assertAtMost("warnings", run.warnings.length, NODE_R2_PUBLIC_LIMITS.warnings);
   assertAtMost("requests", run.evidence.requests.length, NODE_R2_PUBLIC_LIMITS.requests);
@@ -200,14 +240,53 @@ function isHistoricalNodeV3Normalization(normalization: string): boolean {
       return true;
     }
   }
-  // Every non-historical Node report must carry an identity this generation
-  // reviewed: the active one, or one it superseded by widening the sanitizer's
-  // admitted strings. The sanitizer repeats this check, but the producer
-  // contract must not select the active identity for an arbitrary string.
-  if (!isReadableR2Normalization("node-playwright", normalization)) {
-    throw new R2ProducerContractError("unknown Node normalization identity");
-  }
   return false;
+}
+
+type NodeProducerEpoch = {
+  methodologyVersions: readonly string[];
+  detectorRegistry: { version: string; digest: string };
+  detectorVersions: Readonly<Record<DetectorId, string>>;
+  trackerCatalog: Toolchain["trackerCatalog"];
+  adblockEngineVersion: string;
+};
+
+function nodeProducerEpochForNormalization(normalization: string): NodeProducerEpoch {
+  if (isHistoricalNodeV3Normalization(normalization)) {
+    return {
+      methodologyVersions: [HISTORICAL_NODE_R2_V3_METHODOLOGY_VERSION],
+      detectorRegistry: {
+        version: HISTORICAL_NODE_R2_V3_DETECTOR_REGISTRY_VERSION,
+        digest: HISTORICAL_NODE_R2_V3_DETECTOR_REGISTRY_DIGEST
+      },
+      detectorVersions: HISTORICAL_NODE_R2_V3_DETECTOR_VERSIONS,
+      trackerCatalog: HISTORICAL_NODE_R2_V3_TRACKER_CATALOG,
+      adblockEngineVersion: HISTORICAL_NODE_R2_V3_ADBLOCK_ENGINE_VERSION
+    };
+  }
+  const historicalV4Methodologies = HISTORICAL_NODE_R2_V4_METHODOLOGIES_BY_NORMALIZATION[normalization];
+  if (historicalV4Methodologies !== undefined) {
+    return {
+      methodologyVersions: historicalV4Methodologies,
+      detectorRegistry: {
+        version: HISTORICAL_NODE_R2_V4_DETECTOR_REGISTRY_VERSION,
+        digest: HISTORICAL_NODE_R2_V4_DETECTOR_REGISTRY_DIGEST
+      },
+      detectorVersions: HISTORICAL_NODE_R2_V4_DETECTOR_VERSIONS,
+      trackerCatalog: HISTORICAL_NODE_R2_V4_TRACKER_CATALOG,
+      adblockEngineVersion: HISTORICAL_NODE_R2_V4_ADBLOCK_ENGINE_VERSION
+    };
+  }
+  if (normalization === NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION) {
+    return {
+      methodologyVersions: [NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION],
+      detectorRegistry: { version: DETECTOR_REGISTRY_VERSION, digest: DETECTOR_REGISTRY_DIGEST },
+      detectorVersions: DETECTOR_VERSIONS,
+      trackerCatalog: currentTrackerCatalogIdentity(),
+      adblockEngineVersion: NODE_ADBLOCK_ENGINE_VERSION
+    };
+  }
+  throw new R2ProducerContractError("unknown Node normalization identity");
 }
 
 function assertPageGraphProducerContract(run: ScanRunV2R2): void {
@@ -238,7 +317,7 @@ function assertPageGraphProducerContract(run: ScanRunV2R2): void {
   ) {
     throw new R2ProducerContractError("conditions or verification facts are impossible for PageGraph");
   }
-  assertCurrentTrackerCatalog(run);
+  assertTrackerCatalog(run, pageGraphTrackerCatalogForNormalization(run.toolchain.normalizationVersion));
   if (
     run.phases.length !== 1 ||
     run.phases[0].phaseId !== 0 ||
@@ -263,10 +342,13 @@ function assertPageGraphProducerContract(run: ScanRunV2R2): void {
   }
 }
 
-function assertNodeDetectorLedger(detectors: DetectorLedger): void {
+function assertNodeDetectorLedger(
+  detectors: DetectorLedger,
+  expectedVersions: Readonly<Record<DetectorId, string>>
+): void {
   for (const id of DETECTOR_IDS) {
     const entry = detectors[id];
-    if (entry.version !== DETECTOR_VERSIONS[id]) {
+    if (entry.version !== expectedVersions[id]) {
       throw new R2ProducerContractError(`unknown Node detector version for ${id}`);
     }
     if (entry.reason !== undefined && !isDetectorReasonCode(entry.reason)) {
@@ -282,13 +364,33 @@ function assertNodeDetectorLedger(detectors: DetectorLedger): void {
   }
 }
 
-function assertCurrentTrackerCatalog(run: ScanRunV2R2): void {
-  const expected = {
+function currentTrackerCatalogIdentity(): Toolchain["trackerCatalog"] {
+  return {
     source: trackerCatalogMetadata.source,
     version: trackerCatalogMetadata.version,
     entries: trackerCatalogMetadata.entries,
     digest: trackerCatalogMetadata.digest
   };
+}
+
+function pageGraphTrackerCatalogForNormalization(normalization: string): Toolchain["trackerCatalog"] {
+  if (
+    SUPERSEDED_R2_NORMALIZATIONS["pagegraph-import"].has(normalization) ||
+    [...MIGRATABLE_REDACTION_V3_NORMALIZATIONS["pagegraph-import"]].some(
+      (source) =>
+        normalization === source ||
+        normalization === `${source}+${REDACTION_V3_TO_V4_NORMALIZATION_SUFFIX}`
+    )
+  ) {
+    return HISTORICAL_R2_2026_06_TRACKER_CATALOG;
+  }
+  if (normalization === PAGEGRAPH_R2_NORMALIZATION_VERSION) {
+    return currentTrackerCatalogIdentity();
+  }
+  throw new R2ProducerContractError("unknown PageGraph normalization identity");
+}
+
+function assertTrackerCatalog(run: ScanRunV2R2, expected: Toolchain["trackerCatalog"]): void {
   if (canonicalJson(run.toolchain.trackerCatalog) !== canonicalJson(expected)) {
     throw new R2ProducerContractError("unknown tracker catalog identity");
   }

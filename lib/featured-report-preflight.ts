@@ -1,5 +1,11 @@
 import { FULL_GIT_SHA } from "./build-provenance";
-import { resolveScannerEgressRegion, SCANNER_EGRESS_REGION_ENV } from "./scanner-egress";
+import {
+  CONTROLLED_SCANNER_EGRESS_ALIAS,
+  resolveScannerEgressLabel,
+  resolveScannerEgressRegion,
+  SCANNER_EGRESS_LABEL_ENV,
+  SCANNER_EGRESS_REGION_ENV
+} from "./scanner-egress";
 
 export type FeaturedReportMode = "v1" | "r2";
 
@@ -103,7 +109,20 @@ export function featuredReportPreflight(input: FeaturedReportPreflightInput): Fe
     };
   }
 
-  const egressLabel = requiredText(input.egressLabel, "SITE_BEHAVIOR_LAB_SCANNER_EGRESS", 120);
+  const configuredEgressLabel = requiredText(input.egressLabel, SCANNER_EGRESS_LABEL_ENV, 120);
+  const egressLabelResolution = resolveScannerEgressLabel({
+    NODE_ENV: process.env.NODE_ENV,
+    [SCANNER_EGRESS_LABEL_ENV]: configuredEgressLabel
+  });
+  if (
+    configuredEgressLabel !== CONTROLLED_SCANNER_EGRESS_ALIAS ||
+    egressLabelResolution.status !== "aliased"
+  ) {
+    throw new Error(
+      `${SCANNER_EGRESS_LABEL_ENV} must be ${CONTROLLED_SCANNER_EGRESS_ALIAS} for committed r2 production; the report uses a generic public label and records the operator-attested location in ${SCANNER_EGRESS_REGION_ENV}.`
+    );
+  }
+  const publicEgressLabel = egressLabelResolution.value;
   const runnerEnvironment = requiredText(input.runnerEnvironment, "RUNNER_ENVIRONMENT");
   if (runnerEnvironment !== "github-hosted" && runnerEnvironment !== "self-hosted") {
     throw new Error("RUNNER_ENVIRONMENT must identify either github-hosted or self-hosted execution.");
@@ -122,11 +141,6 @@ export function featuredReportPreflight(input: FeaturedReportPreflightInput): Fe
   if (runnerEnvironment !== "self-hosted") {
     throw new Error(
       "Committed r2 production requires a self-hosted runner with stable declared egress; GitHub-hosted runner placement is not a truthful comparison region. Configure FEATURED_RUNNER_LABEL for a controlled self-hosted runner; v1 is available only through the explicit manual compatibility lane."
-    );
-  }
-  if (egressLabel === "github-actions-ubuntu") {
-    throw new Error(
-      "Committed r2 production on a self-hosted runner requires an explicit SCANNER_EGRESS label; the GitHub-hosted default label is not accepted."
     );
   }
   if (!egressRegion || egressRegion.toLowerCase() === "unknown") {
@@ -156,7 +170,7 @@ export function featuredReportPreflight(input: FeaturedReportPreflightInput): Fe
       `Exact scanner source: ${checkoutCommit}.`,
       "Consent-state verification: enabled and required before scan admission.",
       "Chromium renderer sandbox: required.",
-      `${comparison ? "Comparison" : "Single-run"} egress: operator-attested self-hosted ${egressLabel} (${egressRegion}).`,
+      `${comparison ? "Comparison" : "Single-run"} egress: operator-attested self-hosted lane ${configuredEgressLabel}; public label ${publicEgressLabel}; region ${egressRegion}.`,
       "r2 scan generation does not rewrite existing report bytes; the separate retention process may delete unpinned reports."
     ],
     warnings: []

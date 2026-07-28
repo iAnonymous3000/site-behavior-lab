@@ -21,13 +21,13 @@ export const RUN_MODE_TITLES: Record<RunMode, string> = {
 
 export function runModeHint(mode: RunMode): string {
   if (mode === "shields") {
-    return "Visits the page twice: once normally, then once with Brave's ad-block engine and Shields' default filter lists actively blocking, a simulation of Brave Shields inside this scanner's browser (not a live Brave visit), to show what changes with blocking on.";
+    return "Visits the page twice: once normally, then once with Brave's ad-block engine and Shields' default filter lists actively blocking, a simulation of Brave Shields inside this scanner's browser (not a live Brave visit). The report shows the difference between this one pair of visits; it does not treat that difference as a causal blocking rate.";
   }
   if (mode === "gpc") {
-    return 'Visits the page twice: once normally, then once sending Global Privacy Control (GPC), a legal "do not sell or share my data" signal, to show whether the site reacts.';
+    return 'Visits the page twice: once normally, then once sending Global Privacy Control (GPC), a legal "do not sell or share my data" signal. The report shows the difference between this one pair of visits; request counts cannot prove that the site received or honored the signal.';
   }
   if (mode === "consent") {
-    return 'Visits the page twice: once clicking "Accept all" on the cookie/consent banner and once clicking "Reject all", to show what differed between the two visits. If no banner control is found, that visit stays pre-consent and the report says so.';
+    return 'Visits the page twice: once clicking "Accept all" on the cookie/consent banner and once clicking "Reject all", to show the observed difference between this one pair of visits. If no banner control is found, that visit stays pre-consent and the report says so.';
   }
   return "One controlled visit that records the requests, cookies, and scripts the page loads, up to a recording cap that is flagged when hit.";
 }

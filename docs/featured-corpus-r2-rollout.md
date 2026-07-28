@@ -37,8 +37,9 @@ Use a controlled runner whose outbound placement is stable and independently
 known. Configure these repository Actions variables:
 
 - `FEATURED_RUNNER_LABEL`: the custom label of that self-hosted runner.
-- `SCANNER_EGRESS`: a truthful stable egress identifier, not the default
-  `github-actions-ubuntu` label.
+- `SCANNER_EGRESS=controlled-self-hosted`: this configuration-only alias emits
+  the generic public report label. The location-specific identity belongs in
+  the region field below; every other label fails committed-r2 preflight.
 - `SCANNER_EGRESS_REGION`: the truthful stable outbound region.
 - `FEATURED_R2_EGRESS_ATTESTED=1`: explicit operator confirmation
   that the preceding two values describe the runner's actual network path.

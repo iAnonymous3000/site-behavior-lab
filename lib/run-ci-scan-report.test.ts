@@ -2,6 +2,10 @@ import assert from "node:assert/strict";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { test } from "node:test";
+import {
+  PAGE_SUBJECT_UNVERIFIED_WARNING,
+  SUSPECTED_CHALLENGE_OR_SOFT_BLOCK_WARNING
+} from "./bot-wall-classifier";
 import { createGpcComparisonReport } from "./compare-reports";
 import { makeSupportingPairInterventionReportV2R2 } from "./scan-report-v2-r2-fixtures";
 import { makePublicSingleReportV2, makeScanReportV1 } from "./scan-report-v2-fixtures";
@@ -106,6 +110,20 @@ test("the CI report gate rejects HTTP error pages even with an unrecognized titl
   legacyHealthy.summary.status = 200;
   legacyHealthy.summary.totalRequests = 5;
   assert.equal(botBlockReason(legacyHealthy), null, "a healthy v1 run remains publishable");
+
+  const legacySoftBlock = structuredClone(legacyHealthy);
+  legacySoftBlock.warnings.push(SUSPECTED_CHALLENGE_OR_SOFT_BLOCK_WARNING);
+  assert.match(
+    botBlockReason(legacySoftBlock) ?? "",
+    /^single run: report recorded a suspected challenge or soft block$/
+  );
+
+  const legacyUnverifiedSubject = structuredClone(legacyHealthy);
+  legacyUnverifiedSubject.warnings.push(PAGE_SUBJECT_UNVERIFIED_WARNING);
+  assert.match(
+    botBlockReason(legacyUnverifiedSubject) ?? "",
+    /^single run: report could not verify the rendered page subject$/
+  );
 
   const legacyForbidden = structuredClone(legacyHealthy);
   legacyForbidden.summary.pageTitle = "Forbidden";

@@ -19,7 +19,7 @@ function input(overrides: Partial<FeaturedReportPreflightInput> = {}): FeaturedR
     compareShields: "false",
     compareConsent: "false",
     runnerEnvironment: "github-hosted",
-    egressLabel: "github-actions-ubuntu",
+    egressLabel: "controlled-self-hosted",
     egressRegion: "",
     egressAttested: "",
     chromiumSandbox: "1",
@@ -36,13 +36,13 @@ test("automated r2 production rejects GitHub-hosted placement instead of falling
 });
 
 test("r2 requires a controlled region and explicit operator attestation", () => {
-  const selfHosted = { runnerEnvironment: "self-hosted", egressLabel: "controlled-egress" };
+  const selfHosted = { runnerEnvironment: "self-hosted", egressLabel: "controlled-self-hosted" };
   assert.throws(
     () => featuredReportPreflight(input(selfHosted)),
     /requires SITE_BEHAVIOR_LAB_SCANNER_EGRESS_REGION/
   );
   assert.throws(
-    () => featuredReportPreflight(input({ ...selfHosted, egressLabel: "controlled-egress", egressRegion: "iad-egress-1" })),
+    () => featuredReportPreflight(input({ ...selfHosted, egressRegion: "iad-egress-1" })),
     /FEATURED_R2_EGRESS_ATTESTED=1/
   );
 
@@ -78,6 +78,33 @@ test("r2 rejects malformed egress declarations before scanning", () => {
     () => featuredReportPreflight(input({ egressLabel: `scanner${String.fromCharCode(0)}other` })),
     /contain no control characters/
   );
+  assert.throws(
+    () =>
+      featuredReportPreflight(
+        input({
+          runnerEnvironment: "self-hosted",
+          egressLabel: "controlled-egress",
+          egressRegion: "iad-egress-1",
+          egressAttested: "1"
+        })
+      ),
+    /must be controlled-self-hosted/
+  );
+  for (const egressLabel of ["this scanner instance", "test", "docker-smoke"]) {
+    assert.throws(
+      () =>
+        featuredReportPreflight(
+          input({
+            runnerEnvironment: "self-hosted",
+            egressLabel,
+            egressRegion: "iad-egress-1",
+            egressAttested: "1"
+          })
+        ),
+      /must be controlled-self-hosted/,
+      egressLabel
+    );
+  }
 });
 
 test("all committed report acquisition requires the Chromium renderer sandbox", () => {

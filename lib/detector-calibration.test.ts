@@ -2,27 +2,47 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
   analyzeDetectorCalibrationStudy,
+  currentDetectorCalibrationReleaseIdentity,
+  detectorCalibrationImplementationDigest,
   detectorCalibrationReadiness,
+  detectorCalibrationRuntimeDigest,
   detectorCalibrationStudyIssues,
   DETECTOR_CALIBRATION_ANALYSIS_VERSION,
+  type DetectorCalibrationAnalysisContext,
+  type DetectorCalibrationCase,
+  type DetectorCalibrationRuntimeIdentity,
   type DetectorCalibrationStudy
 } from "./detector-calibration";
-import { DETECTOR_REGISTRY_VERSION, DETECTOR_VERSIONS } from "./measurement-kernel";
+import { sha256Hex } from "./sha256";
+
+const BUILD_COMMIT = "a".repeat(40);
+const EXPECTED_RUNTIME = runtimeIdentity();
+const ANALYSIS_CONTEXT: DetectorCalibrationAnalysisContext = {
+  expectedBuildCommit: BUILD_COMMIT,
+  expectedRuntimeDigest: EXPECTED_RUNTIME.runtimeDigest
+};
 
 test("acceptance fixtures remain explicitly separate from calibration evidence", () => {
   assert.deepEqual(detectorCalibrationReadiness(), {
     status: "external-labeled-corpus-required",
     acceptanceFixtureCases: 18,
+    acceptanceFixturesExcludedFromCalibration: true,
     calibrationStudies: 0,
     labeledCalibrationCases: 0,
     calibrationRateClaimsAvailable: false,
+    studySchema: "detector-calibration-study.v1",
+    studySchemaPath: "/schemas/detector-calibration-study.v1.schema.json",
+    releaseIdentityGate:
+      "Eligibility requires the exact build commit, detector implementation and registry digests, methodology, normalization, tracker-catalog revision, Brave-list revision, and an independently pinned runtime-identity digest.",
+    labelProvenanceGate:
+      "Every complete case requires immutable prediction, evidence, and label artifacts plus at least two distinct labeler ids and explicit disagreement adjudication provenance.",
     evidenceGate:
-      "A preselected, version-pinned, independently labeled case corpus with a declared sampling frame and complete planned denominator is still required."
+      "A preselected, release-bound, independently labeled case corpus with a declared sampling frame, immutable artifacts, and complete planned denominator is still required."
   });
 });
 
 test("a complete convenience study reports denominators and point rates without population uncertainty", () => {
-  const analysis = analyzeDetectorCalibrationStudy(study("convenience"));
+  const analysis = analyze(study("convenience"));
   assert.equal(analysis.analysisVersion, DETECTOR_CALIBRATION_ANALYSIS_VERSION);
   assert.equal(analysis.status, "descriptive-only");
   assert.equal(analysis.studyDigest?.length, 64);
@@ -55,7 +75,7 @@ test("a complete convenience study reports denominators and point rates without 
 });
 
 test("Wilson intervals are emitted only when every declared simple-random design gate passes", () => {
-  const analysis = analyzeDetectorCalibrationStudy(study("simple-random"));
+  const analysis = analyze(study("simple-random"));
   assert.equal(analysis.status, "sample-estimate");
   assert.deepEqual(analysis.uncertainty, {
     method: "wilson-score-95",
@@ -73,7 +93,7 @@ test("Wilson intervals are emitted only when every declared simple-random design
 
   const unblinded = study("simple-random");
   unblinded.design.referenceBlindedToPrediction = false;
-  const downgraded = analyzeDetectorCalibrationStudy(unblinded);
+  const downgraded = analyze(unblinded);
   assert.equal(downgraded.status, "descriptive-only");
   assert.equal(downgraded.rates?.sensitivity.interval95, null);
   assert.equal(downgraded.uncertainty.reason, "simple-random-design-gates-not-met");
@@ -82,8 +102,14 @@ test("Wilson intervals are emitted only when every declared simple-random design
 
 test("one censored case suppresses the complete-case confusion matrix and every rate", () => {
   const input = study("simple-random");
-  input.cases[1] = { caseId: "positive-missed", outcome: "censored", reason: "capture-failed" };
-  const analysis = analyzeDetectorCalibrationStudy(input);
+  input.cases[1] = {
+    caseId: "positive-missed",
+    outcome: "censored",
+    reason: "capture-failed",
+    conditionDigest: digest("positive-missed-condition"),
+    attemptArtifactDigest: digest("positive-missed-attempt")
+  };
+  const analysis = analyze(input);
   assert.equal(analysis.status, "ineligible");
   assert.equal(analysis.ineligibilityReasons.includes("censored-cases-present"), true);
   assert.equal(analysis.denominators.plannedCases, 4);
@@ -95,32 +121,171 @@ test("one censored case suppresses the complete-case confusion matrix and every 
   assert.equal(analysis.inference.scope, "none");
 });
 
-test("planned-denominator, version, registry, and reference-class gaps fail closed", () => {
+test("analysis without a current exact build commit fails closed", () => {
+  const analysis = analyzeDetectorCalibrationStudy(study("convenience"), {
+    ...ANALYSIS_CONTEXT,
+    expectedBuildCommit: null
+  });
+  assert.equal(analysis.status, "ineligible");
+  assert.deepEqual(analysis.ineligibilityReasons, ["current-build-commit-unavailable"]);
+  assert.equal(analysis.confusionMatrix, null);
+});
+
+test("analysis without a well-formed independently pinned runtime identity fails closed", () => {
+  for (const expectedRuntimeDigest of [null, "A".repeat(64)]) {
+    const analysis = analyzeDetectorCalibrationStudy(study("convenience"), {
+      expectedBuildCommit: BUILD_COMMIT,
+      expectedRuntimeDigest
+    });
+    assert.equal(analysis.status, "ineligible");
+    assert.deepEqual(analysis.ineligibilityReasons, ["expected-runtime-identity-unavailable"]);
+    assert.equal(analysis.confusionMatrix, null);
+  }
+});
+
+test("all current release identities and the planned denominator are eligibility gates", () => {
   const input = study("convenience");
   input.plannedCases = 5;
-  input.detectorVersion = "stale-detector";
-  input.registryVersion = "stale-registry";
-  input.cases = input.cases.filter((entry) => entry.outcome !== "complete" || entry.reference === "present");
-  const analysis = analyzeDetectorCalibrationStudy(input);
+  input.release.buildCommit = "b".repeat(40);
+  input.release.detectorVersion = "stale-detector";
+  input.release.registryVersion = "stale-registry";
+  input.release.registryDigest = "b".repeat(64);
+  input.release.detectorImplementationDigest = detectorCalibrationImplementationDigest({
+    buildCommit: input.release.buildCommit,
+    detector: input.detector,
+    detectorVersion: input.release.detectorVersion,
+    registryVersion: input.release.registryVersion,
+    registryDigest: input.release.registryDigest
+  });
+  input.release.methodologyVersion = "stale-methodology";
+  input.release.normalizationVersion = "stale-normalization";
+  input.release.trackerCatalog.version = "stale-catalog";
+  input.release.braveLists.fetchedAt = "2026-01-01T00:00:00.000Z";
+  input.cases = input.cases.filter(
+    (entry) => entry.outcome !== "complete" || entry.reference.value === "present"
+  );
+  const analysis = analyze(input);
   assert.equal(analysis.status, "ineligible");
   assert.deepEqual(analysis.ineligibilityReasons, [
     "planned-denominator-mismatch",
+    "build-commit-mismatch",
+    "detector-implementation-digest-mismatch",
     "detector-version-mismatch",
     "registry-version-mismatch",
+    "registry-digest-mismatch",
+    "methodology-version-mismatch",
+    "normalization-version-mismatch",
+    "tracker-catalog-revision-mismatch",
+    "brave-list-revision-mismatch",
     "missing-negative-reference-denominator"
   ]);
   assert.equal(analysis.confusionMatrix, null);
   assert.equal(analysis.rates, null);
 });
 
+test("runtime and detector implementation digests must match their own declarations", () => {
+  const runtimeMismatch = study("convenience");
+  runtimeMismatch.release.runtime.nodeVersion = "v0.0.0";
+  const runtimeIssues = detectorCalibrationStudyIssues(runtimeMismatch);
+  assert.equal(
+    runtimeIssues.includes("release.runtime.runtimeDigest does not match the declared runtime identity"),
+    true
+  );
+  assert.equal(analyze(runtimeMismatch).status, "invalid");
+
+  const implementationMismatch = study("convenience");
+  implementationMismatch.release.detectorImplementationDigest = "f".repeat(64);
+  const implementationIssues = detectorCalibrationStudyIssues(implementationMismatch);
+  assert.equal(
+    implementationIssues.includes(
+      "release.detectorImplementationDigest does not match the declared build, detector, and registry identity"
+    ),
+    true
+  );
+  assert.equal(analyze(implementationMismatch).status, "invalid");
+});
+
+test("self-consistent runtime versions that contradict the current release are ineligible", () => {
+  const input = study("convenience");
+  input.release.runtime.nodeVersion = "23.0.0";
+  input.release.runtime.playwrightVersion = "1.61.0";
+  input.release.runtime.runtimeDigest = detectorCalibrationRuntimeDigest({
+    observer: input.release.runtime.observer,
+    automation: input.release.runtime.automation,
+    nodeVersion: input.release.runtime.nodeVersion,
+    playwrightVersion: input.release.runtime.playwrightVersion,
+    browserName: input.release.runtime.browserName,
+    browserVersion: input.release.runtime.browserVersion,
+    operatingSystem: input.release.runtime.operatingSystem,
+    architecture: input.release.runtime.architecture
+  });
+  const analysis = analyze(input);
+  assert.equal(analysis.status, "ineligible");
+  assert.deepEqual(analysis.ineligibilityReasons, [
+    "runtime-identity-digest-mismatch",
+    "node-version-mismatch",
+    "playwright-version-mismatch"
+  ]);
+});
+
+test("browser and host runtime drift is ineligible even when the study recomputes its digest", () => {
+  const input = study("convenience");
+  input.release.runtime.browserVersion = "999.0.0.0";
+  input.release.runtime.operatingSystem = "other-os";
+  input.release.runtime.architecture = "other-architecture";
+  input.release.runtime.runtimeDigest = detectorCalibrationRuntimeDigest({
+    observer: input.release.runtime.observer,
+    automation: input.release.runtime.automation,
+    nodeVersion: input.release.runtime.nodeVersion,
+    playwrightVersion: input.release.runtime.playwrightVersion,
+    browserName: input.release.runtime.browserName,
+    browserVersion: input.release.runtime.browserVersion,
+    operatingSystem: input.release.runtime.operatingSystem,
+    architecture: input.release.runtime.architecture
+  });
+  const analysis = analyze(input);
+  assert.equal(analysis.status, "ineligible");
+  assert.deepEqual(analysis.ineligibilityReasons, ["runtime-identity-digest-mismatch"]);
+});
+
+test("complete cases require independent label and adjudication provenance", () => {
+  const duplicateLabeler = study("convenience");
+  const first = duplicateLabeler.cases[0];
+  assert.equal(first.outcome, "complete");
+  if (first.outcome !== "complete") return;
+  first.reference.labelerIds = ["labeler-alpha", "labeler-alpha"];
+  assert.equal(
+    detectorCalibrationStudyIssues(duplicateLabeler).some((issue) =>
+      issue.includes("reference.labelerIds must be unique")
+    ),
+    true
+  );
+
+  const conflictedAdjudicator = study("convenience");
+  const second = conflictedAdjudicator.cases[0];
+  assert.equal(second.outcome, "complete");
+  if (second.outcome !== "complete") return;
+  second.reference.adjudication = {
+    status: "disagreement-adjudicated",
+    adjudicatorId: "labeler-alpha",
+    artifactDigest: digest("adjudication")
+  };
+  assert.equal(
+    detectorCalibrationStudyIssues(conflictedAdjudicator).some((issue) =>
+      issue.includes("adjudicatorId must differ")
+    ),
+    true
+  );
+});
+
 test("undefined metric denominators stay null instead of becoming zero-rate claims", () => {
   const input = study("convenience");
   input.cases = [
-    { caseId: "positive-one", outcome: "complete", reference: "present", prediction: "not-detected" },
-    { caseId: "negative-one", outcome: "complete", reference: "absent", prediction: "not-detected" }
+    completeCase("positive-one", "present", "not-detected"),
+    completeCase("negative-one", "absent", "not-detected")
   ];
   input.plannedCases = 2;
-  const analysis = analyzeDetectorCalibrationStudy(input);
+  const analysis = analyze(input);
   assert.equal(analysis.status, "descriptive-only");
   assert.deepEqual(analysis.rates?.precision, {
     numerator: 0,
@@ -134,62 +299,31 @@ test("undefined metric denominators stay null instead of becoming zero-rate clai
 
 test("malformed, duplicate, extra-field, and over-broad study shapes are rejected", () => {
   const duplicate = study("convenience") as DetectorCalibrationStudy & { extra?: boolean };
-  duplicate.cases[1] = { ...duplicate.cases[0] };
+  duplicate.cases[1] = structuredClone(duplicate.cases[0]);
   duplicate.extra = true;
   const issues = detectorCalibrationStudyIssues(duplicate);
   assert.equal(issues.some((issue) => issue === "study has unexpected or missing fields"), true);
   assert.equal(issues.some((issue) => issue.includes("repeats caseId")), true);
-  const analysis = analyzeDetectorCalibrationStudy(duplicate);
+  const analysis = analyze(duplicate);
   assert.equal(analysis.status, "invalid");
   assert.equal(analysis.studyDigest, null);
   assert.equal(analysis.rates, null);
 });
 
-function study(sampling: DetectorCalibrationStudy["design"]["sampling"]): DetectorCalibrationStudy {
-  return {
-    studyId: "fp-july-calibration-v1",
-    detector: "fingerprint-heuristics",
-    detectorVersion: DETECTOR_VERSIONS["fingerprint-heuristics"],
-    registryVersion: DETECTOR_REGISTRY_VERSION,
-    targetPopulation: "Public English-language pages in the declared July frame",
-    plannedCases: 4,
-    design: {
-      sampling,
-      samplingFrame: "Frozen frame digest 0123456789abcdef",
-      samplingFrameDigest: "0".repeat(64),
-      selectionProtocol: "Select case ids before detector output is available.",
-      referenceProtocol: "Two blinded reviewers adjudicate presence from independent source evidence.",
-      independentUnits: true,
-      predictionBlindedToReference: true,
-      referenceBlindedToPrediction: true
-    },
-    cases: [
-      { caseId: "positive-detected", outcome: "complete", reference: "present", prediction: "detected" },
-      { caseId: "positive-missed", outcome: "complete", reference: "present", prediction: "not-detected" },
-      { caseId: "negative-clear", outcome: "complete", reference: "absent", prediction: "not-detected" },
-      { caseId: "negative-flagged", outcome: "complete", reference: "absent", prediction: "detected" }
-    ]
-  };
-}
-
 test("the confusion matrix distinguishes every cell, not just their total", () => {
-  // The only matrix assertion used a symmetric 1/1/1/1 fixture whose one
-  // asymmetric sibling was invariant under a present/absent label swap, so any
-  // permutation of truePositive, falsePositive, trueNegative, and falseNegative
-  // would have passed. An asymmetric fixture pins each cell to its own meaning.
   const asymmetric = study("convenience");
   asymmetric.plannedCases = 7;
   asymmetric.cases = [
-    { caseId: "tp-1", outcome: "complete", reference: "present", prediction: "detected" },
-    { caseId: "tp-2", outcome: "complete", reference: "present", prediction: "detected" },
-    { caseId: "tp-3", outcome: "complete", reference: "present", prediction: "detected" },
-    { caseId: "fn-1", outcome: "complete", reference: "present", prediction: "not-detected" },
-    { caseId: "fp-1", outcome: "complete", reference: "absent", prediction: "detected" },
-    { caseId: "fp-2", outcome: "complete", reference: "absent", prediction: "detected" },
-    { caseId: "tn-1", outcome: "complete", reference: "absent", prediction: "not-detected" }
+    completeCase("tp-1", "present", "detected"),
+    completeCase("tp-2", "present", "detected"),
+    completeCase("tp-3", "present", "detected"),
+    completeCase("fn-1", "present", "not-detected"),
+    completeCase("fp-1", "absent", "detected"),
+    completeCase("fp-2", "absent", "detected"),
+    completeCase("tn-1", "absent", "not-detected")
   ];
 
-  const analysis = analyzeDetectorCalibrationStudy(asymmetric);
+  const analysis = analyze(asymmetric);
   assert.deepEqual(analysis.confusionMatrix, {
     truePositive: 3,
     falsePositive: 2,
@@ -206,9 +340,98 @@ test("the confusion matrix distinguishes every cell, not just their total", () =
     predictedDetected: 5,
     predictedNotDetected: 2
   });
-  // Sensitivity and specificity read different cells and must not coincide.
   assert.equal(analysis.rates?.sensitivity.estimate, 0.75);
   assert.equal(analysis.rates?.specificity.estimate, 1 / 3);
   assert.equal(analysis.rates?.sensitivity.denominator, 4);
   assert.equal(analysis.rates?.specificity.denominator, 3);
 });
+
+function study(sampling: DetectorCalibrationStudy["design"]["sampling"]): DetectorCalibrationStudy {
+  return {
+    schemaVersion: 1,
+    studyId: "fp-july-calibration-v1",
+    detector: "fingerprint-heuristics",
+    release: currentDetectorCalibrationReleaseIdentity(
+      "fingerprint-heuristics",
+      BUILD_COMMIT,
+      runtimeIdentity()
+    ),
+    targetPopulation: "Public English-language pages in the declared July frame",
+    plannedCases: 4,
+    design: {
+      sampling,
+      samplingFrame: "Frozen frame digest 0123456789abcdef",
+      samplingFrameDigest: digest("sampling-frame"),
+      selectionProtocol: "Select case ids before detector output is available.",
+      referenceProtocol: "Two blinded reviewers label presence from independent source evidence.",
+      referenceProtocolDigest: digest("reference-protocol"),
+      adjudicationProtocol: "A third reviewer resolves disagreements without detector output.",
+      adjudicationProtocolDigest: digest("adjudication-protocol"),
+      independentUnits: true,
+      predictionBlindedToReference: true,
+      referenceBlindedToPrediction: true
+    },
+    cases: [
+      completeCase("positive-detected", "present", "detected"),
+      completeCase("positive-missed", "present", "not-detected"),
+      completeCase("negative-clear", "absent", "not-detected"),
+      completeCase("negative-flagged", "absent", "detected", true)
+    ]
+  };
+}
+
+function runtimeIdentity(): DetectorCalibrationRuntimeIdentity {
+  const declared = {
+    observer: "node-playwright",
+    automation: "playwright-chromium",
+    nodeVersion: "24.14.1",
+    playwrightVersion: "1.62.0",
+    browserName: "chromium",
+    browserVersion: "145.0.7632.6",
+    operatingSystem: "linux",
+    architecture: "x64"
+  } as const;
+  return { ...declared, runtimeDigest: detectorCalibrationRuntimeDigest(declared) };
+}
+
+function completeCase(
+  caseId: string,
+  reference: "present" | "absent",
+  prediction: "detected" | "not-detected",
+  adjudicated = false
+): Extract<DetectorCalibrationCase, { outcome: "complete" }> {
+  return {
+    caseId,
+    outcome: "complete",
+    conditionDigest: digest(`${caseId}-condition`),
+    prediction: {
+      value: prediction,
+      artifactDigest: digest(`${caseId}-prediction`)
+    },
+    reference: {
+      value: reference,
+      evidenceArtifactDigest: digest(`${caseId}-evidence`),
+      labelArtifactDigest: digest(`${caseId}-label`),
+      labelerIds: ["labeler-alpha", "labeler-beta"],
+      adjudication: adjudicated
+        ? {
+            status: "disagreement-adjudicated",
+            adjudicatorId: "adjudicator-gamma",
+            artifactDigest: digest(`${caseId}-adjudication`)
+          }
+        : {
+            status: "labelers-agreed",
+            adjudicatorId: null,
+            artifactDigest: null
+          }
+    }
+  };
+}
+
+function analyze(input: unknown) {
+  return analyzeDetectorCalibrationStudy(input, ANALYSIS_CONTEXT);
+}
+
+function digest(value: string): string {
+  return sha256Hex(value);
+}

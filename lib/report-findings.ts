@@ -38,10 +38,15 @@ import {
   pixelFieldLabel,
   respondedTrackerEntityNames,
   scanLoadFailureStatus,
+  scanPageSubjectUnverified,
+  scanSuspectedChallengeOrSoftBlock,
   shieldsRunMeasurement,
+  trackerOwnershipBreakdown,
   trackerResponseQualification,
   trackerEntitySummaries
 } from "./report-insights";
+import { reviewedOwnershipRelationship } from "./reviewed-ownership";
+import { isCurrentlyCheckablePolicyClaim } from "./privacy-policy";
 import {
   comparisonArmViews,
   displayRunView,
@@ -172,6 +177,8 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
   const arms = comparisonArmViews(view);
   const axis = view.comparison?.axis ?? null;
   const entities = trackerEntitySummaries(run.evidence);
+  const ownership = trackerOwnershipBreakdown(run.evidence, run.domain);
+  const recipientEntities = ownership.otherOrUnreviewed;
   const trackingEntities = entities.filter((entity) => !isOperationalEntity(entity));
   const operationalEntities = entities.filter((entity) => isOperationalEntity(entity));
   const trackingNames = trackingEntities.map((entity) => entity.entity);
@@ -214,7 +221,14 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
 
   const operationalNote =
     operationalNames.length > 0
-      ? ` Operational services (monitoring, support) also appeared and are not cross-site trackers: ${humanList(operationalNames)}.`
+      ? ` Catalog labels for these additional services describe monitoring or support functions: ${humanList(operationalNames)}.`
+      : "";
+  const sameOrganizationNote =
+    ownership.sameOrganizationDomainCount > 0
+      ? ` ${plural(
+          ownership.sameOrganizationDomainCount,
+          "catalogued cross-site domain"
+        )} belongs to the same reviewed ${ownership.sameOrganizationName ?? "organization"} domain family as the site, so that traffic is not evidence of disclosure to an outside company.`
       : "";
 
   const sessionReplayNames = trackingEntities
@@ -222,10 +236,13 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
     .map((entity) => entity.entity);
   const sessionReplayNote =
     sessionReplayNames.length > 0
-      ? ` Includes session-replay vendor(s) that can record how you interact with the page: ${humanList(sessionReplayNames)}.`
+      ? ` Catalog labels include session-replay or behavior-analytics services: ${humanList(sessionReplayNames)}; the domain match alone does not prove that a recording occurred.`
       : "";
 
-  const headlineEntities = entities.filter((entity) => HEADLINE_PLATFORMS.includes(entity.entity));
+  const headlineEntities = recipientEntities.filter((entity) => HEADLINE_PLATFORMS.includes(entity.entity));
+  const sameOrganizationHeadlineEntities = ownership.sameOrganization.filter((entity) =>
+    HEADLINE_PLATFORMS.includes(entity.entity)
+  );
   const headlineNames = headlineEntities.map((entity) => entity.entity);
   const headlineRequests = headlineEntities.reduce((total, entity) => total + entity.requests, 0);
   const provenanceHighlights = requestProvenanceHighlights(run.evidence.requests);
@@ -241,32 +258,40 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
   const keystrokeDetection = fingerprintDetection(run.evidence, "keystroke-exfiltration");
   if (keystrokeDetection) {
     const recipients = humanList(keystrokeDetection.evidence.recipients);
-    const recipientCount = plural(keystrokeDetection.evidence.recipients.length, "third party", "third parties");
+    const recipientCount = plural(keystrokeDetection.evidence.recipients.length, "cross-site domain");
+    const sameOrganizationRecipients = keystrokeDetection.evidence.recipients.filter(
+      (recipient) => reviewedOwnershipRelationship(run.domain, recipient).kind === "same-organization"
+    );
+    const recipientOwnershipNote =
+      sameOrganizationRecipients.length > 0
+        ? ` ${plural(
+            sameOrganizationRecipients.length,
+            "recipient domain"
+          )} belongs to the site's same reviewed organization, so that portion is not disclosure to an outside company.`
+        : "";
     const fields = plural(keystrokeDetection.evidence.fieldsTyped, "form field");
-    // A one-way HASH of the typed value (md5/sha1/sha256) cannot drive a
-    // functional type-ahead, so it is the distinctive sign of deliberate
-    // identity capture and earns the loud alarm. Plain text or a reversible
-    // encoding (base64/hex) reads as a third-party search/autocomplete and stays
-    // a calmer warn, though the keystrokes still leave the site.
+    // A one-way hash is a stronger transformation signal and retains the loud
+    // level, but neither encoding nor this frozen summary proves recipient
+    // purpose, real-user handling, or timing within typing/blur/unload.
     const hashed = keystrokeLeakHashed(keystrokeDetection.evidence.encodings);
     findings.push({
       id: "keystroke-exfiltration",
       icon: "keyboard",
       level: hashed ? "loud" : "warn",
       title: hashed
-        ? `What you type was sent to ${recipientCount} as a hash`
-        : `Your typing is sent to ${recipientCount} as you go`,
+        ? `A hashed form of synthetic input reached ${recipientCount} before submission`
+        : `Synthetic form input reached ${recipientCount} before submission`,
       lead: hashed
-        ? `When the scanner typed a unique test value into ${fields}, that value was sent to ${recipients} as a one-way hash (${humanList(keystrokeDetection.evidence.encodings)}) and without the form ever being submitted.`
-        : `When the scanner typed a unique test value into ${fields}, that value was sent to ${recipients} as it was typed (${humanList(keystrokeDetection.evidence.encodings)}), without the form ever being submitted, typically search type-ahead or autocomplete handled by a third party.`,
+        ? `When the scanner typed a unique test value into ${fields}, a one-way hash of that value appeared in requests to ${recipients} (${humanList(keystrokeDetection.evidence.encodings)}) without the form being submitted.`
+        : `When the scanner typed a unique test value into ${fields}, that value appeared in requests to ${recipients} (${humanList(keystrokeDetection.evidence.encodings)}) without the form being submitted.`,
       detail: hashed
-        ? `The typed value was hashed (${humanList(
+        ? `The synthetic value was hashed (${humanList(
             keystrokeDetection.evidence.encodings
-          )}) before being sent. A hash cannot drive a functional type-ahead, so this is the pattern used to match you to a known identity, not a visible API call. A real visitor's keystrokes could be captured the same way. The scanner types only synthetic values and never submits the form.`
-        : `The value was sent in a recoverable form (${humanList(
+          )}) before being sent. The report does not establish whether transmission happened during typing, blur, or unload, what the recipient used it for, or whether real visitor input follows the same path. The scanner types only synthetic values and never submits the form.${recipientOwnershipNote}`
+        : `The synthetic value appeared in a recoverable form (${humanList(
             keystrokeDetection.evidence.encodings
-          )}), consistent with a functional type-ahead or autocomplete (a search or location lookup) handled by a third party. Still worth knowing your keystrokes leave to ${recipients}, but not on its own evidence of covert capture. The scanner types only synthetic values and never submits the form.`,
-      evidence: `Test value was sent to ${recipients} via ${humanList(keystrokeDetection.evidence.encodings)}.`
+          )}). The report does not establish whether transmission happened during typing, blur, or unload, why it was sent, or whether real visitor input follows the same path. The scanner types only synthetic values and never submits the form.${recipientOwnershipNote}`,
+      evidence: `Synthetic test value appeared in requests to ${recipients} via ${humanList(keystrokeDetection.evidence.encodings)}.`
     });
   }
 
@@ -313,10 +338,9 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
         preConsentTrackers > 0
           ? `${run.domain} sent a request to ${consentPlatform.name}, a consent management platform (the tooling that shows cookie banners), and sent requests to ${plural(
               preConsentTrackers,
-              "tracking company",
-              "tracking companies"
+              "catalogued tracking-related service"
             )} before the scanner made any consent choice${answeredPreConsentTrackers > 0 ? `; ${plural(answeredPreConsentTrackers, "company", "companies")} answered` : "; none recorded a response"}.`
-          : `${run.domain} sent a request to ${consentPlatform.name}, a consent management platform (the tooling that shows cookie banners); no request to a catalogued tracking company was recorded before the scanner made any consent choice in this visit.`,
+          : `${run.domain} sent a request to ${consentPlatform.name}, a consent management platform (the tooling that shows cookie banners); no request to a catalogued tracking-related service was recorded before the scanner made any consent choice in this visit.`,
       detail:
         'A request to the platform\'s loader proves the page attempted to fetch consent tooling; an observed response supports delivery, but neither fact proves a banner was visibly shown to this scanner. Banner display can vary by region and visit context. The scanner never clicks a banner in this mode, so this report records requests made before the scanner made a consent choice. It does not determine whether any request required consent or whether the site\'s behavior complied with applicable law. More trackers may appear after "Accept" than this report captures, so tracker counts here are a lower bound for users who consent.',
       evidence: `Consent platform detected via a request to ${consentPlatform.domain}.`
@@ -330,7 +354,9 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
     // the sentence in context; this is a text match, never a legal reading.
     const conflicts: string[] = [];
     const quotes: string[] = [];
-    const policyClaim = (kind: PrivacyPolicyClaimKind) => policy.claims.find((claim) => claim.kind === kind);
+    const checkablePolicyClaims = policy.claims.filter(isCurrentlyCheckablePolicyClaim);
+    const policyClaim = (kind: PrivacyPolicyClaimKind) =>
+      checkablePolicyClaims.find((claim) => claim.kind === kind);
 
     const noThirdPartyCookies = policyClaim("no-third-party-cookies");
     if (noThirdPartyCookies && run.counts.thirdPartyCookies > 0) {
@@ -350,15 +376,15 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
     // read, so this observation is CONDITIONAL and must never headline as a
     // definite contradiction the way the count-based checks above may.
     const conditionalConflicts: string[] = [];
-    const noSelling = policyClaim("no-selling-or-sharing");
+    const noSellingOrSharing = policyClaim("no-selling-or-sharing");
     const pixelsWithIdentifiers = pixelEventSummaries(run.evidence).filter((pixel) => pixel.advancedMatching.length > 0);
-    if (noSelling && pixelsWithIdentifiers.length > 0) {
+    if (noSellingOrSharing && pixelsWithIdentifiers.length > 0) {
       conditionalConflicts.push(
-        `the policy says personal information is not sold, and advertising events to ${humanList(
+        `the policy says personal information is not sold or shared, and advertising events to ${humanList(
           pixelsWithIdentifiers.map((pixel) => pixel.product)
         )} carried populated personal-identifier fields in this visit; IF those fields held real visitor data, many regulators treat that as sharing, but the scanner only checks those fields for being non-empty and never stores the values`
       );
-      quotes.push(noSelling.quote);
+      quotes.push(noSellingOrSharing.quote);
     }
 
     // Deliberately NOT checked as a conflict: an "honors GPC" claim. Honoring
@@ -382,7 +408,7 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
     // vacuously true and reads as a clean result from zero checks. 83 of the
     // committed reports publish exactly that, so this needs its own branch
     // rather than the reassuring default.
-    const noCheckableClaims = policy.claims.length === 0;
+    const noCheckableClaims = checkablePolicyClaims.length === 0;
     findings.push({
       id: "privacy-policy",
       icon: "file-text",
@@ -416,11 +442,11 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
                 : `The policy's checkable statements did not contradict this visit's evidence (${coverage}).`,
       detail:
         conflicts.length > 0 || conditionalConflicts.length > 0
-          ? `Matched policy wording: ${quotes.map((quote) => `"${quote}"`).join(" / ")}. This is an automated sentence match against the policy's own text, quoted so it can be verified in context. Policies can define terms narrowly (such as what counts as selling), so treat this as a documented discrepancy to review, not a legal conclusion.`
+          ? `Matched policy wording: ${quotes.map((quote) => `"${quote}"`).join(" / ")}. This is an automated sentence match against the policy's own text, quoted so it can be verified in context. Policies can define terms narrowly (such as what counts as selling or sharing), so treat this as a documented discrepancy to review, not a legal conclusion.`
           : policy.unmentionedEntities.length > 0
             ? `Policies often disclose vendor categories rather than company names, so an unnamed vendor is a transparency gap worth reviewing, not automatically a violation.${namedCount > 0 ? ` Named in the policy: ${humanList(policy.mentionedEntities)}.` : ""}`
-            : `Statements checked automatically: blanket no-cookie claims, third-party-cookie claims, and do-not-sell claims against advertising-pixel identifier fields. Global Privacy Control claims are never checked against request counts, which cannot show whether data sales stopped.${policyEvidenceCensored ? CENSORED_ABSENCE_NOTE : ""}`,
-      evidence: `Policy at ${policy.url}; ${plural(policy.claims.length, "checkable statement")} matched; ${coverage}.`
+            : `Statements checked automatically: blanket no-cookie claims, third-party-cookie claims, and combined do-not-sell-or-share claims against advertising-pixel identifier fields. Global Privacy Control claims are never checked against request counts, which cannot show whether selling or sharing stopped.${policyEvidenceCensored ? CENSORED_ABSENCE_NOTE : ""}`,
+      evidence: `Policy at ${policy.url}; ${plural(checkablePolicyClaims.length, "checkable statement")} matched; ${coverage}.`
     });
   }
 
@@ -431,8 +457,8 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
     title:
       trackingEntities.length > 0
         ? trackingEntities.every((entity) => respondedEntities.has(entity.entity))
-          ? "Tracking and ad services responded during this visit"
-          : "Requests were sent to tracking and ad services"
+          ? "Catalogued service domains recorded responses during this visit"
+          : "Requests were dispatched to catalogued service domains"
         : operationalEntities.length > 0
           ? "Only operational services matched"
           : "No known services matched",
@@ -444,11 +470,11 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
           : "This scan did not match any third-party domains to the service catalog.",
     detail:
       trackingEntities.length > 0
-        ? `These services can profile visitors across sites.${topCategories.length > 0 ? ` Catalog labels for those services include ${humanList(topCategories)}.` : ""}${sessionReplayNote}${operationalNote}`
+        ? `A catalog match identifies a maintainer-reviewed service/domain mapping; it does not establish why an individual request occurred, what it carried, or whether profiling happened.${topCategories.length > 0 ? ` Functional catalog labels include ${humanList(topCategories)}.` : ""}${sessionReplayNote}${operationalNote}${sameOrganizationNote}`
         : operationalEntities.length > 0
-          ? `These are monitoring or support tools, not cross-site trackers. Unlabeled third parties may still be present.${requestsCensored ? CENSORED_ABSENCE_NOTE : ""}`
+          ? `The catalog assigns these services monitoring or support labels; the matches do not establish each request's purpose. Unlabeled cross-site domains may still be present.${sameOrganizationNote}${requestsCensored ? CENSORED_ABSENCE_NOTE : ""}`
           : `There may still be unlabeled third parties, but no known catalog entity was matched.${requestsCensored ? CENSORED_ABSENCE_NOTE : ""}`,
-    evidence: `${plural(run.counts.thirdPartyRequests, "third-party request")} across ${plural(run.counts.thirdPartyDomains, "third-party domain")}.`,
+    evidence: `${plural(run.counts.thirdPartyRequests, "cross-site request")} across ${plural(run.counts.thirdPartyDomains, "registrable-domain boundary")}.`,
     benchmark: !domainsBenchmarkAllowed
       ? undefined
       : domainsBenchmark
@@ -461,20 +487,43 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
   findings.push({
     id: "named-platforms",
     icon: "network",
-    level: headlineNames.length === 0 ? (requestsCensored ? "info" : "ok") : headlineNames.length >= 3 ? "warn" : "info",
-    title: headlineNames.length > 0 ? "Requests were sent to major platforms" : "No requests to major platforms were recorded",
+    level:
+      headlineNames.length === 0
+        ? sameOrganizationHeadlineEntities.length > 0 || requestsCensored
+          ? "info"
+          : "ok"
+        : headlineNames.length >= 3
+          ? "warn"
+          : "info",
+    title:
+      headlineNames.length > 0
+        ? "Requests were dispatched to catalogued major-platform domains"
+        : sameOrganizationHeadlineEntities.length > 0
+          ? "Major-platform domains matched within the site's reviewed organization"
+          : "No requests to major-platform domains were recorded",
     lead:
       headlineNames.length > 0
-        ? `This visit sent requests to ${humanList(headlineNames)}.`
-        : "No requests to Google, Meta, TikTok, or X were observed in this visit.",
+        ? `This visit dispatched requests to catalogued domains for ${humanList(headlineNames)}.`
+        : sameOrganizationHeadlineEntities.length > 0
+          ? `${humanList(
+              sameOrganizationHeadlineEntities.map((entity) => entity.entity)
+            )} domains appeared across a registrable-domain boundary, but the reviewed ownership map groups them with the site rather than an outside company.`
+          : "No requests to catalogued Google, Meta, TikTok, X, Microsoft, LinkedIn, or Pinterest domains were observed in this visit.",
     detail:
       headlineNames.length > 0
-        ? "If received, these platforms can link this visit to the profile they already hold about you from other sites and apps."
-        : `Major ad-platform pixels were not observed in this single passive visit; interaction-gated pixels could still load for real users.${requestsCensored ? CENSORED_ABSENCE_NOTE : ""}`,
+        ? `The domain matches identify services, not the requests' purpose, payload, or whether any profile linking occurred.${sameOrganizationNote}`
+        : sameOrganizationHeadlineEntities.length > 0
+          ? "Cross-registrable-domain traffic remains counted in the report, but this reviewed ownership relationship does not support an outside-recipient disclosure claim. The catalog match also does not prove request purpose."
+          : `Major-platform domains were not observed in this single passive visit; interaction-gated requests could still load for real users.${requestsCensored ? CENSORED_ABSENCE_NOTE : ""}`,
     evidence:
       headlineNames.length > 0
         ? `${plural(headlineRequests, "request")} to these platforms.`
-        : `${plural(run.counts.thirdPartyDomains, "third-party domain")} seen overall.`
+        : sameOrganizationHeadlineEntities.length > 0
+          ? `${plural(
+              sameOrganizationHeadlineEntities.reduce((total, entity) => total + entity.requests, 0),
+              "cross-site request"
+            )} mapped to a reviewed same-organization domain family.`
+          : `${plural(run.counts.thirdPartyDomains, "cross-site domain")} seen overall.`
   });
 
   const pixelEvents = pixelEventSummaries(run.evidence);
@@ -498,7 +547,9 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
       detail:
         pixelsWithMatching.length > 0
           ? "Beyond detecting that a pixel is present, this reads each pixel request's event type and whether its advanced-matching parameters held values. These are the fields the platforms document as carrying hashed emails or phone numbers so events can be matched to a known person; the scanner records only which fields were populated, never their values, so neither the contents nor the hashing is verified."
-          : "This reads each pixel request's event type (such as PageView, ViewContent, or Purchase), not just that a pixel request was recorded. No advanced-matching identifier fields were observed in this passive visit; interaction-gated events could still carry them for real users.",
+          : detectorCensored
+            ? "This reads each pixel request's event type (such as PageView, ViewContent, or Purchase), not just that a pixel request was recorded. Pixel decoding was incomplete for one or more request bodies, so whether other pixel requests carried advanced-matching identifier fields is unknown."
+            : "This reads each pixel request's event type (such as PageView, ViewContent, or Purchase), not just that a pixel request was recorded. No advanced-matching identifier fields were observed in this passive visit; interaction-gated events could still carry them for real users.",
       evidence: humanList(pixelEvents.map(pixelEventEvidence), 4)
     });
   }
@@ -539,7 +590,7 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
         ? "Google Analytics was observed, but no DoubleClick remarketing sync appeared in this visit."
         : "This visit did not contact Google Analytics.",
     detail: gaRemarketingOn
-      ? "If remarketing is on, this visit can be added to Google advertising audiences and matched to the profile Google already holds about you across sites. The DoubleClick sync is a strong signal, not configuration-level proof."
+      ? "This Analytics-to-DoubleClick request pattern is consistent with an advertising or remarketing integration. It does not prove that an audience was populated, a profile was matched, or what the request carried."
       : googleAnalyticsPresent
         ? `Standard analytics collection was observed, without the stats.g.doubleclick.net advertising sync.${requestsCensored ? CENSORED_ABSENCE_NOTE : ""}`
         : `Neither Google Analytics nor its remarketing sync was observed in this visit.${requestsCensored ? CENSORED_ABSENCE_NOTE : ""}`,
@@ -576,7 +627,7 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
       cookiesUnsupported
         ? "The report's zero-valued cookie fields are schema placeholders for an unavailable measurement, not evidence that the site set no cookies."
         : run.counts.thirdPartyCookies > 0
-        ? "Third-party cookies can help outside services recognize repeat visits across sites when the browser allows them."
+        ? "The scanner observed cookie metadata whose domain crossed the scanned site's registrable-domain boundary. This report does not retain cookie values or partition keys, so it does not establish whether a cookie was a persistent identifier or could recognize a visitor across sites."
         : `This does not prove the site never uses cookies; it means this visit did not observe third-party cookies.${cookiesCensored ? CENSORED_ABSENCE_NOTE : ""}`,
     evidence: cookiesUnsupported
       ? "Unsupported by the request-only PageGraph r2 producer."
@@ -949,10 +1000,47 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
       title: `Bottom line: ${run.domain} did not serve its page (HTTP ${loadFailureStatus})`,
       lead: `The page responded with HTTP ${loadFailureStatus}, so this report reflects an error or block page, not the site itself.`,
       detail: `Low tracker, cookie, and fingerprinting counts here mean no page was served, not that the site is private. ${retryGuidance(
-        loadFailureStatus,
-        run
+        loadFailureStatus
       )} The request log and methodology below still show exactly what was observed.`,
       evidence: `${plural(run.counts.totalRequests, "request")} observed before or with the error response.`
+    });
+    return findings;
+  }
+
+  if (scanPageSubjectUnverified(run)) {
+    hedgeAbsenceCards(
+      findings,
+      "The scanner could not verify that the rendered document was the requested page, so this absence does not describe the site."
+    );
+    findings.unshift({
+      id: "bottom-line",
+      icon: "alert",
+      level: "info",
+      title: `Bottom line: ${run.domain}'s rendered page subject was not verified`,
+      lead:
+        "The bounded page-content collector was unavailable or unreadable, so the scanner could not establish that the rendered document was the requested page.",
+      detail:
+        "Tracker, cookie, storage, and fingerprinting counts remain raw evidence from that unverified document, not a positive privacy conclusion about the site's normal behavior. Re-scan for a verified page load.",
+      evidence: `${plural(run.counts.totalRequests, "request")} retained from the unverified page subject.`
+    });
+    return findings;
+  }
+
+  if (scanSuspectedChallengeOrSoftBlock(run)) {
+    hedgeAbsenceCards(
+      findings,
+      "The scanner found a suspected challenge or soft block, so this absence describes only the interstitial, not the site."
+    );
+    findings.unshift({
+      id: "bottom-line",
+      icon: "alert",
+      level: "info",
+      title: `Bottom line: ${run.domain} showed a suspected challenge or soft block`,
+      lead:
+        "Multiple signals indicate that the successful HTTP response was a robot check, CAPTCHA, or blocking consent interstitial rather than the requested page.",
+      detail:
+        "Tracker, cookie, storage, and fingerprinting counts here come from an incomplete visit to that interstitial, not a positive privacy conclusion about the site's normal behavior. Re-scan for a complete page load; the request log and methodology below still show exactly what was observed.",
+      evidence: `${plural(run.counts.totalRequests, "request")} retained from the suspected interstitial.`
     });
     return findings;
   }
@@ -1125,8 +1213,10 @@ function unconfirmedConsentInteractionFinding(view: ReportView, baseline: RunVie
  * treatment.
  */
 function entitiesOnlyIn(run: RunView, other: RunView): string[] {
-  const otherEntities = new Set(trackerEntitySummaries(other.evidence).map((entity) => entity.entity));
-  return trackerEntitySummaries(run.evidence)
+  const otherEntities = new Set(
+    trackerOwnershipBreakdown(other.evidence, other.domain).otherOrUnreviewed.map((entity) => entity.entity)
+  );
+  return trackerOwnershipBreakdown(run.evidence, run.domain).otherOrUnreviewed
     .filter((entity) => !otherEntities.has(entity.entity))
     .map((entity) => entity.entity);
 }
@@ -1164,8 +1254,14 @@ function buildConsentComparisonFinding(
 ): Finding {
   const acceptClicked = baseline.consent?.controlActivated === true;
   const rejectClicked = variant.consent?.controlActivated === true;
-  const acceptTracking = trackerEntitySummaries(baseline.evidence).filter((entity) => !isOperationalEntity(entity));
-  const rejectTracking = trackerEntitySummaries(variant.evidence).filter((entity) => !isOperationalEntity(entity));
+  const acceptTracking = trackerOwnershipBreakdown(
+    baseline.evidence,
+    baseline.domain
+  ).otherOrUnreviewed.filter((entity) => !isOperationalEntity(entity));
+  const rejectTracking = trackerOwnershipBreakdown(
+    variant.evidence,
+    variant.domain
+  ).otherOrUnreviewed.filter((entity) => !isOperationalEntity(entity));
   const rejectResponded = respondedTrackerEntityNames(variant.evidence);
   const requestsBefore = baseline.counts.thirdPartyRequests;
   const requestsAfter = variant.counts.thirdPartyRequests;
@@ -1218,13 +1314,13 @@ function buildConsentComparisonFinding(
       id: "consent-comparison",
       icon: "cookie",
       level: "warn",
-      title: `Requests were sent to ${plural(rejectTracking.length, "tracking company", "tracking companies")} in the visit that clicked Reject all`,
+      title: `Requests were sent to ${plural(rejectTracking.length, "catalogued tracking-related service")} in the visit that clicked Reject all`,
       // The cross-arm contrast ("N appeared in the accept-click visit") is a
       // classification-family juxtaposition; without that family the card
       // keeps the reject-click visit's own facts only.
       lead: `In the visit where the scanner clicked Reject all, ${humanList(rejectTracking.map((entity) => entity.entity))} ${trackerResponseQualification(rejectTracking, rejectResponded)}${
         classificationAllowed
-          ? ` (${plural(acceptTracking.length, "tracking company", "tracking companies")} appeared in the request log for the visit that clicked Accept all)`
+          ? ` (${plural(acceptTracking.length, "catalogued tracking-related service")} appeared in the request log for the visit that clicked Accept all)`
           : ""
       }.`,
       detail: `${registration} ${CONSENT_WHOLE_VISIT_CAVEAT} It is a documented observation to review against the banner's promises, not a violation ruling. The diff below lists the services that appeared only in the visit that clicked Accept all.`,
@@ -1248,14 +1344,13 @@ function buildConsentComparisonFinding(
         : "No catalogued trackers were recorded in the reject-click visit",
     lead:
       classificationAllowed && acceptTracking.length > 0
-        ? `The visit where the scanner clicked Reject all recorded no request to a catalogued tracking company, while the visit that clicked Accept all recorded requests to ${plural(
+        ? `The visit where the scanner clicked Reject all recorded no request to a catalogued tracking-related service, while the visit that clicked Accept all recorded requests to ${plural(
             acceptTracking.length,
-            "tracking company",
-            "tracking companies"
+            "catalogued tracking-related service"
           )}.`
         : classificationAllowed
-          ? "No request to a catalogued tracking company was recorded in either visit; on this page the two visits differed little because there was little to consent to."
-          : "The visit where the scanner clicked Reject all recorded no request to a catalogued tracking company.",
+          ? "No request to a catalogued tracking-related service was recorded in either visit; this describes only the two observed visits, not whether there was little to consent to."
+          : "The visit where the scanner clicked Reject all recorded no request to a catalogued tracking-related service.",
     detail: `${registration} ${CONSENT_WHOLE_VISIT_CAVEAT} A single paired comparison can also reflect run-to-run variance (ad rotation, caching, experiments), so treat this as an observed difference for this pair of visits.${
       rejectEvidenceCensored ? CENSORED_ABSENCE_NOTE : ""
     }`,
@@ -1283,19 +1378,13 @@ function hedgeAbsenceCards(findings: Finding[], scope: string): void {
  * Retry advice that matches the status class instead of assuming every failure
  * is a transient outage.
  *
- * The scanner announces itself as an undisguised headless browser and does not
- * evade bot detection, so a site that refuses automation refuses it on every
- * visit: telling that reader to "re-scan when it is reachable" sends them into a
- * loop against a site that answered immediately. Naming the likely cause is
- * disclosure of our own posture, not a claim about the site, so it stays hedged.
+ * A 401 or 403 proves that this visit was denied, not why. Authentication,
+ * authorization policy, automation filtering, and other controls can return
+ * the same status, so retry advice must keep the cause unresolved.
  */
-function retryGuidance(status: number, run: RunView): string {
-  const undisguisedAutomation = run.conditions.headless && run.conditions.automation !== "brave-pagegraph";
-  if ((status === 401 || status === 403) && undisguisedAutomation) {
-    return "The site answered, so it was reachable; it refused this visit. Refusing an openly automated browser is the most common reason for this status, and because this scanner does not disguise itself, re-scanning will usually return the same response.";
-  }
+function retryGuidance(status: number): string {
   if (status === 401 || status === 403) {
-    return "The site answered, so it was reachable; it refused this visit. Re-scanning returns the same response until whatever refused the request changes.";
+    return "The site answered and denied this visit. The status alone cannot distinguish authentication, access policy, automation filtering, or another cause, so a later re-scan may or may not differ.";
   }
   if (status === 429) return "The site rate-limited this visit, so a later re-scan may succeed.";
   if (status === 404) return "That address did not exist on the site; check the URL rather than re-scanning it.";

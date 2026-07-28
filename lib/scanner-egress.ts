@@ -1,4 +1,25 @@
 export const SCANNER_EGRESS_REGION_ENV = "SITE_BEHAVIOR_LAB_SCANNER_EGRESS_REGION";
+export const SCANNER_EGRESS_LABEL_ENV = "SITE_BEHAVIOR_LAB_SCANNER_EGRESS";
+export const DEFAULT_SCANNER_EGRESS_LABEL = "this scanner instance";
+export const CONTROLLED_SCANNER_EGRESS_ALIAS = "controlled-self-hosted";
+
+/**
+ * Public egress labels are a closed, reviewed vocabulary. Arbitrary operator
+ * labels are intentionally not persisted: the frozen v1 sanitizer would
+ * generalize them while the r2 measurement envelope retained the raw value,
+ * making every otherwise-successful r2 scan fail its envelope-consistency
+ * check.
+ */
+export const PUBLIC_SCANNER_EGRESS_LABELS = Object.freeze([
+  DEFAULT_SCANNER_EGRESS_LABEL,
+  "cloudflare-containers",
+  "cloudflare-browser-run",
+  "github-actions-ubuntu",
+  "docker-smoke",
+  "test"
+] as const);
+
+const PUBLIC_SCANNER_EGRESS_LABEL_SET = new Set<string>(PUBLIC_SCANNER_EGRESS_LABELS);
 
 const MAX_R2_EGRESS_REGION_CHARS = 64;
 const CONTROL_CHARACTERS = /[\u0000-\u001f\u007f-\u009f]/;
@@ -7,6 +28,40 @@ export type ScannerEgressRegionResolution =
   | { status: "configured"; value: string; source: "explicit" | "cloudflare-placement" }
   | { status: "unrecorded" }
   | { status: "misconfigured" };
+
+export type ScannerEgressLabelResolution =
+  | { status: "configured"; value: string }
+  | { status: "default"; value: typeof DEFAULT_SCANNER_EGRESS_LABEL }
+  | { status: "aliased"; value: typeof DEFAULT_SCANNER_EGRESS_LABEL }
+  | { status: "canonicalized"; value: typeof DEFAULT_SCANNER_EGRESS_LABEL };
+
+/**
+ * Resolve the operator label before collection so the frozen v1 wire and the
+ * r2 envelope start from the same public value. A non-empty unreviewed label
+ * is observable as `canonicalized` in health, but scans remain usable.
+ */
+export function resolveScannerEgressLabel(
+  env: NodeJS.ProcessEnv = process.env
+): ScannerEgressLabelResolution {
+  const raw = env[SCANNER_EGRESS_LABEL_ENV];
+  if (raw === undefined || raw.trim() === "") {
+    return { status: "default", value: DEFAULT_SCANNER_EGRESS_LABEL };
+  }
+  const value = raw.trim();
+  if (value === CONTROLLED_SCANNER_EGRESS_ALIAS) {
+    // Acquisition configuration may name the controlled lane, but the frozen
+    // public report policy intentionally emits its generic label. The stable,
+    // operator-attested location remains in the separate r2 region field.
+    return { status: "aliased", value: DEFAULT_SCANNER_EGRESS_LABEL };
+  }
+  return PUBLIC_SCANNER_EGRESS_LABEL_SET.has(value)
+    ? { status: "configured", value }
+    : { status: "canonicalized", value: DEFAULT_SCANNER_EGRESS_LABEL };
+}
+
+export function scannerEgressLabel(env: NodeJS.ProcessEnv = process.env): string {
+  return resolveScannerEgressLabel(env).value;
+}
 
 /**
  * Return the most specific truthful egress-region identity available to the

@@ -8,6 +8,7 @@ import {
   deriveStorageMutations
 } from "./measurement-kernel";
 import { evaluateQuality } from "./scan-report-v2-evaluators";
+import { PAGE_SUBJECT_CAPTURE_LOSS_DETAIL } from "./bot-wall-classifier";
 
 test("records non-overlapping indexed phases and request attribution", () => {
   let now = 1_000;
@@ -46,7 +47,7 @@ test("records detector outcomes and maps exhausted budgets to capture loss once"
     { family: "requests", phaseId: 0, kind: "cap", count: 3, detail: "request-capture" }
   ]);
   assert.deepEqual(result.detectors["pixel-events"], {
-    version: "pixel-request-decoder@1",
+    version: "pixel-request-decoder@2",
     status: "complete",
     phaseId: 0
   });
@@ -62,6 +63,25 @@ test("quality stays evaluator-owned and capture loss censors only its family", (
   assert.equal(quality.run.outcome, "complete");
   assert.equal(quality.byFamily.requests.outcome, "censored");
   assert.equal(quality.byFamily.cookies.outcome, "complete");
+});
+
+test("page-subject capture loss fails run quality", () => {
+  const kernel = new MeasurementKernel(0, () => 1);
+  const phaseId = kernel.beginPhase("passive-load");
+  kernel.recordCaptureLoss({
+    family: "detector-output",
+    phaseId,
+    kind: "dropped",
+    count: 1,
+    detail: PAGE_SUBJECT_CAPTURE_LOSS_DETAIL
+  });
+  const facts = kernel.qualityFacts({ status: 200, botWallTitleMatched: false, navigationSettled: true });
+  const quality = evaluateQuality(facts, { observedRequests: 5 });
+  assert.deepEqual(quality.run, {
+    outcome: "failed",
+    reasons: [`capture-loss:${PAGE_SUBJECT_CAPTURE_LOSS_DETAIL}`]
+  });
+  assert.equal(quality.byFamily["detector-output"].outcome, "censored");
 });
 
 test("boundary snapshots derive added, changed, and removed cookie/storage records", () => {
@@ -105,8 +125,8 @@ test("boundary snapshots derive added, changed, and removed cookie/storage recor
 
 test("detector registry identity is stable and non-empty", () => {
   assert.equal(DETECTOR_REGISTRY_VERSION, "node-detectors-v2");
-  // Three committed r2 reports carry this exact digest in their provenance, so
-  // it is published identity, not an internal value. A shape-only assertion
-  // would let a registry edit orphan them silently.
-  assert.equal(DETECTOR_REGISTRY_DIGEST, "1961b4197b649b6eb8028f95a9f2f6b28973b7427178b23e661017da7ed0c7c4");
+  // Detector behavior is published provenance. Completeness, cancellation,
+  // and truncation semantics moved together with the detector versions rather
+  // than silently presenting the new behavior as the old release.
+  assert.equal(DETECTOR_REGISTRY_DIGEST, "4f4bf67ce216d0a5c173ae2d1a1ddb79bac3c7699c04e6900908350ee4f5bdc5");
 });

@@ -37,6 +37,7 @@ import {
   type QualityReason,
   type ScanRunV2
 } from "./scan-report-v2";
+import { PAGE_SUBJECT_CAPTURE_LOSS_DETAIL } from "./bot-wall-classifier";
 import { buildFingerprints, canonicalJson } from "./scan-report-v2-fingerprints";
 import { METRIC_EVIDENCE_SOURCES } from "./metric-evidence-sources";
 import {
@@ -108,6 +109,7 @@ export const BUDGET_FAMILIES: Readonly<Record<string, EvidenceFamily>> = Object.
   "keystroke-probe": "detector-output",
   "cname-lookups": "detector-output",
   "pixel-decode": "detector-output",
+  "consent-banner": "detector-output",
   "policy-visit": "detector-output",
   // Truncation details the Node scanner records. These are capture-loss
   // details rather than budget names, but assertQualityVocabulary resolves
@@ -122,6 +124,7 @@ export const BUDGET_FAMILIES: Readonly<Record<string, EvidenceFamily>> = Object.
   // Public build-time caps. These are part of the pre-emission registry: a
   // hostile page cannot bloat a wire artifact, and every clipped family is
   // explicitly censored instead of silently truncated.
+  "public-request-unregistrable-hosts": "requests",
   "public-request-records": "requests",
   "public-cookie-mutations": "cookies",
   "public-cookie-final": "cookies",
@@ -161,6 +164,12 @@ export function evaluateQuality(facts: QualityFacts, context: QualityContext): Q
   }
   if (facts.botWallTitleMatched) failureReasons.push("bot-wall-title");
   if (!facts.navigationSettled) failureReasons.push("navigation-timeout");
+  // This detail is emitted only by producers that attempted the bounded
+  // page-subject read. Without it, a calm or comparative result could describe
+  // an arbitrary document whose identity the scanner never verified.
+  if (facts.captureLoss.some((entry) => entry.detail === PAGE_SUBJECT_CAPTURE_LOSS_DETAIL)) {
+    failureReasons.push(`capture-loss:${PAGE_SUBJECT_CAPTURE_LOSS_DETAIL}`);
+  }
   const requestLossRecorded = facts.captureLoss.some((entry) => entry.family === "requests");
   if (failureReasons.length === 0 && context.observedRequests === 0 && !requestLossRecorded) {
     // A settled, non-error page that produced zero observable requests did

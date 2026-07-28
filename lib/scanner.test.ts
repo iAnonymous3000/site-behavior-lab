@@ -2,6 +2,11 @@ import assert from "node:assert/strict";
 import { createServer } from "node:http";
 import { connect, createServer as createNetServer } from "node:net";
 import { test } from "node:test";
+import {
+  PAGE_SUBJECT_CAPTURE_LOSS_DETAIL,
+  PAGE_SUBJECT_UNVERIFIED_WARNING,
+  SUSPECTED_CHALLENGE_OR_SOFT_BLOCK_WARNING
+} from "./bot-wall-classifier";
 import { RedactionPass, redactScannerWarnings } from "./redact-scan-report-v1";
 import { redactUrlForReport } from "./report-url";
 import { PublicScanError } from "./public-errors";
@@ -22,6 +27,7 @@ import {
   createProbeRequestCaptureState,
   decideRoutedRequest,
   fingerprintFrameCoverageStatus,
+  incompleteKeystrokeProbeRequestLoss,
   phaseAwareFingerprintEvents,
   freezePassiveShieldsFacts,
   MAX_RECORDED_REQUESTS,
@@ -33,6 +39,7 @@ import {
   retainedScanEvidenceDiagnostics,
   SCAN_CHROMIUM_LAUNCH_ARGS,
   ScanRequestBudget,
+  scannerEgressLabel,
   scannerEgressRegion,
   scanSite,
   scanSiteWithMeasurement,
@@ -43,8 +50,32 @@ import {
   type ScanEvidenceDiagnostics
 } from "./scanner";
 import { createNodeScanMeasurementEnvelope } from "./node-scan-measurement";
-import { FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING, INVALID_UPSTREAM_RESPONSE_WARNING } from "./scan-runtime";
-import { resolveScannerEgressRegion } from "./scanner-egress";
+import {
+  FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING,
+  INVALID_UPSTREAM_RESPONSE_WARNING,
+  PIXEL_DECODE_CAPTURE_LOSS_WARNING
+} from "./scan-runtime";
+import { resolveScannerEgressLabel, resolveScannerEgressRegion } from "./scanner-egress";
+
+test("scannerEgressLabel canonicalizes unreviewed operator text before r2 collection", () => {
+  assert.equal(scannerEgressLabel({}), "this scanner instance");
+  assert.equal(
+    scannerEgressLabel({ SITE_BEHAVIOR_LAB_SCANNER_EGRESS: " github-actions-ubuntu " }),
+    "github-actions-ubuntu"
+  );
+  assert.equal(scannerEgressLabel({ SITE_BEHAVIOR_LAB_SCANNER_EGRESS: "iad-lab-egress" }), "this scanner instance");
+  assert.deepEqual(resolveScannerEgressLabel({ SITE_BEHAVIOR_LAB_SCANNER_EGRESS: "iad-lab-egress" }), {
+    status: "canonicalized",
+    value: "this scanner instance"
+  });
+  assert.deepEqual(
+    resolveScannerEgressLabel({ SITE_BEHAVIOR_LAB_SCANNER_EGRESS: "controlled-self-hosted" }),
+    {
+      status: "aliased",
+      value: "this scanner instance"
+    }
+  );
+});
 
 test("scannerEgressRegion records only r2-safe explicit regions or complete Cloudflare placement", () => {
   // The r2 comparability gates treat an unrecorded egress region as unknown,
@@ -185,6 +216,77 @@ test("active input typing stops if focus races an origin change", async () => {
   assert.equal(typed, false);
 });
 
+test("active input typing records a typed field before a failing blur can hide the disclosure", async () => {
+  let reportedTypedCount = 0;
+  const handle = {
+    async isVisible() {
+      return true;
+    },
+    async evaluate<Arg>(callback: (element: HTMLElement, arg: Arg) => unknown, arg: Arg) {
+      const element = {
+        tagName: "INPUT",
+        isContentEditable: false,
+        getAttribute: () => "text",
+        blur: () => undefined
+      } as unknown as HTMLElement;
+      Object.defineProperty(globalThis, "test-collector", {
+        configurable: true,
+        value: {
+          fieldType: () => "text",
+          blur: () => {
+            throw new Error("execution context disappeared after typing");
+          }
+        }
+      });
+      try {
+        return callback(element, arg);
+      } finally {
+        Reflect.deleteProperty(globalThis, "test-collector");
+      }
+    },
+    async focus() {},
+    async type() {},
+    async dispose() {}
+  };
+  const page = {
+    url: () => "https://www.example.com/form",
+    locator: () => ({
+      count: async () => 1,
+      nth: () => ({ elementHandle: async () => handle })
+    })
+  };
+
+  const result = await typeSentinelIntoFields(
+    page as unknown as Parameters<typeof typeSentinelIntoFields>[0],
+    "synthetic-value",
+    "https://www.example.com/form",
+    "test-collector",
+    {
+      isCancelled: () => false,
+      onTypedField: (count) => {
+        reportedTypedCount = count;
+      }
+    }
+  );
+
+  assert.equal(reportedTypedCount, 1);
+  assert.deepEqual(result, {
+    count: 1,
+    types: ["text"],
+    subjectLost: false,
+    omittedCandidateCount: 0
+  });
+});
+
+test("an unresolved keystroke probe censors request evidence at the active-probe phase", () => {
+  assert.deepEqual(incompleteKeystrokeProbeRequestLoss(3), {
+    family: "requests",
+    phaseId: 3,
+    kind: "timeout",
+    count: 1
+  });
+});
+
 test("active input typing materializes only the bounded candidate window", async () => {
   let handleReads = 0;
   let disposals = 0;
@@ -262,6 +364,16 @@ test("active-probe request capture bounds request count, URL length, and body re
   } as never, "example.com");
   assert.equal(longBody.requests[0].body?.length, MAX_CAPTURED_BODY_CHARS);
   assert.equal(longBody.captureLossCount, 1);
+
+  const unreadableBody = createProbeRequestCaptureState();
+  captureProbeRequest(unreadableBody, {
+    url: () => "https://tracker.example/submit",
+    postData: () => {
+      throw new Error("body unavailable");
+    }
+  } as never, "example.com");
+  assert.equal(unreadableBody.requests[0].body, null);
+  assert.equal(unreadableBody.captureLossCount, 1);
 });
 
 test("phase-aware fingerprint detections never assign cumulative evidence to the passive phase", () => {
@@ -1323,6 +1435,170 @@ test("decideRoutedRequest handles Service Worker and frame-less navigation reque
   );
 });
 
+test("HTTP-200 robot pages and unavailable subject collectors fail quality and skip active probes", { timeout: 30_000 }, async () => {
+  const upstreamHits: string[] = [];
+  const upstream = createServer((request, response) => {
+    const host = request.headers.host?.split(":")[0] ?? "";
+    upstreamHits.push(`${host}${request.url ?? "/"}`);
+
+    if (request.url === "/robot-image.gif" || request.url === "/robot-logo.gif") {
+      response.writeHead(200, { "content-type": "image/gif" });
+      response.end(Buffer.from("R0lGODlhAQABAAAAACw=", "base64"));
+      return;
+    }
+    if (request.url === "/privacy") {
+      response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+      response.end("<!doctype html><title>Privacy</title><p>Policy must not be visited from a robot wall.</p>");
+      return;
+    }
+    if (request.url === "/consent-click" || request.url === "/typed") {
+      response.writeHead(204);
+      response.end();
+      return;
+    }
+
+    response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+    if (host === "sparse-legitimate.test") {
+      response.end("<!doctype html><title>Example Domain</title><p>Small, ordinary public page.</p>");
+      return;
+    }
+    if (host === "collector-unavailable.test") {
+      response.end(`<!doctype html>
+        <title>Example Domain</title>
+        <main>
+          <p>Ordinary public page whose subject check is unavailable.</p>
+          <a href="/privacy">Privacy</a>
+          <button onclick="fetch('/consent-click')">Accept all</button>
+          <input oninput="fetch('/typed', { method: 'POST' })">
+        </main>`);
+      return;
+    }
+    response.end(`<!doctype html>
+      <title>Amazon.com</title>
+      <main>
+        <h1>Enter the characters you see below</h1>
+        <p>Sorry, we just need to make sure you're not a robot.</p>
+        <p>For best results, please make sure your browser is accepting cookies.</p>
+        <img src="/robot-logo.gif" alt="">
+        <img src="/robot-image.gif" alt="">
+        <a href="/privacy">Privacy</a>
+        <button onclick="fetch('/consent-click')">Accept all</button>
+        <input oninput="fetch('/typed', { method: 'POST' })">
+      </main>`);
+  });
+  await new Promise<void>((resolve, reject) => {
+    upstream.once("error", reject);
+    upstream.listen(0, "127.0.0.1", resolve);
+  });
+  const address = upstream.address();
+  assert.ok(address && typeof address === "object");
+  const options = {
+    publicUrlAlreadyVerified: true,
+    verifyPublicUrl: async () => undefined,
+    resolvePublicHost: async () => [{ address: "93.184.216.34", family: 4 as const }],
+    connectProxyUpstreamForTests: () => connect(address.port, "127.0.0.1"),
+    resolveCnameChain: async () => []
+  };
+
+  try {
+    const { result, measurement } = await scanSiteWithMeasurement(
+      {
+        url: "http://amazon-soft-block.test/",
+        device: "desktop",
+        gpcEnabled: false,
+        consentMode: "accept-all"
+      },
+      options
+    );
+
+    assert.equal(result.summary.status, 200);
+    assert.equal(result.summary.totalRequests, 3);
+    assert.equal(result.warnings.includes(SUSPECTED_CHALLENGE_OR_SOFT_BLOCK_WARNING), true);
+    assert.equal(result.consentInteraction, undefined, "the interstitial's decoy consent control must not be clicked");
+    assert.equal(measurement.measurement.qualityFacts.botWallTitleMatched, true);
+    assert.deepEqual(measurement.measurement.detectors["consent-banner"], {
+      version: "consent-control-and-state@2",
+      status: "skipped",
+      reason: "load-failed"
+    });
+    assert.deepEqual(measurement.measurement.detectors["keystroke-exfiltration"], {
+      version: "synthetic-sentinel@2",
+      status: "skipped",
+      reason: "load-failed"
+    });
+    assert.deepEqual(measurement.measurement.detectors["privacy-policy"], {
+      version: "policy-text-cross-check@2",
+      status: "skipped",
+      reason: "load-failed"
+    });
+    assert.equal(upstreamHits.some((hit) => hit.endsWith("/privacy")), false);
+    assert.equal(upstreamHits.some((hit) => hit.endsWith("/consent-click")), false);
+    assert.equal(upstreamHits.some((hit) => hit.endsWith("/typed")), false);
+
+    const legitimate = await scanSiteWithMeasurement(
+      {
+        url: "http://sparse-legitimate.test/",
+        device: "desktop",
+        gpcEnabled: false,
+        consentMode: "observe"
+      },
+      options
+    );
+    assert.equal(legitimate.result.summary.status, 200);
+    assert.equal(legitimate.result.summary.totalRequests, 1);
+    assert.equal(legitimate.measurement.measurement.qualityFacts.botWallTitleMatched, false);
+    assert.equal(
+      legitimate.result.warnings.includes(SUSPECTED_CHALLENGE_OR_SOFT_BLOCK_WARNING),
+      false,
+      "request sparsity alone must not invalidate an ordinary page"
+    );
+
+    const unavailable = await scanSiteWithMeasurement(
+      {
+        url: "http://collector-unavailable.test/",
+        device: "desktop",
+        gpcEnabled: false,
+        consentMode: "accept-all"
+      },
+      { ...options, forceMissingPageSubjectCollectorForTests: true }
+    );
+    assert.equal(unavailable.result.summary.status, 200);
+    assert.equal(unavailable.result.warnings.includes(PAGE_SUBJECT_UNVERIFIED_WARNING), true);
+    assert.equal(unavailable.result.consentInteraction, undefined);
+    assert.equal(unavailable.measurement.measurement.qualityFacts.botWallTitleMatched, false);
+    assert.equal(
+      unavailable.measurement.measurement.qualityFacts.captureLoss.some(
+        (loss) =>
+          loss.family === "detector-output" &&
+          loss.kind === "dropped" &&
+          loss.detail === PAGE_SUBJECT_CAPTURE_LOSS_DETAIL
+      ),
+      true
+    );
+    assert.deepEqual(unavailable.measurement.measurement.detectors["consent-banner"], {
+      version: "consent-control-and-state@2",
+      status: "skipped",
+      reason: "load-failed"
+    });
+    assert.deepEqual(unavailable.measurement.measurement.detectors["keystroke-exfiltration"], {
+      version: "synthetic-sentinel@2",
+      status: "skipped",
+      reason: "load-failed"
+    });
+    assert.deepEqual(unavailable.measurement.measurement.detectors["privacy-policy"], {
+      version: "policy-text-cross-check@2",
+      status: "skipped",
+      reason: "load-failed"
+    });
+    assert.equal(upstreamHits.some((hit) => hit.endsWith("/privacy")), false);
+    assert.equal(upstreamHits.some((hit) => hit.endsWith("/consent-click")), false);
+    assert.equal(upstreamHits.some((hit) => hit.endsWith("/typed")), false);
+  } finally {
+    await closeSharedBrowserForTests();
+    await new Promise<void>((resolve) => upstream.close(() => resolve()));
+  }
+});
+
 test("scanSite stages live phase-aware readbacks while returning only v1", { timeout: 30_000 }, async () => {
   const receivedFinalGpcHeaders: Array<string | undefined> = [];
   const upstream = createServer((request, response) => {
@@ -1387,12 +1663,12 @@ test("scanSite stages live phase-aware readbacks while returning only v1", { tim
     assert.equal(Object.keys(staged.measurement.detectors).length, 6);
     assert.equal(staged.measurement.detectors["fingerprint-heuristics"].status, "complete");
     assert.deepEqual(staged.measurement.detectors["keystroke-exfiltration"], {
-      version: "synthetic-sentinel@1",
+      version: "synthetic-sentinel@2",
       status: "complete",
       phaseId: 1
     });
     assert.deepEqual(staged!.measurement.detectors["cname-uncloaking"], {
-      version: "dns-cname-chain@1",
+      version: "dns-cname-chain@2",
       status: "failed",
       reason: "scan-failed",
       phaseId: 0
@@ -1463,6 +1739,136 @@ test("scanSite stages live phase-aware readbacks while returning only v1", { tim
         (loss) => loss.family === "requests" && loss.kind === "cap" && loss.detail === "proxy-traffic"
       ),
       true
+    );
+  } finally {
+    await closeSharedBrowserForTests();
+    await new Promise<void>((resolve) => upstream.close(() => resolve()));
+  }
+});
+
+test("CNAME candidate overflow records detector-output loss instead of a complete negative", { timeout: 30_000 }, async () => {
+  const upstream = createServer((request, response) => {
+    const host = request.headers.host?.split(":")[0] ?? "";
+    if (host === "cname-cap.test") {
+      response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+      response.end(`<!doctype html><title>CNAME cap fixture</title><script>
+        Promise.all(Array.from({ length: 11 }, (_, index) =>
+          fetch("http://h" + index + ".cname-cap.test/pixel", { mode: "no-cors" })
+        )).catch(() => undefined);
+      </script>`);
+      return;
+    }
+    response.writeHead(204);
+    response.end();
+  });
+  await new Promise<void>((resolve, reject) => {
+    upstream.once("error", reject);
+    upstream.listen(0, "127.0.0.1", resolve);
+  });
+  const address = upstream.address();
+  assert.ok(address && typeof address === "object");
+  const resolvedHosts: string[] = [];
+
+  try {
+    const { measurement } = await scanSiteWithMeasurement(
+      {
+        url: "http://cname-cap.test/",
+        device: "desktop",
+        gpcEnabled: false,
+        consentMode: "observe"
+      },
+      {
+        publicUrlAlreadyVerified: true,
+        verifyPublicUrl: async () => undefined,
+        resolvePublicHost: async () => [{ address: "93.184.216.34", family: 4 }],
+        connectProxyUpstreamForTests: () => connect(address.port, "127.0.0.1"),
+        resolveCnameChain: async (host) => {
+          resolvedHosts.push(host);
+          return [];
+        }
+      }
+    );
+
+    assert.equal(resolvedHosts.length, 10);
+    assert.deepEqual(measurement.measurement.detectors["cname-uncloaking"], {
+      version: "dns-cname-chain@2",
+      status: "partial",
+      reason: "budget-unavailable",
+      phaseId: 0
+    });
+    assert.deepEqual(
+      measurement.measurement.qualityFacts.captureLoss.find(
+        (loss) => loss.family === "detector-output" && loss.detail === "cname-lookups" && loss.kind === "cap"
+      ),
+      {
+        family: "detector-output",
+        phaseId: 0,
+        kind: "cap",
+        count: 1,
+        detail: "cname-lookups"
+      }
+    );
+  } finally {
+    await closeSharedBrowserForTests();
+    await new Promise<void>((resolve) => upstream.close(() => resolve()));
+  }
+});
+
+test("a truncated recognized pixel POST censors pixel detector output", { timeout: 30_000 }, async () => {
+  const upstream = createServer((request, response) => {
+    const host = request.headers.host?.split(":")[0] ?? "";
+    if (host === "pixel-body.test") {
+      response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+      response.end(`<!doctype html><title>Pixel body fixture</title><script>
+        fetch("http://analytics.tiktok.com/api/v2/pixel", {
+          method: "POST",
+          mode: "no-cors",
+          body: "x".repeat(${MAX_CAPTURED_BODY_CHARS + 1})
+        }).catch(() => undefined);
+      </script>`);
+      return;
+    }
+    response.writeHead(204);
+    response.end();
+  });
+  await new Promise<void>((resolve, reject) => {
+    upstream.once("error", reject);
+    upstream.listen(0, "127.0.0.1", resolve);
+  });
+  const address = upstream.address();
+  assert.ok(address && typeof address === "object");
+
+  try {
+    const { result, measurement } = await scanSiteWithMeasurement(
+      {
+        url: "http://pixel-body.test/",
+        device: "desktop",
+        gpcEnabled: false,
+        consentMode: "observe"
+      },
+      {
+        publicUrlAlreadyVerified: true,
+        verifyPublicUrl: async () => undefined,
+        resolvePublicHost: async () => [{ address: "93.184.216.34", family: 4 }],
+        connectProxyUpstreamForTests: () => connect(address.port, "127.0.0.1"),
+        resolveCnameChain: async () => []
+      }
+    );
+
+    assert.equal(result.warnings.includes(PIXEL_DECODE_CAPTURE_LOSS_WARNING), true);
+    assert.deepEqual(measurement.measurement.detectors["pixel-events"], {
+      version: "pixel-request-decoder@2",
+      status: "partial",
+      reason: "budget-unavailable",
+      phaseId: 0
+    });
+    assert.ok(
+      measurement.measurement.qualityFacts.captureLoss.some(
+        (loss) =>
+          loss.family === "detector-output" &&
+          loss.kind === "truncated" &&
+          loss.detail === "pixel-decode"
+      )
     );
   } finally {
     await closeSharedBrowserForTests();
@@ -2286,13 +2692,13 @@ test("a consent click cannot promote a sibling origin into evidence or active-in
       ["passive-load", "consent-interaction"]
     );
     assert.deepEqual(staged!.measurement.detectors["consent-banner"], {
-      version: "consent-control-and-state@1",
+      version: "consent-control-and-state@2",
       status: "partial",
       reason: "load-failed",
       phaseId: 1
     });
     assert.deepEqual(staged!.measurement.detectors["keystroke-exfiltration"], {
-      version: "synthetic-sentinel@1",
+      version: "synthetic-sentinel@2",
       status: "skipped",
       reason: "load-failed"
     });
@@ -2317,6 +2723,16 @@ test("a consent click cannot promote a sibling origin into evidence or active-in
         `missing ${family} subject-loss accounting`
       );
     }
+    assert.ok(
+      staged!.measurement.qualityFacts.captureLoss.some(
+        (loss) =>
+          loss.family === "detector-output" &&
+          loss.phaseId === 1 &&
+          loss.kind === "dropped" &&
+          loss.detail === "consent-banner"
+      ),
+      "missing consent detector-output subject-loss accounting"
+    );
   } finally {
     delete process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION;
     await closeSharedBrowserForTests();
@@ -2372,6 +2788,11 @@ test("a consent control that reloads the page is not reported as a missing contr
     assert.match(consentWarnings[0], /moved out from under the search/);
     assert.equal(staged!.measurement.detectors["consent-banner"].status, "partial");
     assert.equal(staged!.measurement.detectors["consent-banner"].reason, "load-failed");
+    assert.ok(
+      staged!.measurement.qualityFacts.captureLoss.some(
+        (loss) => loss.family === "detector-output" && loss.detail === "consent-banner"
+      )
+    );
   } finally {
     await closeSharedBrowserForTests();
     await new Promise<void>((resolve) => upstream.close(() => resolve()));
@@ -2399,7 +2820,7 @@ test("a consent control that never responds is disclosed as a click, not an empt
   assert.ok(address && typeof address === "object");
 
   try {
-    const { result } = await scanSiteWithMeasurement(
+    const { result, measurement: staged } = await scanSiteWithMeasurement(
       {
         url: "http://unresponsive-cmp.test/",
         device: "desktop",
@@ -2421,6 +2842,21 @@ test("a consent control that never responds is disclosed as a click, not an empt
     assert.equal(consentWarnings.length, 1, consentWarnings.join(" | "));
     assert.match(consentWarnings[0], /clicked a control that never visibly responded/);
     assert.doesNotMatch(consentWarnings[0], /no recognizable control was found/);
+    assert.deepEqual(staged!.measurement.detectors["consent-banner"], {
+      version: "consent-control-and-state@2",
+      status: "partial",
+      reason: "scan-failed",
+      phaseId: 1
+    });
+    assert.ok(
+      staged!.measurement.qualityFacts.captureLoss.some(
+        (loss) =>
+          loss.family === "detector-output" &&
+          loss.phaseId === 1 &&
+          loss.kind === "dropped" &&
+          loss.detail === "consent-banner"
+      )
+    );
   } finally {
     await closeSharedBrowserForTests();
     await new Promise<void>((resolve) => upstream.close(() => resolve()));
@@ -2565,7 +3001,7 @@ test("post-consent cross-site reload evidence is rejected and the active input p
     );
     const reloadPhase = staged!.measurement.phases.find((phase) => phase.kind === "post-choice-reload")!;
     assert.deepEqual(staged!.measurement.detectors["keystroke-exfiltration"], {
-      version: "synthetic-sentinel@1",
+      version: "synthetic-sentinel@2",
       status: "skipped",
       reason: "load-failed"
     });

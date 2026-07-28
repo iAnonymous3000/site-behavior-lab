@@ -21,7 +21,13 @@ import { requestLogToCsv } from "@/lib/csv-export";
 import { consentVerificationSummary } from "@/lib/report-consent-copy";
 import { buildReportHeadline } from "@/lib/report-headline";
 import { parseEvidenceHash } from "@/lib/report-evidence-navigation";
-import { displayableScreenshot, gpcRunMeasurement, scanLoadFailureStatus } from "@/lib/report-insights";
+import {
+  displayableScreenshot,
+  gpcRunMeasurement,
+  scanLoadFailureStatus,
+  scanPageSubjectUnverified,
+  scanSuspectedChallengeOrSoftBlock
+} from "@/lib/report-insights";
 import type { LoadedReport } from "@/lib/scan-report-view";
 import {
   comparisonArmViews,
@@ -95,13 +101,19 @@ export function ReportRenderer({
   // scaled into the sidebar column is often near-blank, which reads either as a
   // broken image or as a claim that the site is a blank page.
   const screenshotFailureStatus = scanLoadFailureStatus(displayedRun.status);
+  const screenshotSubjectUnverified = scanPageSubjectUnverified(displayedRun);
+  const screenshotSoftBlock = scanSuspectedChallengeOrSoftBlock(displayedRun);
   const screenshotFailedLoad = screenshotFailureStatus !== null || displayedRun.quality.outcome === "failed";
   const screenshotSubject =
     screenshotFailureStatus !== null
       ? `the HTTP ${screenshotFailureStatus} error or block page returned by ${displayedRun.domain}`
-      : screenshotFailedLoad
-        ? `the page ${displayedRun.domain} returned on a load that did not complete`
-        : displayedRun.domain;
+      : screenshotSubjectUnverified
+        ? `an unverified page subject returned while scanning ${displayedRun.domain}`
+        : screenshotSoftBlock
+          ? `the suspected challenge or soft-block page returned by ${displayedRun.domain}`
+          : screenshotFailedLoad
+            ? `the page ${displayedRun.domain} returned on a load that did not complete`
+            : displayedRun.domain;
 
   async function downloadReport() {
     const { publicWireForExportOrPersistence } = await import("@/lib/scan-report-view");
@@ -184,7 +196,11 @@ export function ReportRenderer({
                 <p className="muted">
                   {screenshotFailureStatus !== null
                     ? `This is the HTTP ${screenshotFailureStatus} error or block page, not the site. A near-blank image is what the browser actually rendered.`
-                    : "This is what the browser rendered on a load that did not complete, not the site."}
+                    : screenshotSubjectUnverified
+                      ? "The scanner could not verify that this rendered document was the requested page."
+                      : screenshotSoftBlock
+                        ? "This is the suspected challenge or soft-block page the browser rendered, not a normal load of the site."
+                        : "This is what the browser rendered on a load that did not complete, not the site."}
                 </p>
               )}
             </section>

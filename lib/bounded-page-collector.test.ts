@@ -9,10 +9,12 @@ import {
   installBoundedPageCollector
 } from "./bounded-page-collector";
 import {
+  collectBoundedPageContentText,
   collectBoundedPageTitle,
   collectStorageEntriesWithCoverage,
   MAX_CAPTURED_STORAGE_RECORDS
 } from "./scan-runtime";
+import { pickPrivacyPolicyLink } from "./privacy-policy";
 import { collectPrivacyPolicyLinks } from "./scanner";
 
 test("pre-page native collector survives hostile DOM getters and prototype poisoning", async () => {
@@ -49,6 +51,12 @@ test("pre-page native collector survives hostile DOM getters and prototype poiso
   assert.deepEqual(links.links, [{ href: "https://example.com/privacy", text: "Privacy policy" }]);
   assert.equal(links.truncated, true);
 
+  assert.deepEqual(await collectBoundedPageContentText(realm.page, key), {
+    value: "Policy body",
+    truncated: false,
+    available: true
+  });
+
   assert.equal(await callBoundedElementCollector(realm.element, key, "fieldType"), "email");
   assert.equal(await callBoundedElementCollector(realm.element, key, "blur"), true);
   assert.equal(realm.run("__wasBlurred()"), true);
@@ -56,8 +64,58 @@ test("pre-page native collector survives hostile DOM getters and prototype poiso
 
 test("an absent or forged collector capability fails closed", async () => {
   const realm = hostileDomRealm();
-  const result = await collectBoundedPageTitle(realm.page, createBoundedPageCollectorKey());
-  assert.deepEqual(result, { value: "", truncated: true });
+  const key = createBoundedPageCollectorKey();
+  assert.deepEqual(await collectBoundedPageTitle(realm.page, key), { value: "", truncated: true });
+  assert.deepEqual(await collectBoundedPageContentText(realm.page, key), {
+    value: "",
+    truncated: true,
+    available: false
+  });
+});
+
+test("the bounded collector discovers localized privacy-policy link candidates", async () => {
+  const key = createBoundedPageCollectorKey();
+  const realm = hostileDomRealm();
+  realm.run(`(${installBoundedPageCollector.toString()})(${JSON.stringify(key)})`);
+  realm.run(`
+    __setLinks([
+      { href: "https://example.com/legal/es", text: ["Política de", "privacidad"] },
+      { href: "https://example.com/legal/fr", text: "Politique de confidentialité" },
+      { href: "https://example.com/legal/de", text: "Datenschutzerklärung" },
+      { href: "https://example.com/privacybeleid", text: "Juridisch" },
+      { href: "https://example.com/legal/pt", text: "Política de privacidade" },
+      { href: "https://example.com/legal/fr-data", text: "Politique de protection des données" },
+      { href: "https://example.com/legal/nl-data", text: "Gegevensbeschermingsbeleid" },
+      { href: "https://example.com/legal/pt-data", text: "Política de proteção de dados" },
+      { href: "https://example.com/gdpr", text: "GDPR information" },
+      { href: "https://example.com/ordinary", text: "Ordinary page" }
+    ])
+  `);
+
+  const links = await collectPrivacyPolicyLinks(
+    realm.page as unknown as Parameters<typeof collectPrivacyPolicyLinks>[0],
+    key
+  );
+  assert.deepEqual(links, {
+    links: [
+      { href: "https://example.com/legal/es", text: "Política de privacidad" },
+      { href: "https://example.com/legal/fr", text: "Politique de confidentialité" },
+      { href: "https://example.com/legal/de", text: "Datenschutzerklärung" },
+      { href: "https://example.com/privacybeleid", text: "Juridisch" },
+      { href: "https://example.com/legal/pt", text: "Política de privacidade" },
+      { href: "https://example.com/legal/fr-data", text: "Politique de protection des données" },
+      { href: "https://example.com/legal/nl-data", text: "Gegevensbeschermingsbeleid" },
+      { href: "https://example.com/legal/pt-data", text: "Política de proteção de dados" }
+    ],
+    truncated: false
+  });
+  for (const link of links.links) {
+    assert.equal(
+      pickPrivacyPolicyLink([link], "example.com"),
+      link.href,
+      `collector candidate must remain eligible at the selector handoff: ${link.text}`
+    );
+  }
 });
 
 test("the browser producer installs the immutable collector before creating the measured page", async () => {
@@ -146,7 +204,7 @@ const REALM_SETUP = String.raw`
     constructor(href, text) {
       super("A");
       anchorState.set(this, { href });
-      this.append(new Node(3, text));
+      for (const part of Array.isArray(text) ? text : [text]) this.append(new Node(3, part));
     }
     get href() { return anchorState.get(this).href; }
   }
@@ -180,6 +238,9 @@ const REALM_SETUP = String.raw`
     anchors[index] = new HTMLAnchorElement("https://example.com/page-" + index, "ordinary");
   }
   const body = new HTMLElement("BODY");
+  const script = new HTMLElement("SCRIPT");
+  script.append(new Node(3, "Sorry, we just need to make sure you're not a robot"));
+  body.append(script);
   body.append(new Node(3, "Policy body"));
   const documentValue = new Document("Safe title", new HTMLCollection(anchors), body);
   const entries = new Array(1005);
@@ -194,6 +255,11 @@ const REALM_SETUP = String.raw`
   Object.defineProperty(globalThis, "localStorage", { configurable: true, get() { return localValue; } });
   Object.defineProperty(globalThis, "sessionStorage", { configurable: true, get() { return sessionValue; } });
   globalThis.__setTitle = (value) => { documentState.get(documentValue).title = value; };
+  globalThis.__setLinks = (links) => {
+    documentState.get(documentValue).links = new HTMLCollection(
+      links.map((link) => new HTMLAnchorElement(link.href, link.text))
+    );
+  };
   globalThis.__wasBlurred = () => htmlState.get(__field).blurred;
 `;
 

@@ -204,6 +204,7 @@ jobs:
       # launch without it. That is also Chromium's own preferred remedy; its
       # sandbox-disabling alternative is exactly what this repository refuses.
       - name: Allow the Chromium sandbox to initialize on the hosted runner
+        if: runner.environment == 'github-hosted'
         run: |
           set -euo pipefail
           current="$(sysctl -n kernel.apparmor_restrict_unprivileged_userns 2>/dev/null || echo 0)"
@@ -211,6 +212,20 @@ jobs:
             sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
           fi
           echo "kernel.apparmor_restrict_unprivileged_userns=$(sysctl -n kernel.apparmor_restrict_unprivileged_userns 2>/dev/null || echo unavailable)"
+
+      - name: Verify Chromium sandbox support on the controlled runner
+        if: runner.environment == 'self-hosted'
+        run: |
+          set -euo pipefail
+          if current="$(sysctl -n kernel.apparmor_restrict_unprivileged_userns 2>/dev/null)"; then
+            if [[ "$current" != "0" ]]; then
+              echo "::error title=Chromium sandbox host setup::The controlled self-hosted runner has kernel.apparmor_restrict_unprivileged_userns=$current. Provision the persistent host with unprivileged user namespaces enabled before this workflow; refusing to change a host-wide kernel setting from the job."
+              exit 1
+            fi
+            echo "kernel.apparmor_restrict_unprivileged_userns=$current"
+          else
+            echo "kernel.apparmor_restrict_unprivileged_userns is not present; no AppArmor user-namespace restriction was detected."
+          fi
 
       - name: Install Chromium
         run: npx playwright install --with-deps chromium

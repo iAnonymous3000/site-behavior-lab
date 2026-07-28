@@ -150,6 +150,11 @@ const catalog: CatalogEntry[] = [
     category: "advertising / demand-side platform"
   },
   {
+    suffixes: ["stackadapt.com"],
+    entity: "StackAdapt",
+    category: "advertising / demand-side platform"
+  },
+  {
     suffixes: ["liveramp.com", "rlcdn.com"],
     entity: "LiveRamp",
     category: "identity / advertising"
@@ -172,6 +177,16 @@ const catalog: CatalogEntry[] = [
   {
     suffixes: ["pubmatic.com"],
     entity: "PubMatic",
+    category: "advertising / supply-side platform"
+  },
+  {
+    suffixes: ["3lift.com"],
+    entity: "TripleLift",
+    category: "advertising / supply-side platform"
+  },
+  {
+    suffixes: ["smartadserver.com"],
+    entity: "Equativ",
     category: "advertising / supply-side platform"
   },
   {
@@ -370,6 +385,11 @@ const catalog: CatalogEntry[] = [
     category: "audience measurement"
   },
   {
+    suffixes: ["doubleverify.com"],
+    entity: "DoubleVerify",
+    category: "advertising measurement / verification"
+  },
+  {
     suffixes: ["crwdcntrl.net", "lotame.com"],
     entity: "Lotame",
     category: "advertising / data management"
@@ -402,7 +422,7 @@ if (catalogValidationIssues.length > 0) {
 
 export const trackerCatalogMetadata = {
   source: "Hand-curated service catalog",
-  version: "hand-curated-2026.06",
+  version: "hand-curated-2026.07",
   region: "US-biased",
   entries: curatedOverrideCount,
   curatedOverrides: curatedOverrideCount,
@@ -413,7 +433,7 @@ export const trackerCatalogMetadata = {
   // SHA-256 of canonicalTrackerCatalogContents(). Kept as a checked-in
   // constant so this shared Node/Cloudflare module does not require a
   // runtime-specific crypto API merely to expose immutable build metadata.
-  digest: "b7d4991063310a81b56342ca7ad949723e785704326179e1658335d7af2f88cf"
+  digest: "7cade02ae20c3bb88e28e0de1135ef63c48f586e7196de3c02c13478f70c95bc"
 };
 
 /**

@@ -23,6 +23,23 @@ test("every static publication lane runs the exact remediation check before publ
   }
 });
 
+test("featured scans defer only the repeated corpus-wide check to their trusted parent", () => {
+  const ci = source("scripts/run-ci-scan.mjs");
+  const featured = source("scripts/run-featured-scans.mjs");
+
+  assert.match(ci, /process\.env\.CI_SCAN_DEFER_CORPUS_CHECK !== "1"/);
+  assert.match(featured, /CI_SCAN_DEFER_CORPUS_CHECK: "1"/);
+  const main = featured.slice(
+    featured.indexOf("async function main"),
+    featured.indexOf("export function featuredRunPlan")
+  );
+  assert.ok(
+    main.indexOf("for (const [index, site] of sites.entries())") <
+      main.indexOf('"reports:remediate", "--", "--check"'),
+    "the parent must run its full-corpus check after all deferred children"
+  );
+});
+
 test("scan artifacts and commits include provenance sidecars", () => {
   const scan = source(".github/workflows/scan.yml");
   const featured = source(".github/workflows/scan-featured.yml");
@@ -194,6 +211,20 @@ test("the featured scan keeps the Chromium sandbox on and makes the runner suppo
   // sandbox!". The remedy must be to let the sandbox initialize, never to
   // launch without one.
   assert.match(workflow, /kernel\.apparmor_restrict_unprivileged_userns=0/);
+  assert.match(
+    workflow,
+    /- name: Allow the Chromium sandbox to initialize on the hosted runner\n\s+if: runner\.environment == 'github-hosted'/
+  );
+  assert.match(
+    workflow,
+    /- name: Verify Chromium sandbox support on the controlled runner\n\s+if: runner\.environment == 'self-hosted'/
+  );
+  const selfHostedVerification = workflow.slice(
+    workflow.indexOf("- name: Verify Chromium sandbox support on the controlled runner"),
+    workflow.indexOf("- name: Install Chromium")
+  );
+  assert.match(selfHostedVerification, /refusing to change a host-wide kernel setting from the job/);
+  assert.doesNotMatch(selfHostedVerification, /sudo\s+sysctl\s+-w/);
   assert.ok(
     workflow.indexOf("kernel.apparmor_restrict_unprivileged_userns=0") <
       workflow.indexOf("npx playwright install --with-deps chromium"),

@@ -27,6 +27,10 @@ import {
 import { trackingServiceRequests } from "./report-insights";
 import { loadedReportFromStored, type LoadedReport } from "./scan-report-view";
 import { readStoredScanReport, type StoredScanReport } from "./scan-report-reader";
+import {
+  CONTROLLED_SCANNER_EGRESS_ALIAS,
+  DEFAULT_SCANNER_EGRESS_LABEL
+} from "./scanner-egress";
 import { scanMeasurementEnvelopeWithR2Run } from "./scan-report-v2-runtime-fixtures";
 import { buildRuntimeScanReportV2R2 } from "./scan-report-v2-runtime-builder";
 import { toPublicScanReportR2 } from "./scan-report-v2-r2-projection";
@@ -248,7 +252,7 @@ test("every active r2 producer lane survives managed reading, rendering, provena
     compareShields: "false",
     compareConsent: "false",
     runnerEnvironment: "self-hosted",
-    egressLabel: "controlled-egress",
+    egressLabel: CONTROLLED_SCANNER_EGRESS_ALIAS,
     egressRegion: "iad-egress-1",
     egressAttested: "1",
     chromiumSandbox: "1",
@@ -266,7 +270,7 @@ test("every active r2 producer lane survives managed reading, rendering, provena
         nodeReport(
           {
             startedAt: "2026-07-20T12:00:00.000Z",
-            egressLabel: "public-scanner",
+            egressLabel: DEFAULT_SCANNER_EGRESS_LABEL,
             egressRegion: "us-west"
           },
           directEnvironment
@@ -283,7 +287,7 @@ test("every active r2 producer lane survives managed reading, rendering, provena
         nodeReport(
           {
             startedAt: "2026-07-20T12:10:00.000Z",
-            egressLabel: "controlled-egress",
+            egressLabel: DEFAULT_SCANNER_EGRESS_LABEL,
             egressRegion: "iad-egress-1"
           },
           featuredEnvironment
@@ -356,7 +360,7 @@ test("each active producer supports its honest temporal diff surface and PageGra
     compareShields: "false",
     compareConsent: "false",
     runnerEnvironment: "self-hosted",
-    egressLabel: "controlled-egress",
+    egressLabel: CONTROLLED_SCANNER_EGRESS_ALIAS,
     egressRegion: "iad-egress-1",
     egressAttested: "1",
     chromiumSandbox: "1",
@@ -369,7 +373,7 @@ test("each active producer supports its honest temporal diff surface and PageGra
       nodeReport(
         {
           startedAt: "2026-07-20T12:00:00.000Z",
-          egressLabel: "public-scanner",
+          egressLabel: DEFAULT_SCANNER_EGRESS_LABEL,
           egressRegion: "us-west"
         },
         directEnvironment
@@ -380,7 +384,7 @@ test("each active producer supports its honest temporal diff surface and PageGra
       nodeReport(
         {
           startedAt: "2026-07-20T12:05:00.000Z",
-          egressLabel: "public-scanner",
+          egressLabel: DEFAULT_SCANNER_EGRESS_LABEL,
           egressRegion: "us-west"
         },
         directEnvironment
@@ -396,7 +400,7 @@ test("each active producer supports its honest temporal diff surface and PageGra
       nodeReport(
         {
           startedAt: "2026-07-20T12:10:00.000Z",
-          egressLabel: "controlled-egress",
+          egressLabel: DEFAULT_SCANNER_EGRESS_LABEL,
           egressRegion: "iad-egress-1"
         },
         featuredEnvironment
@@ -407,7 +411,7 @@ test("each active producer supports its honest temporal diff surface and PageGra
       nodeReport(
         {
           startedAt: "2026-07-20T12:15:00.000Z",
-          egressLabel: "controlled-egress",
+          egressLabel: DEFAULT_SCANNER_EGRESS_LABEL,
           egressRegion: "iad-egress-1"
         },
         featuredEnvironment

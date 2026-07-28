@@ -82,6 +82,69 @@ function countsOf(wire, run) {
   return wire?.schemaVersion === 2 ? run?.summary?.counts : run?.summary;
 }
 
+function armObservation(wire, run) {
+  const counts = countsOf(wire, run);
+  const requests = wire?.schemaVersion === 2 ? run?.evidence?.requests : run?.requests;
+  const thirdPartyDomains = [
+    ...new Set(
+      (Array.isArray(requests) ? requests : [])
+        .filter((request) => request?.thirdParty === true && typeof request.domain === "string")
+        .map((request) => request.domain)
+    )
+  ].sort();
+  return {
+    schemaVersion: wire?.schemaVersion ?? null,
+    reportType: wire?.reportType ?? null,
+    runOutcome: run?.quality?.run?.outcome ?? null,
+    requestOutcome: run?.quality?.byFamily?.requests?.outcome ?? null,
+    counts: {
+      totalRequests: counts?.totalRequests ?? null,
+      thirdPartyRequests: counts?.thirdPartyRequests ?? null,
+      knownTrackerRequests: counts?.knownTrackerRequests ?? null,
+      thirdPartyDomains: counts?.thirdPartyDomains ?? null
+    },
+    thirdPartyDomains,
+    producerRuntime: {
+      buildCommit: run?.provenance?.buildCommit ?? null,
+      observer: run?.provenance?.observer ?? null,
+      methodologyVersion: run?.provenance?.methodologyVersion ?? null,
+      detectorRegistry: run?.provenance?.detectorRegistry ?? null,
+      fingerprints: {
+        execution: run?.fingerprints?.execution ?? null,
+        measurementEnvironment: run?.fingerprints?.measurementEnvironment ?? null,
+        condition: run?.fingerprints?.condition ?? null
+      },
+      runtime: {
+        automation: run?.conditions?.automation ?? null,
+        browser: run?.conditions?.browser ?? null,
+        device: run?.conditions?.device ?? null,
+        locale: run?.conditions?.locale ?? null,
+        language: run?.conditions?.language ?? null,
+        timezone: run?.conditions?.timezone ?? null,
+        egress: run?.conditions?.egress ?? null,
+        headless: run?.conditions?.headless ?? null
+      }
+    }
+  };
+}
+
+/** Privacy-reduced, two-arm-aware observation used by the fidelity receipt. */
+export function fidelityObservationOf(wire) {
+  const comparison = wire?.reportType === "comparison";
+  const arms = Object.fromEntries(
+    runsOf(wire).map(({ run, tag }) => [comparison ? tag : "run", armObservation(wire, run)])
+  );
+  return {
+    schemaVersion: wire?.schemaVersion ?? null,
+    reportType: comparison ? "comparison" : "single",
+    arms,
+    order:
+      wire?.schemaVersion === 2 && wire?.experiment?.kind === "intervention"
+        ? wire.experiment.order
+        : null
+  };
+}
+
 /**
  * Evaluate one scan payload (the API response body's report, or a stored
  * report file). Returns the list of invariant failures (empty = pass) and the
@@ -289,5 +352,5 @@ export function evaluateScanBody(label, payload, bridge) {
     }
   }
 
-  return { failures, censored };
+  return { failures, censored, observation: fidelityObservationOf(wire) };
 }

@@ -4,6 +4,7 @@ import {
   gpcRunMeasurement,
   respondedTrackerEntityNames,
   shieldsRunMeasurement,
+  trackerOwnershipBreakdown,
   trackerResponseQualification
 } from "./report-insights";
 import type { DomainSummary } from "./types";
@@ -36,6 +37,36 @@ test("receipt facts distinguish dispatched requests from observed responses", ()
     trackerResponseQualification([{ entity: "Quiet" }], new Set()),
     "were sent requests that recorded no response, so receipt is unproven"
   );
+});
+
+test("ownership interpretation does not turn cross-domain counts into outside-company recipients", () => {
+  const domains: DomainSummary[] = [
+    {
+      domain: "stats.g.doubleclick.net",
+      requests: 2,
+      thirdParty: true,
+      tracker: { domain: "doubleclick.net", entity: "Google", category: "advertising", confidence: "curated" },
+      statuses: [204],
+      resourceTypes: ["fetch"]
+    },
+    {
+      domain: "facebook.net",
+      requests: 1,
+      thirdParty: true,
+      tracker: { domain: "facebook.net", entity: "Meta", category: "advertising", confidence: "curated" },
+      statuses: [200],
+      resourceTypes: ["script"]
+    }
+  ];
+
+  const breakdown = trackerOwnershipBreakdown({ domains }, "youtube.com");
+  assert.equal(breakdown.sameOrganizationName, "Google");
+  assert.equal(breakdown.sameOrganizationDomainCount, 1);
+  assert.deepEqual(breakdown.sameOrganization.map((entry) => entry.entity), ["Google"]);
+  assert.deepEqual(breakdown.otherOrUnreviewed.map((entry) => entry.entity), ["Meta"]);
+
+  // The wire still records both as cross-registrable-domain observations.
+  assert.equal(domains.filter((domain) => domain.thirdParty).length, 2);
 });
 
 test("GPC display facts keep requested and observed state separate", () => {

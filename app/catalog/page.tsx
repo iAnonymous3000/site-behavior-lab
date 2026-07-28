@@ -87,6 +87,11 @@ export default function CatalogPage() {
           {calibration.calibrationStudies} representative calibration studies and {calibration.labeledCalibrationCases}{" "}
           labeled calibration cases. {calibration.evidenceGate}
         </p>
+        <p className={styles.note}>
+          The published <a href={calibration.studySchemaPath}>{calibration.studySchema} JSON Schema</a> keeps acceptance
+          fixtures outside the calibration denominator. {calibration.releaseIdentityGate}{" "}
+          {calibration.labelProvenanceGate}
+        </p>
 
         <div className={styles.validationGrid}>
           {validationRows.map((row) => (

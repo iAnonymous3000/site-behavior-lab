@@ -1,5 +1,9 @@
 import type { AcquisitionKind } from "./scan-report-v2";
-import { resolveScannerEgressRegion } from "./scanner-egress";
+import {
+  CONTROLLED_SCANNER_EGRESS_ALIAS,
+  resolveScannerEgressLabel,
+  resolveScannerEgressRegion
+} from "./scanner-egress";
 
 export const REPORT_ACQUISITION_ENV = "SITE_BEHAVIOR_LAB_REPORT_ACQUISITION";
 
@@ -21,6 +25,7 @@ export function runtimeReportAcquisition(
 
   const egress = resolveScannerEgressRegion(environment);
   const egressLabel = environment.SITE_BEHAVIOR_LAB_SCANNER_EGRESS?.trim() ?? "";
+  const publicEgressLabel = resolveScannerEgressLabel(environment);
   if (
     environment.CI !== "1" ||
     reportMode !== "r2" ||
@@ -28,8 +33,8 @@ export function runtimeReportAcquisition(
     environment.FEATURED_R2_EGRESS_ATTESTED !== "1" ||
     environment.SITE_BEHAVIOR_LAB_CHROMIUM_SANDBOX !== "1" ||
     !egressLabel ||
-    egressLabel === "github-actions-ubuntu" ||
-    egressLabel.toLowerCase() === "unknown" ||
+    egressLabel !== CONTROLLED_SCANNER_EGRESS_ALIAS ||
+    publicEgressLabel.status !== "aliased" ||
     egress.status !== "configured"
   ) {
     throw new Error(

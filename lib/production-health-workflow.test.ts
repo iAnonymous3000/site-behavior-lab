@@ -42,6 +42,17 @@ const containerConfig = readFileSync(path.join(root, "wrangler.container.jsonc")
 const containerWorker = readFileSync(path.join(root, "cloudflare", "container-worker.ts"), "utf8");
 const synthetic = readFileSync(path.join(root, "scripts", "smoke-production-synthetic.mjs"), "utf8");
 
+test("production health accepts only reviewed scanner-egress configurations", () => {
+  assert.match(
+    workflow,
+    /\["configured", "aliased"\]\.includes\(health\?\.checks\?\.scannerEgress\)/
+  );
+  assert.doesNotMatch(
+    workflow,
+    /health\?\.checks\?\.scannerEgress === "configured"/
+  );
+});
+
 test("production health derives the durable-jobs expectation from the checked-out production config", () => {
   assert.match(workflow, /with:\n\s+ref: production/);
   assert.match(

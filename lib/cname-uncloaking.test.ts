@@ -75,8 +75,12 @@ test("resolveCnameCloaks returns only the cloaked trackers, skipping CDNs and ap
   };
   const resolveCnameChain = async (host: string) => chains[host] ?? [];
 
-  const cloaks = await resolveCnameCloaks(requests, "shop.example", { ...deps, resolveCnameChain });
+  const { cloaks, omittedCandidateCount } = await resolveCnameCloaks(requests, "shop.example", {
+    ...deps,
+    resolveCnameChain
+  });
   assert.equal(cloaks.length, 1);
+  assert.equal(omittedCandidateCount, 0);
   assert.equal(cloaks[0].host, "metrics.shop.example");
   assert.equal(cloaks[0].cname, "shop.eulerian.net");
   assert.equal(cloaks[0].tracker.entity, "Eulerian");
@@ -87,8 +91,29 @@ test("resolveCnameCloaks skips a host whose DNS resolution throws", async () => 
   const resolveCnameChain = async () => {
     throw new Error("ENOTFOUND");
   };
-  const cloaks = await resolveCnameCloaks(requests, "shop.example", { ...deps, resolveCnameChain });
+  const { cloaks, omittedCandidateCount } = await resolveCnameCloaks(requests, "shop.example", {
+    ...deps,
+    resolveCnameChain
+  });
   assert.deepEqual(cloaks, []);
+  assert.equal(omittedCandidateCount, 0);
+});
+
+test("resolveCnameCloaks reports every candidate omitted by the lookup cap", async () => {
+  const requests = Array.from({ length: 11 }, (_, index) => makeRequest(`h${index}.shop.example`, false));
+  const resolved: string[] = [];
+  const result = await resolveCnameCloaks(requests, "shop.example", {
+    ...deps,
+    maxHosts: 10,
+    resolveCnameChain: async (host) => {
+      resolved.push(host);
+      return host === "h10.shop.example" ? ["shop.eulerian.net"] : [];
+    }
+  });
+
+  assert.equal(resolved.length, 10);
+  assert.equal(result.omittedCandidateCount, 1);
+  assert.deepEqual(result.cloaks, [], "a tracker beyond the cap must be treated as unknown, not absent");
 });
 
 function makeRequest(domain: string, thirdParty: boolean): NetworkRequestRecord {
@@ -121,7 +146,7 @@ test("a scan deadline bounds the whole probe, not just each lookup", async () =>
   const deadline = Date.now() + 300;
   const failures: string[] = [];
   const started = Date.now();
-  const cloaks = await resolveCnameCloaks(requests, "example.com", {
+  const { cloaks } = await resolveCnameCloaks(requests, "example.com", {
     registrableDomain,
     matchTracker: () => null,
     maxHosts: 10,

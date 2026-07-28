@@ -67,16 +67,36 @@ and do not estimate precision, recall, sensitivity, specificity, or accuracy.
 `lib/detector-calibration.ts` therefore accepts a separate, strict study
 artifact. A study binds:
 
-- one current detector id/version and detector-registry version;
+- schema version 1 and one current detector id;
+- the exact source build plus a domain-separated detector-implementation
+  digest derived from that Git commit, detector version, and detector-registry
+  version/digest;
+- the current methodology and normalization versions, tracker-catalog content
+  and review-provenance digests, and Brave-list catalog commit, list/rules
+  digests, fetch snapshot, and engine version;
+- a digest-bound runtime declaration (Node, Playwright, Chromium, operating
+  system, and architecture), while each case separately records the complete
+  scan-condition fingerprint;
 - a named target population, digest-bound sampling frame, selection protocol,
-  and reference-label protocol;
+  reference-label protocol, and disagreement-adjudication protocol;
 - the planned case denominator;
 - declared sampling, independence, and prediction/reference blinding; and
-- one unique case id per planned unit, including explicit censored outcomes.
+- one unique case id per planned unit, including explicit censored outcomes
+  with an attempt-artifact digest.
+
+Every complete case records the immutable detector-output artifact, the
+independent evidence artifact used by reviewers, the resulting label artifact,
+at least two unique opaque labeler ids, and an explicit `labelers-agreed` or
+`disagreement-adjudicated` state. A disagreement also requires a separately
+identified adjudicator and adjudication artifact. These fields preserve
+provenance; the analyzer does not infer, generate, or repair a reference label.
 
 Any missing planned case, censored case, stale detector identity, stale
-registry, or absent positive/negative reference class suppresses the complete
-confusion matrix and every rate. Nothing is silently excluded.
+build, registry/toolchain/list revision, missing current-build context, or
+missing or mismatched independently pinned runtime digest suppresses the
+complete confusion matrix and every rate. So does an absent positive/negative
+reference class. A malformed digest or a digest that does not recompute from
+its declared identity makes the artifact invalid. Nothing is silently excluded.
 
 For an eligible study, the model reports the full confusion matrix and the
 numerator and denominator for sensitivity, specificity, precision, negative
@@ -99,10 +119,23 @@ detector-accuracy claim, the project must freeze and digest a target-population
 frame, select units without looking at detector output, establish an
 independent reference-label protocol with disagreement adjudication, blind both
 directions where practical, retain every attempted case and censor reason, run
-the exact released detector and registry versions, and have the study design
-and labels reviewed independently. Browser/runtime, first- and third-party,
-benign hard-negative, and adversarial cases should match the scope of the claim.
+the exact released build and digest-bound detector, registry, catalog, list,
+methodology, normalization, and runtime identities, retain the immutable
+prediction/evidence/label/adjudication artifacts, and have the study design and
+labels reviewed independently. Browser/runtime, first- and third-party, benign
+hard-negative, and adversarial cases should match the scope of the claim.
 Sample size and any subgroup analysis must be fixed before results are opened.
+
+The machine-readable study contract is published at
+`/schemas/detector-calibration-study.v1.schema.json`. JSON Schema enforces its
+closed shape; `detectorCalibrationStudyIssues` additionally enforces bounded
+values, digest formats, unique label/adjudicator identities, canonical
+timestamps, and digest recomputation. `analyzeDetectorCalibrationStudy` then
+compares the well-formed release declaration with the current repository
+identities. Its analysis context must supply both the exact current build
+commit and the expected runtime digest from the separately pinned execution
+plan or runtime receipt; either missing trust anchor fails closed. The expected
+runtime digest must not be copied from the study being evaluated.
 
 The public catalog reports this honestly as “external labeled corpus required”:
 acceptance-fixture coverage is real, but calibration studies and labeled

@@ -18,9 +18,13 @@ import {
   runHitFingerprintObserverCaptureLoss,
   runHitGpcWorkerCaptureLoss,
   runHitInvalidUpstreamResponseCaptureLoss,
+  runHitKeystrokeProbeCaptureLoss,
+  runHitPixelDecodeCaptureLoss,
+  runHitPageSubjectUnverified,
   runHitProxyTrafficBudget,
   runHitRequestCap,
   runHitResponseByteCap,
+  runHitSuspectedChallengeOrSoftBlock,
   runHitUnsettledRoutedRequests,
   runHitUploadByteCap
 } from "./comparison-eligibility";
@@ -560,6 +564,8 @@ function runViewFromV1(result: ScanResult, label: RunView["label"], scannedAt: s
   // is never presented as recorded fact.
   const reasons: string[] = [];
   if (typeof result.summary.status === "number" && result.summary.status >= 400) reasons.push("http-error-status");
+  if (runHitSuspectedChallengeOrSoftBlock(result)) reasons.push("suspected-challenge-or-soft-block");
+  if (runHitPageSubjectUnverified(result)) reasons.push("page-subject-unverified");
   if (runHitRequestCap(result)) reasons.push("budget-exhausted:request-cap");
   if (runHitResponseByteCap(result)) reasons.push("budget-exhausted:response-byte-cap");
   if (runHitUploadByteCap(result)) reasons.push("budget-exhausted:upload-byte-cap");
@@ -579,6 +585,8 @@ function runViewFromV1(result: ScanResult, label: RunView["label"], scannedAt: s
   // Not a budget: the instrument itself did not run. Scoped to the families it
   // actually covers rather than censoring the whole run.
   if (runHitFingerprintObserverCaptureLoss(result)) reasons.push("capture-loss:fingerprint-observer");
+  if (runHitPixelDecodeCaptureLoss(result)) reasons.push("capture-loss:pixel-decode");
+  if (runHitKeystrokeProbeCaptureLoss(result)) reasons.push("capture-loss:keystroke-probe");
   return {
     label,
     domain: result.summary.firstPartyDomain,
@@ -676,7 +684,12 @@ function runViewFromV1(result: ScanResult, label: RunView["label"], scannedAt: s
       : null,
     quality: {
       origin: "legacy-derived",
-      outcome: reasons.includes("http-error-status") ? "failed" : "complete",
+      outcome:
+        reasons.includes("http-error-status") ||
+        reasons.includes("suspected-challenge-or-soft-block") ||
+        reasons.includes("page-subject-unverified")
+          ? "failed"
+          : "complete",
       reasons,
       byFamily: null,
       facts: null
@@ -1054,12 +1067,18 @@ const QUALITY_REASON_NOTES: Record<string, string> = {
     "the visit hit the scan proxy's traffic budget, so it stopped forwarding further traffic",
   "capture-loss:fingerprint-observer":
     "the in-page fingerprint observer could not read every frame, so the fingerprinting evidence is incomplete",
+  "capture-loss:pixel-decode":
+    "one or more recognized advertising-pixel request bodies could not be read in full, so pixel event and advanced-matching detection are incomplete",
+  "capture-loss:keystroke-probe":
+    "the synthetic form-input probe did not finish, so late request evidence, counts, and input-capture detection may be incomplete",
   "capture-loss:gpc-worker":
     "the Worker instrumentation could not record every request, so the request evidence is incomplete",
   "capture-loss:invalid-upstream-response":
     "the scan proxy rejected one or more invalid upstream responses, so the request evidence is incomplete",
   "capture-loss:unsettled-routed-requests":
-    "the scan deadline arrived while one or more requests were still being handled, so the request evidence is incomplete"
+    "the scan deadline arrived while one or more requests were still being handled, so the request evidence is incomplete",
+  "capture-loss:page-subject-validity":
+    "the bounded page-content collector was unavailable or unreadable, so the scanner could not verify the rendered document"
 };
 
 /**
@@ -1105,6 +1124,8 @@ const CAPTURE_LOSS_DETAIL_LABELS: Record<string, string> = {
   "keystroke-probe": "the synthetic keystroke probe",
   "keystroke-probe-capture": "the synthetic keystroke probe's readback",
   "page-title": "the page-title capture",
+  "page-subject-validity": "the page-subject validity check",
+  "pixel-decode": "the advertising-pixel request-body decoder",
   "policy-link-candidates": "the privacy-policy link search",
   "policy-visit": "the privacy-policy visit",
   "storage-snapshot": "the end-of-visit storage snapshot"
@@ -1212,6 +1233,14 @@ export function familyCensoredOnRun(run: RunView, family: string): boolean {
   if (
     (family === "fingerprinting" || family === "detector-output") &&
     run.quality.reasons.includes("capture-loss:fingerprint-observer")
+  ) {
+    return true;
+  }
+  if (
+    ((family === "detector-output" &&
+      run.quality.reasons.includes("capture-loss:pixel-decode")) ||
+      ((family === "requests" || family === "detector-output") &&
+        run.quality.reasons.includes("capture-loss:keystroke-probe")))
   ) {
     return true;
   }

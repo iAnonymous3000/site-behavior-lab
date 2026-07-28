@@ -101,12 +101,16 @@ try {
   }
   // Fail closed before this report can become an artifact or commit. The
   // exact remediation check verifies the full managed corpus, including the
-  // publisher's report/sidecar pair and its digest.
-  execFileSync(
-    process.platform === "win32" ? "npm.cmd" : "npm",
-    ["run", "reports:remediate", "--", "--check"],
-    { cwd: rootDir, stdio: "inherit", env: { ...process.env, SITE_BEHAVIOR_LAB_SCHEMA_DIST_READY: "1" } }
-  );
+  // publisher's report/sidecar pair and its digest. The trusted featured-site
+  // parent may defer this O(corpus) pass because it runs the same check once
+  // after every child has exited; a standalone publication never defers it.
+  if (process.env.CI_SCAN_DEFER_CORPUS_CHECK !== "1") {
+    execFileSync(
+      process.platform === "win32" ? "npm.cmd" : "npm",
+      ["run", "reports:remediate", "--", "--check"],
+      { cwd: rootDir, stdio: "inherit", env: { ...process.env, SITE_BEHAVIOR_LAB_SCHEMA_DIST_READY: "1" } }
+    );
+  }
   await writeGithubOutput({
     report_id: id,
     report_path: `public/reports/${id}.json`,

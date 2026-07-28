@@ -199,8 +199,8 @@ export const DETECTOR_VALIDATION_FIXTURES: readonly DetectorValidationFixture[] 
     kind: "negative",
     environment: "unit",
     file: "lib/privacy-policy.test.ts",
-    testName: "extractPolicyClaims never reads a negated GPC sentence as an honors-gpc claim",
-    verifies: "Statements that reject GPC are not inverted into positive claims."
+    testName: "extractPolicyClaims does not turn qualified real-policy wording into blanket combined claims",
+    verifies: "Population, knowledge, monetary, temporal, and contradictory qualifiers are not promoted to blanket claims."
   },
   {
     detector: "privacy-policy",
