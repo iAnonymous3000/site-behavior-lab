@@ -219,13 +219,26 @@ export function evaluateScanBody(label, payload, bridge) {
     // 3. A detector may not report a budget failure on a run that did not come
     //    close to its budget. This is the codeberg.org defect: a 5-second scan
     //    told readers it had run out of time.
+    //
+    //    The detector vocabulary spends one code, `budget-unavailable`, on both
+    //    an elapsed-time budget and a fixed evidence cap. CNAME uncloaking
+    //    resolves at most MAX_CNAME_LOOKUPS candidate hosts and reports the
+    //    remainder as `partial` plus a `cap` loss detailed `cname-lookups`;
+    //    that is a bound on how much evidence is collected, not a claim about
+    //    elapsed time, so a short run does not contradict it. Every other
+    //    budget claim on a short run, including a SKIPPED cname probe (which
+    //    only skips when time really has run out), still fails.
     const durationMs = Number(run?.summary?.durationMs ?? 0);
     if (durationMs > 0 && durationMs < 20_000) {
+      const cappedByEvidenceBound = (id, entry) =>
+        id === "cname-uncloaking" &&
+        entry.status === "partial" &&
+        losses.some((loss) => loss.kind === "cap" && loss.detail === "cname-lookups");
       for (const [id, entry] of Object.entries(detectors)) {
-        if (entry.reason === "budget-unavailable") {
-          fail(`${where}: detector ${id} reported budget-unavailable after only ${durationMs}ms`);
-          return { failures, censored };
-        }
+        if (entry.reason !== "budget-unavailable") continue;
+        if (cappedByEvidenceBound(id, entry)) continue;
+        fail(`${where}: detector ${id} reported budget-unavailable after only ${durationMs}ms`);
+        return { failures, censored };
       }
     }
 

@@ -242,6 +242,24 @@ export function publicRegistrableDomain(hostname: string): string | null {
 }
 
 /**
+ * True when the host IS a registry boundary rather than a site under one, for
+ * example `github.io`, `gov.uk`, or `s3.amazonaws.com`.
+ *
+ * Such a host has no registrable domain, so it can identify a party but can
+ * never be a scan SUBJECT: the subject key is derived from
+ * `publicRegistrableDomain`. Admission uses this to refuse the target up front
+ * instead of letting the r2 builder discover it after a full measurement.
+ */
+export function isExactPublicSuffixHost(hostname: string): boolean {
+  const parsed = parse(hostname, { allowPrivateDomains: true });
+  return (
+    parsed.domain === null &&
+    parsed.publicSuffix === hostname &&
+    (parsed.isIcann === true || parsed.isPrivate === true)
+  );
+}
+
+/**
  * Apply the URL host policy to a hostname-valued report field (request/domain
  * summaries, cookie domains, CNAMEs, provenance domains). Leading-dot cookie
  * domain notation is preserved, but malformed or non-host input never passes

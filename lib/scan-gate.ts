@@ -11,10 +11,35 @@ import {
 } from "./edge-scan-gate";
 import type { ScanDevice, ScanRequestPayload } from "./types";
 import { PublicScanError } from "./public-errors";
+import { isExactPublicSuffixHost } from "./redaction-v2";
 import { assertPublicHttpUrl, assertPublicHttpUrlShape, normalizeUrl } from "./url-safety";
 import { assertScanAccess } from "./access-control";
 
 export const SCAN_TARGET_VERIFICATION_TIMEOUT_MS = 5_000;
+
+export const PUBLIC_SUFFIX_SUBJECT_MESSAGE =
+  "That host is a registry boundary (a public suffix such as github.io or gov.uk), not a site that can be scanned on its own. Enter a site under it, for example example.github.io.";
+
+/**
+ * Refuse a target the report format cannot name as a subject.
+ *
+ * The r2 subject key is derived from `publicRegistrableDomain`, so a host that
+ * IS a public suffix has no such result and can only fail AFTER a full
+ * measurement has already been paid for, surfacing as a 500 rather than as
+ * anything the requester can act on. Refuse it here, ahead of quota, queueing,
+ * and Chromium.
+ *
+ * Supporting these as subjects needs a schema revision that can carry a
+ * non-registrable subject; borrowing the nearest registrable domain instead
+ * would silently mislabel whose site the report is about. Bare IP literals
+ * reach the same builder limit but are deliberately left alone here: they are
+ * an established target shape with their own callers, and narrowing them is a
+ * separate decision from this one.
+ */
+function assertRegistrableScanSubject(url: URL): void {
+  const hostname = url.hostname.toLowerCase().replace(/\.+$/, "");
+  if (isExactPublicSuffixHost(hostname)) throw new PublicScanError(PUBLIC_SUFFIX_SUBJECT_MESSAGE);
+}
 
 export class ScanTargetVerificationTimeoutError extends PublicScanError {
   constructor(readonly timeoutMs: number) {
@@ -60,6 +85,7 @@ export class ScanGate {
     const payload = await readScanPayload(request);
     const targetUrl = normalizeUrl(payload.url);
     assertPublicHttpUrlShape(targetUrl);
+    assertRegistrableScanSubject(targetUrl);
     if (comparisonModeCount(payload) > 1) {
       throw new PublicScanError(MULTIPLE_COMPARISON_MODES_MESSAGE);
     }

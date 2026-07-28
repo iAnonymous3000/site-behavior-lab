@@ -1,4 +1,3 @@
-import { parse as parseDomain } from "tldts";
 import { adblockListMeta, type AdblockListMeta } from "./adblock-engine";
 import { BUILD_COMMIT_ENV, recordedBuildCommit } from "./build-provenance";
 import { NODE_ADBLOCK_ENGINE_VERSION } from "./legacy-methodology";
@@ -23,6 +22,7 @@ import {
   REDACTION_VERSION,
   addRedactionCounters,
   emptyRedactionCounters,
+  isExactPublicSuffixHost,
   publicRegistrableDomain,
   redactPageTitle,
   redactUrlV2,
@@ -879,14 +879,9 @@ function requestHasPublicPartyBoundary(request: RunEvidenceR2["requests"][number
   return evidencePartyKey(canonicalDomain) !== null;
 }
 
-function isExactRecognizedPublicSuffix(host: string): boolean {
-  const parsed = parseDomain(host, { allowPrivateDomains: true });
-  return (
-    parsed.domain === null &&
-    parsed.publicSuffix === host &&
-    (parsed.isIcann === true || parsed.isPrivate === true)
-  );
-}
+// One definition of "this host is a registry boundary", shared with the
+// admission gate that refuses such a host as a scan subject.
+const isExactRecognizedPublicSuffix = isExactPublicSuffixHost;
 
 function assertCookieParty(cookie: RunEvidenceR2["cookiesFinal"][number], observedRegistrableDomain: string): void {
   const host = normalizeEvidenceHostname(cookie.domain);
