@@ -23,7 +23,11 @@ test("builds a Dataset with metrics, download link, and the scanned site", () =>
   assert.equal(dataset["@type"], "Dataset");
   assert.equal(dataset.name, "Site Behavior Lab scan of shop.example");
   assert.equal(dataset.url, "https://example.org/reports/abc/");
-  assert.deepEqual(dataset.about, { "@type": "WebSite", name: "shop.example", url: "https://example.com/" });
+  assert.deepEqual(dataset.about, {
+    "@type": "WebSite",
+    name: "shop.example",
+    url: "https://www.shop.example/"
+  });
   assert.deepEqual(dataset.distribution, {
     "@type": "DataDownload",
     encodingFormat: "application/json",
@@ -72,6 +76,30 @@ test("measures both labeled runs and top-level dates for comparison reports", ()
   assert.ok(!measured.some((entry) => entry.name === "Third-party requests"));
 });
 
+test("omits report-level site attribution for a comparison of different sites", () => {
+  const baseline = makeResult({ firstPartyDomain: "news.example" });
+  const variant = makeResult({ firstPartyDomain: "other.example" });
+  const comparison = createGpcComparisonReport(baseline, variant);
+
+  const dataset = buildReportDataset(viewFromV1Report(comparison), {
+    url: "https://example.org/reports/mismatched/"
+  });
+
+  assert.equal(dataset.about, undefined);
+});
+
+test("omits an incoherent subject URL instead of pairing it with another site name", () => {
+  const result = makeResult({ firstPartyDomain: "news.example" });
+  result.conditions.requestedUrl = "https://other.example/";
+  result.conditions.finalUrl = "https://other.example/";
+
+  const dataset = buildReportDataset(viewFromV1Report(result), {
+    url: "https://example.org/reports/incoherent/"
+  });
+
+  assert.deepEqual(dataset.about, { "@type": "WebSite", name: "news.example" });
+});
+
 test("omits PageGraph-unsupported metrics instead of publishing observed zeroes", () => {
   const view = viewFromV2(makePublicSingleReportV2R2(), 2);
   const run = view.runs[0];
@@ -103,11 +131,17 @@ test("publishes failed-visit counts as lower bounds rather than exact zeroes", (
   const dataset = buildReportDataset(viewFromV1Report(makeResult({ status: 500 })), {
     url: "https://example.org/reports/failed/"
   });
+  assert.equal(dataset.about, undefined, "a returned error document is not machine-attributed to the site");
+  assert.equal(
+    dataset.name,
+    "Site Behavior Lab returned-document scan while requesting example.com"
+  );
   const measured = dataset.variableMeasured as Array<Record<string, unknown>>;
   const requests = measured.find((entry) => entry.name === "Third-party requests");
   assert.equal(requests?.minValue, 0);
   assert.equal("value" in (requests ?? {}), false);
   assert.match(String(requests?.description), /failed visit/);
+  assert.match(String(requests?.description), /returned document/);
   assert.ok(!measured.some((entry) => entry.name === "Third-party cookies"));
   assert.match(
     String(measured.find((entry) => entry.name === "Measurement quality")?.description),
@@ -177,6 +211,7 @@ function makeTrackerDomain(domain: string, requests: number, entity: string, cat
 
 function makeResult(overrides: ResultOverrides): ScanResult {
   const domains = overrides.domains ?? [];
+  const firstPartyDomain = overrides.firstPartyDomain ?? "example.com";
   return {
     ok: true,
     schemaVersion: SCAN_REPORT_SCHEMA_VERSION,
@@ -185,7 +220,7 @@ function makeResult(overrides: ResultOverrides): ScanResult {
       pageTitle: "",
       status: overrides.status ?? 200,
       durationMs: 1,
-      firstPartyDomain: overrides.firstPartyDomain ?? "example.com",
+      firstPartyDomain,
       totalRequests: (overrides.thirdPartyRequests ?? 0) + 5,
       thirdPartyRequests: overrides.thirdPartyRequests ?? 0,
       knownTrackerRequests: domains.reduce((total, domain) => total + domain.requests, 0),
@@ -196,8 +231,8 @@ function makeResult(overrides: ResultOverrides): ScanResult {
       fingerprintEvents: 0
     },
     conditions: {
-      requestedUrl: "https://example.com/",
-      finalUrl: "https://example.com/",
+      requestedUrl: `https://${firstPartyDomain}/`,
+      finalUrl: `https://${firstPartyDomain}/`,
       scannedAt: new Date(0).toISOString(),
       chromiumVersion: "test",
       userAgent: "test",

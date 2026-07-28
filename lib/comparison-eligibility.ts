@@ -106,7 +106,8 @@ export function comparisonEligibility(report: ComparisonScanResult): ComparisonE
     }
   }
 
-  if (!comparableSubjectHosts(report.baseline.summary.firstPartyDomain, report.variant.summary.firstPartyDomain)) {
+  const subjectFacts = legacyComparisonSubjectFacts(report);
+  if (!subjectFacts.hostsMatch) {
     reasons.push(
       `The two visits landed on different sites (${report.baseline.summary.firstPartyDomain} vs ${report.variant.summary.firstPartyDomain}), so their difference is not a comparison of one site.`
     );
@@ -114,8 +115,8 @@ export function comparisonEligibility(report: ComparisonScanResult): ComparisonE
   // The unknown rule applies to the subject itself: a visit whose recorded
   // URLs are empty or the literal "unknown" cannot be proven to be OF any
   // page, so no pair containing it compares one page.
-  for (const { label, run } of arms) {
-    if (unknownSubjectUrl(run.conditions.requestedUrl) || unknownSubjectUrl(run.conditions.finalUrl)) {
+  for (const [{ label }, urlsKnown] of arms.map((arm, index) => [arm, subjectFacts.urlsKnown[index]] as const)) {
+    if (!urlsKnown) {
       reasons.push(`The "${label}" visit did not record a real subject URL, so what it visited cannot be proven.`);
     }
   }
@@ -142,7 +143,7 @@ export function comparisonEligibility(report: ComparisonScanResult): ComparisonE
   // egress label, and headless state, so the gate compares all of them; a
   // valid upload pairing two visits from different environments must not
   // earn comparative wording just because both loaded.
-  if (normalizedRoute(report.baseline.conditions.requestedUrl) !== normalizedRoute(report.variant.conditions.requestedUrl)) {
+  if (!subjectFacts.requestedMatch) {
     reasons.push(
       `The two visits requested different pages (${report.baseline.conditions.requestedUrl} vs ${report.variant.conditions.requestedUrl}), so their difference is not a comparison of one page.`
     );
@@ -181,14 +182,12 @@ export function comparisonEligibility(report: ComparisonScanResult): ComparisonE
   // a different path or query, but crossing origins changes the observed site
   // context and cannot support an accept-vs-reject comparison.
   if (report.comparisonType === "consent") {
-    const baselineOrigin = normalizedOrigin(report.baseline.conditions.finalUrl);
-    const variantOrigin = normalizedOrigin(report.variant.conditions.finalUrl);
-    if (baselineOrigin === null || variantOrigin === null || baselineOrigin !== variantOrigin) {
+    if (!subjectFacts.observedMatch) {
       reasons.push(
         `The two consent visits ended on different or unprovable origins (${report.baseline.conditions.finalUrl} vs ${report.variant.conditions.finalUrl}), so their difference is not a comparison of choices on one site origin.`
       );
     }
-  } else if (normalizedRoute(report.baseline.conditions.finalUrl) !== normalizedRoute(report.variant.conditions.finalUrl)) {
+  } else if (!subjectFacts.observedMatch) {
     reasons.push(
       `The two visits ended on different pages (${report.baseline.conditions.finalUrl} vs ${report.variant.conditions.finalUrl}), so their difference is not a comparison of one page.`
     );
@@ -352,6 +351,58 @@ function normalizedOrigin(url: string): string | null {
   } catch {
     return null;
   }
+}
+
+type LegacyComparisonSubjectFacts = {
+  hostsMatch: boolean;
+  urlsKnown: readonly [boolean, boolean];
+  requestedMatch: boolean;
+  observedMatch: boolean;
+};
+
+/**
+ * The exact subject-identity portion of the v1 comparison rule. Keeping these
+ * booleans beside the reason-bearing eligibility evaluator lets consumers ask
+ * whether two runs describe one subject without accidentally requiring every
+ * unrelated methodology and intervention condition to be comparable.
+ */
+function legacyComparisonSubjectFacts(report: ComparisonScanResult): LegacyComparisonSubjectFacts {
+  const baselineRequestedKnown = !unknownSubjectUrl(report.baseline.conditions.requestedUrl);
+  const baselineFinalKnown = !unknownSubjectUrl(report.baseline.conditions.finalUrl);
+  const variantRequestedKnown = !unknownSubjectUrl(report.variant.conditions.requestedUrl);
+  const variantFinalKnown = !unknownSubjectUrl(report.variant.conditions.finalUrl);
+  const baselineUrlsKnown = baselineRequestedKnown && baselineFinalKnown;
+  const variantUrlsKnown = variantRequestedKnown && variantFinalKnown;
+  const requestedMatch =
+    baselineRequestedKnown &&
+    variantRequestedKnown &&
+    normalizedRoute(report.baseline.conditions.requestedUrl) ===
+      normalizedRoute(report.variant.conditions.requestedUrl);
+  const observedMatch =
+    report.comparisonType === "consent"
+      ? baselineFinalKnown &&
+        variantFinalKnown &&
+        normalizedOrigin(report.baseline.conditions.finalUrl) !== null &&
+        normalizedOrigin(report.baseline.conditions.finalUrl) ===
+          normalizedOrigin(report.variant.conditions.finalUrl)
+      : baselineFinalKnown &&
+        variantFinalKnown &&
+        normalizedRoute(report.baseline.conditions.finalUrl) ===
+          normalizedRoute(report.variant.conditions.finalUrl);
+  return {
+    hostsMatch: comparableSubjectHosts(
+      report.baseline.summary.firstPartyDomain,
+      report.variant.summary.firstPartyDomain
+    ),
+    urlsKnown: [baselineUrlsKnown, variantUrlsKnown],
+    requestedMatch,
+    observedMatch
+  };
+}
+
+export function legacyComparisonSubjectsMatch(report: ComparisonScanResult): boolean {
+  const facts = legacyComparisonSubjectFacts(report);
+  return facts.hostsMatch && facts.urlsKnown.every(Boolean) && facts.requestedMatch && facts.observedMatch;
 }
 
 /**

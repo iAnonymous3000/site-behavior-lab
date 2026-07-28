@@ -63,6 +63,11 @@ type StudyHelpers = {
   buildAttemptLedger(input: Record<string, any>): Record<string, any>;
 };
 type InvariantHelpers = {
+  detectorBudgetIsEvidenceBound(
+    id: string,
+    entry: Record<string, unknown>,
+    losses: Array<Record<string, unknown>>
+  ): boolean;
   fidelityObservationOf(wire: Record<string, any>): Observation;
 };
 
@@ -365,6 +370,62 @@ test("the invariant observer records both comparison arms with their exact ident
   assert.equal(observed.arms.baseline.producerRuntime.buildCommit, BUILD_COMMIT);
   assert.equal(observed.arms.variant.producerRuntime.fingerprints.execution, "2".repeat(64));
   assert.equal(observed.order, "BA");
+});
+
+test("short-run budget claims are exempt only for proven detector evidence caps", async () => {
+  const { detectorBudgetIsEvidenceBound } = await invariantHelpers;
+  const detectorLoss = (kind: string, detail: string) => ({
+    family: "detector-output",
+    kind,
+    detail
+  });
+
+  assert.equal(
+    detectorBudgetIsEvidenceBound(
+      "cname-uncloaking",
+      { status: "partial", reason: "budget-unavailable" },
+      [detectorLoss("cap", "cname-lookups")]
+    ),
+    true
+  );
+  assert.equal(
+    detectorBudgetIsEvidenceBound(
+      "keystroke-exfiltration",
+      { status: "partial", reason: "budget-unavailable" },
+      [detectorLoss("truncated", "keystroke-probe-capture")]
+    ),
+    true
+  );
+  assert.equal(
+    detectorBudgetIsEvidenceBound(
+      "privacy-policy",
+      { status: "skipped", reason: "budget-unavailable" },
+      [
+        detectorLoss("truncated", "policy-link-candidates"),
+        detectorLoss("cap", "policy-visit")
+      ]
+    ),
+    true
+  );
+
+  assert.equal(
+    detectorBudgetIsEvidenceBound(
+      "keystroke-exfiltration",
+      { status: "partial", reason: "budget-unavailable" },
+      []
+    ),
+    false,
+    "an ordinary short-run budget claim must still fail closed"
+  );
+  assert.equal(
+    detectorBudgetIsEvidenceBound(
+      "privacy-policy",
+      { status: "skipped", reason: "budget-unavailable" },
+      [detectorLoss("cap", "policy-visit")]
+    ),
+    false,
+    "the policy exception requires proof that candidate collection hit its cap"
+  );
 });
 
 test("the scheduled fidelity workflow handles one-off manual runs and pins attempted-run provenance", () => {

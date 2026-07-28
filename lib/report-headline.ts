@@ -1,24 +1,14 @@
 import {
   comparisonArmViews,
-  displayRunView,
-  familyCensoredOnRun,
-  runCensorshipNotes,
-  unsupportedEvidenceFamilies,
   type ReportView,
   type RunView
 } from "./scan-report-views";
 import {
   HEADLINE_PLATFORMS,
-  crossSiteListenerDetection,
   fingerprintDetection,
-  highEntropyDetections,
   isOperationalEntity,
   keystrokeLeakHashed,
   pixelFieldLabel,
-  respondedTrackerEntityNames,
-  scanLoadFailureStatus,
-  scanPageSubjectUnverified,
-  scanSuspectedChallengeOrSoftBlock,
   shieldsRunMeasurement,
   trackerOwnershipBreakdown,
   trackerResponseQualification
@@ -31,6 +21,13 @@ import {
   consentRegistrationSentence
 } from "./report-consent-copy";
 import { R2_NAVIGATION_STATUS_UNREPRESENTABLE } from "./scan-report-v2-http-status";
+import {
+  buildReportFacts,
+  retainedCountLabel,
+  retainedCountPhrase,
+  type ReportClaimId,
+  type RunFacts
+} from "./report-facts";
 
 /**
  * Plain-language "headline" layer.
@@ -87,6 +84,14 @@ export type ReportHeadline = {
   domain: string;
   /** Suggested post text (without the URL); the UI appends the report link. */
   shareText: string;
+  /** A complete, claim-safe social-card restatement when the full subhead is too long. */
+  compactSubhead?: string;
+  /**
+   * The exact full subhead for which `compactSubhead` was derived. Consumers
+   * may receive a caller-modified headline object; the compact restatement is
+   * safe only while its source claim is unchanged.
+   */
+  compactSubheadSource?: string;
   /**
    * The comparison arm the lead finding DESCRIBES, when that differs from the
    * report's lead run. The shell opens the evidence switcher on this arm so a
@@ -94,6 +99,37 @@ export type ReportHeadline = {
    * singles and on branches that describe the lead run.
    */
   focusArm?: "baseline" | "variant";
+  /**
+   * Machine-readable meaning used by the report-consistency gate. Prose may
+   * change without turning semantic checks back into regular expressions.
+   */
+  semantic: {
+    story:
+      | "load-failure"
+      | "subject-unverified"
+      | "interstitial"
+      | "keystroke-transmission"
+      | "pixel-identifiers"
+      | "consent"
+      | "comparison"
+      | "catalogued-services"
+      | "same-organization"
+      | "fingerprint-api"
+      | "listener-coverage"
+      | "shields"
+      | "cookies"
+      | "raw-fingerprint-events"
+      | "unidentified-cross-site"
+      | "incomplete-evidence"
+      | "unsupported-evidence"
+      | "quiet"
+      | "observed-activity";
+    reassuring: boolean;
+    runScope: "display" | "baseline" | "variant" | "pair";
+    subjectScope: "requested-page" | "returned-document";
+    assertedClaims: ReportClaimId[];
+    absenceClaims: ReportClaimId[];
+  };
 };
 
 const SINGLE_VISIT_CAVEAT = "Observed in one automated visit: evidence to check, not a verdict.";
@@ -101,29 +137,32 @@ const COMPARISON_CAVEAT = "Observed in two automated visits: evidence to check, 
 const KICKER = "What this actually means";
 const SHARE_TAGLINE = "See what a site does, not what it says. Open-source and reproducible:";
 
-export function buildReportHeadline(view: ReportView): ReportHeadline {
-  const run = displayRunView(view);
+export function buildReportHeadline(
+  view: ReportView,
+  reportFacts = buildReportFacts(view)
+): ReportHeadline {
+  const facts = reportFacts.display;
+  const run = facts.run;
   const arms = comparisonArmViews(view);
   const axis = view.comparison?.axis ?? null;
   const domain = friendlyDomain(run);
-  const ownership = trackerOwnershipBreakdown(run.evidence, run.domain);
+  const ownership = facts.identity.ownership;
   const entities = ownership.otherOrUnreviewed;
   const sameOrganizationEntities = ownership.sameOrganization;
   const trackingEntities = entities.filter((entity) => !isOperationalEntity(entity));
   const sameOrganizationTrackingEntities = sameOrganizationEntities.filter((entity) => !isOperationalEntity(entity));
   const trackingNames = trackingEntities.map((entity) => entity.entity);
-  const respondedEntities = respondedTrackerEntityNames(run.evidence);
+  const respondedEntities = facts.identity.respondedEntities;
   const platforms = entities.filter((entity) => HEADLINE_PLATFORMS.includes(entity.entity)).map((entity) => entity.entity);
-  const highEntropy = highEntropyDetections(run.evidence);
-  const sessionReplay = trackingEntities.some((entity) =>
-    entity.categories.some((category) => category.toLowerCase().includes("session replay"))
+  const highEntropy = facts.signals.fingerprint.highEntropyDetections;
+  const sessionReplay = facts.signals.fingerprint.sessionReplayNames.length > 0;
+  const sessionRecording = Boolean(facts.signals.fingerprint.sessionRecording);
+  const inputMonitoring = Boolean(facts.signals.fingerprint.inputMonitoring);
+  const requestState = facts.evidence.requests.state;
+  const fingerprintEvidenceIncomplete = facts.claims["fingerprint-apis"].blockers.some(
+    (blocker) => blocker !== "subject-not-established"
   );
-  // Listener-coverage claims are restricted to genuinely cross-site origins:
-  // the in-page probe's hostname heuristic can misread same-site siblings
-  // (see crossSiteListenerDetection), and a same-party listener is normal.
-  const sessionRecording = Boolean(crossSiteListenerDetection(run.evidence, "session-recording"));
-  const inputMonitoring = Boolean(crossSiteListenerDetection(run.evidence, "input-monitoring"));
-  const stats = buildStats(run, trackingEntities.length);
+  const stats = buildStats(facts, trackingEntities.length);
   const sameOrganizationNote =
     ownership.sameOrganizationDomainCount > 0
       ? ` ${plural(
@@ -165,9 +204,19 @@ export function buildReportHeadline(view: ReportView): ReportHeadline {
     headline: string,
     subhead: string,
     statsOverride?: ReportHeadlineStat[],
-    focusArm?: "baseline" | "variant"
+    focusArm?: "baseline" | "variant",
+    semanticOverride?: Partial<ReportHeadline["semantic"]>,
+    compactSubhead?: string
   ): ReportHeadline => {
     const resolvedStats = statsOverride ?? stats;
+    const runScope =
+      semanticOverride?.runScope ?? (focusArm ?? "display");
+    const semanticRuns =
+      runScope === "pair"
+        ? reportFacts.runs
+        : runScope === "baseline" || runScope === "variant"
+          ? [reportFacts.arms?.[runScope] ?? facts]
+          : [facts];
     // Derived from the exact clause appended above, never by re-matching its
     // prose: a second copy of that sentence in another module is one wording
     // change away from silently keeping the secondary claim.
@@ -183,6 +232,18 @@ export function buildReportHeadline(view: ReportView): ReportHeadline {
       stats: resolvedStats,
       domain,
       shareText: buildShareText(headline, resolvedStats),
+      semantic: {
+        story: "observed-activity",
+        reassuring: tone === "calm",
+        runScope,
+        subjectScope: semanticRuns.every((candidate) => candidate.subject.describesSubject)
+          ? "requested-page"
+          : "returned-document",
+        assertedClaims: [],
+        absenceClaims: [],
+        ...semanticOverride
+      },
+      ...(compactSubhead ? { compactSubhead, compactSubheadSource: subhead } : {}),
       ...(focusArm ? { focusArm } : {})
     };
   };
@@ -191,7 +252,7 @@ export function buildReportHeadline(view: ReportView): ReportHeadline {
   // did not really load, so its low tracker/cookie/fingerprint counts are an
   // artifact of the failed load, not a privacy result. Lead with that instead
   // of letting it fall through to "kept this visit relatively private".
-  const loadFailureStatus = scanLoadFailureStatus(run.status);
+  const loadFailureStatus = facts.subject.kind === "http-error" ? facts.subject.status : null;
   if (loadFailureStatus !== null) {
     // A 401 or 403 proves only that this visit was denied. Authentication,
     // authorization policy, rate controls, automation filtering, and other
@@ -205,7 +266,7 @@ export function buildReportHeadline(view: ReportView): ReportHeadline {
       : loadFailureStatus === 429
         ? "The site rate-limited this visit, so a later re-scan may succeed."
         : loadFailureStatus === 404
-          ? "That address did not exist, so check the URL rather than re-scanning it."
+          ? "The requested address returned 404; verify the URL. The status does not establish why that response was returned."
           : loadFailureStatus >= 500
             ? "That is a server-side error, so a later re-scan may succeed."
             : "Re-scan when the site serves the page.";
@@ -214,20 +275,23 @@ export function buildReportHeadline(view: ReportView): ReportHeadline {
       : `HTTP ${loadFailureStatus} prevented the requested page from being measured`;
     return finish(
       "info",
-      refusedVisit
-        ? `${domain} refused this visit, so there was little to scan.`
-        : `${domain} returned an error, so there was little to scan.`,
-      `${failureSummary}, so its low counts are not a privacy result. ${guidance}`,
+      `${domain} returned HTTP ${loadFailureStatus} instead of a verified normal page load.`,
+      `${failureSummary}. Signals below describe the returned error or block page, not ${domain}'s normal behavior. ${guidance}`,
       [{ label: "HTTP status", value: n(loadFailureStatus), emphasis: true }]
+      ,
+      undefined,
+      { story: "load-failure", subjectScope: "returned-document" }
     );
   }
 
-  if (scanPageSubjectUnverified(run)) {
+  if (facts.subject.kind === "unverified") {
     return finish(
       "info",
       `${domain}'s rendered page could not be verified as the requested page.`,
       `The bounded page-content collector was unavailable or unreadable, so tracker, cookie, and fingerprinting counts cannot support a privacy conclusion about ${domain}'s normal behavior. Re-scan for a verified page load.`,
-      [{ label: "Page subject", value: "Unverified", emphasis: true }]
+      [{ label: "Page subject", value: "Unverified", emphasis: true }],
+      undefined,
+      { story: "subject-unverified", subjectScope: "returned-document" }
     );
   }
 
@@ -235,12 +299,14 @@ export function buildReportHeadline(view: ReportView): ReportHeadline {
   // consent interstitial. The scanner records this only after multiple
   // independent signals agree; lead with the subject-validity problem so the
   // interstitial's low counts never become a privacy claim.
-  if (scanSuspectedChallengeOrSoftBlock(run)) {
+  if (facts.subject.kind === "interstitial") {
     return finish(
       "info",
       `${domain} showed a suspected challenge or soft block, not a normal page load.`,
       `The successful HTTP response appears to be a robot check, CAPTCHA, or blocking consent interstitial rather than the requested page. Low tracker, cookie, and fingerprinting counts describe that interstitial, not ${domain}'s normal behavior; re-scan for a complete page load.`,
-      [{ label: "Page state", value: "Suspected block", emphasis: true }]
+      [{ label: "Page state", value: "Suspected block", emphasis: true }],
+      undefined,
+      { story: "interstitial", subjectScope: "returned-document" }
     );
   }
 
@@ -249,7 +315,7 @@ export function buildReportHeadline(view: ReportView): ReportHeadline {
   // with a reserved capture-loss marker). That null must never fall through to
   // a calm or otherwise positive evidence story, and the UI must not invent a
   // replacement status such as 599.
-  if (run.quality.outcome === "failed") {
+  if (facts.subject.kind === "failed") {
     const statusUnrepresentable =
       run.quality.facts?.captureLoss.some((loss) => loss.detail === R2_NAVIGATION_STATUS_UNREPRESENTABLE) === true;
     return finish(
@@ -258,7 +324,9 @@ export function buildReportHeadline(view: ReportView): ReportHeadline {
       statusUnrepresentable
         ? "The site returned an HTTP status outside this frozen report format's representable range. The report withheld the exact code instead of coercing it. Tracker, cookie, and fingerprinting counts come from a failed or incomplete visit, not a positive privacy result; re-scan for a complete load."
         : "The scanner's recorded quality facts mark the main-page load as failed or incomplete. Tracker, cookie, and fingerprinting counts from this visit do not support a positive privacy result; re-scan for a complete load.",
-      [{ label: "Navigation", value: "Failed", emphasis: true }]
+      [{ label: "Navigation", value: "Failed", emphasis: true }],
+      undefined,
+      { story: "load-failure", subjectScope: "returned-document" }
     );
   }
 
@@ -342,8 +410,14 @@ export function buildReportHeadline(view: ReportView): ReportHeadline {
         activated
           ? `The scanner activated ${contradicted.label}, but the site's consent-state readback was inconsistent with that choice. This pair does not support an accept-versus-reject outcome or any reassuring consent conclusion.`
           : `The scanner did not activate the ${contradicted.label} control, so this is not evidence of a completed consent interaction. It nevertheless read a registered state inconsistent with the requested choice, and the pair supports no reassuring consent conclusion.`,
-        buildStats(contradicted.run, contradictedTracking.length),
-        contradicted.focus
+        buildStats(
+          contradicted.focus === "variant"
+            ? (reportFacts.arms?.variant ?? facts)
+            : (reportFacts.arms?.baseline ?? facts),
+          contradictedTracking.length
+        ),
+        contradicted.focus,
+        { story: "consent", runScope: contradicted.focus }
       );
     }
   }
@@ -365,7 +439,7 @@ export function buildReportHeadline(view: ReportView): ReportHeadline {
       arms.variant.evidence,
       arms.variant.domain
     ).otherOrUnreviewed.filter((entity) => !isOperationalEntity(entity));
-    const rejectResponded = respondedTrackerEntityNames(arms.variant.evidence);
+    const rejectResponded = reportFacts.arms?.variant.identity.respondedEntities ?? new Set<string>();
     // Both consent headlines describe the Reject-all (variant) visit, so the
     // stat chips and share text must quote that run too, not the Accept-all
     // baseline the report otherwise leads with. "In the visit where the
@@ -380,8 +454,13 @@ export function buildReportHeadline(view: ReportView): ReportHeadline {
         `In the visit where the scanner clicked Reject all, ${joinNames(
           rejectTracking.map((entity) => entity.entity)
         )} ${trackerResponseQualification(rejectTracking, rejectResponded)}. ${registration} ${CONSENT_WHOLE_VISIT_CAVEAT} The diff lists the services that appeared only in the visit that clicked Accept all.`,
-        buildStats(arms.variant, rejectTracking.length),
-        "variant"
+        buildStats(reportFacts.arms?.variant ?? facts, rejectTracking.length),
+        "variant",
+        {
+          story: "consent",
+          runScope: "variant",
+          assertedClaims: ["third-party-services"]
+        }
       );
     }
     if (rawCountDeltasUsable && trackingEntities.length > 0) {
@@ -392,8 +471,13 @@ export function buildReportHeadline(view: ReportView): ReportHeadline {
           trackingEntities.length,
           "catalogued tracking-related service"
         )}: ${plural(arms.baseline.counts.thirdPartyRequests, "third-party request")} became ${arms.variant.counts.thirdPartyRequests.toLocaleString("en-US")}. ${registration} ${CONSENT_WHOLE_VISIT_CAVEAT}`,
-        buildStats(arms.variant, 0),
-        "variant"
+        buildStats(reportFacts.arms?.variant ?? facts, 0),
+        "variant",
+        {
+          story: "consent",
+          runScope: "variant",
+          absenceClaims: ["third-party-services"]
+        }
       );
     }
   }
@@ -422,8 +506,13 @@ export function buildReportHeadline(view: ReportView): ReportHeadline {
           gpcOnTracking.length,
           "catalogued tracking-related service"
         )}: ${plural(after, "third-party request")}, versus ${n(before)} in the visit without the signal. An observed difference for this pair of visits; request counts cannot show whether data sales stopped, only what was requested.`,
-        buildStats(arms.variant, gpcOnTracking.length),
-        "variant"
+        buildStats(reportFacts.arms?.variant ?? facts, gpcOnTracking.length),
+        "variant",
+        {
+          story: "comparison",
+          runScope: "variant",
+          assertedClaims: ["third-party-services"]
+        }
       );
     }
     if (reductionPct >= 50) {
@@ -432,7 +521,10 @@ export function buildReportHeadline(view: ReportView): ReportHeadline {
       return finish(
         "calm",
         `Off-site requests to ${domain} were ${reductionPct}% lower in the visit configured with a privacy signal.`,
-        `In the visit configured with Global Privacy Control, off-site requests were ${reductionPct}% lower (${n(before)} → ${n(after)}). An observed difference for this pair of visits, not proof the site honors or received the signal.`
+        `In the visit configured with Global Privacy Control, off-site requests were ${reductionPct}% lower (${n(before)} → ${n(after)}). An observed difference for this pair of visits, not proof the site honors or received the signal.`,
+        undefined,
+        undefined,
+        { story: "comparison", runScope: "pair" }
       );
     }
   }
@@ -452,6 +544,19 @@ export function buildReportHeadline(view: ReportView): ReportHeadline {
         engineBlocks && engineBlocks.kind === "engine-blocked"
           ? ` The blocker directly stopped ${plural(engineBlocks.count, "request")}; the remaining difference may include follow-on requests that never started once their sources were blocked, plus run-to-run variance.`
           : "";
+      const compactEngineNote =
+        engineBlocks && engineBlocks.kind === "engine-blocked"
+          ? ` The engine directly stopped ${plural(
+              engineBlocks.count,
+              "request"
+            )}; the difference may also include prevented follow-on requests and run-to-run variance.`
+          : " This is an observed difference between two visits and may include run-to-run variance.";
+      const compactSubhead =
+        `Brave-list block simulation in this scanner, not a live Brave-browser visit: ` +
+        `${plural(total, "request")} without blocking; ${plural(
+          removed,
+          "fewer third-party request"
+        )} in the blocking visit.${compactEngineNote}`;
       // "Brave-list blocking", never "Brave Shields on": the blocking arm ran
       // Brave's ad-block engine and default Shields lists as a block
       // SIMULATION in this scanner's browser, not a live Brave-browser visit.
@@ -463,6 +568,15 @@ export function buildReportHeadline(view: ReportView): ReportHeadline {
           total,
           "request"
         )}; the visit configured to apply Brave's ad-block engine and default Shields filter lists (a simulation in this scanner's browser, not a live Brave-browser visit) recorded ${plural(removed, "fewer third-party request")}.${engineNote}${extraNote}`
+        ,
+        undefined,
+        undefined,
+        {
+          story: "comparison",
+          runScope: "pair",
+          assertedClaims: ["shields-blocked"]
+        },
+        compactSubhead
       );
     }
   }
@@ -470,7 +584,9 @@ export function buildReportHeadline(view: ReportView): ReportHeadline {
   // A recorded response qualifies delivery of a request, but neither dispatch
   // nor response establishes the request's purpose or payload meaning.
   const receiptClause = (names: string, total: number, answeredCount: number): string =>
-    answeredCount === total
+    requestState === "censored"
+      ? `Retained request rows include ${names}; ${answeredCount} of the retained service matches recorded responses`
+      : answeredCount === total
       ? `${names} recorded responses`
       : answeredCount > 0
         ? `${names} had requests dispatched (${answeredCount} recorded responses; the rest recorded no response)`
@@ -488,8 +604,15 @@ export function buildReportHeadline(view: ReportView): ReportHeadline {
         : receiptClause("Catalogued platform domains", platforms.length, answeredPlatforms.length);
     return finish(
       platforms.length >= 3 ? "alarm" : "warn",
-      `${domain} contacted catalogued ${joinNames(platforms)} domains during this visit.`,
-      `${clause} across ${plural(run.counts.thirdPartyDomains, "cross-site domain")}. A catalog match identifies the service domain, not why the request occurred or what it carried.${sameOrganizationNote}${extraNote}`
+      requestState === "censored"
+        ? `${domain}'s retained request log includes catalogued ${joinNames(platforms)} domains.`
+        : `${domain} contacted catalogued ${joinNames(platforms)} domains during this visit.`,
+      `${clause} across ${retainedCountPhrase(
+        run.counts.thirdPartyDomains,
+        "cross-site domain",
+        "cross-site domains",
+        requestState
+      )}. A catalog match identifies the service domain, not why the request occurred or what it carried.${sameOrganizationNote}${extraNote}`
     );
   }
 
@@ -497,16 +620,33 @@ export function buildReportHeadline(view: ReportView): ReportHeadline {
     const answeredCount = trackingEntities.filter((entity) => respondedEntities.has(entity.entity)).length;
     return finish(
       trackingEntities.length >= 6 ? "warn" : "info",
-      `${domain} contacted ${plural(trackingEntities.length, "catalogued tracking-related service")} during this visit.`,
+      requestState === "censored"
+        ? `${domain}'s retained request log includes ${plural(
+            trackingEntities.length,
+            "catalogued tracking-related service"
+          )}.`
+        : `${domain} contacted ${plural(
+            trackingEntities.length,
+            "catalogued tracking-related service"
+          )} during this visit.`,
       `${
-        answeredCount === trackingEntities.length
+        requestState === "censored"
+          ? `Retained rows include ${joinNames(trackingNames)} (${answeredCount} recorded responses)`
+          : answeredCount === trackingEntities.length
           ? `${joinNames(trackingNames)} recorded responses`
           : answeredCount > 0
             ? `${joinNames(trackingNames)} had requests dispatched (${answeredCount} recorded responses; the rest recorded no response)`
             : `${joinNames(trackingNames)} had requests dispatched with no recorded response`
-      }: ${plural(run.counts.thirdPartyRequests, "request")} went to ${plural(
+      }: ${retainedCountPhrase(
+        run.counts.thirdPartyRequests,
+        "request",
+        "requests",
+        requestState
+      )} went to ${retainedCountPhrase(
         run.counts.thirdPartyDomains,
-        "cross-site domain"
+        "cross-site domain",
+        "cross-site domains",
+        requestState
       )}. Catalog labels do not prove the purpose of an individual request or that profiling occurred.${sameOrganizationNote}${extraNote}`
     );
   }
@@ -522,52 +662,218 @@ export function buildReportHeadline(view: ReportView): ReportHeadline {
     );
   }
 
-  if (highEntropy.length > 0 || sessionRecording || inputMonitoring) {
+  if (highEntropy.length > 0) {
     const probeStats: ReportHeadlineStat[] =
       stats.length > 0 ? stats : [{ label: "fingerprint-like patterns", value: n(highEntropy.length), emphasis: true }];
     return finish(
       "warn",
-      `${domain} triggered fingerprint-like browser API patterns.`,
-      `No catalogued tracking-related service matched, but ${joinNames(
-        extras.length > 0 ? extras : ["fingerprint-like browser APIs were called"],
-        2
-      )}. These are heuristic review signals, not proof of fingerprinting intent.`,
-      probeStats
+      fingerprintEvidenceIncomplete
+        ? `${domain}'s retained evidence matched fingerprint-like browser API patterns.`
+        : `${domain} triggered fingerprint-like browser API patterns.`,
+      `${fingerprintEvidenceIncomplete ? "At least " : ""}${plural(
+        highEntropy.length,
+        "browser-fingerprinting heuristic"
+      )} matched${fingerprintEvidenceIncomplete ? " in retained evidence" : ""}. These are heuristic review signals, not proof of fingerprinting intent.`,
+      probeStats,
+      undefined,
+      { story: "fingerprint-api", assertedClaims: ["fingerprint-apis"] }
+    );
+  }
+
+  if (sessionRecording || inputMonitoring) {
+    const listenerDescription = inputMonitoring
+      ? "a cross-site script registered listeners that could observe typing-related input"
+      : "a cross-site script registered broad interaction listeners";
+    return finish(
+      "info",
+      `${domain} registered a third-party interaction-monitoring signal.`,
+      `${listenerDescription[0].toUpperCase()}${listenerDescription.slice(1)}. Listener coverage shows that a script was positioned to observe interaction; it does not show that input was transmitted.${
+        fingerprintEvidenceIncomplete
+          ? " Fingerprinting-heuristic evaluation was incomplete and is not treated as an absence."
+          : ""
+      }`,
+      stats.length > 0
+        ? stats
+        : [{ label: "listener coverage", value: inputMonitoring ? "Input" : "Interaction", emphasis: true }],
+      undefined,
+      {
+        story: "listener-coverage",
+        assertedClaims: ["session-recording-input-monitoring"]
+      }
+    );
+  }
+
+  const shieldsMeasurement = facts.signals.shields.measurement;
+  if (shieldsMeasurement && shieldsMeasurement.count > 0) {
+    const retained = requestState === "censored" ? " retained before request capture stopped" : "";
+    const shieldsCount = retainedCountPhrase(
+      shieldsMeasurement.count,
+      "request",
+      "requests",
+      requestState
+    );
+    return finish(
+      facts.signals.shields.severity === "warn" ? "warn" : "info",
+      shieldsMeasurement.kind === "engine-blocked"
+        ? `Brave's blocking engine stopped ${shieldsCount} during this visit.`
+        : `${shieldsCount} in this visit matched Brave Shields filter lists.`,
+      shieldsMeasurement.kind === "engine-blocked"
+        ? `This was a block simulation in the scanner's browser, not a live Brave-browser visit. The count covers requests the engine directly stopped; follow-on requests that never started are separate.`
+        : `${shieldsCount} matched while loading normally, out of ${retainedCountLabel(
+            run.counts.totalRequests,
+            requestState
+          )}${retained} requests. Matching identifies traffic the lists would target; it does not establish the purpose or payload of an individual request.`,
+      stats,
+      undefined,
+      { story: "shields", assertedClaims: ["shields-blocked"] }
+    );
+  }
+
+  if (run.counts.thirdPartyCookies > 0) {
+    const cookieState = facts.evidence.cookies.state;
+    return finish(
+      "info",
+      `${domain} recorded ${plural(run.counts.thirdPartyCookies, "third-party cookie")} in this visit.`,
+      cookieState === "censored"
+        ? `The end-of-visit cookie snapshot was incomplete. It retained ${plural(
+            run.counts.thirdPartyCookies,
+            "third-party cookie"
+          )}, so the count is not a complete snapshot of the visit.`
+        : `The scanner observed cookie metadata whose domain crossed the site's registrable-domain boundary. Cookie values and partition keys are not retained, so this does not establish whether a cookie could recognize a visitor across sites.`,
+      stats,
+      undefined,
+      { story: "cookies", assertedClaims: ["third-party-cookies"] }
+    );
+  }
+
+  if (run.counts.fingerprintEvents > 0) {
+    const fingerprintState = facts.evidence.fingerprinting.state;
+    return finish(
+      "info",
+      `${domain} called instrumented browser APIs during this visit.`,
+      `${retainedCountPhrase(
+        run.counts.fingerprintEvents,
+        "browser-API event",
+        "browser-API events",
+        fingerprintState
+      )} appeared in the instrumentation log. These APIs can support legitimate graphics or media use, so the observation is not proof of fingerprinting intent.${
+        fingerprintEvidenceIncomplete
+          ? " Fingerprinting-heuristic evaluation was incomplete."
+          : ""
+      }`,
+      stats,
+      undefined,
+      { story: "raw-fingerprint-events", assertedClaims: ["fingerprint-apis"] }
+    );
+  }
+
+  if (run.counts.thirdPartyDomains > 0) {
+    return finish(
+      "info",
+      requestState === "censored"
+        ? `${domain}'s retained log includes ${plural(
+            run.counts.thirdPartyDomains,
+            "cross-site host"
+          )} that the service catalog did not classify as tracking.`
+        : `${domain} contacted ${plural(
+            run.counts.thirdPartyDomains,
+            "cross-site host"
+          )} that the service catalog did not classify as tracking.`,
+      `${retainedCountPhrase(
+        run.counts.thirdPartyRequests,
+        "cross-site request",
+        "cross-site requests",
+        requestState
+      )} appeared in the log. The identity map named ${
+        facts.identity.coverage.identifiedHosts
+      } of ${plural(facts.identity.coverage.thirdPartyHosts, "host")}; an unmatched host is a catalog limit, not evidence that it is harmless.`,
+      stats,
+      undefined,
+      { story: "unidentified-cross-site" }
     );
   }
 
   // Censored evidence can support the positive stories above (they are lower
   // bounds), but never the calm one: a truncated visit has low counts because
   // collection stopped, not because the site was quiet.
-  const censorshipNotes = runCensorshipNotes(run);
-  const unsupportedFamilies = unsupportedEvidenceFamilies(run);
+  const censorshipNotes = facts.censorshipNotes;
+  const unsupportedFamilies = facts.unsupportedFamilies;
   // The absence sentence the counts support on their own. Shared with the calm
   // branch below so the two cannot drift into describing the same run
   // differently.
-  const observedAbsence =
-    run.counts.thirdPartyDomains > 0
-      ? `${plural(
-          run.counts.thirdPartyDomains,
-          "third-party domain"
-        )} appeared in the request log, but no catalogued tracking-related service or third-party cookie record showed up in this visit`
-      : "No cross-site domains, catalogued tracking-related services, or third-party cookie records showed up in this visit";
+  const observedAbsence = "No cross-site hosts, catalogued tracking-related services, or third-party cookie records showed up in this visit";
+  const completedAbsenceClaims: ReportClaimId[] = [];
+  const completedAbsenceParts: string[] = [];
+  if (
+    facts.claims["third-party-services"].allowed &&
+    run.counts.thirdPartyDomains === 0 &&
+    trackingEntities.length === 0
+  ) {
+    completedAbsenceClaims.push("third-party-services", "named-platforms");
+    completedAbsenceParts.push(
+      "the request log recorded no cross-site hosts or catalogued tracking-related services"
+    );
+  }
+  if (
+    facts.claims["third-party-cookies"].allowed &&
+    run.counts.thirdPartyCookies === 0
+  ) {
+    completedAbsenceClaims.push("third-party-cookies");
+    completedAbsenceParts.push(
+      "the cookie snapshot recorded no third-party cookie records"
+    );
+  }
+  if (
+    facts.claims["fingerprint-apis"].allowed &&
+    run.counts.fingerprintEvents === 0 &&
+    highEntropy.length === 0
+  ) {
+    completedAbsenceClaims.push("fingerprint-apis");
+    completedAbsenceParts.push(
+      "the fingerprint observer recorded no instrumented API events or matched heuristics"
+    );
+  }
   // WHICH family stopped early decides what may be hedged. A loss in the
   // detector ledger says nothing about the request log, the cookie jar, or
   // storage: those ran to completion, so calling their figures "floors" and
   // "snapshots of an interrupted visit" is false about them, and it makes a
   // genuinely quiet site unreportable as quiet. Only a loss in a family that
   // BACKS the counts can undermine the counts.
-  const countEvidenceCensored = ["requests", "cookies", "storage"].some((family) =>
-    familyCensoredOnRun(run, family)
-  );
+  const requestEvidenceCensored = facts.evidence.requests.state === "censored";
+  const censoredSnapshots = [
+    facts.evidence.cookies.state === "censored" ? "cookie" : "",
+    facts.evidence.storage.state === "censored" ? "storage" : ""
+  ].filter(Boolean);
+  const countEvidenceCensored = requestEvidenceCensored || censoredSnapshots.length > 0;
   if (censorshipNotes.length > 0 && countEvidenceCensored) {
+    const incompleteCountNotes = [
+      requestEvidenceCensored
+        ? "Request-derived activity counts are retained lower bounds for this visit, not exact totals or proof of absence."
+        : "",
+      censoredSnapshots.length > 0
+        ? `The ${joinNames(censoredSnapshots)} ${
+            censoredSnapshots.length === 1 ? "figure is an incomplete end-state snapshot" : "figures are incomplete end-state snapshots"
+          }, not a lower bound or an observed absence.`
+        : "",
+      unsupportedFamilies.length > 0
+        ? `${joinNames(unsupportedFamilies)} evidence was not captured by this producer; its zeroes are unavailable measurements.`
+        : ""
+    ].filter(Boolean);
     return finish(
       "info",
-      `${domain}'s scan was cut short, so low counts are not the full story.`,
-      unsupportedFamilies.length > 0
-        ? `Supported evidence collection did not finish: ${joinNames(censorshipNotes, 2)}. Those activity counts are floors. ${joinNames(unsupportedFamilies)} evidence was not captured by this PageGraph producer at all, so its zeroes are unavailable measurements rather than interrupted snapshots.`
-        : `Evidence collection did not finish: ${joinNames(censorshipNotes, 2)}. Activity counts in this report are floors for this visit, and its cookie and storage figures are snapshots of an interrupted visit, not the site's full behavior.`,
-      stats.length > 0 ? stats : [{ label: "third-party requests", value: n(run.counts.thirdPartyRequests), emphasis: true }]
+      `${domain}'s scan did not finish every measurement.`,
+      `Evidence collection did not finish: ${joinNames(censorshipNotes, 2)}. ${incompleteCountNotes.join(" ")}`,
+      stats.length > 0
+        ? stats
+        : [{
+            label: "third-party requests",
+            value: requestEvidenceCensored
+              ? retainedCountLabel(run.counts.thirdPartyRequests, facts.evidence.requests.state)
+              : n(run.counts.thirdPartyRequests),
+            emphasis: true
+          }],
+      undefined,
+      { story: "incomplete-evidence" }
     );
   }
 
@@ -576,12 +882,23 @@ export function buildReportHeadline(view: ReportView): ReportHeadline {
     // absence claims that actually depend on the instrument that stopped.
     return finish(
       "info",
-      `${domain} looked quiet, but this scan did not finish every check.`,
-      `${observedAbsence}, and that request, cookie, and storage evidence is complete for this visit. But ${joinNames(
+      completedAbsenceParts.length > 0
+        ? `${domain}'s completed measurements recorded no listed activity, but another check did not finish.`
+        : `${domain}'s scan completed some measurements, but another check did not finish.`,
+      `${completedAbsenceParts.length > 0 ? `${joinNames(completedAbsenceParts)}. ` : ""}${
+        unsupportedFamilies.length > 0
+          ? `${joinNames(unsupportedFamilies)} evidence was not captured and is not treated as an observed absence. `
+          : ""
+      }${joinNames(
         censorshipNotes,
         2
       )}, so whatever those checks look for is unproven here rather than shown to be absent.`,
-      stats.length > 0 ? stats : [{ label: "third-party requests", value: n(run.counts.thirdPartyRequests), emphasis: true }]
+      stats.length > 0 ? stats : [{ label: "third-party requests", value: n(run.counts.thirdPartyRequests), emphasis: true }],
+      undefined,
+      {
+        story: "incomplete-evidence",
+        absenceClaims: completedAbsenceClaims
+      }
     );
   }
 
@@ -589,10 +906,33 @@ export function buildReportHeadline(view: ReportView): ReportHeadline {
     return finish(
       "info",
       `${domain}'s PageGraph report covers requests, not every evidence family.`,
-      `Request capture completed, but ${joinNames(unsupportedFamilies)} evidence was not captured by this PageGraph producer. Zeroes in those families mean unavailable measurements, not observed absences.`,
+      `${joinNames(unsupportedFamilies)} evidence was not captured by this PageGraph producer. Zeroes in those families mean unavailable measurements, not observed absences.`,
       stats.length > 0
         ? stats
-        : [{ label: "requests captured", value: n(run.counts.totalRequests), emphasis: true }]
+        : [{
+            label:
+              facts.evidence.requests.state === "complete"
+                ? "requests captured"
+                : "request measurement",
+            value:
+              facts.evidence.requests.state === "complete"
+                ? n(run.counts.totalRequests)
+                : "Unavailable",
+            emphasis: true
+          }],
+      undefined,
+      { story: "unsupported-evidence" }
+    );
+  }
+
+  if (!facts.calmEligible) {
+    return finish(
+      "info",
+      `${domain}'s visit produced evidence that needs context.`,
+      "The report retained an informational signal that does not support a categorical absence or a reassuring summary. Review the findings and raw evidence below.",
+      stats,
+      undefined,
+      { story: "observed-activity" }
     );
   }
 
@@ -609,7 +949,18 @@ export function buildReportHeadline(view: ReportView): ReportHeadline {
     "calm",
     `${domain} showed few catalogued or fingerprint-like signals in this visit.`,
     `${observedAbsence}.${rawFingerprintNote || " No fingerprint-observer events showed up either."}`,
-    calmStats
+    calmStats,
+    undefined,
+    {
+      story: "quiet",
+      reassuring: true,
+      absenceClaims: [
+        "third-party-services",
+        "named-platforms",
+        "third-party-cookies",
+        "fingerprint-apis"
+      ]
+    }
   );
 }
 
@@ -625,32 +976,59 @@ export function reportPageTitle(headline: ReportHeadline): string {
     : `${headline.domain}: ${headline.headline}`;
 }
 
-function buildStats(run: RunView, trackingCount: number): ReportHeadlineStat[] {
+function buildStats(facts: RunFacts, trackingCount: number): ReportHeadlineStat[] {
+  const run = facts.run;
   const stats: ReportHeadlineStat[] = [];
+  const requestState = facts.evidence.requests.state;
+  const cookieState = facts.evidence.cookies.state;
 
   if (trackingCount > 0) {
-    stats.push({ label: trackingCount === 1 ? "catalogued service" : "catalogued services", value: n(trackingCount), emphasis: true });
+    stats.push({
+      label:
+        requestState === "censored"
+          ? trackingCount === 1
+            ? "catalogued service retained"
+            : "catalogued services retained"
+          : trackingCount === 1
+            ? "catalogued service"
+            : "catalogued services",
+      value: requestState === "censored" ? `≥${n(trackingCount)}` : n(trackingCount),
+      emphasis: true
+    });
   } else if (run.counts.thirdPartyDomains > 0) {
     stats.push({
       label: run.counts.thirdPartyDomains === 1 ? "cross-site domain" : "cross-site domains",
-      value: n(run.counts.thirdPartyDomains),
+      value: retainedCountLabel(run.counts.thirdPartyDomains, requestState),
       emphasis: true
     });
   }
 
   if (run.counts.thirdPartyRequests > 0) {
-    stats.push({ label: "cross-site requests", value: n(run.counts.thirdPartyRequests) });
+    stats.push({ label: "cross-site requests", value: retainedCountLabel(run.counts.thirdPartyRequests, requestState) });
   }
   if (run.counts.thirdPartyCookies > 0) {
     stats.push({
       label: run.counts.thirdPartyCookies === 1 ? "third-party cookie record" : "third-party cookie records",
-      value: n(run.counts.thirdPartyCookies)
+      value: cookieState === "censored" ? "Snapshot incomplete" : n(run.counts.thirdPartyCookies)
     });
   }
 
-  const fingerprintSignals = highEntropyDetections(run.evidence).length;
+  const fingerprintSignals = facts.signals.fingerprint.highEntropyDetections.length;
   if (fingerprintSignals > 0) {
-    stats.push({ label: fingerprintSignals === 1 ? "fingerprint-like pattern" : "fingerprint-like patterns", value: n(fingerprintSignals) });
+    const incomplete = facts.claims["fingerprint-apis"].blockers.some(
+      (blocker) => blocker !== "subject-not-established"
+    );
+    stats.push({
+      label:
+        incomplete
+          ? fingerprintSignals === 1
+            ? "fingerprint-like pattern retained"
+            : "fingerprint-like patterns retained"
+          : fingerprintSignals === 1
+            ? "fingerprint-like pattern"
+            : "fingerprint-like patterns",
+      value: incomplete ? `≥${n(fingerprintSignals)}` : n(fingerprintSignals)
+    });
   }
 
   return stats.slice(0, 4);

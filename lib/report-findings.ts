@@ -30,33 +30,23 @@ import {
   detectionEvidence,
   detectionLabel,
   fingerprintDetection,
-  highEntropyDetections as highEntropyFingerprintDetections,
   isOperationalEntity,
   keystrokeLeakHashed,
   pixelEventEvidence,
   pixelEventSummaries,
   pixelFieldLabel,
   respondedTrackerEntityNames,
-  scanLoadFailureStatus,
-  scanPageSubjectUnverified,
-  scanSuspectedChallengeOrSoftBlock,
   shieldsRunMeasurement,
-  catalogCoverage,
   trackerOwnershipBreakdown,
-  trackerResponseQualification,
-  trackerEntitySummaries
+  trackerResponseQualification
 } from "./report-insights";
 import {
-  isReviewedSameOrganizationDomain,
-  reviewedOrganizationForDomain,
   reviewedOwnershipRelationship
 } from "./reviewed-ownership";
 import { isCurrentlyCheckablePolicyClaim } from "./privacy-policy";
 import {
   comparisonArmViews,
-  displayRunView,
   familyCensoredOnRun,
-  familyUnsupportedOnRun,
   runCensorshipNotes,
   unsupportedEvidenceFamilies,
   type ClaimGate,
@@ -72,8 +62,17 @@ import {
   consentVerificationSummary
 } from "./report-consent-copy";
 import { R2_NAVIGATION_STATUS_UNREPRESENTABLE } from "./scan-report-v2-http-status";
+import {
+  buildReportFacts,
+  retainedCountPhrase,
+  strongestReportSeverity,
+  type ClaimEligibility,
+  type ReportClaimId,
+  type ReportSeverity,
+  type RunFacts
+} from "./report-facts";
 
-export type FindingLevel = "ok" | "quiet" | "info" | "warn" | "loud";
+export type FindingLevel = ReportSeverity;
 
 /** Semantic icon key. The report UI maps each to a lucide component. */
 export type FindingIconKey =
@@ -104,7 +103,63 @@ export type Finding = {
    * summarizes observed signals, so these never flip it to "review-worthy".
    */
   methodology?: true;
+  /** Structured meaning for fact-to-render consistency checks. */
+  claim?: {
+    id: ReportClaimId;
+    mode: "presence" | "categorical-absence" | "qualified-absence" | "unavailable";
+    scope: "requested-page" | "returned-document";
+    eligibility: ClaimEligibility;
+  };
 };
+
+function findingClaim(
+  facts: RunFacts,
+  id: ReportClaimId,
+  mode: "presence" | "absence" | "unavailable"
+): NonNullable<Finding["claim"]> {
+  const eligibility = facts.claims[id];
+  return {
+    id,
+    mode:
+      mode === "presence"
+        ? "presence"
+        : mode === "unavailable"
+          ? "unavailable"
+          : eligibility.allowed
+            ? "categorical-absence"
+            : "qualified-absence",
+    scope: facts.subject.describesSubject ? "requested-page" : "returned-document",
+    eligibility
+  };
+}
+
+function scopedAbsenceTitle(facts: RunFacts, id: ReportClaimId, title: string): string {
+  const eligibility = facts.claims[id];
+  if (eligibility.allowed) return title;
+  const evidenceIncomplete = eligibility.blockers.some(
+    (blocker) => blocker !== "subject-not-established"
+  );
+  if (facts.subject.kind === "http-error") {
+    return `Returned HTTP ${facts.subject.status ?? "error"} error or block page${
+      evidenceIncomplete ? " with incomplete evidence" : ""
+    }: ${title} in retained evidence`;
+  }
+  if (facts.subject.kind === "interstitial" || facts.subject.kind === "unverified") {
+    return `Could not verify the returned document${
+      evidenceIncomplete ? " and its evidence was incomplete" : ""
+    }: ${title} in retained evidence`;
+  }
+  if (facts.subject.kind === "failed") {
+    return `Incomplete visit: ${title} in retained evidence`;
+  }
+  if (eligibility.blockers.includes("family-censored")) {
+    return `Incomplete evidence: ${title} in retained evidence before collection stopped`;
+  }
+  if (eligibility.blockers.includes("detector-incomplete")) {
+    return `Incomplete detector evidence: ${title} in the completed portion of this visit`;
+  }
+  return `Limited evidence: ${title} in the available portion of this visit`;
+}
 
 type BenchmarkMetric = "thirdPartyDomains" | "trackerEntities" | "thirdPartyCookies" | "fingerprintEvents";
 
@@ -138,8 +193,7 @@ function benchmarkLabel(metric: BenchmarkMetric, value: number): string {
 }
 
 function strongestLevel(levels: FindingLevel[]): FindingLevel {
-  const order: FindingLevel[] = ["ok", "quiet", "info", "warn", "loud"];
-  return levels.reduce((strongest, level) => (order.indexOf(level) > order.indexOf(strongest) ? level : strongest), "ok");
+  return strongestReportSeverity(levels);
 }
 
 // Blacklight's "GA Remarketing Audiences" signal: Google Analytics present AND the
@@ -167,7 +221,12 @@ function corpusBenchmarkScope(corpus: CorpusStats): string {
   }`;
 }
 
-export function buildFindings(view: ReportView, corpusInput: CorpusStats | null): Finding[] {
+export function buildFindings(
+  view: ReportView,
+  corpusInput: CorpusStats | null,
+  reportFacts = buildReportFacts(view)
+): Finding[] {
+  const facts = reportFacts.display;
   // New artifacts publish one distribution per exact schema/methodology/
   // producer/requested-GPC cohort. Select the report's own cohort or fail
   // closed. The
@@ -178,39 +237,56 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
     : view.origin === "legacy-derived"
       ? corpusInput
       : null;
-  const run = displayRunView(view);
+  const run = facts.run;
   const arms = comparisonArmViews(view);
   const axis = view.comparison?.axis ?? null;
-  const entities = trackerEntitySummaries(run.evidence);
-  const ownership = trackerOwnershipBreakdown(run.evidence, run.domain);
+  const ownership = facts.identity.ownership;
   const recipientEntities = ownership.otherOrUnreviewed;
-  const trackingEntities = entities.filter((entity) => !isOperationalEntity(entity));
-  const operationalEntities = entities.filter((entity) => isOperationalEntity(entity));
+  const trackingEntities = facts.identity.trackingEntities;
+  const operationalEntities = facts.identity.operationalEntities;
   const trackingNames = trackingEntities.map((entity) => entity.entity);
   const operationalNames = operationalEntities.map((entity) => entity.entity);
-  const respondedEntities = respondedTrackerEntityNames(run.evidence);
+  const respondedEntities = facts.identity.respondedEntities;
   const topCategories = Array.from(new Set(trackingEntities.flatMap((entity) => entity.categories))).slice(0, 3);
-  const catalogReach = catalogCoverage(run.evidence);
+  const catalogReach = facts.identity.coverage;
   // Quantify what the report could not name. "No known services matched" is
   // otherwise read as "no third parties", when it can equally mean the catalog
   // does not cover the ones that were there. This counts every namer the report
   // has, the service catalog and the consent-platform signatures, so it can
   // never claim a domain is unidentifiable that another card names outright.
   const catalogCoverageNote =
-    catalogReach.thirdPartyDomains === 0
+    catalogReach.thirdPartyHosts === 0
       ? ""
-      : catalogReach.unidentified === 0
-        ? ` This scan identified every one of the ${plural(catalogReach.thirdPartyDomains, "third-party domain")} recorded here.`
-        : ` This scan could not identify ${catalogReach.unidentified} of the ${plural(catalogReach.thirdPartyDomains, "third-party domain")} recorded here, so it cannot say who operates ${catalogReach.unidentified === 1 ? "it" : "them"}. That is a limit of catalog coverage, not evidence about the site.`;
-  const cookiesUnsupported = familyUnsupportedOnRun(run, "cookies");
+      : catalogReach.unidentifiedHosts === 0
+        ? ` This scan identified an operator for every one of the ${plural(catalogReach.thirdPartyHosts, "third-party domain")} recorded here using catalog, consent-platform, reviewed-ownership, and CNAME evidence.`
+        : ` This scan could not identify ${catalogReach.unidentifiedHosts} of the ${plural(catalogReach.thirdPartyHosts, "third-party host")} recorded here, so it cannot say who operates ${catalogReach.unidentifiedHosts === 1 ? "it" : "them"}. That is a limit of identity coverage, not evidence about the site.`;
+  const catalogEntityNames = new Set(facts.identity.catalogEntities.map((entity) => entity.entity));
+  const nonCatalogOutsideIdentityNames = facts.identity.outsideNames.filter(
+    (name) => !catalogEntityNames.has(name)
+  );
+  const nonCatalogSameOrganizationNames = facts.identity.sameOrganizationNames.filter(
+    (name) => !catalogEntityNames.has(name)
+  );
+  const nonCatalogIdentityNames = Array.from(
+    new Set([...nonCatalogOutsideIdentityNames, ...nonCatalogSameOrganizationNames])
+  ).sort();
+  const cookiesUnsupported = facts.evidence.cookies.state === "unsupported";
+  const fingerprintDetectorStatus = run.detectors?.["fingerprint-heuristics"]?.status;
   const detectorUnsupported =
-    familyUnsupportedOnRun(run, "detector-output") || familyUnsupportedOnRun(run, "fingerprinting");
-  const requestsCensored = familyCensoredOnRun(run, "requests");
-  const cookiesCensored = familyCensoredOnRun(run, "cookies");
+    facts.evidence.fingerprinting.state === "unsupported" ||
+    fingerprintDetectorStatus === "unsupported";
+  const requestsCensored = facts.evidence.requests.state === "censored";
+  const cookiesCensored = facts.evidence.cookies.state === "censored";
   // Raw fingerprint events live in the "fingerprinting" evidence family;
-  // detector conclusions live in "detector-output". The absence card covers
-  // both, so censoring in either hedges it.
-  const detectorCensored = familyCensoredOnRun(run, "detector-output") || familyCensoredOnRun(run, "fingerprinting");
+  // the fingerprint-heuristics detector owns the interpreted conclusions. An
+  // unrelated detector-output failure must not make fingerprinting unavailable.
+  const detectorCensored =
+    facts.evidence.fingerprinting.state === "censored" ||
+    (fingerprintDetectorStatus !== undefined && fingerprintDetectorStatus !== "complete") ||
+    facts.claims["fingerprint-apis"].blockers.includes("detector-incomplete");
+  const pixelDetectorCensored = facts.claims["pixel-events"].blockers.some(
+    (blocker) => blocker !== "subject-not-established"
+  );
   const runCompleted = run.quality.outcome === "complete";
   // The distribution these percentiles rank against is built from plain first
   // visits only: corpus-stats-builder, entryEligibleForCorpusRollups, and the
@@ -221,8 +297,10 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
   const postChoiceConsentLead =
     run.conditions.consentMode === "accept-all" || run.conditions.consentMode === "reject-all";
   const benchmarkPopulationMatches = runCompleted && !postChoiceConsentLead;
-  const domainsBenchmarkAllowed = benchmarkPopulationMatches && !requestsCensored;
-  const cookiesBenchmarkAllowed = benchmarkPopulationMatches && !cookiesUnsupported && !cookiesCensored;
+  const domainsBenchmarkAllowed =
+    benchmarkPopulationMatches && facts.claims["third-party-services"].benchmarkAllowed;
+  const cookiesBenchmarkAllowed =
+    benchmarkPopulationMatches && facts.claims["third-party-cookies"].benchmarkAllowed;
   // Corpus percentiles when available + large enough; otherwise fixed thresholds.
   const domainsBenchmark = domainsBenchmarkAllowed
     ? corpusBenchmark(corpus, "thirdPartyDomains", run.counts.thirdPartyDomains)
@@ -248,9 +326,7 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
         )} belongs to the same reviewed ${ownership.sameOrganizationName ?? "organization"} domain family as the site, so that traffic is not evidence of disclosure to an outside company.`
       : "";
 
-  const sessionReplayNames = trackingEntities
-    .filter((entity) => entity.categories.some((category) => category.toLowerCase().includes("session replay")))
-    .map((entity) => entity.entity);
+  const sessionReplayNames = facts.signals.fingerprint.sessionReplayNames;
   const sessionReplayNote =
     sessionReplayNames.length > 0
       ? ` Catalog labels include session-replay or behavior-analytics services: ${humanList(sessionReplayNames)}; the domain match alone does not prove that a recording occurred.`
@@ -266,20 +342,30 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
   // claim is derived from catalog matches alone, so without these it published
   // a green "no requests to Google domains were observed" over an observed
   // request to exactly such a domain.
-  const uncataloguedPlatformOrganizations = Array.from(
-    new Set(
-      run.evidence.domains
-        .filter(
-          (domain) =>
-            domain.thirdParty &&
-            domain.tracker === null &&
-            !isReviewedSameOrganizationDomain(run.domain, domain.domain)
-        )
-        .map((domain) => reviewedOrganizationForDomain(domain.domain))
-        .filter((organization) => organization !== null && HEADLINE_PLATFORMS.includes(organization))
-        .map((organization) => String(organization))
-    )
+  const cataloguedHeadlineNames = new Set([
+    ...headlineNames,
+    ...sameOrganizationHeadlineEntities.map((entity) => entity.entity)
+  ]);
+  const sameOrganizationPlatformNames = Array.from(
+    new Set([
+      ...sameOrganizationHeadlineEntities.map((entity) => entity.entity),
+      ...facts.identity.sameOrganizationNames.filter((name) =>
+        HEADLINE_PLATFORMS.includes(name)
+      )
+    ])
   ).sort();
+  const uncataloguedPlatformOrganizations = facts.identity.outsideNames.filter(
+    (organization) =>
+      HEADLINE_PLATFORMS.includes(organization) &&
+      !cataloguedHeadlineNames.has(organization)
+  );
+  const sameOrganizationPlatformRequests = facts.identity.hosts
+    .filter(
+      (host) =>
+        host.relationship === "same-organization" &&
+        host.namers.some((namer) => sameOrganizationPlatformNames.includes(namer.name))
+    )
+    .reduce((total, host) => total + host.requests, 0);
   const headlineRequests = headlineEntities.reduce((total, entity) => total + entity.requests, 0);
   const provenanceHighlights = requestProvenanceHighlights(run.evidence.requests);
   const requestsWithProvenance = run.evidence.requests.filter((request) => request.provenance).length;
@@ -347,7 +433,8 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
       evidence: humanList(
         cnameCloaks.map((cloak) => `${cloak.host} → ${cloak.cname} (${cloak.tracker.entity})`),
         4
-      )
+      ),
+      claim: findingClaim(facts, "cname-cloaking", "presence")
     });
   }
 
@@ -372,14 +459,23 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
             : "A consent management platform was requested",
       lead:
         preConsentTrackers > 0
-          ? `${run.domain} sent a request to ${consentPlatform.name}, a consent management platform (the tooling that shows cookie banners), and sent requests to ${plural(
+          ? `${run.domain} sent a request to ${consentPlatform.name}, a consent management platform (the tooling that shows cookie banners), and the request log included ${retainedCountPhrase(
               preConsentTrackers,
-              "catalogued tracking-related service"
-            )} before the scanner made any consent choice${answeredPreConsentTrackers > 0 ? `; ${plural(answeredPreConsentTrackers, "company", "companies")} answered` : "; none recorded a response"}.`
-          : `${run.domain} sent a request to ${consentPlatform.name}, a consent management platform (the tooling that shows cookie banners); no request to a catalogued tracking-related service was recorded before the scanner made any consent choice in this visit.`,
+              "catalogued tracking-related service",
+              "catalogued tracking-related services",
+              facts.evidence.requests.state
+            )} before the scanner made any consent choice${
+              answeredPreConsentTrackers > 0
+                ? `; ${plural(answeredPreConsentTrackers, "company", "companies")} answered`
+                : requestsCensored
+                  ? "; none of the retained matches recorded a response before collection stopped"
+                  : "; none recorded a response"
+            }.`
+          : `${run.domain} sent a request to ${consentPlatform.name}, a consent management platform (the tooling that shows cookie banners), before the scanner made any consent choice. Tracker-service observations are reported separately so this positive tooling signal does not imply an absence.`,
       detail:
         'A request to the platform\'s loader proves the page attempted to fetch consent tooling; an observed response supports delivery, but neither fact proves a banner was visibly shown to this scanner. Banner display can vary by region and visit context. The scanner never clicks a banner in this mode, so this report records requests made before the scanner made a consent choice. It does not determine whether any request required consent or whether the site\'s behavior complied with applicable law. More trackers may appear after "Accept" than this report captures, so tracker counts here are a lower bound for users who consent.',
-      evidence: `Consent platform detected via a request to ${consentPlatform.domain}.`
+      evidence: `Consent platform detected via a request to ${consentPlatform.domain}.`,
+      claim: findingClaim(facts, "consent-banner", "presence")
     });
   }
 
@@ -438,7 +534,10 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
 
     // A "nothing contradicted" reassurance is itself an absence claim over
     // the checked evidence, so censored collection hedges it.
-    const policyEvidenceCensored = requestsCensored || cookiesCensored || detectorCensored;
+    const policyAbsenceIneligible = !facts.claims["privacy-policy"].allowed;
+    const policyEvidenceCensored = facts.claims["privacy-policy"].blockers.some(
+      (blocker) => blocker !== "subject-not-established"
+    );
     // The same rule applied to the other side of the comparison: with no
     // checkable statement extracted, "no checked statement contradicted" is
     // vacuously true and reads as a clean result from zero checks. 83 of the
@@ -453,7 +552,7 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
           ? "warn"
           : conditionalConflicts.length > 0 || policy.unmentionedEntities.length > 0
             ? "info"
-            : policyEvidenceCensored || noCheckableClaims
+            : policyAbsenceIneligible || noCheckableClaims
               ? "info"
               : "ok",
       title:
@@ -465,7 +564,11 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
               ? "Tracking companies the privacy policy does not appear to name"
               : noCheckableClaims
                 ? "Privacy policy read; it made no statement this scan can check"
-                : "Privacy policy read; no checked statement contradicted",
+                : scopedAbsenceTitle(
+                    facts,
+                    "privacy-policy",
+                    "Privacy policy read; no checked statement contradicted"
+                  ),
       lead:
         conflicts.length > 0
           ? `Comparing the site's own privacy policy against this visit: ${humanList(conflicts, 3)}.`
@@ -482,38 +585,74 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
           : policy.unmentionedEntities.length > 0
             ? `Policies often disclose vendor categories rather than company names, so an unnamed vendor is a transparency gap worth reviewing, not automatically a violation.${namedCount > 0 ? ` Named in the policy: ${humanList(policy.mentionedEntities)}.` : ""}`
             : `Statements checked automatically: blanket no-cookie claims, third-party-cookie claims, and combined do-not-sell-or-share claims against advertising-pixel identifier fields. Global Privacy Control claims are never checked against request counts, which cannot show whether selling or sharing stopped.${policyEvidenceCensored ? CENSORED_ABSENCE_NOTE : ""}`,
-      evidence: `Policy at ${policy.url}; ${plural(checkablePolicyClaims.length, "checkable statement")} matched; ${coverage}.`
+      evidence: `Policy at ${policy.url}; ${plural(checkablePolicyClaims.length, "checkable statement")} matched; ${coverage}.`,
+      claim: findingClaim(
+        facts,
+        "privacy-policy",
+        conflicts.length > 0 || conditionalConflicts.length > 0 || policy.unmentionedEntities.length > 0
+          ? "presence"
+          : noCheckableClaims
+            ? "unavailable"
+            : "absence"
+      )
     });
   }
 
   findings.push({
     id: "third-party-services",
     icon: "globe",
-    level: trackingEntities.length > 0 ? thirdPartyLevel : requestsCensored ? "info" : "ok",
+    level:
+      trackingEntities.length > 0
+        ? thirdPartyLevel
+        : operationalEntities.length > 0 || nonCatalogIdentityNames.length > 0 || requestsCensored
+          ? "info"
+          : "ok",
     title:
       trackingEntities.length > 0
         ? trackingEntities.every((entity) => respondedEntities.has(entity.entity))
           ? "Catalogued service domains recorded responses during this visit"
           : "Requests were dispatched to catalogued service domains"
         : operationalEntities.length > 0
-          ? "Only operational services matched"
-          : "No known services matched",
+          ? "Operational service matches were recorded"
+          : nonCatalogOutsideIdentityNames.length > 0
+            ? "Other third-party operators were identified outside the tracking-service catalog"
+            : nonCatalogSameOrganizationNames.length > 0
+              ? "Same-organization operators were identified across a site boundary"
+            : scopedAbsenceTitle(facts, "third-party-services", "No known services matched"),
     lead:
       trackingEntities.length > 0
         ? `${humanList(trackingNames)} appeared in the request log.`
         : operationalEntities.length > 0
-          ? `Only operational tools matched the catalog: ${humanList(operationalNames)}.`
-          : "This scan did not match any third-party domains to the service catalog.",
+          ? `The catalog matched operational tools: ${humanList(operationalNames)}.`
+          : nonCatalogOutsideIdentityNames.length > 0
+            ? `${humanList(nonCatalogOutsideIdentityNames)} were named by consent-platform signatures, reviewed ownership, or CNAME evidence without being classified as tracking services.`
+            : nonCatalogSameOrganizationNames.length > 0
+              ? `${humanList(nonCatalogSameOrganizationNames)} were named across a registrable-domain boundary, but the reviewed ownership map groups them with the site rather than an outside company.`
+            : "This scan did not match any third-party domains to the service catalog or another identity source.",
     detail:
       trackingEntities.length > 0
         ? `A catalog match identifies a maintainer-reviewed service/domain mapping; it does not establish why an individual request occurred, what it carried, or whether profiling happened.${topCategories.length > 0 ? ` Functional catalog labels include ${humanList(topCategories)}.` : ""}${catalogCoverageNote}${sessionReplayNote}${operationalNote}${sameOrganizationNote}`
         : operationalEntities.length > 0
           ? `The catalog assigns these services monitoring or support labels; the matches do not establish each request's purpose.${catalogCoverageNote}${sameOrganizationNote}${requestsCensored ? CENSORED_ABSENCE_NOTE : ""}`
-          : `No known catalog entity was matched.${catalogCoverageNote}${requestsCensored ? CENSORED_ABSENCE_NOTE : ""}`,
+          : nonCatalogOutsideIdentityNames.length > 0
+            ? `Operator identity and tracking classification are separate: naming an operator does not prove that a request was for tracking.${catalogCoverageNote}${sameOrganizationNote}${requestsCensored ? CENSORED_ABSENCE_NOTE : ""}`
+            : nonCatalogSameOrganizationNames.length > 0
+              ? `A cross-site browser boundary is not automatically an outside-company disclosure. The ownership relation names the operator, while the absence of a catalog classification says nothing about the request's purpose.${catalogCoverageNote}${requestsCensored ? CENSORED_ABSENCE_NOTE : ""}`
+            : `No known operator or catalog entity was matched.${catalogCoverageNote}${requestsCensored ? CENSORED_ABSENCE_NOTE : ""}`,
     // Counted per distinct HOST, not per registrable domain: two subdomains of
     // one company are two rows here. Calling them registrable-domain
     // boundaries overstated how many separate parties the visit reached.
-    evidence: `${plural(run.counts.thirdPartyRequests, "cross-site request")} across ${plural(run.counts.thirdPartyDomains, "third-party host")}.`,
+    evidence: `${retainedCountPhrase(
+      run.counts.thirdPartyRequests,
+      "cross-site request",
+      "cross-site requests",
+      facts.evidence.requests.state
+    )} across ${retainedCountPhrase(
+      run.counts.thirdPartyDomains,
+      "third-party host",
+      "third-party hosts",
+      facts.evidence.requests.state
+    )}.`,
     benchmark: !domainsBenchmarkAllowed
       ? undefined
       : domainsBenchmark
@@ -521,6 +660,14 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
         : trackingEntities.length > 0
           ? benchmarkLabel("trackerEntities", trackingEntities.length)
           : benchmarkLabel("thirdPartyDomains", run.counts.thirdPartyDomains)
+    ,
+    claim: findingClaim(
+      facts,
+      "third-party-services",
+      trackingEntities.length > 0 || operationalEntities.length > 0 || nonCatalogIdentityNames.length > 0
+        ? "presence"
+        : "absence"
+    )
   });
 
   findings.push({
@@ -528,7 +675,7 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
     icon: "network",
     level:
       headlineNames.length === 0
-        ? sameOrganizationHeadlineEntities.length > 0 ||
+        ? sameOrganizationPlatformNames.length > 0 ||
           uncataloguedPlatformOrganizations.length > 0 ||
           requestsCensored
           ? "info"
@@ -539,18 +686,16 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
     title:
       headlineNames.length > 0
         ? "Requests were dispatched to catalogued major-platform domains"
-        : sameOrganizationHeadlineEntities.length > 0
+        : sameOrganizationPlatformNames.length > 0
           ? "Major-platform domains matched within the site's reviewed organization"
           : uncataloguedPlatformOrganizations.length > 0
             ? "Requests were dispatched to major-platform domains the catalog does not carry"
-            : "No requests to major-platform domains were recorded",
+            : scopedAbsenceTitle(facts, "named-platforms", "No requests to major-platform domains were recorded"),
     lead:
       headlineNames.length > 0
         ? `This visit dispatched requests to catalogued domains for ${humanList(headlineNames)}.`
-        : sameOrganizationHeadlineEntities.length > 0
-          ? `${humanList(
-              sameOrganizationHeadlineEntities.map((entity) => entity.entity)
-            )} domains appeared across a registrable-domain boundary, but the reviewed ownership map groups them with the site rather than an outside company.`
+        : sameOrganizationPlatformNames.length > 0
+          ? `${humanList(sameOrganizationPlatformNames)} domains appeared across a registrable-domain boundary, but the reviewed ownership map groups them with the site rather than an outside company.`
           : uncataloguedPlatformOrganizations.length > 0
             ? `This visit dispatched requests to ${humanList(
                 uncataloguedPlatformOrganizations
@@ -559,20 +704,42 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
     detail:
       headlineNames.length > 0
         ? `The domain matches identify services, not the requests' purpose, payload, or whether any profile linking occurred.${sameOrganizationNote}`
-        : sameOrganizationHeadlineEntities.length > 0
-          ? "Cross-registrable-domain traffic remains counted in the report, but this reviewed ownership relationship does not support an outside-recipient disclosure claim. The catalog match also does not prove request purpose."
+        : sameOrganizationPlatformNames.length > 0
+          ? "Cross-registrable-domain traffic remains counted in the report, but this reviewed ownership relationship does not support an outside-recipient disclosure claim. Naming the operator also does not prove request purpose."
           : uncataloguedPlatformOrganizations.length > 0
             ? `Asset and font hosts reach this state often: the ownership map establishes who operates the domain, and nothing here establishes the request's purpose or payload. These domains are not counted as catalogued tracker requests.${requestsCensored ? CENSORED_ABSENCE_NOTE : ""}`
             : `Major-platform domains were not observed in this single passive visit; interaction-gated requests could still load for real users.${requestsCensored ? CENSORED_ABSENCE_NOTE : ""}`,
     evidence:
       headlineNames.length > 0
-        ? `${plural(headlineRequests, "request")} to these platforms.`
-        : sameOrganizationHeadlineEntities.length > 0
-          ? `${plural(
-              sameOrganizationHeadlineEntities.reduce((total, entity) => total + entity.requests, 0),
-              "cross-site request"
+        ? `${retainedCountPhrase(
+            headlineRequests,
+            "request",
+            "requests",
+            facts.evidence.requests.state
+          )} to these platforms.`
+        : sameOrganizationPlatformNames.length > 0
+          ? `${retainedCountPhrase(
+              sameOrganizationPlatformRequests,
+              "cross-site request",
+              "cross-site requests",
+              facts.evidence.requests.state
             )} mapped to a reviewed same-organization domain family.`
-          : `${plural(run.counts.thirdPartyDomains, "cross-site domain")} seen overall.`
+          : `${retainedCountPhrase(
+              run.counts.thirdPartyDomains,
+              "cross-site domain",
+              "cross-site domains",
+              facts.evidence.requests.state
+            )} seen overall.`
+    ,
+    claim: findingClaim(
+      facts,
+      "named-platforms",
+      headlineNames.length > 0 ||
+        sameOrganizationPlatformNames.length > 0 ||
+        uncataloguedPlatformOrganizations.length > 0
+        ? "presence"
+        : "absence"
+    )
   });
 
   const pixelEvents = pixelEventSummaries(run.evidence);
@@ -596,10 +763,11 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
       detail:
         pixelsWithMatching.length > 0
           ? "Beyond detecting that a pixel is present, this reads each pixel request's event type and whether its advanced-matching parameters held values. These are the fields the platforms document as carrying hashed emails or phone numbers so events can be matched to a known person; the scanner records only which fields were populated, never their values, so neither the contents nor the hashing is verified."
-          : detectorCensored
+          : pixelDetectorCensored
             ? "This reads each pixel request's event type (such as PageView, ViewContent, or Purchase), not just that a pixel request was recorded. Pixel decoding was incomplete for one or more request bodies, so whether other pixel requests carried advanced-matching identifier fields is unknown."
             : "This reads each pixel request's event type (such as PageView, ViewContent, or Purchase), not just that a pixel request was recorded. No advanced-matching identifier fields were observed in this passive visit; interaction-gated events could still carry them for real users.",
-      evidence: humanList(pixelEvents.map(pixelEventEvidence), 4)
+      evidence: humanList(pixelEvents.map(pixelEventEvidence), 4),
+      claim: findingClaim(facts, "pixel-events", "presence")
     });
   }
 
@@ -631,8 +799,8 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
     title: gaRemarketingOn
       ? "Google Analytics remarketing signal detected"
       : googleAnalyticsPresent
-        ? "Google Analytics present, no remarketing signal"
-        : "No Google Analytics observed",
+        ? scopedAbsenceTitle(facts, "ga-remarketing", "Google Analytics present, no remarketing signal")
+        : scopedAbsenceTitle(facts, "ga-remarketing", "No Google Analytics observed"),
     lead: gaRemarketingOn
       ? "Google Analytics fired a sync to stats.g.doubleclick.net, the request Blacklight treats as the marker that advertising and remarketing features are on."
       : googleAnalyticsPresent
@@ -648,6 +816,8 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
       : googleAnalyticsPresent
         ? "Google Analytics host observed; no stats.g.doubleclick.net request."
         : "No google-analytics.com or googletagmanager.com requests."
+    ,
+    claim: findingClaim(facts, "ga-remarketing", gaRemarketingOn ? "presence" : "absence")
   });
 
   findings.push({
@@ -665,7 +835,7 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
       ? "Cookie evidence was not captured"
       : run.counts.thirdPartyCookies > 0
         ? "Third-party cookies were present"
-        : "No third-party cookies observed",
+        : scopedAbsenceTitle(facts, "third-party-cookies", "No third-party cookies observed"),
     lead:
       cookiesUnsupported
         ? "This request-only PageGraph import does not capture cookie evidence."
@@ -686,6 +856,12 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
       : cookiesBenchmark
         ? cookiesBenchmark.label
         : benchmarkLabel("thirdPartyCookies", run.counts.thirdPartyCookies)
+    ,
+    claim: findingClaim(
+      facts,
+      "third-party-cookies",
+      cookiesUnsupported ? "unavailable" : run.counts.thirdPartyCookies > 0 ? "presence" : "absence"
+    )
   });
 
   // Restricted to genuinely cross-site listener origins: the in-page probe's
@@ -737,11 +913,12 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
             : `${humanList(sessionReplayNames)} appeared in the request log.`,
       detail:
         "This is a behavioral instrumentation signal from listener registration, stack-attributed script origins, and known-vendor requests: it shows a script was positioned to observe interaction, not that anything was transmitted. On scanners that run the active keystroke-capture probe, actual transmission is tested separately (a synthetic value is typed, never real input, and no typed values are collected); treat this card as a review prompt rather than proof.",
-      evidence: humanList(behaviorNotes, 4)
+      evidence: humanList(behaviorNotes, 4),
+      claim: findingClaim(facts, "session-recording-input-monitoring", "presence")
     });
   }
 
-  const highEntropyDetections = highEntropyFingerprintDetections(run.evidence);
+  const highEntropyDetections = facts.signals.fingerprint.highEntropyDetections;
   const highEntropyDetectionLabels = highEntropyDetections.map(detectionLabel);
   const topFingerprintApis = run.evidence.fingerprintEvents.slice(0, 3).map((event) => event.api);
   findings.push({
@@ -764,14 +941,22 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
           : "Behavioral fingerprinting heuristics matched"
         : run.counts.fingerprintEvents > 0
           ? "Fingerprint-like browser APIs were called"
-          : "No fingerprint-like API calls observed",
+          : scopedAbsenceTitle(facts, "fingerprint-apis", "No fingerprint-like API calls observed"),
     lead:
       detectorUnsupported
         ? "This request-only PageGraph import does not capture fingerprinting or detector evidence."
         : highEntropyDetections.length > 0
-        ? `${plural(highEntropyDetections.length, "behavioral heuristic")} matched: ${humanList(highEntropyDetectionLabels, 5)}.`
+        ? `${detectorCensored ? "At least " : ""}${plural(
+            highEntropyDetections.length,
+            "behavioral heuristic"
+          )} matched${detectorCensored ? " in retained evidence" : ""}: ${humanList(highEntropyDetectionLabels, 5)}.`
         : run.counts.fingerprintEvents > 0
-          ? `${plural(run.counts.fingerprintEvents, "high-entropy API call")} appeared in the instrumentation log.`
+          ? `${retainedCountPhrase(
+              run.counts.fingerprintEvents,
+              "high-entropy API call",
+              "high-entropy API calls",
+              facts.evidence.fingerprinting.state
+            )} appeared in the instrumentation log.`
           : "The scan did not observe the instrumented high-entropy browser APIs.",
     detail:
       detectorUnsupported
@@ -786,7 +971,21 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
         ? "Unsupported by the request-only PageGraph r2 producer."
         : highEntropyDetections.length > 0
         ? humanList(highEntropyDetections.map(detectionEvidence), 4)
-        : `${plural(run.evidence.fingerprintEvents.length, "API family", "API families")} recorded.`
+        : `${retainedCountPhrase(
+            run.evidence.fingerprintEvents.length,
+            "API family",
+            "API families",
+            facts.evidence.fingerprinting.state
+          )} recorded.`,
+    claim: findingClaim(
+      facts,
+      "fingerprint-apis",
+      detectorUnsupported
+        ? "unavailable"
+        : highEntropyDetections.length > 0 || run.counts.fingerprintEvents > 0
+          ? "presence"
+          : "absence"
+    )
   });
 
   // Every comparison card runs through the SHARED claim policy (the seam's
@@ -1032,7 +1231,7 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
   // A failed/blocked load (HTTP >= 400) produces low counts that are an artifact
   // of the page not loading, not a privacy result. Lead with that so the bottom
   // line never reads an error page as "few review signals".
-  const loadFailureStatus = scanLoadFailureStatus(run.status);
+  const loadFailureStatus = facts.subject.kind === "http-error" ? facts.subject.status : null;
   if (loadFailureStatus !== null) {
     // Same rule as the failed-navigation branch below: an error or block page
     // cannot support reassuring absence cards. This branch used to return before
@@ -1046,9 +1245,9 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
       id: "bottom-line",
       icon: "alert",
       level: "info",
-      title: `Bottom line: ${run.domain} did not serve its page (HTTP ${loadFailureStatus})`,
-      lead: `The page responded with HTTP ${loadFailureStatus}, so this report reflects an error or block page, not the site itself.`,
-      detail: `Low tracker, cookie, and fingerprinting counts here mean no page was served, not that the site is private. ${retryGuidance(
+      title: `Bottom line: the requested page returned HTTP ${loadFailureStatus}`,
+      lead: `The requested page responded with HTTP ${loadFailureStatus}, so this report reflects the returned error or block document, not the site's normal behavior.`,
+      detail: `Tracker, cookie, storage, and fingerprinting signals here describe that returned document. They are retained evidence, not a privacy result for the site's normal page. ${retryGuidance(
         loadFailureStatus
       )} The request log and methodology below still show exactly what was observed.`,
       evidence: `${plural(run.counts.totalRequests, "request")} observed before or with the error response.`
@@ -1056,7 +1255,7 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
     return findings;
   }
 
-  if (scanPageSubjectUnverified(run)) {
+  if (facts.subject.kind === "unverified") {
     hedgeAbsenceCards(
       findings,
       "The scanner could not verify that the rendered document was the requested page, so this absence does not describe the site."
@@ -1075,7 +1274,7 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
     return findings;
   }
 
-  if (scanSuspectedChallengeOrSoftBlock(run)) {
+  if (facts.subject.kind === "interstitial") {
     hedgeAbsenceCards(
       findings,
       "The scanner found a suspected challenge or soft block, so this absence describes only the interstitial, not the site."
@@ -1098,7 +1297,7 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
   // visit. Frozen r2 deliberately maps otherwise-valid 600-999 navigation
   // statuses to null and records this marker; lead with the failed navigation
   // while withholding the exact code rather than manufacturing one.
-  if (run.quality.outcome === "failed") {
+  if (facts.subject.kind === "failed") {
     const statusUnrepresentable =
       run.quality.facts?.captureLoss.some((loss) => loss.detail === R2_NAVIGATION_STATUS_UNREPRESENTABLE) === true;
     hedgeAbsenceCards(
@@ -1129,10 +1328,23 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
   // it was spliced in afterwards, a warn-level Shields card could never raise
   // the bottom line, so a visit with ten or more matched requests could still
   // headline "few review signals".
-  const shieldsMeasurement = shieldsRunMeasurement(run);
+  const shieldsMeasurement = facts.signals.shields.measurement;
   if (shieldsMeasurement) {
     const blocked = shieldsMeasurement.count;
     const simulated = shieldsMeasurement.kind === "engine-blocked";
+    const requestState = facts.evidence.requests.state;
+    const blockedPhrase = retainedCountPhrase(
+      blocked,
+      "request",
+      "requests",
+      requestState
+    );
+    const totalPhrase = retainedCountPhrase(
+      run.counts.totalRequests,
+      "request",
+      "requests",
+      requestState
+    );
     findings.unshift({
       id: "shields-blocked",
       icon: "shield-check",
@@ -1140,16 +1352,25 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
       title:
         blocked > 0
           ? simulated
-            ? `Brave's blocking engine stopped ${blocked.toLocaleString("en-US")} requests in this visit`
-            : `${blocked.toLocaleString("en-US")} of ${run.counts.totalRequests.toLocaleString("en-US")} requests matched Brave Shields filter lists`
-          : simulated
-            ? "Brave's blocking engine stopped nothing in this visit"
-            : "No requests matched Brave Shields filter lists",
+            ? `Brave's blocking engine stopped ${blockedPhrase} in this visit`
+            : requestState === "complete"
+              ? `${blocked.toLocaleString("en-US")} of ${plural(
+                  run.counts.totalRequests,
+                  "request"
+                )} matched Brave Shields filter lists`
+              : `${blockedPhrase} out of ${totalPhrase} matched Brave Shields filter lists`
+          : scopedAbsenceTitle(
+              facts,
+              "shields-blocked",
+              simulated
+                ? "No requests were stopped by Brave's blocking engine"
+                : "No requests matched Brave Shields filter lists"
+            ),
       lead:
         blocked > 0
           ? simulated
-            ? `Brave's ad-block engine running Shields' default filter lists stopped ${plural(blocked, "request")} from loading, a block simulation in this scanner's browser, not a live Brave-browser visit.`
-            : `${plural(blocked, "request")} matched the default filter lists of Brave Shields, the ad and tracker blocker built into the Brave browser, while loading normally.`
+            ? `Brave's ad-block engine running Shields' default filter lists stopped ${blockedPhrase} from loading, a block simulation in this scanner's browser, not a live Brave-browser visit.`
+            : `${blockedPhrase} matched the default filter lists of Brave Shields, the ad and tracker blocker built into the Brave browser, while loading normally.`
           : "No requests matched the default filter lists of Brave Shields, the ad and tracker blocker built into the Brave browser.",
       detail: simulated
         ? "Measured with Brave's own ad-block engine and default filter lists actively blocking (network requests only, so no cosmetic or CNAME-based blocking). Blocked requests are not in this run's totals, and requests a blocked script would have made never started."
@@ -1157,7 +1378,13 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
       // The catalog count is run-wide: it is a separate labeling layer, not a
       // proven subset of the Shields-matched requests, so the sentence must
       // not chain the two sets together.
-      evidence: `The hand-curated service catalog separately labels ${plural(run.counts.knownTrackerRequests, "request")} in this visit.`
+      evidence: `The hand-curated service catalog separately labels ${retainedCountPhrase(
+        run.counts.knownTrackerRequests,
+        "request",
+        "requests",
+        requestState
+      )} in this visit.`,
+      claim: findingClaim(facts, "shields-blocked", blocked > 0 ? "presence" : "absence")
     });
   }
 
@@ -1416,10 +1643,16 @@ function buildConsentComparisonFinding(
  */
 function hedgeAbsenceCards(findings: Finding[], scope: string): void {
   for (const finding of findings) {
-    if (finding.level !== "ok" && finding.level !== "quiet") continue;
+    if (
+      finding.claim?.mode !== "categorical-absence" &&
+      finding.claim?.mode !== "qualified-absence"
+    ) {
+      continue;
+    }
     finding.level = "info";
     finding.benchmark = undefined;
-    finding.detail = `${finding.detail} ${scope}`;
+    if (!finding.detail.includes(scope)) finding.detail = `${finding.detail} ${scope}`;
+    finding.claim = { ...finding.claim, mode: "qualified-absence", scope: "returned-document" };
   }
 }
 
@@ -1436,7 +1669,9 @@ function retryGuidance(status: number): string {
     return "The site answered and denied this visit. The status alone cannot distinguish authentication, access policy, automation filtering, or another cause, so a later re-scan may or may not differ.";
   }
   if (status === 429) return "The site rate-limited this visit, so a later re-scan may succeed.";
-  if (status === 404) return "That address did not exist on the site; check the URL rather than re-scanning it.";
+  if (status === 404) {
+    return "The requested address returned 404; verify the URL. The status does not establish why that response was returned.";
+  }
   if (status >= 500) return "That is a server-side error, so a later re-scan may succeed.";
   return "Re-scan when the site serves the page.";
 }

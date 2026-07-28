@@ -27,6 +27,40 @@ const requireFromHere = createRequire(import.meta.url);
 const HEADLINE_TONES = new Set(["alarm", "warn", "info", "calm"]);
 
 /**
+ * `budget-unavailable` covers both elapsed-time exhaustion and bounded
+ * evidence collection. A short run contradicts the former, but not the latter.
+ * Require each bounded detector to carry its detector-specific capture loss so
+ * an ordinary timeout cannot borrow this exception.
+ */
+export function detectorBudgetIsEvidenceBound(id, entry, losses) {
+  const hasLoss = (kind, detail) =>
+    losses.some(
+      (loss) =>
+        loss?.family === "detector-output" &&
+        loss?.kind === kind &&
+        loss?.detail === detail
+    );
+
+  if (id === "cname-uncloaking") {
+    return entry?.status === "partial" && hasLoss("cap", "cname-lookups");
+  }
+  if (id === "keystroke-exfiltration") {
+    return (
+      entry?.status === "partial" &&
+      hasLoss("truncated", "keystroke-probe-capture")
+    );
+  }
+  if (id === "privacy-policy") {
+    return (
+      entry?.status === "skipped" &&
+      hasLoss("truncated", "policy-link-candidates") &&
+      hasLoss("cap", "policy-visit")
+    );
+  }
+  return false;
+}
+
+/**
  * Compile dist/schema (unless an orchestrator already did, same env contract
  * as run-schema-cli.mjs) and load the exact render modules the site uses. A
  * bridge that fails to build must throw: a fidelity gate that silently skips
@@ -52,6 +86,7 @@ export function ensureRenderBridge() {
     toReportView: views.toReportView,
     buildReportHeadline: dist("report-headline").buildReportHeadline,
     buildFindings: dist("report-findings").buildFindings,
+    validateReportPresentation: dist("report-consistency").validateReportPresentation,
     buildReportDataset: dist("report-jsonld").buildReportDataset,
     serializeJsonLd: dist("jsonld-script").serializeJsonLd
   };
@@ -221,22 +256,16 @@ export function evaluateScanBody(label, payload, bridge) {
     //    told readers it had run out of time.
     //
     //    The detector vocabulary spends one code, `budget-unavailable`, on both
-    //    an elapsed-time budget and a fixed evidence cap. CNAME uncloaking
-    //    resolves at most MAX_CNAME_LOOKUPS candidate hosts and reports the
-    //    remainder as `partial` plus a `cap` loss detailed `cname-lookups`;
-    //    that is a bound on how much evidence is collected, not a claim about
-    //    elapsed time, so a short run does not contradict it. Every other
-    //    budget claim on a short run, including a SKIPPED cname probe (which
-    //    only skips when time really has run out), still fails.
+    //    an elapsed-time budget and fixed evidence caps. CNAME lookup,
+    //    synthetic-field, and policy-link caps are bounded evidence
+    //    collection, not elapsed-time claims. They are exempt only when the
+    //    matching detector-specific capture loss proves that path. Every
+    //    other budget claim on a short run still fails.
     const durationMs = Number(run?.summary?.durationMs ?? 0);
     if (durationMs > 0 && durationMs < 20_000) {
-      const cappedByEvidenceBound = (id, entry) =>
-        id === "cname-uncloaking" &&
-        entry.status === "partial" &&
-        losses.some((loss) => loss.kind === "cap" && loss.detail === "cname-lookups");
       for (const [id, entry] of Object.entries(detectors)) {
         if (entry.reason !== "budget-unavailable") continue;
-        if (cappedByEvidenceBound(id, entry)) continue;
+        if (detectorBudgetIsEvidenceBound(id, entry, losses)) continue;
         fail(`${where}: detector ${id} reported budget-unavailable after only ${durationMs}ms`);
         return { failures, censored };
       }
@@ -286,10 +315,13 @@ export function evaluateScanBody(label, payload, bridge) {
   let findings;
   let dataset;
   let serialized;
+  let consistencyViolations = [];
   try {
     const view = bridge.toReportView(restored.stored);
-    headline = bridge.buildReportHeadline(view);
-    findings = bridge.buildFindings(view, null);
+    const presentation = bridge.validateReportPresentation(view, null);
+    headline = presentation.headline;
+    findings = presentation.findings;
+    consistencyViolations = presentation.violations;
     dataset = bridge.buildReportDataset(view, {
       url: "https://sitebehavior.org/reports/fidelity-check",
       jsonUrl: "https://sitebehavior.org/reports/fidelity-check.json"
@@ -315,6 +347,9 @@ export function evaluateScanBody(label, payload, bridge) {
         break;
       }
     }
+  }
+  for (const violation of consistencyViolations) {
+    fail(`report consistency ${violation.id}: ${violation.message}`);
   }
 
   // 7. The JSON-LD must parse and say what the page says: its description IS

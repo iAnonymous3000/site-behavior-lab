@@ -264,15 +264,15 @@ test("request-only PageGraph reports render unsupported families as unavailable,
     path.join(process.cwd(), "app", "_components", "report-renderer.tsx"),
     "utf8"
   );
-  assert.match(overviewSource, /cookiesUnsupported \? "Not captured"/);
-  assert.match(overviewSource, /storageUnsupported \? "Not captured"/);
-  assert.match(overviewSource, /fingerprintUnsupported \? "Not captured"/);
+  assert.match(overviewSource, /cookieState === "unsupported"/);
+  assert.match(overviewSource, /storageState === "unsupported"/);
+  assert.match(overviewSource, /fingerprintState === "unsupported"/);
   assert.match(tablesSource, /Cookie evidence was not captured/);
   assert.match(tablesSource, /Storage evidence was not captured/);
   assert.match(tablesSource, /Browser-behavior evidence was not captured/);
   assert.match(phasesSource, /Not captured/);
   assert.match(phasesSource, /PageGraph unsupported/);
-  assert.match(rendererSource, /unsupported=\{familyUnsupportedOnRun\(displayedRun, "cookies"\)\}/);
+  assert.match(rendererSource, /<CookieList[\s\S]*facts=\{displayedFacts\}/);
 });
 
 test("fixture provenance digest is an explicit opt-in and r2 requires lowercase SHA-256", () => {

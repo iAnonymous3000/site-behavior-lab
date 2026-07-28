@@ -1,4 +1,5 @@
 import { buildReportHeadline } from "./report-headline";
+import { buildReportFacts, type RunFacts } from "./report-facts";
 import {
   comparisonArmViews,
   displayRunView,
@@ -25,25 +26,36 @@ export function buildReportDataset(view: ReportView, options: { url: string; jso
   // runs with the run label in each variable name; single reports keep the
   // plain names.
   const run = displayRunView(view);
-  const headline = buildReportHeadline(view);
+  const facts = buildReportFacts(view);
+  const headline = buildReportHeadline(view, facts);
   const arms = comparisonArmViews(view);
   // A v1 comparison's top-level requestedUrl/scannedAt were the variant run's
   // (see createComparisonReport); the view preserves both.
   const subjectRun = arms ? arms.variant : run;
+  const reportSubjectEstablished = arms
+    ? facts.sameSubject === true &&
+      facts.arms?.baseline.subject.describesSubject === true &&
+      facts.arms.variant.subject.describesSubject === true
+    : facts.display.subject.describesSubject;
   const requestedUrl = subjectRun.conditions.requestedUrl;
+  const aboutUrlEligible =
+    !subjectRun.conditions.urlsAreRouteShapes &&
+    urlMatchesSubjectDomain(requestedUrl, subjectRun.domain);
   const scannedAt = view.scannedAt;
   const labels = view.comparison?.runLabels;
   const variableMeasured = arms
     ? [
-        ...runMeasurements(arms.baseline, labels?.baseline ?? "baseline"),
-        ...runMeasurements(arms.variant, labels?.variant ?? "variant")
+        ...runMeasurements(arms.baseline, facts.arms?.baseline ?? facts.runs[0], labels?.baseline ?? "baseline"),
+        ...runMeasurements(arms.variant, facts.arms?.variant ?? facts.runs[1], labels?.variant ?? "variant")
       ]
-    : runMeasurements(run);
+    : runMeasurements(run, facts.display);
 
   const dataset: Record<string, unknown> = {
     "@context": "https://schema.org",
     "@type": "Dataset",
-    name: `Site Behavior Lab scan of ${headline.domain}`,
+    name: reportSubjectEstablished
+      ? `Site Behavior Lab scan of ${headline.domain}`
+      : `Site Behavior Lab returned-document scan while requesting ${headline.domain}`,
     description: headline.subhead,
     url: options.url,
     license: "https://www.gnu.org/licenses/agpl-3.0.html",
@@ -55,11 +67,15 @@ export function buildReportDataset(view: ReportView, options: { url: string; jso
     // v2 route shapes deliberately contain privacy placeholders such as
     // `{seg}`. They describe the measured subject but are not navigable URLs,
     // so do not publish them as schema.org WebSite.url values.
-    about: {
-      "@type": "WebSite",
-      name: headline.domain,
-      ...(!subjectRun.conditions.urlsAreRouteShapes ? { url: requestedUrl } : {})
-    },
+    ...(reportSubjectEstablished
+      ? {
+          about: {
+            "@type": "WebSite",
+            name: headline.domain,
+            ...(aboutUrlEligible ? { url: requestedUrl } : {})
+          }
+        }
+      : {}),
     variableMeasured
   };
 
@@ -74,13 +90,24 @@ export function buildReportDataset(view: ReportView, options: { url: string; jso
   return dataset;
 }
 
+function urlMatchesSubjectDomain(url: string, domain: string): boolean {
+  try {
+    const host = new URL(url).hostname.toLowerCase().replace(/\.$/, "").replace(/^www\./, "");
+    const subject = domain.trim().toLowerCase().replace(/\.$/, "").replace(/^www\./, "");
+    if (host === "" || subject === "" || host === "unknown" || subject === "unknown") return false;
+    return host === subject || host.endsWith(`.${subject}`) || subject.endsWith(`.${host}`);
+  } catch {
+    return false;
+  }
+}
+
 type CountMeasurement = {
   name: string;
   value: number;
   family: "requests" | "cookies" | "fingerprinting";
 };
 
-function runMeasurements(run: RunView, runLabel?: string): Record<string, unknown>[] {
+function runMeasurements(run: RunView, facts: RunFacts, runLabel?: string): Record<string, unknown>[] {
   const suffix = runLabel ? ` (${runLabel})` : "";
   const measurements: CountMeasurement[] = [
     { name: `Third-party requests${suffix}`, value: run.counts.thirdPartyRequests, family: "requests" },
@@ -108,8 +135,18 @@ function runMeasurements(run: RunView, runLabel?: string): Record<string, unknow
     .map((measurement) => {
       const lowerBound = run.quality.outcome === "failed" || familyCensoredOnRun(run, measurement.family);
       return lowerBound
-        ? lowerBoundProperty(measurement.name, measurement.value, lowerBoundDescription(run, measurement.family))
-        : propertyValue(measurement.name, measurement.value);
+        ? lowerBoundProperty(
+            measurement.name,
+            measurement.value,
+            lowerBoundDescription(run, measurement.family, facts)
+          )
+        : propertyValue(
+            measurement.name,
+            measurement.value,
+            facts.subject.describesSubject
+              ? undefined
+              : "Observed on the returned document; the requested page was not established."
+          );
     });
   const quality = qualityProperty(
     run,
@@ -121,22 +158,29 @@ function runMeasurements(run: RunView, runLabel?: string): Record<string, unknow
   return quality ? [...retained, quality] : retained;
 }
 
-function propertyValue(name: string, value: number): Record<string, unknown> {
-  return { "@type": "PropertyValue", name, value };
+function propertyValue(name: string, value: number, description?: string): Record<string, unknown> {
+  return { "@type": "PropertyValue", name, value, ...(description ? { description } : {}) };
 }
 
 function lowerBoundProperty(name: string, minValue: number, description: string): Record<string, unknown> {
   return { "@type": "PropertyValue", name, minValue, description };
 }
 
-function lowerBoundDescription(run: RunView, family: CountMeasurement["family"]): string {
+function lowerBoundDescription(
+  run: RunView,
+  family: CountMeasurement["family"],
+  facts: RunFacts
+): string {
+  const subjectScope = facts.subject.describesSubject
+    ? ""
+    : " The observations describe the returned document; the requested page was not established.";
   if (run.quality.outcome === "failed") {
-    return "Observed lower bound from a failed visit; this is not an exact total or proof of absence.";
+    return `Observed lower bound from a failed visit; this is not an exact total or proof of absence.${subjectScope}`;
   }
   if (runHitRequestRecordingCap(run)) {
-    return "Observed lower bound before the recording cap; this is not an exact total or proof of absence.";
+    return `Observed lower bound before the recording cap; this is not an exact total or proof of absence.${subjectScope}`;
   }
-  return `Observed lower bound because ${family} evidence was incomplete; this is not an exact total or proof of absence.`;
+  return `Observed lower bound because ${family} evidence was incomplete; this is not an exact total or proof of absence.${subjectScope}`;
 }
 
 function qualityProperty(

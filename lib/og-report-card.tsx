@@ -1,11 +1,10 @@
 import { ImageResponse } from "next/og";
-import { shieldsRunMeasurement } from "./report-insights";
 import {
   buildReportHeadline,
   type HeadlineTone,
   type ReportHeadlineStat
 } from "./report-headline";
-import { comparisonArmViews, type ReportView } from "./scan-report-views";
+import type { ReportView } from "./scan-report-views";
 
 /**
  * Shared `next/og` social-card renderers for report and homepage links.
@@ -138,33 +137,18 @@ export function buildReportCardAttribution(view: ReportView, domain = buildRepor
 
 /**
  * Fit report copy semantically, never by cutting characters. Most report
- * subheads already fit intact. The Shields comparison is intentionally more
- * qualified, so restate the same measurements and limitations compactly:
- * scanner simulation (not Brave), direct blocks versus follow-on requests,
- * and pair-to-pair variance all remain visible on the card.
+ * subheads already fit intact. When the headline engine supplies a compact
+ * restatement for its own full claim, use it only while that source claim is
+ * unchanged; a caller-modified headline must not inherit stale compact copy.
  */
 export function buildReportCardSubhead(view: ReportView, headline = buildReportHeadline(view)): string {
   if (headline.subhead.length <= OG_REPORT_SUBHEAD_MAX_CHARACTERS) return headline.subhead;
-
-  const arms = comparisonArmViews(view);
-  const isQualifiedShieldsFinding =
-    view.comparison?.axis === "shields" &&
-    headline.subhead.includes("a simulation in this scanner's browser, not a live Brave-browser visit");
-  if (arms && isQualifiedShieldsFinding) {
-    const total = arms.baseline.counts.totalRequests;
-    const removed = Math.max(0, arms.baseline.counts.thirdPartyRequests - arms.variant.counts.thirdPartyRequests);
-    const engineBlocks = shieldsRunMeasurement(arms.variant);
-    if (removed > 0) {
-      const directBlockNote =
-        engineBlocks?.kind === "engine-blocked"
-          ? ` The engine directly stopped ${pluralRequests(engineBlocks.count)}; the difference may also include prevented follow-on requests and run-to-run variance.`
-          : " This is an observed difference between two visits and may include run-to-run variance.";
-      const concise =
-        `Brave-list block simulation in this scanner, not a live Brave-browser visit: ` +
-        `${pluralRequests(total)} without blocking; ${pluralRequests(removed, "fewer third-party request")} in the blocking visit.` +
-        directBlockNote;
-      if (concise.length <= OG_REPORT_SUBHEAD_MAX_CHARACTERS) return concise;
-    }
+  if (
+    headline.compactSubhead &&
+    headline.compactSubheadSource === headline.subhead &&
+    headline.compactSubhead.length <= OG_REPORT_SUBHEAD_MAX_CHARACTERS
+  ) {
+    return headline.compactSubhead;
   }
 
   // Before withholding the claim, drop SECONDARY observations. Every headline
@@ -187,10 +171,6 @@ export function buildReportCardSubhead(view: ReportView, headline = buildReportH
     "Automated-visit headline only; its claim-specific context does not fit this card. " +
     "Open the report for the complete evidence and limitations, and do not treat this card alone as a verdict or general claim about the site."
   );
-}
-
-function pluralRequests(count: number, singular = "request"): string {
-  return `${count.toLocaleString("en-US")} ${singular}${count === 1 ? "" : "s"}`;
 }
 
 export function renderMissingReportCard(): ImageResponse {

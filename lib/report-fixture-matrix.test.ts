@@ -1,7 +1,12 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { test } from "node:test";
 import { readLoadedReport } from "./client-report-reader";
 import { createGpcComparisonReport } from "./compare-reports";
+import { isCorpusStats, type CorpusStats } from "./corpus-stats";
+import { validateReportPresentation } from "./report-consistency";
+import { buildReportFacts } from "./report-facts";
 import { buildFindings } from "./report-findings";
 import { buildReportHeadline } from "./report-headline";
 import { readStoredScanReport } from "./scan-report-reader";
@@ -87,6 +92,14 @@ const matrix: MatrixRow[] = [
   }
 ];
 
+function productionCorpus(): CorpusStats {
+  const value: unknown = JSON.parse(
+    readFileSync(resolve(process.cwd(), "public", "corpus-stats.json"), "utf8")
+  );
+  assert.equal(isCorpusStats(value), true, "committed production corpus must remain valid");
+  return value as CorpusStats;
+}
+
 test("matrix: every generation loads through the upload, poll, and stored paths", () => {
   for (const row of matrix) {
     // Upload / sync scan result path.
@@ -135,6 +148,65 @@ test("matrix: headline and findings engines accept every generation's view", () 
     } else {
       assert.equal(view.claims.decision, null, `${row.name}: no decision`);
     }
+  }
+});
+
+test("matrix: shared facts and presentation invariants accept every generation", () => {
+  for (const row of matrix) {
+    const result = readScanTransportPayload(row.payload);
+    assert.equal(result.kind, "report", row.name);
+    if (result.kind !== "report") continue;
+    const view = result.loaded.view;
+
+    const facts = buildReportFacts(view);
+    assert.equal(facts.view, view, `${row.name}: facts retain the normalized view`);
+    assert.equal(facts.runs.length, view.runs.length, `${row.name}: one fact record per run`);
+    assert.equal(
+      facts.runs.some((run) => run === facts.display),
+      true,
+      `${row.name}: display facts select a normalized run`
+    );
+
+    if (row.reportType === "comparison") {
+      assert.notEqual(facts.arms, null, `${row.name}: comparison arm facts`);
+    } else {
+      assert.equal(facts.arms, null, `${row.name}: no comparison arm facts`);
+    }
+
+    const presentation = validateReportPresentation(view, null);
+    assert.equal(presentation.facts.runs.length, view.runs.length, `${row.name}: validated facts`);
+    assert.deepEqual(
+      presentation.violations,
+      [],
+      `${row.name}: presentation consistency violations`
+    );
+  }
+});
+
+test("matrix: v1/r2 × single/comparison × null/production corpus stays consistent", () => {
+  const corpus = productionCorpus();
+  const cases: Array<{
+    name: string;
+    payload: unknown;
+    corpus: CorpusStats | null;
+  }> = [
+    { name: "v1 single / null", payload: v1Single(), corpus: null },
+    { name: "v1 single / production", payload: v1Single(), corpus },
+    { name: "v1 comparison / null", payload: v1Comparison(), corpus: null },
+    { name: "v1 comparison / production", payload: v1Comparison(), corpus },
+    { name: "r2 single / null", payload: makePublicSingleReportV2R2(), corpus: null },
+    { name: "r2 single / production", payload: makePublicSingleReportV2R2(), corpus },
+    { name: "r2 comparison / null", payload: makeGpcInterventionReportV2R2(), corpus: null },
+    { name: "r2 comparison / production", payload: makeGpcInterventionReportV2R2(), corpus }
+  ];
+
+  assert.equal(cases.length, 8);
+  for (const entry of cases) {
+    const loaded = readScanTransportPayload(entry.payload);
+    assert.equal(loaded.kind, "report", entry.name);
+    if (loaded.kind !== "report") continue;
+    const presentation = validateReportPresentation(loaded.loaded.view, entry.corpus);
+    assert.deepEqual(presentation.violations, [], entry.name);
   }
 });
 

@@ -128,8 +128,8 @@ test("treats operational-only services as not tracking", () => {
   });
 
   const headline = buildReportHeadline(viewFromV1Report(result));
-  assert.equal(headline.tone, "calm");
-  assert.match(headline.headline, /app\.example showed few catalogued or fingerprint-like signals in this visit\./);
+  assert.equal(headline.tone, "info");
+  assert.match(headline.headline, /app\.example contacted 2 cross-site hosts/);
 });
 
 test("flags a GPC comparison that barely changed as an alarm", () => {
@@ -407,10 +407,12 @@ test("cross-site input monitoring keeps the probe headline with listener wording
   });
 
   const headline = buildReportHeadline(viewFromV1Report(result));
-  assert.match(headline.headline, /triggered fingerprint-like browser API patterns/);
+  assert.match(headline.headline, /registered a third-party interaction-monitoring signal/);
+  assert.equal(headline.semantic.story, "listener-coverage");
   // The evidence is listener registration, not observed capture, so the
   // wording must not say the script "watched" input.
-  assert.match(headline.subhead, /registered listeners on keyboard input/);
+  assert.match(headline.subhead, /registered listeners that could observe typing-related input/);
+  assert.doesNotMatch(headline.headline, /fingerprint-like browser API/);
   assert.doesNotMatch(headline.subhead, /watched/);
 });
 
@@ -736,8 +738,10 @@ test("an HTTP error load is framed as a failed load, not as relatively private",
 
   const headline = buildReportHeadline(viewFromV1Report(result));
   assert.equal(headline.tone, "info");
-  assert.match(headline.headline, /blocked\.example refused this visit, so there was little to scan\./);
+  assert.match(headline.headline, /blocked\.example returned HTTP 403 instead of a verified normal page load\./);
   assert.match(headline.subhead, /HTTP 403/);
+  assert.match(headline.subhead, /returned error or block page/);
+  assert.doesNotMatch(headline.headline, /little to scan/);
   assert.doesNotMatch(headline.headline, /relatively private/);
   // A 403 means the site answered and declined this visitor, so it is reachable.
   // Advising a retry "when it is reachable" sent readers into a loop against a
@@ -888,13 +892,14 @@ test("the calm absence claim qualifies cookies as third-party", () => {
   assert.doesNotMatch(headline.subhead, /tracking companies, cookies/);
 });
 
-test("the calm story discloses raw fingerprint-observer events below the detector threshold", () => {
+test("raw fingerprint-observer events get an informational API story below the detector threshold", () => {
   const result = makeResult({ firstPartyDomain: "quiet.example", fingerprintEvents: 2 });
 
   const headline = buildReportHeadline(viewFromV1Report(result));
-  assert.equal(headline.tone, "calm");
-  assert.match(headline.subhead, /recorded 2 browser-API events used by the fingerprinting heuristics/);
-  assert.match(headline.subhead, /none met a detector's fingerprinting threshold/);
+  assert.equal(headline.tone, "info");
+  assert.equal(headline.semantic.story, "raw-fingerprint-events");
+  assert.match(headline.subhead, /2 browser-API events/);
+  assert.match(headline.subhead, /not proof of fingerprinting intent/);
   assert.doesNotMatch(headline.subhead, /no .*fingerprinting signal/i);
 });
 
@@ -905,11 +910,11 @@ test("a request-capped quiet visit is framed as cut short, never as relatively p
 
   const headline = buildReportHeadline(viewFromV1Report(result));
   assert.equal(headline.tone, "info");
-  assert.match(headline.headline, /quiet\.example's scan was cut short, so low counts are not the full story\./);
+  assert.match(headline.headline, /quiet\.example's scan did not finish every measurement\./);
   assert.match(headline.subhead, /request-recording cap/);
-  assert.match(headline.subhead, /floors for this visit/);
+  assert.match(headline.subhead, /retained lower bounds for this visit/);
   // Cookie/storage figures are snapshots of an interrupted visit, not floors.
-  assert.match(headline.subhead, /snapshots of an interrupted visit/);
+  assert.match(headline.subhead, /cookie and storage figures are incomplete end-state snapshots/);
   assert.doesNotMatch(headline.headline, /relatively private/);
 });
 
@@ -943,9 +948,10 @@ test("a detector loss hedges the detectors, not the request and cookie counts", 
 
   // But nothing may call the completed families interrupted.
   assert.doesNotMatch(headline.headline, /low counts are not the full story/);
-  assert.doesNotMatch(headline.subhead, /floors for this visit/);
-  assert.doesNotMatch(headline.subhead, /snapshots of an interrupted visit/);
-  assert.match(headline.subhead, /request, cookie, and storage evidence is complete/);
+  assert.doesNotMatch(headline.subhead, /retained lower bounds/);
+  assert.doesNotMatch(headline.subhead, /incomplete end-state snapshots/);
+  assert.match(headline.subhead, /request log recorded no cross-site hosts/);
+  assert.match(headline.subhead, /cookie snapshot recorded no third-party cookie records/);
   // "capture-loss:truncated" names a mechanism, not an instrument. The reader
   // must be able to tell WHICH check stopped.
   assert.match(headline.subhead, /the privacy-policy visit did not finish/);
@@ -954,8 +960,9 @@ test("a detector loss hedges the detectors, not the request and cookie counts", 
   const capped = makePublicSingleReportV2R2();
   capped.run.quality.byFamily.requests = { outcome: "censored", reasons: ["capture-loss:truncated"] };
   const cappedHeadline = buildReportHeadline(viewFromV2(capped, 2));
-  assert.match(cappedHeadline.headline, /scan was cut short, so low counts are not the full story/);
-  assert.match(cappedHeadline.subhead, /floors for this visit/);
+  assert.match(cappedHeadline.headline, /scan did not finish every measurement/);
+  assert.match(cappedHeadline.subhead, /retained lower bounds for this visit/);
+  assert.doesNotMatch(cappedHeadline.subhead, /cookie and storage figures are incomplete end-state snapshots/);
 });
 
 test("caveat counts one visit on single reports and two on comparisons", () => {
@@ -1179,7 +1186,15 @@ test("reportPageTitle prefixes the domain only when the headline does not alread
     subheadPrimaryClaim: "subhead",
     caveat: "caveat",
     stats: [],
-    shareText: "share"
+    shareText: "share",
+    semantic: {
+      story: "observed-activity" as const,
+      reassuring: false,
+      runScope: "display" as const,
+      subjectScope: "requested-page" as const,
+      assertedClaims: [],
+      absenceClaims: []
+    }
   };
   // Most branches name the site themselves; prefixing again produced
   // "webmd.com: webmd.com loaded ..." in every tab title and page header.

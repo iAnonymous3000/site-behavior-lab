@@ -25,13 +25,18 @@
  * imports, like lib/comparison-eligibility.
  */
 
-import { comparisonEligibility, temporalPairEligibility } from "./comparison-eligibility";
+import {
+  comparisonEligibility,
+  legacyComparisonSubjectsMatch,
+  temporalPairEligibility
+} from "./comparison-eligibility";
 import { legacyV1MethodologyIdentity } from "./legacy-methodology";
 import { METRIC_EVIDENCE_SOURCES } from "./metric-evidence-sources";
 import { sha256Hex } from "./sha256";
 import type { ComparisonScanResult, ScanResult } from "./types";
 import type { MetricFamily, PublicScanReportV2 } from "./scan-report-v2";
 import type { PublicScanReportV2R2 } from "./scan-report-v2-r2";
+import { subjectsMatch } from "./scan-report-v2-evaluators";
 
 export type ComparisonDecisionMode = "comparable" | "raw-only" | "suppressed";
 
@@ -70,6 +75,13 @@ export type ComparisonDecision = {
   mode: "comparable" | "raw-only";
   /** Why the pair is not comparable; empty when it is. */
   reasons: string[];
+  /**
+   * Whether both arms recorded the same observed subject, independently of
+   * load quality, instrumentation parity, and whether the declared
+   * intervention actually varied. This narrower fact is safe for subject
+   * attribution surfaces that do not make a comparative outcome claim.
+   */
+  sameSubject: boolean;
   compatibility: CompatibilityFingerprint;
   families: Record<MetricFamily, FamilyDecision>;
 };
@@ -346,6 +358,7 @@ export function legacyComparisonDecision(report: ComparisonScanResult): Comparis
   return {
     mode: structuralEligibility.eligible ? "comparable" : "raw-only",
     reasons: pairReasons,
+    sameSubject: legacyComparisonSubjectsMatch(report),
     compatibility: legacyCompatibility(report),
     families: {
       "raw-counts": gatedFamily(structuralEligibility, []),
@@ -571,6 +584,7 @@ export function v2ComparisonDecision(
         ...(missingHistoricalConsentActivation ? [consentActivationReason] : [])
       ])
     ],
+    sameSubject: subjectsMatch(report.baseline, report.variant),
     compatibility: {
       origin: "recorded",
       baseline,

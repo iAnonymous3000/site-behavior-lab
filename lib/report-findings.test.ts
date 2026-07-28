@@ -85,7 +85,7 @@ test("an HTTP error load gets a failed-load bottom line, not a low-signal one", 
   const bottomLine = findings[0];
   assert.equal(bottomLine.id, "bottom-line");
   assert.equal(bottomLine.icon, "alert");
-  assert.match(bottomLine.title, /blocked\.example did not serve its page \(HTTP 403\)/);
+  assert.match(bottomLine.title, /requested page returned HTTP 403/);
   assert.match(bottomLine.lead, /HTTP 403/);
   assert.doesNotMatch(bottomLine.title, /few review signals/);
   // A 403 is a refusal, not an outage: the site answered. Advising a retry "when
@@ -366,8 +366,8 @@ test("treats operational-only services as not tracking", () => {
   });
 
   const services = byId(buildFindings(viewFromV1Report(result), null), "third-party-services");
-  assert.equal(services.title, "Only operational services matched");
-  assert.equal(services.level, "ok");
+  assert.equal(services.title, "Operational service matches were recorded");
+  assert.equal(services.level, "info");
 });
 
 test("uses measured percentile wording when the corpus is usable, fixed thresholds otherwise", () => {
@@ -889,8 +889,9 @@ test("surfaces pre-consent tracking when a consent-management platform is presen
   const informational = byId(buildFindings(viewFromV1Report(cmpOnly), null), "consent-banner");
   assert.equal(informational.level, "info");
   assert.equal(informational.title, "A consent management platform answered");
-  assert.match(informational.lead, /no request to a catalogued tracking-related service was recorded/);
   assert.match(informational.lead, /before the scanner made any consent choice/);
+  assert.match(informational.lead, /Tracker-service observations are reported separately/);
+  assert.doesNotMatch(informational.lead, /no request to a catalogued tracking-related service was recorded/);
 
   const noCmp = makeResult({
     domains: [makeTrackerDomain("google-analytics.com", 5, "Google", "analytics")],
@@ -1687,8 +1688,8 @@ test("the services card quantifies the domains the catalog could not name", () =
     null
   );
   const mixedDetail = byId(mixed, "third-party-services").detail;
-  assert.match(mixedDetail, /could not identify 2 of the 3 third-party domains recorded here/);
-  assert.match(mixedDetail, /limit of catalog coverage, not evidence about the site/);
+  assert.match(mixedDetail, /could not identify 2 of the 3 third-party hosts recorded here/);
+  assert.match(mixedDetail, /limit of identity coverage, not evidence about the site/);
 
   // Nothing matched, but third parties were still present. The old copy said
   // only that unlabeled parties "may" exist; the count is what stops a reader
@@ -1705,7 +1706,7 @@ test("the services card quantifies the domains the catalog could not name", () =
   );
   const unmatchedCard = byId(unmatched, "third-party-services");
   assert.match(unmatchedCard.title, /No known services matched/);
-  assert.match(unmatchedCard.detail, /could not identify 1 of the 1 third-party domain recorded here/);
+  assert.match(unmatchedCard.detail, /could not identify 1 of the 1 third-party host recorded here/);
 
   // Full coverage must not borrow the shortfall sentence.
   const covered = buildFindings(
@@ -1719,7 +1720,7 @@ test("the services card quantifies the domains the catalog could not name", () =
     null
   );
   const coveredDetail = byId(covered, "third-party-services").detail;
-  assert.match(coveredDetail, /identified every one of the 1 third-party domain recorded here/);
+  assert.match(coveredDetail, /identified an operator for every one of the 1 third-party domain recorded here/);
   assert.doesNotMatch(coveredDetail, /could not identify/);
 
   // A visit with no third parties at all has nothing to quantify.
@@ -1766,7 +1767,7 @@ test("a report never calls a domain unidentifiable while another card names it",
 
   // Two of the four are OneTrust hosts, so the shortfall is two, not four.
   const services = byId(findings, "third-party-services").detail;
-  assert.match(services, /could not identify 2 of the 4 third-party domains recorded here/);
+  assert.match(services, /could not identify 2 of the 4 third-party hosts recorded here/);
   assert.doesNotMatch(services, /could not identify 4 of the 4/);
 });
 

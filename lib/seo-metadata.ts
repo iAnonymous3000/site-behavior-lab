@@ -71,9 +71,23 @@ export function reportMetadataTitle(input: {
 }
 
 export function reportMetadataDescription(headline: ReportHeadline): string {
-  const caveat = conciseMetadataText(headline.caveat, 78);
-  const headlineBudget = Math.max(1, REPORT_DESCRIPTION_MAX_LENGTH - caveat.length - 1);
-  return `${conciseMetadataText(headline.headline, headlineBudget)} ${caveat}`;
+  const primaryClaim = headline.subheadPrimaryClaim || headline.subhead || "";
+  const candidates = [
+    `${headline.headline} ${primaryClaim} ${headline.caveat}`,
+    `${primaryClaim} ${headline.caveat}`
+  ].map((value) => value.replace(/\s+/g, " ").trim());
+  const complete = candidates.find(
+    (candidate) => candidate.length > 0 && candidate.length <= REPORT_DESCRIPTION_MAX_LENGTH
+  );
+  if (complete) return complete;
+
+  // Never sever a claim from the sentence that scopes or qualifies it. If the
+  // complete lead does not fit social metadata, withhold the claim and direct
+  // readers to the report instead of publishing a categorical fragment.
+  return conciseMetadataText(
+    `Automated visit to ${headline.domain || "this site"}. Open the report for the complete finding, evidence scope, and limitations. Evidence to check, not a verdict.`,
+    REPORT_DESCRIPTION_MAX_LENGTH
+  );
 }
 
 /** A sitemap date is emitted only when it is parseable and not in the future. */

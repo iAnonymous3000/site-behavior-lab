@@ -20,19 +20,15 @@ import { consentChoiceLabel } from "@/lib/consent-interaction";
 import { requestLogToCsv } from "@/lib/csv-export";
 import { consentVerificationSummary } from "@/lib/report-consent-copy";
 import { buildReportHeadline } from "@/lib/report-headline";
+import { buildReportFacts } from "@/lib/report-facts";
 import { parseEvidenceHash } from "@/lib/report-evidence-navigation";
 import {
   displayableScreenshot,
-  gpcRunMeasurement,
-  scanLoadFailureStatus,
-  scanPageSubjectUnverified,
-  scanSuspectedChallengeOrSoftBlock
+  gpcRunMeasurement
 } from "@/lib/report-insights";
 import type { LoadedReport } from "@/lib/scan-report-view";
 import {
   comparisonArmViews,
-  displayRunView,
-  familyUnsupportedOnRun,
   runQualitySummary,
   schemaProvenanceLabel,
   type ReportView,
@@ -56,7 +52,12 @@ export function ReportRenderer({
   liveApiServesReportPages: boolean;
 }) {
   const reportView = loaded.view;
-  const primaryRun = displayRunView(reportView);
+  const reportFacts = useMemo(() => buildReportFacts(reportView), [reportView]);
+  const headline = useMemo(
+    () => buildReportHeadline(reportView, reportFacts),
+    [reportFacts, reportView]
+  );
+  const primaryRun = reportFacts.display.run;
   const arms = comparisonArmViews(reportView);
   const [selectedArm, setSelectedArm] = useState<"baseline" | "variant" | null>(null);
 
@@ -87,23 +88,23 @@ export function ReportRenderer({
     };
   }, [loaded]);
 
-  const headlineFocusArm = useMemo(
-    () => (arms ? buildReportHeadline(reportView).focusArm ?? null : null),
-    [reportView, arms]
-  );
+  const headlineFocusArm = arms ? headline.focusArm ?? null : null;
   const defaultArm: "baseline" | "variant" =
     headlineFocusArm ?? (reportView.comparison?.temporalPair ? "variant" : "baseline");
   const displayedArmLabel: "baseline" | "variant" = selectedArm ?? defaultArm;
-  const displayedRun = arms ? arms[displayedArmLabel] : primaryRun;
+  const displayedFacts =
+    arms && reportFacts.arms ? reportFacts.arms[displayedArmLabel] : reportFacts.display;
+  const displayedRun = displayedFacts.run;
   const screenshot = displayableScreenshot(displayedRun.screenshot);
   // The capture itself is right to keep: it is the reader's only direct look at
   // what the scanner actually hit. What was missing is the caption. A block page
   // scaled into the sidebar column is often near-blank, which reads either as a
   // broken image or as a claim that the site is a blank page.
-  const screenshotFailureStatus = scanLoadFailureStatus(displayedRun.status);
-  const screenshotSubjectUnverified = scanPageSubjectUnverified(displayedRun);
-  const screenshotSoftBlock = scanSuspectedChallengeOrSoftBlock(displayedRun);
-  const screenshotFailedLoad = screenshotFailureStatus !== null || displayedRun.quality.outcome === "failed";
+  const screenshotFailureStatus =
+    displayedFacts.subject.kind === "http-error" ? displayedFacts.subject.status : null;
+  const screenshotSubjectUnverified = displayedFacts.subject.kind === "unverified";
+  const screenshotSoftBlock = displayedFacts.subject.kind === "interstitial";
+  const screenshotFailedLoad = !displayedFacts.subject.describesSubject;
   const screenshotSubject =
     screenshotFailureStatus !== null
       ? `the HTTP ${screenshotFailureStatus} error or block page returned by ${displayedRun.domain}`
@@ -135,15 +136,18 @@ export function ReportRenderer({
   return (
     <>
       <p className="visually-hidden" role="status" aria-live="polite">
-        {`Scan report ready for ${primaryRun.domain}: ${plural(primaryRun.counts.totalRequests, "request")} observed.`}
+        {`Scan report ready for ${primaryRun.domain}: ${plural(
+          primaryRun.evidence.requests.length,
+          "recorded request row"
+        )}.${reportFacts.display.subject.describesSubject ? "" : " The requested page was not established."}`}
       </p>
       <section className="report-grid">
         <div className="report-main">
           <ReportHeader
             share={loaded.wire.share ?? null}
             view={reportView}
-            run={primaryRun}
-            evidenceRun={displayedRun}
+            runFacts={displayedFacts}
+            evidenceFacts={displayedFacts}
             csvArmLabel={arms ? armDisplayLabel(reportView, displayedArmLabel) : null}
             onDownload={() => void downloadReport()}
             onDownloadCsv={downloadCsv}
@@ -151,10 +155,10 @@ export function ReportRenderer({
           />
           <HeadlineBanner
             share={loaded.wire.share ?? null}
-            view={reportView}
+            headline={headline}
             liveApiServesReportPages={liveApiServesReportPages}
           />
-          <FindingsBoard view={reportView} />
+          <FindingsBoard view={reportView} facts={reportFacts} headline={headline} />
           {reportView.reportType === "comparison" && <ComparisonPanel view={reportView} />}
           {arms && (
             <div className="arm-switcher" role="group" aria-label="Which visit's evidence the tables below show">
@@ -176,8 +180,8 @@ export function ReportRenderer({
             </div>
           )}
           <CausalityGraph requests={displayedRun.evidence.requests} />
-          <MetricGrid run={displayedRun} />
-          <TrafficViz run={displayedRun} />
+          <MetricGrid facts={displayedFacts} />
+          <TrafficViz facts={displayedFacts} />
           <VisitPhasesAndStateChanges run={displayedRun} />
           <Warnings warnings={reportView.warnings} />
         </div>
@@ -208,13 +212,13 @@ export function ReportRenderer({
 
           <section className="side-card">
             <h2>Top Third Parties</h2>
-            <TopThirdParties domains={displayedRun.evidence.domains} />
+            <TopThirdParties facts={displayedFacts} />
           </section>
 
           {displayedRun.evidence.pixelEvents.length > 0 && (
             <section className="side-card">
               <h2>Advertising Pixels</h2>
-              <PixelEventsList pixels={displayedRun.evidence.pixelEvents} />
+              <PixelEventsList pixels={displayedRun.evidence.pixelEvents} facts={displayedFacts} />
             </section>
           )}
 
@@ -222,7 +226,7 @@ export function ReportRenderer({
             <h2>Cookies</h2>
             <CookieList
               cookies={displayedRun.evidence.cookies}
-              unsupported={familyUnsupportedOnRun(displayedRun, "cookies")}
+              facts={displayedFacts}
             />
           </section>
 
@@ -230,7 +234,7 @@ export function ReportRenderer({
             <h2>Storage</h2>
             <StorageList
               storage={displayedRun.evidence.storage}
-              unsupported={familyUnsupportedOnRun(displayedRun, "storage")}
+              facts={displayedFacts}
             />
           </section>
 
@@ -239,10 +243,7 @@ export function ReportRenderer({
             <FingerprintList
               events={displayedRun.evidence.fingerprintEvents}
               detections={displayedRun.evidence.fingerprintDetections}
-              unsupported={
-                familyUnsupportedOnRun(displayedRun, "fingerprinting") ||
-                familyUnsupportedOnRun(displayedRun, "detector-output")
-              }
+              facts={displayedFacts}
             />
           </section>
 
@@ -306,8 +307,12 @@ export function ReportRenderer({
         </aside>
 
         <div className="report-evidence-tables" aria-label="Raw report evidence">
-          <DomainTable domains={displayedRun.evidence.domains} />
-          <RequestTable requests={displayedRun.evidence.requests} phases={displayedRun.phases} />
+          <DomainTable domains={displayedRun.evidence.domains} facts={displayedFacts} />
+          <RequestTable
+            requests={displayedRun.evidence.requests}
+            phases={displayedRun.phases}
+            facts={displayedFacts}
+          />
         </div>
       </section>
     </>

@@ -32,6 +32,8 @@
     "lib/report-publication-archive-cli.ts",
     "lib/scan-report-v2-r2-limits.ts",
     "lib/scan-report-v2-r2-aggregate.ts",
+    "lib/report-facts.ts",
+    "lib/report-consistency.ts",
     "lib/report-headline.ts",
     "lib/report-findings.ts",
     "lib/report-jsonld.ts",

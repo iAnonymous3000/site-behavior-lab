@@ -19,7 +19,7 @@ import {
   Shield,
   ShieldCheck
 } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { clientReportRuntime, staticAssetPath } from "../client-runtime";
 import {
   LatestClientOperation,
@@ -28,22 +28,22 @@ import {
 } from "@/lib/client-fetch-policy";
 import { isCorpusStats, type CorpusStats } from "@/lib/corpus-stats";
 import { buildFindings, type FindingIconKey } from "@/lib/report-findings";
-import { buildReportHeadline } from "@/lib/report-headline";
+import type { ReportHeadline } from "@/lib/report-headline";
+import {
+  retainedCountLabel,
+  type ReportFacts,
+  type RunFacts
+} from "@/lib/report-facts";
 import {
   buildEvidenceHash,
   findingEvidenceLink,
   requestTimingSummary,
   type EvidenceArm
 } from "@/lib/report-evidence-navigation";
-import { gpcRunMeasurement, shieldsRunMeasurement } from "@/lib/report-insights";
+import { gpcRunMeasurement } from "@/lib/report-insights";
 import { committedReportLocation, locateReport, type ReportRuntime } from "@/lib/report-locator";
 import { buildRequestTimelineModel } from "@/lib/request-timeline";
-import {
-  displayRunView,
-  familyUnsupportedOnRun,
-  type ReportView,
-  type RunView
-} from "@/lib/scan-report-views";
+import type { ReportView } from "@/lib/scan-report-views";
 import { plural } from "@/lib/text-format";
 import { isReviewedStorageKey } from "@/lib/public-name-policy";
 import type { NetworkRequestRecord, ReportShare } from "@/lib/types";
@@ -91,15 +91,14 @@ export function absoluteShareUrl(sharePath: string): string {
 
 export function HeadlineBanner({
   share,
-  view,
+  headline,
   liveApiServesReportPages
 }: {
   /** The wire report's share pointer, needed only to resolve the permalink. */
   share: ReportShare | null;
-  view: ReportView;
+  headline: ReportHeadline;
   liveApiServesReportPages: boolean;
 }) {
-  const headline = useMemo(() => buildReportHeadline(view), [view]);
   const [shareLink, setShareLink] = useState("");
   const [copyState, setCopyState] = useState<"idle" | "copied" | "failed">("idle");
 
@@ -227,12 +226,20 @@ const FINDING_ICONS: Record<FindingIconKey, typeof Eye> = {
   "file-text": FileText
 };
 
-export function FindingsBoard({ view }: { view: ReportView }) {
+export function FindingsBoard({
+  view,
+  facts,
+  headline
+}: {
+  view: ReportView;
+  facts: ReportFacts;
+  headline: ReportHeadline;
+}) {
   const corpus = useCorpusStats();
-  const findings = buildFindings(view, corpus);
+  const findings = buildFindings(view, corpus, facts);
   const evidenceArm: EvidenceArm | undefined =
     view.reportType === "comparison"
-      ? buildReportHeadline(view).focusArm ?? (view.comparison?.temporalPair ? "variant" : "baseline")
+      ? headline.focusArm ?? (view.comparison?.temporalPair ? "variant" : "baseline")
       : undefined;
 
   return (
@@ -245,7 +252,7 @@ export function FindingsBoard({ view }: { view: ReportView }) {
             Unfamiliar terms are defined in the glossary
           </a>
         </div>
-        <span>{displayRunView(view).conditions.automation}</span>
+        <span>{facts.display.run.conditions.automation}</span>
       </div>
       <div className="finding-list">
         {findings.map((finding) => {
@@ -282,22 +289,22 @@ export function FindingsBoard({ view }: { view: ReportView }) {
   );
 }
 
-export function MetricGrid({ run }: { run: RunView }) {
-  // Distinct catalogued entities among third-party requests: the same set
-  // trackerEntitySummaries derives from the domain table.
-  const knownServices = new Set(
-    run.evidence.requests.filter((request) => request.thirdParty && request.tracker).map((request) => request.tracker!.entity)
-  ).size;
+export function MetricGrid({ facts }: { facts: RunFacts }) {
+  const run = facts.run;
+  // Catalog classification is deliberately separate from CMP/ownership/CNAME
+  // operator identity.
+  const knownServices = facts.identity.catalogEntities.length;
   // DISTINCT APIs, not row count: v2 evidence is phase-tagged, so one API
   // family can contribute a row per phase.
-  const apiFamilies = new Set(run.evidence.fingerprintEvents.map((event) => event.api)).size;
-  const detectionCount = run.evidence.fingerprintDetections.reduce((total, detection) => total + detection.count, 0);
+  const apiFamilies = facts.signals.fingerprint.apiFamilies;
+  const highEntropyDetectionCount =
+    facts.signals.fingerprint.highEntropyDetections.length;
   const privacyFilteredStorageKeys = run.evidence.storage.filter((entry) => !isReviewedStorageKey(entry.key)).length;
-  const cookiesUnsupported = familyUnsupportedOnRun(run, "cookies");
-  const storageUnsupported = familyUnsupportedOnRun(run, "storage");
-  const fingerprintUnsupported =
-    familyUnsupportedOnRun(run, "fingerprinting") || familyUnsupportedOnRun(run, "detector-output");
-  const shieldsMeasurement = shieldsRunMeasurement(run);
+  const cookieState = facts.evidence.cookies.state;
+  const storageState = facts.evidence.storage.state;
+  const fingerprintState = facts.evidence.fingerprinting.state;
+  const fingerprintClaim = facts.claims["fingerprint-apis"];
+  const shieldsMeasurement = facts.signals.shields.measurement;
   const shieldsConfigured = run.conditions.shieldsMode !== null && run.conditions.shieldsMode !== "off";
   const gpcMeasurement = gpcRunMeasurement(run);
   const gpcDisplay =
@@ -314,8 +321,11 @@ export function MetricGrid({ run }: { run: RunView }) {
   const metrics = [
     {
       label: "Requests",
-      value: run.counts.totalRequests,
-      detail: `${run.counts.thirdPartyRequests.toLocaleString("en-US")} third-party`,
+      value: retainedCountLabel(run.counts.totalRequests, facts.evidence.requests.state),
+      detail: `${retainedCountLabel(
+        run.counts.thirdPartyRequests,
+        facts.evidence.requests.state
+      )} ${facts.evidence.requests.state === "censored" ? "retained third-party" : "third-party"}`,
       icon: Network
     },
     ...(shieldsMeasurement
@@ -323,7 +333,10 @@ export function MetricGrid({ run }: { run: RunView }) {
           shieldsMeasurement.kind === "engine-blocked"
             ? {
                 label: "Blocked by Brave lists",
-                value: shieldsMeasurement.count,
+                value: retainedCountLabel(
+                  shieldsMeasurement.count,
+                  facts.evidence.requests.state
+                ),
                 // Only a run that recorded engine verification facts may be
                 // called verified. A legacy wire carries the count alone, and
                 // the verification is exactly what it lacks.
@@ -335,11 +348,20 @@ export function MetricGrid({ run }: { run: RunView }) {
               }
             : {
                 label: "Matched Shields lists",
-                value: shieldsMeasurement.count,
+                value: retainedCountLabel(
+                  shieldsMeasurement.count,
+                  facts.evidence.requests.state
+                ),
                 detail:
                   shieldsMeasurement.origin === "recorded"
-                    ? `verified classification of ${run.counts.totalRequests.toLocaleString("en-US")} requests`
-                    : `classification reported over ${run.counts.totalRequests.toLocaleString("en-US")} requests; no engine readback recorded`,
+                    ? `verified classification of ${retainedCountLabel(
+                        run.counts.totalRequests,
+                        facts.evidence.requests.state
+                      )}${facts.evidence.requests.state === "censored" ? " retained" : ""} requests`
+                    : `classification reported over ${retainedCountLabel(
+                        run.counts.totalRequests,
+                        facts.evidence.requests.state
+                      )}${facts.evidence.requests.state === "censored" ? " retained" : ""} requests; no engine readback recorded`,
                 icon: shieldsMeasurement.origin === "recorded" ? ShieldCheck : Shield
               }
         ]
@@ -355,38 +377,71 @@ export function MetricGrid({ run }: { run: RunView }) {
         : []),
     {
       label: "Third-party domains",
-      value: run.counts.thirdPartyDomains,
-      detail: `${knownServices.toLocaleString("en-US")} known ${knownServices === 1 ? "service" : "services"}`,
+      value: retainedCountLabel(run.counts.thirdPartyDomains, facts.evidence.requests.state),
+      detail: `${knownServices.toLocaleString("en-US")} catalogued ${knownServices === 1 ? "service" : "services"}${
+        facts.evidence.requests.state === "censored" ? " retained" : ""
+      }`,
       icon: Globe2
     },
     {
       label: "Cookies",
-      value: cookiesUnsupported ? "Not captured" : run.counts.cookies,
-      detail: cookiesUnsupported
+      value:
+        cookieState === "unsupported"
+          ? "Not captured"
+          : cookieState === "censored"
+            ? "Snapshot incomplete"
+            : run.counts.cookies,
+      detail: cookieState === "unsupported"
         ? "unsupported by PageGraph import"
+        : cookieState === "censored"
+          ? `${run.counts.cookies.toLocaleString("en-US")} cookie records retained; final state incomplete`
         : `${run.counts.thirdPartyCookies.toLocaleString("en-US")} third-party`,
       icon: Cookie
     },
     {
       label: "Storage keys",
-      value: storageUnsupported ? "Not captured" : run.counts.storageEntries,
-      detail: storageUnsupported
+      value:
+        storageState === "unsupported"
+          ? "Not captured"
+          : storageState === "censored"
+            ? "Snapshot incomplete"
+            : run.counts.storageEntries,
+      detail: storageState === "unsupported"
         ? "unsupported by PageGraph import"
+        : storageState === "censored"
+          ? `${run.counts.storageEntries.toLocaleString("en-US")} keys retained; final state incomplete`
         : privacyFilteredStorageKeys > 0
           ? `${privacyFilteredStorageKeys.toLocaleString("en-US")} ${privacyFilteredStorageKeys === 1 ? "key" : "keys"} privacy-filtered; values omitted`
           : "values omitted",
       icon: Database
     },
     {
-      label: "Fingerprint-like calls",
-      value: fingerprintUnsupported ? "Not captured" : run.counts.fingerprintEvents,
-      detail: fingerprintUnsupported
+      label: "Fingerprint API calls",
+      value:
+        fingerprintState === "unsupported"
+          ? "Not captured"
+          : fingerprintState === "censored"
+            ? retainedCountLabel(run.counts.fingerprintEvents, fingerprintState)
+            : run.counts.fingerprintEvents,
+      detail: fingerprintState === "unsupported"
         ? "unsupported by PageGraph import"
-        : detectionCount > 0
-          ? `${plural(detectionCount, "behavior")} matched`
+        : fingerprintClaim.blockers.includes("detector-incomplete")
+          ? "API events retained; fingerprint detector incomplete"
+        : highEntropyDetectionCount > 0
+          ? `${plural(highEntropyDetectionCount, "high-entropy heuristic")} matched`
           : `${apiFamilies.toLocaleString("en-US")} API ${apiFamilies === 1 ? "family" : "families"}`,
       icon: Fingerprint
     },
+    ...(facts.signals.fingerprint.listenerCoverageObserved
+      ? [
+          {
+            label: "Interaction listeners",
+            value: facts.signals.fingerprint.inputMonitoring ? "Input" : "Broad",
+            detail: "third-party listener coverage; transmission tested separately",
+            icon: Eye
+          }
+        ]
+      : []),
     {
       label: "GPC signal",
       value: gpcDisplay.value,
@@ -428,7 +483,8 @@ export function MetricGrid({ run }: { run: RunView }) {
   );
 }
 
-export function TrafficViz({ run }: { run: RunView }) {
+export function TrafficViz({ facts }: { facts: RunFacts }) {
+  const run = facts.run;
   // Clamp so the three segments always partition the total exactly, even in the
   // edge case of scanning a tracker's own domain (where a first-party request can
   // match the catalog and knownTrackerRequests can exceed thirdPartyRequests).
@@ -442,11 +498,11 @@ export function TrafficViz({ run }: { run: RunView }) {
 
   return (
     <section className="viz-card">
-      <h2>Request composition &amp; timeline</h2>
+      <h2>{facts.evidence.requests.state === "censored" ? "Retained request composition & timeline" : "Request composition & timeline"}</h2>
       <div
         className="party-bar"
         role="img"
-        aria-label={`${first} first-party, ${otherThirdParty} other third-party, ${tracker} known-service requests`}
+        aria-label={`${facts.evidence.requests.state === "censored" ? "Retained requests: " : ""}${first} first-party, ${otherThirdParty} other third-party, ${tracker} known-service requests`}
       >
         {first > 0 && <span className="party-seg-first" style={{ width: pct(first) }} />}
         {otherThirdParty > 0 && <span className="party-seg-third" style={{ width: pct(otherThirdParty) }} />}

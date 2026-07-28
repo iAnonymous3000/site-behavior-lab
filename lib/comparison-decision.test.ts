@@ -105,6 +105,7 @@ test("an eligible Shields pair is comparable with the expected family modes", ()
   const decision = legacyComparisonDecision(shieldsPair(baseline, variant));
 
   assert.equal(decision.mode, "comparable");
+  assert.equal(decision.sameSubject, true);
   assert.deepEqual(decision.reasons, []);
   assert.equal(decision.families["raw-counts"].mode, "comparable");
   assert.equal(decision.families["tracker-classification"].mode, "comparable");
@@ -124,10 +125,24 @@ test("an ineligible pair is raw-only and its reasons flow into every gated famil
   const decision = legacyComparisonDecision(shieldsPair(makeRun({}), makeRun({ status: 403 })));
 
   assert.equal(decision.mode, "raw-only");
+  assert.equal(decision.sameSubject, true, "load failure does not rewrite the recorded subject identity");
   assert.equal(decision.reasons.length, 1);
   assert.match(decision.reasons[0], /HTTP 403/);
   assert.equal(decision.families["raw-counts"].mode, "raw-only");
   assert.match(decision.families["raw-counts"].reasons.join(" "), /HTTP 403/);
+});
+
+test("the decision records subject identity independently of other comparability rules", () => {
+  const baseline = makeRun({ firstPartyDomain: "alpha.example" });
+  const variant = makeRun({ firstPartyDomain: "beta.example" });
+  baseline.conditions.requestedUrl = "https://alpha.example/";
+  baseline.conditions.finalUrl = "https://alpha.example/";
+  variant.conditions.requestedUrl = "https://beta.example/";
+  variant.conditions.finalUrl = "https://beta.example/";
+
+  const decision = legacyComparisonDecision(orderedTemporalPair(baseline, variant));
+  assert.equal(decision.sameSubject, false);
+  assert.equal(decision.mode, "raw-only");
 });
 
 test("shields family: never measured is suppressed, one-arm is raw-only, both-arms comparable", () => {

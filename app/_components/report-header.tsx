@@ -4,20 +4,19 @@ import { AlertCircle, CheckCircle2, Copy, Download, ExternalLink } from "lucide-
 import type { MouseEvent } from "react";
 import { useEffect, useState } from "react";
 import { absoluteShareUrl, reportSharePath } from "./report-overview";
+import type { RunFacts } from "@/lib/report-facts";
 import { safeNavigableHttpUrl } from "@/lib/report-url";
 import {
-  requestEvidenceState,
   schemaProvenanceLabel,
-  type ReportView,
-  type RunView
+  type ReportView
 } from "@/lib/scan-report-views";
 import type { ReportShare } from "@/lib/types";
 
 export function ReportHeader({
   share,
   view,
-  run,
-  evidenceRun,
+  runFacts,
+  evidenceFacts,
   csvArmLabel,
   onDownload,
   onDownloadCsv,
@@ -27,14 +26,15 @@ export function ReportHeader({
   share: ReportShare | null;
   view: ReportView;
   /** The arm selected by the evidence switcher; quality chips follow it. */
-  evidenceRun: RunView;
-  run: RunView;
+  evidenceFacts: RunFacts;
+  runFacts: RunFacts;
   /** Names the visit the CSV exports on comparisons; null on single reports. */
   csvArmLabel: string | null;
   onDownload: () => void;
   onDownloadCsv: () => void;
   liveApiServesReportPages: boolean;
 }) {
+  const run = runFacts.run;
   const sharePath = reportSharePath(share, liveApiServesReportPages);
   // Keep the rendered anchor origin-relative for static prerendering, but make
   // clipboard/native-share values absolute once the browser origin exists.
@@ -48,11 +48,21 @@ export function ReportHeader({
   const finalUrl = run.conditions.urlsAreRouteShapes
     ? null
     : safeNavigableHttpUrl(run.conditions.finalUrl);
-  const title = view.title || run.pageTitle;
-  const selectedRequestEvidence = requestEvidenceState(evidenceRun);
+  // A v1 comparison title names the experiment ("GPC off/on comparison"),
+  // not the page that answered, so keep that useful pair identity even when a
+  // run needs returned-document framing. Singles and untitled v2 comparisons
+  // still derive their title from the subject-safe run facts.
+  const title =
+    view.title ??
+    (runFacts.subject.describesSubject
+      ? run.pageTitle
+      : runFacts.subject.kind === "http-error"
+        ? `HTTP ${runFacts.subject.status} returned while scanning ${run.domain}`
+        : `Unverified document returned while scanning ${run.domain}`);
+  const selectedRequestEvidence = evidenceFacts.requestEvidenceState;
   const requestEvidenceExplanation =
     selectedRequestEvidence === "capped"
-      ? "The selected visit hit the request-recording cap. Activity counts are lower bounds, while cookie and storage figures are end-state snapshots of the interrupted visit."
+      ? "The selected visit hit the request-recording cap. Request and domain counts are lower bounds; cookie and storage availability is reported separately."
       : selectedRequestEvidence === "incomplete"
         ? "The selected visit did not finish collecting request evidence. Request counts are lower bounds; Run quality records the reason."
         : null;

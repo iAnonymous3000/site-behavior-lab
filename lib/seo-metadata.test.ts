@@ -45,11 +45,25 @@ test("report metadata is concise, report-specific, and retains the evidence cave
   const headline = {
     headline:
       "example.com contacted several third parties during this controlled visit, including a deliberately long description that cannot consume the evidence caveat.",
+    subheadPrimaryClaim:
+      "The complete claim-specific qualification is deliberately too long to fit beside that headline without being severed.",
+    subhead:
+      "The complete claim-specific qualification is deliberately too long to fit beside that headline without being severed.",
+    domain: "example.com",
     caveat: "Observed in one automated visit: evidence to check, not a verdict."
   } as ReportHeadline;
   const description = reportMetadataDescription(headline);
+  assert.match(description, /Open the report for the complete finding/);
   assert.match(description, /not a verdict\.$/);
   assert.ok(description.length <= 160);
+
+  const qualified = reportMetadataDescription({
+    ...headline,
+    headline: "example.com returned HTTP 403.",
+    subheadPrimaryClaim: "Signals describe the returned block page, not normal site behavior.",
+    subhead: "Signals describe the returned block page, not normal site behavior."
+  });
+  assert.match(qualified, /returned block page, not normal site behavior/);
 });
 
 test("metadata truncation collapses whitespace and stops cleanly", () => {

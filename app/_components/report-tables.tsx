@@ -8,6 +8,7 @@ import { displayEvidenceName, displayHost, hostMatchesQuery, plural } from "@/li
 import { detectionEvidence, detectionLabel, pixelFieldLabel } from "@/lib/report-insights";
 import { isReviewedCookieName, isReviewedStorageKey } from "@/lib/public-name-policy";
 import { listOverflowCopy } from "@/lib/report-table-copy";
+import type { RunFacts } from "@/lib/report-facts";
 import {
   parseEvidenceHash,
   type EvidenceRequestSignal,
@@ -48,7 +49,7 @@ function roleTag(domain: DomainSummary) {
   return <span className="role-tag role-first">first-party</span>;
 }
 
-function DomainTable({ domains }: { domains: DomainSummary[] }) {
+function DomainTable({ domains, facts }: { domains: DomainSummary[]; facts: RunFacts }) {
   const [query, setQuery] = useState("");
   const detailsRef = useRef<HTMLDetailsElement>(null);
   const evidenceTarget = useEvidenceTarget("domains");
@@ -69,7 +70,7 @@ function DomainTable({ domains }: { domains: DomainSummary[] }) {
     <details id="domain-evidence" ref={detailsRef} className="data-section disclosure" open>
       <summary className="section-heading">
         <h2>Domain evidence</h2>
-        <span className="count-badge">{plural(domains.length, "domain")}</span>
+        <span className="count-badge">{plural(domains.length, "recorded domain")}</span>
         <ChevronDown className="disclosure-chevron" size={16} aria-hidden="true" />
       </summary>
       <div className="section-tools disclosure-tools">
@@ -105,7 +106,25 @@ function DomainTable({ domains }: { domains: DomainSummary[] }) {
             ))}
           </tbody>
         </table>
-        {filtered.length === 0 && <p className="table-empty">No domains match &ldquo;{query}&rdquo;.</p>}
+        {filtered.length === 0 && (
+          <p className="table-empty">
+            {query
+              ? <>No recorded domains match &ldquo;{query}&rdquo;.</>
+              : facts.evidence.requests.state === "unsupported"
+                ? "Domain measurement was unavailable for this report."
+                : facts.evidence.requests.state === "censored"
+                  ? "No domain rows were retained before collection stopped; this is not evidence that no requests occurred."
+                  : facts.subject.describesSubject
+                    ? "No domains were recorded in this passive visit."
+                    : "No domains were recorded for the returned document; the requested page was not established."}
+          </p>
+        )}
+        {filtered.length > 0 && facts.evidence.requests.state === "censored" && (
+          <p className="muted">These are retained domain rows, not a complete inventory.</p>
+        )}
+        {filtered.length > 0 && !facts.subject.describesSubject && (
+          <p className="muted">These domains describe the returned document, not a verified normal page load.</p>
+        )}
         {filtered.length > shown.length && (
           <p className="row-more">Showing first 100 of {filtered.length} matching domains. Export JSON for the full list.</p>
         )}
@@ -114,7 +133,15 @@ function DomainTable({ domains }: { domains: DomainSummary[] }) {
   );
 }
 
-function RequestTable({ requests, phases }: { requests: NetworkRequestRecord[]; phases: PhaseSpan[] | null }) {
+function RequestTable({
+  requests,
+  phases,
+  facts
+}: {
+  requests: NetworkRequestRecord[];
+  phases: PhaseSpan[] | null;
+  facts: RunFacts;
+}) {
   const [opened, setOpened] = useState(false);
   const [query, setQuery] = useState("");
   const [signalFilter, setSignalFilter] = useState<RequestSignalFilter>("all");
@@ -186,8 +213,8 @@ function RequestTable({ requests, phases }: { requests: NetworkRequestRecord[]; 
         <h2>Request log</h2>
         <span className="count-badge">
           {filtered.length === requests.length
-            ? plural(requests.length, "request")
-            : `${filtered.length} of ${requests.length}`}
+            ? plural(requests.length, "recorded request")
+            : `${filtered.length} of ${requests.length} recorded`}
         </span>
         <ChevronDown className="disclosure-chevron" size={16} aria-hidden="true" />
       </summary>
@@ -285,7 +312,13 @@ function RequestTable({ requests, phases }: { requests: NetworkRequestRecord[]; 
           <p className="table-empty">
             {filtersActive
               ? "No requests in this visit match the current filters (filters stay applied when you switch visits)."
-              : "No requests recorded for this visit."}
+              : facts.evidence.requests.state === "unsupported"
+                ? "Request measurement was unavailable for this report."
+                : facts.evidence.requests.state === "censored"
+                  ? "No request rows were retained before collection stopped; this is not evidence that no requests occurred."
+                  : facts.subject.describesSubject
+                    ? "No requests were recorded in this passive visit."
+                    : "No requests were recorded for the returned document; the requested page was not established."}
             {filtersActive && (
               <>
                 {" "}
@@ -295,6 +328,12 @@ function RequestTable({ requests, phases }: { requests: NetworkRequestRecord[]; 
               </>
             )}
           </p>
+        )}
+        {shown.length > 0 && facts.evidence.requests.state === "censored" && (
+          <p className="muted">This log contains retained rows only; collection did not produce a complete request inventory.</p>
+        )}
+        {shown.length > 0 && !facts.subject.describesSubject && (
+          <p className="muted">These requests describe the returned document, not a verified normal page load.</p>
         )}
         {filtered.length > shown.length && (
           <p className="row-more">Showing first 80 of {filtered.length} matching requests. Export JSON for the full log.</p>
@@ -330,7 +369,7 @@ type RequestSignalFilter = EvidenceRequestSignal;
 type RequestStatusFilter = "all" | "ok" | "redirect" | "client-error" | "server-error" | "pending";
 
 const REQUEST_SIGNAL_FILTERS: { value: RequestSignalFilter; label: string; title: string }[] = [
-  { value: "all", label: "All", title: "Every request the page made." },
+  { value: "all", label: "All", title: "Every recorded request row." },
   { value: "third-party", label: "Third-party", title: "Requests to any domain other than the site itself." },
   {
     value: "known-service",
@@ -437,23 +476,51 @@ function revealEvidenceSection(details: HTMLDetailsElement | null) {
   });
 }
 
-function TopThirdParties({ domains }: { domains: DomainSummary[] }) {
+function TopThirdParties({ facts }: { facts: RunFacts }) {
+  const domains = facts.run.evidence.domains;
   const thirdParty = domains.filter((domain) => domain.thirdParty);
   const top = thirdParty.slice(0, 8);
-  if (top.length === 0) return <p className="muted">No third-party domains observed in this scan.</p>;
+  if (top.length === 0) {
+    if (facts.evidence.requests.state === "unsupported") {
+      return <p className="muted">Request evidence was not captured by this producer.</p>;
+    }
+    if (facts.evidence.requests.state === "censored") {
+      return <p className="muted">No third-party hosts were retained before request capture stopped; absence is unproven.</p>;
+    }
+    if (!facts.subject.describesSubject) {
+      return <p className="muted">No third-party hosts were observed on the returned document; this does not describe the site&apos;s normal page.</p>;
+    }
+    return <p className="muted">No third-party hosts observed in this scan.</p>;
+  }
 
   return (
     <div className="domain-stack">
-      {top.map((domain) => (
-        <div className="domain-chip" key={domain.domain}>
-          <div className="chip-main">
-            <strong>{displayHost(domain.domain)}</strong>
-            <span className="chip-sub">{domain.tracker ? `${domain.tracker.entity} · ${domain.tracker.category}` : "unlabeled third party"}</span>
+      {top.map((domain) => {
+        const identity = facts.identity.hosts.find((entry) => entry.host === domain.domain);
+        const names = Array.from(new Set(identity?.namers.map((namer) => namer.name) ?? []));
+        return (
+          <div className="domain-chip" key={domain.domain}>
+            <div className="chip-main">
+              <strong>{displayHost(domain.domain)}</strong>
+              <span className="chip-sub">
+                {domain.tracker
+                  ? `${domain.tracker.entity} · ${domain.tracker.category}`
+                  : names.length > 0
+                    ? `${names.join(", ")} · operator identified; no tracking-service classification`
+                    : "operator unidentified"}
+              </span>
+            </div>
+            <span className="count-pill">{domain.requests.toLocaleString("en-US")}</span>
           </div>
-          <span className="count-pill">{domain.requests.toLocaleString("en-US")}</span>
-        </div>
-      ))}
+        );
+      })}
       <ListOverflowNote total={thirdParty.length} shown={top.length} where="the domain table" />
+      {facts.evidence.requests.state === "censored" && (
+        <p className="muted">Only retained request evidence is listed; additional hosts may be missing.</p>
+      )}
+      {!facts.subject.describesSubject && (
+        <p className="muted">These hosts belong to the returned error or interstitial document, not a verified normal page load.</p>
+      )}
     </div>
   );
 }
@@ -469,9 +536,20 @@ function ListOverflowNote({ total, shown, where }: { total: number; shown: numbe
   );
 }
 
-function CookieList({ cookies, unsupported = false }: { cookies: CookieRecord[]; unsupported?: boolean }) {
-  if (unsupported) return <p className="muted">Cookie evidence was not captured; this PageGraph import does not support it.</p>;
-  if (cookies.length === 0) return <p className="muted">No cookies were visible to the scan context.</p>;
+function CookieList({ cookies, facts }: { cookies: CookieRecord[]; facts: RunFacts }) {
+  const state = facts.evidence.cookies.state;
+  if (state === "unsupported") {
+    return <p className="muted">Cookie evidence was not captured; this PageGraph import does not support it.</p>;
+  }
+  if (cookies.length === 0) {
+    if (state === "censored") {
+      return <p className="muted">The cookie snapshot was incomplete; no cookie rows were retained, so absence is unproven.</p>;
+    }
+    if (!facts.subject.describesSubject) {
+      return <p className="muted">No cookies were visible on the returned document; this does not describe the site&apos;s normal page.</p>;
+    }
+    return <p className="muted">No cookies were visible to the scan context.</p>;
+  }
 
   const shown = Math.min(cookies.length, 12);
   const hiddenNames = cookies.filter((cookie) => !isReviewedCookieName(cookie.name)).length;
@@ -500,13 +578,28 @@ function CookieList({ cookies, unsupported = false }: { cookies: CookieRecord[];
         </p>
       )}
       <ListOverflowNote total={cookies.length} shown={shown} />
+      {state === "censored" && <p className="muted">Cookie snapshot incomplete; these are retained rows, not a complete final state.</p>}
+      {!facts.subject.describesSubject && (
+        <p className="muted">These cookies describe the returned document, not a verified normal page load.</p>
+      )}
     </div>
   );
 }
 
-function StorageList({ storage, unsupported = false }: { storage: StorageRecord[]; unsupported?: boolean }) {
-  if (unsupported) return <p className="muted">Storage evidence was not captured; this PageGraph import does not support it.</p>;
-  if (storage.length === 0) return <p className="muted">No local or session storage keys observed on the final page.</p>;
+function StorageList({ storage, facts }: { storage: StorageRecord[]; facts: RunFacts }) {
+  const state = facts.evidence.storage.state;
+  if (state === "unsupported") {
+    return <p className="muted">Storage evidence was not captured; this PageGraph import does not support it.</p>;
+  }
+  if (storage.length === 0) {
+    if (state === "censored") {
+      return <p className="muted">The storage snapshot was incomplete; no keys were retained, so absence is unproven.</p>;
+    }
+    if (!facts.subject.describesSubject) {
+      return <p className="muted">No storage keys were observed on the returned document; this does not describe the site&apos;s normal page.</p>;
+    }
+    return <p className="muted">No local or session storage keys observed on the final page.</p>;
+  }
 
   const shown = Math.min(storage.length, 12);
   const hiddenKeys = storage.filter((item) => !isReviewedStorageKey(item.key)).length;
@@ -529,6 +622,10 @@ function StorageList({ storage, unsupported = false }: { storage: StorageRecord[
         </p>
       )}
       <ListOverflowNote total={storage.length} shown={shown} />
+      {state === "censored" && <p className="muted">Storage snapshot incomplete; these are retained keys, not a complete final state.</p>}
+      {!facts.subject.describesSubject && (
+        <p className="muted">These keys describe the returned document, not a verified normal page load.</p>
+      )}
     </div>
   );
 }
@@ -536,16 +633,24 @@ function StorageList({ storage, unsupported = false }: { storage: StorageRecord[
 function FingerprintList({
   events,
   detections,
-  unsupported = false
+  facts
 }: {
   events: FingerprintEventSummary[];
   detections: FingerprintDetectionSummary[];
-  unsupported?: boolean;
+  facts: RunFacts;
 }) {
-  if (unsupported) {
+  const apiState = facts.evidence.fingerprinting.state;
+  const detectorIncomplete = facts.claims["fingerprint-apis"].blockers.includes("detector-incomplete");
+  if (apiState === "unsupported" && detectorIncomplete) {
     return <p className="muted">Browser-behavior evidence was not captured; this PageGraph import does not support it.</p>;
   }
   if (events.length === 0 && detections.length === 0) {
+    if (apiState === "censored" || detectorIncomplete) {
+      return <p className="muted">No browser-behavior signals were retained, but collection or detector work was incomplete; absence is unproven.</p>;
+    }
+    if (!facts.subject.describesSubject) {
+      return <p className="muted">No instrumented browser-behavior signals appeared on the returned document; this does not describe the site&apos;s normal page.</p>;
+    }
     return <p className="muted">No instrumented high-entropy API or interaction listener signals were observed.</p>;
   }
 
@@ -553,7 +658,15 @@ function FingerprintList({
     <div className="compact-list">
       {detections.map((detection) => (
         <div key={detection.kind}>
-          <Fingerprint className="ico-warn" size={14} aria-hidden="true" />
+          <Fingerprint
+            className={
+              detection.kind === "session-recording" || detection.kind === "input-monitoring"
+                ? "ico-neutral"
+                : "ico-warn"
+            }
+            size={14}
+            aria-hidden="true"
+          />
           <span>
             {detectionLabel(detection)}
             <small>{detectionEvidence(detection)}</small>
@@ -570,19 +683,36 @@ function FingerprintList({
           </span>
         </div>
       ))}
+      {(apiState === "censored" || detectorIncomplete) && (
+        <p className="muted">Only retained browser-behavior evidence is shown; collection or detector work was incomplete.</p>
+      )}
+      {!facts.subject.describesSubject && (
+        <p className="muted">These signals describe the returned document, not a verified normal page load.</p>
+      )}
     </div>
   );
 }
 
-function PixelEventsList({ pixels }: { pixels: PixelEventSummary[] }) {
+function PixelEventsList({ pixels, facts }: { pixels: PixelEventSummary[]; facts: RunFacts }) {
+  const evidenceIncomplete = facts.claims["pixel-events"].blockers.some(
+    (blocker) => blocker !== "subject-not-established"
+  );
   if (pixels.length === 0) {
-    return <p className="muted">No advertising-pixel events were decoded in this visit.</p>;
+    return (
+      <p className="muted">
+        {evidenceIncomplete
+          ? "No advertising-pixel events were retained; collection or decoding was incomplete, so this is not an absence finding."
+          : facts.subject.describesSubject
+            ? "No advertising-pixel events were decoded in this passive visit."
+            : "No advertising-pixel events were decoded in the returned document; the requested page was not established."}
+      </p>
+    );
   }
 
   return (
     <div className="compact-list">
       {pixels.map((pixel) => {
-        const events = pixel.events.length > 0 ? pixel.events.join(", ") : "no named event";
+        const events = pixel.events.length > 0 ? pixel.events.join(", ") : "no named event retained";
         const identifiers =
           pixel.advancedMatching.length > 0
             ? ` · identifiers: ${pixel.advancedMatching.map(pixelFieldLabel).join(", ")}`
@@ -600,6 +730,12 @@ function PixelEventsList({ pixels }: { pixels: PixelEventSummary[] }) {
           </div>
         );
       })}
+      {evidenceIncomplete && (
+        <p className="muted">Only retained pixel evidence is shown; collection or decoding was incomplete.</p>
+      )}
+      {!facts.subject.describesSubject && (
+        <p className="muted">These events describe the returned document, not a verified normal page load.</p>
+      )}
     </div>
   );
 }
