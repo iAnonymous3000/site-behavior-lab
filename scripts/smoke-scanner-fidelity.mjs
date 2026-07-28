@@ -16,10 +16,17 @@
 // itself, does not claim a budget it did not exhaust, and does not describe an
 // instrument's limit as a fact about the site. A site redesign must never turn
 // this red; a scanner regression always must.
+//
+// The invariants themselves live in scanner-fidelity-invariants.mjs, which is
+// version-aware across both wire generations (the v1 flat summary and the r2
+// run.summary.counts nesting) and also renders every report through the same
+// view/headline/findings/JSON-LD modules the site uses. This script only
+// drives the scans.
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { readResponseTextWithinLimit } from "./http-response.mjs";
+import { ensureRenderBridge, evaluateScanBody } from "./scanner-fidelity-invariants.mjs";
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const BASE = process.env.SCANNER_FIDELITY_BASE_URL?.trim() || "http://127.0.0.1:3000";
@@ -43,76 +50,6 @@ const fail = (message) => {
   console.log(`::error title=Scanner fidelity::${message}`);
 };
 
-function invariants(site, report) {
-  const run = report.run ?? report;
-  const summary = run.summary ?? {};
-  const quality = run.quality ?? {};
-  const byFamily = quality.byFamily ?? {};
-  const losses = run.qualityFacts?.captureLoss ?? [];
-  const detectors = run.detectors ?? {};
-  const label = site.url;
-  const censored = (family) => byFamily[family]?.outcome === "censored";
-
-  // 1. A capture loss must name a family the schema knows, with a kind and a
-  //    detail. An unnamed loss cannot be scoped, so it censors by accident.
-  for (const loss of losses) {
-    if (!loss.family || !loss.kind) {
-      fail(`${label}: capture loss without a family or kind: ${JSON.stringify(loss)}`);
-      return;
-    }
-    if (!byFamily[loss.family]) {
-      fail(`${label}: capture loss names family "${loss.family}" that carries no quality entry`);
-      return;
-    }
-  }
-
-  // 2. Censoring is scoped. A family may only be censored if something was
-  //    actually recorded as lost for it (or a run-wide budget was exhausted).
-  const budgetExhausted = (quality.run?.reasons ?? []).some((reason) => String(reason).startsWith("budget-exhausted:"));
-  for (const [family, entry] of Object.entries(byFamily)) {
-    if (entry.outcome !== "censored" || budgetExhausted) continue;
-    if (!losses.some((loss) => loss.family === family)) {
-      fail(`${label}: ${family} is censored with no recorded capture loss to justify it`);
-      return;
-    }
-  }
-
-  // 3. A detector may not report a budget failure on a run that did not come
-  //    close to its budget. This is the codeberg.org defect: a 5-second scan
-  //    told readers it had run out of time.
-  const durationMs = Number(summary.durationMs ?? 0);
-  if (durationMs > 0 && durationMs < 20_000) {
-    for (const [id, entry] of Object.entries(detectors)) {
-      if (entry.reason === "budget-unavailable") {
-        fail(`${label}: detector ${id} reported budget-unavailable after only ${durationMs}ms`);
-        return;
-      }
-    }
-  }
-
-  // 4. Request evidence that is complete may not be described as incomplete,
-  //    and counts must be self-consistent with it.
-  if (!censored("requests")) {
-    const total = Number(summary.totalRequests ?? 0);
-    const third = Number(summary.thirdPartyRequests ?? 0);
-    if (third > total) {
-      fail(`${label}: ${third} third-party requests exceeds ${total} total with complete request evidence`);
-      return;
-    }
-  }
-
-  // 5. An instrument's limit is not a fact about the site. A detector may only
-  //    report `unsupported` when nothing was found to work with — never while
-  //    also publishing evidence it says it could not obtain.
-  const policy = detectors["privacy-policy"];
-  const policyEvidence = run.evidence?.privacyPolicy ?? run.privacyPolicy;
-  if (policy?.status === "unsupported" && policyEvidence?.url) {
-    fail(`${label}: privacy-policy reports unsupported while publishing ${policyEvidence.url}`);
-    return;
-  }
-
-  pass(`${label} (${site.shape})`);
-}
 
 async function scan(url) {
   const response = await fetch(`${BASE}/api/scan`, {
@@ -145,6 +82,9 @@ const sites = Array.isArray(config.sites) ? config.sites : [];
 if (sites.length === 0) throw new Error(`${SITES_FILE} lists no sites.`);
 
 console.log(`Scanner fidelity: ${sites.length} targets via ${BASE}\n`);
+// Build the render bridge BEFORE scanning: if the site's own render modules
+// will not compile, that is a red gate, not a reason to silently check less.
+const bridge = ensureRenderBridge();
 let answered = 0;
 const censoredFamilies = new Map();
 
@@ -156,11 +96,15 @@ for (const site of sites) {
     continue;
   }
   answered += 1;
-  const run = result.report.run ?? result.report;
-  for (const [family, entry] of Object.entries(run.quality?.byFamily ?? {})) {
-    if (entry.outcome === "censored") censoredFamilies.set(family, (censoredFamilies.get(family) ?? 0) + 1);
+  const evaluation = evaluateScanBody(site.url, result.report, bridge);
+  for (const family of evaluation.censored) {
+    censoredFamilies.set(family, (censoredFamilies.get(family) ?? 0) + 1);
   }
-  invariants(site, result.report);
+  if (evaluation.failures.length === 0) {
+    pass(`${site.url} (${site.shape})`);
+  } else {
+    for (const message of evaluation.failures) fail(message);
+  }
 }
 
 console.log(`\n${answered}/${sites.length} targets answered; ${checks} passed, ${failures} failed`);
