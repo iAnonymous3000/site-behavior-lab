@@ -170,7 +170,7 @@ export function trackingServiceRequests(result: Pick<ScanResult, "domains">): nu
 }
 
 export type CatalogCoverage = {
-  /** Distinct third-party registrable-domain boundaries the visit contacted. */
+  /** Distinct third-party HOSTS the visit contacted, not registrable domains. */
   thirdPartyDomains: number;
   /** Those a catalog entry, filter list, or consent-platform signature named. */
   identified: number;

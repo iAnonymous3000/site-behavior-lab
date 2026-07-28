@@ -510,7 +510,10 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
         : operationalEntities.length > 0
           ? `The catalog assigns these services monitoring or support labels; the matches do not establish each request's purpose.${catalogCoverageNote}${sameOrganizationNote}${requestsCensored ? CENSORED_ABSENCE_NOTE : ""}`
           : `No known catalog entity was matched.${catalogCoverageNote}${requestsCensored ? CENSORED_ABSENCE_NOTE : ""}`,
-    evidence: `${plural(run.counts.thirdPartyRequests, "cross-site request")} across ${plural(run.counts.thirdPartyDomains, "registrable-domain boundary")}.`,
+    // Counted per distinct HOST, not per registrable domain: two subdomains of
+    // one company are two rows here. Calling them registrable-domain
+    // boundaries overstated how many separate parties the visit reached.
+    evidence: `${plural(run.counts.thirdPartyRequests, "cross-site request")} across ${plural(run.counts.thirdPartyDomains, "third-party host")}.`,
     benchmark: !domainsBenchmarkAllowed
       ? undefined
       : domainsBenchmark
