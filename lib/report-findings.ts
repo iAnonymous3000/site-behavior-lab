@@ -934,14 +934,24 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
   // line never reads an error page as "few review signals".
   const loadFailureStatus = scanLoadFailureStatus(run.status);
   if (loadFailureStatus !== null) {
+    // Same rule as the failed-navigation branch below: an error or block page
+    // cannot support reassuring absence cards. This branch used to return before
+    // reaching that loop, so a 403 published a board of green "no trackers"
+    // cards about a page that was never served.
+    hedgeAbsenceCards(
+      findings,
+      `The page returned HTTP ${loadFailureStatus}, so this absence describes an error or block page, not the site.`
+    );
     findings.unshift({
       id: "bottom-line",
       icon: "alert",
       level: "info",
-      title: `Bottom line: ${run.domain} did not load (HTTP ${loadFailureStatus})`,
+      title: `Bottom line: ${run.domain} did not serve its page (HTTP ${loadFailureStatus})`,
       lead: `The page responded with HTTP ${loadFailureStatus}, so this report reflects an error or block page, not the site itself.`,
-      detail:
-        "Low tracker, cookie, and fingerprinting counts here mean the page did not load, not that the site is private. Re-scan when the site is reachable; the request log and methodology below still show exactly what was observed.",
+      detail: `Low tracker, cookie, and fingerprinting counts here mean no page was served, not that the site is private. ${retryGuidance(
+        loadFailureStatus,
+        run
+      )} The request log and methodology below still show exactly what was observed.`,
       evidence: `${plural(run.counts.totalRequests, "request")} observed before or with the error response.`
     });
     return findings;
@@ -954,16 +964,10 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
   if (run.quality.outcome === "failed") {
     const statusUnrepresentable =
       run.quality.facts?.captureLoss.some((loss) => loss.detail === R2_NAVIGATION_STATUS_UNREPRESENTABLE) === true;
-    // Preserve affirmative observations as lower-bound evidence, but a failed
-    // navigation cannot support reassuring "ok"/"quiet" absence cards.
-    // Downgrade those cards and attach the same explicit scope boundary before
-    // the failed-navigation bottom line leads the board.
-    for (const finding of findings) {
-      if (finding.level !== "ok" && finding.level !== "quiet") continue;
-      finding.level = "info";
-      finding.benchmark = undefined;
-      finding.detail = `${finding.detail} The main page did not complete a trustworthy load, so this absence describes only an incomplete visit.`;
-    }
+    hedgeAbsenceCards(
+      findings,
+      "The main page did not complete a trustworthy load, so this absence describes only an incomplete visit."
+    );
     findings.unshift({
       id: "bottom-line",
       icon: "alert",
@@ -1257,6 +1261,46 @@ function buildConsentComparisonFinding(
     }`,
     evidence
   };
+}
+
+/**
+ * An error or block page cannot support reassuring "no trackers here" cards.
+ * Preserve affirmative observations as lower-bound evidence, downgrade every
+ * absence card, and attach the scope boundary that says what the absence really
+ * describes. Shared by the HTTP-status branch and the failed-navigation branch
+ * so the two cannot drift apart.
+ */
+function hedgeAbsenceCards(findings: Finding[], scope: string): void {
+  for (const finding of findings) {
+    if (finding.level !== "ok" && finding.level !== "quiet") continue;
+    finding.level = "info";
+    finding.benchmark = undefined;
+    finding.detail = `${finding.detail} ${scope}`;
+  }
+}
+
+/**
+ * Retry advice that matches the status class instead of assuming every failure
+ * is a transient outage.
+ *
+ * The scanner announces itself as an undisguised headless browser and does not
+ * evade bot detection, so a site that refuses automation refuses it on every
+ * visit: telling that reader to "re-scan when it is reachable" sends them into a
+ * loop against a site that answered immediately. Naming the likely cause is
+ * disclosure of our own posture, not a claim about the site, so it stays hedged.
+ */
+function retryGuidance(status: number, run: RunView): string {
+  const undisguisedAutomation = run.conditions.headless && run.conditions.automation !== "brave-pagegraph";
+  if ((status === 401 || status === 403) && undisguisedAutomation) {
+    return "The site answered, so it was reachable; it refused this visit. Refusing an openly automated browser is the most common reason for this status, and because this scanner does not disguise itself, re-scanning will usually return the same response.";
+  }
+  if (status === 401 || status === 403) {
+    return "The site answered, so it was reachable; it refused this visit. Re-scanning returns the same response until whatever refused the request changes.";
+  }
+  if (status === 429) return "The site rate-limited this visit, so a later re-scan may succeed.";
+  if (status === 404) return "That address did not exist on the site; check the URL rather than re-scanning it.";
+  if (status >= 500) return "That is a server-side error, so a later re-scan may succeed.";
+  return "Re-scan when the site serves the page.";
 }
 
 function requestProvenanceHighlights(requests: NetworkRequestRecord[]): string[] {

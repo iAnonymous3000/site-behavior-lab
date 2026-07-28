@@ -21,7 +21,7 @@ import { requestLogToCsv } from "@/lib/csv-export";
 import { consentVerificationSummary } from "@/lib/report-consent-copy";
 import { buildReportHeadline } from "@/lib/report-headline";
 import { parseEvidenceHash } from "@/lib/report-evidence-navigation";
-import { displayableScreenshot, gpcRunMeasurement } from "@/lib/report-insights";
+import { displayableScreenshot, gpcRunMeasurement, scanLoadFailureStatus } from "@/lib/report-insights";
 import type { LoadedReport } from "@/lib/scan-report-view";
 import {
   comparisonArmViews,
@@ -90,6 +90,18 @@ export function ReportRenderer({
   const displayedArmLabel: "baseline" | "variant" = selectedArm ?? defaultArm;
   const displayedRun = arms ? arms[displayedArmLabel] : primaryRun;
   const screenshot = displayableScreenshot(displayedRun.screenshot);
+  // The capture itself is right to keep: it is the reader's only direct look at
+  // what the scanner actually hit. What was missing is the caption. A block page
+  // scaled into the sidebar column is often near-blank, which reads either as a
+  // broken image or as a claim that the site is a blank page.
+  const screenshotFailureStatus = scanLoadFailureStatus(displayedRun.status);
+  const screenshotFailedLoad = screenshotFailureStatus !== null || displayedRun.quality.outcome === "failed";
+  const screenshotSubject =
+    screenshotFailureStatus !== null
+      ? `the HTTP ${screenshotFailureStatus} error or block page returned by ${displayedRun.domain}`
+      : screenshotFailedLoad
+        ? `the page ${displayedRun.domain} returned on a load that did not complete`
+        : displayedRun.domain;
 
   async function downloadReport() {
     const { publicWireForExportOrPersistence } = await import("@/lib/scan-report-view");
@@ -164,10 +176,17 @@ export function ReportRenderer({
               <h2>Viewport</h2>
               <img
                 src={screenshot}
-                alt={`Screenshot of ${displayedRun.domain}`}
+                alt={`Screenshot of ${screenshotSubject}`}
                 loading="lazy"
                 decoding="async"
               />
+              {screenshotFailedLoad && (
+                <p className="muted">
+                  {screenshotFailureStatus !== null
+                    ? `This is the HTTP ${screenshotFailureStatus} error or block page, not the site. A near-blank image is what the browser actually rendered.`
+                    : "This is what the browser rendered on a load that did not complete, not the site."}
+                </p>
+              )}
             </section>
           )}
 

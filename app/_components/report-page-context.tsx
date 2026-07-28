@@ -77,10 +77,16 @@ export function ReportPageContext({
               View site history
             </a>
           )}
-          {activation.exactRescanHref && (
+          {activation.exactRescanHref ? (
             <Link className="secondary-button" href={activation.exactRescanHref}>
               Scan this exact route again
             </Link>
+          ) : (
+            activation.siteRescanHref && (
+              <Link className="secondary-button" href={activation.siteRescanHref}>
+                Scan this site again
+              </Link>
+            )
           )}
           <a className="topbar-link" href={activation.evidenceIssueUrl} target="_blank" rel="noreferrer">
             Report an evidence problem

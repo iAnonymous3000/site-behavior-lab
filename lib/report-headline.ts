@@ -180,10 +180,33 @@ export function buildReportHeadline(view: ReportView): ReportHeadline {
   // of letting it fall through to "kept this visit relatively private".
   const loadFailureStatus = scanLoadFailureStatus(run.status);
   if (loadFailureStatus !== null) {
+    // "Re-scan when it is reachable" was wrong for the most common case. A 401 or
+    // 403 means the site answered and declined this visitor, so it is reachable
+    // and every re-scan repeats the result. The scanner does not disguise itself,
+    // so say that plainly: it explains our own posture rather than claiming
+    // anything about the site, and it stops the reader retrying forever.
+    const refusedVisit = loadFailureStatus === 401 || loadFailureStatus === 403;
+    const undisguisedAutomation = run.conditions.headless && run.conditions.automation !== "brave-pagegraph";
+    // This subhead is also the social-card copy, which is hard-bounded, so it
+    // carries only the correction. The fuller automation-block explanation lives
+    // in the findings bottom line, which has room for it.
+    const guidance = refusedVisit
+      ? undisguisedAutomation
+        ? "It answered and refused this automated visit, so re-scanning usually repeats the result."
+        : "It answered and refused this visit, so re-scanning repeats the result until that changes."
+      : loadFailureStatus === 429
+        ? "The site rate-limited this visit, so a later re-scan may succeed."
+        : loadFailureStatus === 404
+          ? "That address did not exist, so check the URL rather than re-scanning it."
+          : loadFailureStatus >= 500
+            ? "That is a server-side error, so a later re-scan may succeed."
+            : "Re-scan when the site serves the page.";
     return finish(
       "info",
-      `${domain} returned an error, so there was little to scan.`,
-      `The page responded with HTTP ${loadFailureStatus}, an error or block page, not the real site. The low tracker, cookie, and fingerprinting counts mean the page did not load, not that ${domain} is private. Re-scan when it is reachable.`,
+      refusedVisit
+        ? `${domain} refused this visit, so there was little to scan.`
+        : `${domain} returned an error, so there was little to scan.`,
+      `The page responded with HTTP ${loadFailureStatus}, an error or block page, not the real site. The low tracker, cookie, and fingerprinting counts mean no page was served, not that ${domain} is private. ${guidance}`,
       [{ label: "HTTP status", value: n(loadFailureStatus), emphasis: true }]
     );
   }

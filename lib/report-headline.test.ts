@@ -694,9 +694,14 @@ test("an HTTP error load is framed as a failed load, not as relatively private",
 
   const headline = buildReportHeadline(viewFromV1Report(result));
   assert.equal(headline.tone, "info");
-  assert.match(headline.headline, /blocked\.example returned an error, so there was little to scan\./);
+  assert.match(headline.headline, /blocked\.example refused this visit, so there was little to scan\./);
   assert.match(headline.subhead, /HTTP 403/);
   assert.doesNotMatch(headline.headline, /relatively private/);
+  // A 403 means the site answered and declined this visitor, so it is reachable.
+  // Advising a retry "when it is reachable" sent readers into a loop against a
+  // deterministic refusal.
+  assert.doesNotMatch(headline.subhead, /when it is reachable/);
+  assert.match(headline.subhead, /answered and refused this automated visit/);
   assert.equal(headline.stats[0]?.value, "403");
 });
 

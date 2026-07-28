@@ -8,6 +8,12 @@ const EVIDENCE_ISSUE_URL = "https://github.com/iAnonymous3000/site-behavior-lab/
 export type ReportActivation = {
   profilePath: string | null;
   exactRescanHref: string | null;
+  /**
+   * Site-root rescan for reports whose exact route cannot be replayed. Without
+   * it a v2 permalink renders no rescan control at all, while its own copy tells
+   * the reader to repeat the visit.
+   */
+  siteRescanHref: string | null;
   evidenceIssueUrl: string;
 };
 
@@ -27,10 +33,14 @@ export function reportActivation(input: {
   const exactTarget = run.conditions.urlsAreRouteShapes
     ? null
     : safeNavigableHttpUrl(run.conditions.requestedUrl);
+  // The domain is already public in this report, so the site root is always a
+  // safe replay target even when the exact route is a privacy-marked shape.
+  const siteTarget = exactTarget ?? safeNavigableHttpUrl(`https://${input.view.domain}/`);
 
   return {
     profilePath: input.siteHistoryAvailable ? siteProfilePath(input.view.domain) : null,
     exactRescanHref: exactTarget ? scanPrefillHref(exactTarget) : null,
+    siteRescanHref: siteTarget ? scanPrefillHref(siteTarget) : null,
     evidenceIssueUrl: evidenceProblemUrl({
       id: input.id,
       domain: input.view.domain,

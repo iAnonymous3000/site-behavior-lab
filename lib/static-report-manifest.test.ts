@@ -285,7 +285,9 @@ test("manifest headlines preserve failed-load evidence instead of inferring calm
 
   const { manifest } = await buildStaticReportManifest(reportsDir);
   assert.equal(manifest.reports.length, 1);
-  assert.match(manifest.reports[0].headline, /error|block|HTTP 403/i);
+  // "refused" is the 401/403 wording: those statuses mean the site answered and
+  // declined the visit, which is stronger evidence than a generic "error".
+  assert.match(manifest.reports[0].headline, /error|block|refused|HTTP 403/i);
   assert.notEqual(manifest.reports[0].tone, "calm");
 });
 

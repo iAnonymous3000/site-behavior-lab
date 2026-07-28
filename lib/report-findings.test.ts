@@ -77,9 +77,24 @@ test("an HTTP error load gets a failed-load bottom line, not a low-signal one", 
   const bottomLine = findings[0];
   assert.equal(bottomLine.id, "bottom-line");
   assert.equal(bottomLine.icon, "alert");
-  assert.match(bottomLine.title, /blocked\.example did not load \(HTTP 403\)/);
+  assert.match(bottomLine.title, /blocked\.example did not serve its page \(HTTP 403\)/);
   assert.match(bottomLine.lead, /HTTP 403/);
   assert.doesNotMatch(bottomLine.title, /few review signals/);
+  // A 403 is a refusal, not an outage: the site answered. Advising a retry "when
+  // the site is reachable" pointed readers at a loop.
+  assert.doesNotMatch(bottomLine.detail, /when the site is reachable/);
+  assert.match(bottomLine.detail, /answered, so it was reachable; it refused this visit/);
+  assert.match(bottomLine.detail, /does not disguise itself/);
+
+  // An error page cannot support reassuring absence cards. This branch used to
+  // return before the hedge that the failed-navigation branch applies.
+  const absence = findings.filter((finding) => finding.id !== "bottom-line");
+  assert.ok(absence.length > 0, "expected absence cards to hedge");
+  for (const finding of absence) {
+    assert.notEqual(finding.level, "ok");
+    assert.notEqual(finding.level, "quiet");
+    assert.match(finding.detail, /error or block page, not the site/);
+  }
 });
 
 test("a failed r2 navigation with an unrepresentable status leads with incomplete navigation, not reassurance", () => {
