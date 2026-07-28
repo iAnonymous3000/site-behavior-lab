@@ -1112,8 +1112,11 @@ test("flags unnamed tracking companies as an informational disclosure gap", () =
 
   const card = byId(buildFindings(viewFromV1Report(result), null), "privacy-policy");
   assert.equal(card.level, "info");
-  assert.match(card.title, /never names/);
-  assert.match(card.lead, /Criteo was sent requests during this visit but is never named/);
+  // Scoped to what the matcher can prove: the stored list is alias-bounded and
+  // the policy text is not retained, so an absolute "never names" cannot be
+  // re-verified for any committed report.
+  assert.match(card.title, /does not appear to name/);
+  assert.match(card.lead, /Criteo was sent requests during this visit, but the policy text matched none of the names this scan knows that company by/);
   assert.match(card.detail, /not automatically a violation/);
 });
 

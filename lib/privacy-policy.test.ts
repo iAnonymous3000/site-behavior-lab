@@ -189,3 +189,28 @@ test("buildPrivacyPolicySummary builds claims and mention lists from real-length
   assert.deepEqual(summary.unmentionedEntities, ["Meta"]);
   assert.equal(summary.policyTextLength, text.length);
 });
+
+test("a policy naming Meta by its own name is a mention, not an accusation", () => {
+  // "meta" cannot join the case-insensitive alias list ("meta tags", "metadata"),
+  // and that gap published "Meta is never named" over policies that disclosed
+  // "Meta Platforms" by legal name. Over-matching merely withholds an accusation;
+  // under-matching invents one.
+  const named = classifyEntityMentions(
+    "We share information with Meta Platforms, Inc. and with our analytics vendors.",
+    ["Meta"]
+  );
+  assert.deepEqual(named.mentioned, ["Meta"]);
+
+  const midSentence = classifyEntityMentions("Advertising partners such as Meta receive hashed identifiers.", ["Meta"]);
+  assert.deepEqual(midSentence.mentioned, ["Meta"]);
+
+  // Ordinary uses of the word must not count as naming the company.
+  const metaTags = classifyEntityMentions("We use meta tags and collect meta data about usage.", ["Meta"]);
+  assert.deepEqual(metaTags.unmentioned, ["Meta"]);
+
+  const xNamed = classifyEntityMentions("We share conversion data with X for advertising measurement.", ["X"]);
+  assert.deepEqual(xNamed.mentioned, ["X"]);
+
+  const xAxis = classifyEntityMentions("charts plot time on the x axis of the dashboard", ["X"]);
+  assert.deepEqual(xAxis.unmentioned, ["X"]);
+});

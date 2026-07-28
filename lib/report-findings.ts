@@ -400,7 +400,7 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
           : conditionalConflicts.length > 0
             ? "A policy statement may conflict with observed advertising events"
             : policy.unmentionedEntities.length > 0
-              ? "Tracking companies the privacy policy never names"
+              ? "Tracking companies the privacy policy does not appear to name"
               : noCheckableClaims
                 ? "Privacy policy read; it made no statement this scan can check"
                 : "Privacy policy read; no checked statement contradicted",
@@ -410,7 +410,7 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
           : conditionalConflicts.length > 0
             ? `Comparing the site's own privacy policy against this visit: ${humanList(conditionalConflicts, 2)}.`
             : policy.unmentionedEntities.length > 0
-              ? `${humanList(policy.unmentionedEntities)} ${policy.unmentionedEntities.length === 1 ? "was" : "were"} sent requests during this visit but ${policy.unmentionedEntities.length === 1 ? "is" : "are"} never named in the privacy policy text.`
+              ? `${humanList(policy.unmentionedEntities)} ${policy.unmentionedEntities.length === 1 ? "was" : "were"} sent requests during this visit, but the policy text matched none of the names this scan knows ${policy.unmentionedEntities.length === 1 ? "that company" : "those companies"} by.`
               : noCheckableClaims
                 ? `None of the statements this scan knows how to check appear in the policy text, so nothing was compared against this visit's evidence (${coverage}). That is a limit of the automated check, not a finding about the site either way.`
                 : `The policy's checkable statements did not contradict this visit's evidence (${coverage}).`,

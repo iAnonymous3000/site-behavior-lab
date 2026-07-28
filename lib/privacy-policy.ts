@@ -212,6 +212,20 @@ const ENTITY_ALIASES: Record<string, string[]> = {
   TikTok: ["tiktok", "bytedance"]
 };
 
+/**
+ * Company names that are also ordinary words cannot go in the case-insensitive
+ * alias table: "meta" matches "meta tags", a bare "x" matches everything. But a
+ * policy that names "Meta Platforms" or a mid-sentence capitalized "Meta" HAS
+ * named the company, and publishing "Meta is never named in the privacy policy
+ * text" over it is a false accusation. The costs are asymmetric: an over-match
+ * merely withholds an accusation, an under-match invents one, so these patterns
+ * lean toward matching.
+ */
+const ENTITY_NAME_PATTERNS: Record<string, RegExp[]> = {
+  Meta: [/\bmeta\s+platforms?\b/i, /\bmeta\s+pixel\b/i, /\bMeta\b(?!\s*(?:tag|data|description|element))/],
+  X: [/\bX\b(?!\s*[),.]?\s*(?:axis|ray))/]
+};
+
 /** Split observed tracking entities into those the policy names and those it never mentions. */
 export function classifyEntityMentions(
   policyText: string,
@@ -223,7 +237,11 @@ export function classifyEntityMentions(
 
   for (const entity of entities) {
     const aliases = ENTITY_ALIASES[entity] ?? [entity.toLowerCase()];
-    const found = aliases.some((alias) => new RegExp(`\\b${escapeRegExp(alias)}\\b`, "i").test(lower));
+    const found =
+      aliases.some((alias) => new RegExp(`\\b${escapeRegExp(alias)}\\b`, "i").test(lower)) ||
+      // Case-sensitive patterns run against the original text: they exist for
+      // names the lowercased alias pass cannot safely test.
+      (ENTITY_NAME_PATTERNS[entity] ?? []).some((pattern) => pattern.test(policyText));
     (found ? mentioned : unmentioned).push(entity);
   }
 
