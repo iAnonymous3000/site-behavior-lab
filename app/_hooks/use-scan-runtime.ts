@@ -92,6 +92,9 @@ export function useScanRuntime({
   const [activeScanProgress, setActiveScanProgress] = useState<ScanJobProgress | null>(null);
   const [cancellingScan, setCancellingScan] = useState(false);
   const [cancelScanError, setCancelScanError] = useState<string | null>(null);
+  // A completed lifecycle action that the visitor asked for is not an error. Routing
+  // it through `error` would style a successful cancellation as a red failure alert.
+  const [scanNotice, setScanNotice] = useState<string | null>(null);
   // State updates are asynchronous and therefore cannot be the ownership
   // boundary for paid work. This ref is claimed synchronously before any scan
   // credential can be minted or any request can leave the tab.
@@ -212,6 +215,7 @@ export function useScanRuntime({
     setScanning(true);
     setLoaded(null);
     setError(null);
+    setScanNotice(null);
     setCancelScanError(null);
 
     void resumeRuntimeScan({
@@ -463,6 +467,7 @@ export function useScanRuntime({
     setScanning(false);
     setLoaded(null);
     setError(null);
+    setScanNotice(null);
     setCancelScanError(null);
 
     try {
@@ -577,6 +582,7 @@ export function useScanRuntime({
     setLoading(true);
     setScanning(true);
     setError(null);
+    setScanNotice(null);
     setLoaded(null);
     setCancelScanError(null);
     // Until onAccepted runs, the POST is only a request for admission.
@@ -633,6 +639,7 @@ export function useScanRuntime({
     setScanning(true);
     setLoaded(null);
     setError(null);
+    setScanNotice(null);
     setCancelScanError(null);
     setActiveScanProgress((current) => current ?? acceptedScanJobProgress());
 
@@ -690,7 +697,7 @@ export function useScanRuntime({
       releaseActiveScanSession(operation);
       setLoading(false);
       setScanning(false);
-      setError(message);
+      setScanNotice(message);
     } catch (cancelError) {
       if (!operationOwnerRef.current.owns(operation) || isAbortError(cancelError)) return;
       // A failed DELETE never discards the accepted capability; the visitor can
@@ -715,6 +722,20 @@ export function useScanRuntime({
     setCancellingScan(false);
     setCancelScanError(null);
     setError(null);
+    setScanNotice(null);
+  }
+
+  /**
+   * Before admission there is nothing to cancel: the POST may already have left this
+   * tab, and with async scans on, the scanner can still complete the visit. So this
+   * stops the client waiting and says exactly that, rather than claiming a
+   * cancellation it cannot perform.
+   */
+  function stopWaitingForAdmission(): void {
+    dismissActiveScan();
+    setScanNotice(
+      "Stopped waiting for the scanner. The request may already have been accepted, so check back shortly before scanning again."
+    );
   }
 
   function retryScannerHealth() {
@@ -727,19 +748,19 @@ export function useScanRuntime({
     event.preventDefault();
     if (operationOwnerRef.current.current() !== null) return;
     const trimmed = form.url.trim();
+    // A rejected URL never reaches the network, so it is a field-level problem and
+    // stays in the field. Mirroring it into `error` would raise the scan-recovery
+    // banner (which has no dismiss control in this state), announce the same
+    // sentence twice, and hide the corpus hero until the next successful scan.
     if (!trimmed) {
-      const message = "Enter a public URL to scan, for example https://example.com.";
-      setUrlError(message);
-      setError(message);
+      setUrlError("Enter a public URL to scan, for example https://example.com.");
       window.requestAnimationFrame(() => document.getElementById("url")?.focus());
       return;
     }
     const normalized = normalizeScanUrl(trimmed);
     if (!normalized) {
       setUrlNotice("");
-      const message = "Enter a valid public URL, for example https://example.com.";
-      setUrlError(message);
-      setError(message);
+      setUrlError("Enter a valid public URL, for example https://example.com.");
       window.requestAnimationFrame(() => document.getElementById("url")?.focus());
       return;
     }
@@ -826,6 +847,7 @@ export function useScanRuntime({
     activeScanProgress,
     cancellingScan,
     cancelScanError,
+    scanNotice,
     scheduledRescanCreateBusy,
     setScheduledRescanCreateBusy,
     turnstileToken,
@@ -854,7 +876,8 @@ export function useScanRuntime({
     recoverPendingAdmission,
     resumeActiveScan,
     cancelActiveScan,
-    dismissActiveScan
+    dismissActiveScan,
+    stopWaitingForAdmission
   };
 }
 

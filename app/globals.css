@@ -1501,6 +1501,13 @@ a {
   flex: 0 0 auto;
 }
 
+/* Recovery states that are progress or a completed request, not a failure. Same
+   shell, neutral tone, so "Cancelling…" and "Scan cancelled." stop reading as errors. */
+.error-banner-progress {
+  border-color: var(--border);
+  color: var(--text);
+}
+
 .error-banner-copy,
 .scan-recovery-controls {
   display: grid;

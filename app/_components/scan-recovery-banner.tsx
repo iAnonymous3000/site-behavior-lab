@@ -1,9 +1,10 @@
 "use client";
 
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Loader2 } from "lucide-react";
 
 export function ScanRecoveryBanner({
   error,
+  notice,
   acceptedJob,
   pendingAdmission,
   recoveringAdmission,
@@ -16,6 +17,7 @@ export function ScanRecoveryBanner({
   onDismiss
 }: {
   error: string | null;
+  notice: string | null;
   acceptedJob: boolean;
   pendingAdmission: boolean;
   recoveringAdmission: boolean;
@@ -27,20 +29,42 @@ export function ScanRecoveryBanner({
   onCancel: () => void;
   onDismiss: () => void;
 }) {
-  if (!error && !pendingAdmission && !cancelling && !cancellationError) return null;
+  if (!error && !notice && !pendingAdmission && !cancelling && !cancellationError) return null;
+
+  // Only a failure earns an assertive interruption and the warning styling. Progress
+  // states ("checking admission", "cancelling") and completed actions the visitor
+  // asked for are routine, so they announce politely in the neutral tone.
+  const failed = Boolean(error ?? cancellationError);
+  const settled = Boolean(notice) && !failed;
 
   return (
-    <section className="error-banner" role="alert">
-      <AlertTriangle size={18} aria-hidden="true" />
+    <section className={failed ? "error-banner" : "error-banner error-banner-progress"} role={failed ? "alert" : "status"}>
+      {failed ? (
+        <AlertTriangle size={18} aria-hidden="true" />
+      ) : settled ? (
+        <CheckCircle2 size={18} aria-hidden="true" />
+      ) : (
+        <Loader2 className="spin" size={18} aria-hidden="true" />
+      )}
       <div className="error-banner-copy">
         <span>
           {error ??
+            notice ??
             (pendingAdmission
               ? "Checking whether the previous scan request was accepted…"
               : cancelling
                 ? "Cancelling the accepted scan…"
                 : "The cancellation request did not finish.")}
         </span>
+        {settled && !acceptedJob && !pendingAdmission && (
+          <div className="scan-recovery-controls">
+            <div className="scan-recovery-actions">
+              <button className="ghost-button" type="button" onClick={onDismiss}>
+                Dismiss
+              </button>
+            </div>
+          </div>
+        )}
         {pendingAdmission && !acceptedJob && (
           <div className="scan-recovery-controls">
             <p>

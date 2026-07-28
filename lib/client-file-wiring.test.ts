@@ -73,5 +73,8 @@ test("picker failures cancel stale report work and remain exposed through alert 
   assert.match(app, /surfaceReportOperationError[\s\S]*reportOpenOperation\.cancel\(\)/);
   assert.match(comparison, /surfaceCompareUploadError[\s\S]*\.cancel\(\)/);
   assert.match(comparison, /compareError && <p[^>]*role="alert"/);
-  assert.match(recovery, /className="error-banner" role="alert"/);
+  // Failures stay assertive; progress and completed actions must not borrow that urgency.
+  assert.match(recovery, /const failed = Boolean\(error \?\? cancellationError\)/);
+  assert.match(recovery, /role=\{failed \? "alert" : "status"\}/);
+  assert.match(recovery, /failed \? "error-banner" : "error-banner error-banner-progress"/);
 });

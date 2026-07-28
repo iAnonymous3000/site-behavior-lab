@@ -261,9 +261,7 @@ export function ReportRenderer({
                   <dd>
                     {displayedRun.conditions.adblockLists.source}<br />
                     {displayedRun.conditions.adblockLists.lists.toLocaleString("en-US")} lists · fetched{" "}
-                    {new Date(displayedRun.conditions.adblockLists.fetchedAt).toLocaleDateString("en-US", {
-                      timeZone: "UTC"
-                    })}
+                    {formatListSnapshot(displayedRun.conditions.adblockLists.fetchedAt)}
                   </dd>
                 </div>
               )}
@@ -292,6 +290,15 @@ function downloadBlob(blob: Blob, filename: string) {
 
 function safeFilenamePart(value: string): string {
   return value.replace(/[^a-z0-9.-]+/gi, "-").replace(/^-+|-+$/g, "") || "report";
+}
+
+// Builds that could not read the vendored list metadata record `fetchedAt` as the
+// literal "unknown" sentinel, and imported report files can carry anything. Say the
+// provenance is missing rather than rendering "Invalid Date" in the methodology block.
+function formatListSnapshot(value: string): string {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "date not recorded";
+  return date.toLocaleDateString("en-US", { timeZone: "UTC" });
 }
 
 function gpcMethodologyLabel(run: RunView): string {

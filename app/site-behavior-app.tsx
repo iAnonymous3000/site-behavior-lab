@@ -112,6 +112,7 @@ export function SiteBehaviorApp({
     activeScanProgress,
     cancellingScan,
     cancelScanError,
+    scanNotice,
     scheduledRescanCreateBusy,
     setScheduledRescanCreateBusy,
     turnstileToken,
@@ -132,7 +133,8 @@ export function SiteBehaviorApp({
     recoverPendingAdmission,
     resumeActiveScan,
     cancelActiveScan,
-    dismissActiveScan
+    dismissActiveScan,
+    stopWaitingForAdmission
   } = useScanRuntime({ reportPage: false, initialLoaded: null, initialError: null, initialLoading: false });
   const {
     gpcComparisonEnabled,
@@ -378,6 +380,7 @@ export function SiteBehaviorApp({
 
         <ScanRecoveryBanner
           error={error}
+          notice={scanNotice}
           acceptedJob={Boolean(activeScanJob)}
           pendingAdmission={Boolean(pendingScanAdmission)}
           recoveringAdmission={recoveringScanAdmission}
@@ -420,7 +423,10 @@ export function SiteBehaviorApp({
                         ? "consent"
                         : "single"
               }
-              onCancel={activeScanJob ? () => void cancelActiveScan() : undefined}
+              // Before admission there is no job to cancel, but the visitor still needs
+              // a way out of the wait, and the label must not promise a cancellation.
+              onCancel={activeScanJob ? () => void cancelActiveScan() : stopWaitingForAdmission}
+              cancelLabel={activeScanJob ? "Cancel scan" : "Stop waiting"}
               cancelling={cancellingScan}
               cancellationError={cancelScanError}
               progress={activeScanProgress}
@@ -633,7 +639,9 @@ function EmptyState({
       <h2>{homepageDiscovery ? "Explore measured evidence" : liveScanEnabled ? "Ready to scan" : "Saved site reports"}</h2>
       <p>
         {homepageDiscovery
-          ? `${plural(homepageDiscovery.reportCount, "public report")} are available now. Open existing evidence instantly, or scan a site above for a new controlled visit.`
+          ? `${plural(homepageDiscovery.reportCount, "public report")} ${
+              homepageDiscovery.reportCount === 1 ? "is" : "are"
+            } available now. Open existing evidence instantly, or scan a site above for a new controlled visit.`
           : liveScanEnabled
             ? "Run a controlled browser visit and inspect the observable behavior from that one session."
             : "Open a saved report, or open a report file someone shared with you."}
@@ -755,17 +763,28 @@ const SCAN_CHECKS: { icon: typeof Eye; label: string; question: string }[] = [
 function LoadingState({
   mode,
   onCancel,
+  cancelLabel = "Cancel scan",
   cancelling = false,
   cancellationError = null,
   progress = null
 }: {
   mode: "single" | "gpc" | "shields" | "consent" | "opening";
   onCancel?: () => void;
+  cancelLabel?: string;
   cancelling?: boolean;
   cancellationError?: string | null;
   progress?: ScanJobProgress | null;
 }) {
   const isScanning = mode !== "opening";
+  const scanningRegionRef = useRef<HTMLElement | null>(null);
+
+  // Submitting disables the Scan button while it still holds focus, which browsers
+  // resolve by blurring to <body>. Without this a keyboard user is dropped to the top
+  // of the document for the length of the scan, with the cancel control they now need
+  // sitting behind the entire header and form.
+  useEffect(() => {
+    if (isScanning) scanningRegionRef.current?.focus();
+  }, [isScanning]);
 
   // Opening a saved report is a quick fetch, not a controlled browser visit, so it
   // gets a lightweight state without the elapsed timer or the "what we check" list.
@@ -785,7 +804,12 @@ function LoadingState({
   const progressCopy = scanJobProgressCopy(progress);
 
   return (
-    <section className="loading-state" aria-labelledby="scan-loading-title">
+    <section
+      className="loading-state"
+      aria-labelledby="scan-loading-title"
+      ref={scanningRegionRef}
+      tabIndex={-1}
+    >
       <p className="visually-hidden" role="status" aria-live="polite">
         {progressCopy.title}. {progressCopy.completedRuns ?? "Progress details are shown below."}
       </p>
@@ -799,7 +823,7 @@ function LoadingState({
       {onCancel && (
         <button className="secondary-button" type="button" onClick={onCancel} disabled={cancelling}>
           {cancelling ? <Loader2 className="spin" size={16} aria-hidden="true" /> : null}
-          {cancelling ? "Cancelling…" : "Cancel scan"}
+          {cancelling ? "Cancelling…" : cancelLabel}
         </button>
       )}
       {cancellationError && <p role="alert">{cancellationError} The scan is still running.</p>}
