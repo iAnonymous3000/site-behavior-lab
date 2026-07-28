@@ -975,12 +975,29 @@ export async function scanSiteWithMeasurement(
     const responseStatus = response?.status() ?? null;
 
     options.onProgress?.("collecting");
-    let navigationSettled = true;
+    // The navigation itself already succeeded: a failed `goto` throws above and
+    // the visit never reaches here. What follows waits for the page to go
+    // QUIET, which is a different question.
+    //
+    // Conflating the two failed the whole run whenever an ordinary dynamic site
+    // kept polling, streaming, or beaconing past the observation window, which
+    // is most of the modern web and was a third of all scans. A page that is
+    // still working is not a page that failed to load, and reporting it as one
+    // discarded every real observation the visit had already made.
+    //
+    // So the navigation fact stays true, and the page staying active is
+    // recorded as what it is: the observation window closed first, and the
+    // counts below are a lower bound. Every report already carries that
+    // lower-bound disclosure, and this warning names the specific reason.
+    // Deliberately NOT fed to the subject classifier either: a page that is
+    // still busy is not evidence of a challenge, and treating it as one is how
+    // an ordinary title on an ordinary dynamic site would become a block-page
+    // verdict. Status and page-body signatures carry that judgement instead.
+    const navigationSettled = true;
     await withScanTimeout(page.waitForLoadState("networkidle", { timeout: scanTimeout(started, NETWORK_IDLE_TIMEOUT_MS) }), started).catch(
       (error) => {
         throwIfScanAborted(options.signal);
         if (isScanBudgetError(error)) throw error;
-        navigationSettled = false;
         warnings.add("The page did not reach network idle before the scan window ended.");
       }
     );

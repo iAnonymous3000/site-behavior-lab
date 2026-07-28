@@ -1,4 +1,6 @@
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
+import path from "node:path";
 import { createServer } from "node:http";
 import { connect, createServer as createNetServer } from "node:net";
 import { test } from "node:test";
@@ -3245,4 +3247,25 @@ test("a fingerprint API seen only in the passive read is kept, not dropped", () 
   assert.deepEqual(phaseAwareFingerprintEvents(final, [{ api: final[0].api, count: 5 }], 0, 1), [
     { api: "CanvasRenderingContext2D.fillText", count: 5, phaseId: 0 }
   ]);
+});
+
+test("a page that never goes quiet is not recorded as a failed navigation", async () => {
+  const scanner = await readFile(path.join(process.cwd(), "lib/scanner.ts"), "utf8");
+
+  // waitForLoadState("networkidle") timing out means the page is STILL WORKING.
+  // The navigation itself already succeeded, because a failed goto throws long
+  // before this point. Recording it as an unsettled navigation made the
+  // evaluator emit navigation-timeout and fail the entire run, which is what
+  // turned a third of all scans of ordinary dynamic sites into failed reports
+  // and discarded every observation they had already made.
+  assert.doesNotMatch(
+    scanner,
+    /navigationSettled = false/,
+    "not reaching network idle must never be recorded as a failed navigation"
+  );
+  assert.match(scanner, /const navigationSettled = true;/);
+
+  // The fact itself is still published: the reason the counts are a lower
+  // bound has to reach the reader.
+  assert.match(scanner, /warnings\.add\("The page did not reach network idle before the scan window ended\."\)/);
 });
