@@ -1687,7 +1687,7 @@ test("the services card quantifies the domains the catalog could not name", () =
     null
   );
   const mixedDetail = byId(mixed, "third-party-services").detail;
-  assert.match(mixedDetail, /2 of the 3 third-party domains recorded here matched no catalog entry/);
+  assert.match(mixedDetail, /could not identify 2 of the 3 third-party domains recorded here/);
   assert.match(mixedDetail, /limit of catalog coverage, not evidence about the site/);
 
   // Nothing matched, but third parties were still present. The old copy said
@@ -1705,7 +1705,7 @@ test("the services card quantifies the domains the catalog could not name", () =
   );
   const unmatchedCard = byId(unmatched, "third-party-services");
   assert.match(unmatchedCard.title, /No known services matched/);
-  assert.match(unmatchedCard.detail, /1 of the 1 third-party domain recorded here matched no catalog entry/);
+  assert.match(unmatchedCard.detail, /could not identify 1 of the 1 third-party domain recorded here/);
 
   // Full coverage must not borrow the shortfall sentence.
   const covered = buildFindings(
@@ -1719,13 +1719,53 @@ test("the services card quantifies the domains the catalog could not name", () =
     null
   );
   const coveredDetail = byId(covered, "third-party-services").detail;
-  assert.match(coveredDetail, /Every one of the 1 third-party domain recorded here matched a catalog entry/);
-  assert.doesNotMatch(coveredDetail, /matched no catalog entry/);
+  assert.match(coveredDetail, /identified every one of the 1 third-party domain recorded here/);
+  assert.doesNotMatch(coveredDetail, /could not identify/);
 
   // A visit with no third parties at all has nothing to quantify.
   const none = buildFindings(
     viewFromV1Report(makeResult({ domains: [], thirdPartyRequests: 0, thirdPartyDomains: 0 })),
     null
   );
-  assert.doesNotMatch(byId(none, "third-party-services").detail, /recorded here matched/);
+  assert.doesNotMatch(byId(none, "third-party-services").detail, /recorded here/);
+});
+
+test("a report never calls a domain unidentifiable while another card names it", () => {
+  // blackrock.com, 2026-07-28: four third-party domains, none in the service
+  // catalog, but cdn.cookielaw.org is OneTrust and the consent card said so.
+  // Counting only the catalog made the same page assert both "OneTrust" and
+  // "cannot say who operates them" about that one domain.
+  const plain = (domain: string): DomainSummary => ({
+    domain,
+    requests: 2,
+    thirdParty: true,
+    tracker: null,
+    statuses: [200],
+    resourceTypes: ["script"]
+  });
+  const findings = buildFindings(
+    viewFromV1Report(
+      makeResult({
+        firstPartyDomain: "www.blackrock.com",
+        domains: [
+          plain("cdn.cookielaw.org"),
+          plain("{label}.onetrust.com"),
+          plain("{label}.tiqcdn.com"),
+          plain("{label}.sdiapi.com")
+        ],
+        thirdPartyRequests: 8,
+        thirdPartyDomains: 4
+      })
+    ),
+    null
+  );
+
+  const consent = findings.find((finding) => finding.id === "consent-banner");
+  assert.ok(consent, "expected the consent card to name the CMP");
+  assert.match(consent.lead, /OneTrust/);
+
+  // Two of the four are OneTrust hosts, so the shortfall is two, not four.
+  const services = byId(findings, "third-party-services").detail;
+  assert.match(services, /could not identify 2 of the 4 third-party domains recorded here/);
+  assert.doesNotMatch(services, /could not identify 4 of the 4/);
 });

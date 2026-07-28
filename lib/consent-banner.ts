@@ -36,12 +36,33 @@ const CMP_SIGNATURES: { name: string; suffixes: string[] }[] = [
   { name: "IAB TCF", suffixes: ["consensu.org"] }
 ];
 
+/**
+ * Name the consent platform a single request domain belongs to, or null.
+ *
+ * These signatures are the only place the report can name a CMP host, so any
+ * surface that asks "could this scan identify this domain?" must consult them.
+ * The service catalog deliberately does not carry CMP loaders (they are not
+ * tracking services and must not enter tracker counts), which means a report
+ * that consulted only the catalog would name OneTrust in its consent card and
+ * simultaneously claim it could not identify that same domain.
+ */
+export function consentPlatformForDomain(domain: string): string | null {
+  const host = domain.trim().toLowerCase().replace(/\.$/, "");
+  for (const signature of CMP_SIGNATURES) {
+    if (signature.suffixes.some((suffix) => host === suffix || host.endsWith(`.${suffix}`))) {
+      return signature.name;
+    }
+  }
+  return null;
+}
+
 /** Name the consent platform from the page's request domains, or null if none matched. */
 export function detectConsentPlatform(domains: { domain: string }[]): ConsentPlatform | null {
+  // Signature-major order: the first signature with any matching domain wins,
+  // so the reported platform does not depend on request ordering.
   for (const signature of CMP_SIGNATURES) {
     for (const entry of domains) {
-      const host = entry.domain.trim().toLowerCase().replace(/\.$/, "");
-      if (signature.suffixes.some((suffix) => host === suffix || host.endsWith(`.${suffix}`))) {
+      if (consentPlatformForDomain(entry.domain) === signature.name) {
         return { name: signature.name, domain: entry.domain };
       }
     }

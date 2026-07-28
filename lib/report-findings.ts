@@ -187,15 +187,17 @@ export function buildFindings(view: ReportView, corpusInput: CorpusStats | null)
   const respondedEntities = respondedTrackerEntityNames(run.evidence);
   const topCategories = Array.from(new Set(trackingEntities.flatMap((entity) => entity.categories))).slice(0, 3);
   const catalogReach = catalogCoverage(run.evidence);
-  // Quantify what the catalog could not name. "No known services matched" is
+  // Quantify what the report could not name. "No known services matched" is
   // otherwise read as "no third parties", when it can equally mean the catalog
-  // does not cover the ones that were there.
+  // does not cover the ones that were there. This counts every namer the report
+  // has, the service catalog and the consent-platform signatures, so it can
+  // never claim a domain is unidentifiable that another card names outright.
   const catalogCoverageNote =
     catalogReach.thirdPartyDomains === 0
       ? ""
       : catalogReach.unidentified === 0
-        ? ` Every one of the ${plural(catalogReach.thirdPartyDomains, "third-party domain")} recorded here matched a catalog entry.`
-        : ` ${catalogReach.unidentified} of the ${plural(catalogReach.thirdPartyDomains, "third-party domain")} recorded here matched no catalog entry, so this scan cannot say who operates ${catalogReach.unidentified === 1 ? "it" : "them"}. That is a limit of catalog coverage, not evidence about the site.`;
+        ? ` This scan identified every one of the ${plural(catalogReach.thirdPartyDomains, "third-party domain")} recorded here.`
+        : ` This scan could not identify ${catalogReach.unidentified} of the ${plural(catalogReach.thirdPartyDomains, "third-party domain")} recorded here, so it cannot say who operates ${catalogReach.unidentified === 1 ? "it" : "them"}. That is a limit of catalog coverage, not evidence about the site.`;
   const cookiesUnsupported = familyUnsupportedOnRun(run, "cookies");
   const detectorUnsupported =
     familyUnsupportedOnRun(run, "detector-output") || familyUnsupportedOnRun(run, "fingerprinting");
