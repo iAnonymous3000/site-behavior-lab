@@ -1286,7 +1286,7 @@ test("phase plans follow enabled conditions and cannot smuggle impossible phases
 
   const unaccountedSkip = baseInput();
   unaccountedSkip.conditions.probes.keystroke = true;
-  assert.throws(() => buildNodeScanReportV2R2(unaccountedSkip), /accountable keystroke detector/);
+  assert.throws(() => buildNodeScanReportV2R2(unaccountedSkip), /keystroke detector outcome that explains the omission/);
 
   const accountedSkip = baseInput();
   accountedSkip.conditions.probes.keystroke = true;

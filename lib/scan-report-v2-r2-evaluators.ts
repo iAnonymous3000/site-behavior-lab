@@ -12,6 +12,7 @@
  * "2" fixes the mixed-mode Shields comparison. Version "1" remains readable
  * for historical reports in both dimensions.
  */
+import { phaseOmissionExplainedByDetector } from "./detector-phase-omission";
 import {
   axisStateFor,
   type ArmVerification,
@@ -250,18 +251,6 @@ function bannerViolations(run: ScanRunV2R2, transition: BannerTransitionR2, labe
   return violations;
 }
 
-/**
- * Detector reasons that can stand in for a consent interaction that never
- * happened. Same vocabulary the producer's accountable-skip rule accepts, so
- * the two ends cannot disagree about which absences are explainable.
- */
-const ACCOUNTABLE_ABSENT_CONSENT_REASONS = new Set([
-  "budget-unavailable",
-  "unsupported",
-  "load-failed",
-  "scan-failed",
-  "engine-unavailable"
-]);
 
 function consentViolationsR2(run: ScanRunV2R2, label: string): string[] {
   const violations: string[] = [];
@@ -286,17 +275,15 @@ function consentViolationsR2(run: ScanRunV2R2, label: string): string[] {
   // A bot wall, a failed navigation, or an exhausted probe budget means the
   // interaction never happened. That is a real and honest outcome, so it is
   // representable, but ONLY when the run declares it on both channels: the
-  // detector carries an accountable reason and the consent evidence claims no
+  // detector outcome explains the omission and the consent evidence claims no
   // attempt and no activation. Requiring activity unconditionally left no
   // legal encoding for a degraded consent run, so the producer could not build
   // one at all and the whole scan failed instead.
-  const accountablyAbsent =
-    !detectorReportedActivity &&
-    detector.reason !== undefined &&
-    ACCOUNTABLE_ABSENT_CONSENT_REASONS.has(detector.reason) &&
+  const phaseOmissionExplained =
+    phaseOmissionExplainedByDetector(detector) &&
     consent.interactionAttempted === false &&
     !consent.controlActivated;
-  if (!detectorReportedActivity && !accountablyAbsent) {
+  if (!detectorReportedActivity && !phaseOmissionExplained) {
     violations.push(`${label}: consent evidence present but the consent-banner detector did not report activity`);
   }
   // RFC 15.4: a consent-mode run that ATTEMPTED the interaction carries a
@@ -305,7 +292,7 @@ function consentViolationsR2(run: ScanRunV2R2, label: string): string[] {
   // accountably absent interaction has no phase to anchor to and must equally
   // carry no observations.
   if (!run.phases.some((span) => span.kind === "consent-interaction")) {
-    if (accountablyAbsent) {
+    if (phaseOmissionExplained) {
       if (consent.verificationObservations.length > 0) {
         violations.push(`${label}: consent observations recorded without a consent-interaction phase`);
       }

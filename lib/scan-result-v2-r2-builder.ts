@@ -18,6 +18,7 @@ import {
   WEBGL_PARAMETERS,
   WEBGL_READ_APIS
 } from "./measurement-kernel";
+import { phaseOmissionExplainedByDetector } from "./detector-phase-omission";
 import {
   REDACTION_VERSION,
   addRedactionCounters,
@@ -550,13 +551,13 @@ function assertPhasePlan(
     // accountably explains the absence and the consent facts claim no attempt
     // and no activation. Otherwise a consent-mode run really is missing a
     // phase it should have, which stays a hard refusal. This mirrors the
-    // accountable-skip rule the keystroke and policy probes already use.
-    const accountablyAbsent =
-      accountableSkippedDetector(detectors["consent-banner"]) &&
+    // phase-omission rule the keystroke and policy probes already use.
+    const phaseOmissionExplained =
+      phaseOmissionExplainedByDetector(detectors["consent-banner"]) &&
       consent !== undefined &&
       consent.interactionAttempted === false &&
       consent.controlActivated === false;
-    if (!accountablyAbsent) {
+    if (!phaseOmissionExplained) {
       throw new Error("Consent-mode runs require a consent-interaction phase.");
     }
   }
@@ -565,8 +566,8 @@ function assertPhasePlan(
   if (hasActiveProbe && !conditions.probes.keystroke) {
     throw new Error("An active-probe phase requires the declared keystroke probe condition.");
   }
-  if (conditions.probes.keystroke && !hasActiveProbe && !accountableSkippedDetector(detectors["keystroke-exfiltration"])) {
-    throw new Error("A skipped active probe requires an accountable keystroke detector outcome.");
+  if (conditions.probes.keystroke && !hasActiveProbe && !phaseOmissionExplainedByDetector(detectors["keystroke-exfiltration"])) {
+    throw new Error("A skipped active probe requires a keystroke detector outcome that explains the omission.");
   }
   if (hasActiveProbe && !executedDetector(detectors["keystroke-exfiltration"])) {
     throw new Error("An active-probe phase requires an executed keystroke detector outcome.");
@@ -578,8 +579,8 @@ function assertPhasePlan(
   if (hasPolicy && !conditions.probes.policyVisit) {
     throw new Error("A policy-analysis phase requires the declared policy-visit condition.");
   }
-  if (conditions.probes.policyVisit && !hasPolicy && !accountableSkippedDetector(detectors["privacy-policy"])) {
-    throw new Error("A skipped policy visit requires an accountable privacy-policy detector outcome.");
+  if (conditions.probes.policyVisit && !hasPolicy && !phaseOmissionExplainedByDetector(detectors["privacy-policy"])) {
+    throw new Error("A skipped policy visit requires a privacy-policy detector outcome that explains the omission.");
   }
   if (hasPolicy && !executedDetector(detectors["privacy-policy"])) {
     throw new Error("A policy-analysis phase requires an executed privacy-policy detector outcome.");
@@ -619,15 +620,6 @@ function assertPhaseEvidence(
   if (evidence.privacyPolicy !== undefined && policyAnalysis === undefined) {
     throw new Error("Privacy-policy evidence requires a policy-analysis phase.");
   }
-}
-
-function accountableSkippedDetector(entry: DetectorLedger[keyof DetectorLedger]): boolean {
-  return (
-    entry.status !== "complete" &&
-    entry.status !== "partial" &&
-    entry.reason !== undefined &&
-    ["budget-unavailable", "unsupported", "load-failed", "scan-failed", "engine-unavailable"].includes(entry.reason)
-  );
 }
 
 function executedDetector(entry: DetectorLedger[keyof DetectorLedger]): boolean {
