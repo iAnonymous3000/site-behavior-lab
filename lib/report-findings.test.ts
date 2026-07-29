@@ -1505,8 +1505,19 @@ test("comparison prose omits a fingerprint delta when either arm lacks an exact 
     run.detectors["fingerprint-heuristics"] = {
       ...run.detectors["fingerprint-heuristics"],
       status: "failed",
-      reason: "scan-failed"
+      reason: "engine-unavailable",
+      phaseId: 0
     };
+    run.qualityFacts.captureLoss.push({
+      family: "fingerprinting",
+      phaseId: 0,
+      kind: "dropped",
+      count: 1,
+      detail: "fingerprint-observer"
+    });
+    run.quality = evaluateQuality(run.qualityFacts, {
+      observedRequests: run.evidence.requests.length
+    });
   }
 
   const view = viewFromV2(report, 2);
@@ -1524,8 +1535,19 @@ test("comparison prose omits a fingerprint delta when either arm lacks an exact 
     run.detectors["fingerprint-heuristics"] = {
       ...run.detectors["fingerprint-heuristics"],
       status: "failed",
-      reason: "scan-failed"
+      reason: "engine-unavailable",
+      phaseId: 0
     };
+    run.qualityFacts.captureLoss.push({
+      family: "fingerprinting",
+      phaseId: 0,
+      kind: "dropped",
+      count: 1,
+      detail: "fingerprint-observer"
+    });
+    run.quality = evaluateQuality(run.qualityFacts, {
+      observedRequests: run.evidence.requests.length
+    });
   }
   if (accepted.experiment.kind !== "intervention") throw new Error("fixture invariant");
   const { supportingPairs: _supportingPairs, ...primaryExperiment } = accepted.experiment;

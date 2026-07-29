@@ -15,6 +15,7 @@
  */
 import { isRecord } from "./guards";
 import { isFingerprintDetectionSummary } from "./fingerprint-detection-guard";
+import { detectorStatusReasonIsValid } from "./detector-status-contract";
 import {
   CONSENT_OBSERVED_STATES,
   DETECTOR_IDS,
@@ -30,6 +31,7 @@ import {
   type ConditionVector,
   type ConsentEvidence,
   type DetectorLedger,
+  type DetectorStatus,
   type Experiment,
   type Fingerprints,
   type PhaseSpan,
@@ -595,7 +597,10 @@ function isDetectorLedger(value: unknown, phaseCount: number): value is Detector
       isNonEmptyString(entry.version) &&
       typeof entry.status === "string" &&
       DETECTOR_STATUSES.has(entry.status) &&
-      (entry.reason === undefined || isVocabCode(entry.reason)) &&
+      detectorStatusReasonIsValid({
+        status: entry.status as DetectorStatus,
+        reason: entry.reason
+      }) &&
       (entry.phaseId === undefined || isPhaseId(entry.phaseId, phaseCount))
     );
   });

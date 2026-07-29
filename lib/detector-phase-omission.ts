@@ -18,12 +18,13 @@
 import type { DetectorStatus } from "./scan-report-v2";
 
 /** Bump when the vocabulary or the rule below changes; epochs pin this. */
-export const PHASE_OMISSION_CONTRACT_VERSION = "phase-omission-v1";
+export const PHASE_OMISSION_CONTRACT_VERSION = "phase-omission-v2";
 
 // Private and frozen. An exported Set is still mutable at runtime, which would
 // let any importer widen what counts as an explanation for every caller.
 const PHASE_OMISSION_EXPLAINING_REASONS: readonly string[] = Object.freeze([
   "budget-unavailable",
+  "evidence-cap-reached",
   "unsupported",
   "load-failed",
   "scan-failed",

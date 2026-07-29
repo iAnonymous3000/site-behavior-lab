@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import { comparisonArmViews, comparisonDiffView, type ReportView } from "@/lib/scan-report-views";
 import {
-  comparisonArmsHaveExactClaimMeasurements,
+  comparisonSupportsExactClaimDelta,
   type ReportFacts
 } from "@/lib/report-facts";
 import { provenanceChangeText } from "@/lib/report-findings";
@@ -53,12 +53,16 @@ function ComparisonPanel({ view, facts }: { view: ReportView; facts: ReportFacts
   const rawCountsAllowed = pairAllowed && families?.["raw-counts"]?.allowed === true;
   const classificationAllowed = pairAllowed && families?.["tracker-classification"]?.allowed === true;
   const detectorAllowed = pairAllowed && families?.["detector-findings"]?.allowed === true;
-  const fingerprintDeltaAllowed =
-    detectorAllowed &&
-    comparisonArmsHaveExactClaimMeasurements(facts, "fingerprint-apis");
-  const pixelDeltaAllowed =
-    detectorAllowed &&
-    comparisonArmsHaveExactClaimMeasurements(facts, "pixel-events");
+  const fingerprintDeltaAllowed = comparisonSupportsExactClaimDelta(
+    view,
+    facts,
+    "fingerprint-apis"
+  );
+  const pixelDeltaAllowed = comparisonSupportsExactClaimDelta(
+    view,
+    facts,
+    "pixel-events"
+  );
   const shieldsSimAllowed = pairAllowed && families?.["shields-simulation"]?.allowed === true;
   const shieldsMetricLabel = [arms.baseline, arms.variant].every(
     (arm) => arm.conditions.shieldsMode === "block-simulation"
@@ -129,20 +133,20 @@ function ComparisonPanel({ view, facts }: { view: ReportView; facts: ReportFacts
     };
     note("raw-counts", "Request, cookie, and storage deltas");
     note("tracker-classification", "Known-service and entity deltas");
-    note("detector-findings", "Fingerprinting, ad-pixel, and causal-path deltas");
+    note("detector-findings", "Other detector and causal-path deltas");
     // A shields ruling matters here when there is a number to withhold OR the
     // family was never measured at all (the suppressed case names why).
     if (!shieldsSimAllowed && (diff.shieldsBlockedRequests || decision.families["shields-simulation"].mode === "suppressed")) {
       note("shields-simulation", "The Shields-number delta");
     }
-    if (detectorAllowed && !fingerprintDeltaAllowed) {
+    if (!fingerprintDeltaAllowed) {
       familyNotes.push({
         label: "Fingerprinting deltas",
         mode: "raw-only",
         reasons: ["At least one visit did not complete the fingerprint measurement, so no exact cross-visit delta is shown."]
       });
     }
-    if (detectorAllowed && !pixelDeltaAllowed) {
+    if (!pixelDeltaAllowed) {
       familyNotes.push({
         label: "Ad-pixel deltas",
         mode: "raw-only",

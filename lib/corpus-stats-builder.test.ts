@@ -292,9 +292,20 @@ test("an incomplete detector removes only its own metric from the corpus distrib
   r2.run.detectors["fingerprint-heuristics"] = {
     ...r2.run.detectors["fingerprint-heuristics"],
     status: "failed",
-    reason: "scan-failed"
+    reason: "engine-unavailable",
+    phaseId: 0
   };
-  assert.equal(r2.run.quality.byFamily.fingerprinting.outcome, "complete");
+  r2.run.qualityFacts.captureLoss.push({
+    family: "fingerprinting",
+    phaseId: 0,
+    kind: "dropped",
+    count: 1,
+    detail: "fingerprint-observer"
+  });
+  r2.run.quality = evaluateQuality(r2.run.qualityFacts, {
+    observedRequests: r2.run.evidence.requests.length
+  });
+  assert.equal(r2.run.quality.byFamily.fingerprinting.outcome, "censored");
   r2.share = buildStaticReportShare(id);
   r2 = currentR2FixedPoint(r2);
   await writeRawManagedReport(id, r2);

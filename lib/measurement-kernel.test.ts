@@ -7,6 +7,7 @@ import {
   deriveCookieMutations,
   deriveStorageMutations
 } from "./measurement-kernel";
+import { DETECTOR_OBLIGATION_TARGET_REGISTRY } from "./detector-obligations";
 import { evaluateQuality } from "./scan-report-v2-evaluators";
 import { PAGE_SUBJECT_CAPTURE_LOSS_DETAIL } from "./bot-wall-classifier";
 
@@ -47,7 +48,7 @@ test("records detector outcomes and maps exhausted budgets to capture loss once"
     { family: "requests", phaseId: 0, kind: "cap", count: 3, detail: "request-capture" }
   ]);
   assert.deepEqual(result.detectors["pixel-events"], {
-    version: "pixel-request-decoder@2",
+    version: "pixel-request-decoder@3",
     status: "complete",
     phaseId: 0
   });
@@ -124,9 +125,13 @@ test("boundary snapshots derive added, changed, and removed cookie/storage recor
 });
 
 test("detector registry identity is stable and non-empty", () => {
-  assert.equal(DETECTOR_REGISTRY_VERSION, "node-detectors-v2");
+  assert.equal(DETECTOR_REGISTRY_VERSION, "node-detectors-v3");
   // Detector behavior is published provenance. Completeness, cancellation,
   // and truncation semantics moved together with the detector versions rather
   // than silently presenting the new behavior as the old release.
-  assert.equal(DETECTOR_REGISTRY_DIGEST, "4f4bf67ce216d0a5c173ae2d1a1ddb79bac3c7699c04e6900908350ee4f5bdc5");
+  assert.equal(DETECTOR_REGISTRY_DIGEST, "ad2971a6c3eff3a0ba537529ba91cb28686a5101bf2f2c290e47c176cd23c38b");
+  assert.deepEqual(DETECTOR_OBLIGATION_TARGET_REGISTRY, {
+    detectorRegistryVersion: DETECTOR_REGISTRY_VERSION,
+    detectorRegistryDigest: DETECTOR_REGISTRY_DIGEST
+  });
 });

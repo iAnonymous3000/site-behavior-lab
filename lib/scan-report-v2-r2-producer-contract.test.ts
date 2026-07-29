@@ -118,9 +118,14 @@ test("Node producer rows are complete, immutable, and individually replayable", 
     tuple.id.endsWith("active-no-adblock")
   );
   assert.equal(preAccountability?.phaseOmissionContractVersion, "phase-omission-v1");
-  if (activeAccountability !== undefined) {
-    assert.match(activeAccountability.phaseOmissionContractVersion, /^phase-omission-v[0-9]+$/);
-  }
+  assert.equal(preAccountability?.detectorObligations, null);
+  assert.notEqual(activeAccountability, undefined);
+  assert.equal(activeAccountability?.phaseOmissionContractVersion, "phase-omission-v2");
+  assert.match(activeAccountability?.methodologyVersion ?? "", /\+detector-accountability-v1$/);
+  assert.deepEqual(activeAccountability?.detectorObligations, {
+    version: "detector-obligations-v1",
+    digest: "fb8bd07786fdb71c02ffdf1eca40a73b8974c691c6d4ef3c89230ad5314c22a3"
+  });
   assert.deepEqual((activeAccountability ?? preAccountability)?.publicLimits, {
     phases: 16,
     warnings: 64,
@@ -145,6 +150,11 @@ test("Node producer rows are complete, immutable, and individually replayable", 
     language: "matches-locale"
   });
   for (const tuple of NODE_R2_PRODUCER_TUPLES) {
+    assert.equal(
+      tuple.detectorObligations === null,
+      !tuple.id.includes("-active-"),
+      `${tuple.id} obligation identity`
+    );
     assert.equal(Object.isFrozen(tuple), true, tuple.id);
     assert.equal(Object.isFrozen(tuple.detectorRegistry), true, tuple.id);
     assert.equal(Object.isFrozen(tuple.detectorVersions), true, tuple.id);
@@ -152,6 +162,9 @@ test("Node producer rows are complete, immutable, and individually replayable", 
     assert.equal(tuple.adblockIdentity === null || Object.isFrozen(tuple.adblockIdentity), true, tuple.id);
     assert.equal(Object.isFrozen(tuple.publicLimits), true, tuple.id);
     assert.equal(Object.isFrozen(tuple.runtimeIdentity), true, tuple.id);
+    if (tuple.detectorObligations !== null) {
+      assert.equal(Object.isFrozen(tuple.detectorObligations), true, tuple.id);
+    }
     assert.doesNotThrow(() => assertR2ProducerContract(runForTuple(tuple)), tuple.id);
   }
   assert.throws(() => {
@@ -160,6 +173,56 @@ test("Node producer rows are complete, immutable, and individually replayable", 
   assert.throws(() => {
     (NODE_R2_PRODUCER_TUPLES[0] as { methodologyVersion: string }).methodologyVersion = "mutated";
   }, TypeError);
+});
+
+test("pre-accountability and active accountability fields cannot be mixed", () => {
+  const preAccountability = NODE_R2_PRODUCER_TUPLES.find((tuple) =>
+    tuple.id.endsWith("pre-accountability-no-adblock")
+  );
+  const activeAccountability = NODE_R2_PRODUCER_TUPLES.find((tuple) =>
+    tuple.id.endsWith("active-no-adblock")
+  );
+  assert.notEqual(preAccountability, undefined);
+  assert.notEqual(activeAccountability, undefined);
+  if (preAccountability === undefined || activeAccountability === undefined) return;
+
+  assert.equal(
+    NODE_R2_PRODUCER_TUPLES.some(
+      (tuple) =>
+        tuple.methodologyVersion === activeAccountability.methodologyVersion &&
+        tuple.detectorObligations === null
+    ),
+    false
+  );
+  assert.equal(
+    NODE_R2_PRODUCER_TUPLES.some(
+      (tuple) =>
+        tuple.methodologyVersion === preAccountability.methodologyVersion &&
+        tuple.detectorObligations !== null
+    ),
+    false
+  );
+
+  const preWithActiveMethodology = runForTuple(preAccountability);
+  preWithActiveMethodology.provenance.methodologyVersion = activeAccountability.methodologyVersion;
+  assert.throws(() => assertR2ProducerContract(preWithActiveMethodology), R2ProducerContractError);
+
+  const activeWithPreMethodology = runForTuple(activeAccountability);
+  activeWithPreMethodology.provenance.methodologyVersion = preAccountability.methodologyVersion;
+  assert.throws(() => assertR2ProducerContract(activeWithPreMethodology), R2ProducerContractError);
+
+  const preWithActiveRegistry = runForTuple(preAccountability);
+  preWithActiveRegistry.provenance.detectorRegistry = { ...activeAccountability.detectorRegistry };
+  assert.throws(() => assertR2ProducerContract(preWithActiveRegistry), R2ProducerContractError);
+
+  const activeWithPreRegistry = runForTuple(activeAccountability);
+  activeWithPreRegistry.provenance.detectorRegistry = { ...preAccountability.detectorRegistry };
+  assert.throws(() => assertR2ProducerContract(activeWithPreRegistry), R2ProducerContractError);
+
+  const preWithActiveDetector = runForTuple(preAccountability);
+  preWithActiveDetector.detectors["keystroke-exfiltration"].version =
+    activeAccountability.detectorVersions["keystroke-exfiltration"];
+  assert.throws(() => assertR2ProducerContract(preWithActiveDetector), R2ProducerContractError);
 });
 
 test("normalization registries are frozen arrays, not runtime-mutable Sets", () => {

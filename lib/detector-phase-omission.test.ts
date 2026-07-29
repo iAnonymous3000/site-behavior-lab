@@ -12,10 +12,17 @@ const STATUSES: DetectorStatus[] = ["complete", "partial", "skipped", "unsupport
 // The test's OWN oracle, written out rather than imported. The production
 // vocabulary is private on purpose; re-exporting it for the test would make
 // the test agree with any drift instead of catching it.
-const EXPLAINING_REASONS = ["budget-unavailable", "unsupported", "load-failed", "scan-failed", "engine-unavailable"];
+const EXPLAINING_REASONS = [
+  "budget-unavailable",
+  "evidence-cap-reached",
+  "unsupported",
+  "load-failed",
+  "scan-failed",
+  "engine-unavailable"
+];
 
 test("phase omission is explained by the full status/reason truth table", () => {
-  assert.equal(PHASE_OMISSION_CONTRACT_VERSION, "phase-omission-v1");
+  assert.equal(PHASE_OMISSION_CONTRACT_VERSION, "phase-omission-v2");
   const explaining = new Set(EXPLAINING_REASONS);
 
   // Every status crossed with every reason the registry can emit, plus the

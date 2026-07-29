@@ -44,6 +44,13 @@ import {
   R2_NAVIGATION_STATUS_UNREPRESENTABLE,
   R2_REQUEST_STATUS_UNREPRESENTABLE
 } from "./scan-report-v2-http-status";
+import {
+  DETECTOR_OBLIGATION_TARGET_REGISTRY,
+  detectorObligationViolations
+} from "./detector-obligations";
+import { subjectsMatch } from "./scan-report-v2-subject";
+
+export { subjectsMatch } from "./scan-report-v2-subject";
 
 export const QUALITY_EVALUATOR_VERSION = "1";
 export const COMPARABILITY_EVALUATOR_VERSION = "2";
@@ -343,13 +350,6 @@ function detectorApplicable(id: (typeof DETECTOR_IDS)[number], run: ScanRunV2): 
 // ---------------------------------------------------------------------------
 // Comparability (RFC 4.4)
 // ---------------------------------------------------------------------------
-
-export function subjectsMatch(a: ScanRunV2, b: ScanRunV2): boolean {
-  return (
-    a.subject.observed.origin === b.subject.observed.origin &&
-    a.subject.observed.routeShape === b.subject.observed.routeShape
-  );
-}
 
 /**
  * The single differing intervention axis between two condition vectors, or
@@ -1022,6 +1022,13 @@ export function scanRunCoreViolations(run: ScanRunV2, label: string, options: Ru
   violations.push(...budgetViolations(run, label));
   violations.push(...summaryViolations(run, label, options));
   violations.push(...detectorViolations(run, label));
+  violations.push(
+    ...detectorObligationViolations(
+      run,
+      label,
+      DETECTOR_OBLIGATION_TARGET_REGISTRY
+    )
+  );
   return violations;
 }
 

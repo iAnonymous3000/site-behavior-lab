@@ -11,7 +11,10 @@ import {
 } from "./report-resource-policy";
 import { currentR2NormalizationForObserver } from "./scan-report-v2-normalization";
 import { buildFingerprints } from "./scan-report-v2-fingerprints";
-import { makeSupportingPairInterventionReportV2R2 } from "./scan-report-v2-r2-fixtures";
+import {
+  makePublicSingleReportV2R2,
+  makeSupportingPairInterventionReportV2R2
+} from "./scan-report-v2-r2-fixtures";
 import {
   r2ReportRuns,
   redactPublicScanReportV2R2
@@ -52,6 +55,33 @@ test("a managed report requires a matching current sidecar and immutable retenti
   assert.equal(read.wire, parts.reportContents);
   assert.equal(read.provenance.reportId, REPORT_ID);
   assert.deepEqual(read.retention, RETENTION);
+});
+
+test("the managed reader rejects an active detector outcome with no causal loss", () => {
+  const report = makePublicSingleReportV2R2();
+  report.run.detectors["cname-uncloaking"] = {
+    ...report.run.detectors["cname-uncloaking"],
+    status: "partial",
+    reason: "evidence-cap-reached",
+    phaseId: 0
+  };
+  report.run.fingerprints = buildFingerprints({
+    conditions: report.run.conditions,
+    provenance: report.run.provenance,
+    toolchain: report.run.toolchain,
+    detectors: report.run.detectors
+  });
+  const read = readManagedReport({
+    reportId: REPORT_ID,
+    reportContents: JSON.stringify(report),
+    sidecarContents: null,
+    retention: RETENTION
+  });
+  assert.equal(read.ok, false);
+  if (!read.ok) {
+    assert.equal(read.reason, "invalid-report");
+    assert.match(read.violations?.join("\n") ?? "", /cname-uncloaking lacks causal/);
+  }
 });
 
 test("the managed reader supports committed-report sidecars with no expiry", () => {

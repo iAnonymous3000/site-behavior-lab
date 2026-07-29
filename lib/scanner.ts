@@ -373,6 +373,12 @@ export type ScanSiteOptions = {
   proxyTransactionLimitForTests?: NonNullable<
     NonNullable<Parameters<typeof startPublicScanProxy>[0]>["transactionLimit"]
   >;
+  /**
+   * Shorten only the non-mutating consent-visibility evaluation deadline in
+   * scanner integration tests. Production always uses the absolute scan
+   * deadline.
+   */
+  consentVisibilityProbeTimeoutMsForTests?: number;
   /** Exercise the fail-closed subject-validity path with an absent collector capability. */
   forceMissingPageSubjectCollectorForTests?: boolean;
 };
@@ -562,11 +568,11 @@ type PassiveBoundaryState = {
   fingerprinting: boolean;
 };
 
-type KeystrokeProbeOutcome =
+export type KeystrokeProbeOutcome =
   | { status: "complete"; detection: KeystrokeExfiltrationDetectionSummary | null }
   | {
       status: "partial";
-      reason: "budget-unavailable" | "load-failed";
+      reason: "budget-unavailable" | "evidence-cap-reached" | "load-failed" | "scan-failed";
       detection: KeystrokeExfiltrationDetectionSummary | null;
       captureLossCount?: number;
       subjectLost?: true;
@@ -579,6 +585,29 @@ type KeystrokeProbeLifecycle = {
   typedFieldCount: number;
   stopCapture: () => void;
 };
+
+export function completedKeystrokeProbeOutcome(
+  detection: KeystrokeExfiltrationDetectionSummary | null,
+  evidenceCapLossCount: number,
+  failureLossCount = 0
+): KeystrokeProbeOutcome {
+  if (failureLossCount > 0) {
+    return {
+      status: "partial",
+      reason: "scan-failed",
+      detection,
+      ...(evidenceCapLossCount > 0 ? { captureLossCount: evidenceCapLossCount } : {})
+    };
+  }
+  return evidenceCapLossCount > 0
+    ? {
+        status: "partial",
+        reason: "evidence-cap-reached",
+        detection,
+        captureLossCount: evidenceCapLossCount
+      }
+    : { status: "complete", detection };
+}
 
 /** One unknown-size request-evidence boundary was lost after the probe promise escaped its caller. */
 export function incompleteKeystrokeProbeRequestLoss(
@@ -1093,7 +1122,19 @@ export async function scanSiteWithMeasurement(
       let readableFrames = 0;
       for (const frame of page.frames()) {
         try {
-          const visible = await withScanTimeout(frame.evaluate(findVisibleConsentControl, args), started);
+          const operation = frame.evaluate(findVisibleConsentControl, args);
+          const visible =
+            options.consentVisibilityProbeTimeoutMsForTests === undefined
+              ? await withScanTimeout(operation, started)
+              : await withScanDeadline(
+                  operation,
+                  Date.now(),
+                  Math.max(
+                    1,
+                    Math.floor(options.consentVisibilityProbeTimeoutMsForTests)
+                  ),
+                  scanTimeoutError
+                );
           readableFrames += 1;
           if (visible) return true;
         } catch (error) {
@@ -1479,7 +1520,10 @@ export async function scanSiteWithMeasurement(
       } catch (error) {
         throwIfScanAborted(options.signal);
         if (!isScanBudgetError(error)) throw error;
-        measurementKernel.setDetector("consent-banner", "skipped", { reason: "budget-unavailable" });
+        measurementKernel.setDetector("consent-banner", "skipped", {
+          reason: "budget-unavailable",
+          phaseId: passivePhaseId
+        });
         recordConsentCoverageLoss(passivePhaseId, "cap", false);
       }
     } else if (pageSubjectInvalid) {
@@ -1671,7 +1715,8 @@ export async function scanSiteWithMeasurement(
         family: "fingerprinting",
         phaseId: stateSnapshotPhaseId,
         kind: "dropped",
-        count: 1
+        count: 1,
+        detail: "fingerprint-observer"
       });
     }
     // Every non-complete coverage, not only "partial". A "failed" observer read
@@ -1705,6 +1750,13 @@ export async function scanSiteWithMeasurement(
       }
     }
     if (!subjectStateTrusted) {
+      measurementKernel.recordCaptureLoss({
+        family: "fingerprinting",
+        phaseId: stateSnapshotPhaseId,
+        kind: "dropped",
+        count: 1,
+        detail: "fingerprint-observer"
+      });
       measurementKernel.setDetector("fingerprint-heuristics", passiveBoundary.fingerprinting ? "partial" : "failed", {
         reason: "load-failed",
         phaseId: stateSnapshotPhaseId
@@ -2014,7 +2066,12 @@ export async function scanSiteWithMeasurement(
       });
       // The probe's own truncation counter is recorded above; a partial
       // synthesized by the deadline or a thrown probe carries no count.
-      if (keystrokeCaptureLossCount === 0) recordKeystrokeCaptureLoss("dropped");
+      if (
+        keystrokeCaptureLossCount === 0 ||
+        keystrokeProbe.reason !== "evidence-cap-reached"
+      ) {
+        recordKeystrokeCaptureLoss("dropped");
+      }
     } else if (keystrokeProbe?.status === "failed") {
       measurementKernel.setDetector("keystroke-exfiltration", "failed", {
         reason: keystrokeProbe.reason,
@@ -2157,7 +2214,7 @@ export async function scanSiteWithMeasurement(
     if (pixelBodyCaptureLosses.size > 0) {
       warnings.add(PIXEL_DECODE_CAPTURE_LOSS_WARNING);
       measurementKernel.setDetector("pixel-events", "partial", {
-        reason: pixelBodyReadFailed ? "scan-failed" : "budget-unavailable",
+        reason: pixelBodyReadFailed ? "scan-failed" : "evidence-cap-reached",
         phaseId: stateSnapshotPhaseId
       });
     } else {
@@ -2233,7 +2290,10 @@ export async function scanSiteWithMeasurement(
       });
     }
     if (!cnameBudgetAvailable) {
-      measurementKernel.setDetector("cname-uncloaking", "skipped", { reason: "budget-unavailable" });
+      measurementKernel.setDetector("cname-uncloaking", "skipped", {
+        reason: "budget-unavailable",
+        phaseId: stateSnapshotPhaseId
+      });
       // Quality is derived from capture loss, not from detector status, so a
       // detector that did not run must censor its evidence family too or the
       // run publishes "complete" over evidence nobody collected.
@@ -2258,7 +2318,7 @@ export async function scanSiteWithMeasurement(
       });
     } else if (cnameResolution.omittedCandidateCount > 0) {
       measurementKernel.setDetector("cname-uncloaking", "partial", {
-        reason: "budget-unavailable",
+        reason: "evidence-cap-reached",
         phaseId: stateSnapshotPhaseId
       });
     } else {
@@ -2283,7 +2343,7 @@ export async function scanSiteWithMeasurement(
     const policyCandidate = pageSubjectInvalid ? null : pickPrivacyPolicyLink(policyLinks, finalParsed.hostname);
     const policyBudgetAvailable = MAX_SCAN_DURATION_MS - (Date.now() - started) >= PRIVACY_POLICY_MIN_BUDGET_MS;
     const policyPhaseId = policyCandidate && policyBudgetAvailable ? measurementKernel.beginPhase("policy-analysis") : null;
-    if (policyLinksTruncated) {
+    if (policyLinksTruncated && !pageSubjectInvalid) {
       measurementKernel.recordCaptureLoss({
         family: "detector-output",
         phaseId: policyPhaseId,
@@ -2353,7 +2413,7 @@ export async function scanSiteWithMeasurement(
     } else if (!subjectStateTrusted || consentInteractionLeftSubject) {
       measurementKernel.setDetector("privacy-policy", "skipped", { reason: "load-failed" });
       recordPolicyCaptureLoss("dropped", policyPhaseId);
-    } else if (pageSubjectInvalid) {
+    } else if (httpLoadFailed || suspectedChallengeOrSoftBlock) {
       // A challenge/error page's policy link is the interstitial vendor's, not
       // the site's; the probe is deliberately withheld on failed loads.
       //
@@ -2362,13 +2422,21 @@ export async function scanSiteWithMeasurement(
       // first published a budget failure and a capture loss for a visit the
       // contract says stays silent.
       measurementKernel.setDetector("privacy-policy", "skipped", { reason: "load-failed" });
+    } else if (pageSubjectUnverified) {
+      // Unlike an HTTP error or classified interstitial, an unavailable
+      // subject-classification read does not prove that a policy visit would
+      // be misattributed. Account for the withheld probe explicitly.
+      measurementKernel.setDetector("privacy-policy", "skipped", { reason: "load-failed" });
+      recordPolicyCaptureLoss("dropped", policyPhaseId);
     } else if (policyLinksFailed) {
       // The collection itself failed. Not a budget, and not an absence.
       measurementKernel.setDetector("privacy-policy", "failed", { reason: "scan-failed", ...(policyPhaseId === null ? {} : { phaseId: policyPhaseId }) });
       recordPolicyCaptureLoss("dropped", policyPhaseId);
-    } else if ((policyCandidate && !policyBudgetAvailable) || policyLinksTruncated) {
+    } else if (policyCandidate && !policyBudgetAvailable) {
       measurementKernel.setDetector("privacy-policy", "skipped", { reason: "budget-unavailable" });
       recordPolicyCaptureLoss("cap", policyPhaseId);
+    } else if (policyLinksTruncated) {
+      measurementKernel.setDetector("privacy-policy", "skipped", { reason: "evidence-cap-reached" });
     } else {
       // The probe is configured on, but the page offers no discoverable policy
       // link: the subject does not support this probe. "unsupported" (not
@@ -3278,13 +3346,15 @@ async function probeKeystrokeExfiltration(
         : { status: "skipped", reason: "load-failed", detection: null, subjectLost: true };
     }
     if (typed.count === 0) {
-      const captureLossCount = Math.min(
+      const evidenceCapLossCount = Math.min(
         Number.MAX_SAFE_INTEGER,
-        captured.captureLossCount + typed.omittedCandidateCount + typed.preventedFieldCount
+        captured.capLossCount + typed.omittedCandidateCount
       );
-      return captureLossCount > 0
-        ? { status: "partial", reason: "budget-unavailable", detection: null, captureLossCount }
-        : { status: "complete", detection: null };
+      const failureLossCount = Math.min(
+        Number.MAX_SAFE_INTEGER,
+        captured.failureLossCount + typed.preventedFieldCount
+      );
+      return completedKeystrokeProbeOutcome(null, evidenceCapLossCount, failureLossCount);
     }
     const waitMs = Math.min(KEYSTROKE_EXFIL_WAIT_MS, MAX_SCAN_DURATION_MS - (Date.now() - started) - 250);
     if (waitMs > 0) await page.waitForTimeout(waitMs);
@@ -3311,9 +3381,13 @@ async function probeKeystrokeExfiltration(
   }
   addKeystrokeProbeDisclosure(warnings, typed.count);
 
-  const captureLossCount = Math.min(
+  const evidenceCapLossCount = Math.min(
     Number.MAX_SAFE_INTEGER,
-    captured.captureLossCount + typed.omittedCandidateCount + typed.preventedFieldCount
+    captured.capLossCount + typed.omittedCandidateCount
+  );
+  const failureLossCount = Math.min(
+    Number.MAX_SAFE_INTEGER,
+    captured.failureLossCount + typed.preventedFieldCount
   );
   const detection = buildKeystrokeExfiltrationDetection(
     findSentinelLeaks(sentinelEncodings(sentinel), captured.requests),
@@ -3323,9 +3397,7 @@ async function probeKeystrokeExfiltration(
     }
   );
 
-  return captureLossCount > 0
-    ? { status: "partial", reason: "budget-unavailable", detection, captureLossCount }
-    : { status: "complete", detection };
+  return completedKeystrokeProbeOutcome(detection, evidenceCapLossCount, failureLossCount);
 }
 
 function addKeystrokeProbeDisclosure(
@@ -3644,14 +3716,21 @@ type BoundedPostData = {
 export type ProbeRequestCaptureState = {
   requests: CapturedRequest[];
   captureLossCount: number;
+  capLossCount: number;
+  failureLossCount: number;
 };
 
 export function createProbeRequestCaptureState(): ProbeRequestCaptureState {
-  return { requests: [], captureLossCount: 0 };
+  return { requests: [], captureLossCount: 0, capLossCount: 0, failureLossCount: 0 };
 }
 
-function addProbeCaptureLoss(state: ProbeRequestCaptureState): void {
+function addProbeCaptureLoss(
+  state: ProbeRequestCaptureState,
+  cause: "cap" | "failure"
+): void {
   state.captureLossCount = Math.min(Number.MAX_SAFE_INTEGER, state.captureLossCount + 1);
+  const key = cause === "cap" ? "capLossCount" : "failureLossCount";
+  state[key] = Math.min(Number.MAX_SAFE_INTEGER, state[key] + 1);
 }
 
 /** Retain only bounded request evidence while the active probe listener is live. */
@@ -3661,23 +3740,24 @@ export function captureProbeRequest(
   firstPartyHostname: string
 ): void {
   if (state.requests.length >= MAX_PROBE_CAPTURED_REQUESTS) {
-    addProbeCaptureLoss(state);
+    addProbeCaptureLoss(state, "cap");
     return;
   }
 
   try {
     const url = request.url();
     if (url.length > MAX_RECORDED_REQUEST_URL_CHARS) {
-      addProbeCaptureLoss(state);
+      addProbeCaptureLoss(state, "cap");
       return;
     }
     const hostname = safeParseUrl(url)?.hostname;
     if (!hostname) {
-      addProbeCaptureLoss(state);
+      addProbeCaptureLoss(state, "failure");
       return;
     }
     const body = safeRequestPostDataWithCoverage(request);
-    if (body.truncated || body.unreadable) addProbeCaptureLoss(state);
+    if (body.truncated) addProbeCaptureLoss(state, "cap");
+    if (body.unreadable) addProbeCaptureLoss(state, "failure");
     state.requests.push({
       domain: hostname,
       thirdParty: isThirdParty(firstPartyHostname, hostname),
@@ -3685,7 +3765,7 @@ export function captureProbeRequest(
       body: body.value
     });
   } catch {
-    addProbeCaptureLoss(state);
+    addProbeCaptureLoss(state, "failure");
   }
 }
 

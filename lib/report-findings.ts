@@ -64,7 +64,7 @@ import {
 import { R2_NAVIGATION_STATUS_UNREPRESENTABLE } from "./scan-report-v2-http-status";
 import {
   buildReportFacts,
-  comparisonArmsHaveExactClaimMeasurements,
+  comparisonSupportsExactClaimDelta,
   retainedCountPhrase,
   strongestReportSeverity,
   type ClaimEligibility,
@@ -415,7 +415,8 @@ export function buildFindings(
         : `The synthetic value appeared in a recoverable form (${humanList(
             keystrokeDetection.evidence.encodings
           )}). The report does not establish whether transmission happened during typing, blur, or unload, why it was sent, or whether real visitor input follows the same path. The scanner types only synthetic values and never submits the form.${recipientOwnershipNote}`,
-      evidence: `Synthetic test value appeared in requests to ${recipients} via ${humanList(keystrokeDetection.evidence.encodings)}.`
+      evidence: `Synthetic test value appeared in requests to ${recipients} via ${humanList(keystrokeDetection.evidence.encodings)}.`,
+      claim: findingClaim(facts, "keystroke-exfiltration", "presence")
     });
   }
 
@@ -1020,10 +1021,11 @@ export function buildFindings(
   const familyGates = view.claims.familyDeltas;
   const rawCountsAllowed = familyGates?.["raw-counts"]?.allowed === true;
   const classificationAllowed = familyGates?.["tracker-classification"]?.allowed === true;
-  const detectorAllowed = familyGates?.["detector-findings"]?.allowed === true;
-  const fingerprintComparisonAllowed =
-    detectorAllowed &&
-    comparisonArmsHaveExactClaimMeasurements(reportFacts, "fingerprint-apis");
+  const fingerprintComparisonAllowed = comparisonSupportsExactClaimDelta(
+    view,
+    reportFacts,
+    "fingerprint-apis"
+  );
 
   if (arms && axis === "shields") {
     if (pairGate && !pairGate.allowed) {

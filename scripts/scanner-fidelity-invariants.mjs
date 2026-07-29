@@ -26,13 +26,27 @@ const requireFromHere = createRequire(import.meta.url);
 
 const HEADLINE_TONES = new Set(["alarm", "warn", "info", "calm"]);
 
+const HISTORICAL_EVIDENCE_BOUND_BUDGET_REGISTRIES = new Set([
+  "node-detectors-v2\u00001961b4197b649b6eb8028f95a9f2f6b28973b7427178b23e661017da7ed0c7c4",
+  "node-detectors-v2\u00004f4bf67ce216d0a5c173ae2d1a1ddb79bac3c7699c04e6900908350ee4f5bdc5"
+]);
+
 /**
- * `budget-unavailable` covers both elapsed-time exhaustion and bounded
- * evidence collection. A short run contradicts the former, but not the latter.
- * Require each bounded detector to carry its detector-specific capture loss so
- * an ordinary timeout cannot borrow this exception.
+ * The frozen node-detectors-v2 producers overloaded budget-unavailable for a
+ * small set of fixed evidence ceilings. Preserve those exact historical wires,
+ * but never extend the exception to the active detector epoch.
  */
-export function detectorBudgetIsEvidenceBound(id, entry, losses) {
+export function detectorBudgetIsEvidenceBound(registry, id, entry, losses) {
+  if (
+    !registry ||
+    !HISTORICAL_EVIDENCE_BOUND_BUDGET_REGISTRIES.has(
+      `${registry.version}\u0000${registry.digest}`
+    ) ||
+    entry?.reason !== "budget-unavailable"
+  ) {
+    return false;
+  }
+
   const hasLoss = (kind, detail) =>
     losses.some(
       (loss) =>
@@ -255,17 +269,24 @@ export function evaluateScanBody(label, payload, bridge) {
     //    close to its budget. This is the codeberg.org defect: a 5-second scan
     //    told readers it had run out of time.
     //
-    //    The detector vocabulary spends one code, `budget-unavailable`, on both
-    //    an elapsed-time budget and fixed evidence caps. CNAME lookup,
-    //    synthetic-field, and policy-link caps are bounded evidence
-    //    collection, not elapsed-time claims. They are exempt only when the
-    //    matching detector-specific capture loss proves that path. Every
-    //    other budget claim on a short run still fails.
+    //    Active fixed evidence ceilings have their own
+    //    `evidence-cap-reached` reason. Frozen node-detectors-v2 wires predate
+    //    that vocabulary, so only their exact registry identity and exact
+    //    detector-specific loss tuple may preserve the old overloaded reason.
     const durationMs = Number(run?.summary?.durationMs ?? 0);
     if (durationMs > 0 && durationMs < 20_000) {
       for (const [id, entry] of Object.entries(detectors)) {
         if (entry.reason !== "budget-unavailable") continue;
-        if (detectorBudgetIsEvidenceBound(id, entry, losses)) continue;
+        if (
+          detectorBudgetIsEvidenceBound(
+            run?.provenance?.detectorRegistry,
+            id,
+            entry,
+            losses
+          )
+        ) {
+          continue;
+        }
         fail(`${where}: detector ${id} reported budget-unavailable after only ${durationMs}ms`);
         return { failures, censored };
       }

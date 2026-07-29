@@ -278,6 +278,19 @@ test("calm eligibility is conservative, signal-aware, and scoped to calm claims"
   assert.equal(buildRunFacts(requestLossRun).calmEligible, false);
 
   const storageSnapshotLossRun = makeR2RunView();
+  assert.ok(storageSnapshotLossRun.detectors);
+  storageSnapshotLossRun.detectors["keystroke-exfiltration"] = {
+    ...storageSnapshotLossRun.detectors["keystroke-exfiltration"],
+    status: "complete",
+    reason: null,
+    phaseId: 0
+  };
+  storageSnapshotLossRun.detectors["privacy-policy"] = {
+    ...storageSnapshotLossRun.detectors["privacy-policy"],
+    status: "complete",
+    reason: null,
+    phaseId: 0
+  };
   requireFamilyLedger(storageSnapshotLossRun).storage = {
     outcome: "censored",
     reasons: ["capture-loss:storage-snapshot"]
@@ -285,7 +298,7 @@ test("calm eligibility is conservative, signal-aware, and scoped to calm claims"
   assert.equal(
     buildRunFacts(storageSnapshotLossRun).calmEligible,
     true,
-    "a storage-only loss does not invalidate the service, platform, cookie, or fingerprint claims calm copy emits"
+    "a storage-only loss does not invalidate the complete detector claims calm copy emits"
   );
 
   const serverError = makeV1Result();
@@ -454,6 +467,104 @@ test("detector incompleteness stays scoped to the claim that names that detector
   assert.equal(buildRunFacts(attempted).claims["cname-cloaking"].allowed, true);
 });
 
+test("shared detector-output loss is scoped by causal detail, including public caps", () => {
+  const policyLoss = makeR2RunView();
+  assert.ok(policyLoss.quality.facts);
+  requireFamilyLedger(policyLoss)["detector-output"] = {
+    outcome: "censored",
+    reasons: ["capture-loss:dropped"]
+  };
+  policyLoss.quality.facts.captureLoss.push({
+    family: "detector-output",
+    phaseId: null,
+    kind: "dropped",
+    count: 1,
+    detail: "policy-visit"
+  });
+  const policyFacts = buildRunFacts(policyLoss);
+  assert.equal(policyFacts.claims["privacy-policy"].allowed, false);
+  assert.equal(
+    policyFacts.claims["consent-banner"].allowed,
+    true,
+    "an unrelated detector-output loss must not suppress consent evidence"
+  );
+  assert.equal(
+    policyFacts.claims["pixel-events"].allowed,
+    true,
+    "a policy failure must not suppress a completed pixel measurement"
+  );
+  assert.equal(
+    policyFacts.claims["cname-cloaking"].allowed,
+    true,
+    "a policy failure must not suppress a completed CNAME measurement"
+  );
+
+  const publicPixelCap = makeR2RunView();
+  assert.ok(publicPixelCap.quality.facts);
+  requireFamilyLedger(publicPixelCap)["detector-output"] = {
+    outcome: "censored",
+    reasons: ["capture-loss:clipped"]
+  };
+  publicPixelCap.quality.facts.captureLoss.push({
+    family: "detector-output",
+    phaseId: null,
+    kind: "clipped",
+    count: 1,
+    detail: "public-pixel-events"
+  });
+  const publicPixelFacts = buildRunFacts(publicPixelCap);
+  assert.equal(publicPixelFacts.claims["pixel-events"].allowed, false);
+  assert.equal(publicPixelFacts.claims["cname-cloaking"].allowed, true);
+  assert.equal(publicPixelFacts.claims["privacy-policy"].allowed, false);
+
+  const publicConsentCap = makeR2RunView();
+  assert.ok(publicConsentCap.quality.facts);
+  requireFamilyLedger(publicConsentCap)["consent-verification"] = {
+    outcome: "censored",
+    reasons: ["capture-loss:clipped"]
+  };
+  publicConsentCap.quality.facts.captureLoss.push({
+    family: "consent-verification",
+    phaseId: null,
+    kind: "clipped",
+    count: 1,
+    detail: "public-consent-observations"
+  });
+  const publicConsentFacts = buildRunFacts(publicConsentCap);
+  assert.equal(publicConsentFacts.claims["consent-banner"].allowed, false);
+  assert.equal(publicConsentFacts.claims["pixel-events"].allowed, true);
+
+  const unsupportedSibling = makeR2RunView();
+  assert.ok(unsupportedSibling.quality.facts);
+  requireFamilyLedger(unsupportedSibling)["detector-output"] = {
+    outcome: "censored",
+    reasons: ["capture-loss:pagegraph-unsupported", "capture-loss:clipped"]
+  };
+  unsupportedSibling.quality.facts.captureLoss.push(
+    {
+      family: "detector-output",
+      phaseId: null,
+      kind: "dropped",
+      count: 1,
+      detail: "pagegraph-unsupported"
+    },
+    {
+      family: "detector-output",
+      phaseId: null,
+      kind: "clipped",
+      count: 1,
+      detail: "public-pixel-events"
+    }
+  );
+  const unsupportedSiblingFacts = buildRunFacts(unsupportedSibling);
+  assert.equal(unsupportedSiblingFacts.claims["pixel-events"].allowed, false);
+  assert.equal(
+    unsupportedSiblingFacts.claims["cname-cloaking"].allowed,
+    true,
+    "broad unsupported detector-output state must not flatten a detail-scoped sibling"
+  );
+});
+
 test("comparison deltas require an exact measurement in both arms", () => {
   const comparison = makeGpcInterventionReportV2R2();
   comparison.baseline.detectors["fingerprint-heuristics"] = {
@@ -476,5 +587,19 @@ test("comparison deltas require an exact measurement in both arms", () => {
     comparisonArmsHaveExactClaimMeasurements(facts, "third-party-services"),
     true,
     "the failed fingerprint detector must not suppress exact request deltas"
+  );
+});
+
+test("comparison exactness pins each claim's own detector version", () => {
+  const comparison = makeGpcInterventionReportV2R2();
+  comparison.variant.detectors["pixel-events"] = {
+    ...comparison.variant.detectors["pixel-events"],
+    version: `${comparison.variant.detectors["pixel-events"].version}-different`
+  };
+  const facts = buildReportFacts(viewFromV2(comparison, 2));
+  assert.equal(comparisonArmsHaveExactClaimMeasurements(facts, "pixel-events"), false);
+  assert.equal(
+    comparisonArmsHaveExactClaimMeasurements(facts, "third-party-services"),
+    true
   );
 });

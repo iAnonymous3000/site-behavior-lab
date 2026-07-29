@@ -8,6 +8,7 @@ import { readStoredScanReport } from "./scan-report-reader";
 import { makeEphemeralSingleReport, makePublicSingleReportV2, makeScanReportV1 } from "./scan-report-v2-fixtures";
 import { makePublicSingleReportV2R2 } from "./scan-report-v2-r2-fixtures";
 import { BROWSER_REPORT_COLLECTION_LIMITS } from "./client-report-resource-policy";
+import { buildFingerprints } from "./scan-report-v2-fingerprints";
 
 const SHARE_ID = "20260619-1cae9eb5a7b2fae0d49af5acda78031b";
 const VALID_PNG_SCREENSHOT =
@@ -32,6 +33,25 @@ test("readLoadedReport accepts every readable v2 generation (the v1-only gate is
   const r2 = await readLoadedReport(makePublicSingleReportV2R2(), "This report");
   assert.equal(r2.ok, true);
   if (r2.ok) assert.equal(r2.loaded.source, "v2-r2-public");
+});
+
+test("the client reader rejects an active detector outcome with no causal loss", async () => {
+  const report = makePublicSingleReportV2R2();
+  report.run.detectors["cname-uncloaking"] = {
+    ...report.run.detectors["cname-uncloaking"],
+    status: "partial",
+    reason: "evidence-cap-reached",
+    phaseId: 0
+  };
+  report.run.fingerprints = buildFingerprints({
+    conditions: report.run.conditions,
+    provenance: report.run.provenance,
+    toolchain: report.run.toolchain,
+    detectors: report.run.detectors
+  });
+  const read = await readLoadedReport(report, "This report");
+  assert.equal(read.ok, false);
+  if (!read.ok) assert.match(read.message, /conclusions that do not match its recorded evidence/);
 });
 
 test("stored reports become server-renderable loaded envelopes without a transport fetch", () => {

@@ -5,6 +5,10 @@ import {
   isDetectorReasonCode,
   isDetectorReasonForStatus
 } from "./measurement-kernel";
+import {
+  DETECTOR_OBLIGATION_CONTRACT_VERSION,
+  DETECTOR_OBLIGATION_REGISTRY_DIGEST
+} from "./detector-obligations";
 import { PHASE_OMISSION_CONTRACT_VERSION } from "./detector-phase-omission";
 import { NODE_ADBLOCK_ENGINE_VERSION, NODE_SCANNER_METHODOLOGY_VERSION } from "./legacy-methodology";
 import { MAX_RECORDED_REQUESTS } from "./scan-runtime";
@@ -53,7 +57,7 @@ export const PAGEGRAPH_R2_PUBLIC_LIMITS = Object.freeze({
 });
 
 export const NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION =
-  `${NODE_SCANNER_METHODOLOGY_VERSION}+phase-kernel-v2+boundary-state-v1+consent-r2-v4+resource-budget-v1+proxy-traffic-v1+service-worker-block-v1`;
+  `${NODE_SCANNER_METHODOLOGY_VERSION}+phase-kernel-v2+boundary-state-v1+consent-r2-v4+resource-budget-v1+proxy-traffic-v1+service-worker-block-v1+detector-accountability-v1`;
 
 /** Exact producer epoch attested by the reviewed Node r2/v3 corpus. */
 export const HISTORICAL_NODE_R2_V3_METHODOLOGY_VERSION =
@@ -214,6 +218,7 @@ export const PAGEGRAPH_R2_DETECTOR_REGISTRY_DIGEST = sha256Hex(
 
 type DetectorRegistryIdentity = Readonly<{ version: string; digest: string }>;
 type AdblockIdentity = Readonly<NonNullable<Toolchain["adblock"]>> | null;
+type DetectorObligationIdentity = Readonly<{ version: string; digest: string }> | null;
 type DetectorStatusContractVersion = "detector-status-v1" | "detector-status-v2";
 
 export type NodeR2ProducerTuple = Readonly<{
@@ -223,6 +228,7 @@ export type NodeR2ProducerTuple = Readonly<{
   detectorRegistry: DetectorRegistryIdentity;
   detectorVersions: Readonly<Record<DetectorId, string>>;
   detectorStatusContractVersion: DetectorStatusContractVersion;
+  detectorObligations: DetectorObligationIdentity;
   trackerCatalog: Readonly<Toolchain["trackerCatalog"]>;
   adblockIdentity: AdblockIdentity;
   publicLimits: Readonly<typeof NODE_R2_PUBLIC_LIMITS>;
@@ -270,6 +276,10 @@ const ACTIVE_REGISTRY = Object.freeze({
   digest: DETECTOR_REGISTRY_DIGEST
 });
 const ACTIVE_DETECTOR_VERSIONS = Object.freeze({ ...DETECTOR_VERSIONS });
+const ACTIVE_DETECTOR_OBLIGATIONS = Object.freeze({
+  version: DETECTOR_OBLIGATION_CONTRACT_VERSION,
+  digest: DETECTOR_OBLIGATION_REGISTRY_DIGEST
+});
 const ACTIVE_TRACKER_CATALOG = Object.freeze({
   source: trackerCatalogMetadata.source,
   version: trackerCatalogMetadata.version,
@@ -302,6 +312,7 @@ type NodeTupleFields = Pick<
   | "detectorRegistry"
   | "detectorVersions"
   | "detectorStatusContractVersion"
+  | "detectorObligations"
   | "trackerCatalog"
   | "phaseOmissionContractVersion"
 >;
@@ -310,6 +321,7 @@ const NODE_V3_FIELDS: NodeTupleFields = Object.freeze({
   detectorRegistry: HISTORICAL_REGISTRY,
   detectorVersions: HISTORICAL_NODE_R2_V3_DETECTOR_VERSIONS,
   detectorStatusContractVersion: "detector-status-v1",
+  detectorObligations: null,
   trackerCatalog: HISTORICAL_NODE_R2_V3_TRACKER_CATALOG,
   phaseOmissionContractVersion: "phase-omission-v1"
 });
@@ -318,6 +330,7 @@ const PRE_ACCOUNTABILITY_FIELDS: NodeTupleFields = Object.freeze({
   detectorRegistry: PRE_ACCOUNTABILITY_REGISTRY,
   detectorVersions: PRE_ACCOUNTABILITY_NODE_R2_DETECTOR_VERSIONS,
   detectorStatusContractVersion: "detector-status-v1",
+  detectorObligations: null,
   trackerCatalog: ACTIVE_TRACKER_CATALOG,
   phaseOmissionContractVersion: "phase-omission-v1"
 });
@@ -327,6 +340,7 @@ const ACTIVE_NODE_FIELDS: NodeTupleFields = Object.freeze({
   detectorRegistry: ACTIVE_REGISTRY,
   detectorVersions: ACTIVE_DETECTOR_VERSIONS,
   detectorStatusContractVersion: ACTIVE_DETECTOR_STATUS_CONTRACT_VERSION,
+  detectorObligations: ACTIVE_DETECTOR_OBLIGATIONS,
   trackerCatalog: ACTIVE_TRACKER_CATALOG,
   phaseOmissionContractVersion: PHASE_OMISSION_CONTRACT_VERSION
 });
@@ -345,6 +359,7 @@ function nodeTuple(
     detectorRegistry: fields.detectorRegistry,
     detectorVersions: fields.detectorVersions,
     detectorStatusContractVersion: fields.detectorStatusContractVersion,
+    detectorObligations: fields.detectorObligations,
     trackerCatalog: fields.trackerCatalog,
     adblockIdentity,
     publicLimits: NODE_R2_PUBLIC_LIMITS,
@@ -354,7 +369,7 @@ function nodeTuple(
 }
 
 const ACTIVE_NODE_WIRE_IDENTITY_IS_DISTINCT =
-  NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION !== PRE_ACCOUNTABILITY_NODE_R2_METHODOLOGY_VERSION ||
+  String(NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION) !== PRE_ACCOUNTABILITY_NODE_R2_METHODOLOGY_VERSION ||
   String(DETECTOR_REGISTRY_VERSION) !== PRE_ACCOUNTABILITY_NODE_R2_DETECTOR_REGISTRY_VERSION ||
   DETECTOR_REGISTRY_DIGEST !== PRE_ACCOUNTABILITY_NODE_R2_DETECTOR_REGISTRY_DIGEST ||
   canonicalJson(ACTIVE_DETECTOR_VERSIONS) !== canonicalJson(PRE_ACCOUNTABILITY_NODE_R2_DETECTOR_VERSIONS) ||

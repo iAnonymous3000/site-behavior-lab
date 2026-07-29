@@ -68,6 +68,7 @@ export type ReportClaimId =
   | "third-party-cookies"
   | "fingerprint-apis"
   | "session-recording-input-monitoring"
+  | "keystroke-exfiltration"
   | "storage-keys"
   | "cname-cloaking"
   | "pixel-events"
@@ -203,6 +204,11 @@ export type ReportFacts = {
 
 type ClaimRequirement = {
   families: EvidenceFamily[];
+  /**
+   * A shared evidence family can carry independent detector products. When
+   * present, only these exact capture-loss details censor this claim.
+   */
+  familyDetails?: Partial<Record<EvidenceFamily, readonly string[]>>;
   detectors?: DetectorId[];
   count: "monotonic" | "snapshot" | "none";
 };
@@ -222,29 +228,62 @@ export const REPORT_CLAIM_REQUIREMENTS: Readonly<Record<ReportClaimId, ClaimRequ
     count: "monotonic"
   },
   "session-recording-input-monitoring": {
-    families: [],
+    families: ["detector-output"],
+    familyDetails: {
+      "detector-output": ["public-fingerprint-detections"]
+    },
     detectors: ["fingerprint-heuristics"],
+    count: "none"
+  },
+  "keystroke-exfiltration": {
+    families: ["detector-output"],
+    familyDetails: {
+      "detector-output": [
+        "keystroke-probe",
+        "keystroke-probe-capture",
+        "public-fingerprint-detections"
+      ]
+    },
+    detectors: ["keystroke-exfiltration"],
     count: "none"
   },
   "storage-keys": { families: ["storage"], count: "snapshot" },
   "cname-cloaking": {
-    families: [],
+    families: ["detector-output"],
+    familyDetails: {
+      "detector-output": ["cname-lookups", "public-cname-cloaks"]
+    },
     detectors: ["cname-uncloaking"],
     count: "none"
   },
   "pixel-events": {
     families: ["requests", "detector-output"],
+    familyDetails: {
+      "detector-output": ["pixel-decode", "public-pixel-events"]
+    },
     detectors: ["pixel-events"],
     count: "monotonic"
   },
   "consent-banner": {
-    families: ["requests"],
+    families: ["requests", "detector-output", "consent-verification"],
+    familyDetails: {
+      "detector-output": ["consent-banner"],
+      "consent-verification": ["public-consent-observations"]
+    },
     detectors: ["consent-banner"],
     count: "none"
   },
   "shields-blocked": { families: ["requests"], count: "monotonic" },
   "privacy-policy": {
     families: ["requests", "cookies", "detector-output"],
+    familyDetails: {
+      "detector-output": [
+        "policy-link-candidates",
+        "policy-visit",
+        "public-policy-claims",
+        "public-policy-entities"
+      ]
+    },
     detectors: ["privacy-policy"],
     count: "none"
   }
@@ -327,7 +366,13 @@ export function buildRunFacts(run: RunView): RunFacts {
     "third-party-services",
     "named-platforms",
     "third-party-cookies",
-    "fingerprint-apis"
+    "fingerprint-apis",
+    "session-recording-input-monitoring",
+    "keystroke-exfiltration",
+    "cname-cloaking",
+    "pixel-events",
+    "consent-banner",
+    "privacy-policy"
   ];
   const calmEligible =
     subject.describesSubject &&
@@ -364,10 +409,50 @@ export function comparisonArmsHaveExactClaimMeasurements(
   facts: ReportFacts,
   claim: ReportClaimId
 ): boolean {
-  return Boolean(
-    facts.arms?.baseline.claims[claim].exactCountAllowed &&
-      facts.arms.variant.claims[claim].exactCountAllowed
+  if (
+    !facts.arms?.baseline.claims[claim].exactCountAllowed ||
+    !facts.arms.variant.claims[claim].exactCountAllowed
+  ) {
+    return false;
+  }
+  const detectors = REPORT_CLAIM_REQUIREMENTS[claim].detectors ?? [];
+  return detectors.every((detector) => {
+    const baseline = facts.arms?.baseline.run.detectors?.[detector]?.version;
+    const variant = facts.arms?.variant.run.detectors?.[detector]?.version;
+    return Boolean(
+      baseline &&
+        variant &&
+        baseline.toLowerCase() !== "unknown" &&
+        variant.toLowerCase() !== "unknown" &&
+        baseline === variant
+    );
+  });
+}
+
+/**
+ * A claim-specific detector delta is allowed only when its own two
+ * measurements are exact and the pair has no blocker shared by every metric
+ * family. Shared reasons are pair/environment constraints copied into every
+ * family by the comparison evaluator; a detector-family-only reason can come
+ * from an unrelated detector and must not flatten an exact sibling claim.
+ */
+export function comparisonSupportsExactClaimDelta(
+  view: Pick<ReportView, "claims">,
+  facts: ReportFacts,
+  claim: ReportClaimId
+): boolean {
+  if (
+    view.claims.pairComparison?.allowed !== true ||
+    !comparisonArmsHaveExactClaimMeasurements(facts, claim)
+  ) {
+    return false;
+  }
+  const gates = Object.values(view.claims.familyDeltas ?? {});
+  if (gates.length === 0) return false;
+  const globallySharedBlocker = gates[0].reasons.some((reason) =>
+    gates.every((gate) => gate.reasons.includes(reason))
   );
+  return !globallySharedBlocker;
 }
 
 export function evidenceStateFor(facts: RunFacts, family: EvidenceFamily): EvidenceState {
@@ -472,8 +557,9 @@ function claimEligibility(
   const blockers = new Set<ClaimBlocker>();
   if (!subject.describesSubject) blockers.add("subject-not-established");
   for (const family of requirement.families) {
-    if (evidence[family].state === "unsupported") blockers.add("family-unsupported");
-    if (evidence[family].state === "censored") blockers.add("family-censored");
+    const state = claimFamilyState(run, evidence, family, requirement.familyDetails?.[family]);
+    if (state === "unsupported") blockers.add("family-unsupported");
+    if (state === "censored") blockers.add("family-censored");
   }
   const detectors = requirement.detectors ?? [];
   const detectorStatuses = run.detectors
@@ -483,15 +569,12 @@ function claimEligibility(
   if (detectorIncomplete) {
     blockers.add("detector-incomplete");
   }
-  const familyIncomplete = requirement.families.some(
-    (family) => evidence[family].state !== "complete"
+  const familyStates = requirement.families.map((family) =>
+    claimFamilyState(run, evidence, family, requirement.familyDetails?.[family])
   );
-  const familyCensored = requirement.families.some(
-    (family) => evidence[family].state === "censored"
-  );
-  const familyUnsupported = requirement.families.some(
-    (family) => evidence[family].state === "unsupported"
-  );
+  const familyIncomplete = familyStates.some((state) => state !== "complete");
+  const familyCensored = familyStates.some((state) => state === "censored");
+  const familyUnsupported = familyStates.some((state) => state === "unsupported");
   // An unfinished detector's zero is not a measurement, so it may not be
   // published as an exact count or ranked against a population.
   //
@@ -527,6 +610,23 @@ function claimEligibility(
       subject.describesSubject &&
       run.quality.outcome === "complete"
   };
+}
+
+function claimFamilyState(
+  run: RunView,
+  evidence: Record<EvidenceFamily, EvidenceFamilyFact>,
+  family: EvidenceFamily,
+  details: readonly string[] | undefined
+): EvidenceState {
+  if (!details) return evidence[family].state;
+  // Frozen v1 has no causal loss ledger. Preserve its legacy family state;
+  // detector identity already defaults claims that need it to unavailable.
+  if (!run.quality.facts) return evidence[family].state;
+  return run.quality.facts.captureLoss.some(
+    (loss) => loss.family === family && loss.detail !== undefined && details.includes(loss.detail)
+  )
+    ? "censored"
+    : "complete";
 }
 
 function identityFacts(run: RunView): RunIdentityFacts {

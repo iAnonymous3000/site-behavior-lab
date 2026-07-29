@@ -224,8 +224,19 @@ test("manifest omits an unmeasured fingerprint zero while retaining unrelated me
   report.run.detectors["fingerprint-heuristics"] = {
     ...report.run.detectors["fingerprint-heuristics"],
     status: "failed",
-    reason: "scan-failed"
+    reason: "engine-unavailable",
+    phaseId: 0
   };
+  report.run.qualityFacts.captureLoss.push({
+    family: "fingerprinting",
+    phaseId: 0,
+    kind: "dropped",
+    count: 1,
+    detail: "fingerprint-observer"
+  });
+  report.run.quality = evaluateQuality(report.run.qualityFacts, {
+    observedRequests: report.run.evidence.requests.length
+  });
   report.share = buildStaticReportShare(id);
   const current = currentR2FixedPoint(report);
   await writeRawManagedReport(id, current);

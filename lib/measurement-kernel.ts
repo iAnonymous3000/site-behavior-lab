@@ -1,6 +1,16 @@
 import { canonicalJson } from "./scan-report-v2-fingerprints";
 import { sha256Hex } from "./sha256";
 import {
+  DETECTOR_REASON_CODES,
+  DETECTOR_STATUS_REASON_CODES,
+  detectorStatusReasonIsValid,
+  isDetectorReasonCode
+} from "./detector-status-contract";
+import {
+  DETECTOR_OBLIGATION_CONTRACT_VERSION,
+  DETECTOR_OBLIGATION_REGISTRY_DIGEST
+} from "./detector-obligations";
+import {
   DETECTOR_IDS,
   type CaptureLossEntry,
   type CookieMutation,
@@ -23,41 +33,22 @@ import type { CookieRecord, StorageRecord } from "./types";
  * remain derived by the versioned evaluators.
  */
 
-export const DETECTOR_REGISTRY_VERSION = "node-detectors-v2";
+export {
+  DETECTOR_REASON_CODES,
+  DETECTOR_STATUS_REASON_CODES,
+  isDetectorReasonCode,
+  isDetectorReasonForStatus
+} from "./detector-status-contract";
 
-export const DETECTOR_REASON_CODES = [
-  "probe-disabled",
-  "budget-unavailable",
-  "not-requested",
-  "unsupported",
-  "load-failed",
-  "engine-unavailable",
-  "scan-failed"
-] as const;
-const DETECTOR_REASON_CODE_SET = new Set<string>(DETECTOR_REASON_CODES);
-
-export const DETECTOR_STATUS_REASON_CODES = Object.freeze({
-  partial: Object.freeze(["budget-unavailable", "load-failed", "scan-failed"]),
-  skipped: Object.freeze(["probe-disabled", "budget-unavailable", "not-requested", "load-failed", "engine-unavailable"]),
-  unsupported: Object.freeze(["unsupported"]),
-  failed: Object.freeze(["load-failed", "engine-unavailable", "scan-failed"])
-} satisfies Readonly<Record<Exclude<DetectorStatus, "complete">, readonly string[]>>);
-
-export function isDetectorReasonCode(value: string): boolean {
-  return DETECTOR_REASON_CODE_SET.has(value);
-}
-
-export function isDetectorReasonForStatus(status: DetectorStatus, reason: string): boolean {
-  return status !== "complete" && (DETECTOR_STATUS_REASON_CODES[status] as readonly string[]).includes(reason);
-}
+export const DETECTOR_REGISTRY_VERSION = "node-detectors-v3";
 
 export const DETECTOR_VERSIONS: Readonly<Record<DetectorId, string>> = {
   "fingerprint-heuristics": "fingerprint-observer@1",
-  "keystroke-exfiltration": "synthetic-sentinel@2",
-  "cname-uncloaking": "dns-cname-chain@2",
-  "pixel-events": "pixel-request-decoder@2",
+  "keystroke-exfiltration": "synthetic-sentinel@3",
+  "cname-uncloaking": "dns-cname-chain@3",
+  "pixel-events": "pixel-request-decoder@3",
   "consent-banner": "consent-control-and-state@2",
-  "privacy-policy": "policy-text-cross-check@2"
+  "privacy-policy": "policy-text-cross-check@3"
 };
 
 export const FINGERPRINT_EVENT_APIS = [
@@ -114,6 +105,10 @@ export const DETECTOR_REGISTRY_DIGEST = sha256Hex(
     detectors: DETECTOR_VERSIONS,
     reasonCodes: [...DETECTOR_REASON_CODES].sort(),
     statusReasonCodes: DETECTOR_STATUS_REASON_CODES,
+    detectorObligations: {
+      version: DETECTOR_OBLIGATION_CONTRACT_VERSION,
+      digest: DETECTOR_OBLIGATION_REGISTRY_DIGEST
+    },
     fingerprintVocabulary: {
       eventApis: FINGERPRINT_EVENT_APIS,
       canvasReadApis: CANVAS_READ_APIS,
@@ -270,16 +265,10 @@ export class MeasurementKernel<RequestT extends object = object> {
 }
 
 function assertDetectorStatusReason(status: DetectorStatus, reason: string | undefined): void {
-  if (status === "complete" && reason !== undefined) {
-    throw new Error("A complete detector cannot carry a failure/skip reason.");
-  }
-  if (status !== "complete" && reason === undefined) {
-    throw new Error(`A ${status} detector must carry a reason code.`);
-  }
-  if (reason === undefined) return;
-  if (!isDetectorReasonForStatus(status, reason)) {
-    throw new Error(`Detector reason ${reason} is incompatible with status ${status}.`);
-  }
+  if (detectorStatusReasonIsValid({ status, reason })) return;
+  if (status === "complete") throw new Error("A complete detector cannot carry a failure/skip reason.");
+  if (reason === undefined) throw new Error(`A ${status} detector must carry a reason code.`);
+  throw new Error(`Detector reason ${reason} is incompatible with status ${status}.`);
 }
 
 export function deriveCookieMutations(

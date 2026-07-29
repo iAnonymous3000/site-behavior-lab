@@ -1295,6 +1295,13 @@ test("phase plans follow enabled conditions and cannot smuggle impossible phases
     status: "skipped",
     reason: "budget-unavailable"
   };
+  accountedSkip.measurement.qualityFacts.captureLoss.push({
+    family: "detector-output",
+    phaseId: null,
+    kind: "cap",
+    count: 1,
+    detail: "keystroke-probe"
+  });
   assert.equal(buildNodeScanReportV2R2(accountedSkip).run.phases.length, 1);
 
   const wrongProbePhase = baseInput();
@@ -1331,6 +1338,22 @@ test("a consent run whose interaction never happened still builds a degraded, ac
     status: "skipped",
     reason: "load-failed"
   };
+  blockedByWall.measurement.qualityFacts.captureLoss.push(
+    {
+      family: "detector-output",
+      phaseId: null,
+      kind: "dropped",
+      count: 1,
+      detail: "consent-banner"
+    },
+    {
+      family: "consent-verification",
+      phaseId: null,
+      kind: "dropped",
+      count: 1,
+      detail: "consent-verification"
+    }
+  );
   blockedByWall.consent = {
     interactionAttempted: false,
     controlActivated: false,
@@ -1360,6 +1383,22 @@ test("a consent run whose interaction never happened still builds a degraded, ac
       status,
       reason
     };
+    brokenProbe.measurement.qualityFacts.captureLoss.push(
+      {
+        family: "detector-output",
+        phaseId: null,
+        kind: reason === "budget-unavailable" ? "cap" : "dropped",
+        count: 1,
+        detail: "consent-banner"
+      },
+      {
+        family: "consent-verification",
+        phaseId: null,
+        kind: reason === "budget-unavailable" ? "cap" : "dropped",
+        count: 1,
+        detail: "consent-verification"
+      }
+    );
     brokenProbe.consent = { interactionAttempted: false, controlActivated: false, verificationObservations: [] };
     assert.deepEqual(scanReportV2R2SemanticViolations(buildNodeScanReportV2R2(brokenProbe)), [], `${status}/${reason}`);
   }

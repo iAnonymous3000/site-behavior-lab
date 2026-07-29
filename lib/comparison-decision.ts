@@ -36,7 +36,7 @@ import { sha256Hex } from "./sha256";
 import type { ComparisonScanResult, ScanResult } from "./types";
 import type { MetricFamily, PublicScanReportV2 } from "./scan-report-v2";
 import type { PublicScanReportV2R2 } from "./scan-report-v2-r2";
-import { subjectsMatch } from "./scan-report-v2-evaluators";
+import { subjectsMatch } from "./scan-report-v2-subject";
 
 export type ComparisonDecisionMode = "comparable" | "raw-only" | "suppressed";
 

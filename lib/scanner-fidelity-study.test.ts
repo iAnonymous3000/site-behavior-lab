@@ -64,6 +64,7 @@ type StudyHelpers = {
 };
 type InvariantHelpers = {
   detectorBudgetIsEvidenceBound(
+    registry: { version: string; digest: string },
     id: string,
     entry: Record<string, unknown>,
     losses: Array<Record<string, unknown>>
@@ -372,59 +373,90 @@ test("the invariant observer records both comparison arms with their exact ident
   assert.equal(observed.order, "BA");
 });
 
-test("short-run budget claims are exempt only for proven detector evidence caps", async () => {
+test("short-run budget exceptions preserve exact v2 evidence caps but never apply to active registries", async () => {
   const { detectorBudgetIsEvidenceBound } = await invariantHelpers;
+  const historical = {
+    version: "node-detectors-v2",
+    digest: "4f4bf67ce216d0a5c173ae2d1a1ddb79bac3c7699c04e6900908350ee4f5bdc5"
+  };
+  const active = {
+    version: "node-detectors-v3",
+    digest: "4".repeat(64)
+  };
   const detectorLoss = (kind: string, detail: string) => ({
     family: "detector-output",
     kind,
     detail
   });
 
-  assert.equal(
-    detectorBudgetIsEvidenceBound(
+  const oldRows = [
+    [
       "cname-uncloaking",
       { status: "partial", reason: "budget-unavailable" },
       [detectorLoss("cap", "cname-lookups")]
-    ),
-    true
-  );
-  assert.equal(
-    detectorBudgetIsEvidenceBound(
+    ],
+    [
       "keystroke-exfiltration",
       { status: "partial", reason: "budget-unavailable" },
       [detectorLoss("truncated", "keystroke-probe-capture")]
-    ),
-    true
-  );
-  assert.equal(
-    detectorBudgetIsEvidenceBound(
+    ],
+    [
       "privacy-policy",
       { status: "skipped", reason: "budget-unavailable" },
       [
         detectorLoss("truncated", "policy-link-candidates"),
         detectorLoss("cap", "policy-visit")
       ]
-    ),
-    true
-  );
+    ]
+  ] as const;
+
+  for (const [id, entry, losses] of oldRows) {
+    assert.equal(
+      detectorBudgetIsEvidenceBound(
+        historical,
+        id,
+        entry,
+        [...losses]
+      ),
+      true,
+      `${id} historical row`
+    );
+    assert.equal(
+      detectorBudgetIsEvidenceBound(active, id, entry, [...losses]),
+      false,
+      `${id} active row`
+    );
+  }
 
   assert.equal(
     detectorBudgetIsEvidenceBound(
+      historical,
       "keystroke-exfiltration",
       { status: "partial", reason: "budget-unavailable" },
       []
     ),
     false,
-    "an ordinary short-run budget claim must still fail closed"
+    "an ordinary historical short-run budget claim must still fail closed"
   );
   assert.equal(
     detectorBudgetIsEvidenceBound(
+      historical,
       "privacy-policy",
       { status: "skipped", reason: "budget-unavailable" },
       [detectorLoss("cap", "policy-visit")]
     ),
     false,
-    "the policy exception requires proof that candidate collection hit its cap"
+    "the historical policy exception requires both exact cap losses"
+  );
+  assert.equal(
+    detectorBudgetIsEvidenceBound(
+      { ...historical, digest: "0".repeat(64) },
+      "keystroke-exfiltration",
+      { status: "partial", reason: "budget-unavailable" },
+      [detectorLoss("truncated", "keystroke-probe-capture")]
+    ),
+    false,
+    "an unknown v2 digest cannot borrow the frozen exception"
   );
 });
 

@@ -24,6 +24,7 @@ import type { FingerprintDetectionSummary } from "./types";
 import {
   browserProcessEnvironment,
   captureProbeRequest,
+  completedKeystrokeProbeOutcome,
   closeSharedBrowserForTests,
   createContextOptions,
   createProbeRequestCaptureState,
@@ -449,6 +450,30 @@ test("active-probe request capture bounds request count, URL length, and body re
   } as never, "example.com");
   assert.equal(unreadableBody.requests[0].body, null);
   assert.equal(unreadableBody.captureLossCount, 1);
+});
+
+test("fixed keystroke evidence caps emit evidence-cap-reached", () => {
+  assert.deepEqual(completedKeystrokeProbeOutcome(null, 4), {
+    status: "partial",
+    reason: "evidence-cap-reached",
+    detection: null,
+    captureLossCount: 4
+  });
+  assert.deepEqual(completedKeystrokeProbeOutcome(null, 0), {
+    status: "complete",
+    detection: null
+  });
+  assert.deepEqual(completedKeystrokeProbeOutcome(null, 0, 1), {
+    status: "partial",
+    reason: "scan-failed",
+    detection: null
+  });
+  assert.deepEqual(completedKeystrokeProbeOutcome(null, 2, 1), {
+    status: "partial",
+    reason: "scan-failed",
+    detection: null,
+    captureLossCount: 2
+  });
 });
 
 test("phase-aware fingerprint detections never assign cumulative evidence to the passive phase", () => {
@@ -1531,6 +1556,22 @@ test("HTTP-200 robot pages and unavailable subject collectors fail quality and s
       response.end();
       return;
     }
+    if (host === "zillow-error.test") {
+      response.writeHead(403, { "content-type": "text/html; charset=utf-8" });
+      response.end(`<!doctype html><title>Zillow</title>
+        <main><h1>Press & Hold</h1>
+        ${Array.from({ length: 20 }, (_, index) => `<a href="/privacy-${index}">Privacy</a>`).join("")}
+        </main>`);
+      return;
+    }
+    if (host === "policy-cap.test") {
+      response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+      response.end(`<!doctype html><title>Policy link cap</title>
+        <main><p>Ordinary public page with an oversized external footer.</p>
+        ${Array.from({ length: 20 }, (_, index) => `<a href="https://outside-${index}.example/privacy">Privacy Policy</a>`).join("")}
+        </main>`);
+      return;
+    }
 
     response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
     if (host === "sparse-legitimate.test") {
@@ -1597,18 +1638,79 @@ test("HTTP-200 robot pages and unavailable subject collectors fail quality and s
       reason: "load-failed"
     });
     assert.deepEqual(measurement.measurement.detectors["keystroke-exfiltration"], {
-      version: "synthetic-sentinel@2",
+      version: "synthetic-sentinel@3",
       status: "skipped",
       reason: "load-failed"
     });
     assert.deepEqual(measurement.measurement.detectors["privacy-policy"], {
-      version: "policy-text-cross-check@2",
+      version: "policy-text-cross-check@3",
       status: "skipped",
       reason: "load-failed"
     });
     assert.equal(upstreamHits.some((hit) => hit.endsWith("/privacy")), false);
     assert.equal(upstreamHits.some((hit) => hit.endsWith("/consent-click")), false);
     assert.equal(upstreamHits.some((hit) => hit.endsWith("/typed")), false);
+    assert.equal(
+      measurement.measurement.qualityFacts.captureLoss.some(
+        (loss) => loss.detail === "policy-visit" || loss.detail === "policy-link-candidates"
+      ),
+      false,
+      "a classified interstitial deliberately suppresses the vendor policy without claiming policy loss"
+    );
+
+    const zillow = await scanSiteWithMeasurement(
+      {
+        url: "http://zillow-error.test/",
+        device: "desktop",
+        gpcEnabled: false,
+        consentMode: "observe"
+      },
+      options
+    );
+    assert.equal(zillow.result.summary.status, 403);
+    assert.deepEqual(zillow.measurement.measurement.detectors["privacy-policy"], {
+      version: "policy-text-cross-check@3",
+      status: "skipped",
+      reason: "load-failed"
+    });
+    assert.equal(
+      zillow.measurement.measurement.qualityFacts.captureLoss.some(
+        (loss) => loss.detail === "policy-visit" || loss.detail === "policy-link-candidates"
+      ),
+      false,
+      "Zillow-style error pages stay silent even when their policy-link candidates hit the cap"
+    );
+
+    const policyCap = await scanSiteWithMeasurement(
+      {
+        url: "http://policy-cap.test/",
+        device: "desktop",
+        gpcEnabled: false,
+        consentMode: "observe"
+      },
+      options
+    );
+    assert.deepEqual(policyCap.measurement.measurement.detectors["privacy-policy"], {
+      version: "policy-text-cross-check@3",
+      status: "skipped",
+      reason: "evidence-cap-reached"
+    });
+    assert.equal(
+      policyCap.measurement.measurement.qualityFacts.captureLoss.some(
+        (loss) =>
+          loss.family === "detector-output" &&
+          loss.phaseId === null &&
+          loss.kind === "truncated" &&
+          loss.detail === "policy-link-candidates"
+      ),
+      true
+    );
+    assert.equal(
+      policyCap.measurement.measurement.qualityFacts.captureLoss.some(
+        (loss) => loss.detail === "policy-visit"
+      ),
+      false
+    );
 
     const legitimate = await scanSiteWithMeasurement(
       {
@@ -1656,15 +1758,26 @@ test("HTTP-200 robot pages and unavailable subject collectors fail quality and s
       reason: "load-failed"
     });
     assert.deepEqual(unavailable.measurement.measurement.detectors["keystroke-exfiltration"], {
-      version: "synthetic-sentinel@2",
+      version: "synthetic-sentinel@3",
       status: "skipped",
       reason: "load-failed"
     });
     assert.deepEqual(unavailable.measurement.measurement.detectors["privacy-policy"], {
-      version: "policy-text-cross-check@2",
+      version: "policy-text-cross-check@3",
       status: "skipped",
       reason: "load-failed"
     });
+    assert.equal(
+      unavailable.measurement.measurement.qualityFacts.captureLoss.some(
+        (loss) =>
+          loss.family === "detector-output" &&
+          loss.phaseId === null &&
+          loss.kind === "dropped" &&
+          loss.detail === "policy-visit"
+      ),
+      true,
+      "an unverified subject is not a silent failed-page exception"
+    );
     assert.equal(upstreamHits.some((hit) => hit.endsWith("/privacy")), false);
     assert.equal(upstreamHits.some((hit) => hit.endsWith("/consent-click")), false);
     assert.equal(upstreamHits.some((hit) => hit.endsWith("/typed")), false);
@@ -1738,12 +1851,12 @@ test("scanSite stages live phase-aware readbacks while returning only v1", { tim
     assert.equal(Object.keys(staged.measurement.detectors).length, 6);
     assert.equal(staged.measurement.detectors["fingerprint-heuristics"].status, "complete");
     assert.deepEqual(staged.measurement.detectors["keystroke-exfiltration"], {
-      version: "synthetic-sentinel@2",
+      version: "synthetic-sentinel@3",
       status: "complete",
       phaseId: 1
     });
     assert.deepEqual(staged!.measurement.detectors["cname-uncloaking"], {
-      version: "dns-cname-chain@2",
+      version: "dns-cname-chain@3",
       status: "failed",
       reason: "scan-failed",
       phaseId: 0
@@ -1821,6 +1934,84 @@ test("scanSite stages live phase-aware readbacks while returning only v1", { tim
   }
 });
 
+test("keystroke candidate overflow records exact detector-output truncation", { timeout: 30_000 }, async () => {
+  const upstream = createServer((_request, response) => {
+    response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+    response.end(`<!doctype html>
+      <title>Input coverage fixture</title>
+      <main>
+        <p>Ordinary form rendering fixture.</p>
+        ${Array.from(
+          { length: MAX_PROBE_FIELD_CANDIDATES + 1 },
+          (_, index) =>
+            `<input type="text" name="field-${index}" autocomplete="off">`
+        ).join("")}
+      </main>`);
+  });
+  await new Promise<void>((resolve, reject) => {
+    upstream.once("error", reject);
+    upstream.listen(0, "127.0.0.1", resolve);
+  });
+  const address = upstream.address();
+  assert.ok(address && typeof address === "object");
+
+  try {
+    const { measurement } = await scanSiteWithMeasurement(
+      {
+        url: "http://keystroke-cap.test/",
+        device: "desktop",
+        gpcEnabled: false,
+        consentMode: "observe"
+      },
+      {
+        publicUrlAlreadyVerified: true,
+        verifyPublicUrl: async () => undefined,
+        resolvePublicHost: async () => [
+          { address: "93.184.216.34", family: 4 }
+        ],
+        connectProxyUpstreamForTests: () =>
+          connect(address.port, "127.0.0.1"),
+        resolveCnameChain: async () => []
+      }
+    );
+
+    const activePhase = measurement.measurement.phases.find(
+      (phase) => phase.kind === "active-probe"
+    );
+    assert.ok(activePhase);
+    assert.deepEqual(
+      measurement.measurement.detectors["keystroke-exfiltration"],
+      {
+        version: "synthetic-sentinel@3",
+        status: "partial",
+        reason: "evidence-cap-reached",
+        phaseId: activePhase.phaseId
+      }
+    );
+    assert.deepEqual(
+      measurement.measurement.qualityFacts.captureLoss.find(
+        (loss) => loss.detail === "keystroke-probe-capture"
+      ),
+      {
+        family: "detector-output",
+        phaseId: activePhase.phaseId,
+        kind: "truncated",
+        count: 1,
+        detail: "keystroke-probe-capture"
+      }
+    );
+    assert.equal(
+      measurement.measurement.qualityFacts.captureLoss.some(
+        (loss) => loss.detail === "keystroke-probe"
+      ),
+      false
+    );
+  } finally {
+    await closeSharedBrowserForTests();
+    await new Promise<void>((resolve) => upstream.close(() => resolve()));
+  }
+});
+
 test("CNAME candidate overflow records detector-output loss instead of a complete negative", { timeout: 30_000 }, async () => {
   const upstream = createServer((request, response) => {
     const host = request.headers.host?.split(":")[0] ?? "";
@@ -1866,9 +2057,9 @@ test("CNAME candidate overflow records detector-output loss instead of a complet
 
     assert.equal(resolvedHosts.length, 10);
     assert.deepEqual(measurement.measurement.detectors["cname-uncloaking"], {
-      version: "dns-cname-chain@2",
+      version: "dns-cname-chain@3",
       status: "partial",
-      reason: "budget-unavailable",
+      reason: "evidence-cap-reached",
       phaseId: 0
     });
     assert.deepEqual(
@@ -1932,9 +2123,9 @@ test("a truncated recognized pixel POST censors pixel detector output", { timeou
 
     assert.equal(result.warnings.includes(PIXEL_DECODE_CAPTURE_LOSS_WARNING), true);
     assert.deepEqual(measurement.measurement.detectors["pixel-events"], {
-      version: "pixel-request-decoder@2",
+      version: "pixel-request-decoder@3",
       status: "partial",
-      reason: "budget-unavailable",
+      reason: "evidence-cap-reached",
       phaseId: 0
     });
     assert.ok(
@@ -2014,6 +2205,104 @@ test("scanSite marks fingerprint coverage partial when a poisoned main frame is 
           loss.count >= 1
       ),
       true
+    );
+  } finally {
+    await closeSharedBrowserForTests();
+    await new Promise<void>((resolve) => upstream.close(() => resolve()));
+  }
+});
+
+test("passive fingerprint loss remains causal when the consent snapshot is later and complete", { timeout: 30_000 }, async () => {
+  const upstream = createServer((request, response) => {
+    const host = request.headers.host?.split(":")[0] ?? "";
+    response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+    if (host === "clean-fingerprint-phase.test") {
+      response.end("<!doctype html><title>clean fingerprint frame</title>");
+      return;
+    }
+    const consented = (request.headers.cookie ?? "").includes(
+      "cmp-choice=granted"
+    );
+    response.end(
+      consented
+        ? "<!doctype html><title>clean post-consent snapshot</title><p>Thanks</p>"
+        : `<!doctype html><title>passive fingerprint loss</title>
+          <div id="onetrust-banner-sdk">
+            <button id="onetrust-accept-btn-handler"
+              onclick="document.cookie='cmp-choice=granted; path=/'; location.reload();">
+              Accept all
+            </button>
+          </div>
+          <iframe src="http://clean-fingerprint-phase.test/frame"></iframe>
+          <script>
+            for (let index = 0; index <= 256; index += 1) {
+              const canvas = document.createElement("canvas");
+              canvas.getContext("2d").fillText("abcdefghij", 0, 16);
+            }
+          </script>`
+    );
+  });
+  await new Promise<void>((resolve, reject) => {
+    upstream.once("error", reject);
+    upstream.listen(0, "127.0.0.1", resolve);
+  });
+  const address = upstream.address();
+  assert.ok(address && typeof address === "object");
+
+  try {
+    const { measurement: staged } = await scanSiteWithMeasurement(
+      {
+        url: "http://fingerprint-phase.test/",
+        device: "desktop",
+        gpcEnabled: false,
+        consentMode: "accept-all"
+      },
+      {
+        publicUrlAlreadyVerified: true,
+        verifyPublicUrl: async () => undefined,
+        resolvePublicHost: async () => [
+          { address: "93.184.216.34", family: 4 }
+        ],
+        connectProxyUpstreamForTests: () =>
+          connect(address.port, "127.0.0.1"),
+        resolveCnameChain: async () => []
+      }
+    );
+
+    const consentPhase = staged.measurement.phases.find(
+      (phase) => phase.kind === "consent-interaction"
+    );
+    assert.ok(consentPhase);
+    assert.deepEqual(
+      staged.measurement.detectors["fingerprint-heuristics"],
+      {
+        version: "fingerprint-observer@1",
+        status: "partial",
+        reason: "scan-failed",
+        phaseId: consentPhase.phaseId
+      }
+    );
+    const fingerprintLosses =
+      staged.measurement.qualityFacts.captureLoss.filter(
+        (loss) =>
+          loss.family === "fingerprinting" &&
+          loss.detail === "fingerprint-observer"
+      );
+    assert.equal(
+      fingerprintLosses.some(
+        (loss) =>
+          loss.phaseId === 0 &&
+          loss.kind === "dropped" &&
+          loss.count >= 1
+      ),
+      true
+    );
+    assert.equal(
+      fingerprintLosses.some(
+        (loss) => loss.phaseId === consentPhase.phaseId
+      ),
+      false,
+      "the real causal loss belongs to the earlier passive boundary"
     );
   } finally {
     await closeSharedBrowserForTests();
@@ -2483,6 +2772,77 @@ test("a closed Usercentrics root remains clickable under a hostile localStorage 
   }
 });
 
+test("observe-mode consent timeout anchors detector and loss to the passive phase", { timeout: 30_000 }, async () => {
+  const controls = Array.from(
+    { length: 30_000 },
+    (_, index) => `<button data-fixture="${index}">ordinary control</button>`
+  ).join("");
+  const upstream = createServer((_request, response) => {
+    response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+    response.end(
+      `<!doctype html><title>Consent visibility timeout fixture</title>${controls}`
+    );
+  });
+  await new Promise<void>((resolve, reject) => {
+    upstream.once("error", reject);
+    upstream.listen(0, "127.0.0.1", resolve);
+  });
+  const address = upstream.address();
+  assert.ok(address && typeof address === "object");
+
+  process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION = "1";
+  try {
+    const { measurement: staged } = await scanSiteWithMeasurement(
+      {
+        url: "http://consent-timeout.test/",
+        device: "desktop",
+        gpcEnabled: false,
+        consentMode: "observe"
+      },
+      {
+        publicUrlAlreadyVerified: true,
+        verifyPublicUrl: async () => undefined,
+        resolvePublicHost: async () => [
+          { address: "93.184.216.34", family: 4 }
+        ],
+        connectProxyUpstreamForTests: () =>
+          connect(address.port, "127.0.0.1"),
+        resolveCnameChain: async () => [],
+        consentVisibilityProbeTimeoutMsForTests: 1
+      }
+    );
+
+    const passivePhase = staged.measurement.phases.find(
+      (phase) => phase.kind === "passive-load"
+    );
+    assert.ok(passivePhase);
+    assert.deepEqual(staged.measurement.detectors["consent-banner"], {
+      version: "consent-control-and-state@2",
+      status: "skipped",
+      reason: "budget-unavailable",
+      phaseId: passivePhase.phaseId
+    });
+    assert.deepEqual(
+      staged.measurement.qualityFacts.captureLoss.find(
+        (loss) =>
+          loss.family === "detector-output" &&
+          loss.detail === "consent-banner"
+      ),
+      {
+        family: "detector-output",
+        phaseId: passivePhase.phaseId,
+        kind: "cap",
+        count: 1,
+        detail: "consent-banner"
+      }
+    );
+  } finally {
+    delete process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION;
+    await closeSharedBrowserForTests();
+    await new Promise<void>((resolve) => upstream.close(() => resolve()));
+  }
+});
+
 test("observe-mode verification sees a closed Usercentrics root without invoking page-owned geometry", { timeout: 20_000 }, async () => {
   let closedRootProbeRequests = 0;
   let clickRequests = 0;
@@ -2773,7 +3133,7 @@ test("a consent click cannot promote a sibling origin into evidence or active-in
       phaseId: 1
     });
     assert.deepEqual(staged!.measurement.detectors["keystroke-exfiltration"], {
-      version: "synthetic-sentinel@2",
+      version: "synthetic-sentinel@3",
       status: "skipped",
       reason: "load-failed"
     });
@@ -3076,7 +3436,7 @@ test("post-consent cross-site reload evidence is rejected and the active input p
     );
     const reloadPhase = staged!.measurement.phases.find((phase) => phase.kind === "post-choice-reload")!;
     assert.deepEqual(staged!.measurement.detectors["keystroke-exfiltration"], {
-      version: "synthetic-sentinel@2",
+      version: "synthetic-sentinel@3",
       status: "skipped",
       reason: "load-failed"
     });
