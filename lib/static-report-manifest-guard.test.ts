@@ -36,8 +36,8 @@ test("the static manifest guard accepts one complete bounded entry", () => {
   }), true);
 });
 
-test("every renderer-required metric is mandatory and finite", () => {
-  for (const metric of Object.keys(ENTRY.metrics)) {
+test("renderer-required metrics are mandatory while detector-incomplete fingerprint counts may be omitted", () => {
+  for (const metric of Object.keys(ENTRY.metrics).filter((metric) => metric !== "fingerprintEvents")) {
     const metrics = { ...ENTRY.metrics } as Record<string, unknown>;
     delete metrics[metric];
     assert.equal(isStaticReportManifest({
@@ -49,6 +49,16 @@ test("every renderer-required metric is mandatory and finite", () => {
   assert.equal(isStaticReportManifest({
     generatedAt: "2026-07-21T00:00:00.000Z",
     reports: [{ ...ENTRY, metrics: { ...ENTRY.metrics, knownTrackerRequests: Number.NaN } }]
+  }), false);
+  const withoutFingerprint = { ...ENTRY.metrics } as Record<string, unknown>;
+  delete withoutFingerprint.fingerprintEvents;
+  assert.equal(isStaticReportManifest({
+    generatedAt: "2026-07-21T00:00:00.000Z",
+    reports: [{ ...ENTRY, metrics: withoutFingerprint }]
+  }), true);
+  assert.equal(isStaticReportManifest({
+    generatedAt: "2026-07-21T00:00:00.000Z",
+    reports: [{ ...ENTRY, metrics: { ...ENTRY.metrics, fingerprintEvents: Number.NaN } }]
   }), false);
 });
 

@@ -212,6 +212,31 @@ test("r2 archive entries expose one methodology-aware history group", async () =
   assert.equal(manifest.reports[0].comparisonHistoryKey, manifest.reports[1].comparisonHistoryKey);
 });
 
+test("manifest omits an unmeasured fingerprint zero while retaining unrelated metrics", async () => {
+  const id = "20260703-cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd";
+  const report = makePublicSingleReportV2R2();
+  report.run.subject.requested = {
+    origin: "https://manifest-detector-gap.dev",
+    registrableDomain: "manifest-detector-gap.dev",
+    routeShape: "/"
+  };
+  report.run.subject.observed = { ...report.run.subject.requested };
+  report.run.detectors["fingerprint-heuristics"] = {
+    ...report.run.detectors["fingerprint-heuristics"],
+    status: "failed",
+    reason: "scan-failed"
+  };
+  report.share = buildStaticReportShare(id);
+  const current = currentR2FixedPoint(report);
+  await writeRawManagedReport(id, current);
+
+  const { manifest } = await buildStaticReportManifest(reportsDir);
+  const entry = manifest.reports.find((candidate) => candidate.id === id);
+  assert.ok(entry);
+  assert.equal(entry.metrics.fingerprintEvents, undefined);
+  assert.equal(typeof entry.metrics.thirdPartyRequests, "number");
+});
+
 test("comparison history excludes failed, capped, and block-simulation visits", async () => {
   const failed = makeResult({ status: 403 });
   failed.conditions.shieldsMode = "classification";

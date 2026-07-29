@@ -1,4 +1,5 @@
 import { isReservedReportDomain } from "./reserved-report-domains";
+import { buildReportFacts } from "./report-facts";
 import { buildReportHeadline } from "./report-headline";
 import { displayRunView, runHitRequestRecordingCap, toReportView, type ReportView } from "./scan-report-views";
 import {
@@ -100,7 +101,9 @@ function toManifestEntry(
     finalUrl: lead.conditions.finalUrl,
     comparisonHistoryCohort: comparisonHistoryCohortForStoredReport(stored, view)
   });
-  const headline = buildReportHeadline(view);
+  const reportFacts = buildReportFacts(view);
+  const headline = buildReportHeadline(view, reportFacts);
+  const leadFacts = reportFacts.display;
 
   return {
     id,
@@ -130,7 +133,9 @@ function toManifestEntry(
       thirdPartyDomains: lead.counts.thirdPartyDomains,
       cookies: lead.counts.cookies,
       thirdPartyCookies: lead.counts.thirdPartyCookies,
-      fingerprintEvents: lead.counts.fingerprintEvents,
+      ...(leadFacts.claims["fingerprint-apis"].exactCountAllowed
+        ? { fingerprintEvents: lead.counts.fingerprintEvents }
+        : {}),
       ...(lead.counts.shieldsBlockedRequests !== null ? { shieldsBlockedRequests: lead.counts.shieldsBlockedRequests } : {})
     }
   };

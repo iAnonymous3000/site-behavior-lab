@@ -30,6 +30,7 @@ import { isCorpusStats, type CorpusStats } from "@/lib/corpus-stats";
 import { buildFindings, type FindingIconKey } from "@/lib/report-findings";
 import type { ReportHeadline } from "@/lib/report-headline";
 import {
+  claimCountValue,
   retainedCountLabel,
   type ReportFacts,
   type RunFacts
@@ -304,6 +305,26 @@ export function MetricGrid({ facts }: { facts: RunFacts }) {
   const storageState = facts.evidence.storage.state;
   const fingerprintState = facts.evidence.fingerprinting.state;
   const fingerprintClaim = facts.claims["fingerprint-apis"];
+  const fingerprintDetectorIncomplete =
+    fingerprintClaim.blockers.includes("detector-incomplete");
+  const fingerprintValue =
+    fingerprintState === "unsupported"
+      ? "Not captured"
+      : fingerprintDetectorIncomplete
+        ? claimCountValue(run.counts.fingerprintEvents, fingerprintClaim)
+        : fingerprintState === "censored"
+          ? retainedCountLabel(run.counts.fingerprintEvents, fingerprintState)
+          : run.counts.fingerprintEvents;
+  const fingerprintDetail =
+    fingerprintState === "unsupported"
+      ? "unsupported by PageGraph import"
+      : fingerprintDetectorIncomplete
+        ? run.counts.fingerprintEvents > 0
+          ? `${run.counts.fingerprintEvents.toLocaleString("en-US")} API events retained; fingerprint detector incomplete`
+          : "fingerprint detector incomplete; no exact count available"
+        : highEntropyDetectionCount > 0
+          ? `${plural(highEntropyDetectionCount, "high-entropy heuristic")} matched`
+          : `${apiFamilies.toLocaleString("en-US")} API ${apiFamilies === 1 ? "family" : "families"}`;
   const shieldsMeasurement = facts.signals.shields.measurement;
   const shieldsConfigured = run.conditions.shieldsMode !== null && run.conditions.shieldsMode !== "off";
   const gpcMeasurement = gpcRunMeasurement(run);
@@ -417,19 +438,8 @@ export function MetricGrid({ facts }: { facts: RunFacts }) {
     },
     {
       label: "Fingerprint API calls",
-      value:
-        fingerprintState === "unsupported"
-          ? "Not captured"
-          : fingerprintState === "censored"
-            ? retainedCountLabel(run.counts.fingerprintEvents, fingerprintState)
-            : run.counts.fingerprintEvents,
-      detail: fingerprintState === "unsupported"
-        ? "unsupported by PageGraph import"
-        : fingerprintClaim.blockers.includes("detector-incomplete")
-          ? "API events retained; fingerprint detector incomplete"
-        : highEntropyDetectionCount > 0
-          ? `${plural(highEntropyDetectionCount, "high-entropy heuristic")} matched`
-          : `${apiFamilies.toLocaleString("en-US")} API ${apiFamilies === 1 ? "family" : "families"}`,
+      value: fingerprintValue,
+      detail: fingerprintDetail,
       icon: Fingerprint
     },
     ...(facts.signals.fingerprint.listenerCoverageObserved

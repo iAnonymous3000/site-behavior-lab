@@ -903,6 +903,25 @@ test("raw fingerprint-observer events get an informational API story below the d
   assert.doesNotMatch(headline.subhead, /no .*fingerprinting signal/i);
 });
 
+test("a partial fingerprint detector states retained API events as a lower bound", () => {
+  const report = makePublicSingleReportV2R2();
+  report.run.summary.counts.fingerprintEvents = 3;
+  report.run.evidence.fingerprintEvents = [
+    { api: "canvas.toDataURL", count: 3, phaseId: 0 }
+  ];
+  report.run.detectors["fingerprint-heuristics"] = {
+    ...report.run.detectors["fingerprint-heuristics"],
+    status: "partial",
+    reason: "budget-unavailable"
+  };
+
+  const headline = buildReportHeadline(viewFromV2(report, 2));
+  assert.equal(headline.semantic.story, "raw-fingerprint-events");
+  assert.match(headline.subhead, /At least 3 retained browser-API events/);
+  assert.match(headline.subhead, /incomplete instrumentation log/);
+  assert.doesNotMatch(headline.subhead, /^3 browser-API events appeared/);
+});
+
 test("a request-capped quiet visit is framed as cut short, never as relatively private", () => {
   // 1,200 recorded requests trips the cap rule; with no catalogued trackers
   // the old calm story would have read truncation as privacy.

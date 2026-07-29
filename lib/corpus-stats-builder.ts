@@ -13,6 +13,7 @@ import {
   type MetricDistribution
 } from "./corpus-stats";
 import { isReservedReportDomain } from "./reserved-report-domains";
+import { buildRunFacts } from "./report-facts";
 import { displayRunView, familyCensoredOnRun, runHitRequestRecordingCap, toReportView } from "./scan-report-view";
 import {
   listDanglingStaticSidecarIds,
@@ -142,6 +143,7 @@ export async function buildCorpusStats(reportsDir: string, now = new Date()): Pr
     if (!byCohort.has(identity.id)) byCohort.set(identity.id, cohort);
     const existing = cohort.bySite.get(leadDomain);
     if (existing && !preferCorpusRepresentative({ id, scannedAt }, existing)) continue;
+    const facts = buildRunFacts(result);
 
     cohort.bySite.set(leadDomain, {
       id,
@@ -156,11 +158,11 @@ export async function buildCorpusStats(reportsDir: string, now = new Date()): Pr
         fingerprintEvents: result.counts.fingerprintEvents
       },
       metricAvailability: {
-        thirdPartyRequests: true,
-        thirdPartyDomains: true,
-        knownTrackerRequests: true,
-        thirdPartyCookies: !familyCensoredOnRun(result, "cookies"),
-        fingerprintEvents: !familyCensoredOnRun(result, "fingerprinting")
+        thirdPartyRequests: facts.claims["third-party-services"].benchmarkAllowed,
+        thirdPartyDomains: facts.claims["third-party-services"].benchmarkAllowed,
+        knownTrackerRequests: facts.claims["third-party-services"].benchmarkAllowed,
+        thirdPartyCookies: facts.claims["third-party-cookies"].benchmarkAllowed,
+        fingerprintEvents: facts.claims["fingerprint-apis"].benchmarkAllowed
       }
     });
   }

@@ -159,7 +159,8 @@ export function buildReportHeadline(
   const sessionRecording = Boolean(facts.signals.fingerprint.sessionRecording);
   const inputMonitoring = Boolean(facts.signals.fingerprint.inputMonitoring);
   const requestState = facts.evidence.requests.state;
-  const fingerprintEvidenceIncomplete = facts.claims["fingerprint-apis"].blockers.some(
+  const fingerprintClaim = facts.claims["fingerprint-apis"];
+  const fingerprintEvidenceIncomplete = fingerprintClaim.blockers.some(
     (blocker) => blocker !== "subject-not-established"
   );
   const stats = buildStats(facts, trackingEntities.length);
@@ -747,16 +748,27 @@ export function buildReportHeadline(
   }
 
   if (run.counts.fingerprintEvents > 0) {
-    const fingerprintState = facts.evidence.fingerprinting.state;
+    const eventObservation = fingerprintClaim.exactCountAllowed
+      ? `${plural(
+          run.counts.fingerprintEvents,
+          "browser-API event",
+          "browser-API events"
+        )} appeared in the instrumentation log.`
+      : fingerprintClaim.lowerBound
+        ? `At least ${plural(
+            run.counts.fingerprintEvents,
+            "retained browser-API event",
+            "retained browser-API events"
+          )} appeared in the incomplete instrumentation log.`
+        : `The incomplete instrumentation log retained ${plural(
+            run.counts.fingerprintEvents,
+            "browser-API event record",
+            "browser-API event records"
+          )}; this is not an exact total.`;
     return finish(
       "info",
       `${domain} called instrumented browser APIs during this visit.`,
-      `${retainedCountPhrase(
-        run.counts.fingerprintEvents,
-        "browser-API event",
-        "browser-API events",
-        fingerprintState
-      )} appeared in the instrumentation log. These APIs can support legitimate graphics or media use, so the observation is not proof of fingerprinting intent.${
+      `${eventObservation} These APIs can support legitimate graphics or media use, so the observation is not proof of fingerprinting intent.${
         fingerprintEvidenceIncomplete
           ? " Fingerprinting-heuristic evaluation was incomplete."
           : ""

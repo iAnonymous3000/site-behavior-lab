@@ -280,6 +280,35 @@ test("r2 reports get a separate methodology cohort and never enter the legacy v1
   assert.deepEqual(warnings, []);
 });
 
+test("an incomplete detector removes only its own metric from the corpus distribution", async () => {
+  const id = "20260710-12121212121212121212121212121212";
+  let r2 = makePublicSingleReportV2R2();
+  const subject = {
+    origin: "https://detector-gap-fixture.dev",
+    registrableDomain: "detector-gap-fixture.dev",
+    routeShape: "/"
+  };
+  r2.run.subject = { requested: subject, observed: { ...subject } };
+  r2.run.detectors["fingerprint-heuristics"] = {
+    ...r2.run.detectors["fingerprint-heuristics"],
+    status: "failed",
+    reason: "scan-failed"
+  };
+  assert.equal(r2.run.quality.byFamily.fingerprinting.outcome, "complete");
+  r2.share = buildStaticReportShare(id);
+  r2 = currentR2FixedPoint(r2);
+  await writeRawManagedReport(id, r2);
+
+  const { stats, warnings } = await buildCorpusStats(reportsDir);
+  assert.deepEqual(warnings, []);
+  assert.equal(stats.coverageSiteCount, 1, "the loaded site remains covered");
+  const cohort = stats.cohorts?.find((candidate) => candidate.schemaVersion === 2);
+  assert.equal(cohort?.sampleSize, 1, "the site remains in its compatible cohort");
+  assert.equal(cohort?.metrics.fingerprintEvents, undefined, "the unmeasured zero cannot enter a percentile");
+  assert.equal(cohort?.metrics.thirdPartyRequests?.count, 1, "unrelated request metrics remain measured");
+  assert.equal(cohort?.metrics.thirdPartyCookies?.count, 1, "unrelated cookie metrics remain measured");
+});
+
 test("a GPC-requesting run never shares a distribution with a plain visit", async () => {
   // The GPC lane and the plain lane did not observe the same population: while
   // every scan sent the signal, the injector blocked blob: workers and censored

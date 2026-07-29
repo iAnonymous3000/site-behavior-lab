@@ -88,7 +88,7 @@ export type ClaimEligibility = {
   families: EvidenceFamily[];
   detectors: DetectorId[];
   subjectScope: "requested-page" | "returned-document";
-  /** Exact counts are unavailable under family censoring; monotonic counts remain lower bounds. */
+  /** Exact counts are unavailable under family or detector incompleteness. */
   exactCountAllowed: boolean;
   lowerBound: boolean;
   benchmarkAllowed: boolean;
@@ -354,12 +354,38 @@ export function claimEligibilityFor(facts: RunFacts, claim: ReportClaimId): Clai
   return facts.claims[claim];
 }
 
+/**
+ * A cross-arm numeric delta is exact only when both runs measured that claim
+ * exactly. The wire's broad detector-findings comparison family can still be
+ * comparable when the same detector stopped in both arms; equal failure is
+ * instrument parity, not a pair of measurements.
+ */
+export function comparisonArmsHaveExactClaimMeasurements(
+  facts: ReportFacts,
+  claim: ReportClaimId
+): boolean {
+  return Boolean(
+    facts.arms?.baseline.claims[claim].exactCountAllowed &&
+      facts.arms.variant.claims[claim].exactCountAllowed
+  );
+}
+
 export function evidenceStateFor(facts: RunFacts, family: EvidenceFamily): EvidenceState {
   return facts.evidence[family].state;
 }
 
 export function retainedCountLabel(value: number, state: EvidenceState): string {
   return state === "censored" ? `≥${value.toLocaleString("en-US")}` : value.toLocaleString("en-US");
+}
+
+/** Human-facing numeric value for a claim whose measurement may be partial or unavailable. */
+export function claimCountValue(
+  value: number,
+  eligibility: Pick<ClaimEligibility, "exactCountAllowed" | "lowerBound">
+): number | string {
+  if (eligibility.exactCountAllowed) return value;
+  if (eligibility.lowerBound && value > 0) return `≥${value.toLocaleString("en-US")}`;
+  return "Incomplete";
 }
 
 export function retainedCountPhrase(
@@ -450,10 +476,11 @@ function claimEligibility(
     if (evidence[family].state === "censored") blockers.add("family-censored");
   }
   const detectors = requirement.detectors ?? [];
-  if (
-    run.detectors &&
-    detectors.some((detector) => run.detectors?.[detector]?.status !== "complete")
-  ) {
+  const detectorStatuses = run.detectors
+    ? detectors.map((detector) => run.detectors?.[detector]?.status ?? null)
+    : [];
+  const detectorIncomplete = detectorStatuses.some((status) => status !== "complete");
+  if (detectorIncomplete) {
     blockers.add("detector-incomplete");
   }
   const familyIncomplete = requirement.families.some(
@@ -462,18 +489,43 @@ function claimEligibility(
   const familyCensored = requirement.families.some(
     (family) => evidence[family].state === "censored"
   );
+  const familyUnsupported = requirement.families.some(
+    (family) => evidence[family].state === "unsupported"
+  );
+  // An unfinished detector's zero is not a measurement, so it may not be
+  // published as an exact count or ranked against a population.
+  //
+  // Scoped to THIS CLAIM'S OWN detectors. Flattening it to every family the
+  // registry touches censored unrelated measurements: `detector-output` is
+  // shared, so an ordinary probe-disabled keystroke or policy detector would
+  // have dragged down a completed pixel or CNAME claim that measured fine.
+  // Only a PARTIAL detector supports a retained lower bound on its own.
+  // Failed/skipped/unsupported can mean the measurement never ran, so absent
+  // a recorded family loss they are unavailable rather than "at least zero."
+  const detectorPartial =
+    detectorStatuses.some((status) => status === "partial") &&
+    detectorStatuses.every((status) => status === "complete" || status === "partial");
+  const detectorUnavailable = detectorStatuses.some(
+    (status) => status !== "complete" && status !== "partial"
+  );
+  const exactCountAllowed =
+    requirement.count !== "none" && !familyIncomplete && !detectorIncomplete;
   return {
     allowed: blockers.size === 0,
     blockers: [...blockers],
     families: [...requirement.families],
     detectors: [...detectors],
     subjectScope: subject.describesSubject ? "requested-page" : "returned-document",
-    exactCountAllowed: requirement.count !== "none" && !familyIncomplete,
-    lowerBound: requirement.count === "monotonic" && familyCensored,
+    exactCountAllowed,
+    lowerBound:
+      requirement.count === "monotonic" &&
+      !familyUnsupported &&
+      !detectorUnavailable &&
+      (familyCensored || detectorPartial),
     benchmarkAllowed:
+      exactCountAllowed &&
       subject.describesSubject &&
-      run.quality.outcome === "complete" &&
-      requirement.families.every((family) => evidence[family].state === "complete")
+      run.quality.outcome === "complete"
   };
 }
 

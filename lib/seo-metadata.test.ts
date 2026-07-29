@@ -10,7 +10,9 @@ import {
   SITE_TITLE_SUFFIX,
   sitemapLastModified
 } from "./seo-metadata";
-import type { ReportHeadline } from "./report-headline";
+import { buildReportHeadline, type ReportHeadline } from "./report-headline";
+import { makePublicSingleReportV2R2 } from "./scan-report-v2-r2-fixtures";
+import { viewFromV2 } from "./scan-report-views";
 
 test("report metadata is concise, report-specific, and retains the evidence caveat", () => {
   const title = reportMetadataTitle({
@@ -69,6 +71,21 @@ test("report metadata is concise, report-specific, and retains the evidence cave
 test("metadata truncation collapses whitespace and stops cleanly", () => {
   assert.equal(conciseMetadataText("  one\n two   three  ", 20), "one two three");
   assert.equal(conciseMetadataText("one two three four five", 16), "one two three…");
+});
+
+test("report metadata never turns an incomplete fingerprint detector into clean absence copy", () => {
+  const report = makePublicSingleReportV2R2();
+  report.run.detectors["fingerprint-heuristics"] = {
+    ...report.run.detectors["fingerprint-heuristics"],
+    status: "failed",
+    reason: "scan-failed"
+  };
+  const headline = buildReportHeadline(viewFromV2(report, 2));
+  const description = reportMetadataDescription(headline);
+
+  assert.equal(headline.tone, "info");
+  assert.doesNotMatch(`${headline.headline} ${headline.subhead} ${description}`, /looked quiet|few .* signals|no fingerprint-observer events/i);
+  assert.match(`${headline.headline} ${headline.subhead}`, /needs context|did not finish|unproven/i);
 });
 
 test("sitemap dates are evidence-derived, valid, and never future-dated", () => {

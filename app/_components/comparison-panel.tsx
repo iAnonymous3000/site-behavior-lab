@@ -3,6 +3,10 @@
 import { useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import { comparisonArmViews, comparisonDiffView, type ReportView } from "@/lib/scan-report-views";
+import {
+  comparisonArmsHaveExactClaimMeasurements,
+  type ReportFacts
+} from "@/lib/report-facts";
 import { provenanceChangeText } from "@/lib/report-findings";
 import { pixelFieldLabel } from "@/lib/report-insights";
 import {
@@ -29,7 +33,7 @@ import type {
   StorageKeyChange
 } from "@/lib/types";
 
-function ComparisonPanel({ view }: { view: ReportView }) {
+function ComparisonPanel({ view, facts }: { view: ReportView; facts: ReportFacts }) {
   const arms = comparisonArmViews(view);
   // The two-arm evidence diff, derived through the same builder the v1
   // producer used to write the wire's diff block, so a v2 pair or a tampered
@@ -49,6 +53,12 @@ function ComparisonPanel({ view }: { view: ReportView }) {
   const rawCountsAllowed = pairAllowed && families?.["raw-counts"]?.allowed === true;
   const classificationAllowed = pairAllowed && families?.["tracker-classification"]?.allowed === true;
   const detectorAllowed = pairAllowed && families?.["detector-findings"]?.allowed === true;
+  const fingerprintDeltaAllowed =
+    detectorAllowed &&
+    comparisonArmsHaveExactClaimMeasurements(facts, "fingerprint-apis");
+  const pixelDeltaAllowed =
+    detectorAllowed &&
+    comparisonArmsHaveExactClaimMeasurements(facts, "pixel-events");
   const shieldsSimAllowed = pairAllowed && families?.["shields-simulation"]?.allowed === true;
   const shieldsMetricLabel = [arms.baseline, arms.variant].every(
     (arm) => arm.conditions.shieldsMode === "block-simulation"
@@ -84,7 +94,9 @@ function ComparisonPanel({ view }: { view: ReportView }) {
         ]
       : []),
     ...(classificationAllowed ? [{ label: "Known-service requests", metric: diff.knownTrackerRequests }] : []),
-    ...(detectorAllowed ? [{ label: "Fingerprint events", metric: diff.fingerprintEvents }] : []),
+    ...(fingerprintDeltaAllowed
+      ? [{ label: "Fingerprint events", metric: diff.fingerprintEvents }]
+      : []),
     ...(shieldsSimAllowed && diff.shieldsBlockedRequests
       ? [{ label: shieldsMetricLabel, metric: diff.shieldsBlockedRequests }]
       : [])
@@ -122,6 +134,20 @@ function ComparisonPanel({ view }: { view: ReportView }) {
     // family was never measured at all (the suppressed case names why).
     if (!shieldsSimAllowed && (diff.shieldsBlockedRequests || decision.families["shields-simulation"].mode === "suppressed")) {
       note("shields-simulation", "The Shields-number delta");
+    }
+    if (detectorAllowed && !fingerprintDeltaAllowed) {
+      familyNotes.push({
+        label: "Fingerprinting deltas",
+        mode: "raw-only",
+        reasons: ["At least one visit did not complete the fingerprint measurement, so no exact cross-visit delta is shown."]
+      });
+    }
+    if (detectorAllowed && !pixelDeltaAllowed) {
+      familyNotes.push({
+        label: "Ad-pixel deltas",
+        mode: "raw-only",
+        reasons: ["At least one visit did not complete the pixel measurement, so no exact cross-visit delta is shown."]
+      });
     }
   }
 
@@ -241,13 +267,13 @@ function ComparisonPanel({ view }: { view: ReportView }) {
                 <EntityChangeList title={`Entities only with ${labels.baseline}`} changes={diff.removedEntities} />
               </>
             )}
-            {detectorAllowed && (addedFingerprinting.length > 0 || removedFingerprinting.length > 0) && (
+            {fingerprintDeltaAllowed && (addedFingerprinting.length > 0 || removedFingerprinting.length > 0) && (
               <>
                 <FingerprintingChangeList title={`Fingerprinting only with ${labels.variant}`} changes={addedFingerprinting} />
                 <FingerprintingChangeList title={`Fingerprinting only with ${labels.baseline}`} changes={removedFingerprinting} />
               </>
             )}
-            {detectorAllowed && (addedPixelEvents.length > 0 || removedPixelEvents.length > 0) && (
+            {pixelDeltaAllowed && (addedPixelEvents.length > 0 || removedPixelEvents.length > 0) && (
               <>
                 <PixelEventChangeList title={`Ad pixels only with ${labels.variant}`} changes={addedPixelEvents} />
                 <PixelEventChangeList title={`Ad pixels only with ${labels.baseline}`} changes={removedPixelEvents} />

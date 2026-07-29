@@ -127,6 +127,98 @@ test("omits PageGraph-unsupported metrics instead of publishing observed zeroes"
   assert.match(String(quality?.description), /Unsupported measurements omitted/);
 });
 
+test("omits detector-incomplete metrics instead of publishing an unmeasured zero", () => {
+  const view = viewFromV2(makePublicSingleReportV2R2(), 2);
+  const run = view.runs[0];
+  assert.ok(run.detectors);
+  run.detectors["fingerprint-heuristics"] = {
+    ...run.detectors["fingerprint-heuristics"],
+    status: "failed",
+    reason: "scan-failed"
+  };
+  assert.equal(run.counts.fingerprintEvents, 0);
+  assert.equal(run.quality.byFamily?.fingerprinting.outcome, "complete");
+
+  const measured = buildReportDataset(view, {
+    url: "https://example.org/reports/detector-incomplete/"
+  }).variableMeasured as Array<Record<string, unknown>>;
+
+  assert.ok(
+    !measured.some((entry) => entry.name === "Fingerprint-like API calls"),
+    "an unfinished detector must not publish its zero as a measurement"
+  );
+  assert.ok(
+    measured.some((entry) => entry.name === "Third-party requests" && "value" in entry),
+    "unrelated measurements remain exact"
+  );
+  const quality = measured.find((entry) => entry.name === "Measurement quality");
+  assert.equal(quality?.value, "incomplete");
+  assert.match(String(quality?.description), /Unavailable detector measurements omitted: Fingerprint-like API calls/);
+
+  const failedWithLossView = viewFromV2(makePublicSingleReportV2R2(), 2);
+  const failedWithLossRun = failedWithLossView.runs[0];
+  assert.ok(failedWithLossRun.detectors && failedWithLossRun.quality.facts);
+  failedWithLossRun.detectors["fingerprint-heuristics"] = {
+    ...failedWithLossRun.detectors["fingerprint-heuristics"],
+    status: "failed",
+    reason: "engine-unavailable"
+  };
+  failedWithLossRun.quality.byFamily!.fingerprinting = {
+    outcome: "censored",
+    reasons: ["capture-loss:dropped"]
+  };
+  failedWithLossRun.quality.facts.captureLoss.push({
+    family: "fingerprinting",
+    phaseId: null,
+    kind: "dropped",
+    count: 0,
+    detail: "fingerprint-observer"
+  });
+  const failedWithLossMeasured = buildReportDataset(failedWithLossView, {
+    url: "https://example.org/reports/detector-failed-with-loss/"
+  }).variableMeasured as Array<Record<string, unknown>>;
+  assert.ok(
+    !failedWithLossMeasured.some((entry) => entry.name === "Fingerprint-like API calls"),
+    "a failed observer with capture loss is unavailable, not minValue zero"
+  );
+
+  const partialView = viewFromV2(makePublicSingleReportV2R2(), 2);
+  const partialRun = partialView.runs[0];
+  assert.ok(partialRun.detectors);
+  partialRun.counts.fingerprintEvents = 3;
+  partialRun.detectors["fingerprint-heuristics"] = {
+    ...partialRun.detectors["fingerprint-heuristics"],
+    status: "partial",
+    reason: "budget-unavailable"
+  };
+  const partialDataset = buildReportDataset(partialView, {
+    url: "https://example.org/reports/detector-partial/"
+  });
+  const partialMeasured = partialDataset.variableMeasured as Array<Record<string, unknown>>;
+  const fingerprint = partialMeasured.find((entry) => entry.name === "Fingerprint-like API calls");
+  assert.equal(fingerprint?.minValue, 3);
+  assert.equal("value" in (fingerprint ?? {}), false);
+  assert.match(String(fingerprint?.description), /detector that completed only part/);
+  assert.match(String(partialDataset.description), /At least 3 retained browser-API events/);
+  assert.doesNotMatch(String(partialDataset.description), /^3 browser-API events appeared/);
+
+  const partialZeroView = viewFromV2(makePublicSingleReportV2R2(), 2);
+  const partialZeroRun = partialZeroView.runs[0];
+  assert.ok(partialZeroRun.detectors);
+  partialZeroRun.detectors["fingerprint-heuristics"] = {
+    ...partialZeroRun.detectors["fingerprint-heuristics"],
+    status: "partial",
+    reason: "budget-unavailable"
+  };
+  const partialZeroMeasured = buildReportDataset(partialZeroView, {
+    url: "https://example.org/reports/detector-partial-zero/"
+  }).variableMeasured as Array<Record<string, unknown>>;
+  assert.ok(
+    !partialZeroMeasured.some((entry) => entry.name === "Fingerprint-like API calls"),
+    "a zero lower bound conveys no measurement and must be omitted"
+  );
+});
+
 test("publishes failed-visit counts as lower bounds rather than exact zeroes", () => {
   const dataset = buildReportDataset(viewFromV1Report(makeResult({ status: 500 })), {
     url: "https://example.org/reports/failed/"

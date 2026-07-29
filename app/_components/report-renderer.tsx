@@ -159,7 +159,9 @@ export function ReportRenderer({
             liveApiServesReportPages={liveApiServesReportPages}
           />
           <FindingsBoard view={reportView} facts={reportFacts} headline={headline} />
-          {reportView.reportType === "comparison" && <ComparisonPanel view={reportView} />}
+          {reportView.reportType === "comparison" && (
+            <ComparisonPanel view={reportView} facts={reportFacts} />
+          )}
           {arms && (
             <div className="arm-switcher" role="group" aria-label="Which visit's evidence the tables below show">
               <span>Evidence shown:</span>

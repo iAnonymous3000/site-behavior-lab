@@ -1,5 +1,9 @@
 import { buildReportHeadline } from "./report-headline";
-import { buildReportFacts, type RunFacts } from "./report-facts";
+import {
+  buildReportFacts,
+  type ReportClaimId,
+  type RunFacts
+} from "./report-facts";
 import {
   comparisonArmViews,
   displayRunView,
@@ -105,19 +109,51 @@ type CountMeasurement = {
   name: string;
   value: number;
   family: "requests" | "cookies" | "fingerprinting";
+  claim: ReportClaimId;
 };
 
 function runMeasurements(run: RunView, facts: RunFacts, runLabel?: string): Record<string, unknown>[] {
   const suffix = runLabel ? ` (${runLabel})` : "";
   const measurements: CountMeasurement[] = [
-    { name: `Third-party requests${suffix}`, value: run.counts.thirdPartyRequests, family: "requests" },
-    { name: `Catalogued service requests${suffix}`, value: run.counts.knownTrackerRequests, family: "requests" },
-    { name: `Third-party domains${suffix}`, value: run.counts.thirdPartyDomains, family: "requests" },
-    { name: `Third-party cookies${suffix}`, value: run.counts.thirdPartyCookies, family: "cookies" },
-    { name: `Fingerprint-like API calls${suffix}`, value: run.counts.fingerprintEvents, family: "fingerprinting" }
+    {
+      name: `Third-party requests${suffix}`,
+      value: run.counts.thirdPartyRequests,
+      family: "requests",
+      claim: "third-party-services"
+    },
+    {
+      name: `Catalogued service requests${suffix}`,
+      value: run.counts.knownTrackerRequests,
+      family: "requests",
+      claim: "third-party-services"
+    },
+    {
+      name: `Third-party domains${suffix}`,
+      value: run.counts.thirdPartyDomains,
+      family: "requests",
+      claim: "third-party-services"
+    },
+    {
+      name: `Third-party cookies${suffix}`,
+      value: run.counts.thirdPartyCookies,
+      family: "cookies",
+      claim: "third-party-cookies"
+    },
+    {
+      name: `Fingerprint-like API calls${suffix}`,
+      value: run.counts.fingerprintEvents,
+      family: "fingerprinting",
+      claim: "fingerprint-apis"
+    }
   ];
 
   const unsupported = measurements.filter((measurement) => familyUnsupportedOnRun(run, measurement.family));
+  const unavailableDetectorMeasurements = measurements.filter(
+    (measurement) =>
+      !unsupported.includes(measurement) &&
+      facts.claims[measurement.claim].blockers.includes("detector-incomplete") &&
+      (!facts.claims[measurement.claim].lowerBound || measurement.value === 0)
+  );
   // Cookie counts describe an end-state snapshot, not a monotonic event
   // counter. On an interrupted/failed visit that snapshot can move in either
   // direction as cookies are added or deleted, so it is not a valid minValue.
@@ -130,15 +166,21 @@ function runMeasurements(run: RunView, facts: RunFacts, runLabel?: string): Reco
   const retained = measurements
     .filter(
       (measurement) =>
-        !familyUnsupportedOnRun(run, measurement.family) && !censoredSnapshots.includes(measurement)
+        !familyUnsupportedOnRun(run, measurement.family) &&
+        !censoredSnapshots.includes(measurement) &&
+        !unavailableDetectorMeasurements.includes(measurement)
     )
     .map((measurement) => {
-      const lowerBound = run.quality.outcome === "failed" || familyCensoredOnRun(run, measurement.family);
+      const eligibility = facts.claims[measurement.claim];
+      const lowerBound =
+        run.quality.outcome === "failed" ||
+        familyCensoredOnRun(run, measurement.family) ||
+        (!eligibility.exactCountAllowed && eligibility.lowerBound);
       return lowerBound
         ? lowerBoundProperty(
             measurement.name,
             measurement.value,
-            lowerBoundDescription(run, measurement.family, facts)
+            lowerBoundDescription(run, measurement.family, measurement.claim, facts)
           )
         : propertyValue(
             measurement.name,
@@ -153,7 +195,8 @@ function runMeasurements(run: RunView, facts: RunFacts, runLabel?: string): Reco
     suffix,
     retained.some((entry) => "minValue" in entry),
     unsupported,
-    censoredSnapshots
+    censoredSnapshots,
+    unavailableDetectorMeasurements
   );
   return quality ? [...retained, quality] : retained;
 }
@@ -169,6 +212,7 @@ function lowerBoundProperty(name: string, minValue: number, description: string)
 function lowerBoundDescription(
   run: RunView,
   family: CountMeasurement["family"],
+  claim: ReportClaimId,
   facts: RunFacts
 ): string {
   const subjectScope = facts.subject.describesSubject
@@ -180,6 +224,9 @@ function lowerBoundDescription(
   if (runHitRequestRecordingCap(run)) {
     return `Observed lower bound before the recording cap; this is not an exact total or proof of absence.${subjectScope}`;
   }
+  if (facts.claims[claim].blockers.includes("detector-incomplete")) {
+    return `Observed lower bound from a detector that completed only part of its measurement; this is not an exact total or proof of absence.${subjectScope}`;
+  }
   return `Observed lower bound because ${family} evidence was incomplete; this is not an exact total or proof of absence.${subjectScope}`;
 }
 
@@ -188,20 +235,32 @@ function qualityProperty(
   suffix: string,
   hasLowerBounds: boolean,
   unsupported: CountMeasurement[],
-  censoredSnapshots: CountMeasurement[]
+  censoredSnapshots: CountMeasurement[],
+  unavailableDetectorMeasurements: CountMeasurement[]
 ): Record<string, unknown> | null {
-  if (!hasLowerBounds && unsupported.length === 0 && censoredSnapshots.length === 0) return null;
+  if (
+    !hasLowerBounds &&
+    unsupported.length === 0 &&
+    censoredSnapshots.length === 0 &&
+    unavailableDetectorMeasurements.length === 0
+  ) {
+    return null;
+  }
 
   const state =
     run.quality.outcome === "failed"
       ? "failed"
       : runHitRequestRecordingCap(run)
         ? "capped"
-        : hasLowerBounds || censoredSnapshots.length > 0
+        : hasLowerBounds ||
+            censoredSnapshots.length > 0 ||
+            unavailableDetectorMeasurements.length > 0
           ? "incomplete"
           : "limited coverage";
   const notes: string[] = [];
-  if (hasLowerBounds) notes.push("Censored counts are published as observed lower bounds, not exact totals.");
+  if (hasLowerBounds) {
+    notes.push("Incomplete monotonic counts are published as observed lower bounds, not exact totals.");
+  }
   if (unsupported.length > 0) {
     notes.push(
       `Unsupported measurements omitted: ${unsupported.map((entry) => entry.name.replace(suffix, "")).join(", ")}.`
@@ -210,6 +269,13 @@ function qualityProperty(
   if (censoredSnapshots.length > 0) {
     notes.push(
       `Interrupted end-state snapshots omitted: ${censoredSnapshots
+        .map((entry) => entry.name.replace(suffix, ""))
+        .join(", ")}.`
+    );
+  }
+  if (unavailableDetectorMeasurements.length > 0) {
+    notes.push(
+      `Unavailable detector measurements omitted: ${unavailableDetectorMeasurements
         .map((entry) => entry.name.replace(suffix, ""))
         .join(", ")}.`
     );

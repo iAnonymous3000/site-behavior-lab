@@ -64,6 +64,7 @@ import {
 import { R2_NAVIGATION_STATUS_UNREPRESENTABLE } from "./scan-report-v2-http-status";
 import {
   buildReportFacts,
+  comparisonArmsHaveExactClaimMeasurements,
   retainedCountPhrase,
   strongestReportSeverity,
   type ClaimEligibility,
@@ -272,6 +273,7 @@ export function buildFindings(
   ).sort();
   const cookiesUnsupported = facts.evidence.cookies.state === "unsupported";
   const fingerprintDetectorStatus = run.detectors?.["fingerprint-heuristics"]?.status;
+  const fingerprintClaim = facts.claims["fingerprint-apis"];
   const detectorUnsupported =
     facts.evidence.fingerprinting.state === "unsupported" ||
     fingerprintDetectorStatus === "unsupported";
@@ -283,7 +285,7 @@ export function buildFindings(
   const detectorCensored =
     facts.evidence.fingerprinting.state === "censored" ||
     (fingerprintDetectorStatus !== undefined && fingerprintDetectorStatus !== "complete") ||
-    facts.claims["fingerprint-apis"].blockers.includes("detector-incomplete");
+    fingerprintClaim.blockers.includes("detector-incomplete");
   const pixelDetectorCensored = facts.claims["pixel-events"].blockers.some(
     (blocker) => blocker !== "subject-not-established"
   );
@@ -921,6 +923,33 @@ export function buildFindings(
   const highEntropyDetections = facts.signals.fingerprint.highEntropyDetections;
   const highEntropyDetectionLabels = highEntropyDetections.map(detectionLabel);
   const topFingerprintApis = run.evidence.fingerprintEvents.slice(0, 3).map((event) => event.api);
+  const fingerprintEventLead = fingerprintClaim.exactCountAllowed
+    ? `${plural(
+        run.counts.fingerprintEvents,
+        "high-entropy API call",
+        "high-entropy API calls"
+      )} appeared in the instrumentation log.`
+    : fingerprintClaim.lowerBound
+      ? `At least ${plural(
+          run.counts.fingerprintEvents,
+          "retained high-entropy API call",
+          "retained high-entropy API calls"
+        )} appeared in the incomplete instrumentation log.`
+      : `The incomplete instrumentation log retained ${plural(
+          run.counts.fingerprintEvents,
+          "high-entropy API call record",
+          "high-entropy API call records"
+        )}; this is not an exact total.`;
+  const fingerprintEventEvidence = fingerprintClaim.exactCountAllowed
+    ? `${plural(
+        run.evidence.fingerprintEvents.length,
+        "API family",
+        "API families"
+      )} recorded.`
+    : `Retained incomplete evidence includes ${plural(
+        run.evidence.fingerprintEvents.length,
+        "API event record"
+      )}; no exact API-family total is available.`;
   findings.push({
     id: "fingerprint-apis",
     icon: "fingerprint",
@@ -951,12 +980,7 @@ export function buildFindings(
             "behavioral heuristic"
           )} matched${detectorCensored ? " in retained evidence" : ""}: ${humanList(highEntropyDetectionLabels, 5)}.`
         : run.counts.fingerprintEvents > 0
-          ? `${retainedCountPhrase(
-              run.counts.fingerprintEvents,
-              "high-entropy API call",
-              "high-entropy API calls",
-              facts.evidence.fingerprinting.state
-            )} appeared in the instrumentation log.`
+          ? fingerprintEventLead
           : "The scan did not observe the instrumented high-entropy browser APIs.",
     detail:
       detectorUnsupported
@@ -971,12 +995,7 @@ export function buildFindings(
         ? "Unsupported by the request-only PageGraph r2 producer."
         : highEntropyDetections.length > 0
         ? humanList(highEntropyDetections.map(detectionEvidence), 4)
-        : `${retainedCountPhrase(
-            run.evidence.fingerprintEvents.length,
-            "API family",
-            "API families",
-            facts.evidence.fingerprinting.state
-          )} recorded.`,
+        : fingerprintEventEvidence,
     claim: findingClaim(
       facts,
       "fingerprint-apis",
@@ -1002,6 +1021,9 @@ export function buildFindings(
   const rawCountsAllowed = familyGates?.["raw-counts"]?.allowed === true;
   const classificationAllowed = familyGates?.["tracker-classification"]?.allowed === true;
   const detectorAllowed = familyGates?.["detector-findings"]?.allowed === true;
+  const fingerprintComparisonAllowed =
+    detectorAllowed &&
+    comparisonArmsHaveExactClaimMeasurements(reportFacts, "fingerprint-apis");
 
   if (arms && axis === "shields") {
     if (pairGate && !pairGate.allowed) {
@@ -1034,7 +1056,7 @@ export function buildFindings(
           value: arms.variant.counts.knownTrackerRequests - arms.baseline.counts.knownTrackerRequests
         });
       }
-      if (detectorAllowed) {
+      if (fingerprintComparisonAllowed) {
         signedDeltas.push({
           label: "fingerprint-like calls",
           singular: "fingerprint-like call",
@@ -1161,7 +1183,7 @@ export function buildFindings(
           value: arms.variant.counts.knownTrackerRequests - arms.baseline.counts.knownTrackerRequests
         });
       }
-      if (detectorAllowed) {
+      if (fingerprintComparisonAllowed) {
         signedDeltas.push({
           label: "fingerprint-like calls",
           singular: "fingerprint-like call",

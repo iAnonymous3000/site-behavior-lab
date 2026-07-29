@@ -101,13 +101,16 @@ function isStaticReportManifestEntry(value: unknown): value is StaticReportManif
     "knownTrackerRequests",
     "thirdPartyDomains",
     "cookies",
-    "thirdPartyCookies",
-    "fingerprintEvents"
+    "thirdPartyCookies"
   ] as const) {
     if (!isCount(value.metrics[metric])) return false;
   }
-  return value.metrics.shieldsBlockedRequests === undefined ||
-    isCount(value.metrics.shieldsBlockedRequests);
+  return (
+    (value.metrics.fingerprintEvents === undefined ||
+      isCount(value.metrics.fingerprintEvents)) &&
+    (value.metrics.shieldsBlockedRequests === undefined ||
+      isCount(value.metrics.shieldsBlockedRequests))
+  );
 }
 
 function hasOnlyKeys(value: Record<string, unknown>, allowed: Set<string>): boolean {

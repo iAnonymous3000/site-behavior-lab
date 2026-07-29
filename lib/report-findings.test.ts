@@ -9,15 +9,18 @@ import { corpusCohortIdentityForView } from "./corpus-cohort";
 import { GPC_WORKER_CAPTURE_LOSS_WARNING } from "./gpc-injection";
 import { buildFindings, type Finding, type FindingIconKey } from "./report-findings";
 import type { CorpusStats } from "./corpus-stats";
+import { readStoredScanReport } from "./scan-report-reader";
 import {
   FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING,
   INVALID_UPSTREAM_RESPONSE_WARNING,
   PIXEL_DECODE_CAPTURE_LOSS_WARNING
 } from "./scan-runtime";
-import { evaluateQuality } from "./scan-report-v2-evaluators";
+import { buildComparisonDiffV2, evaluateQuality } from "./scan-report-v2-evaluators";
 import { R2_NAVIGATION_STATUS_UNREPRESENTABLE } from "./scan-report-v2-http-status";
+import { evaluateComparabilityR2 } from "./scan-report-v2-r2-evaluators";
 import {
   makeConsentInterventionReportV2R2,
+  makeGpcInterventionReportV2R2,
   makePublicSingleReportV2R2,
   makeShieldsInterventionReportV2R2
 } from "./scan-report-v2-r2-fixtures";
@@ -1486,6 +1489,66 @@ test("an ineligible pair is a methodology note: prose reasons, and no bottom-lin
   assert.equal(bottom.level, "ok");
 });
 
+test("comparison prose omits a fingerprint delta when either arm lacks an exact measurement", () => {
+  const report = makeGpcInterventionReportV2R2();
+  report.baseline.summary.counts = {
+    ...report.baseline.summary.counts,
+    thirdPartyRequests: 10,
+    fingerprintEvents: 5
+  };
+  report.variant.summary.counts = {
+    ...report.variant.summary.counts,
+    thirdPartyRequests: 4,
+    fingerprintEvents: 1
+  };
+  for (const run of [report.baseline, report.variant]) {
+    run.detectors["fingerprint-heuristics"] = {
+      ...run.detectors["fingerprint-heuristics"],
+      status: "failed",
+      reason: "scan-failed"
+    };
+  }
+
+  const view = viewFromV2(report, 2);
+  assert.equal(view.claims.familyDeltas?.["detector-findings"]?.allowed, true);
+  const card = byId(buildFindings(view, null), "gpc-comparison");
+  assert.match(card.lead, /6 fewer third-party requests/);
+  assert.doesNotMatch(`${card.title} ${card.lead} ${card.detail}`, /fingerprint-like calls/);
+
+  // Also exercise a reader-accepted report: rebuild the derived comparison
+  // blocks after the detector failures. The current evaluator closes the broad
+  // detector family, while ReportFacts remains a second fail-closed seam for
+  // historical or future family registries that are less claim-specific.
+  const accepted = makeGpcInterventionReportV2R2();
+  for (const run of [accepted.baseline, accepted.variant]) {
+    run.detectors["fingerprint-heuristics"] = {
+      ...run.detectors["fingerprint-heuristics"],
+      status: "failed",
+      reason: "scan-failed"
+    };
+  }
+  if (accepted.experiment.kind !== "intervention") throw new Error("fixture invariant");
+  const { supportingPairs: _supportingPairs, ...primaryExperiment } = accepted.experiment;
+  accepted.comparability = evaluateComparabilityR2(
+    primaryExperiment,
+    accepted.baseline,
+    accepted.variant
+  );
+  accepted.diff = buildComparisonDiffV2(
+    accepted.baseline,
+    accepted.variant,
+    accepted.comparability.perMetric
+  );
+  assert.equal(readStoredScanReport(accepted).ok, true);
+  const acceptedView = viewFromV2(accepted, 2);
+  assert.equal(acceptedView.claims.familyDeltas?.["detector-findings"]?.allowed, false);
+  const acceptedCard = byId(buildFindings(acceptedView, null), "gpc-comparison");
+  assert.doesNotMatch(
+    `${acceptedCard.title} ${acceptedCard.lead} ${acceptedCard.detail}`,
+    /fingerprint-like calls/
+  );
+});
+
 test("a post-choice consent arm is never ranked against the plain-first-visit distribution", () => {
   // corpus-stats-builder, entryEligibleForCorpusRollups, and the researcher
   // export all exclude an accept-all or reject-all lead from the denominator.
@@ -1613,6 +1676,25 @@ test("a fingerprint observer that never read a frame cannot publish a clean abse
     runCensorshipNotes(run).some((note) => note.includes("in-page fingerprint observer")),
     true
   );
+});
+
+test("a partial fingerprint detector never presents retained API counts as exact totals", () => {
+  const report = makePublicSingleReportV2R2();
+  report.run.summary.counts.fingerprintEvents = 3;
+  report.run.evidence.fingerprintEvents = [
+    { api: "canvas.toDataURL", count: 3, phaseId: 0 }
+  ];
+  report.run.detectors["fingerprint-heuristics"] = {
+    ...report.run.detectors["fingerprint-heuristics"],
+    status: "partial",
+    reason: "budget-unavailable"
+  };
+
+  const card = byId(buildFindings(viewFromV2(report, 2), null), "fingerprint-apis");
+  assert.match(card.lead, /At least 3 retained high-entropy API calls/);
+  assert.match(card.lead, /incomplete instrumentation log/);
+  assert.match(card.evidence, /Retained incomplete evidence includes 1 API event record/);
+  assert.doesNotMatch(card.lead, /^3 high-entropy API calls appeared/);
 });
 
 test("an incomplete pixel-body read never publishes a no-identifier-fields claim", () => {

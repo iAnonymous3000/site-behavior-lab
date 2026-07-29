@@ -136,6 +136,9 @@ test("report components wire neutral comparisons, deep-link filters, and a non-d
   assert.doesNotMatch(comparison, /delta-\$\{direction\}/);
   assert.doesNotMatch(comparison, /change-\$\{tone\}/);
   assert.match(comparison, /<DomainRequestDeltaList changes=\{perDomainDeltas\} labels=\{labels\} \/>/);
+  assert.match(comparison, /comparisonArmsHaveExactClaimMeasurements\(facts, "fingerprint-apis"\)/);
+  assert.match(comparison, /comparisonArmsHaveExactClaimMeasurements\(facts, "pixel-events"\)/);
+  assert.match(renderer, /<ComparisonPanel view=\{reportView\} facts=\{reportFacts\} \/>/);
 
   const timeline = overview.slice(overview.indexOf("function RequestTimeline"));
   assert.match(timeline, /aria-hidden="true"/);

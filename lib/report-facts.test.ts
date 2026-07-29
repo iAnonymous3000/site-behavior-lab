@@ -4,10 +4,15 @@ import { SUSPECTED_CHALLENGE_OR_SOFT_BLOCK_WARNING } from "./bot-wall-classifier
 import {
   buildReportFacts,
   buildRunFacts,
+  claimCountValue,
+  comparisonArmsHaveExactClaimMeasurements,
   retainedCountLabel,
   type RunFacts
 } from "./report-facts";
-import { makePublicSingleReportV2R2 } from "./scan-report-v2-r2-fixtures";
+import {
+  makeGpcInterventionReportV2R2,
+  makePublicSingleReportV2R2
+} from "./scan-report-v2-r2-fixtures";
 import { makeScanReportV1 } from "./scan-report-v2-fixtures";
 import { viewFromV1Report, viewFromV2, type RunView } from "./scan-report-views";
 import type {
@@ -315,3 +320,161 @@ function inputMonitoringDetection(): FingerprintDetectionSummary {
     }
   };
 }
+
+test("a failed detector that recorded no loss cannot publish an exact or rankable zero", () => {
+  // The reproduction: fingerprint-heuristics=failed, NO capture loss, and the
+  // wire's own quality block therefore still says the fingerprinting family is
+  // complete, because quality is derived from capture loss alone. Prose was
+  // already safe, but every numeric surface went on treating an unmeasured zero
+  // as a measured one.
+  const run = makeR2RunView();
+  assert.ok(run.detectors);
+  run.detectors["fingerprint-heuristics"] = {
+    ...run.detectors["fingerprint-heuristics"],
+    status: "failed",
+    reason: "scan-failed"
+  };
+  // The wire still claims the family completed. That is exactly the state the
+  // producer could emit, so the reader must not simply trust it.
+  assert.equal(requireFamilyLedger(run).fingerprinting.outcome, "complete");
+
+  const facts = buildRunFacts(run);
+  const fingerprint = facts.claims["fingerprint-apis"];
+  assert.equal(fingerprint.allowed, false);
+  assert.equal(fingerprint.exactCountAllowed, false, "an unmeasured zero is not an exact count");
+  assert.equal(fingerprint.benchmarkAllowed, false, "an unmeasured zero may not be ranked against a population");
+  assert.equal(fingerprint.lowerBound, false, "a detector that failed is unavailable, not an observed floor");
+  assert.equal(claimCountValue(run.counts.fingerprintEvents, fingerprint), "Incomplete");
+
+  // The producer records fingerprint-observer capture loss when the observer
+  // fails. That family marker must not turn an unmeasured zero back into the
+  // meaningless lower bound "at least zero."
+  const failedWithLossRun = makeR2RunView();
+  assert.ok(failedWithLossRun.detectors && failedWithLossRun.quality.facts);
+  failedWithLossRun.detectors["fingerprint-heuristics"] = {
+    ...failedWithLossRun.detectors["fingerprint-heuristics"],
+    status: "failed",
+    reason: "engine-unavailable"
+  };
+  requireFamilyLedger(failedWithLossRun).fingerprinting = {
+    outcome: "censored",
+    reasons: ["capture-loss:dropped"]
+  };
+  failedWithLossRun.quality.facts.captureLoss.push({
+    family: "fingerprinting",
+    phaseId: null,
+    kind: "dropped",
+    count: 0,
+    detail: "fingerprint-observer"
+  });
+  const failedWithLoss = buildRunFacts(failedWithLossRun).claims["fingerprint-apis"];
+  assert.equal(failedWithLoss.exactCountAllowed, false);
+  assert.equal(failedWithLoss.lowerBound, false);
+  assert.equal(claimCountValue(0, failedWithLoss), "Incomplete");
+
+  // Scoping holds: an unfinished fingerprint detector says nothing about
+  // request-backed claims, which keep their exact counts and benchmarks.
+  const services = facts.claims["third-party-services"];
+  assert.equal(services.allowed, true);
+  assert.equal(services.exactCountAllowed, true);
+  assert.equal(services.benchmarkAllowed, true);
+
+  for (const status of ["skipped", "unsupported"] as const) {
+    const unavailableRun = makeR2RunView();
+    assert.ok(unavailableRun.detectors);
+    unavailableRun.detectors["fingerprint-heuristics"] = {
+      ...unavailableRun.detectors["fingerprint-heuristics"],
+      status,
+      reason: status === "skipped" ? "load-failed" : "unsupported-runtime"
+    };
+    const unavailable = buildRunFacts(unavailableRun).claims["fingerprint-apis"];
+    assert.equal(unavailable.exactCountAllowed, false);
+    assert.equal(unavailable.lowerBound, false, `${status} is unavailable, not a retained lower bound`);
+    assert.equal(unavailable.benchmarkAllowed, false);
+  }
+
+  const unsupportedFamilyRun = makeR2RunView();
+  assert.ok(unsupportedFamilyRun.detectors && unsupportedFamilyRun.quality.facts);
+  unsupportedFamilyRun.detectors["fingerprint-heuristics"] = {
+    ...unsupportedFamilyRun.detectors["fingerprint-heuristics"],
+    status: "unsupported",
+    reason: "unsupported-runtime"
+  };
+  requireFamilyLedger(unsupportedFamilyRun).fingerprinting = {
+    outcome: "censored",
+    reasons: ["capture-loss:dropped"]
+  };
+  unsupportedFamilyRun.quality.facts.captureLoss.push({
+    family: "fingerprinting",
+    phaseId: null,
+    kind: "dropped",
+    count: 0,
+    detail: "pagegraph-unsupported"
+  });
+  const unsupportedFamily = buildRunFacts(unsupportedFamilyRun).claims["fingerprint-apis"];
+  assert.equal(unsupportedFamily.exactCountAllowed, false);
+  assert.equal(unsupportedFamily.lowerBound, false, "unsupported evidence is unavailable, never at least zero");
+  assert.equal(unsupportedFamily.benchmarkAllowed, false);
+});
+
+test("detector incompleteness stays scoped to the claim that names that detector", () => {
+  // keystroke-exfiltration and privacy-policy sit at skipped/probe-disabled on
+  // most reports, and they share `detector-output` with pixel, CNAME, and
+  // policy claims. Keying family completeness on raw detector status rather
+  // than on the accountability predicate marked that whole family unmeasured
+  // and dragged a COMPLETED pixel detector down to disallowed, inexact, and
+  // lower-bound. One predicate has to govern both call sites.
+  const run = makeR2RunView();
+  assert.ok(run.detectors);
+  assert.equal(run.detectors["keystroke-exfiltration"].status, "skipped");
+  assert.equal(run.detectors["keystroke-exfiltration"].reason, "probe-disabled");
+  assert.equal(run.detectors["pixel-events"].status, "complete");
+
+  const pixel = buildRunFacts(run).claims["pixel-events"];
+  assert.equal(pixel.allowed, true);
+  assert.equal(pixel.exactCountAllowed, true);
+  assert.equal(pixel.lowerBound, false);
+  assert.equal(pixel.benchmarkAllowed, true);
+
+  // The pixel claim closes only when the PIXEL detector falls short, not when
+  // some other detector sharing `detector-output` does.
+  const attempted = makeR2RunView();
+  assert.ok(attempted.detectors);
+  attempted.detectors["pixel-events"] = {
+    ...attempted.detectors["pixel-events"],
+    status: "partial",
+    reason: "budget-unavailable"
+  };
+  const attemptedPixel = buildRunFacts(attempted).claims["pixel-events"];
+  assert.equal(attemptedPixel.exactCountAllowed, false);
+  assert.equal(attemptedPixel.benchmarkAllowed, false);
+  assert.equal(attemptedPixel.lowerBound, true);
+  assert.equal(claimCountValue(3, attemptedPixel), "≥3");
+  // A CNAME claim names its own detector and is untouched by a pixel failure.
+  assert.equal(buildRunFacts(attempted).claims["cname-cloaking"].allowed, true);
+});
+
+test("comparison deltas require an exact measurement in both arms", () => {
+  const comparison = makeGpcInterventionReportV2R2();
+  comparison.baseline.detectors["fingerprint-heuristics"] = {
+    ...comparison.baseline.detectors["fingerprint-heuristics"],
+    status: "failed",
+    reason: "scan-failed"
+  };
+  comparison.variant.detectors["fingerprint-heuristics"] = {
+    ...comparison.variant.detectors["fingerprint-heuristics"],
+    status: "failed",
+    reason: "scan-failed"
+  };
+  const facts = buildReportFacts(viewFromV2(comparison, 2));
+  assert.equal(
+    comparisonArmsHaveExactClaimMeasurements(facts, "fingerprint-apis"),
+    false,
+    "matching failed statuses are not matching measurements"
+  );
+  assert.equal(
+    comparisonArmsHaveExactClaimMeasurements(facts, "third-party-services"),
+    true,
+    "the failed fingerprint detector must not suppress exact request deltas"
+  );
+});
